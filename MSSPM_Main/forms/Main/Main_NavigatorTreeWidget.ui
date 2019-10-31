@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NavigatorTreeWidget</class>
+ <widget class="QWidget" name="NavigatorTreeWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>279</width>
+    <height>526</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTreeWidget" name="NavigatorTree">
+     <property name="maximumSize">
+      <size>
+       <width>16777214</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <column>
+      <property name="text">
+       <string>Navigator</string>
+      </property>
+     </column>
+     <item>
+      <property name="text">
+       <string>Setup</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>1. Getting Started</string>
+       </property>
+       <property name="toolTip">
+        <string>Instructions for the setup process.</string>
+       </property>
+       <property name="statusTip">
+        <string>Instructions for the setup process.</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="background">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2. Project Data</string>
+       </property>
+       <property name="toolTip">
+        <string>Basic model data that define the Project.</string>
+       </property>
+       <property name="statusTip">
+        <string>Basic model data that define the Project.</string>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3. Run Data</string>
+       </property>
+       <property name="toolTip">
+        <string>Information describing the species, other predator species, and prey used in the Project.</string>
+       </property>
+       <property name="statusTip">
+        <string>Information describing the species, other predator species, and prey used in the Project.</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4. Species Data</string>
+       </property>
+      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>Simulation Data Input</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>1. Growth</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2. Harvest</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3. Competition</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4. Predation</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>5. Spatial Overlap</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>6. Run Simulation</string>
+       </property>
+      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>Diagnostic</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>1. Setup</string>
+       </property>
+      </item>
+     </item>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

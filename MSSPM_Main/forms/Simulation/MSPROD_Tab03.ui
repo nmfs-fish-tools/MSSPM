@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SSVPA_Tab3_BetweenSpeciesInteractionTab</class>
+ <widget class="QWidget" name="SSVPA_Tab3_BetweenSpeciesInteractionTab">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>395</width>
+    <height>399</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="MSPROD_Tab3_Label1LB">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Between Species Interaction Coefficient:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableView" name="MSPROD_Tab3_BetweenSpeciesInteractionCoeffTV">
+     <property name="toolTip">
+      <string>These data are from the table: BetweenSpeciesInteractionCoeff</string>
+     </property>
+     <property name="statusTip">
+      <string>These data are from the table: BetweenSpeciesInteractionCoeff</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="MSPROD_Tab3_Label2LB">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Between Species Interaction Coefficient Min:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableView" name="MSPROD_Tab3_BetweenSpeciesInteractionCoeffMinTV">
+     <property name="toolTip">
+      <string>These data are from the table: BetweenSpeciesInteractionCoeffMin</string>
+     </property>
+     <property name="statusTip">
+      <string>These data are from the table: BetweenSpeciesInteractionCoeffMin</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="MSPROD_Tab3_Label3LB">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Between Species Interaction Coefficient Max:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableView" name="MSPROD_Tab3_BetweenSpeciesInteractionCoeffMaxTV">
+     <property name="toolTip">
+      <string>These data are from the table: BetweenSpeciesInteractionCoeffMax</string>
+     </property>
+     <property name="statusTip">
+      <string>These data are from the table: BetweenSpeciesInteractionCoeffMax</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>5</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_88">
+     <item>
+      <widget class="QPushButton" name="MSPROD_Tab3_PrevPB">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>60</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Go to the previous page</string>
+       </property>
+       <property name="statusTip">
+        <string>Go to the previous page</string>
+       </property>
+       <property name="text">
+        <string>&lt;-</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_100">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="MSPROD_Tab3_LoadPB">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Load the CSV file</string>
+       </property>
+       <property name="statusTip">
+        <string>Load the CSV file</string>
+       </property>
+       <property name="text">
+        <string>Load...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="MSPROD_Tab3_SavePB">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Save above data for all Species to CSV file and to database table</string>
+       </property>
+       <property name="statusTip">
+        <string>Save above data for all Species to CSV file and to database table</string>
+       </property>
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_46">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>48</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="MSPROD_Tab3_NextPB">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>60</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Go to the next page</string>
+       </property>
+       <property name="statusTip">
+        <string>Go to the next page</string>
+       </property>
+       <property name="text">
+        <string>-&gt;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

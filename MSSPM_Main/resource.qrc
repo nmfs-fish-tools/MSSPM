@@ -1,0 +1,31 @@
+<RCC>
+    <qresource prefix="/">
+        <file>forms/Main/Main_NavigatorTreeWidget.ui</file>
+        <file>forms/Setup/Setup_Tab01.ui</file>
+        <file>forms/Setup/Setup_Tab02.ui</file>
+        <file>forms/Estimation/Estimation_Tab01.ui</file>
+        <file>forms/Estimation/Estimation_Tab02.ui</file>
+        <file>forms/Estimation/Estimation_Tab03.ui</file>
+        <file>forms/Estimation/Estimation_Tab04.ui</file>
+        <file>forms/Estimation/Estimation_Tab05.ui</file>
+        <file>forms/Simulation/Simulation_Tab01.ui</file>
+        <file>forms/Simulation/Simulation_Tab02.ui</file>
+        <file>forms/Simulation/Simulation_Tab03.ui</file>
+        <file>forms/Simulation/Simulation_Tab04.ui</file>
+        <file>forms/Simulation/Simulation_Tab05.ui</file>
+        <file>forms/Simulation/Simulation_Tab06.ui</file>
+        <file>forms/Estimation/Estimation_Tab06.ui</file>
+        <file>forms/Diagnostic/Diagnostic_Tab01.ui</file>
+        <file>icons/whatsthis.png</file>
+        <file>forms/Forecast/Forecast_Tab01.ui</file>
+        <file>forms/Forecast/Forecast_Tab02.ui</file>
+        <file>forms/Forecast/Forecast_Tab03.ui</file>
+        <file>forms/Forecast/Forecast_Tab04.ui</file>
+        <file>icons/NOAA.png</file>
+        <file>forms/Setup/Setup_Tab03.ui</file>
+        <file>forms/Setup/Setup_Tab04.ui</file>
+        <file>icons/NOAAsmall.png</file>
+        <file>icons/scrgrb.png</file>
+        <file>forms/Diagnostic/Diagnostic_Tab02.ui</file>
+    </qresource>
+</RCC>
