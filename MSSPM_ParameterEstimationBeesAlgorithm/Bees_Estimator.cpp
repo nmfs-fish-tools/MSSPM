@@ -39,6 +39,7 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
     int NumSubRuns = beeStruct.BeesNumRepetitions;
     int numTotalParameters;
     int numEstParameters; // The parameters that don't have their min range equal to their max range.
+    int usecDelay = 300000;
     double totStdDev;
     double bestFitness;
     double fitnessStdDev   = 0;
@@ -99,7 +100,8 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
             emit SubRunCompleted(RunNum,subRunNum,NumSubRuns);
         }
         // Added a delay to give Qt enough time to finish drawing this run's curve.
-        usleep(300000);
+//      usleep(300000);
+        std::this_thread::sleep_for(std::chrono::microseconds(usecDelay));
 
         // Break out if user has stopped the run
         if (wasStoppedByUser()) {

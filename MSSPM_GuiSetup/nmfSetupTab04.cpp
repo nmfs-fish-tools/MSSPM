@@ -840,6 +840,7 @@ nmfSetup_Tab4::saveSystem(bool RunChecks)
     }
 
     emit UpdateInitialObservedBiomass();
+    emit UpdateInitialForecastYear();
 
 }
 

@@ -180,6 +180,7 @@ signals:
     void SSVPALoadWidgets(int TabNum);
     void UpdateNavigator(int item);
     void UpdateNavigator(std::string type, int index);
+    void UpdateInitialForecastYear();
     void UpdateInitialObservedBiomass();
 
 public Q_SLOTS:

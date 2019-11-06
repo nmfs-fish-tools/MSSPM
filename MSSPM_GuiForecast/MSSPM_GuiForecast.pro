@@ -9,7 +9,7 @@ QT       += core gui charts sql datavisualization uitools
 TARGET = MSSPM_GuiForecast
 TEMPLATE = lib
 
-PRECOMPILED_HEADER = /home/rklasky/workspaceQtCreator/MSSPM_GuiForecast/precompiled_header.h
+PRECOMPILED_HEADER = /home/rklasky/workspaceQtCreator/MSSPM/MSSPM_GuiForecast/precompiled_header.h
 CONFIG += precompile_header
 
 DEFINES += MSSPM_GUIFORECAST_LIBRARY

@@ -1685,6 +1685,7 @@ nmfMainWindow::menu_about()
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
+    QString os = QString::fromStdString(nmfUtils::getOS());
 
     // Define Qt link
     qtLink = QString("<a href='https://www.qt.io'>https://www.qt.io</a>");
@@ -1738,7 +1739,7 @@ nmfMainWindow::menu_about()
     msg += QString("<li>")+QString("linuxdeployqt 6 (January 27, 2019)<br>")+linuxDeployLink+QString("</li>");
     msg += QString("</ul>");
 
-    nmfUtilsQt::menu_about(name,version,specialAcknowledgement,msg);
+    nmfUtilsQt::menu_about(name,os,version,specialAcknowledgement,msg);
 }
 
 void
@@ -2570,6 +2571,8 @@ nmfMainWindow::initConnections()
             Estimation_Tab6_ptr, SLOT(callback_SaveSettings()));
     connect(Setup_Tab4_ptr,      SIGNAL(UpdateInitialObservedBiomass()),
             Estimation_Tab5_ptr, SLOT(callback_UpdateInitialObservedBiomass()));
+    connect(Setup_Tab4_ptr,      SIGNAL(UpdateInitialForecastYear()),
+            Forecast_Tab1_ptr,   SLOT(callback_UpdateForecastYears()));
 
     connect(Estimation_Tab6_ptr, SIGNAL(RunEstimation()),
             this,                SLOT(callback_RunEstimation()));

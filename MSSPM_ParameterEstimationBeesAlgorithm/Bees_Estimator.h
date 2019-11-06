@@ -19,6 +19,8 @@
 #include <QMutex>
 #include <QString>
 #include <QTextStream>
+#include <chrono>
+#include <thread>
 
 typedef boost::uniform_real<> NumberDistribution;
 typedef boost::mt19937 RandomNumberGenerator;
