@@ -63,26 +63,31 @@ nmfDiagnostic_Tab2::~nmfDiagnostic_Tab2()
 
 
 void
-nmfDiagnostic_Tab2::readSettings() {
-    QSettings settings("NOAA", "MSSPM");
+nmfDiagnostic_Tab2::readSettings()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("Diagnostics");
-    m_Diagnostic_Tab2_NumPeelsSB->setValue(settings.value("YearsPeeled",1).toInt());
-    settings.endGroup();
+    settings->beginGroup("Diagnostics");
+    m_Diagnostic_Tab2_NumPeelsSB->setValue(settings->value("YearsPeeled",1).toInt());
+    settings->endGroup();
+
+    delete settings;
 }
 
 void
 nmfDiagnostic_Tab2::saveSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Diagnostics");
-    settings.setValue("YearsPeeled", getNumPeels());
-    settings.endGroup();
+    settings->beginGroup("Diagnostics");
+    settings->setValue("YearsPeeled", getNumPeels());
+    settings->endGroup();
+
+    delete settings;
 }
 
 void

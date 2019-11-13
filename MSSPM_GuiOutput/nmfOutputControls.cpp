@@ -956,25 +956,29 @@ MSSPM_GuiOutputControls::getListViewSelectedIndexes()
 void
 MSSPM_GuiOutputControls::readSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("Output");
+    settings->beginGroup("Output");
     if (OutputLineBrightnessSL != nullptr) {
-        OutputLineBrightnessSL->setValue(settings.value("Brightness",33).toString().toInt());
+        OutputLineBrightnessSL->setValue(settings->value("Brightness",33).toString().toInt());
     }
-    settings.endGroup();
+    settings->endGroup();
+
+    delete settings;
 }
 
 void
 MSSPM_GuiOutputControls::saveSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Output");
-    settings.setValue("Brightness", OutputLineBrightnessSL->value());
-    settings.endGroup();
+    settings->beginGroup("Output");
+    settings->setValue("Brightness", OutputLineBrightnessSL->value());
+    settings->endGroup();
+
+    delete settings;
 }

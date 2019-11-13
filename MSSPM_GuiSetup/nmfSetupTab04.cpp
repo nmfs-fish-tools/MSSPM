@@ -116,11 +116,13 @@ LoadDlg::callback_LoadOk()
 void
 LoadDlg::saveSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    settings.setValue("Name", m_SettingsLW->currentItem()->text());
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    settings->setValue("Name", m_SettingsLW->currentItem()->text());
+    settings->endGroup();
+
+    delete settings;
 
     updateWindowTitle();
 }
@@ -132,15 +134,17 @@ LoadDlg::updateWindowTitle()
     std::string ProjectSettingsConfig;
     std::string winTitle;
 
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("SetupTab");
-    ProjectName     = settings.value("ProjectName","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("SetupTab");
+    ProjectName     = settings->value("ProjectName","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("Settings");
-    ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    delete settings;
 
     winTitle = "MSSPM (" + ProjectName + " - " + ProjectSettingsConfig + ")";
 
@@ -524,25 +528,29 @@ nmfSetup_Tab4::drawEquation(QString Label, QString Eqn, QString Key)
 void
 nmfSetup_Tab4::readSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    delete settings;
 }
 
 void
 nmfSetup_Tab4::saveSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    settings.setValue("Name", QString::fromStdString(m_ProjectSettingsConfig));
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    settings->setValue("Name", QString::fromStdString(m_ProjectSettingsConfig));
+    settings->endGroup();
 
-    settings.beginGroup("SetupTab");
-    settings.setValue("FontSize", getFontSize());
-    settings.endGroup();
+    settings->beginGroup("SetupTab");
+    settings->setValue("FontSize", getFontSize());
+    settings->endGroup();
+
+    delete settings;
 
     emit SaveMainSettings();
 }

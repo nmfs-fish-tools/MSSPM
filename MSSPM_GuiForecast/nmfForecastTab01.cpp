@@ -662,24 +662,28 @@ void
 nmfForecast_Tab1::readSettings()
 {
     std::string ForecastName;
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("Forecast");
-    ForecastName = settings.value("Name","").toString().toStdString();
+    settings->beginGroup("Forecast");
+    ForecastName = settings->value("Name","").toString().toStdString();
     loadForecast(ForecastName);
-    settings.endGroup();
+    settings->endGroup();
+
+    delete settings;
 }
 
 void
 nmfForecast_Tab1::saveSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Forecast");
-    settings.setValue("Name", Forecast_Tab1_NameLE->text());
-    settings.endGroup();
+    settings->beginGroup("Forecast");
+    settings->setValue("Name", Forecast_Tab1_NameLE->text());
+    settings->endGroup();
+
+    delete settings;
 }

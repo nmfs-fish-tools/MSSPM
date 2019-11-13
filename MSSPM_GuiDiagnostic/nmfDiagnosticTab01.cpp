@@ -56,27 +56,32 @@ nmfDiagnostic_Tab1::~nmfDiagnostic_Tab1()
 
 
 void
-nmfDiagnostic_Tab1::readSettings() {
-    QSettings settings("NOAA", "MSSPM");
+nmfDiagnostic_Tab1::readSettings()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
-    settings.beginGroup("Diagnostics");
-    m_NumPoints    = settings.value("NumPoints","").toInt();
-    m_PctVariation = settings.value("Variation","").toInt();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+    settings->beginGroup("Diagnostics");
+    m_NumPoints    = settings->value("NumPoints","").toInt();
+    m_PctVariation = settings->value("Variation","").toInt();
+    settings->endGroup();
+
+    delete settings;
 }
 
 void
 nmfDiagnostic_Tab1::saveSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Diagnostics");
-    settings.setValue("Variation", m_Diagnostic_Tab1_PctVarSB->value());
-    settings.setValue("NumPoints", m_Diagnostic_Tab1_NumPtsSB->value());
-    settings.endGroup();
+    settings->beginGroup("Diagnostics");
+    settings->setValue("Variation", m_Diagnostic_Tab1_PctVarSB->value());
+    settings->setValue("NumPoints", m_Diagnostic_Tab1_NumPtsSB->value());
+    settings->endGroup();
+
+    delete settings;
 }
 
 int

@@ -272,15 +272,17 @@ nmfEstimation_Tab5::callback_SavePB()
 void
 nmfEstimation_Tab5::readSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("SetupTab");
-    m_ProjectDir = settings.value("ProjectDir","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("SetupTab");
+    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    settings->endGroup();
+
+    delete settings;
 }
 
 bool

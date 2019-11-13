@@ -669,17 +669,18 @@ nmfSetup_Tab3::callback_Setup_Tab3_NumSpecies(int numSpecies)
 
 
 void
-nmfSetup_Tab3::readSettings() {
-  // Read the settings and load into class variables.
-    QSettings settings("NOAA", "MSSPM");
+nmfSetup_Tab3::readSettings()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
-    settings.beginGroup("SetupTab");
-    m_ProjectDir = settings.value("ProjectDir","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+    settings->beginGroup("SetupTab");
+    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    settings->endGroup();
 
+    delete settings;
 }
 
 void

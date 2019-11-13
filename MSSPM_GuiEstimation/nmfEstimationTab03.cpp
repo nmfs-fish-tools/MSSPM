@@ -165,15 +165,17 @@ nmfEstimation_Tab3::getNumGuilds()
 void
 nmfEstimation_Tab3::readSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("SetupTab");
-    m_ProjectDir = settings.value("ProjectDir","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("SetupTab");
+    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    settings->endGroup();
+
+    delete settings;
 }
 
 

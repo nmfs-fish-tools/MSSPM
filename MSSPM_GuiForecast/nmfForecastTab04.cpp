@@ -192,9 +192,11 @@ nmfForecast_Tab4::readSettings()
 void
 nmfForecast_Tab4::saveSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Forecast");
-    settings.setValue("FontSize", Forecast_Tab4_FontSizeCMB->currentText());
-    settings.endGroup();
+    settings->beginGroup("Forecast");
+    settings->setValue("FontSize", Forecast_Tab4_FontSizeCMB->currentText());
+    settings->endGroup();
+
+    delete settings;
 }

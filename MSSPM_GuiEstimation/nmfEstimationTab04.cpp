@@ -133,15 +133,17 @@ nmfEstimation_Tab4::callback_maxSplitterMoved(int pos, int index)
 void
 nmfEstimation_Tab4::readSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("SetupTab");
-    m_ProjectDir = settings.value("ProjectDir","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("SetupTab");
+    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    settings->endGroup();
+
+    delete settings;
 }
 
 

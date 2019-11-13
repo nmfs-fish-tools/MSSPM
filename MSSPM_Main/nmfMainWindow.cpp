@@ -6723,63 +6723,65 @@ nmfMainWindow::callback_SetStyleSheet(QString style)
 void
 nmfMainWindow::readSettings(QString Name)
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("MainWindow");
+    settings->beginGroup("MainWindow");
     if (Name == "style") {
-        callback_SetStyleSheet(settings.value(Name,"").toString());
+        callback_SetStyleSheet(settings->value(Name,"").toString());
     } else if (Name == "OutputDockWidgetIsFloating") {
-        m_UI->OutputDockWidget->setFloating(settings.value("OutputDockWidgetIsFloating",false).toBool());
+        m_UI->OutputDockWidget->setFloating(settings->value("OutputDockWidgetIsFloating",false).toBool());
     } else if (Name == "OutputDockWidgetSize") {
-        m_UI->OutputDockWidget->resize(settings.value("OutputDockWidgetSize", QSize(400, 400)).toSize());
+        m_UI->OutputDockWidget->resize(settings->value("OutputDockWidgetSize", QSize(400, 400)).toSize());
     } else if (Name == "OutputDockWidgetPos") {
-        m_UI->OutputDockWidget->move(settings.value("OutputDockWidgetPos",    QPoint(200, 200)).toPoint());
+        m_UI->OutputDockWidget->move(settings->value("OutputDockWidgetPos",    QPoint(200, 200)).toPoint());
     } else if (Name == "ProgressDockWidgetIsVisible") {
-        m_UI->ProgressDockWidget->setVisible(settings.value("ProgressDockWidgetIsVisible",200).toBool());
+        m_UI->ProgressDockWidget->setVisible(settings->value("ProgressDockWidgetIsVisible",200).toBool());
     } else if (Name == "LogDockWidgetIsVisible") {
-        //ui->LogDockWidget->setVisible(settings.value("LogDockWidgetIsVisible",200).toBool());
+        //ui->LogDockWidget->setVisible(settings->value("LogDockWidgetIsVisible",200).toBool());
     }
-    settings.endGroup();
+    settings->endGroup();
+
+    delete settings;
 }
 
 void
 nmfMainWindow::readSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("MainWindow");
-    resize(settings.value("size", QSize(400, 400)).toSize());
-    move(settings.value("pos", QPoint(200, 200)).toPoint());
+    settings->beginGroup("MainWindow");
+    resize(settings->value("size", QSize(400, 400)).toSize());
+    move(settings->value("pos", QPoint(200, 200)).toPoint());
 
     // Resize the dock widgets
-    int NavDockWidth      = settings.value("NavigatorDockWidgetWidth",200).toInt();
-    int OutputDockWidth   = settings.value("OutputDockWidgetWidth",200).toInt();
-    int ProgressDockWidth = settings.value("ProgressDockWidgetWidth",200).toInt();
+    int NavDockWidth      = settings->value("NavigatorDockWidgetWidth",200).toInt();
+    int OutputDockWidth   = settings->value("OutputDockWidgetWidth",200).toInt();
+    int ProgressDockWidth = settings->value("ProgressDockWidgetWidth",200).toInt();
     this->resizeDocks({m_UI->NavigatorDockWidget,m_UI->OutputDockWidget,m_UI->ProgressDockWidget},
                       {NavDockWidth,OutputDockWidth,ProgressDockWidth},
                       Qt::Horizontal);
-    settings.endGroup();
+    settings->endGroup();
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("SetupTab");
-    m_ProjectName     = settings.value("ProjectName","").toString().toStdString();
-    m_ProjectDir      = settings.value("ProjectDir","").toString().toStdString();
-    m_ProjectDatabase = settings.value("ProjectDatabase","").toString().toStdString();
-    m_SetupFontSize   = settings.value("FontSize",9).toInt();
-    settings.endGroup();
+    settings->beginGroup("SetupTab");
+    m_ProjectName     = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir      = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectDatabase = settings->value("ProjectDatabase","").toString().toStdString();
+    m_SetupFontSize   = settings->value("FontSize",9).toInt();
+    settings->endGroup();
 
-    settings.beginGroup("Diagnostics");
-    m_DiagnosticsFontSize  = settings.value("FontSize", 9).toInt();
-    m_DiagnosticsVariation = settings.value("Variation",1).toInt();
-    m_DiagnosticsNumPoints = settings.value("NumPoints",1).toInt();
-    settings.endGroup();
+    settings->beginGroup("Diagnostics");
+    m_DiagnosticsFontSize  = settings->value("FontSize", 9).toInt();
+    m_DiagnosticsVariation = settings->value("Variation",1).toInt();
+    m_DiagnosticsNumPoints = settings->value("NumPoints",1).toInt();
+    settings->endGroup();
 
-    settings.beginGroup("Forecast");
-    m_ForecastFontSize = settings.value("FontSize",9).toInt();
-    settings.endGroup();
+    settings->beginGroup("Forecast");
+    m_ForecastFontSize = settings->value("FontSize",9).toInt();
+    settings->endGroup();
 
     callback_UpdateWindowTitle();
 }
@@ -6798,32 +6800,33 @@ nmfMainWindow::saveSettings() {
     if (! m_SaveSettings) {
         return;
     }
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("MainWindow");
-    settings.setValue("pos", pos());
-    settings.setValue("size", size());
-    settings.setValue("style",getCurrentStyle());
-    settings.setValue("NavigatorDockWidgetWidth",   m_UI->NavigatorDockWidget->width());
-    settings.setValue("OutputDockWidgetWidth",      m_UI->OutputDockWidget->width());
-    settings.setValue("LogDockWidgetIsVisible",     m_UI->ProgressDockWidget->isVisible());
-    settings.setValue("ProgressDockWidgetIsVisible",m_UI->ProgressDockWidget->isVisible());
-    settings.setValue("ProgressDockWidgetWidth",    m_UI->ProgressDockWidget->width());
-    settings.setValue("OutputDockWidgetIsFloating", m_UI->OutputDockWidget->isFloating());
-    settings.setValue("OutputDockWidgetPos",        m_UI->OutputDockWidget->pos());
-    settings.setValue("OutputDockWidgetSize",       m_UI->OutputDockWidget->size());
-    settings.endGroup();
+    settings->beginGroup("MainWindow");
+    settings->setValue("pos", pos());
+    settings->setValue("size", size());
+    settings->setValue("style",getCurrentStyle());
+    settings->setValue("NavigatorDockWidgetWidth",   m_UI->NavigatorDockWidget->width());
+    settings->setValue("OutputDockWidgetWidth",      m_UI->OutputDockWidget->width());
+    settings->setValue("LogDockWidgetIsVisible",     m_UI->ProgressDockWidget->isVisible());
+    settings->setValue("ProgressDockWidgetIsVisible",m_UI->ProgressDockWidget->isVisible());
+    settings->setValue("ProgressDockWidgetWidth",    m_UI->ProgressDockWidget->width());
+    settings->setValue("OutputDockWidgetIsFloating", m_UI->OutputDockWidget->isFloating());
+    settings->setValue("OutputDockWidgetPos",        m_UI->OutputDockWidget->pos());
+    settings->setValue("OutputDockWidgetSize",       m_UI->OutputDockWidget->size());
+    settings->endGroup();
 
-    settings.beginGroup("SetupTab");
-    settings.setValue("FontSize", Setup_Tab4_ptr->getFontSize());
-    settings.endGroup();
+    settings->beginGroup("SetupTab");
+    settings->setValue("FontSize", Setup_Tab4_ptr->getFontSize());
+    settings->endGroup();
 
+    delete settings;
+
+    // Save other pages' settings
     Setup_Tab2_ptr->saveSettings();
     Estimation_Tab6_ptr->saveSettings();
-
     Forecast_Tab1_ptr->saveSettings();
     Forecast_Tab4_ptr->saveSettings();
-
     Output_Controls_ptr->saveSettings();
 }
 
@@ -9081,21 +9084,23 @@ nmfMainWindow::loadModelParamObj(ModelFormParameters* ptr)
 void
 nmfMainWindow::callback_UpdateWindowTitle()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("SetupTab");
-    m_ProjectName     = settings.value("ProjectName","").toString().toStdString();
-    m_ProjectDir      = settings.value("ProjectDir","").toString().toStdString();
-    m_ProjectDatabase = settings.value("ProjectDatabase","").toString().toStdString();
-    m_SetupFontSize   = settings.value("FontSize",9).toInt();
-    settings.endGroup();
+    settings->beginGroup("SetupTab");
+    m_ProjectName     = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir      = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectDatabase = settings->value("ProjectDatabase","").toString().toStdString();
+    m_SetupFontSize   = settings->value("FontSize",9).toInt();
+    settings->endGroup();
 
     std::string winTitle = "MSSPM (" + m_ProjectName + " - " + m_ProjectSettingsConfig + ")";
     setWindowTitle(QString::fromStdString(winTitle));
+
+    delete settings;
 }
 
 

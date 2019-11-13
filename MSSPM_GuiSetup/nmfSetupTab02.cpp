@@ -1399,14 +1399,15 @@ void
 nmfSetup_Tab2::readSettings()
 {
     // Read the settings and load into class variables.
-    QSettings settings("NOAA", "MSSPM");
-    settings.beginGroup("SetupTab");
-    m_ProjectName        = settings.value("ProjectName","").toString();
-    m_ProjectDir         = settings.value("ProjectDir","").toString();
-    m_ProjectDatabase    = settings.value("ProjectDatabase","").toString();
-    m_ProjectAuthor      = settings.value("ProjectAuthor","").toString();
-    m_ProjectDescription = settings.value("ProjectDescription","").toString();
-    settings.endGroup();
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    settings->beginGroup("SetupTab");
+    m_ProjectName        = settings->value("ProjectName","").toString();
+    m_ProjectDir         = settings->value("ProjectDir","").toString();
+    m_ProjectDatabase    = settings->value("ProjectDatabase","").toString();
+    m_ProjectAuthor      = settings->value("ProjectAuthor","").toString();
+    m_ProjectDescription = settings->value("ProjectDescription","").toString();
+    settings->endGroup();
 
     // Load class variables into appropriate widgets.
     Setup_Tab2_ProjectNameLE->setText(m_ProjectName);
@@ -1415,20 +1416,25 @@ nmfSetup_Tab2::readSettings()
     Setup_Tab2_ProjectDescLE->setText(m_ProjectDescription);
     Setup_Tab2_ProjectDatabaseCMB->setCurrentText(m_ProjectDatabase);
 
+    delete settings;
+
 } // end readSettings
 
 
 void
 nmfSetup_Tab2::saveSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
-    settings.beginGroup("SetupTab");
-    settings.setValue("ProjectName",        getProjectName());
-    settings.setValue("ProjectDir",         getProjectDir());
-    settings.setValue("ProjectDatabase",    getProjectDatabase());
-    settings.setValue("ProjectAuthor",      getProjectAuthor());
-    settings.setValue("ProjectDescription", getProjectDescription());
-    settings.endGroup();
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    settings->beginGroup("SetupTab");
+    settings->setValue("ProjectName",        getProjectName());
+    settings->setValue("ProjectDir",         getProjectDir());
+    settings->setValue("ProjectDatabase",    getProjectDatabase());
+    settings->setValue("ProjectAuthor",      getProjectAuthor());
+    settings->setValue("ProjectDescription", getProjectDescription());
+    settings->endGroup();
+
+    delete settings;
 }
 
 

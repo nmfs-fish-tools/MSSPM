@@ -463,23 +463,25 @@ nmfEstimation_Tab6::loadWidgets()
 void
 nmfEstimation_Tab6::readSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
     int index;
 
-    settings.beginGroup("SetupTab");
-    m_ProjectDir = settings.value("ProjectDir","").toString().toStdString();
-    settings.endGroup();
-    settings.beginGroup("Settings");
-    m_ProjectSettingsConfig = settings.value("Name","").toString().toStdString();
-    settings.endGroup();
+    settings->beginGroup("SetupTab");
+    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    settings->endGroup();
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
 
-    settings.beginGroup("Estimation");
-    m_EstimationOutputFile = settings.value("OutputFile","").toString().toStdString();
-    m_EstimationDataFile   = settings.value("DataFile","").toString().toStdString();
-    m_EstimationID         = settings.value("ID","").toString().toStdString();
-    m_fontSize           = settings.value("FontSize",9).toString().toInt();
-    m_isMonospaced       = settings.value("Monospace",0).toString().toInt();
-    settings.endGroup();
+    settings->beginGroup("Estimation");
+    m_EstimationOutputFile = settings->value("OutputFile","").toString().toStdString();
+    m_EstimationDataFile   = settings->value("DataFile","").toString().toStdString();
+    m_EstimationID         = settings->value("ID","").toString().toStdString();
+    m_fontSize           = settings->value("FontSize",9).toString().toInt();
+    m_isMonospaced       = settings->value("Monospace",0).toString().toInt();
+    settings->endGroup();
+
+    delete settings;
 
     index = Estimation_Tab6_FontSizeCMB->findText(QString::number(m_fontSize));
     Estimation_Tab6_FontSizeCMB->setCurrentIndex(index);
@@ -489,11 +491,13 @@ nmfEstimation_Tab6::readSettings()
 void
 nmfEstimation_Tab6::saveSettings()
 {
-    QSettings settings("NOAA", "MSSPM");
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
-    settings.beginGroup("Estimation");
-    settings.setValue("FontSize",   Estimation_Tab6_FontSizeCMB->currentText());
-    settings.setValue("FontSize",   Estimation_Tab6_FontSizeCMB->currentText());
-    settings.setValue("Monospace",  (int)Estimation_Tab6_MonoCB->isChecked());
-    settings.endGroup();
+    settings->beginGroup("Estimation");
+    settings->setValue("FontSize",   Estimation_Tab6_FontSizeCMB->currentText());
+    settings->setValue("FontSize",   Estimation_Tab6_FontSizeCMB->currentText());
+    settings->setValue("Monospace",  (int)Estimation_Tab6_MonoCB->isChecked());
+    settings->endGroup();
+
+    delete settings;
 }
