@@ -1448,6 +1448,8 @@ nmfSetup_Tab2::loadDatabaseNames(QString NameToSelect)
     queryStr = "SHOW databases";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr,fields);
 
+    // store database to reset after authenticating...
+    std::string currentDatabase = m_databasePtr->nmfGetCurrentDatabase();
     for (unsigned int i = 0; i < dataMap["Database"].size(); ++i) {
         name = dataMap["Database"][i];
         if (exclusionSet.find(name) == exclusionSet.end()) {
@@ -1457,6 +1459,9 @@ nmfSetup_Tab2::loadDatabaseNames(QString NameToSelect)
             }
         }
     }
+    // Must reset database as authenticateDatabase has to set to each database
+    // to query one of its tables
+    m_databasePtr->nmfSetDatabase(currentDatabase);
 
     if (! NameToSelect.isEmpty()) {
         Setup_Tab2_ProjectDatabaseCMB->setCurrentText(NameToSelect);
