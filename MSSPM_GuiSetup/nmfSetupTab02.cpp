@@ -1435,40 +1435,23 @@ nmfSetup_Tab2::saveSettings()
 void
 nmfSetup_Tab2::loadDatabaseNames(QString NameToSelect)
 {
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::set<std::string> exclusionSet {"information_schema","mysql","performance_schema","sys"};
-    std::string name;
-
+    QList<QString> authenticatedDatabases = {};
     m_ValidDatabases.clear();
     Setup_Tab2_ProjectDatabaseCMB->clear();
 
-    fields   = { "Database" };
-    queryStr = "SHOW databases";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr,fields);
-
-    // store database to reset after authenticating...
-    std::string currentDatabase = m_databasePtr->nmfGetCurrentDatabase();
-    for (unsigned int i = 0; i < dataMap["Database"].size(); ++i) {
-        name = dataMap["Database"][i];
-        if (exclusionSet.find(name) == exclusionSet.end()) {
-            if (m_databasePtr->authenticateDatabase(name)) {
-                m_ValidDatabases.insert(name);
-                Setup_Tab2_ProjectDatabaseCMB->addItem(QString::fromStdString(name));
-            }
+    // Get the list of authenticated databases and add them to the appropriate widget
+    if (m_databasePtr->getListOfAuthenticatedDatabaseNames(authenticatedDatabases)) {
+        foreach (QString item, authenticatedDatabases) {
+            m_ValidDatabases.insert(item.toStdString());
+            Setup_Tab2_ProjectDatabaseCMB->addItem(item);
         }
     }
-    // Must reset database as authenticateDatabase has to set to each database
-    // to query one of its tables
-    m_databasePtr->nmfSetDatabase(currentDatabase);
 
     if (! NameToSelect.isEmpty()) {
         Setup_Tab2_ProjectDatabaseCMB->setCurrentText(NameToSelect);
     } else {
         Setup_Tab2_ProjectDatabaseCMB->setCurrentIndex(0);
     }
-
 }
 
 
