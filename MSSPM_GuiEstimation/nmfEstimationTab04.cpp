@@ -110,12 +110,13 @@ nmfEstimation_Tab4::~nmfEstimation_Tab4()
 void
 nmfEstimation_Tab4::clearWidgets()
 {
-    Estimation_Tab4_PredationMinTV->reset();
-    Estimation_Tab4_PredationMaxTV->reset();
-    Estimation_Tab4_HandlingMinTV->reset();
-    Estimation_Tab4_HandlingMaxTV->reset();
-    Estimation_Tab4_ExponentMinTV->reset();
-    Estimation_Tab4_ExponentMaxTV->reset();
+        nmfUtilsQt::clearTableView(
+            {Estimation_Tab4_PredationMinTV,
+             Estimation_Tab4_PredationMaxTV,
+             Estimation_Tab4_HandlingMinTV,
+             Estimation_Tab4_HandlingMaxTV,
+             Estimation_Tab4_ExponentMinTV,
+             Estimation_Tab4_ExponentMaxTV});
 }
 
 void
@@ -517,6 +518,8 @@ std::cout << "nmfEstimation_Tab4::loadWidgets()" << std::endl;
     QStandardItemModel* smodel;
 
     readSettings();
+
+    clearWidgets();
 
     getForms(predationForm,competitionForm);
     isAggProd = (competitionForm == "AGG-PROD");

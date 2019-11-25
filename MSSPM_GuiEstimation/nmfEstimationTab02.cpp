@@ -63,7 +63,8 @@ nmfEstimation_Tab2::~nmfEstimation_Tab2()
 void
 nmfEstimation_Tab2::clearWidgets()
 {
-    Estimation_Tab2_CatchTV->reset();
+//  Estimation_Tab2_CatchTV->reset();
+    nmfUtilsQt::clearTableView({Estimation_Tab2_CatchTV});
 }
 
 void
@@ -222,6 +223,8 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
         m_logger->logMsg(nmfConstants::Warning,"Warning: Harvest Type set to Null.");
         return true;
     }
+
+    clearWidgets();
 
     Estimation_Tab2_CatchGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_harvestType]));
 

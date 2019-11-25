@@ -126,12 +126,13 @@ nmfEstimation_Tab3::~nmfEstimation_Tab3()
 void
 nmfEstimation_Tab3::clearWidgets()
 {
-    Estimation_Tab3_CompetitionAlphaMinTV->reset();
-    Estimation_Tab3_CompetitionAlphaMaxTV->reset();
-    Estimation_Tab3_CompetitionBetaSpeciesMinTV->reset();
-    Estimation_Tab3_CompetitionBetaSpeciesMaxTV->reset();
-    Estimation_Tab3_CompetitionBetaGuildsMinTV->reset();
-    Estimation_Tab3_CompetitionBetaGuildsMaxTV->reset();
+    nmfUtilsQt::clearTableView(
+        {Estimation_Tab3_CompetitionAlphaMinTV,
+         Estimation_Tab3_CompetitionAlphaMaxTV,
+         Estimation_Tab3_CompetitionBetaSpeciesMinTV,
+         Estimation_Tab3_CompetitionBetaSpeciesMaxTV,
+         Estimation_Tab3_CompetitionBetaGuildsMinTV,
+         Estimation_Tab3_CompetitionBetaGuildsMaxTV});
 }
 
 int
@@ -560,6 +561,8 @@ std::cout << "nmfEstimation_Tab3::loadWidgets()" << std::endl;
     if (m_ProjectSettingsConfig.empty()) {
         m_logger->logMsg(nmfConstants::Warning,"nmfEstimation_Tab3::loadWidgets: No System found.");
     }
+
+    clearWidgets();
 
     // Get Species names
     fields     = {"SpeName"};

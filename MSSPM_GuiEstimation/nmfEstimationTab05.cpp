@@ -66,8 +66,9 @@ nmfEstimation_Tab5::~nmfEstimation_Tab5()
 void
 nmfEstimation_Tab5::clearWidgets()
 {
-    Estimation_Tab5_BiomassTV->reset();
-    Estimation_Tab5_CovariatesTV->reset();
+    nmfUtilsQt::clearTableView(
+        {Estimation_Tab5_BiomassTV,
+         Estimation_Tab5_CovariatesTV});
 }
 
 void
@@ -319,6 +320,8 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
     readSettings();
     if (SystemName.isEmpty())
         return false;
+
+    clearWidgets();
 
     fields   = {"RunLength","StartYear"};
     queryStr = "SELECT RunLength,StartYear FROM Systems where SystemName = '" + SystemName.toStdString() + "'";

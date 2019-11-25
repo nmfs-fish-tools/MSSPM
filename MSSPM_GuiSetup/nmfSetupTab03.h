@@ -78,7 +78,8 @@ public:
 
     int  numColumnsSpecies();
     int  numColumnsGuilds();
-    void clearWidgets();
+    void clearSpeciesWidgets();
+    void clearGuildWidgets();
     void loadGuilds();
     void loadSpecies();
     void loadWidgets();

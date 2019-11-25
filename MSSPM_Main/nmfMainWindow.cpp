@@ -70,7 +70,10 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     readSettings();
 
     // Prompt user for database login and password
-    if (nmfDatabaseUtils::menu_connectToDatabase(this,m_DatabasePtr)) {
+    if (nmfDatabaseUtils::menu_connectToDatabase(
+                this,nmfConstantsMSSPM::SettingsDirWindows,m_DatabasePtr,
+                m_Username,m_Password))
+    {
         queryUserPreviousDatabase();
     }
     loadDatabase();
@@ -1613,7 +1616,11 @@ nmfMainWindow::menu_screenshot()
 void
 nmfMainWindow::menu_importDatabase()
 {
-    bool importOK = m_DatabasePtr->importDatabase(this,m_Logger,m_ProjectDir,m_Username,m_Password);
+    bool importOK = m_DatabasePtr->importDatabase(this,
+                                                  m_Logger,
+                                                  m_ProjectDir,
+                                                  m_Username,
+                                                  m_Password);
     if (importOK) {
         Setup_Tab2_ptr->loadWidgets();
         Setup_Tab3_ptr->loadWidgets();
@@ -1623,7 +1630,11 @@ nmfMainWindow::menu_importDatabase()
 void
 nmfMainWindow::menu_exportDatabase()
 {
-    m_DatabasePtr->exportDatabase(this,m_ProjectDir,m_Username,m_Password,m_ProjectDatabase);
+    m_DatabasePtr->exportDatabase(this,
+                                  m_ProjectDir,
+                                  m_Username,
+                                  m_Password,
+                                  m_ProjectDatabase);
 }
 
 bool

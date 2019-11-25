@@ -699,6 +699,8 @@ nmfSetup_Tab3::loadGuilds()
     std::string queryStr;
     QStringList GuildColumns;
 
+    clearGuildWidgets();
+
     GuildColumns << "Guild Name" << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max" <<
                     "Carrying Capacity" << "Carrying Capacity Min" << "Carrying Capacity Max" <<
                     "Catchability Min" << "Catchability Max";
@@ -748,6 +750,8 @@ nmfSetup_Tab3::loadSpecies()
     std::string queryStr;
     std::string guild;
     QComboBox *guilds;
+
+    clearSpeciesWidgets();
 
     fields = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax",
               "GrowthRate","GrowthRateMin","GrowthRateMax","GrowthRateCovarCoeff",
@@ -822,9 +826,18 @@ nmfSetup_Tab3::loadWidgets()
 
 
 void
-nmfSetup_Tab3::clearWidgets()
+nmfSetup_Tab3::clearSpeciesWidgets()
 {
+    Setup_Tab3_SpeciesTW->setRowCount(0);
+    Setup_Tab3_SpeciesTW->setColumnCount(0);
+}
 
+
+void
+nmfSetup_Tab3::clearGuildWidgets()
+{
+    Setup_Tab3_GuildsTW->setRowCount(0);
+    Setup_Tab3_GuildsTW->setColumnCount(0);
 }
 
 void

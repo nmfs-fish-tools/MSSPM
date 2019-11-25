@@ -397,7 +397,11 @@ nmfForecast_Tab2::restoreData(int minRow, int minCol, int maxRow, int maxCol)
     return true;
 }
 
-
+void
+nmfForecast_Tab2::clearWidgets()
+{
+    nmfUtilsQt::clearTableView({Forecast_Tab2_HarvestTV});
+}
 
 /*
  * harvestType: Catch, Effort, Exploitation
@@ -424,6 +428,8 @@ std::cout << "nmfForecast_Tab2::loadWidgets()" << std::endl;
     readSettings();
     if (m_ProjectSettingsConfig.empty())
         return false;
+
+    clearWidgets();
 
     Forecast_Tab2_HarvestGB->setTitle(QString::fromStdString(m_harvestType).replace("Forecast","Forecast "));
 

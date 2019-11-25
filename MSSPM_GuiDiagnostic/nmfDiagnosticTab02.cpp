@@ -107,6 +107,8 @@ nmfDiagnostic_Tab2::loadWidgets(int NumPeels)
 
     readSettings();
 
+    clearWidgets();
+
     bool isMohnsRho = QString::fromStdString(m_ProjectSettingsConfig).contains("__");
     if (isMohnsRho) {
 //        std::cout << "------------------> isMohnsRho: " << isMohnsRho << ": " << m_ProjectSettingsConfig << std::endl;
@@ -137,8 +139,9 @@ nmfDiagnostic_Tab2::loadWidgets(int NumPeels)
     }
 
     readSettings();
-
 }
+
+
 
 void
 nmfDiagnostic_Tab2::setStartYearLE(int StartYear)
@@ -205,7 +208,8 @@ nmfDiagnostic_Tab2::getNumPeels()
 void
 nmfDiagnostic_Tab2::clearWidgets()
 {
-
+    setStartYearLE(0);
+    setEndYearLE(0);
 }
 
 bool

@@ -62,7 +62,8 @@ nmfEstimation_Tab1::~nmfEstimation_Tab1()
 void
 nmfEstimation_Tab1::clearWidgets()
 {
-    Estimation_Tab1_PopulationTV->reset();
+    //Estimation_Tab1_PopulationTV->reset();
+    nmfUtilsQt::clearTableView({Estimation_Tab1_PopulationTV});
 }
 
 void

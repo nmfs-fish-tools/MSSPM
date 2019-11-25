@@ -1053,7 +1053,6 @@ void
 nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
 {
     bool ok;
-    bool saveOK=true;
     std::string msg;
     std::string cmd;
     std::string errorMsg="";
@@ -1083,15 +1082,10 @@ nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
         nmfUtils::printError("Function: callback_Setup_Tab2_AddDatabase ",errorMsg);
-        saveOK = false;
     } else {
+        createTables(enteredName);
         loadDatabaseNames(enteredName);
         Setup_Tab2_ProjectDatabaseCMB->setCurrentText(enteredName);
-
-    }
-    createTables(enteredName);
-
-    if (saveOK) {
         std::string msg = "\nDatabase created: " + enteredName.toStdString() + "\n";
         QMessageBox::information(Setup_Tabs, "Set up Project",
                                  tr(msg.c_str()));
@@ -1263,7 +1257,8 @@ nmfSetup_Tab2::loadProject(nmfLogger *logger, QString fileName)
 
     file.close();
 
-    emit SaveMainSettings();
+    saveSettings();
+//  emit SaveMainSettings();
     emit LoadProject();
     readSettings();
 

@@ -966,6 +966,8 @@ nmfSetup_Tab4::loadWidgets()
     if (m_ProjectSettingsConfig.empty())
         return;
 
+    clearWidgets();
+
     fields     = {"SystemName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
                   "NumberOfRuns","StartYear","RunLength","TimeStep","Algorithm","Minimizer",
                   "ObjectiveCriterion","Scaling","GAGenerations","GAPopulationSize",
@@ -1015,7 +1017,12 @@ nmfSetup_Tab4::loadWidgets()
 void
 nmfSetup_Tab4::clearWidgets()
 {
-
+    Setup_Tab4_SystemNameLE->clear();
+    Setup_Tab4_SystemCarryingCapacityLE->clear();
+    Setup_Tab4_StartYearSB->clear();
+    Setup_Tab4_EndYearLE->clear();
+    Setup_Tab4_RunLengthSB->clear();
+    Setup_Tab4_ModelEquationTE->clear();
 }
 
 

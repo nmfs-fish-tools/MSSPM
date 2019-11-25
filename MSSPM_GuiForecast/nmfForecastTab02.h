@@ -57,6 +57,7 @@ public:
                      std::string& projectDir);
     virtual ~nmfForecast_Tab2();
 
+    void clearWidgets();
     bool loadWidgets();
 
 signals:
