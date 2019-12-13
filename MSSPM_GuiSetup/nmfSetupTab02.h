@@ -51,6 +51,7 @@ signals:
     void UpdateWindowTitle();
     void RemoveGuildsAndSpecies();
     void ClearEstimationTables();
+    void ReloadWidgets();
 
 public:
     /**

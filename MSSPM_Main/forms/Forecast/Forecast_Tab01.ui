@@ -110,6 +110,9 @@
           <property name="statusTip">
            <string>Sets the Forecast Name to be the same as the System Name</string>
           </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Set&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Each Forecast must be given a unique name. This button sets the Forecast Name to be the same as the System Name (for convenience only).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>Set</string>
           </property>

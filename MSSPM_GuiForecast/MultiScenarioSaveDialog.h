@@ -2,6 +2,7 @@
 
 #include "nmfDatabase.h"
 #include "nmfLogger.h"
+#include "nmfConstantsMSSPM.h"
 
 
 /**
@@ -18,6 +19,7 @@ class MultiScenarioSaveDialog : public QDialog
     nmfLogger*   m_logger;
     std::string  m_scenarioName;
     std::string  m_forecastName;
+    std::string  m_ProjectSettingsConfig;
     std::map<QString,QStringList> m_orderedForecastLabelsMap;
 
     QVBoxLayout* MainVLT;
@@ -71,6 +73,7 @@ public:
     MultiScenarioSaveDialog(QTabWidget*  parent,
                             nmfDatabase* databasePtr,
                             nmfLogger*   logger,
+                            std::string& ProjectSettingsConfig,
                             std::map<QString,QStringList>& SortedForecastLabelsMap,
                             std::string& currentScenario,
                             std::string  forecastName);

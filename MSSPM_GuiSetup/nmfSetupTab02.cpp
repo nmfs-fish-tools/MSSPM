@@ -1462,5 +1462,7 @@ nmfSetup_Tab2::loadWidgets()
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab2::loadWidgets()");
 
     readSettings();
+    loadDatabaseNames(m_ProjectDatabase);
+
 }
 

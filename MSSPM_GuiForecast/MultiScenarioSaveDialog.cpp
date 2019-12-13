@@ -11,6 +11,7 @@
 MultiScenarioSaveDialog::MultiScenarioSaveDialog(QTabWidget*  parent,
                                                  nmfDatabase* databasePtr,
                                                  nmfLogger*   logger,
+                                                 std::string& ProjectSettingsConfig,
                                                  std::map<QString,QStringList>& SortedForecastLabelsMap,
                                                  std::string& currentScenario,
                                                  std::string  forecastName) : QDialog(parent)
@@ -19,6 +20,7 @@ MultiScenarioSaveDialog::MultiScenarioSaveDialog(QTabWidget*  parent,
     m_logger       = logger;
     m_scenarioName = currentScenario;
     m_forecastName = forecastName;
+    m_ProjectSettingsConfig = ProjectSettingsConfig;
     if (SortedForecastLabelsMap.empty()) {
         m_orderedForecastLabelsMap.clear();
     } else {
@@ -37,7 +39,7 @@ MultiScenarioSaveDialog::MultiScenarioSaveDialog(QTabWidget*  parent,
     ScenarioNameCMB  = new QComboBox();
     ForecastLabelCMB = new QComboBox();
     NewScenarioPB    = new QPushButton("New...");
-    SetForecastPB    = new QPushButton("Copy");
+    SetForecastPB    = new QPushButton("Set");
     DelScenarioPB    = new QPushButton("Del");
     DelForecastPB    = new QPushButton("Del");
     CancelPB         = new QPushButton("Cancel");
@@ -103,8 +105,8 @@ MultiScenarioSaveDialog::MultiScenarioSaveDialog(QTabWidget*  parent,
     NewScenarioPB->setStatusTip("Create a new Scenario Name");
     RenScenarioPB->setToolTip("Rename the currently selected Scenario Name");
     RenScenarioPB->setStatusTip("Rename the currently selected Scenario Name");
-    SetForecastPB->setToolTip("Copy the current Forecast Name to be the Forecast Label");
-    SetForecastPB->setStatusTip("Copy the current Forecast Name to be the Forecast Label");
+    SetForecastPB->setToolTip("Set the Forecast Label to be the current Forecast Name");
+    SetForecastPB->setStatusTip("Set the Forecast Label to be the current Forecast Name");
     RenForecastPB->setToolTip("Rename the currently selected Forecast Label");
     RenForecastPB->setStatusTip("Rename the currently selected Forecast Label");
     ForecastLabelCMB->setEditable(true);
@@ -208,12 +210,27 @@ MultiScenarioSaveDialog::getForecastData(
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
+    std::string Algorithm;
+    std::string Minimizer;
+    std::string ObjectiveCriterion;
+    std::string Scaling;
+    std::string CompetitionForm;
     QString msg;
+
+    m_databasePtr->getAlgorithmIdentifiers(
+                this,m_logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+
 
     // Find number of years in forecast
     fields     = {"ForecastName","RunLength"};
     queryStr   = "SELECT ForecastName,RunLength FROM Forecasts";
-    queryStr  += " WHERE ForecastName = '" + forecastName + "'";
+    queryStr  += "  WHERE ForecastName = '" + forecastName + "'";
+    queryStr  += "  AND Algorithm = '" + Algorithm +
+                 "' AND Minimizer = '" + Minimizer +
+                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                 "' AND Scaling = '" + Scaling + "'";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
     if (NumRecords == 0) {
@@ -228,6 +245,10 @@ MultiScenarioSaveDialog::getForecastData(
     fields     = {"ForecastName","isAggProd","SpeName","Year","Value"};
     queryStr   = "SELECT ForecastName,isAggProd,SpeName,Year,Value FROM ForecastBiomass";
     queryStr  += " WHERE ForecastName = '" + forecastName + "'";
+    queryStr  += "  AND Algorithm = '" + Algorithm +
+                 "' AND Minimizer = '" + Minimizer +
+                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                 "' AND Scaling = '" + Scaling + "'";
     queryStr  += " ORDER BY SpeName,Year";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
@@ -319,6 +340,7 @@ MultiScenarioSaveDialog::callback_OkPB()
                              QMessageBox::Ok);
        return;
    }
+
 
    if (! getForecastData(m_forecastName,Species,Years,ForecastBiomass)) {
        close();

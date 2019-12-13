@@ -19,6 +19,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
 //  gradient_Estimator = nullptr;
     m_RunOutputMsg.clear();
     m_NumMohnsRhoRanges = 0;
+    m_SeedValue = -1;
 
     m_ProjectDir.clear();
     m_ProjectDatabase.clear();
@@ -51,7 +52,6 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     Output_Controls_ptr   = nullptr;
 
     setNumLines(1);
-    m_SeedValue = -1;
 
     // Check for and make if necessary hidden dirs for program usage: logs, data
     nmfUtilsQt::checkForAndCreateDirectories(nmfConstantsMSSPM::HiddenDir,
@@ -258,7 +258,6 @@ nmfMainWindow::setup2dChart()
 void
 nmfMainWindow::setupOutputEstimateParametersWidgets()
 {
-    int i=0;
     QTabWidget*  estimatedParametersTW  = new QTabWidget();
     QVBoxLayout* mainLayt               = new QVBoxLayout();
 
@@ -947,7 +946,10 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
 
     OutputBiomass.clear();
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     // Load Calculated Biomass data (ie, calculated from estimated parameters r and alpha)
     fields    = {"MohnsRhoLabel","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
@@ -1057,7 +1059,10 @@ nmfMainWindow::getOutputGrowthRate(std::vector<double> &EstGrowthRate, bool isMo
 
     EstGrowthRate.clear();
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (! getSpecies(NumSpecies,SpeciesList))
         return;
 
@@ -1095,7 +1100,10 @@ nmfMainWindow::getOutputCarryingCapacity(std::vector<double> &EstCarryingCapacit
 
     EstCarryingCapacity.clear();
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (! getSpecies(NumSpecies,SpeciesList))
         return;
 
@@ -1133,7 +1141,10 @@ nmfMainWindow::getOutputCompetition(std::vector<double> &EstCompetition)
 
     EstCompetition.clear();
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (! getSpecies(NumSpecies,SpeciesList))
         return;
 
@@ -1182,7 +1193,6 @@ nmfMainWindow::getRunLength(int &RunLength)
 void
 nmfMainWindow::updateOutputBiomassTableFromTestValues()
 {
-    int m;
     int NumSpecies;
     int RunLength;
     int InitialYear;
@@ -1206,8 +1216,10 @@ nmfMainWindow::updateOutputBiomassTableFromTestValues()
     std::vector<double> EstCompetitionAlpha;
     boost::numeric::ublas::matrix<double> Catch;
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
-
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (! getSpecies(NumSpecies,SpeciesList))
         return;
 
@@ -1262,7 +1274,6 @@ nmfMainWindow::updateOutputBiomassTableFromTestValues()
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
     }
-    m = 0;
     cmd = "INSERT INTO OutputBiomass (Algorithm, Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value) VALUES ";
     for (int species=0; species<NumSpecies; ++species) { // Species
         for (int time=0; time<=RunLength; ++time) { // Time in years
@@ -1300,7 +1311,10 @@ nmfMainWindow::menu_clearCompetition()
     QStringList SpeciesList;
     QString msg;
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm);
     if (! getSpecies(NumSpecies,SpeciesList))
         return;
 
@@ -1368,7 +1382,10 @@ nmfMainWindow::menu_resetCompetition()
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm);
     if (! getSpecies(NumSpecies,SpeciesList))
         return;
 
@@ -1443,7 +1460,10 @@ nmfMainWindow::menu_resetGrowthRate()
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm);
     if (! getSpecies(NumSpecies, SpeciesList))
         return;
 
@@ -1514,7 +1534,10 @@ nmfMainWindow::menu_resetCarryingCapacity()
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm);
     if (! getSpecies(NumSpecies,SpeciesList))
         return;
 
@@ -2395,6 +2418,7 @@ nmfMainWindow::callback_ReloadWidgets()
 void
 nmfMainWindow::loadGuis()
 {
+std::cout << "Loading GUIs..." << std::endl;
     if (m_LoadLastProject) {
         QString filename = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(m_ProjectName));
 
@@ -2546,6 +2570,8 @@ nmfMainWindow::initConnections()
             this,            SLOT(callback_LoadDatabase(QString)));
     connect(Setup_Tab2_ptr,  SIGNAL(RemoveGuildsAndSpecies()),
             Setup_Tab3_ptr,  SLOT(callback_RemoveGuildsAndSpecies()));
+    connect(Setup_Tab2_ptr,  SIGNAL(ReloadWidgets()),
+            this,            SLOT(callback_ReloadWidgets()));
     connect(Setup_Tab2_ptr,  SIGNAL(ClearEstimationTables()),
             this,            SLOT(callback_ClearEstimationTables()));
     connect(Setup_Tab2_ptr,  SIGNAL(UpdateWindowTitle()),
@@ -2816,34 +2842,6 @@ nmfMainWindow::menu_quit() {
     close(); // emits closeEvent
 }
 
-
-void
-nmfMainWindow::getAlgorithmIdentifiers(std::string &Algorithm,
-                                    std::string &Minimizer,
-                                    std::string &ObjectiveCriterion,
-                                    std::string &Scaling,
-                                    std::string &CompetitionForm)
-{
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    // Get current algorithm and run its estimation routine
-    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","WithinGuildCompetitionForm","Scaling"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,WithinGuildCompetitionForm,Scaling FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["Algorithm"].size() == 0) {
-        m_Logger->logMsg(nmfConstants::Warning,"[Warning] nmfMainWindow::AlgorithmIdentifiers: No Systems found. Please create a System and click Save on Setup Tab 3.");
-
-        return;
-    }
-    Algorithm          = dataMap["Algorithm"][0];
-    Minimizer          = dataMap["Minimizer"][0];
-    ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
-    Scaling            = dataMap["Scaling"][0];
-    CompetitionForm    = dataMap["WithinGuildCompetitionForm"][0];
-}
-
 void
 nmfMainWindow::setNumLines(int numLines)
 {
@@ -2930,7 +2928,10 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
 
     clearOutputTables();
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     if (! getModelFormData(GrowthForm,HarvestForm,CompetitionForm,PredationForm,RunLength,InitialYear))
         return;
@@ -3209,7 +3210,7 @@ nmfMainWindow::updateOutputTables(
         const std::vector<double>&                   EstExponent)
 {
     int SpeciesNum;
-    double value;
+    double value=0;
     std::string cmd;
     std::string errorMsg;
     QString msg;
@@ -3542,6 +3543,7 @@ nmfMainWindow::scaleTimeSeries(const std::vector<double>& Uncertainty,
            HarvestMatrix(j,i) = calculateMonteCarloValue(Uncertainty[i],HarvestMatrix(j,i));
         }
     }
+    return true;
 }
 
 void
@@ -3553,7 +3555,7 @@ nmfMainWindow::getMohnsRhoLabelsToDelete(const int& NumMohnsRhos,
     mohnsRhoLabelsToDelete = " MohnsRhoLabel != '' AND ";
 
     if (NumMohnsRhos > 1) {
-        for (unsigned i=0;i<NumMohnsRhos-1; ++i) {
+        for (int i=0;i<NumMohnsRhos-1; ++i) {
             mohnsRhoLabelsToDelete += " MohnsRhoLabel != '" + std::to_string(m_MohnsRhoRanges[i].first) +
                     "-" + std::to_string(m_MohnsRhoRanges[i].second) + "' AND ";
         }
@@ -4267,7 +4269,10 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     QStandardItemModel* smodel;
     QString OutputMethod = Output_Controls_ptr->getOutputMethod();
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     // Find RunLength
     fields     = {"RunLength","StartYear","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
@@ -4648,7 +4653,11 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm;
     bool isAggProd = (CompetitionForm == "AGG-PROD");
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+
     getSpecies(NumSpeciesOrGuilds,SpeciesList);
     getRunLength(RunLength); // RSK make sure use full run length and not a peel
 
@@ -4725,7 +4734,10 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
     std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm;
     bool isAggProd = (CompetitionForm == "AGG-PROD");
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     getSpecies(NumSpeciesOrGuilds,SpeciesList);
     getRunLength(RunLength);
 
@@ -4813,6 +4825,8 @@ nmfMainWindow::callback_ShowChartMohnsRho()
                               nmfConstantsMSSPM::Clear,
                               ColumnLabelsForLegend);
     Output_Controls_ptr->setForMohnsRho();
+
+    return true;
 }
 
 bool
@@ -4855,8 +4869,10 @@ nmfMainWindow::getMohnsRhoBiomass(
     NumSpecies = dataMap["SpeName"].size();
 
     // Load Biomass data Mohn's Rho Label by Mohn's Rho Label
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
-
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     for (int i=0; i<NumMohnsRhos; ++i) {
         MohnsRhoLabel = dataMapMohnsRhos["MohnsRhoLabel"][i];
         fields     = {"MohnsRhoLabel","Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Year","Value"};
@@ -4880,6 +4896,8 @@ nmfMainWindow::getMohnsRhoBiomass(
         }
         BiomassMohnsRho.push_back(TmpMatrix);
     }
+
+    return true;
 }
 
 bool
@@ -5019,7 +5037,10 @@ nmfMainWindow::showDiagnosticsChart2d(QString& ScaleStr,
 
     NumPoints = Diagnostic_Tab1_ptr->getLastRunsNumPoints();
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     // Find guild info
     if (! getGuilds(NumGuilds,GuildList))
@@ -5072,6 +5093,8 @@ nmfMainWindow::showDiagnosticsChart2d(QString& ScaleStr,
     }
     smodel2->setHorizontalHeaderLabels(ColHeadings);
     m_UI->MSSPMOutputTV->setModel(smodel2);
+
+    return true;
 }
 
 
@@ -5091,7 +5114,7 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     int NumSpeciesOrGuilds;
     int SpeciesNum = Output_Controls_ptr->getOutputSpeciesIndex();
     int StartForecastYear = nmfConstantsMSSPM::Start_Year;
-    int EndYear;
+    // int EndYear;
     QString OutputSpecies = Output_Controls_ptr->getOutputSpecies();
     std::string Algorithm;
     std::string Minimizer;
@@ -5134,7 +5157,7 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     if (dataMap["ForecastName"].size() != 0) {
         RunLength          = std::stoi(dataMap["RunLength"][0]);
         StartForecastYear  = std::stoi(dataMap["StartYear"][0]);
-        EndYear            = std::stoi(dataMap["EndYear"][0]);
+        // EndYear         = std::stoi(dataMap["EndYear"][0]);
         Algorithm          = dataMap["Algorithm"][0];
         Minimizer          = dataMap["Minimizer"][0];
         ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
@@ -5220,7 +5243,10 @@ nmfMainWindow::isThereMohnsRhoData()
     std::string queryStr;
     std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm;
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm);
     isAggProd = (CompetitionForm == "AGG-PROD") ? "1" : "0";
 
     fields    = {"MohnsRhoLabel","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
@@ -5251,7 +5277,7 @@ nmfMainWindow::calculateSummaryStatistics(QStandardItemModel* smodel,
     bool ok;
     int m;
     double total;
-    QStandardItem* item;
+    QStandardItem* item = nullptr;
     std::vector<double> SSresiduals;
     std::vector<double> SSdeviations;
     std::vector<double> SStotals;
@@ -5695,13 +5721,8 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    ChartScatterData.clear();
    RowLabelsForBars.clear();
    ColumnLabelsForLegend.clear();
-   std::string value;
    std::string LineStyle = "SolidLine";
-   QStandardItem *item;
-   QStringList SpeciesNames;
    QStringList Years;
-   std::string legendCode = "";
-   QStandardItemModel* smodel = new QStandardItemModel( TotalNumPoints, NumLines );
    std::string ChartType;
    std::string MainTitle;
    int Theme = 0; // Replace with checkbox values
@@ -7028,12 +7049,12 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     bool updateOK = true;
     bool isMonteCarlo;
     bool isAggProd;
-    int NumSpecies;
+    // int NumSpecies;
     int RunLength = 0;
     int StartYear = nmfConstantsMSSPM::Start_Year;
     int NullStartYear = 0;
-    int EndYear;
-    int NumRuns;
+    int EndYear = StartYear;
+    int NumRuns = 0;
     int RunNum = 0;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -7068,7 +7089,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     fields = {"SpeName"};
     queryStr   = "SELECT SpeName FROM Species";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumSpecies = dataMap["SpeName"].size();
+    // NumSpecies = dataMap["SpeName"].size();
 
     // Find Forecast info
     fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
@@ -7534,6 +7555,7 @@ nmfMainWindow::runNextMohnsRhoEstimation()
     int InitialYear;
     int firstYear;
     int lastYear;
+    int StartYear;
     QString MohnsRhoLabel;
     QString OriginalSystemName = QString::fromStdString(m_ProjectSettingsConfig).split("__")[0];
     QString MohnsRhoSystemName;
@@ -7575,17 +7597,29 @@ nmfMainWindow::runNextMohnsRhoEstimation()
         Setup_Tab4_ptr->setStartYear(MohnsRhoStartYear);
         Setup_Tab4_ptr->setRunLength(MohnsRhoRunLength);
         Setup_Tab4_ptr->setSystemName(MohnsRhoSystemName);
+
+        // RSK - Bug here.  The method saveSystem clears the StartYearLE
+        // widget. Resetting StartYear to patch.
+        StartYear = Diagnostic_Tab2_ptr->getStartYearLE();
         Setup_Tab4_ptr->saveSystem(false);
+        Diagnostic_Tab2_ptr->setStartYearLE(StartYear);
+
         Estimation_Tab6_ptr->saveSystem(false);
 
         // 2. Modify Catch, Effort, or Exploitation tables and load
         ok = modifyTable(HarvestTable,OriginalSystemName,MohnsRhoLabel,
                          MohnsRhoStartYear,MohnsRhoRunLength,InitialYear);
+        if (! ok) {
+            m_Logger->logMsg(nmfConstantsMSSPM::Warning,"runNextMohnsRhoEstimation: modifyTable returned false for HarvestTable");
+        }
         Estimation_Tab2_ptr->loadWidgets(MohnsRhoLabel);
 
         // 3. Modify Observed Biomass table and load
         ok = modifyTable(ObservedBiomassTable,OriginalSystemName,MohnsRhoLabel,
                          MohnsRhoStartYear,MohnsRhoRunLength,InitialYear);
+        if (! ok) {
+            m_Logger->logMsg(nmfConstantsMSSPM::Warning,"runNextMohnsRhoEstimation: modifyTable returned false for ObservedBiomassTable");
+        }
         Estimation_Tab5_ptr->loadWidgets(MohnsRhoLabel);
 
         // 4. Run the Mohn's Rho system
@@ -7619,7 +7653,7 @@ nmfMainWindow::runNextMohnsRhoEstimation()
         fields   = {"SystemName"};
         queryStr = "SELECT SystemName FROM Systems";
         dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-        for (int i=0; i<dataMap["SystemName"].size(); ++i) {
+        for (unsigned i=0; i<dataMap["SystemName"].size(); ++i) {
             SystemName = QString::fromStdString(dataMap["SystemName"][i]);
             parts = SystemName.split("__");
             if ((parts.size() == 2) && (parts[0] == OriginalSystemName)) {
@@ -7668,7 +7702,10 @@ nmfMainWindow::calculateSummaryStatisticsMohnsRhoBiomass(
 
     getSpecies(NumSpecies,SpeciesList);
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     isAggProd = (CompetitionForm == "AGG-PROD") ? "1" : "0";
 
     fields    = {"MohnsRhoLabel","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
@@ -7724,7 +7761,7 @@ nmfMainWindow::calculateSummaryStatisticsMohnsRhoBiomass(
     nmfUtilsStatistics::calculateMohnsRhoForTimeSeries(NumPeels,NumSpecies,EstBiomass,mohnsRhoValue);
 
     // Display values
-    for (int p=0; p<mohnsRhoValue.size(); ++p) {
+    for (unsigned p=0; p<mohnsRhoValue.size(); ++p) {
 //std::cout << "Mohns Rho est biomass: " << p << ", " << mohnsRhoValue[p] << std::endl;
         mohnsRhoEstimatedBiomass.push_back(mohnsRhoValue[p]);
     }
@@ -7744,7 +7781,10 @@ nmfMainWindow::deleteAllOutputMohnsRho()
     std::string CompetitionForm;
     std::string isAggProd;
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     isAggProd = (CompetitionForm == "AGG-PROD") ? "1" : "0";
 
     cmd = "DELETE FROM OutputBiomass WHERE Algorithm = '" + Algorithm +
@@ -8132,6 +8172,8 @@ nmfMainWindow::getGuildData(const int&                             NumGuilds,
     for (int i=0; i<NumGuilds; ++i) {
        ObservedBiomassByGuilds(0,i) = InitialGuildBiomass[GuildList[i].toStdString()];
     }
+
+    return true;
 }
 
 bool
@@ -9248,6 +9290,8 @@ nmfMainWindow::callback_ShowDiagnosticsChart3d()
         addDataToSurface();
         m_Graph3D->addSeries(SurfaceSeries);
     }
+
+    return true;
 }
 
 void
@@ -9273,7 +9317,10 @@ nmfMainWindow::addDataToSurface()
     std::map<std::string, std::vector<std::string> > dataMap;
     QStringList TableNames = {"DiagnosticGRandCC"};
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     isAggProdStr = (CompetitionForm == "AGG-PROD") ? "1" : "0";
 
     fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd",
@@ -9386,8 +9433,10 @@ nmfMainWindow::updateProgressChartAnnotation(double xMin, double xMax, double xI
     std::string CompetitionForm;
     QString whatsThis;
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
-
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (Algorithm == "NLopt Algorithm") {
         if (ObjectiveCriterion == "Least Squares") {
             whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the Sum of the Squares ";

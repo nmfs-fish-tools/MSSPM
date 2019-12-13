@@ -54,12 +54,6 @@ class MSSPM_GuiOutputControls: public QObject
     void initWidgets();
     bool getSpecies(int& NumSpecies, QStringList& SpeciesList);
     bool getGuilds( int& NumGuilds,  QStringList& GuildList);
-    void getAlgorithmIdentifiers(std::string& algorithm,
-                                 std::string& minimizer,
-                                 std::string& objectiveCriterion,
-                                 std::string& scaling,
-                                 std::string& competitionForm,
-                                 bool         showMsg);
     bool isAggProd();
     void readSettings();
 

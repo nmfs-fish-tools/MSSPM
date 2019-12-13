@@ -513,13 +513,13 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>Delete the database that's shown to the left.</string>
+           <string>Delete the database (from MySQL) that's shown to the left.</string>
           </property>
           <property name="statusTip">
-           <string>Delete the database that's shown to the left.</string>
+           <string>Delete the database (from MySQL) that's shown to the left.</string>
           </property>
           <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Delete Database&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button will delete the named database that appears to the left. It is &lt;span style=&quot; font-weight:600; color:#a40000;&quot;&gt;strongly&lt;/span&gt; cautioned to use this feature with care and to make sure that important databases have backup copies made.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Delete Database&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button will delete the named database from MySQL that appears to the left. It is &lt;span style=&quot; font-weight:600; color:#a40000;&quot;&gt;strongly&lt;/span&gt; cautioned to use this feature with care and to make sure that important databases have backup copies made. Backup copies can be made by exporting the database prior to deleting.  Deleting a database does not affect any databases that have been exported to disk as .sql files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Del</string>

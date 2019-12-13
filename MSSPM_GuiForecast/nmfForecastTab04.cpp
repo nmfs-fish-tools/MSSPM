@@ -24,6 +24,8 @@ nmfForecast_Tab4::nmfForecast_Tab4(QTabWidget  *tabs,
 
     Forecast_Tabs = tabs;
 
+    readSettings();
+
     // Load ui as a widget from disk
     QFile file(":/forms/Forecast/Forecast_Tab04.ui");
     file.open(QFile::ReadOnly);
@@ -124,6 +126,7 @@ nmfForecast_Tab4::callback_RunMultiScenarioPB()
                 Forecast_Tabs,
                 m_databasePtr,
                 m_logger,
+                m_ProjectSettingsConfig,
                 m_SortedForecastLabelsMap,
                 m_currentScenario,
                 getCurrentForecastName());
@@ -186,7 +189,13 @@ nmfForecast_Tab4::setFontSize(int fontSize)
 void
 nmfForecast_Tab4::readSettings()
 {
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    delete settings;
 }
 
 void

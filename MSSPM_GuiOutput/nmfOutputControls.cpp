@@ -292,7 +292,10 @@ MSSPM_GuiOutputControls::loadSpeciesControlWidget()
 
     readSettings();
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm,true);
+    m_databasePtr->getAlgorithmIdentifiers(
+                ControlsGroupBox,m_logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                CompetitionForm,nmfConstantsMSSPM::ShowPopupError);
 
     if (! getGuilds(NumGuilds,GuildList)) {
         m_logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::loadSpeciesControlWidget: No records found in table Guilds, Name = "+m_ProjectSettingsConfig);
@@ -643,6 +646,10 @@ MSSPM_GuiOutputControls::callback_OutputScenariosCMB(QString scenario)
 {
     std::string msg;
 
+    if (scenario.isEmpty()) {
+        return;
+    }
+
     if (m_SortedForecastLabelsMap[scenario].empty()) {
         msg = "Warning: Map has a key (" + scenario.toStdString() + ") but no associated data";
         m_logger->logMsg(nmfConstants::Warning,msg);
@@ -737,39 +744,6 @@ MSSPM_GuiOutputControls::callback_ResetOutputWidgetsForAggProd()
     OutputSpeciesCMB->blockSignals(false);
 }
 
-
-void
-MSSPM_GuiOutputControls::getAlgorithmIdentifiers(std::string& algorithm,
-                                                 std::string& minimizer,
-                                                 std::string& objectiveCriterion,
-                                                 std::string& scaling,
-                                                 std::string& competitionForm,
-                                                 bool         showMsg)
-{
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::string msg;
-
-    // Get current algorithm and run its estimation routine
-    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","WithinGuildCompetitionForm"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,WithinGuildCompetitionForm FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["Algorithm"].size() == 0) {
-        msg = "[Warning] MSSPM_GuiOutputControls::AlgorithmIdentifiers: No Systems set. Please set options in Setup Page 3 and then Click Save to create a Model System.";
-        m_logger->logMsg(nmfConstants::Warning,msg);
-        if (showMsg) {
-            emit NoSystemsSet();
-        }
-        return;
-    }
-    algorithm          = dataMap["Algorithm"][0];
-    minimizer          = dataMap["Minimizer"][0];
-    objectiveCriterion = dataMap["ObjectiveCriterion"][0];
-    scaling            = dataMap["Scaling"][0];
-    competitionForm    = dataMap["WithinGuildCompetitionForm"][0];
-}
-
 bool
 MSSPM_GuiOutputControls::isAggProd()
 {
@@ -779,7 +753,10 @@ MSSPM_GuiOutputControls::isAggProd()
     std::string Scaling;
     std::string CompetitionForm;
 
-    getAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm,false);
+    m_databasePtr->getAlgorithmIdentifiers(
+                ControlsGroupBox,m_logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     return (CompetitionForm == "AGG-PROD");
 }
