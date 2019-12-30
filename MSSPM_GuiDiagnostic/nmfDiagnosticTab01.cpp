@@ -13,9 +13,9 @@ nmfDiagnostic_Tab1::nmfDiagnostic_Tab1(QTabWidget*  tabs,
 
     // Define class variables
     m_Diagnostic_Tabs = tabs;
-    m_logger          = logger;
-    m_databasePtr     = databasePtr;
-    m_projectDir      = projectDir;
+    m_Logger          = logger;
+    m_DatabasePtr     = databasePtr;
+    m_ProjectDir      = projectDir;
     m_NumPoints       = 1;
     m_PctVariation    = 1;
 
@@ -131,13 +131,9 @@ nmfDiagnostic_Tab1::getTableName(QString paramName)
 void
 nmfDiagnostic_Tab1::loadWidgets()
 {
-   readSettings();
-}
+    m_Logger->logMsg(nmfConstants::Normal,"nmfDiagnostic_Tab1::loadWidgets()");
 
-void
-nmfDiagnostic_Tab1::clearWidgets()
-{
-
+    readSettings();
 }
 
 
@@ -163,7 +159,7 @@ nmfDiagnostic_Tab1::loadEstimatedParameter(const std::string& Algorithm,
     queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
     queryStr  += "' AND Scaling = '" + Scaling;
     queryStr  += "' ORDER BY SpeName";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int i=0; i<NumSpecies; ++i) {
         EstParameter.push_back(std::stod(dataMap["Value"][i]));
@@ -199,7 +195,7 @@ nmfDiagnostic_Tab1::getGuildInfo(int& NumGuilds, QStringList& GuildNames)
 
     fields    = {"GuildName"};
     queryStr  = "SELECT GuildName from Guilds ORDER by GuildName";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds = dataMap["GuildName"].size();
     for (int i=0; i<NumGuilds; ++i) {
         GuildNames << QString::fromStdString(dataMap["GuildName"][i]);
@@ -216,7 +212,7 @@ nmfDiagnostic_Tab1::getSpeciesInfo(int& NumSpecies, QStringList& SpeciesNames)
 
     fields = {"SpeName"};
     queryStr   = "SELECT SpeName FROM Species";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
@@ -244,7 +240,7 @@ nmfDiagnostic_Tab1::isAggProd(std::string Algorithm,
     queryStr  += "' AND Minimizer = '" + Minimizer;
     queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
     queryStr  += "' AND Scaling = '" + Scaling + "' ";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SystemName"].size();
     if (NumRecords == 0) {
         std::cout << "Error: No records found in Systems" << std::endl;
@@ -299,13 +295,15 @@ nmfDiagnostic_Tab1::callback_Diagnostic_Tab1_RunPB()
     bool isAggProdBool;
     QString msg;
 
-    m_logger->logMsg(nmfConstants::Normal,"");
-    m_logger->logMsg(nmfConstants::Normal,"Start Diagnostic");
+    m_Logger->logMsg(nmfConstants::Normal,"");
+    m_Logger->logMsg(nmfConstants::Normal,"Start Diagnostic");
 
     // Get the AlgorithmIdentifiers
-    bool systemFound = algorithmIdentifiers(Algorithm,Minimizer,
-                                            ObjectiveCriterion,
-                                            Scaling,CompetitionForm);
+
+    bool systemFound = m_DatabasePtr->getAlgorithmIdentifiers(
+                m_Diagnostic_Tabs,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (! systemFound) {
         QMessageBox::warning(m_Diagnostic_Tabs,
                              tr("No System Found"),
@@ -356,7 +354,7 @@ nmfDiagnostic_Tab1::callback_Diagnostic_Tab1_RunPB()
                     fitness = calculateFitness(i,parameterName,diagnosticParameter);
                 } catch (...) {
                     msg = "Please run Estimation prior to running this Diagnostics.";
-                    m_logger->logMsg(nmfConstants::Warning,msg.toStdString());
+                    m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
                     return;
                 }
 
@@ -427,35 +425,6 @@ nmfDiagnostic_Tab1::callback_Diagnostic_Tab1_RunPB()
 
 }
 
-bool
-nmfDiagnostic_Tab1::algorithmIdentifiers(
-        std::string& Algorithm,
-        std::string& Minimizer,
-        std::string& ObjectiveCriterion,
-        std::string& Scaling,
-        std::string& CompetitionForm)
-{
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    // Get current algorithm and run its estimation routine
-    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","WithinGuildCompetitionForm"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,WithinGuildCompetitionForm FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["Algorithm"].size() == 0) {
-        m_logger->logMsg(nmfConstants::Error,"Error: No algorithm type found in Systems table.");
-        return false;
-    }
-    Algorithm          = dataMap["Algorithm"][0];
-    Minimizer          = dataMap["Minimizer"][0];
-    ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
-    Scaling            = dataMap["Scaling"][0];
-    CompetitionForm    = dataMap["WithinGuildCompetitionForm"][0];
-
-    return true;
-}
-
 double
 nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
                                      QString ParameterName,
@@ -476,13 +445,16 @@ nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
     std::string msg;
     std::vector<double> parameters;
 
-    algorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                m_Diagnostic_Tabs,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     emit LoadDataStruct();
 
-    NumSpecies = m_theDataStruct.NumSpecies;
-    NumGuilds  = m_theDataStruct.NumGuilds;
-    isAggProd  = (m_theDataStruct.CompetitionForm == "AGG-PROD");
+    NumSpecies = m_DataStruct.NumSpecies;
+    NumGuilds  = m_DataStruct.NumGuilds;
+    isAggProd  = (m_DataStruct.CompetitionForm == "AGG-PROD");
     NumSpeciesOrGuilds = (isAggProd) ? NumGuilds : NumSpecies;
 
     // Load up parameters
@@ -497,21 +469,21 @@ nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
         parameters[NumSpeciesOrGuilds+ SpeciesOrGuildNum] = ParameterValue; // NumSpeciesOrGuilds+ offset since need to skip over Growth Rate parameters
     } else {
         msg = "Error: Invalid parameter name: " + ParameterName.toStdString();
-        m_logger->logMsg(nmfConstants::Error,msg);
+        m_Logger->logMsg(nmfConstants::Error,msg);
         return -1;
     }
 
     if (Algorithm == "Bees Algorithm") {
 
-        BeesAlgorithm *beesAlg = new BeesAlgorithm(m_theDataStruct,nmfConstantsMSSPM::VerboseOff);
+        BeesAlgorithm *beesAlg = new BeesAlgorithm(m_DataStruct,nmfConstantsMSSPM::VerboseOff);
         return beesAlg->evaluateObjectiveFunction(parameters);
 
     } else if (Algorithm == "NLopt Algorithm") {
 
         NLopt_Estimator *nlopt_Estimator = new NLopt_Estimator();
-        retv = nlopt_Estimator->objectiveFunction(unused1,&parameters[0],unused2,&m_theDataStruct);
+        retv = nlopt_Estimator->objectiveFunction(unused1,&parameters[0],unused2,&m_DataStruct);
         if (retv == -1) {
-            m_logger->logMsg(nmfConstants::Warning,"Please run Estimation prior to running this Diagnostic");
+            m_Logger->logMsg(nmfConstants::Warning,"Please run Estimation prior to running this Diagnostic");
         }
         return retv;
 
@@ -537,13 +509,16 @@ nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
     std::string CompetitionForm;
     std::vector<double> parameters;
 
-    algorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm);
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                m_Diagnostic_Tabs,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     emit LoadDataStruct();
 
-    NumSpecies = m_theDataStruct.NumSpecies;
-    NumGuilds  = m_theDataStruct.NumGuilds;
-    isAggProd  = (m_theDataStruct.CompetitionForm == "AGG-PROD");
+    NumSpecies = m_DataStruct.NumSpecies;
+    NumGuilds  = m_DataStruct.NumGuilds;
+    isAggProd  = (m_DataStruct.CompetitionForm == "AGG-PROD");
     NumSpeciesOrGuilds = (isAggProd) ? NumGuilds : NumSpecies;
 
     // Load up parameters
@@ -557,11 +532,11 @@ nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
     parameters[NumSpeciesOrGuilds+ SpeciesOrGuildNum] = KParameter; // NumSpeciesOrGuilds+ offset since need to skip over Growth Rate parameters
 
     if (Algorithm == "Bees Algorithm") {
-        std::unique_ptr<BeesAlgorithm> beesAlg(new BeesAlgorithm(m_theDataStruct,nmfConstantsMSSPM::VerboseOff));
+        std::unique_ptr<BeesAlgorithm> beesAlg(new BeesAlgorithm(m_DataStruct,nmfConstantsMSSPM::VerboseOff));
         return beesAlg->evaluateObjectiveFunction(parameters);
     } else if (Algorithm == "NLopt Algorithm") {
         std::unique_ptr<NLopt_Estimator> nlopt_Estimator(new NLopt_Estimator());
-        return nlopt_Estimator->objectiveFunction(unused1,&parameters[0],unused2,&m_theDataStruct);
+        return nlopt_Estimator->objectiveFunction(unused1,&parameters[0],unused2,&m_DataStruct);
     }
 }
 
@@ -582,9 +557,9 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
     std::string queryStr;
     QStringList tableNames = {};
 
-    if (m_theDataStruct.GrowthForm == "Linear") {
+    if (m_DataStruct.GrowthForm == "Linear") {
         tableNames << "OutputGrowthRate";
-    } else if (m_theDataStruct.GrowthForm == "Logistic") {
+    } else if (m_DataStruct.GrowthForm == "Logistic") {
         tableNames << "OutputGrowthRate";
         tableNames << "OutputCarryingCapacity";
     }
@@ -597,17 +572,17 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
         queryStr  += "' AND Scaling = '" + Scaling;
         queryStr  += "' AND isAggProd = " + isAggProd;
         queryStr  += "  AND MohnsRhoLabel = '' ORDER BY SpeName";
-        dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+        dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
-            m_logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab1::loadGrowthParameters: No records found in " + table.toStdString() + " table.");
-            m_logger->logMsg(nmfConstants::Error,queryStr);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab1::loadGrowthParameters: No records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         if (NumRecords != NumSpeciesOrGuilds) {
-            m_logger->logMsg(nmfConstants::Error,"[Error 2] nmfDiagnostic_Tab1::loadGrowthParameters: Found " + std::to_string(NumRecords) +
+            m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfDiagnostic_Tab1::loadGrowthParameters: Found " + std::to_string(NumRecords) +
                              " record(s) in " + table.toStdString() + ", expecting " + std::to_string(NumSpeciesOrGuilds));
-            m_logger->logMsg(nmfConstants::Error,queryStr);
+            m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -631,7 +606,7 @@ nmfDiagnostic_Tab1::loadHarvestParameters(
     std::string queryStr;
     QStringList tableNames = {};
 
-    if (m_theDataStruct.HarvestForm == "QE") {
+    if (m_DataStruct.HarvestForm == "QE") {
         tableNames << "OutputCatchability";
     }
     for (QString table : tableNames) {
@@ -642,16 +617,16 @@ nmfDiagnostic_Tab1::loadHarvestParameters(
         queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
         queryStr  += "' AND Scaling = '" + Scaling;
         queryStr  += "' AND MohnsRhoLabel = '' ORDER BY SpeName";
-        dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+        dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
-            m_logger->logMsg(nmfConstants::Error,"Error: No records found in " + table.toStdString() + " table.");
-            m_logger->logMsg(nmfConstants::Error,queryStr);
+            m_Logger->logMsg(nmfConstants::Error,"Error: No records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         if (NumRecords != NumSpeciesOrGuilds) {
-            m_logger->logMsg(nmfConstants::Error,"Error 1: nmfDiagnostic_Tab1::loadHarvestParameters: Incorrect number of records found in " + table.toStdString() + " table.");
-            m_logger->logMsg(nmfConstants::Error,queryStr);
+            m_Logger->logMsg(nmfConstants::Error,"Error 1: nmfDiagnostic_Tab1::loadHarvestParameters: Incorrect number of records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -685,12 +660,12 @@ nmfDiagnostic_Tab1::loadCompetitionParameters(
     std::string msg;
     std::string isAggProdStr = (isAggProd) ? "1" : "0";
 
-    if (m_theDataStruct.CompetitionForm == "NO_K") {
+    if (m_DataStruct.CompetitionForm == "NO_K") {
         tableNames << "OutputCompetitionAlpha";
-    } else if (m_theDataStruct.CompetitionForm == "MS-PROD") {
+    } else if (m_DataStruct.CompetitionForm == "MS-PROD") {
         tableNames << "OutputCompetitionBetaGuilds";
         tableNames << "OutputCompetitionBetaSpecies";
-    } else if (m_theDataStruct.CompetitionForm == "AGG-PROD") {
+    } else if (m_DataStruct.CompetitionForm == "AGG-PROD") {
         tableNames << "OutputCompetitionBetaGuilds";
     }
     for (QString table : tableNames) {
@@ -708,12 +683,12 @@ nmfDiagnostic_Tab1::loadCompetitionParameters(
         queryStr  += "' AND Scaling = '" + Scaling;
         queryStr  += "' AND isAggProd = " + isAggProdStr;
         queryStr  += "  AND MohnsRhoLabel = '' " + OrderBy;
-        dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+        dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
             msg = "[Error 1] nmfDiagnostic_Tab1::loadCompetitionParameters: No records found in " + table.toStdString() + " table.";
-            m_logger->logMsg(nmfConstants::Error,msg);
-            m_logger->logMsg(nmfConstants::Error,queryStr);
+            m_Logger->logMsg(nmfConstants::Error,msg);
+            m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
 
@@ -727,8 +702,8 @@ nmfDiagnostic_Tab1::loadCompetitionParameters(
             msg  = "[Error 2] nmfDiagnostic_Tab1::loadCompetitionParameters: Found " + std::to_string(NumRecords);
             msg += " records. Expecting: " + std::to_string(NumSpecies*NumGuilds);
             msg += " records, in " + table.toStdString() + " table.";
-            m_logger->logMsg(nmfConstants::Error,msg);
-            m_logger->logMsg(nmfConstants::Error,queryStr);
+            m_Logger->logMsg(nmfConstants::Error,msg);
+            m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         m = 0;
@@ -761,12 +736,12 @@ nmfDiagnostic_Tab1::loadPredationParameters(
     std::string OrderBy;
     std::string isAggProdStr = (isAggProd(Algorithm,Minimizer,ObjectiveCriterion,Scaling)) ? "1" : "0";
 
-    if (m_theDataStruct.PredationForm == "Type I") {
+    if (m_DataStruct.PredationForm == "Type I") {
         tableNames << "OutputPredation";
-    } else if (m_theDataStruct.PredationForm == "Type II") {
+    } else if (m_DataStruct.PredationForm == "Type II") {
         tableNames << "OutputPredation";
         tableNames << "OutputHandling";
-    } else if (m_theDataStruct.PredationForm == "Type III") {
+    } else if (m_DataStruct.PredationForm == "Type III") {
         tableNames << "OutputPredation";
         tableNames << "OutputHandling";
         tableNames << "OutputExponent";
@@ -787,17 +762,17 @@ nmfDiagnostic_Tab1::loadPredationParameters(
         queryStr  += "' AND Scaling = '" + Scaling;
         queryStr  += "' AND isAggProd = " + isAggProdStr;
         queryStr  += "  AND MohnsRhoLabel = '' " + OrderBy;
-        dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+        dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
-            m_logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab1::loadPredationParameters: No records found in " + table.toStdString() + " table.");
-            m_logger->logMsg(nmfConstants::Error,queryStr);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab1::loadPredationParameters: No records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         TotalRecords = (isExponent) ? NumSpeciesOrGuilds : NumSpeciesOrGuilds*NumSpeciesOrGuilds;
         if (NumRecords != TotalRecords) {
-            m_logger->logMsg(nmfConstants::Error,"[Error 2] nmfDiagnostic_Tab1::loadPredationParameters: Incorrect number of records found in " + table.toStdString() + " table.");
-            m_logger->logMsg(nmfConstants::Error,queryStr);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfDiagnostic_Tab1::loadPredationParameters: Incorrect number of records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         m = 0;
@@ -819,7 +794,7 @@ nmfDiagnostic_Tab1::loadPredationParameters(
 void
 nmfDiagnostic_Tab1::setDataStruct(Data_Struct& theDataStruct)
 {
-    m_theDataStruct = theDataStruct;
+    m_DataStruct = theDataStruct;
 }
 
 
@@ -847,10 +822,10 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
            "' AND Scaling = '" + Scaling +
            "' AND isAggProd = " + isAggProd;
-   errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+   errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
    if (errorMsg != " ") {
-       m_logger->logMsg(nmfConstants::Error,"[Error 1] UpdateParameterTable: DELETE error: " + errorMsg);
-       m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+       m_Logger->logMsg(nmfConstants::Error,"[Error 1] UpdateParameterTable: DELETE error: " + errorMsg);
+       m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
        return;
    }
 
@@ -870,10 +845,10 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
        }
    }
    cmd = cmd.substr(0,cmd.size()-1);
-   errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+   errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
    if (errorMsg != " ") {
-       m_logger->logMsg(nmfConstants::Error,"[Error 2] UpdateParameterTable: Write table error: " + errorMsg);
-       m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+       m_Logger->logMsg(nmfConstants::Error,"[Error 2] UpdateParameterTable: Write table error: " + errorMsg);
+       m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
        return;
    }
 
@@ -897,10 +872,10 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
            "' AND Scaling = '" + Scaling +
            "' AND isAggProd = " + isAggProd;
-   errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+   errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
    if (errorMsg != " ") {
-       m_logger->logMsg(nmfConstants::Error,"[Error 1a] UpdateParameterTable: DELETE error: " + errorMsg);
-       m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+       m_Logger->logMsg(nmfConstants::Error,"[Error 1a] UpdateParameterTable: DELETE error: " + errorMsg);
+       m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
        return;
    }
 
@@ -919,10 +894,10 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
        ++m;
    }
    cmd = cmd.substr(0,cmd.size()-1);
-   errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+   errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
    if (errorMsg != " ") {
-       m_logger->logMsg(nmfConstants::Error,"[Error 2a] UpdateParameterTable: Write table error: " + errorMsg);
-       m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+       m_Logger->logMsg(nmfConstants::Error,"[Error 2a] UpdateParameterTable: Write table error: " + errorMsg);
+       m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
        return;
    }
 

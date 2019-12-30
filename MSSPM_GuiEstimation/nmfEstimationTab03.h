@@ -3,7 +3,7 @@
 
 
 /**
- * @brief Competition Tables
+ * @brief Competition Data
  *
  * These tables allow user to enter and modify minimum and
  * maximum alpha and beta food Competition data.
@@ -13,18 +13,18 @@ class nmfEstimation_Tab3: public QObject
     Q_OBJECT
 
 private:
-    nmfLogger*                       m_logger;
-    nmfDatabase*                     m_databasePtr;
+    nmfLogger*                       m_Logger;
+    nmfDatabase*                     m_DatabasePtr;
     std::string                      m_ProjectDir;
     std::string                      m_ProjectSettingsConfig;
-    QString                          m_competitionForm;
-    QStringList                      m_speciesNames;
-    QStringList                      m_guildNames;
-    std::vector<QStandardItemModel*> m_smodels;
-    std::vector<QTableView*>         m_QTableViews;
-    std::vector<std::string>         m_alphaTables;
-    std::vector<std::string>         m_betaSpeciesTables;
-    std::vector<std::string>         m_betaGuildsTables;
+    QString                          m_CompetitionForm;
+    QStringList                      m_SpeciesNames;
+    QStringList                      m_GuildNames;
+    std::vector<QStandardItemModel*> m_SModels;
+    std::vector<QTableView*>         m_TableViews;
+    std::vector<std::string>         m_AlphaTables;
+    std::vector<std::string>         m_BetaSpeciesTables;
+    std::vector<std::string>         m_BetaGuildsTables;
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab3_Widget;
@@ -48,8 +48,9 @@ private:
     QPushButton* Estimation_Tab3_LoadPB;
     QCheckBox*   Estimation_Tab3_EstimateCB;
 
-    int getNumSpecies();
-    int getNumGuilds();
+    QStringList getSpecies();
+    QStringList getGuilds();
+    void        readSettings();
 
 public:
     /**
@@ -65,19 +66,54 @@ public:
                        std::string& projectDir);
     virtual ~nmfEstimation_Tab3();
 
-    bool loadWidgets();
+    /**
+     * @brief Clears the GUI's widgets
+     */
     void clearWidgets();
-    void readSettings();
-    void getAlgorithm(std::string &Algorithm);
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @return Returns true if all data were loaded successfully
+     */
+    bool loadWidgets();
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when user clicks Load button
+     */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when user clicks Save button
+     */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when user clicks Previous Page button
+     */
     void callback_PrevPB();
+    /**
+     * @brief Callback invoked when user clicks Next Page button
+     */
     void callback_NextPB();
-    void callback_minSplitterMoved(int pos, int index);
-    void callback_maxSplitterMoved(int pos, int index);
+    /**
+     * @brief Callback invoked when user changes any of the Minimum Competitive Effects splitters
+     * @param pos : position of the splitter
+     * @param index : the index of the splitter changed
+     */
+    void callback_MinSplitterMoved(int pos, int index);
+    /**
+     * @brief Callback invoked when user changes any of the Maximum Competitive Effects splitters
+     * @param pos : position of the splitter
+     * @param index : the index of the splitter changed
+     */
+    void callback_MaxSplitterMoved(int pos, int index);
+    /**
+     * @brief Callback invoked when user updates the Competition Form in the Setup -> Model Setup page
+     * @param competitionForm : the competition form selected by the user
+     */
     void callback_CompetitionFormChanged(QString competitionForm);
+    /**
+     * @brief Callback invoked when user toggles the Estimate checkbox
+     * @param state : when set to Checked means that the minimum and maxumum estimated value limits are the same (effectively defining the parameter(s))
+     */
     void callback_EstimateChecked(int state);
 };
 

@@ -10,8 +10,8 @@ MSSPM_GuiOutputControls::MSSPM_GuiOutputControls(
         nmfDatabase* databasePtr,
         std::string& projectDir)
 {
-    m_logger              = logger;
-    m_databasePtr         = databasePtr;
+    m_Logger              = logger;
+    m_DatabasePtr         = databasePtr;
     m_ProjectDir          = projectDir;
     m_SpeciesOrGuildModel = new QStringListModel(this);
     m_ProjectSettingsConfig.clear();
@@ -146,6 +146,10 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputShowMSYLE->setAlignment(Qt::AlignRight);
     OutputShowFMSYLE->setAlignment(Qt::AlignRight);
 
+    OutputTypeLBL->setToolTip("The type of chart that will be displayed");
+    OutputTypeLBL->setStatusTip("The type of chart that will be displayed");
+    OutputTypeCMB->setToolTip("The type of chart that will be displayed");
+    OutputTypeCMB->setStatusTip("The type of chart that will be displayed");
     OutputTypeCMB->addItem("Bc & Bo vs Time");
     OutputTypeCMB->addItem("Harvest vs Time");
     OutputTypeCMB->addItem("Fishing Mortality vs Time");
@@ -155,10 +159,10 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputTypeCMB->addItem("Diagnostics");
     OutputTypeCMB->addItem("Forecast");
     OutputTypeCMB->addItem("Multi-Scenario Plots");
-    OutputTypeCMB->setItemData(0, "Calculated and Observed Biomass vs Time for a Species",  Qt::ToolTipRole);
-    OutputTypeCMB->setItemData(1, "Calculated Biomass vs Time for one or more Species",     Qt::ToolTipRole);
-    OutputTypeCMB->setItemData(2, "Catch vs Calculated Biomass for a Species",              Qt::ToolTipRole);
-    OutputTypeCMB->setItemData(8, "Allows the user to view saved Forecasts simulataneously",Qt::ToolTipRole);
+    OutputTypeCMB->setItemData(0, "Calculated and Observed Biomass vs Time for a Species",    Qt::ToolTipRole);
+    OutputTypeCMB->setItemData(1, "Calculated Biomass vs Time for one or more Species",       Qt::ToolTipRole);
+    OutputTypeCMB->setItemData(2, "Catch vs Calculated Biomass for a Species",                Qt::ToolTipRole);
+    OutputTypeCMB->setItemData(8, "Allows the user to view multiple Forecasts simultaneously",Qt::ToolTipRole);
     // Disable 3 items for now....
     for (int i=3; i<6; ++i) {
         index = OutputTypeCMB->model()->index(i, 0);
@@ -184,14 +188,33 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputScenariosCMB->setEnabled(false);
     OutputMethodsCMB->setEnabled(false);
     OutputMethodsLBL->setEnabled(false);
-
+    OutputSpeciesCMB->setToolTip("The species reflected in the current chart");
+    OutputSpeciesCMB->setStatusTip("The species reflected in the current chart");
+    OutputSpeciesLBL->setToolTip("The species reflected in the current chart");
+    OutputSpeciesLBL->setStatusTip("The species reflected in the current chart");
+    OutputMethodsCMB->setToolTip("Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
+    OutputMethodsCMB->setStatusTip("Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
+    OutputMethodsLBL->setToolTip("Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
+    OutputMethodsLBL->setStatusTip("Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
+    OutputParametersCMB->setToolTip("Allows user to select which Parameter to view graphically");
+    OutputParametersCMB->setStatusTip("Allows user to select which Parameter to view graphically");
+    OutputParametersLBL->setToolTip("Allows user to select which Parameter to view graphically");
+    OutputParametersLBL->setStatusTip("Allows user to select which Parameter to view graphically");
+    OutputScenariosLBL->setToolTip("Allows user to select which Scenario to view");
+    OutputScenariosLBL->setStatusTip("Allows user to select which Scenario to view");
+    OutputScenariosCMB->setToolTip("Allows user to select which Scenario to view");
+    OutputScenariosCMB->setStatusTip("Allows user to select which Scenario to view");
     OutputScaleCMB->addItem("Default");
     OutputScaleCMB->addItem("000");
     OutputScaleCMB->addItem("000 000");
     OutputScaleCMB->addItem("000 000 000");
+    OutputScaleLBL->setToolTip("Sets the scale of the y-axis");
+    OutputScaleLBL->setStatusTip("Sets the scale of the y-axis");
+    OutputScaleCMB->setToolTip("Sets the scale of the y-axis");
+    OutputScaleCMB->setStatusTip("Sets the scale of the y-axis");
 
     loadSpeciesControlWidget();
-    callback_loadScenariosWidget();
+    callback_LoadScenariosWidget();
 
     readSettings();
 
@@ -234,7 +257,7 @@ MSSPM_GuiOutputControls::initConnections()
 }
 
 void
-MSSPM_GuiOutputControls::callback_loadScenariosWidget()
+MSSPM_GuiOutputControls::callback_LoadScenariosWidget()
 {
     int currentIndex = OutputScenariosCMB->currentIndex();
     std::vector<std::string> fields;
@@ -243,7 +266,7 @@ MSSPM_GuiOutputControls::callback_loadScenariosWidget()
 
     fields   = {"ScenarioName"};
     queryStr = "SELECT DISTINCT ScenarioName from ForecastBiomassMultiScenario ORDER BY ScenarioName";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
 
     OutputScenariosCMB->blockSignals(true);
     OutputScenariosCMB->clear();
@@ -266,7 +289,7 @@ MSSPM_GuiOutputControls::loadWidgets()
 {
     loadSortedForecastLabels();
     loadSpeciesControlWidget();
-    callback_loadScenariosWidget();
+    callback_LoadScenariosWidget();
 
 }
 
@@ -274,7 +297,7 @@ MSSPM_GuiOutputControls::loadWidgets()
 void
 MSSPM_GuiOutputControls::loadSortedForecastLabels()
 {
-    m_databasePtr->createScenarioMap(m_SortedForecastLabelsMap);
+    m_DatabasePtr->createScenarioMap(m_SortedForecastLabelsMap);
 }
 
 void
@@ -292,13 +315,13 @@ MSSPM_GuiOutputControls::loadSpeciesControlWidget()
 
     readSettings();
 
-    m_databasePtr->getAlgorithmIdentifiers(
-                ControlsGroupBox,m_logger,m_ProjectSettingsConfig,
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                ControlsGroupBox,m_Logger,m_ProjectSettingsConfig,
                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                 CompetitionForm,nmfConstantsMSSPM::ShowPopupError);
 
     if (! getGuilds(NumGuilds,GuildList)) {
-        m_logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::loadSpeciesControlWidget: No records found in table Guilds, Name = "+m_ProjectSettingsConfig);
+        m_Logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::loadSpeciesControlWidget: No records found in table Guilds, Name = "+m_ProjectSettingsConfig);
         return;
     }
     if (CompetitionForm == "AGG-PROD") {
@@ -306,7 +329,7 @@ MSSPM_GuiOutputControls::loadSpeciesControlWidget()
        SpeciesList = GuildList;
     } else {
         if (! getSpecies(NumSpecies,SpeciesList)) {
-            m_logger->logMsg(nmfConstants::Error,"[Error 2] loadSpeciesControlWidget: No records found in table Species, Name = "+m_ProjectSettingsConfig);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 2] loadSpeciesControlWidget: No records found in table Species, Name = "+m_ProjectSettingsConfig);
             return;
         }
     }
@@ -354,10 +377,10 @@ MSSPM_GuiOutputControls::getSpecies(int&         NumSpecies,
 
     fields     = {"SpeName"};
     queryStr   = "SELECT SpeName from Species ORDER BY SpeName";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     if (NumSpecies == 0) {
-        m_logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::getSpecies: No species found in table Species");
+        m_Logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::getSpecies: No species found in table Species");
         return false;
     }
 
@@ -380,10 +403,10 @@ MSSPM_GuiOutputControls::getGuilds(int&         NumGuilds,
 
     fields    = {"GuildName"};
     queryStr  = "SELECT GuildName from Guilds ORDER BY GuildName";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds = dataMap["GuildName"].size();
     if (NumGuilds == 0) {
-        m_logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::getGuilds: No guilds found in table Guilds");
+        m_Logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::getGuilds: No guilds found in table Guilds");
         return false;
     }
 
@@ -557,7 +580,7 @@ MSSPM_GuiOutputControls::refreshScenarios()
 
     fields     = {"ScenarioName"};
     queryStr   = "SELECT DISTINCT ScenarioName FROM ForecastBiomassMultiScenario";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ScenarioName"].size();
 
     OutputScenariosCMB->clear();
@@ -652,7 +675,7 @@ MSSPM_GuiOutputControls::callback_OutputScenariosCMB(QString scenario)
 
     if (m_SortedForecastLabelsMap[scenario].empty()) {
         msg = "Warning: Map has a key (" + scenario.toStdString() + ") but no associated data";
-        m_logger->logMsg(nmfConstants::Warning,msg);
+        m_Logger->logMsg(nmfConstants::Warning,msg);
         return;
     }
     emit ShowChartMultiScenario(m_SortedForecastLabelsMap[scenario]);
@@ -753,8 +776,8 @@ MSSPM_GuiOutputControls::isAggProd()
     std::string Scaling;
     std::string CompetitionForm;
 
-    m_databasePtr->getAlgorithmIdentifiers(
-                ControlsGroupBox,m_logger,m_ProjectSettingsConfig,
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                ControlsGroupBox,m_Logger,m_ProjectSettingsConfig,
                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                 CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
@@ -838,7 +861,7 @@ MSSPM_GuiOutputControls::getOutputSpecies()
 }
 
 QString
-MSSPM_GuiOutputControls::getOutputMethod()
+MSSPM_GuiOutputControls::getOutputDiagnostics()
 {
     return OutputMethodsCMB->currentText();
 }
@@ -847,6 +870,18 @@ int
 MSSPM_GuiOutputControls::getOutputSpeciesIndex()
 {
     return OutputSpeciesCMB->currentIndex();
+}
+
+QString
+MSSPM_GuiOutputControls::getOutputType()
+{
+    return OutputTypeCMB->currentText();
+}
+
+QString
+MSSPM_GuiOutputControls::getOutputScenario()
+{
+    return OutputScenariosCMB->currentText();
 }
 
 void
@@ -859,24 +894,6 @@ void
 MSSPM_GuiOutputControls::setOutputSpeciesIndex(int index)
 {
     OutputSpeciesCMB->setCurrentIndex(index);
-}
-
-QString
-MSSPM_GuiOutputControls::getOutputType()
-{
-    return OutputTypeCMB->currentText();
-}
-
-QString
-MSSPM_GuiOutputControls::getOutputDiagnostics()
-{
-    return OutputMethodsCMB->currentText();
-}
-
-QString
-MSSPM_GuiOutputControls::getOutputScenario()
-{
-    return OutputScenariosCMB->currentText();
 }
 
 void
@@ -898,6 +915,7 @@ MSSPM_GuiOutputControls::setOutputDiagnostics(QString method)
     OutputMethodsCMB->setCurrentIndex(0);
     OutputMethodsCMB->setCurrentText(method);
 }
+
 
 
 QString

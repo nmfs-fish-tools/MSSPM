@@ -13,22 +13,22 @@ class nmfForecast_Tab3: public QObject
     Q_OBJECT
 
 private:
-    QStandardItemModel* m_smodel;
-    nmfLogger*          m_logger;
-    nmfDatabase*        m_databasePtr;
-    bool                m_isAggProd;
-    QString             m_alpha;
-    QString             m_betaS;
-    QString             m_betaG;
-    QString             m_rho;
-    std::string         m_ProjectSettingsConfig;
-    std::string         m_ProjectDir;
+    QString             m_Alpha;
+    QString             m_BetaS;
+    QString             m_BetaG;
+    std::string         m_CompetitionForm;
+    nmfDatabase*        m_DatabasePtr;
+    std::map<std::string,std::vector<std::string> > m_FormMap;
     std::string         m_GrowthForm;
     std::string         m_HarvestForm;
-    std::string         m_CompetitionForm;
-    std::string         m_PredationForm;
+    bool                m_IsAggProd;
+    nmfLogger*          m_Logger;
     QStringList         m_ParameterNames;
-    std::map<std::string,std::vector<std::string> > m_FormMap;
+    std::string         m_PredationForm;
+    std::string         m_ProjectDir;
+    std::string         m_ProjectSettingsConfig;
+    QString             m_Rho;
+    QStandardItemModel* m_SModel;
 
     QTabWidget*  Forecast_Tabs;
     QWidget*     Forecast_Tab3_Widget;
@@ -61,20 +61,55 @@ public:
                      std::string& projectDir);
     virtual ~nmfForecast_Tab3();
 
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @return Returns true if all data were loaded successfully
+     */
     bool loadWidgets();
 
 signals:
+    /**
+     * @brief Signal emitted to run a new Forecast
+     * @param ForecastName : name of Forecast to run
+     * @param GenerateBiomass : boolean specifying whether to generate the biomass data or Monte Carlo simulations
+     */
     void RunForecast(std::string ForecastName,
                      bool GenerateBiomass);
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when user clicks Load button
+     */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when user clicks Save button
+     */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when user clicks Previous Page button
+     */
     void callback_PrevPB();
+    /**
+     * @brief Callback invoked when user clicks Next Page button
+     */
     void callback_NextPB();
+    /**
+     * @brief Callback invoked when the user changes an item in the Uncertainty Parameters data table. If
+     * the autosave button is checked, the Forecast will update after the user changes an item.
+     * @param unusedA : unused parameter
+     * @param unusedB : unused parameter
+     */
     void callback_ItemChanged(const QModelIndex& unusedA,
                               const QModelIndex& unusedB);
+    /**
+     * @brief Callback invoked when user right clicks over the Uncertainty Parameters data table.
+     * A Popup menu will appear asking the user if they want to clear the selected table items.
+     * @param point : point on the GUI at which the user clicked (needed so as to know where to draw the popup GUI)
+     */
     void callback_ContextMenu(QPoint point);
+    /**
+     * @brief Callback invoked when the user selects clear from the right click context menu
+     */
     void callback_ClearSelection();
 };
 

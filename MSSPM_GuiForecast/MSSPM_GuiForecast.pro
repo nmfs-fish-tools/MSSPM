@@ -27,18 +27,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    LoadForecastDlg.cpp \
+    MultiScenarioSaveDlg.cpp \
     nmfForecastTab01.cpp \
     nmfForecastTab02.cpp \
     nmfForecastTab04.cpp \
-    nmfForecastTab03.cpp \
-    MultiScenarioSaveDialog.cpp
+    nmfForecastTab03.cpp
 
 HEADERS += \
+    LoadForecastDlg.h \
+    MultiScenarioSaveDlg.h \
+    mainpage.h \
     nmfForecastTab01.h \
     nmfForecastTab02.h \
     nmfForecastTab04.h \
     nmfForecastTab03.h \
-    MultiScenarioSaveDialog.h \
     precompiled_header.h
 
 unix {

@@ -30,6 +30,7 @@ SOURCES += \
     nmfOutputControls.cpp
 
 HEADERS += \
+    mainpage.h \
     nmfOutputControls.h
 
 unix {

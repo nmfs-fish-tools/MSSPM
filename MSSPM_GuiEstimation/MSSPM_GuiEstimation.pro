@@ -35,6 +35,7 @@ SOURCES += \
     nmfEstimationTab06.cpp
 
 HEADERS += \
+    mainpage.h \
     nmfEstimationTab01.h \
     nmfEstimationTab02.h \
     nmfEstimationTab03.h \

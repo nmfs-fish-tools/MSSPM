@@ -91,7 +91,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Allows User to Save Multiple Forecasts.  
+<p>Dialog to Save Multiple Forecasts.  
  <a href="class_multi_scenario_save_dialog.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_multi_scenario_save_dialog_8h_source.html">MultiScenarioSaveDialog.h</a>&gt;</code></p>
@@ -114,9 +114,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>RefreshOutput</b> ()<
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:afe621676abe55266d49386445384e983"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multi_scenario_save_dialog.html#afe621676abe55266d49386445384e983">MultiScenarioSaveDialog</a> (QTabWidget *parent, nmfDatabase *databasePtr, nmfLogger *logger, std::map&lt; QString, QStringList &gt; &amp;SortedForecastLabelsMap, std::string &amp;currentScenario, std::string forecastName)</td></tr>
-<tr class="memdesc:afe621676abe55266d49386445384e983"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_multi_scenario_save_dialog.html" title="Allows User to Save Multiple Forecasts. ">MultiScenarioSaveDialog</a> : class constructor.  <a href="#afe621676abe55266d49386445384e983">More...</a><br /></td></tr>
-<tr class="separator:afe621676abe55266d49386445384e983"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31b8f7ea4c89aa27effe8283c0e6d5f7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_multi_scenario_save_dialog.html#a31b8f7ea4c89aa27effe8283c0e6d5f7">MultiScenarioSaveDialog</a> (QTabWidget *parent, nmfDatabase *databasePtr, nmfLogger *logger, std::string &amp;ProjectSettingsConfig, std::map&lt; QString, QStringList &gt; &amp;SortedForecastLabelsMap, std::string &amp;currentScenario, std::string forecastName)</td></tr>
+<tr class="memdesc:a31b8f7ea4c89aa27effe8283c0e6d5f7"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_multi_scenario_save_dialog.html" title="Dialog to Save Multiple Forecasts. ">MultiScenarioSaveDialog</a> : class constructor.  <a href="#a31b8f7ea4c89aa27effe8283c0e6d5f7">More...</a><br /></td></tr>
+<tr class="separator:a31b8f7ea4c89aa27effe8283c0e6d5f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70597727cd1b701d09306bb92ac8a7bb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a70597727cd1b701d09306bb92ac8a7bb"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>getScenarioName</b> ()</td></tr>
 <tr class="separator:a70597727cd1b701d09306bb92ac8a7bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,10 +134,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>loadWidgets</b> ()</t
 <tr class="separator:a2df087010eb031f6874b83bed8886902"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Allows User to Save Multiple Forecasts. </p>
+<div class="textblock"><p>Dialog to Save Multiple Forecasts. </p>
 <p>Users may save multiple Forecasts into a Scenario for comparative analysis. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="afe621676abe55266d49386445384e983"></a>
+<a class="anchor" id="a31b8f7ea4c89aa27effe8283c0e6d5f7"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -158,6 +158,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>loadWidgets</b> ()</t
           <td></td>
           <td class="paramtype">nmfLogger *&#160;</td>
           <td class="paramname"><em>logger</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>ProjectSettingsConfig</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -185,7 +191,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>loadWidgets</b> ()</t
       </table>
 </div><div class="memdoc">
 
-<p><a class="el" href="class_multi_scenario_save_dialog.html" title="Allows User to Save Multiple Forecasts. ">MultiScenarioSaveDialog</a> : class constructor. </p>
+<p><a class="el" href="class_multi_scenario_save_dialog.html" title="Dialog to Save Multiple Forecasts. ">MultiScenarioSaveDialog</a> : class constructor. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">parent</td><td>: the tab widget into which this Estimation tab will be placed </td></tr>

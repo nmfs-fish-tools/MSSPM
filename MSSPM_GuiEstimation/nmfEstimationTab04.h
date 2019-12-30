@@ -3,7 +3,7 @@
 
 
 /**
- * @brief Predation Tables
+ * @brief Predation Data
  *
  * These tables allow user to enter and modify minimum and
  * maximum coefficients for Predation Effect (rho), Handling Time (h),
@@ -13,13 +13,13 @@ class nmfEstimation_Tab4: public QObject
 {
     Q_OBJECT
 
-    nmfLogger*               m_logger;
-    nmfDatabase*             m_databasePtr;
-    std::string              m_predationForm;
+    nmfLogger*               m_Logger;
+    nmfDatabase*             m_DatabasePtr;
+    std::string              m_PredationForm;
     std::string              m_ProjectDir;
     std::string              m_ProjectSettingsConfig;
-    std::vector<QTableView*> m_QTableViews1d;
-    std::vector<QTableView*> m_QTableViews2d;
+    std::vector<QTableView*> m_TableViews1d;
+    std::vector<QTableView*> m_TableViews2d;
     std::vector<std::string> m_Tables1d;
     std::vector<std::string> m_Tables2d;
     std::vector<QStandardItemModel*> m_smodels1d;
@@ -47,6 +47,11 @@ class nmfEstimation_Tab4: public QObject
     QPushButton* Estimation_Tab4_SavePB;
     QCheckBox*   Estimation_Tab4_EstimateCB;
 
+    void getForms(std::string& predationForm,
+                  std::string& competitionForm);
+    int  getNumSpecies();
+    void readSettings();
+
 public:
     /**
      * @brief nmfEstimation_Tab4 : class constructor
@@ -55,29 +60,61 @@ public:
      * @param databasePtr : pointer to the application database
      * @param projectDir : the project directory
      */
-    nmfEstimation_Tab4(QTabWidget  *tabs,
-                       nmfLogger   *logger,
-                       nmfDatabase *databasePtr,
-                       std::string &projectDir);
+    nmfEstimation_Tab4(QTabWidget*  tabs,
+                       nmfLogger*   logger,
+                       nmfDatabase* databasePtr,
+                       std::string& projectDir);
     virtual ~nmfEstimation_Tab4();
 
-    bool loadWidgets();
+    /**
+     * @brief Clears the GUI's widgets
+     */
     void clearWidgets();
-    void readSettings();
-    void getAlgorithm(std::string &Algorithm);
-    std::string getForms();
-    void getForms(std::string& predationForm,
-                  std::string& competitionForm);
-    int getNumSpecies();
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @return Returns true if all data were loaded successfully
+     */
+    bool loadWidgets();
+
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when user clicks Load button
+     */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when user clicks Save button
+     */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when user clicks Previous Page button
+     */
     void callback_PrevPB();
+    /**
+     * @brief Callback invoked when user clicks Next Page button
+     */
     void callback_NextPB();
+    /**
+     * @brief Callback invoked when user updates the Predation Form in the Setup -> Model Setup page
+     * @param predationForm : the predation form selected by the user
+     */
     void callback_PredationFormChanged(QString predationForm);
-    void callback_minSplitterMoved(int pos, int index);
-    void callback_maxSplitterMoved(int pos, int index);
+    /**
+     * @brief Callback invoked when user changes any of the Minimum Predator Coeficients splitters
+     * @param pos : position of the splitter
+     * @param index : the index of the splitter changed
+     */
+    void callback_MinSplitterMoved(int pos, int index);
+    /**
+     * @brief Callback invoked when user changes any of the Minimum Competitive Effects splitters
+     * @param pos : position of the splitter
+     * @param index : the index of the splitter changed
+     */
+    void callback_MaxSplitterMoved(int pos, int index);
+    /**
+     * @brief Callback invoked when user toggles the Estimate checkbox
+     * @param state : when set to Checked means that the minimum and maxumum estimated value limits are the same (effectively defining the parameter(s))
+     */
     void callback_EstimateChecked(int state);
 };
 

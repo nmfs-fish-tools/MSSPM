@@ -12,14 +12,14 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     QUiLoader loader;
 
     Forecast_Tabs = tabs;
-    m_logger      = logger;
-    m_databasePtr = databasePtr;
-    m_smodel      = nullptr;
-    m_isAggProd   = false;
+    m_Logger      = logger;
+    m_DatabasePtr = databasePtr;
+    m_SModel      = nullptr;
+    m_IsAggProd   = false;
     m_ProjectDir  = projectDir;
     m_ProjectSettingsConfig.clear();
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab3::nmfForecast_Tab3");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab3::nmfForecast_Tab3");
 
     // Load ui as a widget from disk
     QFile file(":/forms/Forecast/Forecast_Tab03.ui");
@@ -57,29 +57,29 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     Forecast_Tab3_NextPB->setText("--\u25B7");
 
     // Set up mapping from form name to parameters in that form
-    m_alpha = QString("Competition (") + QChar(0x03B1) + QString(")");
-    m_betaS = QString("Competition (") + QChar(0x03B2) + QString("(i))");
-    m_betaG = QString("Competition (") + QChar(0x03B2) + QString("(G))");
-    m_rho   = QString("Predation (")   + QChar(0x03C1) + QString(")");
+    m_Alpha = QString("Competition (") + QChar(0x03B1) + QString(")");
+    m_BetaS = QString("Competition (") + QChar(0x03B2) + QString("(i))");
+    m_BetaG = QString("Competition (") + QChar(0x03B2) + QString("(G))");
+    m_Rho   = QString("Predation (")   + QChar(0x03C1) + QString(")");
     m_FormMap["Linear"]   = {"Growth Rate (r)"};
     m_FormMap["Logistic"] = {"Growth Rate (r)","Carrying Capacity (K)"};
     m_FormMap["F"]        = {"Exploitation"};
     m_FormMap["QE"]       = {"Catchability (q)","Effort"};
     m_FormMap["Catch"]    = {"Catch"};
-    m_FormMap["NO_K"]     = {m_alpha.toStdString()};
-    m_FormMap["MS-PROD"]  = {m_betaS.toStdString(),m_betaG.toStdString()};
-    m_FormMap["AGG-PROD"] = {m_alpha.toStdString(),m_betaG.toStdString()};
-    m_FormMap["Type I"]   = {m_rho.toStdString()};
-    m_FormMap["Type II"]  = {m_rho.toStdString(),"Handling (h)"};
-    m_FormMap["Type III"] = {m_rho.toStdString(),"Handling (h)","Exponent (b)"};
+    m_FormMap["NO_K"]     = {m_Alpha.toStdString()};
+    m_FormMap["MS-PROD"]  = {m_BetaS.toStdString(),m_BetaG.toStdString()};
+    m_FormMap["AGG-PROD"] = {m_Alpha.toStdString(),m_BetaG.toStdString()};
+    m_FormMap["Type I"]   = {m_Rho.toStdString()};
+    m_FormMap["Type II"]  = {m_Rho.toStdString(),"Handling (h)"};
+    m_FormMap["Type III"] = {m_Rho.toStdString(),"Handling (h)","Exponent (b)"};
 
     m_ParameterNames.clear();
     m_ParameterNames << "Growth Rate (r)";
     m_ParameterNames << "Carrying Capacity (K)";
-    m_ParameterNames << m_rho;
-    m_ParameterNames << m_alpha;
-    m_ParameterNames << m_betaS;
-    m_ParameterNames << m_betaG;
+    m_ParameterNames << m_Rho;
+    m_ParameterNames << m_Alpha;
+    m_ParameterNames << m_BetaS;
+    m_ParameterNames << m_BetaG;
     m_ParameterNames << "Handling (h)";
     m_ParameterNames << "Exponent (b)";
     m_ParameterNames << "Catchability (q)";
@@ -123,7 +123,7 @@ nmfForecast_Tab3::callback_ClearSelection()
     for (int i=0; i<selectedIndexesList.size(); ++i) {
         item = new QStandardItem(QString("0.0"));
         item->setTextAlignment(Qt::AlignCenter);
-        m_smodel->setItem(selectedIndexesList[i].row(),selectedIndexesList[i].column(), item);
+        m_SModel->setItem(selectedIndexesList[i].row(),selectedIndexesList[i].column(), item);
     }
 }
 
@@ -176,20 +176,20 @@ nmfForecast_Tab3::callback_SavePB()
         return;
     }
 
-    if (m_smodel == NULL) {
+    if (m_SModel == NULL) {
         std::cout << "Error: smodel is NULL" << std::endl;
         return;
     }
 
-    for (int j=0; j<m_smodel->rowCount(); ++ j) {
-        SpeNames.push_back(m_smodel->verticalHeaderItem(j)->text().toStdString());
+    for (int j=0; j<m_SModel->rowCount(); ++ j) {
+        SpeNames.push_back(m_SModel->verticalHeaderItem(j)->text().toStdString());
     }
 
     // Get Alg, Min, ObjCrit
     fields     = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling"};
     queryStr   = "SELECT ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling FROM Forecasts where ";
     queryStr  += "ForecastName = '" + ForecastName + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
     if (NumRecords == 0) {
         std::cout << "Error: No records found." << std::endl;
@@ -203,10 +203,10 @@ nmfForecast_Tab3::callback_SavePB()
 
     // Clear previous entry in ForecastUncertainty table
     cmd = "DELETE FROM ForecastUncertainty WHERE ForecastName = '" + ForecastName + "'";
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfForecast_Tab3::callback_SavePB: DELETE error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab3::callback_SavePB: DELETE error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Forecast_Tabs, "Error",
                              "\nError in Save command.  Couldn't delete all records from ForecastUncertainty table.\n",
                              QMessageBox::Ok);
@@ -219,20 +219,20 @@ nmfForecast_Tab3::callback_SavePB()
     cmd += "SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     cmd += "GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
     cmd += "BetaGuilds,Handling,Exponent,Catchability,Harvest) VALUES ";
-    for (int i=0; i<m_smodel->rowCount(); ++i) { // Species
+    for (int i=0; i<m_SModel->rowCount(); ++i) { // Species
             cmd += "('" + SpeNames[i] + "','" + ForecastName + "','" + Algorithm +
                     "','" + Minimizer + "','" + ObjectiveCriterion + "','" + Scaling + "'";
-            for (int j=0; j<m_smodel->columnCount(); ++j) { // Parameters
-                index = m_smodel->index(i,j);
+            for (int j=0; j<m_SModel->columnCount(); ++j) { // Parameters
+                index = m_SModel->index(i,j);
                 cmd  += "," + index.data().toString().toStdString();
             }
             cmd += "),";
     }
     cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfForecast_Tab3::callback_SavePB: Write table error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab3::callback_SavePB: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Forecast_Tabs, "Error",
                              "\nError in Save command.  Check that all cells are populated.\n",
                              QMessageBox::Ok);
@@ -277,7 +277,7 @@ nmfForecast_Tab3::callback_LoadPB()
 bool
 nmfForecast_Tab3::loadWidgets()
 {
-std::cout << "nmfForecast_Tab3::loadWidgets()" << std::endl;
+    m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab3::loadWidgets()");
 
     int m;
     int NumSpeciesOrGuilds;
@@ -300,19 +300,19 @@ std::cout << "nmfForecast_Tab3::loadWidgets()" << std::endl;
     fields    = {"ForecastName","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
     queryStr  = "SELECT ForecastName,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm FROM Forecasts where ";
     queryStr += "ForecastName = '" + ForecastName + "'";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         m_GrowthForm      = dataMap["GrowthForm"][0];
         m_HarvestForm     = dataMap["HarvestForm"][0];
         m_CompetitionForm = dataMap["WithinGuildCompetitionForm"][0];
         m_PredationForm   = dataMap["PredationForm"][0];
     }
-    m_isAggProd = (m_CompetitionForm == "AGG-PROD");
+    m_IsAggProd = (m_CompetitionForm == "AGG-PROD");
 
     // Get Guild info
     fields    = {"GuildName"};
     queryStr  = "SELECT GuildName from Guilds ORDER by GuildName";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds = dataMap["GuildName"].size();
     for (int i=0; i<NumGuilds; ++i) {
         GuildNames << QString::fromStdString(dataMap["GuildName"][i]);
@@ -321,13 +321,13 @@ std::cout << "nmfForecast_Tab3::loadWidgets()" << std::endl;
     // Get species info
     fields = {"SpeName"};
     queryStr   = "SELECT SpeName FROM Species";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
     }
 
-    if (m_isAggProd) {
+    if (m_IsAggProd) {
         NumSpeciesOrGuilds  = NumGuilds;
         SpeciesOrGuildNames = GuildNames;
     } else {
@@ -335,7 +335,7 @@ std::cout << "nmfForecast_Tab3::loadWidgets()" << std::endl;
         SpeciesOrGuildNames = SpeciesNames;
     }
 
-    m_smodel = new QStandardItemModel( NumSpeciesOrGuilds, NumParameters );
+    m_SModel = new QStandardItemModel( NumSpeciesOrGuilds, NumParameters );
 
     bool ForecastNameExists = ! ForecastName.empty();
     if (ForecastNameExists) {
@@ -347,7 +347,7 @@ std::cout << "nmfForecast_Tab3::loadWidgets()" << std::endl;
         queryStr  += "GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
         queryStr  += "BetaGuilds,Handling,Exponent,Catchability,Harvest FROM ForecastUncertainty where ";
         queryStr  += "ForecastName = '" + ForecastName + "'";
-        dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+        dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["ForecastName"].size();
         uncertaintyDataAvailable = (NumRecords == NumSpeciesOrGuilds);
     }
@@ -369,7 +369,7 @@ std::cout << "nmfForecast_Tab3::loadWidgets()" << std::endl;
             for (int j=0; j<NumParameters; ++j) {
                 item = new QStandardItem(param[j]);
                 item->setTextAlignment(Qt::AlignCenter);
-                m_smodel->setItem(i, j, item);
+                m_SModel->setItem(i, j, item);
             }
             ++m;
         }
@@ -377,9 +377,9 @@ std::cout << "nmfForecast_Tab3::loadWidgets()" << std::endl;
         clearUncertaintyTable(NumSpeciesOrGuilds,NumParameters);
     }
 
-    m_smodel->setVerticalHeaderLabels(SpeciesOrGuildNames);
-    m_smodel->setHorizontalHeaderLabels(m_ParameterNames);
-    Forecast_Tab3_UncertaintyTV->setModel(m_smodel);
+    m_SModel->setVerticalHeaderLabels(SpeciesOrGuildNames);
+    m_SModel->setHorizontalHeaderLabels(m_ParameterNames);
+    Forecast_Tab3_UncertaintyTV->setModel(m_SModel);
     Forecast_Tab3_UncertaintyTV->resizeColumnsToContents();
     // Change column width to 0 for any parameters not reflected in the current model
     adjustColumnVisibility();
@@ -424,7 +424,7 @@ nmfForecast_Tab3::clearUncertaintyTable(int& NumSpeciesOrGuilds, int& NumParamet
         for (int j=0; j<NumParameters; ++j) {
             item = new QStandardItem(QString(""));
             item->setTextAlignment(Qt::AlignCenter);
-            m_smodel->setItem(i, j, item);
+            m_SModel->setItem(i, j, item);
         }
     }
 }

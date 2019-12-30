@@ -1,63 +1,11 @@
 #ifndef NMFFORECASTTAB1_H
 #define NMFFORECASTTAB1_H
 
-
-/**
- * @brief Dialog to Load a Forecast
- *
- * The user can load a previously saved Forecast. To delete
- * a Forecast, the user right clicks over a saved Forecast and
- * selects Delete. In order to avoid accidental deletion, this
- * option was made a bit hard to find.
- */
-class LoadForecastDlg : public QDialog
-{
-    Q_OBJECT
-
-private:
-    nmfLogger*               m_logger;
-    nmfDatabase*             m_databasePtr;
-    QString                  m_ForecastName;
-    QLineEdit*               m_ForecastNameLE;
-    QSpinBox*                m_ForecastRunLengthSB;
-    QSpinBox*                m_ForecastNumRunsSB;
-    QDialogButtonBox*        m_ButtonBox;
-    QListWidget*             m_ForecastsLW;
-    std::vector<std::string> m_ForecastNames;
-
-public:
-    /**
-     * @brief Dialog to select Forecast to Load
-     * @param title : title of the dialog
-     * @param parent : pointer to the parent widget of this dialog
-     * @param logger : pointer to the application logger
-     * @param databasePtr : pointer to the application database
-     * @param forecastName : name of Forecast
-     * @param runLengthSB : Spin Box for the number of Years per Run
-     * @param numRunsSB : Spin Box for the number of Runs in the current Forecast
-     */
-    LoadForecastDlg(const QString&     title,
-                          QWidget*     parent,
-                          nmfLogger*   logger,
-                          nmfDatabase* databasePtr,
-                          QLineEdit*   forecastName,
-                          QSpinBox*    runLengthSB,
-                          QSpinBox*    numRunsSB);
-   ~LoadForecastDlg() {}
-
-    void loadWidgets();
-    std::string getSelectedItem();
-
-public slots:
-    void callback_LoadOk();
-    void callback_itemDoubleClicked(QListWidgetItem* item);
-    void callback_ContextMenu(QPoint pos);
-    void callback_DeleteSelection();
-};
+#include "LoadForecastDlg.h"
 
 
 /**
- * @brief The Forecast Setup
+ * @brief Forecast Setup
  *
  * These widgets allow the user to enter Forecast setup information
  * such as Forecast year range, number of runs in Forecast, and
@@ -68,11 +16,11 @@ class nmfForecast_Tab1: public QObject
     Q_OBJECT
 
 private:
-    nmfLogger*          m_logger;
-    nmfDatabase*        m_databasePtr;
-    QStandardItemModel* m_smodel;
+    nmfDatabase*        m_DatabasePtr;
+    nmfLogger*          m_Logger;
     std::string         m_ProjectDir;
     std::string         m_ProjectSettingsConfig;
+    QStandardItemModel* m_SModel;
 
     QTabWidget*  Forecast_Tabs;
     QWidget*     Forecast_Tab1_Widget;
@@ -96,10 +44,6 @@ private:
     QCheckBox*   Forecast_Tab1_DeterministicCB;
 
     void loadForecast(std::string forecastToLoad);
-    void getAlgorithms(std::string &algorithm,
-                       std::string &minimizer,
-                       std::string &objectiveCriterion,
-                       std::string &scaling);
     void readSettings();
 
 public:
@@ -116,27 +60,79 @@ public:
                      std::string& projectDir);
     virtual ~nmfForecast_Tab1();
 
+    /**
+     * @brief Clears all GUI widgets
+     */
     void        clearWidgets();
+    /**
+     * @brief Returns the forecast name the user inputted. This is the name of the forecast that will be generated.
+     * @return Returns the string name of the forecast the user inputted
+     */
     std::string getForecastName();
+    /**
+     * @brief Returns the seed value associated with the non-deterministic forecast run
+     * @return The integer seed value to set if running a non-deterministic forecast
+     */
     int         getSeed();
+    /**
+     * @brief Returns the start year associated with this forecast
+     * @return The integer start year associated with this forecast
+     */
     int         getStartForecastYear();
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @return Returns true if all data were loaded successfully
+     */
     bool        loadWidgets();
+    /**
+     * @brief Saves the GUIs settings to a Qt settings file
+     */
     void        saveSettings();
 
 signals:
+    /**
+     * @brief Signal emitted when a new forecast has been loaded
+     * @param forecastLoaded : the name of the forecast loaded
+     */
     void ForecastLoaded(std::string forecastLoaded);
+    /**
+     * @brief If the model is an AggProd model, set any output controls accordingly
+     */
     void ResetOutputWidgetsForAggProd();
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when user clicks Load button
+     */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when user clicks Save button
+     */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when user clicks Next Page button
+     */
     void callback_NextPB();
+    /**
+     * @brief Callback invoked when user clicks the Set button. It loads the forecast name with the name of the last project settings configuration.
+     */
     void callback_SetNamePB();
-    void callback_PreviousRunCB(bool state);
-    void callback_AlgorithmCMB(QString algorithm);
-    void callback_MinimizerCMB(QString minimizer);
-    void callback_RunLengthSB(int duration);
+//  void callback_PreviousRunCB(bool state);
+//  void callback_AlgorithmCMB(QString algorithm);
+//  void callback_MinimizerCMB(QString minimizer);
+    /**
+     * @brief Callback invoked when user changes the Number of Years in Run widget
+     * @param numYears : Number of years in current forecast
+     */
+    void callback_RunLengthSB(int numYears);
+    /**
+     * @brief Callback invoked when user changes the deterministic checkbox. This checkbox is used to determine if the current forecast should run deterministically or stochastically.
+     * @param checked : The checked state of the checkbox
+     */
     void callback_DeterministicCB(int checked);
+    /**
+     * @brief Callback invoked when user changes the year range from the Setup -> Model Setup page
+     */
     void callback_UpdateForecastYears();
 };
 

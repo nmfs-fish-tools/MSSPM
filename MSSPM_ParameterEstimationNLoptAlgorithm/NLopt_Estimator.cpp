@@ -557,7 +557,7 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
                         m_Parameters.size(),NumSubRuns,
                         minf,fitnessStdDev,NLoptStruct,bestFitnessStr);
 
-        emit RunCompleted(QString::fromStdString(bestFitnessStr));
+        emit RunCompleted(bestFitnessStr);
     }
     catch (std::exception &e) {
         std::cout << "nlopt failed: " << e.what() << std::endl;

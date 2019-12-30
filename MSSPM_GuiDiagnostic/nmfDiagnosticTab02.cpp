@@ -13,9 +13,9 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
 
     // Define class variables
     m_Diagnostic_Tabs = tabs;
-    m_logger          = logger;
-    m_databasePtr     = databasePtr;
-    m_projectDir      = projectDir;
+    m_Logger          = logger;
+    m_DatabasePtr     = databasePtr;
+    m_ProjectDir      = projectDir;
 
     // Load ui as a widget from disk
     QFile file(":/forms/Diagnostic/Diagnostic_Tab02.ui");
@@ -105,6 +105,8 @@ nmfDiagnostic_Tab2::loadWidgets(int NumPeels)
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
 
+    m_Logger->logMsg(nmfConstants::Normal,"nmfDiagnostic_Tab2::loadWidgets()");
+
     readSettings();
 
     clearWidgets();
@@ -117,7 +119,7 @@ nmfDiagnostic_Tab2::loadWidgets(int NumPeels)
 
     fields   = {"StartYear","RunLength"};
     queryStr = "SELECT StartYear,RunLength from Systems where SystemName = '" + m_ProjectSettingsConfig + "'";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["StartYear"].size() != 0) {
         StartYear = std::stoi(dataMap["StartYear"][0]);
         RunLength = std::stoi(dataMap["RunLength"][0]);
@@ -212,30 +214,6 @@ nmfDiagnostic_Tab2::clearWidgets()
     setEndYearLE(0);
 }
 
-bool
-nmfDiagnostic_Tab2::getRunLength(int &RunLength)
-{
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    // Find Systems data
-    fields    = {"RunLength"};
-    queryStr  = "SELECT RunLength FROM Systems WHERE ";
-    queryStr += "SystemName = '" + m_ProjectSettingsConfig + "'";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["RunLength"].size();
-    if (NumRecords == 0){
-        if (! m_ProjectSettingsConfig.empty()) {
-            m_logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab2::getRunLength: No records found in table Systems for Name = "+m_ProjectSettingsConfig);
-        }
-        return false;
-    }
-    RunLength = std::stoi(dataMap["RunLength"][0]);
-    return true;
-}
-
 
 void
 nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_NumPeelsSB(int numPeels)
@@ -245,7 +223,7 @@ nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_NumPeelsSB(int numPeels)
         setStartYearLE(getStartYearLBL() + numPeels);
     } else if (getPeelPosition() == "From End") {
         // RSK incorrect if doing a MohnsRho run
-        getRunLength(RunLength);
+        m_DatabasePtr->getRunLength(m_Logger,m_ProjectSettingsConfig,RunLength);
         setEndYearLE(getStartYearLBL()+RunLength-numPeels ); //getEndYearLBL() - numPeels);
     }
 }
@@ -263,8 +241,8 @@ nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_PeelPositionCMB(QString position)
 void
 nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_RunPB()
 {
-    m_logger->logMsg(nmfConstants::Normal,"");
-    m_logger->logMsg(nmfConstants::Normal,"Start Retrospective");
+    m_Logger->logMsg(nmfConstants::Normal,"");
+    m_Logger->logMsg(nmfConstants::Normal,"Start Retrospective");
 
     // Calculate Mohn's Rho
     bool isFromEnd = (getPeelPosition() == "From End");
@@ -276,7 +254,7 @@ nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_RunPB()
 
     if ((EndYear < 0) || (StartYear >= EndYear)) {
         msg = "Invalid Year Range for Retrospective. Reload System: Setup -> Model Setup -> Load...";
-        m_logger->logMsg(nmfConstants::Warning,msg.toStdString());
+        m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
         QMessageBox::warning(m_Diagnostic_Tabs, "Error", "\n"+msg, QMessageBox::Ok);
         return;
     }
@@ -298,33 +276,3 @@ nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_RunPB()
     emit RunDiagnosticEstimation(ranges);
 
 }
-
-
-//bool
-//nmfDiagnostic_Tab2::AlgorithmIdentifiers(
-//        std::string& Algorithm,
-//        std::string& Minimizer,
-//        std::string& ObjectiveCriterion,
-//        std::string& Scaling,
-//        std::string& CompetitionForm)
-//{
-//    std::vector<std::string> fields;
-//    std::map<std::string, std::vector<std::string> > dataMap;
-//    std::string queryStr;
-
-//    // Get current algorithm and run its estimation routine
-//    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","WithinGuildCompetitionForm"};
-//    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,WithinGuildCompetitionForm FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
-//    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-//    if (dataMap["Algorithm"].size() == 0) {
-//        m_logger->logMsg(nmfConstants::Error,"Error: No algorithm type found in Systems table.");
-//        return false;
-//    }
-//    Algorithm          = dataMap["Algorithm"][0];
-//    Minimizer          = dataMap["Minimizer"][0];
-//    ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
-//    Scaling            = dataMap["Scaling"][0];
-//    CompetitionForm    = dataMap["WithinGuildCompetitionForm"][0];
-
-//    return true;
-//}

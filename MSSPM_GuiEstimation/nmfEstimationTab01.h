@@ -14,9 +14,9 @@ class nmfEstimation_Tab1: public QObject
 {
     Q_OBJECT
 
-    nmfLogger*          m_logger;
-    nmfDatabase*        m_databasePtr;
-    QStandardItemModel* m_smodel;
+    nmfLogger*          m_Logger;
+    nmfDatabase*        m_DatabasePtr;
+    QStandardItemModel* m_SModel;
     std::string         m_ProjectDir;
 
     QTabWidget*   Estimation_Tabs;
@@ -28,7 +28,11 @@ class nmfEstimation_Tab1: public QObject
     QPushButton*  Estimation_Tab1_LoadPB;
     QPushButton*  Estimation_Tab1_SavePB;
 
+
 signals:
+    /**
+     * @brief Signal notifying other widgets to reload species data
+     */
     void ReloadSpecies();
 
 public:
@@ -45,12 +49,30 @@ public:
                        std::string& projectDir);
     virtual ~nmfEstimation_Tab1();
 
-    bool loadWidgets();
+    /**
+     * @brief Clears the GUI's widgets
+     */
     void clearWidgets();
 
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @return Returns true if all data were loaded successfully
+     */
+    bool loadWidgets();
+
+
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when user clicks the Load button
+     */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when user clicks the Save button
+     */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when user clicks the Next Page button
+     */
     void callback_NextPB();
 };
 

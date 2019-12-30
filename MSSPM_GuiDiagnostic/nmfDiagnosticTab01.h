@@ -1,3 +1,4 @@
+
 #ifndef NMFDIAGNOSTICTAB1_H
 #define NMFDIAGNOSTICTAB1_H
 
@@ -25,12 +26,8 @@ class nmfDiagnostic_Tab1: public QObject
     Q_OBJECT
 
 private:
-    int          m_NumPoints;
-    int          m_PctVariation;
-    std::string  m_ProjectSettingsConfig;
-    nmfLogger*   m_logger;
-    nmfDatabase* m_databasePtr;
-    std::string  m_projectDir;
+    nmfDatabase* m_DatabasePtr;
+    Data_Struct  m_DataStruct;
     QTabWidget*  m_Diagnostic_Tabs;
     QWidget*     m_Diagnostic_Tab1_Widget;
     QComboBox*   m_Diagnostic_Tab1_ParameterCMB;
@@ -38,14 +35,27 @@ private:
     QSpinBox*    m_Diagnostic_Tab1_PctVarSB;
     QSpinBox*    m_Diagnostic_Tab1_NumPtsSB;
     QPushButton* m_Diagnostic_Tab1_RunPB;
-    Data_Struct  m_theDataStruct;
+    nmfLogger*   m_Logger;
+    int          m_NumPoints;
+    int          m_PctVariation;
+    std::string  m_ProjectDir;
+    std::string  m_ProjectSettingsConfig;
 
-    void loadEstimatedParameter(const std::string& Algorithm,
-                                const std::string& Minimizer,
-                                const std::string& ObjectiveCriterion,
-                                const std::string& Scaling,
-                                const QString& parameterName,
-                                std::vector<double>& EstParameter);
+    /**
+     * @brief Reads the appropriate table and loads the passed in parameter
+     * @param algorithm : name of estimation algorithm
+     * @param minimizer : name of estimation algorithm minimizer function
+     * @param objectiveCriterion : name of estimation algorithm objective criterion
+     * @param scaling : name of estimation algorithm scaling function
+     * @param parameterName : name of parameter whose estimation data are requested
+     * @param estParameter : the estimation data to be returned to calling function
+     */
+    void loadEstimatedParameter(const std::string&   algorithm,
+                                const std::string&   minimizer,
+                                const std::string&   objectiveCriterion,
+                                const std::string&   scaling,
+                                const QString&       parameterName,
+                                std::vector<double>& estParameter);
     void updateParameterTable(const int&         NumSpeciesOrGuilds,
                               const int&         NumPoints,
                               const std::string& Algorithm,
@@ -61,11 +71,6 @@ private:
                               const std::string& Scaling,
                               const std::string& isAggProd,
                               std::vector<DiagnosticTuple>& DiagnosticTupleVector);
-    bool algorithmIdentifiers(std::string &Algorithm,
-                              std::string &Minimizer,
-                              std::string &ObjectiveCriterion,
-                              std::string &Scaling,
-                              std::string &CompetitionForm);
     void parameterToTableName(const std::string whichTable,
                               const QString& parameter,
                                     QString& tableName);
@@ -111,6 +116,9 @@ private:
             const std::string&   ObjectCriterion,
             const std::string&   Scaling,
             std::vector<double>& Parameters);
+    /**
+     * @brief Reads the program settings file and sets appropriate class variables
+     */
     void readSettings();
 
 public:
@@ -127,27 +135,80 @@ public:
                        std::string& projectDir);
     virtual ~nmfDiagnostic_Tab1();
 
-    void clearWidgets();
-    void loadWidgets();
-    int  getFontSize();
+    /**
+     * @brief Gets the table name that corresponds to the passed parameter name
+     * @param paramName : estimation parameter name
+     * @return : Returns the name of the database table that corresponds to the passed in parameter name
+     */
     std::string getTableName(QString paramName);
-    int  getLastRunsPctVariation();
-    int  getLastRunsNumPoints();
-    void getGuildInfo(int& NumGuilds,QStringList& GuildNames);
-    void getSpeciesInfo(int& NumSpecies,QStringList& SpeciesNames);
-    void saveSettings();
-    void setFontSize(int fontSize);
-    void setVariation(int fontSize);
-    void setNumPoints(int fontSize);
-    void setDataStruct(Data_Struct& theBeeStruct);
+    /**
+     * @brief Gets the previous run's variation parameter that was stored in settings (not in a database table)
+     * @return The previously saved variation parameter
+     */
+    int         getLastRunsPctVariation();
+    /**
+     * @brief Gets the previous run's number of diagnostic points that was stored in settings (not in a database table)
+     * @return The previously saved number of diagnostic points
+     */
+    int         getLastRunsNumPoints();
+    /**
+     * @brief Gets data for the current Guilds in the model
+     * @param numGuilds : number of guilds found in the model
+     * @param guildNames : names of the guilds found in the model
+     */
+    void        getGuildInfo(int& numGuilds,
+                             QStringList& guildNames);
+    /**
+     * @brief Gets data for the current Species in the model
+     * @param numSpecies : number of species found in the model
+     * @param speciesNames : names of the species found in the model
+     */
+    void        getSpeciesInfo(int& numSpecies,
+                               QStringList& speciesNames);
+    /**
+     * @brief Load widgets for this GUI panel
+     */
+    void        loadWidgets();
+    /**
+     * @brief Save program settings
+     */
+    void        saveSettings();
+    /**
+     * @brief Sets the value for the % Variation GUI widget
+     * @param variation : the variation value used in the GUI slider
+     */
+    void        setVariation(int variation);
+    /**
+     * @brief Sets the value for number of points for the Number of Diagnostics Points GUI widget
+     * @param numPoints : the number of points used in the GUI slider
+     */
+    void        setNumPoints(int numPoints);
+    /**
+     * @brief Sets the class data structure variable
+     * @param theDataStruct : the data structure containing the estimated parameter variables
+     */
+    void        setDataStruct(Data_Struct& theDataStruct);
 
 signals:
+    /**
+     * @brief Signal for loading the estimation algorithm's data structure
+     */
     void LoadDataStruct();
-    void QueryAlgorithmIdentifiers();
+    /**
+     * @brief Signal that resets Output Control widgets for AggProd setting
+     */
     void ResetOutputWidgetsForAggProd();
+    /**
+     * @brief Signal that sets Output GUI widgets based upon chart type
+     * @param type : type of chart selected
+     * @param method : type of diagnostic desired
+     */
     void SetChartType(std::string type, std::string method);
 
 public slots:
+    /**
+     * @brief Callback for when the Run button is pressed
+     */
     void callback_Diagnostic_Tab1_RunPB();
 };
 

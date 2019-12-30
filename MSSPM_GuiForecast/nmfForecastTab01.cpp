@@ -4,168 +4,6 @@
 #include "nmfUtilsQt.h"
 #include "nmfConstants.h"
 
-LoadForecastDlg::LoadForecastDlg(const QString& title,
-                                 QWidget*       parent,
-                                 nmfLogger*     logger,
-                                 nmfDatabase*   databasePtr,
-                                 QLineEdit*     forecastNameLE,
-                                 QSpinBox*      forecastRunLengthSB,
-                                 QSpinBox*      forecastNumRunsSB)
-    : QDialog(parent)
-{
-    QLabel *listLabel = new QLabel("Saved Forecasts");
-
-    m_logger              = logger;
-    m_databasePtr         = databasePtr;
-    m_ForecastNameLE      = forecastNameLE;
-    m_ForecastName        = forecastNameLE->text();
-    m_ForecastRunLengthSB = forecastRunLengthSB;
-    m_ForecastNumRunsSB   = forecastNumRunsSB;
-
-    m_ForecastsLW = new QListWidget();
-    m_ForecastsLW->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    m_ButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                     | QDialogButtonBox::Cancel);
-
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(listLabel);
-    mainLayout->addWidget(m_ForecastsLW);
-    mainLayout->addWidget(m_ButtonBox);
-    setLayout(mainLayout);
-    setWindowTitle(title);
-
-    connect(m_ButtonBox,   SIGNAL(accepted()),    this, SLOT(callback_LoadOk()));
-    connect(m_ButtonBox,   SIGNAL(rejected()),    this, SLOT(reject()));
-    connect(m_ForecastsLW, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-            this,          SLOT(callback_itemDoubleClicked(QListWidgetItem*)));
-    connect(m_ForecastsLW, SIGNAL(customContextMenuRequested(QPoint)),
-            this,          SLOT(callback_ContextMenu(QPoint)));
-
-    m_ButtonBox->setFocus();
-    m_ForecastNameLE->setClearButtonEnabled(true);
-
-    loadWidgets();
-}
-
-void
-LoadForecastDlg::callback_ContextMenu(QPoint pos)
-{
-    QMenu contextMenu("", m_ForecastsLW);
-    QAction actionDelete("Delete", this);
-    actionDelete.setToolTip("Delete selected Forecast");
-    actionDelete.setStatusTip("Delete selected Forecast");
-
-    connect(&actionDelete, SIGNAL(triggered()),
-            this,          SLOT(callback_DeleteSelection()));
-
-    contextMenu.addAction(&actionDelete);
-    contextMenu.exec(m_ForecastsLW->viewport()->mapToGlobal(pos));
-}
-
-void
-LoadForecastDlg::callback_DeleteSelection()
-{
-    std::string cmd;
-    QString ForecastToDelete = m_ForecastsLW->selectedItems()[0]->text();
-    int selectedRow = m_ForecastsLW->currentRow();
-    QMessageBox::StandardButton reply;
-    std::string errorMsg;
-    QString msg  = "\nThis will delete forecast:  " + ForecastToDelete + " and its associated data.\n\nOK to delete?\n";
-    std::vector<std::string> ForecastTables = {"ForecastBiomass",
-                                               "ForecastBiomassMonteCarlo",
-                                               "ForecastCatch",
-                                               "ForecastUncertainty",
-                                               "Forecasts"};
-
-    reply = QMessageBox::question(this, tr("Delete Forecast"), tr(msg.toLatin1()),
-                                  QMessageBox::No|QMessageBox::Yes,
-                                  QMessageBox::Yes);
-    if (reply == QMessageBox::Yes) {
-        for (std::string ForecastTable : ForecastTables) {
-            cmd = "DELETE FROM " + ForecastTable +  " WHERE ForecastName = '" + ForecastToDelete.toStdString() + "'";
-            errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
-                m_logger->logMsg(nmfConstants::Error,"callback_DeleteSelection: DELETE error: " + errorMsg);
-                m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-                msg = "\nCouldn't delete records from table: " + QString::fromStdString(ForecastTable);
-                QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
-                return;
-            }
-        }
-        loadWidgets();
-        // Reset selection
-        if (selectedRow < m_ForecastsLW->count()) {
-            m_ForecastsLW->setCurrentRow(selectedRow);
-        } else {
-            m_ForecastsLW->setCurrentRow(m_ForecastsLW->count()-1);
-        }
-        // Clean any widgets if forecast deleted was current one
-        if (ForecastToDelete == m_ForecastNameLE->text()) {
-           m_ForecastNameLE->setText("");
-           m_ForecastRunLengthSB->setValue(1);
-           m_ForecastNumRunsSB->setValue(1);
-        }
-    }
-}
-
-void
-LoadForecastDlg::loadWidgets()
-{
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::string forecastName;
-    QListWidgetItem *item;
-    QList<QListWidgetItem*> items;
-
-    m_ForecastsLW->clear();
-
-    fields    = {"ForecastName"};
-    queryStr  = "SELECT ForecastName from Forecasts ";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    for (unsigned i=0; i<dataMap["ForecastName"].size(); ++i) {
-        forecastName = dataMap["ForecastName"][i];
-        item = new QListWidgetItem();
-        item->setText(QString::fromStdString(forecastName));
-        m_ForecastsLW->addItem(item);
-    }
-
-    // Select the currently visible name if it exists in list
-    if (! m_ForecastName.isEmpty()) {
-        items = m_ForecastsLW->findItems(m_ForecastName,Qt::MatchExactly);
-        if (items.count() > 0) {
-            m_ForecastsLW->setCurrentItem(items[0]);
-        }
-    }
-}
-
-std::string
-LoadForecastDlg::getSelectedItem()
-{
-   return m_ForecastsLW->selectedItems()[0]->text().toStdString();
-}
-
-void
-LoadForecastDlg::callback_LoadOk()
-{
-    if (m_ForecastsLW->selectedItems().size() == 0) {
-        QMessageBox::information(this, "NULL Selection",
-                                 "\nPlease select a Forecast to load or click Cancel.\n");
-        return;
-    }
-    accept();
-}
-
-void
-LoadForecastDlg::callback_itemDoubleClicked(QListWidgetItem* item)
-{
-    callback_LoadOk();
-}
-
-
-
-
 
 nmfForecast_Tab1::nmfForecast_Tab1(QTabWidget*  tabs,
                                    nmfLogger*   logger,
@@ -174,13 +12,13 @@ nmfForecast_Tab1::nmfForecast_Tab1(QTabWidget*  tabs,
 {
     QUiLoader loader;
 
-    m_logger      = logger;
-    m_databasePtr = databasePtr;
-    m_smodel      = nullptr;
+    m_Logger      = logger;
+    m_DatabasePtr = databasePtr;
+    m_SModel      = nullptr;
     m_ProjectDir  = projectDir;
     m_ProjectSettingsConfig.clear();
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab1::nmfForecast_Tab1");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab1::nmfForecast_Tab1");
 
     Forecast_Tabs = tabs;
 
@@ -257,31 +95,6 @@ nmfForecast_Tab1::getStartForecastYear()
     return Forecast_Tab1_StartYearLE->text().toInt();
 }
 
-
-void
-nmfForecast_Tab1::getAlgorithms(std::string &Algorithm,
-                                std::string &Minimizer,
-                                std::string &ObjectiveCriterion,
-                                std::string &Scaling)
-{
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    // Get current algorithm and run its estimation routine
-    fields   = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling"};
-    queryStr = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["Algorithm"].size() == 0) {
-        m_logger->logMsg(nmfConstants::Error,"Error: No algorithm type found in Systems table. Please click Save on Setup Tab 3.");
-        return;
-    }
-    Algorithm          = dataMap["Algorithm"][0];
-    Minimizer          = dataMap["Minimizer"][0];
-    ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
-    Scaling            = dataMap["Scaling"][0];
-}
-
 void
 nmfForecast_Tab1::callback_SetNamePB()
 {
@@ -307,8 +120,8 @@ nmfForecast_Tab1::callback_LoadPB()
     std::string forecastToLoad;
     LoadForecastDlg *loadDialog = new LoadForecastDlg(tr("Load Forecast"),
                                                       Forecast_Tabs,
-                                                      m_logger,
-                                                      m_databasePtr,
+                                                      m_Logger,
+                                                      m_DatabasePtr,
                                                       Forecast_Tab1_NameLE,
                                                       Forecast_Tab1_RunLengthSB,
                                                       Forecast_Tab1_NumRunsSB);
@@ -324,9 +137,9 @@ nmfForecast_Tab1::callback_LoadPB()
 void
 nmfForecast_Tab1::callback_SavePB()
 {
-    // Save the Forecast
-    int isPreviousRun = false;
-    int NumRecords;
+    bool systemFound   = false;
+    int  isPreviousRun = false;
+    int  NumRecords;
     std::string cmd;
     std::string errorMsg;
     std::string ForecastName    = Forecast_Tab1_NameLE->text().toStdString();
@@ -361,10 +174,10 @@ nmfForecast_Tab1::callback_SavePB()
     fields    = {"GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength"};
     queryStr  = "SELECT GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength FROM Systems WHERE ";
     queryStr += "SystemName = '" + m_ProjectSettingsConfig + "'";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["RunLength"].size();
     if (NumRecords == 0) {
-        m_logger->logMsg(nmfConstants::Error,"[Error 1] nmfForecast_Tab1::callback_SavePB: No records found in table Systems for Name = "+m_ProjectSettingsConfig);
+        m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfForecast_Tab1::callback_SavePB: No records found in table Systems for Name = "+m_ProjectSettingsConfig);
         return;
     }
     GrowthForm      = dataMap["GrowthForm"][0];
@@ -377,15 +190,21 @@ nmfForecast_Tab1::callback_SavePB()
         Minimizer          = Forecast_Tab1_MinimizerCMB->currentText().toStdString();
         ObjectiveCriterion = Forecast_Tab1_ObjectiveCriterionCMB->currentText().toStdString();
     } else {
-        getAlgorithms(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+        systemFound = m_DatabasePtr->getAlgorithmIdentifiers(
+                    Forecast_Tabs,m_Logger,m_ProjectSettingsConfig,
+                    Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                    CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+        if (! systemFound) {
+            m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: No systems found");
+            return;
+        }
     }
 
-
     cmd = "DELETE FROM Forecasts WHERE ForecastName = '" + ForecastName + "'";
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: DELETE error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: DELETE error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Forecast_Tabs, "Error",
                              "\nError in callback_SavePB command. Couldn't delete record from " +
                              QString::fromStdString(ForecastName) + " table.\n",
@@ -404,10 +223,10 @@ nmfForecast_Tab1::callback_SavePB()
             CompetitionForm + "','" + PredationForm + "'," +
             RunLength + "," +StartYear + "," + EndYear + "," +
             NumRuns + "," + IsDeterministic + "," + Seed +")";
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: Write table error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Forecast_Tabs, "Error",
                              "\nError in Save command.  Check that all cells are populated.\n",
                              QMessageBox::Ok);
@@ -458,9 +277,9 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
     queryStr += "GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,";
     queryStr += "StartYear,EndYear,NumRuns,IsDeterministic,Seed from Forecasts WHERE ";
     queryStr += " ForecastName = '" + forecastToLoad + "'";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() == 0) {
-        m_logger->logMsg(nmfConstants::Error,"No records found in table Forecasts for forecast: "+forecastToLoad);
+        m_Logger->logMsg(nmfConstants::Error,"No records found in table Forecasts for forecast: "+forecastToLoad);
         return;
     }
     RunLength           = dataMap["RunLength"][0];
@@ -482,9 +301,9 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
     fields    = {"SystemName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
     queryStr  = "SELECT SystemName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm from Systems WHERE ";
     queryStr += " SystemName = '" + m_ProjectSettingsConfig + "'";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["SystemName"].size() == 0) {
-        m_logger->logMsg(nmfConstants::Error,"No records found in table Systems for SystemName: "+m_ProjectSettingsConfig);
+        m_Logger->logMsg(nmfConstants::Error,"No records found in table Systems for SystemName: "+m_ProjectSettingsConfig);
         return;
     }
     sAlgorithm          = dataMap["Algorithm"][0];
@@ -514,7 +333,7 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
         msg += fCompetitionForm +    " --- " + sCompetitionForm +    "\n";
         msg += fPredationForm +      " --- " + sPredationForm +      "\n";
         msg += "\n\nTry creating a new Forecast.\n";
-        m_logger->logMsg(nmfConstants::Error,msg);
+        m_Logger->logMsg(nmfConstants::Error,msg);
         QMessageBox::warning(Forecast_Tabs, tr("Forecast Mismatch"), QString::fromStdString(msg),
                                       QMessageBox::Ok);
         return;
@@ -535,6 +354,7 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
     emit ForecastLoaded(forecastToLoad);
 }
 
+/*
 void
 nmfForecast_Tab1::callback_PreviousRunCB(bool state)
 {
@@ -558,7 +378,7 @@ nmfForecast_Tab1::callback_AlgorithmCMB(QString algorithm)
     fields    = {"Algorithm","Minimizer"};
     queryStr  = "SELECT Algorithm,Minimizer from OutputGrowthRate WHERE ";
     queryStr += "Algorithm = '" + algorithm.toStdString() + "'";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     Forecast_Tab1_MinimizerCMB->clear();
     Forecast_Tab1_ObjectiveCriterionCMB->clear();
     for (unsigned i=0; i<dataMap["Minimizer"].size(); ++i) {
@@ -585,7 +405,7 @@ nmfForecast_Tab1::callback_MinimizerCMB(QString minimizer)
     queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion from OutputGrowthRate WHERE ";
     queryStr += "Algorithm = '" + algorithm.toStdString() + "' AND ";
     queryStr += "Minimizer = '" + minimizer.toStdString() + "'";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     Forecast_Tab1_ObjectiveCriterionCMB->clear();
     for (unsigned i=0; i<dataMap["ObjectiveCriterion"].size(); ++i) {
         objectiveCriterion = QString::fromStdString(dataMap["ObjectiveCriterion"][i]);
@@ -594,6 +414,7 @@ nmfForecast_Tab1::callback_MinimizerCMB(QString minimizer)
         }
     }
 }
+*/
 
 void
 nmfForecast_Tab1::callback_RunLengthSB(int duration)
@@ -611,7 +432,6 @@ nmfForecast_Tab1::callback_DeterministicCB(int checked)
     Forecast_Tab1_DeterministicSB->setEnabled(checked == Qt::Checked);
 }
 
-
 void
 nmfForecast_Tab1::clearWidgets()
 {
@@ -625,7 +445,8 @@ nmfForecast_Tab1::clearWidgets()
 bool
 nmfForecast_Tab1::loadWidgets()
 {
-std::cout << "nmfForecast_Tab1::loadWidgets()" << std::endl;
+    m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab1::loadWidgets()");
+
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -637,7 +458,7 @@ std::cout << "nmfForecast_Tab1::loadWidgets()" << std::endl;
     fields    = {"StartYear","RunLength"};
     queryStr  = "SELECT StartYear,RunLength from Systems WHERE ";
     queryStr += "SystemName = '" + m_ProjectSettingsConfig + "'";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["StartYear"].size() == 0) {
         std::cout << "Error 2: nmfForecast_Tab1::loadWidgets" << std::endl;
         std::cout << queryStr << std::endl;

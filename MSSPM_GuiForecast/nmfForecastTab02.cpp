@@ -11,16 +11,16 @@ nmfForecast_Tab2::nmfForecast_Tab2(QTabWidget*  tabs,
 {
     QUiLoader loader;
 
-    m_logger      = logger;
-    m_databasePtr = databasePtr;
-    m_harvestType = "ForecastCatch";
-    m_smodel      = nullptr;
+    m_Logger      = logger;
+    m_DatabasePtr = databasePtr;
+    m_HarvestType = "ForecastCatch";
+    m_SModel      = nullptr;
     m_ProjectDir  = projectDir;
     m_ProjectSettingsConfig.clear();
 
     readSettings();
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab2::nmfForecast_Tab2");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab2::nmfForecast_Tab2");
 
     Forecast_Tabs = tabs;
 
@@ -144,7 +144,7 @@ nmfForecast_Tab2::callback_MultiplierChangedDSB(double multiplier)
                 colStartValues.push_back(indexList[index].data().toDouble());
             } else {
                 newValue = colStartValues[index%cellsPerRow] * multiplier;
-                m_smodel->setData(indexList[index],newValue);
+                m_SModel->setData(indexList[index],newValue);
             }
         }
     } else if (Forecast_Tab2_MultiplierCMB->currentText() == "Variable") {
@@ -153,7 +153,7 @@ nmfForecast_Tab2::callback_MultiplierChangedDSB(double multiplier)
                 colStartValues.push_back(indexList[index].data().toDouble());
             } else {
                 newValue = colStartValues[index%cellsPerRow] * multiplier;
-                m_smodel->setData(indexList[index],newValue);
+                m_SModel->setData(indexList[index],newValue);
                 colStartValues[index%cellsPerRow] = newValue;
             }
         }
@@ -206,36 +206,13 @@ nmfForecast_Tab2::callback_LoadPB()
 void
 nmfForecast_Tab2::callback_SavePB()
 {
-    callback_SavePB(true);
+    saveHarvestData(true);
 }
 
 void
-nmfForecast_Tab2::getAlgorithms(std::string &Algorithm,
-                                std::string &Minimizer,
-                                std::string &ObjectiveCriterion,
-                                std::string &Scaling)
+nmfForecast_Tab2::saveHarvestData(bool verbose)
 {
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    // Get current algorithm and run its estimation routine
-    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["Algorithm"].size() == 0) {
-        m_logger->logMsg(nmfConstants::Error,"Error: No algorithm type found in Systems table. Please click Save on Setup Tab 3.");
-        return;
-    }
-    Algorithm          = dataMap["Algorithm"][0];
-    Minimizer          = dataMap["Minimizer"][0];
-    ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
-    Scaling            = dataMap["Scaling"][0];
-}
-
-void
-nmfForecast_Tab2::callback_SavePB(bool verbose)
-{
+    bool systemFound = false;
     QModelIndex index;
     std::string cmd;
     std::string errorMsg;
@@ -246,37 +223,45 @@ nmfForecast_Tab2::callback_SavePB(bool verbose)
     std::string Minimizer;
     std::string ObjectiveCriterion;
     std::string Scaling;
+    std::string CompetitionForm;
 
-    if (m_smodel == nullptr) {
+    if (m_SModel == nullptr) {
         return;
     }
 
-    getAlgorithms(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+    systemFound = m_DatabasePtr->getAlgorithmIdentifiers(
+                Forecast_Tabs,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+    if (! systemFound) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::saveHarvestData: No systems found");
+        return;
+    }
 
     Forecast_Tabs->setCursor(Qt::WaitCursor);
 
-    for (int j=0; j<m_smodel->columnCount(); ++ j) {
-        SpeNames.push_back(m_smodel->horizontalHeaderItem(j)->text().toStdString());
+    for (int j=0; j<m_SModel->columnCount(); ++ j) {
+        SpeNames.push_back(m_SModel->horizontalHeaderItem(j)->text().toStdString());
     }
 
-    cmd = "DELETE FROM " + m_harvestType + " WHERE ForecastName = '" +
+    cmd = "DELETE FROM " + m_HarvestType + " WHERE ForecastName = '" +
            ForecastName + "'";
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfForecast_Tab2::callback_SavePB: DELETE error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab2::saveHarvestData: DELETE error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Forecast_Tabs, "Error",
                              "\nError in Save command.  Couldn't delete all records from" +
-                             QString::fromStdString(m_harvestType) + " table.\n",
+                             QString::fromStdString(m_HarvestType) + " table.\n",
                              QMessageBox::Ok);
         Forecast_Tabs->setCursor(Qt::ArrowCursor);
         return;
     }
 
-    cmd = "INSERT INTO " + m_harvestType + " (ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value) VALUES ";
-    for (int j=0; j<m_smodel->columnCount(); ++j) { // Species
-        for (int i=0; i<m_smodel->rowCount(); ++i) { // Time
-            index = m_smodel->index(i,j);
+    cmd = "INSERT INTO " + m_HarvestType + " (ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value) VALUES ";
+    for (int j=0; j<m_SModel->columnCount(); ++j) { // Species
+        for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
+            index = m_SModel->index(i,j);
             value = index.data().toString().toStdString();
             cmd += "('" + ForecastName +
                     "','" + Algorithm + "','" + Minimizer +
@@ -286,13 +271,15 @@ nmfForecast_Tab2::callback_SavePB(bool verbose)
         }
     }
     cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfForecast_Tab2::callback_SavePB: Write table error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        QMessageBox::warning(Forecast_Tabs, "Error",
-                             "\nError in Save command.  Check that all cells are populated.\n",
-                             QMessageBox::Ok);
+        m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab2::saveHarvestData: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        if (verbose) {
+            QMessageBox::warning(Forecast_Tabs, "Error",
+                                 "\nError in Save command.  Check that all cells are populated.\n",
+                                 QMessageBox::Ok);
+        }
         Forecast_Tabs->setCursor(Qt::ArrowCursor);
         return;
     }
@@ -300,8 +287,8 @@ nmfForecast_Tab2::callback_SavePB(bool verbose)
     Forecast_Tab2_HarvestTV->resizeColumnsToContents();
 
     if (verbose && ! Forecast_Tab2_AutoSaveCB->isChecked()) {
-        QMessageBox::information(Forecast_Tabs, QString::fromStdString(m_harvestType) + " Updated",
-                                 "\n" + QString::fromStdString(m_harvestType) +
+        QMessageBox::information(Forecast_Tabs, QString::fromStdString(m_HarvestType) + " Updated",
+                                 "\n" + QString::fromStdString(m_HarvestType) +
                                  " table has been successfully updated.\n",
                                  QMessageBox::Ok);
     }
@@ -315,12 +302,12 @@ nmfForecast_Tab2::callback_SavePB(bool verbose)
 }
 
 
-void
-nmfForecast_Tab2::callback_HarvestFormChanged(QString harvestForm)
-{
-    setHarvestType(harvestForm.toStdString());
-    loadWidgets();
-}
+//void
+//nmfForecast_Tab2::callback_HarvestFormChanged(QString harvestForm)
+//{
+//    setHarvestType(harvestForm.toStdString());
+//    loadWidgets();
+//}
 
 
 void
@@ -353,23 +340,23 @@ nmfForecast_Tab2::restoreData(int minRow, int minCol, int maxRow, int maxCol)
     // Find species info
     fields = {"SpeName"};
     queryStr   = "SELECT SpeName FROM Species";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
 
     // Find Forecast info
     fields     = {"ForecastName","RunLength","StartYear","EndYear"};
     queryStr   = "SELECT ForecastName,RunLength,StartYear,EndYear FROM Forecasts where ";
     queryStr  += "ForecastName = '" + ForecastName + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         RunLength  = std::stoi(dataMap["RunLength"][0]);
         StartYear  = std::stoi(dataMap["StartYear"][0]);
     }
 
     fields     = {"ForecastName","SpeName","Year","Value"};
-    queryStr   = "SELECT ForecastName,SpeName,Year,Value FROM " + m_harvestType + " where ";
+    queryStr   = "SELECT ForecastName,SpeName,Year,Value FROM " + m_HarvestType + " where ";
     queryStr  += "ForecastName = '" + ForecastName + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
 
     // Load catch data or blanks if no catch data has yet been entered
@@ -380,7 +367,7 @@ nmfForecast_Tab2::restoreData(int minRow, int minCol, int maxRow, int maxCol)
             {
                 item = new QStandardItem(QString::fromStdString(dataMap["Value"][m]));
                 item->setTextAlignment(Qt::AlignCenter);
-                m_smodel->setItem(i, j, item);
+                m_SModel->setItem(i, j, item);
             }
             ++m;
         }
@@ -409,7 +396,7 @@ nmfForecast_Tab2::clearWidgets()
 bool
 nmfForecast_Tab2::loadWidgets()
 {
-std::cout << "nmfForecast_Tab2::loadWidgets()" << std::endl;
+    m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab2::loadWidgets()");
 
     int m;
     int NumSpecies;
@@ -431,31 +418,31 @@ std::cout << "nmfForecast_Tab2::loadWidgets()" << std::endl;
 
     clearWidgets();
 
-    Forecast_Tab2_HarvestGB->setTitle(QString::fromStdString(m_harvestType).replace("Forecast","Forecast "));
+    Forecast_Tab2_HarvestGB->setTitle(QString::fromStdString(m_HarvestType).replace("Forecast","Forecast "));
 
     // Get latest harvest form. RSK Need to change this once user can select a run which wasn't the last run
     fields     = {"GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
     queryStr   = "SELECT GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm";
     queryStr  += " FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["GrowthForm"].size();
     if (NumRecords == 0) {
-        m_logger->logMsg(nmfConstants::Error,"[Error 1] nmfForecast_Tab2::nmfForecast_Tab2: No records found in table Systems for Name = "+m_ProjectSettingsConfig);
+        m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfForecast_Tab2::nmfForecast_Tab2: No records found in table Systems for Name = "+m_ProjectSettingsConfig);
         return false;
     }
     harvestForm = dataMap["HarvestForm"][0];
     if (harvestForm == "Catch") {
-        m_harvestType = "ForecastCatch";
+        m_HarvestType = "ForecastCatch";
     } else if (harvestForm == "F") {
-        m_harvestType = "ForecastExploitation";
+        m_HarvestType = "ForecastExploitation";
     } else if (harvestForm == "QE") {
-        m_harvestType = "ForecastEffort";
+        m_HarvestType = "ForecastEffort";
     }
 
     // Find species info
     fields = {"SpeName"};
     queryStr   = "SELECT SpeName FROM Species";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
@@ -465,16 +452,16 @@ std::cout << "nmfForecast_Tab2::loadWidgets()" << std::endl;
     fields     = {"ForecastName","RunLength","StartYear","EndYear"};
     queryStr   = "SELECT ForecastName,RunLength,StartYear,EndYear FROM Forecasts where ";
     queryStr  += "ForecastName = '" + ForecastName + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         RunLength  = std::stoi(dataMap["RunLength"][0]);
         StartYear  = std::stoi(dataMap["StartYear"][0]);
     }
 
     fields     = {"ForecastName","SpeName","Year","Value"};
-    queryStr   = "SELECT ForecastName,SpeName,Year,Value FROM " + m_harvestType + " where ";
+    queryStr   = "SELECT ForecastName,SpeName,Year,Value FROM " + m_HarvestType + " where ";
     queryStr  += "ForecastName = '" + ForecastName + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
     bool RunLengthHasChanged = (NumRecords != NumSpecies*(RunLength+1));
 
@@ -486,7 +473,7 @@ std::cout << "nmfForecast_Tab2::loadWidgets()" << std::endl;
 
     // Load catch data or blanks if no catch data has yet been entered
     m = 0;
-    m_smodel = new QStandardItemModel( RunLength, NumSpecies );
+    m_SModel = new QStandardItemModel( RunLength, NumSpecies );
     for (int j=0; j<NumSpecies; ++j) {
         for (int i=0; i<=RunLength; ++i) {
             if ((NumRecords == 0) || RunLengthHasChanged)
@@ -494,15 +481,15 @@ std::cout << "nmfForecast_Tab2::loadWidgets()" << std::endl;
             else
                 item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
             item->setTextAlignment(Qt::AlignCenter);
-            m_smodel->setItem(i, j, item);
+            m_SModel->setItem(i, j, item);
         }
     }
 
     Forecast_Tab2_HarvestTV->disconnect();
 
-    m_smodel->setVerticalHeaderLabels(VerticalList);
-    m_smodel->setHorizontalHeaderLabels(SpeciesNames);
-    Forecast_Tab2_HarvestTV->setModel(m_smodel);
+    m_SModel->setVerticalHeaderLabels(VerticalList);
+    m_SModel->setHorizontalHeaderLabels(SpeciesNames);
+    Forecast_Tab2_HarvestTV->setModel(m_SModel);
     Forecast_Tab2_HarvestTV->resizeColumnsToContents();
 
     connect(Forecast_Tab2_HarvestTV->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -514,6 +501,6 @@ std::cout << "nmfForecast_Tab2::loadWidgets()" << std::endl;
 void
 nmfForecast_Tab2::setHarvestType(std::string harvestType)
 {
-    m_harvestType = harvestType;
+    m_HarvestType = harvestType;
 }
 

@@ -69,7 +69,7 @@ private:
     bool wasStoppedByUser();
 
 signals:
-    void RunCompleted(QString outputStr);
+    void RunCompleted(std::string outputStr);
     void SubRunCompleted(int RunNum, int SubRun, int NumSubRuns);
     void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
 

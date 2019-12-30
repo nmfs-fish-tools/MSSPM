@@ -1,6 +1,6 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node2" href="$classnmf_forecast___tab1.html" title="The Forecast Setup. " alt="" coords="124,5,255,32"/>
-<area shape="rect" id="node3" href="$classnmf_forecast___tab2.html" title="nmfForecast_Tab2" alt="" coords="124,56,255,83"/>
-<area shape="rect" id="node4" href="$classnmf_forecast___tab3.html" title="nmfForecast_Tab3" alt="" coords="124,107,255,133"/>
-<area shape="rect" id="node5" href="$classnmf_forecast___tab4.html" title="nmfForecast_Tab4" alt="" coords="124,157,255,184"/>
+<area shape="rect" id="node2" href="$classnmf_forecast___tab1.html" title="Forecast Setup. " alt="" coords="124,5,255,32"/>
+<area shape="rect" id="node3" href="$classnmf_forecast___tab2.html" title="Forecast Harvest Data. " alt="" coords="124,56,255,83"/>
+<area shape="rect" id="node4" href="$classnmf_forecast___tab3.html" title="Uncertainty Parameters. " alt="" coords="124,107,255,133"/>
+<area shape="rect" id="node5" href="$classnmf_forecast___tab4.html" title="Run Information. " alt="" coords="124,157,255,184"/>
 </map>

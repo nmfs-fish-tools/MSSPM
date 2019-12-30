@@ -11,13 +11,13 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
 {
     QUiLoader loader;
 
-    m_logger      = logger;
-    m_databasePtr = databasePtr;
-    m_smodel      = nullptr;
+    m_Logger      = logger;
+    m_DatabasePtr = databasePtr;
+    m_SModel      = nullptr;
     m_ProjectDir  = projectDir;
     m_ProjectSettingsConfig.clear();
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::nmfEstimation_Tab2");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::nmfEstimation_Tab2");
 
     Estimation_Tabs = tabs;
 
@@ -63,7 +63,6 @@ nmfEstimation_Tab2::~nmfEstimation_Tab2()
 void
 nmfEstimation_Tab2::clearWidgets()
 {
-//  Estimation_Tab2_CatchTV->reset();
     nmfUtilsQt::clearTableView({Estimation_Tab2_CatchTV});
 }
 
@@ -98,24 +97,24 @@ nmfEstimation_Tab2::callback_SavePB()
     QString value;
     QString msg;
 
-    if (m_smodel == nullptr) {
+    if (m_SModel == nullptr) {
         return;
     }
 
     Estimation_Tabs->setCursor(Qt::WaitCursor);
 
-    for (int j=0; j<m_smodel->columnCount(); ++ j) {
-        SpeNames.push_back(m_smodel->horizontalHeaderItem(j)->text().toStdString());
+    for (int j=0; j<m_SModel->columnCount(); ++ j) {
+        SpeNames.push_back(m_SModel->horizontalHeaderItem(j)->text().toStdString());
     }
 
     // Check data integrity
-    for (int j=0; j<m_smodel->columnCount(); ++j) { // Species
-        for (int i=0; i<m_smodel->rowCount(); ++i) { // Time
-            index = m_smodel->index(i,j);
+    for (int j=0; j<m_SModel->columnCount(); ++j) { // Species
+        for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
+            index = m_SModel->index(i,j);
             value = index.data().toString();
             if (value.contains(',')) {
                 msg = "Invalid value found. No commas or special characters allowed in a number.";
-                m_logger->logMsg(nmfConstants::Error,msg.toStdString());
+                m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
                 QMessageBox::warning(Estimation_Tabs, "Error", "\n"+msg, QMessageBox::Ok);
                 Estimation_Tabs->setCursor(Qt::ArrowCursor);
                 return;
@@ -123,23 +122,23 @@ nmfEstimation_Tab2::callback_SavePB()
         }
     }
 
-    cmd = "DELETE FROM " + m_harvestType + " WHERE SystemName = '" +
+    cmd = "DELETE FROM " + m_HarvestType + " WHERE SystemName = '" +
            m_ProjectSettingsConfig + "'";
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab2::callback_SavePB: DELETE error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab2::callback_SavePB: DELETE error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
                              "\nError in Save command.  Couldn't delete all records from" +
-                             QString::fromStdString(m_harvestType) + " table.\n",
+                             QString::fromStdString(m_HarvestType) + " table.\n",
                              QMessageBox::Ok);
         Estimation_Tabs->setCursor(Qt::ArrowCursor);
         return;
     }
-    cmd = "INSERT INTO " + m_harvestType + " (MohnsRhoLabel,SystemName,SpeName,Year,Value) VALUES ";
-    for (int j=0; j<m_smodel->columnCount(); ++j) { // Species
-        for (int i=0; i<m_smodel->rowCount(); ++i) { // Time
-            index = m_smodel->index(i,j);
+    cmd = "INSERT INTO " + m_HarvestType + " (MohnsRhoLabel,SystemName,SpeName,Year,Value) VALUES ";
+    for (int j=0; j<m_SModel->columnCount(); ++j) { // Species
+        for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
+            index = m_SModel->index(i,j);
             value = index.data().toString();
             cmd += "('" + MohnsRhoLabel +
                    "','" + m_ProjectSettingsConfig +
@@ -149,10 +148,10 @@ nmfEstimation_Tab2::callback_SavePB()
     }
 
     cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab2::callback_SavePB: Write table error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab2::callback_SavePB: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
                              "\nError in Save command.  Check that all cells are populated.\n",
                              QMessageBox::Ok);
@@ -162,8 +161,8 @@ nmfEstimation_Tab2::callback_SavePB()
 
     Estimation_Tab2_CatchTV->resizeColumnsToContents();
 
-    QMessageBox::information(Estimation_Tabs, QString::fromStdString(m_harvestType) + " Updated",
-                             "\n" + QString::fromStdString(m_harvestType) +
+    QMessageBox::information(Estimation_Tabs, QString::fromStdString(m_HarvestType) + " Updated",
+                             "\n" + QString::fromStdString(m_HarvestType) +
                              " table has been successfully updated.\n",
                              QMessageBox::Ok);
 
@@ -189,11 +188,9 @@ nmfEstimation_Tab2::readSettings()
 bool
 nmfEstimation_Tab2::loadWidgets()
 {
-std::cout << "nmfEstimation_Tab2::loadWidgets()" << std::endl;
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::loadWidgets()");
 
-    loadWidgets("");
-
-    return true;
+    return loadWidgets("");
 }
 
 bool
@@ -219,18 +216,18 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
     readSettings();
     if (SystemName.isEmpty())
         return false;
-    if (m_harvestType.empty() || (m_harvestType == "Null")) {
-        m_logger->logMsg(nmfConstants::Warning,"Warning: Harvest Type set to Null.");
+    if (m_HarvestType.empty() || (m_HarvestType == "Null")) {
+        m_Logger->logMsg(nmfConstants::Warning,"Warning: Harvest Type set to Null.");
         return true;
     }
 
     clearWidgets();
 
-    Estimation_Tab2_CatchGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_harvestType]));
+    Estimation_Tab2_CatchGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_HarvestType]));
 
     fields   = {"RunLength","StartYear"};
     queryStr = "SELECT RunLength,StartYear FROM Systems where SystemName = '" + SystemName.toStdString() + "'";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["RunLength"].size() == 0)  {
         std::cout << "Error: No records found in Systems table." << std::endl;
         return false;
@@ -240,21 +237,21 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
 
     fields = {"SpeName"};
     queryStr   = "SELECT SpeName FROM Species";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
     }
 
     fields   = {"MohnsRhoLabel","SystemName","SpeName","Year","Value"};
-    queryStr = "SELECT MohnsRhoLabel,SystemName,SpeName,Year,Value FROM " + m_harvestType +
+    queryStr = "SELECT MohnsRhoLabel,SystemName,SpeName,Year,Value FROM " + m_HarvestType +
                " WHERE SystemName = '" + SystemName.toStdString() +
                "' AND MohnsRhoLabel = '" + MohnsRhoLabel.toStdString() +
                "' ORDER BY SpeName,Year ";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();
     m = 0;
-    m_smodel = new QStandardItemModel( RunLength, NumSpecies );
+    m_SModel = new QStandardItemModel( RunLength, NumSpecies );
     VerticalList.clear();
     for (int i=0; i<=RunLength; ++i) {
         VerticalList << " " + QString::number(StartYear+i) + " ";
@@ -266,13 +263,13 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
             else
                 item = new QStandardItem(QString(""));
             item->setTextAlignment(Qt::AlignCenter);
-            m_smodel->setItem(i, j, item);
+            m_SModel->setItem(i, j, item);
         }
     }
 
-    m_smodel->setVerticalHeaderLabels(VerticalList);
-    m_smodel->setHorizontalHeaderLabels(SpeciesNames);
-    Estimation_Tab2_CatchTV->setModel(m_smodel);
+    m_SModel->setVerticalHeaderLabels(VerticalList);
+    m_SModel->setHorizontalHeaderLabels(SpeciesNames);
+    Estimation_Tab2_CatchTV->setModel(m_SModel);
     Estimation_Tab2_CatchTV->resizeColumnsToContents();
 
     return true;
@@ -281,11 +278,11 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
 void
 nmfEstimation_Tab2::setHarvestType(std::string harvestType)
 {
-    m_harvestType = harvestType;
-    if (m_harvestType == "F") {
-        m_harvestType = "Exploitation";
-    } else if (m_harvestType == "QE") {
-        m_harvestType = "Effort";
+    m_HarvestType = harvestType;
+    if (m_HarvestType == "F") {
+        m_HarvestType = "Exploitation";
+    } else if (m_HarvestType == "QE") {
+        m_HarvestType = "Effort";
     }
 }
 

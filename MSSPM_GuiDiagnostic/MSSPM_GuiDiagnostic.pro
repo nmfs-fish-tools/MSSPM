@@ -31,6 +31,7 @@ SOURCES += \
     nmfDiagnosticTab02.cpp
 
 HEADERS +=\
+    mainpage.h \
     nmfDiagnosticTab01.h \
     nmfDiagnosticTab02.h
 

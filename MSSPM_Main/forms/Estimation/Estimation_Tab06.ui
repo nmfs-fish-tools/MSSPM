@@ -217,6 +217,9 @@
                   <property name="statusTip">
                    <string>Objective Function's Minimizing Function</string>
                   </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minimizer Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Certain Estimation algorithms use a Minimizer algorithm for their Objective Function.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
                   <property name="text">
                    <string>Minimizer Algorithm:</string>
                   </property>
@@ -308,6 +311,12 @@
                     <bold>false</bold>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>Algorithms used to calculate parameter fitness values.</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Algorithms used to calculate parameter fitness values.</string>
+                  </property>
                   <property name="text">
                    <string>Objective Criterion:</string>
                   </property>
@@ -397,6 +406,12 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Set the type of normalization desired for the Biomass time series data</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Set the type of normalization desired for the Biomass time series data</string>
+                  </property>
                   <property name="text">
                    <string>Scaling Algorithm:</string>
                   </property>
@@ -421,6 +436,12 @@
                     <width>142</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Set the type of normalization desired for the Biomass time series data</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Set the type of normalization desired for the Biomass time series data</string>
                   </property>
                   <item>
                    <property name="text">
@@ -1315,6 +1336,15 @@ with the non-assigned bees being assigned to random positions.</string>
                <bold>false</bold>
               </font>
              </property>
+             <property name="toolTip">
+              <string>These options allow the user to halt Estimation execution in a particular way</string>
+             </property>
+             <property name="statusTip">
+              <string>These options allow the user to halt Estimation execution in a particular way</string>
+             </property>
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="title">
               <string>Parameters:</string>
              </property>
@@ -1347,6 +1377,15 @@ with the non-assigned bees being assigned to random positions.</string>
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Estimation execution stops when the fitness value reaches this number</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Estimation execution stops when the fitness value reaches this number</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
                   <property name="text">
                    <string>Stop when reach (value):</string>
                   </property>
@@ -1374,6 +1413,15 @@ with the non-assigned bees being assigned to random positions.</string>
                     <width>100</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Estimation execution stops when the fitness value reaches this number</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Estimation execution stops when the fitness value reaches this number</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
                    <string>0.1</string>
@@ -1404,6 +1452,15 @@ with the non-assigned bees being assigned to random positions.</string>
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Estimation execution stops when this amount of time has passed</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Estimation execution stops when this amount of time has passed</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
                   <property name="text">
                    <string>Stop after (seconds):</string>
                   </property>
@@ -1431,6 +1488,15 @@ with the non-assigned bees being assigned to random positions.</string>
                     <width>100</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Estimation execution stops when this amount of time has passed</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Estimation execution stops when this amount of time has passed</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="minimum">
                    <number>1</number>
@@ -1467,6 +1533,15 @@ with the non-assigned bees being assigned to random positions.</string>
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Estimation execution stops when this many iterations have been completed</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Estimation execution stops when this many iterations have been completed</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
                   <property name="text">
                    <string>Stop after (iterations):</string>
                   </property>
@@ -1494,6 +1569,15 @@ with the non-assigned bees being assigned to random positions.</string>
                     <width>100</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Estimation execution stops when this many iterations have been completed</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Estimation execution stops when this many iterations have been completed</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="minimum">
                    <number>1</number>

@@ -17,23 +17,29 @@ class nmfDiagnostic_Tab2: public QObject
 
 private:
 
-    std::string  m_ProjectSettingsConfig;
-    nmfLogger*   m_logger;
-    nmfDatabase* m_databasePtr;
-    std::string  m_projectDir;
-    int          m_RunLength;
-    QWidget*     m_Diagnostic_Tab2_Widget;
-    QTabWidget*  m_Diagnostic_Tabs;
-    QPushButton* m_Diagnostic_Tab2_RunPB;
-    QLineEdit*   m_Diagnostic_Tab2_MinYearLE;
+    Data_Struct  m_BeeStruct;
+    nmfDatabase* m_DatabasePtr;
+    QLabel*      m_Diagnostic_Tab2_MaxYearLBL;
     QLineEdit*   m_Diagnostic_Tab2_MaxYearLE;
     QLabel*      m_Diagnostic_Tab2_MinYearLBL;
-    QLabel*      m_Diagnostic_Tab2_MaxYearLBL;
+    QLineEdit*   m_Diagnostic_Tab2_MinYearLE;
     QSpinBox*    m_Diagnostic_Tab2_NumPeelsSB;
     QComboBox*   m_Diagnostic_Tab2_PeelPositionCMB;
-    Data_Struct  m_theBeeStruct;
+    QPushButton* m_Diagnostic_Tab2_RunPB;
+    QWidget*     m_Diagnostic_Tab2_Widget;
+    QTabWidget*  m_Diagnostic_Tabs;
+    nmfLogger*   m_Logger;
+    std::string  m_ProjectDir;
+    std::string  m_ProjectSettingsConfig;
+    int          m_RunLength;
 
+    void clearWidgets();
+    int  getEndYearLE();
     void readSettings();
+    void saveSettings();
+    void setEndYearLBL(int EndYear);
+    void setStartYearLBL(int StartYear);
+    void setEndYearLE(int EndYear);
 
 public:
     /**
@@ -49,30 +55,69 @@ public:
                        std::string& projectDir);
     virtual ~nmfDiagnostic_Tab2();
 
-    void    clearWidgets();
-    int     getStartYearLBL();
+    /**
+     * @brief Gets the last year in the year range
+     * @return The last year in the year range
+     */
     int     getEndYearLBL();
-    int     getStartYearLE();
-    int     getEndYearLE();
+    /**
+     * @brief Gets the number of years peeled off of the year range
+     * @return The number of peeled years
+     */
     int     getNumPeels();
+    /**
+     * @brief Gets the peel position in the year range
+     * @return The peel position (from the end or beginning)
+     */
     QString getPeelPosition();
-    bool    getRunLength(int &RunLength);
+    /**
+     * @brief Gets the first year in the year range
+     * @return The first year in the year range
+     */
+    int     getStartYearLBL();
+    /**
+     * @brief Gets first year of range
+     * @return The first year of range
+     */
+    int     getStartYearLE();
+    /**
+     * @brief Loads the GUI widgets without any peels.  It calls the overloaded loadWidgets with a -1.
+     */
     void    loadWidgets();
+    /**
+     * @brief Loads the GUI widgets accounting for number of peels user has selected
+     * @param NumPeels : number of peels to show in year range
+     */
     void    loadWidgets(int NumPeels);
-    void    saveSettings();
+    /**
+     * @brief Sets the start year value accounting for number of peels and peel position
+     * @param StartYear : First year of range
+     */
     void    setStartYearLE(int StartYear);
-    void    setEndYearLE(int EndYear);
-    void    setStartYearLBL(int StartYear);
-    void    setEndYearLBL(int EndYear);
 
 signals:
-    void RunDiagnosticEstimation(std::vector<std::pair<int,int> > ranges);
-    void ResaveSystem();
+    // void ResaveSystem();
+    /**
+     * @brief Signals to the main routine to run the Mohn's Rho anaylsis with the passed year ranges
+     * @param YearRanges : year ranges to run for Mohn's Rho analysis
+     */
+    void RunDiagnosticEstimation(std::vector<std::pair<int,int> > YearRanges);
 
 public slots:
+    /**
+     * @brief Callback for when user changes the number of peel years in the GUI spinbox
+     * @param numYearsPeeled : number of peeled years desired
+     */
+    void callback_Diagnostic_Tab2_NumPeelsSB(int numYearsPeeled);
+    /**
+     * @brief Callback for when user changes the position of the peeled years
+     * @param peelPosition : position of peeled years (beginning or end of time period)
+     */
+    void callback_Diagnostic_Tab2_PeelPositionCMB(QString peelPosition);
+    /**
+     * @brief Callback for when the Run button is pressed
+     */
     void callback_Diagnostic_Tab2_RunPB();
-    void callback_Diagnostic_Tab2_NumPeelsSB(int val);
-    void callback_Diagnostic_Tab2_PeelPositionCMB(QString position);
 };
 
 #endif

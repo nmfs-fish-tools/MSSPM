@@ -137,7 +137,7 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
         numTotalParameters = EstParameters.size();
         createOutputStr(numTotalParameters,numEstParameters,NumSubRuns,
                         bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
-        emit RunCompleted(QString::fromStdString(bestFitnessStr));
+        emit RunCompleted(bestFitnessStr);
 
     }
     std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtils::elapsedTime(startTime);

@@ -11,13 +11,13 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
 {
     QUiLoader loader;
 
-    m_logger      = logger;
-    m_databasePtr = databasePtr;
-    m_predationForm.clear();
+    m_Logger      = logger;
+    m_DatabasePtr = databasePtr;
+    m_PredationForm.clear();
 
     readSettings();
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab4::nmfEstimation_Tab4");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab4::nmfEstimation_Tab4");
 
     Estimation_Tabs = tabs;
 
@@ -67,36 +67,36 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     connect(Estimation_Tab4_SavePB,         SIGNAL(clicked()),
             this,                           SLOT(callback_SavePB()));
     connect(Estimation_Tab4_PredationMinSP, SIGNAL(splitterMoved(int,int)),
-            this,                           SLOT(callback_minSplitterMoved(int,int)));
+            this,                           SLOT(callback_MinSplitterMoved(int,int)));
     connect(Estimation_Tab4_PredationMaxSP, SIGNAL(splitterMoved(int,int)),
-            this,                           SLOT(callback_maxSplitterMoved(int,int)));
+            this,                           SLOT(callback_MaxSplitterMoved(int,int)));
     connect(Estimation_Tab4_EstimateCB,     SIGNAL(stateChanged(int)),
             this,                           SLOT(callback_EstimateChecked(int)));
 
     Estimation_Tab4_PrevPB->setText("\u25C1--");
     Estimation_Tab4_NextPB->setText("--\u25B7");
 
-    m_QTableViews1d.clear();
-    m_QTableViews1d.push_back(Estimation_Tab4_ExponentMinTV);
-    m_QTableViews1d.push_back(Estimation_Tab4_ExponentMaxTV);
-    m_QTableViews2d.clear();
-    m_QTableViews2d.push_back(Estimation_Tab4_PredationMinTV);
-    m_QTableViews2d.push_back(Estimation_Tab4_PredationMaxTV);
-    m_QTableViews2d.push_back(Estimation_Tab4_HandlingMinTV);
-    m_QTableViews2d.push_back(Estimation_Tab4_HandlingMaxTV);
+    m_TableViews1d.clear();
+    m_TableViews1d.push_back(Estimation_Tab4_ExponentMinTV);
+    m_TableViews1d.push_back(Estimation_Tab4_ExponentMaxTV);
+    m_TableViews2d.clear();
+    m_TableViews2d.push_back(Estimation_Tab4_PredationMinTV);
+    m_TableViews2d.push_back(Estimation_Tab4_PredationMaxTV);
+    m_TableViews2d.push_back(Estimation_Tab4_HandlingMinTV);
+    m_TableViews2d.push_back(Estimation_Tab4_HandlingMaxTV);
 
-    // Create models and attach to views
+    // Create models and attach to view
     int NumSpecies = getNumSpecies();
     QStandardItemModel* smodel;
-    for (unsigned i=0; i<m_QTableViews1d.size(); ++i) {
+    for (unsigned i=0; i<m_TableViews1d.size(); ++i) {
         smodel = new QStandardItemModel(NumSpecies, 1);
         m_smodels1d.push_back(smodel);
-        m_QTableViews1d[i]->setModel(smodel);
+        m_TableViews1d[i]->setModel(smodel);
     }
-    for (unsigned i=0; i<m_QTableViews2d.size(); ++i) {
+    for (unsigned i=0; i<m_TableViews2d.size(); ++i) {
         smodel = new QStandardItemModel(NumSpecies, NumSpecies);
         m_smodels2d.push_back(smodel);
-        m_QTableViews2d[i]->setModel(smodel);
+        m_TableViews2d[i]->setModel(smodel);
     }
 
 } // end constructor
@@ -120,13 +120,13 @@ nmfEstimation_Tab4::clearWidgets()
 }
 
 void
-nmfEstimation_Tab4::callback_minSplitterMoved(int pos, int index)
+nmfEstimation_Tab4::callback_MinSplitterMoved(int pos, int index)
 {
    Estimation_Tab4_PredationMaxSP->setSizes(Estimation_Tab4_PredationMinSP->sizes());
 }
 
 void
-nmfEstimation_Tab4::callback_maxSplitterMoved(int pos, int index)
+nmfEstimation_Tab4::callback_MaxSplitterMoved(int pos, int index)
 {
    Estimation_Tab4_PredationMinSP->setSizes(Estimation_Tab4_PredationMaxSP->sizes());
 }
@@ -146,7 +146,6 @@ nmfEstimation_Tab4::readSettings()
 
     delete settings;
 }
-
 
 void
 nmfEstimation_Tab4::callback_PrevPB()
@@ -169,30 +168,15 @@ nmfEstimation_Tab4::callback_LoadPB()
 }
 
 void
-nmfEstimation_Tab4::getAlgorithm(std::string &Algorithm)
-{
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    // Get current algorithm and run its estimation routine
-    fields     = {"Algorithm"};
-    queryStr   = "SELECT Algorithm FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["Algorithm"].size() == 0) {
-        m_logger->logMsg(nmfConstants::Error,"Error: No algorithm type found in Systems table. Please click Save on Setup Tab 3.");
-        return;
-    }
-    Algorithm = dataMap["Algorithm"][0];
-}
-
-void
 nmfEstimation_Tab4::callback_SavePB()
 {
+    bool systemFound = false;
     QModelIndex index;
     std::string cmd;
     std::string errorMsg;
     std::string value;
+    std::string Algorithm,Minimizer,ObjectiveCriterion;
+    std::string Scaling,CompetitionForm;
     std::vector<std::string> SpeNames;
     boost::numeric::ublas::matrix<double> MinMax1d[m_smodels1d.size()];
     boost::numeric::ublas::matrix<double> MinMax2d[m_smodels2d.size()];
@@ -201,9 +185,14 @@ nmfEstimation_Tab4::callback_SavePB()
     readSettings();
 
     // Find Algorithm type
-    std::string Algorithm;
-    getAlgorithm(Algorithm);
-
+    systemFound = m_DatabasePtr->getAlgorithmIdentifiers(
+                Estimation_Tabs,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+    if (! systemFound) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab4::callback_SavePB: Couldn't find any System algorithms");
+        return;
+    }
     if (m_smodels2d.size() == 0) {
         return;
     }
@@ -221,7 +210,7 @@ nmfEstimation_Tab4::callback_SavePB()
     }
 
     // Save 1d tables
-    if (m_predationForm == "Type III")
+    if (m_PredationForm == "Type III")
     {
         for (unsigned i=0; i<m_Tables1d.size(); ++i) {
             nmfUtils::initialize(MinMax1d[i], SpeNames.size(), 1);
@@ -230,7 +219,7 @@ nmfEstimation_Tab4::callback_SavePB()
         for (unsigned int k=0; k<m_Tables1d.size(); ++k) {
             if (k%2 == 0) { // if it's an even number (there can be 2 or 4 of these types of tables)
                 if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_smodels1d[k],m_smodels1d[k+1])) {
-                    m_logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab4::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
+                    m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab4::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
                     QMessageBox::critical(Estimation_Tabs, "Error",
                                           "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
                                           QMessageBox::Ok);
@@ -239,10 +228,10 @@ nmfEstimation_Tab4::callback_SavePB()
                 }
             }
             cmd = "DELETE FROM " + m_Tables1d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
-            errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+            errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (errorMsg != " ") {
-                m_logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
-                m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+                m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
+                m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
                                      "\nError in Save command.  Couldn't delete all records from " +
                                      QString::fromStdString(m_Tables1d[k]) + " table.\n",
@@ -261,10 +250,10 @@ nmfEstimation_Tab4::callback_SavePB()
                 }
             }
             cmd = cmd.substr(0,cmd.size()-1);
-            errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+            errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (errorMsg != " ") {
-                m_logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab4::callback_SavePB: Write table error: " + errorMsg);
-                m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+                m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab4::callback_SavePB: Write table error: " + errorMsg);
+                m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
                                      "\nError in Save command.  Check that all cells are populated.\n",
                                      QMessageBox::Ok);
@@ -279,7 +268,7 @@ nmfEstimation_Tab4::callback_SavePB()
     {
         if (k%2 == 0) { // if it's an even number (there can be 2 or 4 of these types of tables)
             if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_smodels2d[k],m_smodels2d[k+1])) {
-                m_logger->logMsg(nmfConstants::Error,"[Error 3] nmfEstimation_Tab4::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
+                m_Logger->logMsg(nmfConstants::Error,"[Error 3] nmfEstimation_Tab4::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
                 QMessageBox::critical(Estimation_Tabs, "Error",
                                      "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
                                      QMessageBox::Ok);
@@ -288,10 +277,10 @@ nmfEstimation_Tab4::callback_SavePB()
             }
         }
         cmd = "DELETE FROM " + m_Tables2d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
-        errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (errorMsg != " ") {
-            m_logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
-            m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Estimation_Tabs, "Error",
                                  "\nError in Save command.  Couldn't delete all records from " +
                                  QString::fromStdString(m_Tables2d[k]) + " table.\n",
@@ -310,10 +299,10 @@ nmfEstimation_Tab4::callback_SavePB()
             }
         }
         cmd = cmd.substr(0,cmd.size()-1);
-        errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (errorMsg != " ") {
-            m_logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab4::callback_SavePB: Write table error: " + errorMsg);
-            m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab4::callback_SavePB: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Estimation_Tabs, "Error",
                                  "\nError in Save command.  Check that all cells are populated.\n",
                                  QMessageBox::Ok);
@@ -354,7 +343,7 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
     int numSections  = Estimation_Tab4_PredationMinSP->sizes().size();
     int defaultWidth = Estimation_Tab4_PredationMinSP->width()/3;
 
-    m_predationForm = predationForm.toStdString();
+    m_PredationForm = predationForm.toStdString();
 
     for (int i=0; i<numSections; ++i) {
         minSizeList.push_back(defaultWidth);
@@ -376,7 +365,7 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
     Estimation_Tab4_ExponentMinLBL->setEnabled(false);
     Estimation_Tab4_ExponentMaxLBL->setEnabled(false);
 
-    if (m_predationForm == "Type I") {
+    if (m_PredationForm == "Type I") {
         Estimation_Tab4_PredationMinTV->setEnabled(true);
         Estimation_Tab4_PredationMaxTV->setEnabled(true);
         Estimation_Tab4_PredationMinLBL->setEnabled(true);
@@ -387,7 +376,7 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
         }
         Estimation_Tab4_PredationMinSP->setSizes(minSizeList);
         Estimation_Tab4_PredationMaxSP->setSizes(maxSizeList);
-    } else if (m_predationForm == "Type II") {
+    } else if (m_PredationForm == "Type II") {
         Estimation_Tab4_PredationMinTV->setEnabled(true);
         Estimation_Tab4_PredationMaxTV->setEnabled(true);
         Estimation_Tab4_PredationMinLBL->setEnabled(true);
@@ -400,7 +389,7 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
         maxSizeList[numSections-1] = 0;
         Estimation_Tab4_PredationMinSP->setSizes(minSizeList);
         Estimation_Tab4_PredationMaxSP->setSizes(maxSizeList);
-    } else if (m_predationForm == "Type III") {
+    } else if (m_PredationForm == "Type III") {
         Estimation_Tab4_PredationMinTV->setEnabled(true);
         Estimation_Tab4_PredationMaxTV->setEnabled(true);
         Estimation_Tab4_PredationMinLBL->setEnabled(true);
@@ -417,14 +406,14 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
 
     // Load table names
     m_Tables1d.clear();
-    if (m_predationForm == "Type III") {
+    if (m_PredationForm == "Type III") {
         m_Tables1d.push_back("PredationExponentMin");
         m_Tables1d.push_back("PredationExponentMax");
     }
     m_Tables2d.clear();
     m_Tables2d.push_back("PredationLossRatesMin");
     m_Tables2d.push_back("PredationLossRatesMax");
-    if ((m_predationForm == "Type II") || (m_predationForm == "Type III")) {
+    if ((m_PredationForm == "Type II") || (m_PredationForm == "Type III")) {
         m_Tables2d.push_back("HandlingTimeMin");
         m_Tables2d.push_back("HandlingTimeMax");
     }
@@ -441,8 +430,8 @@ nmfEstimation_Tab4::callback_EstimateChecked(int state)
     QStandardItemModel* smodelMax;
     std::vector<QTableView*>  tableViews;
 
-    tableViews.insert(tableViews.end(),m_QTableViews1d.begin(),m_QTableViews1d.end());
-    tableViews.insert(tableViews.end(),m_QTableViews2d.begin(),m_QTableViews2d.end());
+    tableViews.insert(tableViews.end(),m_TableViews1d.begin(),m_TableViews1d.end());
+    tableViews.insert(tableViews.end(),m_TableViews2d.begin(),m_TableViews2d.end());
     if (state != Qt::Checked) {
         for (unsigned k=0; k<tableViews.size(); k += 2) {
             smodelMin = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
@@ -462,9 +451,9 @@ nmfEstimation_Tab4::callback_EstimateChecked(int state)
     }
 }
 
-
 void
-nmfEstimation_Tab4::getForms(std::string& predationForm, std::string& competitionForm)
+nmfEstimation_Tab4::getForms(std::string& predationForm,
+                             std::string& competitionForm)
 {
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -474,32 +463,27 @@ nmfEstimation_Tab4::getForms(std::string& predationForm, std::string& competitio
     fields    = {"PredationForm","WithinGuildCompetitionForm"};
     queryStr  = "SELECT PredationForm,WithinGuildCompetitionForm FROM Systems WHERE ";
     queryStr += " SystemName = '" + m_ProjectSettingsConfig + "'";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["PredationForm"].size() > 0) {
         predationForm   = dataMap["PredationForm"][0];
         competitionForm = dataMap["WithinGuildCompetitionForm"][0];
     }
 }
 
-
 int
 nmfEstimation_Tab4::getNumSpecies()
 {
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
+    std::vector<std::string> species;
 
-    fields   = {"SpeName"};
-    queryStr = "SELECT SpeName FROM Species";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    m_DatabasePtr->getAllSpecies(m_Logger,species);
 
-    return dataMap["SpeName"].size();
+    return species.size();
 }
 
 bool
 nmfEstimation_Tab4::loadWidgets()
 {
-std::cout << "nmfEstimation_Tab4::loadWidgets()" << std::endl;
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab4::loadWidgets()");
 
     bool isAggProd;
     int m;
@@ -526,14 +510,14 @@ std::cout << "nmfEstimation_Tab4::loadWidgets()" << std::endl;
 
     fields     = {"SpeName"};
     queryStr   = "SELECT SpeName FROM Species";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
     }
     fields     = {"GuildName"};
     queryStr   = "SELECT GuildName FROM Guilds";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds  = dataMap["GuildName"].size();
     for (int j=0; j<NumGuilds; ++j) {
         GuildNames << QString::fromStdString(dataMap["GuildName"][j]);
@@ -547,12 +531,12 @@ std::cout << "nmfEstimation_Tab4::loadWidgets()" << std::endl;
         if (isAggProd) {
             smodel = new QStandardItemModel(NumGuilds, 1);
             m_smodels1d[k] = smodel;
-            m_QTableViews1d[k]->setModel(smodel);
+            m_TableViews1d[k]->setModel(smodel);
         }
         fields    = {"SystemName","SpeName","Value"};
         queryStr  = "SELECT SystemName,SpeName,Value FROM " + m_Tables1d[k] +
                     " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
-        dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+        dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
 
         // Load Predation tables
@@ -571,7 +555,7 @@ std::cout << "nmfEstimation_Tab4::loadWidgets()" << std::endl;
             m_smodels1d[k]->setVerticalHeaderLabels(SpeciesNames);
         }
         m_smodels1d[k]->setHorizontalHeaderLabels(exponentColName);
-        m_QTableViews1d[k]->resizeColumnsToContents();
+        m_TableViews1d[k]->resizeColumnsToContents();
     }
 
     // Load the 2d tables
@@ -579,12 +563,12 @@ std::cout << "nmfEstimation_Tab4::loadWidgets()" << std::endl;
         if (isAggProd) {
             smodel = new QStandardItemModel(NumGuilds, NumGuilds);
             m_smodels2d[k] = smodel;
-            m_QTableViews2d[k]->setModel(smodel);
+            m_TableViews2d[k]->setModel(smodel);
         }
         fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
         queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_Tables2d[k] +
                     " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
-        dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+        dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeciesA"].size();
 
         // Load Predation tables
@@ -606,7 +590,7 @@ std::cout << "nmfEstimation_Tab4::loadWidgets()" << std::endl;
             m_smodels2d[k]->setVerticalHeaderLabels(SpeciesNames);
             m_smodels2d[k]->setHorizontalHeaderLabels(SpeciesNames);
         }
-        m_QTableViews2d[k]->resizeColumnsToContents();
+        m_TableViews2d[k]->resizeColumnsToContents();
     }
 
     // Set enable-ness on widgets

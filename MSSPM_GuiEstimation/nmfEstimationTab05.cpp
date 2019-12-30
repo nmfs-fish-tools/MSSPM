@@ -12,13 +12,13 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
 {
     QUiLoader loader;
 
-    m_logger           = theLogger;
-    m_databasePtr      = theDatabasePtr;
+    m_Logger           = theLogger;
+    m_DatabasePtr      = theDatabasePtr;
     m_ProjectSettingsConfig.clear();
-    m_smodelBiomass    = NULL;
-    m_smodelCovariates = NULL;
+    m_SModelBiomass    = NULL;
+    m_SModelCovariates = NULL;
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::nmfEstimation_Tab5");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::nmfEstimation_Tab5");
 
     Estimation_Tabs = tabs;
 
@@ -71,11 +71,11 @@ nmfEstimation_Tab5::clearWidgets()
          Estimation_Tab5_CovariatesTV});
 }
 
-void
-nmfEstimation_Tab5::callback_SetAlgorithm(QString algorithm)
-{
-    Estimation_Tab5_CovariatesGB->setVisible(algorithm == "Genetic Algorithm");
-}
+//void
+//nmfEstimation_Tab5::callback_SetAlgorithm(QString algorithm)
+//{
+//    Estimation_Tab5_CovariatesGB->setVisible(algorithm == "Genetic Algorithm");
+//}
 
 
 void
@@ -115,30 +115,30 @@ nmfEstimation_Tab5::callback_SavePB()
     QString value;
     QString msg;
 
-    if ((m_smodelBiomass == NULL) || (m_smodelCovariates == NULL)) {
+    if ((m_SModelBiomass == NULL) || (m_SModelCovariates == NULL)) {
         return;
     }
     SpeciesKMin.clear();
 
     // Find number of species
-    NumSpecies = m_smodelBiomass->columnCount();
+    NumSpecies = m_SModelBiomass->columnCount();
 
     // Get list of Species names
     for (int species=0; species<NumSpecies; ++species) {
-        SpeNames.push_back(m_smodelBiomass->horizontalHeaderItem(species)->text().toStdString());
+        SpeNames.push_back(m_SModelBiomass->horizontalHeaderItem(species)->text().toStdString());
     }
 
     // Get SpeciesKMin values for all Species
     fields     = {"SpeName","SpeciesKMin"};
     queryStr   = "SELECT SpeName,SpeciesKMin from Species ORDER BY SpeName";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int species=0; species<NumSpecies; ++species) {
         SpeciesKMin.push_back(std::stod(dataMap["SpeciesKMin"][species]));
     }
     // Check that InitBiomass < the SpeciesKMin value in the Species table
     for (int species=0; species<NumSpecies; ++species) {
-        index = m_smodelBiomass->index(0,species);
+        index = m_SModelBiomass->index(0,species);
         InitBiomass = index.data().toDouble();
         if (InitBiomass > SpeciesKMin[species]) {
             errorMsg  = "\nFound: InitBiomass > SpeciesKMin for Species: " + SpeNames[species];
@@ -151,13 +151,13 @@ nmfEstimation_Tab5::callback_SavePB()
 
 
     // Check data integrity
-    for (int j=0; j<m_smodelBiomass->columnCount(); ++j) { // Species
-        for (int i=0; i<m_smodelBiomass->rowCount(); ++i) { // Time
-            index = m_smodelBiomass->index(i,j);
+    for (int j=0; j<m_SModelBiomass->columnCount(); ++j) { // Species
+        for (int i=0; i<m_SModelBiomass->rowCount(); ++i) { // Time
+            index = m_SModelBiomass->index(i,j);
             value = index.data().toString();
             if (value.contains(',')) {
                 msg = "Invalid value found. No commas or special characters allowed in a number.";
-                m_logger->logMsg(nmfConstants::Error,msg.toStdString());
+                m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
                 QMessageBox::warning(Estimation_Tabs, "Error", "\n"+msg, QMessageBox::Ok);
                 return;
             }
@@ -169,10 +169,10 @@ nmfEstimation_Tab5::callback_SavePB()
     cmd = "DELETE FROM ObservedBiomass WHERE SystemName = '" +
            m_ProjectSettingsConfig +
            "' AND MohnsRhoLabel = ''";
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab5::callback_SavePB: DELETE error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab5::callback_SavePB: DELETE error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
                              "\nError in Save command.  Couldn't delete all records from ObservedBiomass table.\n",
                              QMessageBox::Ok);
@@ -182,8 +182,8 @@ nmfEstimation_Tab5::callback_SavePB()
 
     cmd = "INSERT INTO ObservedBiomass (MohnsRhoLabel,SystemName,SpeName,Year,Value) VALUES ";
     for (int species=0; species<NumSpecies; ++species) {
-        for (int time=0; time<m_smodelBiomass->rowCount(); ++time) {
-            index = m_smodelBiomass->index(time,species);
+        for (int time=0; time<m_SModelBiomass->rowCount(); ++time) {
+            index = m_SModelBiomass->index(time,species);
             value = index.data().toString();
             cmd += "('"   + MohnsRhoLabel +
                     "','" + m_ProjectSettingsConfig +
@@ -193,10 +193,10 @@ nmfEstimation_Tab5::callback_SavePB()
         }
     }
     cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab5::callback_SavePB: Write table error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab5::callback_SavePB: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
                              "\nError in Save command.  Check that all cells are populated.\n",
                              QMessageBox::Ok);
@@ -206,14 +206,14 @@ nmfEstimation_Tab5::callback_SavePB()
 
     // Need to also update the Species table with the initial Biomass values
     for (int species=0; species<NumSpecies; ++species) {
-        index = m_smodelBiomass->index(0,species);
+        index = m_SModelBiomass->index(0,species);
         value = index.data().toString();
         cmd  = "UPDATE Species SET InitBiomass = " + value.toStdString();
         cmd += " WHERE SpeName = '" + SpeNames[species] + "'";
-        errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (errorMsg != " ") {
-            m_logger->logMsg(nmfConstants::Error,"[Error 3] nmfEstimation_Tab5::callback_SavePB (Species): Write table error: " + errorMsg);
-            m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 3] nmfEstimation_Tab5::callback_SavePB (Species): Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Estimation_Tabs,"Warning",
                                  "\nCouldn't REPLACE INTO Species table.\n",
                                  QMessageBox::Ok);
@@ -224,10 +224,10 @@ nmfEstimation_Tab5::callback_SavePB()
 
 
     cmd = "DELETE FROM Covariate";
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab5::callback_SavePB: DELETE error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab5::callback_SavePB: DELETE error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
                              "\nError in Save command.  Couldn't delete all records from CovariteTS table.\n",
                              QMessageBox::Ok);
@@ -236,8 +236,8 @@ nmfEstimation_Tab5::callback_SavePB()
     }
 
     cmd = "INSERT INTO Covariate (Year,Value) VALUES ";
-    for (int i=0; i<m_smodelCovariates->rowCount(); ++i) { // Time in years
-        for (int j=0; j<m_smodelCovariates->columnCount(); ++ j) {
+    for (int i=0; i<m_SModelCovariates->rowCount(); ++i) { // Time in years
+        for (int j=0; j<m_SModelCovariates->columnCount(); ++ j) {
 
             // RSK - This table isn't currently used.  It was for Kraken. Setting values to "0".
             // index = smodelCovariates->index(i,j);
@@ -248,10 +248,10 @@ nmfEstimation_Tab5::callback_SavePB()
         }
     }
     cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"[Error 5] nmfEstimation_Tab5::callback_SavePB: Write table error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"[Error 5] nmfEstimation_Tab5::callback_SavePB: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
                              "\nError in Save command.  Check that all cells are populated.\n",
                              QMessageBox::Ok);
@@ -289,7 +289,7 @@ nmfEstimation_Tab5::readSettings()
 bool
 nmfEstimation_Tab5::loadWidgets()
 {
-std::cout << "nmfEstimation_Tab5::loadWidgets()" << std::endl;
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::loadWidgets()");
 
     loadWidgets("");
 
@@ -325,7 +325,7 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
 
     fields   = {"RunLength","StartYear"};
     queryStr = "SELECT RunLength,StartYear FROM Systems where SystemName = '" + SystemName.toStdString() + "'";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["RunLength"].size() == 0)  {
         std::cout << "Error: No records found in Systems table." << std::endl;
         return false;
@@ -335,7 +335,7 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
 
     fields     = {"SpeName"};
     queryStr   = "SELECT SpeName FROM Species";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
@@ -345,7 +345,7 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
     queryStr   = "SELECT MohnsRhoLabel,SystemName,SpeName,Year,Value FROM ObservedBiomass WHERE SystemName = '" +
                  SystemName.toStdString() + "' AND MohnsRhoLabel = '" +
                  MohnsRhoLabel.toStdString() + "' ORDER BY SpeName,Year ";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();
 
     // Load BiomassTV
@@ -353,7 +353,7 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
     for (int i=0; i<=RunLength; ++i) {
         VerticalList << " " + QString::number(StartYear+i) + " ";
     }
-    m_smodelBiomass = new QStandardItemModel( RunLength, NumSpecies );
+    m_SModelBiomass = new QStandardItemModel( RunLength, NumSpecies );
     for (int j=0; j<NumSpecies; ++j) {
         for (int i=0; i<=RunLength; ++i) {
             if ((m < NumRecords) && (SpeciesNames[j].toStdString() == dataMap["SpeName"][m]))
@@ -361,34 +361,34 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
             else
                 item = new QStandardItem(QString(""));
             item->setTextAlignment(Qt::AlignCenter);
-            m_smodelBiomass->setItem(i, j, item);
+            m_SModelBiomass->setItem(i, j, item);
         }
     }
-    m_smodelBiomass->setVerticalHeaderLabels(VerticalList);
-    m_smodelBiomass->setHorizontalHeaderLabels(SpeciesNames);
-    Estimation_Tab5_BiomassTV->setModel(m_smodelBiomass);
+    m_SModelBiomass->setVerticalHeaderLabels(VerticalList);
+    m_SModelBiomass->setHorizontalHeaderLabels(SpeciesNames);
+    Estimation_Tab5_BiomassTV->setModel(m_SModelBiomass);
     Estimation_Tab5_BiomassTV->resizeColumnsToContents();
 
     // Load Covariate table
     fields     = {"Year","Value"};
     queryStr   = "SELECT Year,Value FROM Covariate";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Year"].size();
 
     // Load Covariates model
-    m_smodelCovariates = new QStandardItemModel( RunLength, 1 );
+    m_SModelCovariates = new QStandardItemModel( RunLength, 1 );
     for (int i=0; i<=RunLength; ++i) {
         if (i < NumRecords)
             item = new QStandardItem(QString::fromStdString(dataMap["Value"][i]));
         else
             item = new QStandardItem(QString(""));
         item->setTextAlignment(Qt::AlignCenter);
-        m_smodelCovariates->setItem(i, 0, item);
+        m_SModelCovariates->setItem(i, 0, item);
     }
     CovariatesHeader << "Covariates";
-    m_smodelCovariates->setVerticalHeaderLabels(VerticalList);
-    m_smodelCovariates->setHorizontalHeaderLabels(CovariatesHeader);
-    Estimation_Tab5_CovariatesTV->setModel(m_smodelCovariates);
+    m_SModelCovariates->setVerticalHeaderLabels(VerticalList);
+    m_SModelCovariates->setHorizontalHeaderLabels(CovariatesHeader);
+    Estimation_Tab5_CovariatesTV->setModel(m_SModelCovariates);
     Estimation_Tab5_CovariatesTV->resizeColumnsToContents();
 
     return true;
@@ -408,21 +408,21 @@ nmfEstimation_Tab5::callback_UpdateInitialObservedBiomass()
     // Populate first row of Observed Biomass with Init Biomass from Species
     fields     = {"SpeName","InitBiomass"};
     queryStr   = "SELECT SpeName,InitBiomass FROM Species";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
 
-    m_smodelBiomass = new QStandardItemModel( 1, NumSpecies );
+    m_SModelBiomass = new QStandardItemModel( 1, NumSpecies );
 
     for (int j=0; j<NumSpecies; ++j) {
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
         item = new QStandardItem(QString::fromStdString(dataMap["InitBiomass"][j]));
         item->setTextAlignment(Qt::AlignCenter);
-        m_smodelBiomass->setItem(0, j, item);
+        m_SModelBiomass->setItem(0, j, item);
     }
 
-    m_smodelBiomass->setVerticalHeaderLabels(VerticalList);
-    m_smodelBiomass->setHorizontalHeaderLabels(SpeciesNames);
-    Estimation_Tab5_BiomassTV->setModel(m_smodelBiomass);
+    m_SModelBiomass->setVerticalHeaderLabels(VerticalList);
+    m_SModelBiomass->setHorizontalHeaderLabels(SpeciesNames);
+    Estimation_Tab5_BiomassTV->setModel(m_SModelBiomass);
     Estimation_Tab5_BiomassTV->resizeColumnsToContents();
 
 }

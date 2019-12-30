@@ -4,23 +4,23 @@
 #include "nmfUtilsQt.h"
 #include "nmfConstants.h"
 
-nmfForecast_Tab4::nmfForecast_Tab4(QTabWidget  *tabs,
-                                   nmfLogger   *logger,
-                                   nmfDatabase *databasePtr,
-                                   std::string &projectDir)
+nmfForecast_Tab4::nmfForecast_Tab4(QTabWidget*  tabs,
+                                   nmfLogger*   logger,
+                                   nmfDatabase* databasePtr,
+                                   std::string& projectDir)
 {
     QUiLoader loader;
 
-    m_logger      = logger;
-    m_databasePtr = databasePtr;
-    m_fontSize    = 9;
+    m_Logger      = logger;
+    m_DatabasePtr = databasePtr;
+    m_FontSize    = 9;
     m_ProjectDir  = projectDir;
     m_SaveDlg     = nullptr;
-    m_currentScenario.clear();
+    m_CurrentScenario.clear();
     m_ProjectSettingsConfig.clear();
     m_SortedForecastLabelsMap.clear();
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab4::nmfForecast_Tab4");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab4::nmfForecast_Tab4");
 
     Forecast_Tabs = tabs;
 
@@ -54,9 +54,9 @@ nmfForecast_Tab4::nmfForecast_Tab4(QTabWidget  *tabs,
     connect(Forecast_Tab4_SaveToMultiScenarioPB,  SIGNAL(clicked()),
             this,                      SLOT(callback_RunMultiScenarioPB()));
     connect(Forecast_Tab4_FontSizeCMB, SIGNAL(currentTextChanged(QString)),
-            this,                      SLOT(callback_Forecast_Tab4_FontSizeCMB(QString)));
+            this,                      SLOT(callback_FontSizeCMB(QString)));
 
-} // end constructor
+}
 
 
 nmfForecast_Tab4::~nmfForecast_Tab4()
@@ -67,7 +67,7 @@ void
 nmfForecast_Tab4::setOutputTE(QString msg)
 {
     Forecast_Tab4_OutputTE->setText(msg);
-    callback_Forecast_Tab4_FontSizeCMB(QString::number(m_fontSize));
+    callback_FontSizeCMB(QString::number(m_FontSize));
 }
 
 void
@@ -75,7 +75,7 @@ nmfForecast_Tab4::appendOutputTE(QString msg)
 {
     QString currentMsg = Forecast_Tab4_OutputTE->document()->toHtml();
     Forecast_Tab4_OutputTE->setText(currentMsg+msg);
-    callback_Forecast_Tab4_FontSizeCMB(QString::number(m_fontSize));
+    callback_FontSizeCMB(QString::number(m_FontSize));
 }
 
 void
@@ -100,8 +100,8 @@ nmfForecast_Tab4::getCurrentForecastName()
 void
 nmfForecast_Tab4::callback_RunPB()
 {
-    m_logger->logMsg(nmfConstants::Normal,"");
-    m_logger->logMsg(nmfConstants::Normal,"Start Forecast");
+    m_Logger->logMsg(nmfConstants::Normal,"");
+    m_Logger->logMsg(nmfConstants::Normal,"Start Forecast");
 
     std::string ForecastName = Forecast_Tab1_NameLE->text().toStdString();
 
@@ -111,27 +111,27 @@ nmfForecast_Tab4::callback_RunPB()
 void
 nmfForecast_Tab4::setOutputScenario(std::string scenario)
 {
-    m_currentScenario = scenario;
+    m_CurrentScenario = scenario;
 }
 
 void
 nmfForecast_Tab4::callback_RunMultiScenarioPB()
 {
-    m_logger->logMsg(nmfConstants::Normal,"");
-    m_logger->logMsg(nmfConstants::Normal,"Start MultiScenario");
+    m_Logger->logMsg(nmfConstants::Normal,"");
+    m_Logger->logMsg(nmfConstants::Normal,"Start MultiScenario");
 
     emit QueryOutputScenario();
 
-    m_SaveDlg = new MultiScenarioSaveDialog(
+    m_SaveDlg = new MultiScenarioSaveDlg(
                 Forecast_Tabs,
-                m_databasePtr,
-                m_logger,
+                m_DatabasePtr,
+                m_Logger,
                 m_ProjectSettingsConfig,
                 m_SortedForecastLabelsMap,
-                m_currentScenario,
+                m_CurrentScenario,
                 getCurrentForecastName());
     connect(m_SaveDlg, SIGNAL(RefreshOutput()),
-            this,    SLOT(callback_RefreshOutput()));
+            this,      SLOT(callback_RefreshOutput()));
 
     if (m_SaveDlg->exec()) {  // OK pressed
         QMessageBox::information(Forecast_Tabs,
@@ -158,13 +158,13 @@ nmfForecast_Tab4::callback_RefreshOutput()
 
 
 void
-nmfForecast_Tab4::callback_Forecast_Tab4_FontSizeCMB(QString theFontSize)
+nmfForecast_Tab4::callback_FontSizeCMB(QString fontSize)
 {
-    m_fontSize = theFontSize.toInt();
+    m_FontSize = fontSize.toInt();
 
     QTextCursor cursor = Forecast_Tab4_OutputTE->textCursor();
     Forecast_Tab4_OutputTE->selectAll();
-    Forecast_Tab4_OutputTE->setFontPointSize(m_fontSize);
+    Forecast_Tab4_OutputTE->setFontPointSize(m_FontSize);
     Forecast_Tab4_OutputTE->setTextCursor( cursor );
 }
 
@@ -172,7 +172,7 @@ nmfForecast_Tab4::callback_Forecast_Tab4_FontSizeCMB(QString theFontSize)
 bool
 nmfForecast_Tab4::loadWidgets()
 {
-std::cout << "nmfForecast_Tab4::loadWidgets()" << std::endl;
+    m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab4::loadWidgets()");
 
     return true;
 }

@@ -7,10 +7,10 @@
 #include "nmfCompetitionForm.h"
 #include "nmfPredationForm.h"
 
-#include <QFile>
+#include <QObject>
 #include <QString>
-#include <exception>
 
+#include <exception>
 #include <nlopt.hpp>
 
 /**
@@ -54,8 +54,7 @@ private:
                                     const boost::numeric::ublas::matrix<double> &matrix);
 
 signals:
-    void RunCompleted(QString outputStr);
-    void SubRunCompleted(int RunNum, int SubRun, int NumSubRuns);
+    void RunCompleted(std::string outputStr);
     void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
 
 public:

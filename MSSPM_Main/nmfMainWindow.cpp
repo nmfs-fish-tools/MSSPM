@@ -8,6 +8,8 @@
 
 #include <QLineSeries>
 
+// This is needed since a signal is passing a std::string type
+Q_DECLARE_METATYPE (std::string)
 
 nmfMainWindow::nmfMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -50,6 +52,9 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_Graph3D             = nullptr;
     OutputChartMainLayt   = nullptr;
     Output_Controls_ptr   = nullptr;
+
+    // This is needed since a custom signal is passing a std::string type
+    qRegisterMetaType<std::string>("std::string");
 
     setNumLines(1);
 
@@ -1166,28 +1171,6 @@ nmfMainWindow::getOutputCompetition(std::vector<double> &EstCompetition)
         }
     }
 
-}
-
-bool
-nmfMainWindow::getRunLength(int &RunLength)
-{
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    // Find Systems data
-    fields    = {"RunLength"};
-    queryStr  = "SELECT RunLength FROM Systems WHERE ";
-    queryStr += "SystemName = '" + m_ProjectSettingsConfig + "'";
-    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["RunLength"].size();
-    if (NumRecords == 0) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 0] getRunLength: No records found in table Systems for Name = "+m_ProjectSettingsConfig);
-        return false;
-    }
-    RunLength = std::stoi(dataMap["RunLength"][0]);
-    return true;
 }
 
 void
@@ -2655,8 +2638,8 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_SetChartType(std::string,std::string)));
     connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimation(std::vector<std::pair<int,int> >)),
             this,                SLOT(callback_RunDiagnosticEstimation(std::vector<std::pair<int,int> >)));
-    connect(Diagnostic_Tab2_ptr, SIGNAL(ResaveSystem()),
-            Setup_Tab4_ptr,      SLOT(callback_SaveSystem()));
+//    connect(Diagnostic_Tab2_ptr, SIGNAL(ResaveSystem()),
+//            Setup_Tab4_ptr,      SLOT(callback_SaveSystem()));
 
     connect(m_UI->EstimationDataInputTabWidget,  SIGNAL(currentChanged(int)),
             this,                              SLOT(callback_EstimationTabChanged(int)));
@@ -4267,7 +4250,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     QString ScaleStr = Output_Controls_ptr->getOutputScale();
     QStandardItem* item;
     QStandardItemModel* smodel;
-    QString OutputMethod = Output_Controls_ptr->getOutputMethod();
+    QString OutputMethod = Output_Controls_ptr->getOutputDiagnostics();
 
     m_DatabasePtr->getAlgorithmIdentifiers(
                 this,m_Logger,m_ProjectSettingsConfig,
@@ -4659,7 +4642,7 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     getSpecies(NumSpeciesOrGuilds,SpeciesList);
-    getRunLength(RunLength); // RSK make sure use full run length and not a peel
+    m_DatabasePtr->getRunLength(m_Logger,m_ProjectSettingsConfig,RunLength);
 
     m_Logger->logMsg(nmfConstants::Normal,"Calculating Summary Statistics for Run of length: "+std::to_string(RunLength));
 
@@ -4739,7 +4722,7 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     getSpecies(NumSpeciesOrGuilds,SpeciesList);
-    getRunLength(RunLength);
+    m_DatabasePtr->getRunLength(m_Logger,m_ProjectSettingsConfig,RunLength);
 
     std::vector<QString> statistics = {"Mohn's Rho (r)",
                                        "Mohn's Rho (K)",
@@ -7206,10 +7189,10 @@ nmfMainWindow::runBeesAlgorithm()
 
     // Set up connections
     disconnect(m_Estimator_Bees, 0, 0, 0);
-    connect(m_Estimator_Bees, SIGNAL(RunCompleted(QString)),
-            this,          SLOT(callback_RunCompleted(QString)));
+    connect(m_Estimator_Bees, SIGNAL(RunCompleted(std::string)),
+            this,             SLOT(callback_RunCompleted(std::string)));
     connect(m_Estimator_Bees, SIGNAL(SubRunCompleted(int,int,int)),
-            this,          SLOT(callback_SubRunCompleted(int,int,int)));
+            this,             SLOT(callback_SubRunCompleted(int,int,int)));
 
     // Set up progress widget to show fitness vs generation
     m_ProgressWidget->startTimer(100);
@@ -7259,11 +7242,11 @@ nmfMainWindow::runNLoptAlgorithm()
 
     // Set up connections
     disconnect(m_ProgressWidget, 0, 0, 0);
-    connect(m_ProgressWidget, SIGNAL(StopTheRun()),
+    connect(m_ProgressWidget,  SIGNAL(StopTheRun()),
             m_Estimator_NLopt, SLOT(callback_StopTheOptimizer()));
     disconnect(m_Estimator_NLopt, 0, 0, 0);
-    connect(m_Estimator_NLopt, SIGNAL(RunCompleted(QString)),
-            this,            SLOT(callback_RunCompleted(QString)));
+    connect(m_Estimator_NLopt, SIGNAL(RunCompleted(std::string)),
+            this,              SLOT(callback_RunCompleted(std::string)));
 
     // Start and initialize the Progress chart
     m_ProgressWidget->startTimer(100);
@@ -7280,7 +7263,7 @@ nmfMainWindow::runNLoptAlgorithm()
     static const QMetaMethod updateProgressSignal = QMetaMethod::fromSignal(&NLopt_Estimator::UpdateProgressData);
     if (! isSignalConnected(updateProgressSignal)) {
         connect(m_Estimator_NLopt, SIGNAL(UpdateProgressData(int,int,QString)),
-                this, SLOT(callback_UpdateProgressData(int,int,QString)));
+                this,              SLOT(callback_UpdateProgressData(int,int,QString)));
     }
 
     /****************************************************/
@@ -7451,7 +7434,7 @@ nmfMainWindow::runGradientAlgorithm(std::string &Algorithm,
 
 
 void
-nmfMainWindow::callback_RunCompleted(QString outputStr)
+nmfMainWindow::callback_RunCompleted(std::string output)
 {
     m_Logger->logMsg(nmfConstants::Normal,"Run Completed");
 
@@ -7465,7 +7448,7 @@ nmfMainWindow::callback_RunCompleted(QString outputStr)
     msg += "<br>Competition Form:&nbsp;&nbsp;" + QString::fromStdString(m_DataStruct.CompetitionForm);
     msg += "<br>Predation Form:&nbsp;&nbsp;&nbsp;&nbsp;" + QString::fromStdString(m_DataStruct.PredationForm);
     msg += "<br>Scaling Algorithm:&nbsp;" + QString::fromStdString(m_DataStruct.Scaling);
-    msg += "<br><br>"+outputStr;
+    msg += "<br><br>" + QString::fromStdString(output);
     Estimation_Tab6_ptr->setOutputTE("");
     Estimation_Tab6_ptr->appendOutputTE(msg);
 
@@ -7682,10 +7665,10 @@ nmfMainWindow::calculateSummaryStatisticsMohnsRhoBiomass(
 {
     int NumPeels = Diagnostic_Tab2_ptr->getNumPeels();
     int RunLength;
-    if (! getRunLength(RunLength))
+    if (! m_DatabasePtr->getRunLength(m_Logger,m_ProjectSettingsConfig,RunLength))
         return false;
     int FirstPeelMinYear = Diagnostic_Tab2_ptr->getStartYearLE();
-    int FirstPeelMaxYear = FirstPeelMinYear + RunLength; // - NumPeels; //Diagnostic_Tab2_ptr->getEndYearLE();
+    int FirstPeelMaxYear = FirstPeelMinYear + RunLength;
     int NumRecords;
     int totRecs;
     int NumSpecies;
@@ -9237,9 +9220,9 @@ nmfMainWindow::callback_Setup_Tab4_CompetitionFormCMB(QString name)
 void
 nmfMainWindow::setup3dChart()
 {
-    std::string xLabel = "Carrying Capacity (K) Percent Deviation";
-    std::string yLabel = "Fitness";
-    std::string zLabel = "Growth Rate (r) Percent Deviation";
+//    std::string xLabel = "Carrying Capacity (K) Percent Deviation";
+//    std::string yLabel = "Fitness";
+//    std::string zLabel = "Growth Rate (r) Percent Deviation";
 
     if (m_Graph3D != nullptr) { // && (m_modifier != nullptr)) {
         m_ChartView3d->show();
@@ -9265,37 +9248,39 @@ nmfMainWindow::setup3dChart()
     // RSK Hopefully this will be implemented in a later Qt version
     // m_graph3D->setSelectionMode(QAbstract3DGraph::SelectionRowAndColumn);
 
-    m_Graph3D->setAxisX(new QValue3DAxis);
-    m_Graph3D->setAxisY(new QValue3DAxis);
-    m_Graph3D->setAxisZ(new QValue3DAxis);
-    m_Graph3D->axisX()->setLabelAutoRotation(30);
-    m_Graph3D->axisY()->setLabelAutoRotation(90);
-    m_Graph3D->axisZ()->setLabelAutoRotation(30);
-
-    m_Graph3D->axisX()->setTitleVisible(true);
-    m_Graph3D->axisY()->setTitleVisible(true);
-    m_Graph3D->axisZ()->setTitleVisible(true);
-    m_Graph3D->axisX()->setTitle(xLabel.c_str());
-    m_Graph3D->axisY()->setTitle(yLabel.c_str());
-    m_Graph3D->axisZ()->setTitle(zLabel.c_str());
-    SurfaceProxy  = new QSurfaceDataProxy();
-    SurfaceSeries = new QSurface3DSeries(SurfaceProxy);
 }
 
 bool
 nmfMainWindow::callback_ShowDiagnosticsChart3d()
 {
     if (m_Graph3D != nullptr) {
-        m_Graph3D->removeSeries(SurfaceSeries);
-        addDataToSurface();
-        m_Graph3D->addSeries(SurfaceSeries);
+
+        QString xLabel = "Carrying Capacity (K) Percent Deviation";
+        QString yLabel = "Fitness";
+        QString zLabel = "Growth Rate (r) Percent Deviation";
+        QString xLabelFormat = "Age %d";
+        QString zLabelFormat = "%d";
+
+        boost::numeric::ublas::matrix<double> rowValues;
+        boost::numeric::ublas::matrix<double> columnValues;
+        boost::numeric::ublas::matrix<double> heightValues;
+
+        getSurfaceData(rowValues,columnValues,heightValues);
+        nmfChartSurface surface(m_Graph3D,xLabel,yLabel,zLabel,
+                                xLabelFormat,zLabelFormat,
+                                rowValues,columnValues,heightValues);
+        surface.selectCenterPoint();
+
     }
 
     return true;
 }
 
 void
-nmfMainWindow::addDataToSurface()
+nmfMainWindow::getSurfaceData(
+        boost::numeric::ublas::matrix<double>& rowValues,
+        boost::numeric::ublas::matrix<double>& columnValues,
+        boost::numeric::ublas::matrix<double>& heightValues)
 {
     int m=0;
     int NumRecords;
@@ -9337,30 +9322,29 @@ nmfMainWindow::addDataToSurface()
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Algorithm"].size();
     if (NumRecords != nrows*ncols) {
-        msg  = "[Error 1] nmfMainWindow::addDataToSurface: Incorrect number of records read. Found "+std::to_string(NumRecords);
+        msg  = "[Error 1] nmfMainWindow::getSurfaceData: Incorrect number of records read. Found "+std::to_string(NumRecords);
         msg += " expecting " + std::to_string(nrows*ncols);
         m_Logger->logMsg(nmfConstants::Error,msg);
         m_Logger->logMsg(nmfConstants::Error,queryStr);
     }
 
-    QSurfaceDataArray *dataArray = new QSurfaceDataArray;
-    dataArray->reserve(nrows);
-    for (int col = 0; col < ncols; col++) {
-        QSurfaceDataRow *newRow = new QSurfaceDataRow(nrows);
-        int index = 0;
-        for (int row = 0; row < nrows; ++row) {
-            y = std::stod(dataMap["Fitness"][m]);
+    rowValues.resize(nrows,ncols);
+    columnValues.resize(nrows,ncols);
+    heightValues.resize(nrows,ncols);
+    for (int row = 0; row < nrows; ++row) {
+        for (int col = 0; col < ncols; ++col) {
             x = std::stod(dataMap["rPctVariation"][m]);
+            y = std::stod(dataMap["Fitness"][m]);
             z = std::stod(dataMap["KPctVariation"][m]);
             y = (y > 999.0) ? 1 : y;
-            (*newRow)[index++].setPosition(QVector3D(z, y, x)); // If z and x are flipped, only a quarter of surface will be rendered. Qt Bug.
+            rowValues(row,col)    = x;
+            columnValues(row,col) = z;
+            heightValues(row,col) = y;
             ++m;
         }
-        *dataArray << newRow;
     }
-    SurfaceProxy->resetArray(dataArray);
-    SurfaceSeries->setSelectedPoint(QPoint(NumPoints,NumPoints));
 }
+
 
 void
 nmfMainWindow::callback_SetChartView2d(bool setTo2d)
@@ -9580,8 +9564,7 @@ nmfMainWindow::callback_ForecastLineBrightnessChanged(double brightnessFactor)
 void
 nmfMainWindow::callback_SelectCenterSurfacePoint()
 {
-    int NumPoints = Diagnostic_Tab1_ptr->getLastRunsNumPoints();
-    SurfaceSeries->setSelectedPoint(QPoint(NumPoints,NumPoints));
+    callback_ShowDiagnosticsChart3d();
 }
 
 void

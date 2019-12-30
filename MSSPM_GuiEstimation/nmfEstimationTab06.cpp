@@ -10,17 +10,17 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
                                        std::string& projectDir)
 {
     QUiLoader loader;
-    QString NLoptMsg;
-    QString BeesMsg;
+    QString   NLoptMsg;
+    QString   BeesMsg;
 
-    m_logger       = logger;
-    m_databasePtr  = databasePtr;
-    m_fontSize     = 9;
-    m_isMonospaced = false;
+    m_Logger       = logger;
+    m_DatabasePtr  = databasePtr;
+    m_FontSize     = 9;
+    m_IsMonospaced = false;
     m_ProjectDir   = projectDir;
     m_ProjectSettingsConfig.clear();
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::nmfEstimation_Tab6");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::nmfEstimation_Tab6");
 
     Estimation_Tabs = tabs;
 
@@ -99,16 +99,15 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
 
     // Initialize font
     Estimation_Tab6_MonoCB->blockSignals(true);
-    Estimation_Tab6_MonoCB->setChecked(m_isMonospaced);
+    Estimation_Tab6_MonoCB->setChecked(m_IsMonospaced);
     Estimation_Tab6_MonoCB->blockSignals(false);
-    QString fontName = (m_isMonospaced) ? "Courier" : Estimation_Tab6_RunPB->font().family();
+    QString fontName = (m_IsMonospaced) ? "Courier" : Estimation_Tab6_RunPB->font().family();
     QFont defaultFont(fontName,11,QFont::Medium,false);
     setFont(defaultFont);
 
     callback_Estimation_Tab6_EstimationAlgorithmCMB("Bees Algorithm");
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfMSPRODTab6::nmfMSPRODTab6 Complete");
-
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMSPRODTab6::nmfMSPRODTab6 Complete");
 }
 
 
@@ -126,14 +125,14 @@ void
 nmfEstimation_Tab6::setOutputTE(QString msg)
 {
     Estimation_Tab6_RunTE->setText(msg);
-    callback_Estimation_Tab6_FontSizeCMB(QString::number(m_fontSize));
+    callback_Estimation_Tab6_FontSizeCMB(QString::number(m_FontSize));
 }
 void
 nmfEstimation_Tab6::appendOutputTE(QString msg)
 {
     QString currentMsg = Estimation_Tab6_RunTE->document()->toHtml();
     Estimation_Tab6_RunTE->setText(currentMsg+msg);
-    callback_Estimation_Tab6_FontSizeCMB(QString::number(m_fontSize));
+    callback_Estimation_Tab6_FontSizeCMB(QString::number(m_FontSize));
 }
 
 void
@@ -159,8 +158,8 @@ nmfEstimation_Tab6::callback_PrevPB()
 void
 nmfEstimation_Tab6::callback_RunPB()
 {
-    m_logger->logMsg(nmfConstants::Normal,"");
-    m_logger->logMsg(nmfConstants::Normal,"Start Estimation");
+    m_Logger->logMsg(nmfConstants::Normal,"");
+    m_Logger->logMsg(nmfConstants::Normal,"Start Estimation");
     emit RunEstimation();
 }
 
@@ -239,10 +238,10 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
            ",  NLoptStopAfterIter = "    + std::to_string(Estimation_Tab6_NL_StopAfterIterSB->value()) +
            "   WHERE SystemName = '"     + CurrentSettingsName + "'";
 
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab6::SaveSettingsConfiguration: Write table error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab6::SaveSettingsConfiguration: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return false;
     }
 
@@ -305,9 +304,7 @@ nmfEstimation_Tab6::callback_Estimation_Tab6_EstimationAlgorithmCMB(QString algo
     }
 
     emit SetAlgorithm(algorithm);
-
 }
-
 
 std::string
 nmfEstimation_Tab6::getCurrentAlgorithm()
@@ -345,7 +342,6 @@ nmfEstimation_Tab6::callback_StopAfterIterCB(int isChecked)
     Estimation_Tab6_NL_StopAfterIterSB->setEnabled(isChecked == Qt::Checked);
 }
 
-
 void
 nmfEstimation_Tab6::refreshMsg(QFont font, QString msg)
 {
@@ -359,24 +355,13 @@ nmfEstimation_Tab6::refreshMsg(QFont font, QString msg)
 void
 nmfEstimation_Tab6::callback_Estimation_Tab6_FontSizeCMB(QString theFontSize)
 {
-    m_fontSize = theFontSize.toInt();
+    m_FontSize = theFontSize.toInt();
 
     QTextCursor cursor = Estimation_Tab6_RunTE->textCursor();
     Estimation_Tab6_RunTE->selectAll();
-    Estimation_Tab6_RunTE->setFontPointSize(m_fontSize);
+    Estimation_Tab6_RunTE->setFontPointSize(m_FontSize);
     Estimation_Tab6_RunTE->setTextCursor( cursor );
 }
-
-QString
-nmfEstimation_Tab6::getDataPath()
-{
-    QString dataPath = QDir(m_ProjectDir.c_str()).filePath("data");
-    if (! QDir(dataPath).exists())
-        QDir().mkdir(dataPath);
-
-    return dataPath;
-}
-
 
 bool
 nmfEstimation_Tab6::loadWidgets()
@@ -389,7 +374,7 @@ nmfEstimation_Tab6::loadWidgets()
 
     readSettings();
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::loadWidgets()");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::loadWidgets()");
 
     Estimation_Tab6_Bees_ParametersGB->hide();
     Estimation_Tab6_NL_ParametersGB->hide();
@@ -425,7 +410,7 @@ nmfEstimation_Tab6::loadWidgets()
     queryStr  += "FROM Systems where SystemName = '";
     queryStr  += m_ProjectSettingsConfig + "'";
 
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SystemName"].size();
     if (NumRecords == 0) {
         std::cout << "Error: No records found in Systems" << std::endl;
@@ -477,15 +462,14 @@ nmfEstimation_Tab6::readSettings()
     m_EstimationOutputFile = settings->value("OutputFile","").toString().toStdString();
     m_EstimationDataFile   = settings->value("DataFile","").toString().toStdString();
     m_EstimationID         = settings->value("ID","").toString().toStdString();
-    m_fontSize           = settings->value("FontSize",9).toString().toInt();
-    m_isMonospaced       = settings->value("Monospace",0).toString().toInt();
+    m_FontSize           = settings->value("FontSize",9).toString().toInt();
+    m_IsMonospaced       = settings->value("Monospace",0).toString().toInt();
     settings->endGroup();
 
     delete settings;
 
-    index = Estimation_Tab6_FontSizeCMB->findText(QString::number(m_fontSize));
+    index = Estimation_Tab6_FontSizeCMB->findText(QString::number(m_FontSize));
     Estimation_Tab6_FontSizeCMB->setCurrentIndex(index);
-
 }
 
 void

@@ -13,6 +13,7 @@
 #include "nmfChartLine.h"
 #include "nmfChartLineWithScatter.h"
 #include "nmfChartScatter.h"
+#include "nmfChartSurface.h"
 #include "nmfProgressWidget.h"
 #include "ClearOutputDialog.h"
 #include "PreferencesDialog.h"
@@ -185,8 +186,8 @@ private:
     QVBoxLayout*             ProgressMainLayt;
     QVBoxLayout*             VChartLayt;
     QVBoxLayout*             OutputChartMainLayt;
-    QSurfaceDataProxy*       SurfaceProxy;
-    QSurface3DSeries*        SurfaceSeries;
+//    QSurfaceDataProxy*       SurfaceProxy;
+//    QSurface3DSeries*        SurfaceSeries;
     QWidget*                 NavigatorTreeWidget;
     QTreeWidget*             NavigatorTree;
 
@@ -243,7 +244,6 @@ public:
     explicit nmfMainWindow(QWidget *parent = 0);
     ~nmfMainWindow();
 
-    void addDataToSurface();
     void adjustProgressWidget();
     double calculateMonteCarloValue(const double& uncertainty,
                                     const double& value);
@@ -618,6 +618,12 @@ public:
         const std::vector<double>                   &EstExponent);
     void updateTextBoxFormula();
 
+    void getSurfaceData(
+            boost::numeric::ublas::matrix<double>& rowValues,
+            boost::numeric::ublas::matrix<double>& columnValues,
+            boost::numeric::ublas::matrix<double>& heightValues);
+
+
     //    bool isThereMohnsRhoData();
     //    bool loadGradientParameters(Gradient_Struct &gradientStruct);
     //    void simulateBiomass(double &growthRate,
@@ -671,7 +677,7 @@ public slots:
     void callback_RefreshOutput();
     void callback_ReloadWidgets();
     void callback_ResetFilterButtons();
-    void callback_RunCompleted(QString outputStr);
+    void callback_RunCompleted(std::string outputStr);
     void callback_RunDiagnosticEstimation(std::vector<std::pair<int,int> > ranges);
     void callback_RunEstimation();
     void callback_RunForecast(std::string ForecastName,bool GenerateBiomass);

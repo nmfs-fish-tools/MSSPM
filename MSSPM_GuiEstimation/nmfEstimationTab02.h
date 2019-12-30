@@ -2,23 +2,23 @@
 #define NMFESTIMATIONTAB2_H
 
 /**
- * @brief Catch data
+ * @brief Harvest Data
  *
- * This table represents the Catch data for the year range and for each
- * Species. The user should save newly modified Catch data prior to
+ * This GUI class represents the harvest data for the year range and for each
+ * Species. The user should save any new or modified harvest data prior to
  * progressing to the next tab.
  */
 class nmfEstimation_Tab2: public QObject
 {
     Q_OBJECT
 
-    nmfLogger*                        m_logger;
-    nmfDatabase*                      m_databasePtr;
+    nmfLogger*                        m_Logger;
+    nmfDatabase*                      m_DatabasePtr;
     std::string                       m_ProjectDir;
     std::string                       m_ProjectSettingsConfig;
-    std::string                       m_harvestType;
+    std::string                       m_HarvestType;
     std::map<std::string,std::string> m_GroupBoxTitle;
-    QStandardItemModel*               m_smodel;
+    QStandardItemModel*               m_SModel;
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab2_Widget;
@@ -28,6 +28,8 @@ class nmfEstimation_Tab2: public QObject
     QPushButton* Estimation_Tab2_NextPB;
     QPushButton* Estimation_Tab2_LoadPB;
     QPushButton* Estimation_Tab2_SavePB;
+
+    void readSettings();
 
 public:
     /**
@@ -43,17 +45,49 @@ public:
                        std::string& projectDir);
     virtual ~nmfEstimation_Tab2();
 
-    bool loadWidgets();
-    bool loadWidgets(QString MohnsRhoLabel);
+    /**
+     * @brief Clears the GUI's widgets
+     */
     void clearWidgets();
-    void readSettings();
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @return Returns true if all data were loaded successfully
+     */
+    bool loadWidgets();
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @param MohnsRhoLabel : Optional Mohns Rho label used when running a Restrospective Analysis
+     * @return
+     */
+    bool loadWidgets(QString MohnsRhoLabel);
+
+    /**
+     * @brief Sets the class harvest type variable to the appropriate value
+     * @param harvestType : the harvest type selected by the user when defining the model
+     */
     void setHarvestType(std::string harvestType);
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when user clicks Load button
+     */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when user clicks Save button
+     */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when user clicks Previous Page button
+     */
     void callback_PrevPB();
+    /**
+     * @brief Callback invoked when user clicks Next Page button
+     */
     void callback_NextPB();
+    /**
+     * @brief Callback invoked when user modifies the Harvest Form in the Setup -> Model Setup page
+     * @param harvestForm : the harvest form selected by the user
+     */
     void callback_HarvestFormChanged(QString harvestForm);
 
 };

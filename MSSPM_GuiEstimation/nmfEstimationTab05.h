@@ -2,7 +2,7 @@
 #define NMFESTIMATIONTAB5_H
 
 /**
- * @brief Biomass Table
+ * @brief Observation Data
  *
  * This table allows the user to enter and modify Observed Biomass
  * data for each Species for every year in the year range.
@@ -12,12 +12,12 @@ class nmfEstimation_Tab5: public QObject
 
     Q_OBJECT
 
+    nmfDatabase*        m_DatabasePtr;
+    nmfLogger*          m_Logger;
     std::string         m_ProjectDir;
     std::string         m_ProjectSettingsConfig;
-    nmfLogger*          m_logger;
-    nmfDatabase*        m_databasePtr;
-    QStandardItemModel* m_smodelBiomass;
-    QStandardItemModel* m_smodelCovariates;
+    QStandardItemModel* m_SModelBiomass;
+    QStandardItemModel* m_SModelCovariates;
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab5_Widget;
@@ -29,6 +29,8 @@ class nmfEstimation_Tab5: public QObject
     QPushButton* Estimation_Tab5_SavePB;
     QGroupBox*   Estimation_Tab5_CovariatesGB;
 
+    void readSettings();
+
 public:
     /**
      * @brief nmfEstimation_Tab5 : class constructor
@@ -38,25 +40,54 @@ public:
      * @param projectDir : the project directory
      */
     nmfEstimation_Tab5(QTabWidget*  tabs,
-                       nmfLogger*   m_logger,
-                       nmfDatabase* m_databasePtr,
+                       nmfLogger*   logger,
+                       nmfDatabase* databasePtr,
                        std::string& projectDir);
     virtual ~nmfEstimation_Tab5();
 
+    /**
+     * @brief Clears the GUI's widgets
+     */
     void clearWidgets();
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @return Returns true if all data were loaded successfully
+     */
     bool loadWidgets();
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @param MohnsRhoLabel : the Mohns Rho name used to identify the data if the run is part of a Retrospective Analysis
+     * @return
+     */
     bool loadWidgets(QString MohnsRhoLabel);
-    void readSettings();
 
 signals:
+    /**
+     * @brief Signal notifies any other GUI showing similar data to refresh itself
+     */
     void ReloadSpecies();
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when user clicks Next Page button
+     */
     void callback_NextPB();
+    /**
+     * @brief Callback invoked when user clicks Previous Page button
+     */
     void callback_PrevPB();
+    /**
+     * @brief Callback invoked when user clicks Load button
+     */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when user clicks Save button
+     */
     void callback_SavePB();
-    void callback_SetAlgorithm(QString algorithm);
+//  void callback_SetAlgorithm(QString algorithm);
+    /**
+     * @brief Callback invoked when user saves a new model in Setup -> Model Setup
+     */
     void callback_UpdateInitialObservedBiomass();
 };
 

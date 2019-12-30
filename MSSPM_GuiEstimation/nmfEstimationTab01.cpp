@@ -13,12 +13,12 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
 {
     QUiLoader loader;
 
-    m_logger      = logger;
-    m_databasePtr = databasePtr;
-    m_smodel      = nullptr;
+    m_Logger      = logger;
+    m_DatabasePtr = databasePtr;
+    m_SModel      = nullptr;
     m_ProjectDir  = projectDir;
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::nmfEstimation_Tab1");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::nmfEstimation_Tab1");
 
     Estimation_Tabs = tabs;
 
@@ -90,24 +90,24 @@ nmfEstimation_Tab1::callback_SavePB()
     std::string GrowthRateMin,GrowthRateMax,SpeciesKMin,SpeciesKMax;
     QModelIndex index;
 
-    for (int i=0; i<m_smodel->rowCount(); ++i) {
-        index = m_smodel->index(i,0);
+    for (int i=0; i<m_SModel->rowCount(); ++i) {
+        index = m_SModel->index(i,0);
         SpeName = index.data().toString().toStdString();
-        index = m_smodel->index(i,1);
+        index = m_SModel->index(i,1);
         InitBiomassMin = index.data().toString().toStdString();
-        index = m_smodel->index(i,2);
+        index = m_SModel->index(i,2);
         InitBiomassMax = index.data().toString().toStdString();
-        index = m_smodel->index(i,3);
+        index = m_SModel->index(i,3);
         GrowthRateMin = index.data().toString().toStdString();
-        index = m_smodel->index(i,4);
+        index = m_SModel->index(i,4);
         GrowthRateMax = index.data().toString().toStdString();
-        index = m_smodel->index(i,5);
+        index = m_SModel->index(i,5);
         SpeciesKMin = index.data().toString().toStdString();
-        index = m_smodel->index(i,6);
+        index = m_SModel->index(i,6);
         SpeciesKMax = index.data().toString().toStdString();
-        index = m_smodel->index(i,7);
+        index = m_SModel->index(i,7);
         SurveyQMin = index.data().toString().toStdString();
-        index = m_smodel->index(i,8);
+        index = m_SModel->index(i,8);
         SurveyQMax = index.data().toString().toStdString();
 
         cmd = "UPDATE Species SET InitBiomassMin=" + InitBiomassMin + ", InitBiomassMax=" + InitBiomassMax +
@@ -115,10 +115,10 @@ nmfEstimation_Tab1::callback_SavePB()
               ", SpeciesKMin=" + SpeciesKMin + ", SpeciesKMax=" + SpeciesKMax +
               ", SurveyQMin=" + SurveyQMin + ", SurveyQMax=" + SurveyQMax +
               " WHERE SpeName = '" + SpeName + "'";
-        errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (errorMsg != " ") {
-            m_logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 callback_SavePB: Write table error: " + errorMsg);
-            m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 callback_SavePB: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Estimation_Tabs, "Error",
                                      "\nError in Save command.  Check that all cells are populated.\n",
                                      QMessageBox::Ok);
@@ -137,13 +137,14 @@ nmfEstimation_Tab1::callback_SavePB()
 bool
 nmfEstimation_Tab1::loadWidgets()
 {
-std::cout << "nmfEstimation_Tab1::loadWidgets()" << std::endl;
     int j;
     int NumSpecies;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     QStandardItem *item;
+
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::loadWidgets()");
 
     // Load Population tableview
     fields = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax",
@@ -154,25 +155,25 @@ std::cout << "nmfEstimation_Tab1::loadWidgets()" << std::endl;
     queryStr  += "GrowthRate,GrowthRateMin,GrowthRateMax,GrowthRateCovarCoeff,";
     queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,SpeciesKCovarCoeff,";
     queryStr  += "SurveyQ,SurveyQMin,SurveyQMax FROM Species";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     QStringList PopulationFieldList = {"SpeName","InitBiomassMin","InitBiomassMax",
                                        "GrowthRateMin","GrowthRateMax",
                                        "SpeciesKMin","SpeciesKMax",
                                        "SurveyQMin","SurveyQMax"};
 
-    m_smodel = new QStandardItemModel( NumSpecies, PopulationFieldList.size() );
+    m_SModel = new QStandardItemModel( NumSpecies, PopulationFieldList.size() );
     for (int i=0; i<NumSpecies; ++i) {
         j = 0;
         for (QString field : PopulationFieldList)
         {
             item = new QStandardItem(QString::fromStdString(dataMap[field.toStdString()][i]));
             item->setTextAlignment(Qt::AlignCenter);
-            m_smodel->setItem(i, j++, item);
+            m_SModel->setItem(i, j++, item);
         }
     }
-    m_smodel->setHorizontalHeaderLabels(PopulationFieldList);
-    Estimation_Tab1_PopulationTV->setModel(m_smodel);
+    m_SModel->setHorizontalHeaderLabels(PopulationFieldList);
+    Estimation_Tab1_PopulationTV->setModel(m_SModel);
     Estimation_Tab1_PopulationTV->resizeColumnsToContents();
 
     return true;
