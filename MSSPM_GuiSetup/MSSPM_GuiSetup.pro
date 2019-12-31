@@ -33,6 +33,7 @@ SOURCES += \
     nmfSetupTab04.cpp
 
 HEADERS += \
+    mainpage.h \
     nmfSetupTab01.h \
     nmfSetupTab02.h \
     nmfSetupTab03.h \

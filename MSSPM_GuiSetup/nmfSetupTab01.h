@@ -18,14 +18,11 @@ class nmfSetup_Tab1: public QObject
 
 public:
     /**
-     * @brief nmfSetup_Tab1 : class constructor
-     * @param tabs : The tab widget into which the Setup tab will be placed
+     * @brief nmfSetup_Tab1 : This GUI display some Getting Started text to guide the user through the rest of the Setup process
+     * @param setupTab : The tab widget into which the Setup tab will be placed
      */
-    nmfSetup_Tab1(QTabWidget* tabs);
+    nmfSetup_Tab1(QTabWidget* setupTab);
    ~nmfSetup_Tab1() {}
-
-    void clearWidgets() {}
-    void loadWidgets() {}
 };
 
 #endif // NMFSETUPTAB1_H
