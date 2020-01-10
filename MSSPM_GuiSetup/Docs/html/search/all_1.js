@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['getprojectauthor',['getProjectAuthor',['../classnmf_setup___tab2.html#a3a8a772373b89021538deb6fb3c164ca',1,'nmfSetup_Tab2']]],
-  ['getprojectdatabase',['getProjectDatabase',['../classnmf_setup___tab2.html#a89948d022a5f9f0bde32e0676e33bb3c',1,'nmfSetup_Tab2']]],
-  ['getprojectdescription',['getProjectDescription',['../classnmf_setup___tab2.html#aba19740b9737064cd23914c111ac67c4',1,'nmfSetup_Tab2']]],
-  ['getprojectdir',['getProjectDir',['../classnmf_setup___tab2.html#ad782dcd2899acb0690ae63dcbd43ee64',1,'nmfSetup_Tab2']]],
-  ['getprojectname',['getProjectName',['../classnmf_setup___tab2.html#a4bbf22a09403f73fe90ec214438d10e1',1,'nmfSetup_Tab2']]]
+  ['deletesystem',['deleteSystem',['../classnmf_setup___tab4.html#aa65d406aee6d81cc829c8c1d5c737a36',1,'nmfSetup_Tab4']]],
+  ['drawequation',['drawEquation',['../classnmf_setup___tab4.html#a6c5f7c5a914a03dd1bd133bdcc35240d',1,'nmfSetup_Tab4']]]
 ];

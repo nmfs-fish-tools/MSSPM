@@ -1,4 +1,9 @@
-
+/** @file nmfDiagnosticTab01.h
+ * @brief GUI definition for the nmfDiagnostic_Tab1 Parameter Profiles Diagnostics Data class
+ *
+ * This file contains the GUI definition for the Parameter Profiles Diagnostics page.
+ *
+ */
 #ifndef NMFDIAGNOSTICTAB1_H
 #define NMFDIAGNOSTICTAB1_H
 

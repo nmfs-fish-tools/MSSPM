@@ -1,8 +1,16 @@
+/** @file nmfSetupTab02.h
+ * @brief GUI definition for the Setup Project page class nmfSetup_Tab2
+ *
+ * This file contains the GUI definitions for the Setup Project page. This
+ * page contains the GUI widgets that allow the user to enter and modify
+ * meta data regarding the current Model run.
+ */
+
 #ifndef NMFSETUPTAB2_H
 #define NMFSETUPTAB2_H
 
 /**
- * @brief Defines the behavior and callback functionality for Setup Tab 2.
+ * @brief The Setup Tab 2 allows the user to enter and modify Project meta data
  *
  * This tab allows the user to defined Project meta data such as name,
  * location, author, and a brief description.

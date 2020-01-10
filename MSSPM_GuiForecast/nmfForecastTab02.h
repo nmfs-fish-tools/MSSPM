@@ -1,3 +1,12 @@
+/** @file nmfForecastTab02.h
+ * @brief GUI definition for the nmfForecast_Tab2 Forecast Harvest Data class
+ *
+ * This file contains the GUI definition for the Harvest Data. The widgets
+ * defined here allow the user to enter or modify the data needed for Harvest data
+ * for a Forecast. The user may also edit the data by using the Multiplier check box
+ * and by specifying either a Constant or Variable Multiplier value. User can set the
+ * state of the GUI to auto run a Forecast after a Save.
+ */
 #ifndef NMFFORECASTTAB2_H
 #define NMFFORECASTTAB2_H
 
@@ -43,7 +52,7 @@ private:
 
 public:
     /**
-     * @brief nmfForecast_Tab2 : class constructor
+     * @brief nmfForecast_Tab2 : class constructor for the Forecast Harvest parameters GUI page
      * @param tabs : the tab widget into which this Forecast tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -70,45 +79,45 @@ signals:
                      bool GenerateBiomass);
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user clicks Load button
+     * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when user clicks Save button
+     * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
     /**
-     * @brief Callback invoked when user clicks Previous Page button
+     * @brief Callback invoked when the user clicks the Previous Page button
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when user clicks Next Page button
+     * @brief Callback invoked when the user clicks the Next Page button
      */
     void callback_NextPB();
 //  void callback_HarvestFormChanged(QString harvestForm);
     /**
-     * @brief Callback invoked when user check the auto save checkbox. This checkbox saves the Harvest data after each edit and then automatically runs a Forecast.
+     * @brief Callback invoked when the user checks the Auto Save checkbox. This checkbox saves the Harvest data after each edit and then automatically runs a Forecast.
      * @param checked : Boolean signifying the checked state of the checkbox
      */
     void callback_AutoSaveCB(bool checked);
     /**
-     * @brief Callback invoked when user checks the Multiplier widget. This checkbox enables the user
+     * @brief Callback invoked when the user checks the Multiplier widget. This checkbox enables the user
      * to modify selected table rows either by a constant multiplier or by a multiplier and the previous row's value.
      * @param checked : checked state of the Multiplier widget
      */
     void callback_MultiplierCB(bool checked);
     /**
-     * @brief Callback invoked when user changes the Multiplier value
+     * @brief Callback invoked when the user changes the Multiplier value
      * @param value : value of new harvest data multiplier
      */
     void callback_MultiplierChangedDSB(double value);
     /**
-     * @brief Callback invoked when user changes the type of Multiplier
+     * @brief Callback invoked when the user changes the type of Multiplier
      * @param type : type of Multiplier selected (current values are Constant and Variable)
      */
     void callback_MultiplierChangedCMB(QString type);
     /**
-     * @brief Callback invoked when user changes the Harvest table selection.  As the user changes the
+     * @brief Callback invoked when the user changes the Harvest table selection.  As the user changes the
      * selection, the multiplier type and value are used to update the selection.
      * @param sel : the newly selected items
      * @param desel : the newly deselected items

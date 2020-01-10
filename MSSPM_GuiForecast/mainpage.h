@@ -6,7 +6,7 @@
  *
  * @section Description
  *
- * The classes in this package define GUI forms available to the user for data input. In addition
+ * The classes in this package define GUI forms available to the user for Forecast data input. In addition
  * to data input, they allow the user to select various input Forecast parameters. Finally, the user runs
  * the Forecast from the final GUI, having output automatically directed to other GUIs in the
  * application.

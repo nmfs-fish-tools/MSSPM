@@ -1,8 +1,15 @@
+/** @file nmfSetupTab01.h
+ * @brief GUI definition for the Setup Getting Started page class nmfSetup_Tab1
+ *
+ * This file contains the GUI definitions for the Setup Getting Started page. This
+ * page displays text that describes the setup process to the user.
+ */
+
 #ifndef NMFSETUPTAB1_H
 #define NMFSETUPTAB1_H
 
 /**
- * @brief Defines the behavior and callback functionality for Setup Tab 1.
+ * @brief The Setup Tab 1 displays Setup help information for the user
  *
  * This tab describes the other Setup tabs to the user. There is no user functionality
  * in this tab. It's only purpose is to give the user an introduction to the Setup tabs.

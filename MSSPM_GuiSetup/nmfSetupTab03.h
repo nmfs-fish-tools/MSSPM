@@ -1,8 +1,17 @@
+/** @file nmfSetupTab03.h
+ * @brief GUI definition for the Setup Species page class nmfSetup_Tab3
+ *
+ * This file contains the GUI definitions for the Setup Species page. This
+ * page contains the GUI widgets that allow the user to enter and modify
+ * Species and Guild data. Guild data should be entered first as it
+ * automatically populates the Guild pulldown field widget in the Species data.
+ */
+
 #ifndef NMFSETUPTAB3_H
 #define NMFSETUPTAB3_H
 
 /**
- * @brief Defines the behavior and callback functionality for Setup Tab 3.
+ * @brief The Setup Tab 3 allows the user to enter and modify Species data
  *
  * This tab allows the user to define Species and Guild data. The Guild data
  * must be defined first since the user needs to specify an existing guild for
@@ -58,9 +67,23 @@ class nmfSetup_Tab3: public QObject
     QPushButton*  Setup_Tab3_ReloadSpeciesPB;
     QPushButton*  Setup_Tab3_ReloadGuildsPB;
 
-    void saveGuildData();
-    void saveSpeciesData();
+    void clearSpeciesWidgets();
+    void clearGuildWidgets();
     bool guildDataIsSaved();
+    void loadGuilds();
+    void loadSpecies();
+    int  numColumnsSpecies();
+    int  numColumnsGuilds();
+    void populateARowGuilds(int row, int ncols);
+    void populateARowSpecies(int row, int ncols);
+    void pruneTablesForGuilds(std::vector<std::string>& Guilds);
+    void pruneTablesForSpecies(std::vector<std::string>& Species);
+    void readSettings();
+    void removeFromTable(QTableWidgetItem *itemToRemove,
+                         QList<QString>& TablesToDeleteFrom);
+    void saveGuildData();
+    void saveSettings();
+    void saveSpeciesData();
 
 public:
     /**
@@ -76,46 +99,76 @@ public:
                   std::string& projectDir);
     virtual ~nmfSetup_Tab3();
 
-    int  numColumnsSpecies();
-    int  numColumnsGuilds();
-    void clearSpeciesWidgets();
-    void clearGuildWidgets();
-    void loadGuilds();
-    void loadSpecies();
+    /**
+     * @brief Loads all of the widgets for this Setup page
+     */
     void loadWidgets();
-    void populateARowGuilds(int row, int ncols);
-    void populateARowSpecies(int row, int ncols);
-    void removeFromTable(QTableWidgetItem *itemToRemove,
-                         QList<QString>& TablesToDeleteFrom);
-    void readSettings();
-    void saveSettings();
-    void setModelName(std::string modelName);
 
 signals:
-    void CreateAllDatabaseTables();
-    void DeactivateRunButtons();
+    /**
+     * @brief Signal emitted after user saves Species. This is
+     * necessary since the input Estimation tables may need to
+     * be modified with new Species.
+     */
     void ReloadWidgets();
-    void SSVPALoadWidgets(int TabNum);
-    void UpdateNavigator(int item);
-    void UpdateNavigator(std::string type, int index);
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when user modifies the Number of Species Spin Box widget
+     * @param value : current value of Spin Box widget
+     */
     void callback_Setup_Tab3_NumSpecies(int value);
+    /**
+     * @brief Callback invoked when user modifies the Number of Guilds Spin Box widget
+     * @param value : current value of Spin Box widget
+     */
     void callback_Setup_Tab3_NumGuilds(int numGuilds);
-    void callback_Setup_Tab3_SpeciesCB(bool state);
-    void callback_Setup_Tab3_GuildsCB(bool state);
+    /**
+     * @brief Callback invoked when user clicks the Add Species button
+     */
     void callback_Setup_Tab3_AddSpeciesPB();
+    /**
+     * @brief Callback invoked when user clicks the Delete Species button
+     */
     void callback_Setup_Tab3_DelSpeciesPB();
+    /**
+     * @brief Callback invoked when user clicks the Reload Species button
+     */
     void callback_Setup_Tab3_ReloadSpeciesPB();
+    /**
+     * @brief Callback invoked when user clicks the Save Species button
+     */
     void callback_Setup_Tab3_SavePB();
+    /**
+     * @brief Callback invoked when user clicks the Previous Page button
+     */
     void callback_Setup_Tab3_PrevPB();
+    /**
+     * @brief Callback invoked when user clicks the Add Guilds button
+     */
     void callback_Setup_Tab3_AddGuildPB();
+    /**
+     * @brief Callback invoked when user clicks the Delete Guilds button
+     */
     void callback_Setup_Tab3_DelGuildPB();
+    /**
+     * @brief Callback invoked when user clicks the Reload Guilds button
+     */
     void callback_Setup_Tab3_ReloadGuildsPB();
+    /**
+     * @brief Callback invoked when user modifies the Species table
+     */
     void callback_Setup_Tab3_SpeciesTableChanged(int,int);
+    /**
+     * @brief Callback invoked when user modifies the Guilds table
+     */
     void callback_Setup_Tab3_GuildsTableChanged(int,int);
+    /**
+     * @brief Callback invoked when user clicks the Guilds page button to refresh
+     * the Species page. This is necessary as Guilds are listed in the Guild column
+     * on the Species page.
+     */
     void callback_Setup_Tab3_UpdateSpeciesPB();
-    void callback_RemoveGuildsAndSpecies();
 };
 
 #endif // NMFSETUPTAB4_H

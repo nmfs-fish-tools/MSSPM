@@ -1,3 +1,12 @@
+/** @file nmfEstimationTab06.h
+ * @brief GUI definition for the nmfEstimation_Tab6 Estimation Run class
+ *
+ * This file contains the GUI definition for the Run Estimation Data page. This
+ * page allows the user to enter/modify Run settings such as Estimation Model type
+ * and its associated parameters.  In addition, the user can also run the Estimation
+ * from this page.
+ */
+
 #ifndef NMFESTIMATIONTAB6_H
 #define NMFESTIMATIONTAB6_H
 
@@ -58,7 +67,7 @@ class nmfEstimation_Tab6: public QObject
 
 public:
     /**
-     * @brief nmfEstimation_Tab6 : class constructor
+     * @brief nmfEstimation_Tab6 : class constructor for the Run Estimation GUI page
      * @param tabs : the tab widget into which this Estimation tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -80,17 +89,17 @@ public:
      */
     void clearOutputTE();
     /**
-     * @brief Gets the algorithm chosen from the GUI
+     * @brief Gets the current Algorithm selected from the GUI
      * @return Returns the algorithm chosen
      */
     std::string getCurrentAlgorithm();
     /**
-     * @brief Gets the Minimizer chosen from the GUI
+     * @brief Gets the current Minimizer routine chosen from the GUI
      * @return Returns the minimizer chosen
      */
     std::string getCurrentMinimizer();
     /**
-     * @brief Gets the Objective Criterion function from the GUI
+     * @brief Gets the current Objective Criterion function from the GUI
      * @return Returns the objective criterion function (as a string)
      */
     std::string getCurrentObjectiveCriterion();
@@ -127,68 +136,74 @@ public:
 
 signals:
     /**
-     * @brief Signal sent notifying that user wants to run an estimation
+     * @brief Signal sent to check all Estimation tables for completeness
+     */
+    void CheckAllEstimationTablesAndRun();
+    /**
+     * @brief Signal sent notifying that the user wants to run an Estimation
      */
     void RunEstimation();
     /**
-     * @brief Signal is sent after user checks the mono font box. It casues the displayed output edit widget to use a monospaced font.
+     * @brief Signal sent after the user checks the Mono Font box. It causes
+     * the displayed output edit widget to use a monospaced font.
      * @param font : the monospaced font to use in the output edit widget
      */
     void ShowRunMessage(QString font);
     /**
-     * @brief Signal sent when the user changes the current Algorithm. Each algorithm has its own set of parameters that must be displayed in the GUI.
+     * @brief Signal sent when the user changes the current Algorithm. Each
+     * algorithm has its own set of parameters that must be displayed in the GUI.
      * @param algorithm : the new algorithm selected
      */
     void SetAlgorithm(QString algorithm);
     /**
-     * @brief Signal sent to refresh the forecast year range in the Forecast->Setup GUI.
+     * @brief Signal sent to refresh the Forecast Year Range in the Forecast->Setup GUI.
      */
     void UpdateForecastYears();
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked with the user clicks the Run button
+     * @brief Callback invoked when the user clicks the Run button
      */
     void callback_RunPB();
     /**
-     * @brief Callback invoked when user clicks Load button
+     * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when user clicks Save button
+     * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
     /**
-     * @brief Callback invoked when user clicks Previous Page button
+     * @brief Callback invoked when the user clicks the Previous Page button
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when user changes the font in the Run Summary tab
+     * @brief Callback invoked when the user changes the font in the Run Summary tab
      * @param fontSize : the font selected
      */
     void callback_Estimation_Tab6_FontSizeCMB(QString fontSize);
     /**
-     * @brief Callback invoked when user checks the mono font checkbox in the Run Summary tab
+     * @brief Callback invoked when the user checks the mono font checkbox in the Run Summary tab
      * @param isChecked : check state of the checkbox
      */
     void callback_Estimation_Tab6_MonoCB(int isChecked);
     /**
-     * @brief Callback invoked when user changes the Estimation Algorithm
+     * @brief Callback invoked when the user changes the Estimation Algorithm
      * @param algorithm : the algorithm selected
      */
     void callback_Estimation_Tab6_EstimationAlgorithmCMB(QString algorithm);
     /**
-     * @brief Callback invoked when user checks the Stop When Reach Value checkbox
+     * @brief Callback invoked when the user checks the Stop When Reach Value checkbox
      * @param isChecked : boolean signiying the check state
      */
     void callback_StopValCB(int isChecked);
     /**
-     * @brief Callback invoked when user checks the Stop After Time checkbox
+     * @brief Callback invoked when the user checks the Stop After Time checkbox
      * @param isChecked : boolean signifying the check state
      */
     void callback_StopAfterTimeCB(int isChecked);
     /**
-     * @brief Callback invoked when user checks the Stop After Iteraction checkbox
+     * @brief Callback invoked when the user checks the Stop After Iteration checkbox
      * @param isChecked : boolean signifying the check state
      */
     void callback_StopAfterIterCB(int isChecked);

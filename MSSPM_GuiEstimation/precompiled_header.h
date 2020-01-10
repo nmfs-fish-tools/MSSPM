@@ -1,3 +1,11 @@
+/** @file precompiled_header.h
+ * @brief Include files for project classes
+ *
+ * This file contains the project, system, Qt, and Boost include files
+ * needed for the .h files in this project.  Inculding them here allows them to
+ * be precompiled by the compiler and hence represent a savings in compile time.
+ */
+
 #include "nmfDatabase.h"
 #include "nmfLogger.h"
 #include "nmfUtils.h"

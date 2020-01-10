@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['updateforecastyears',['UpdateForecastYears',['../classnmf_estimation___tab6.html#a3cde0546fa42f1e25fc48b5b01ec72ad',1,'nmfEstimation_Tab6']]]
+  ['this_20project_20contains_20the_20msspm_20estimation_20guis_2e',['This project contains the MSSPM Estimation GUIs.',['../index.html',1,'']]]
 ];

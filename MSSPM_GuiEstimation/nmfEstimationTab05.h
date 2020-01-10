@@ -1,3 +1,12 @@
+/** @file nmfEstimationTab05.h
+ * @brief GUI definition for the nmfEstimation_Tab5 Observation Data class
+ *
+ * This file contains the GUI definition for the Observation Data page. This
+ * page allows the user to enter/modify a table of data that correspond to
+ * Biomass of each Species for each year of data.
+ */
+
+
 #ifndef NMFESTIMATIONTAB5_H
 #define NMFESTIMATIONTAB5_H
 
@@ -33,7 +42,7 @@ class nmfEstimation_Tab5: public QObject
 
 public:
     /**
-     * @brief nmfEstimation_Tab5 : class constructor
+     * @brief nmfEstimation_Tab5 : class constructor for the Observation Data GUI page
      * @param tabs : the tab widget into which this Estimation tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -45,6 +54,11 @@ public:
                        std::string& projectDir);
     virtual ~nmfEstimation_Tab5();
 
+    /**
+     * @brief Checks that all tables in this GUI are properly populated
+     * @return Boolean value signifying if tables are properly loaded
+     */
+    bool areTablesOK();
     /**
      * @brief Clears the GUI's widgets
      */
@@ -69,24 +83,23 @@ signals:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user clicks Next Page button
+     * @brief Callback invoked when the user clicks the Next Page button
      */
     void callback_NextPB();
     /**
-     * @brief Callback invoked when user clicks Previous Page button
+     * @brief Callback invoked when the user clicks the Previous Page button
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when user clicks Load button
+     * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when user clicks Save button
+     * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
-//  void callback_SetAlgorithm(QString algorithm);
     /**
-     * @brief Callback invoked when user saves a new model in Setup -> Model Setup
+     * @brief Callback invoked when the user saves a new model in Setup -> Model Setup
      */
     void callback_UpdateInitialObservedBiomass();
 };

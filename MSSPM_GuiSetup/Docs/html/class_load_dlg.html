@@ -92,10 +92,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Defines the behavior and callback functionality for the Load Systems Dialog.  
+<p>Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4.  
  <a href="class_load_dlg.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="nmf_setup_tab04_8h_source.html">nmfSetupTab04.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="_load_dlg_8h_source.html">LoadDlg.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for LoadDlg:</div>
 <div class="dyncontent">
@@ -110,22 +110,25 @@ Collaboration diagram for LoadDlg:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-slots"></a>
 Public Slots</h2></td></tr>
 <tr class="memitem:a5cc8dd5f0994c2400b30bb52231f57cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5cc8dd5f0994c2400b30bb52231f57cb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_LoadOk</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_dlg.html#a5cc8dd5f0994c2400b30bb52231f57cb">callback_LoadOk</a> ()</td></tr>
+<tr class="memdesc:a5cc8dd5f0994c2400b30bb52231f57cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user clicks the OK button. <br /></td></tr>
 <tr class="separator:a5cc8dd5f0994c2400b30bb52231f57cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6cc5137abdb06af001d798b678e2f333"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6cc5137abdb06af001d798b678e2f333"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_ItemDoubleClicked</b> (QListWidgetItem *item)</td></tr>
+<tr class="memitem:a6cc5137abdb06af001d798b678e2f333"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_dlg.html#a6cc5137abdb06af001d798b678e2f333">callback_ItemDoubleClicked</a> (QListWidgetItem *item)</td></tr>
+<tr class="memdesc:a6cc5137abdb06af001d798b678e2f333"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user double clicks an item from the System names list.  <a href="#a6cc5137abdb06af001d798b678e2f333">More...</a><br /></td></tr>
 <tr class="separator:a6cc5137abdb06af001d798b678e2f333"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c8e4768be63763cc134fac2a64b937b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3c8e4768be63763cc134fac2a64b937b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_ShowContextMenu</b> (const QPoint &amp;pos)</td></tr>
+<tr class="memitem:a3c8e4768be63763cc134fac2a64b937b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_dlg.html#a3c8e4768be63763cc134fac2a64b937b">callback_ShowContextMenu</a> (const QPoint &amp;pos)</td></tr>
+<tr class="memdesc:a3c8e4768be63763cc134fac2a64b937b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user right clicks over an existing System name to reveal the popup Delete menu item.  <a href="#a3c8e4768be63763cc134fac2a64b937b">More...</a><br /></td></tr>
 <tr class="separator:a3c8e4768be63763cc134fac2a64b937b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace4f3aa8bc9f1fcddc8970eb9b3bcc0b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace4f3aa8bc9f1fcddc8970eb9b3bcc0b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_DeleteItem</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_dlg.html#ace4f3aa8bc9f1fcddc8970eb9b3bcc0b">callback_DeleteItem</a> ()</td></tr>
+<tr class="memdesc:ace4f3aa8bc9f1fcddc8970eb9b3bcc0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user selects the Delete item from the popup context menu item. <br /></td></tr>
 <tr class="separator:ace4f3aa8bc9f1fcddc8970eb9b3bcc0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
 <tr class="memitem:a39478c238846a05c222ffa3ef632f2b0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39478c238846a05c222ffa3ef632f2b0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearSystemName</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_dlg.html#a39478c238846a05c222ffa3ef632f2b0">ClearSystemName</a> ()</td></tr>
+<tr class="memdesc:a39478c238846a05c222ffa3ef632f2b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when user deletes a System name. <br /></td></tr>
 <tr class="separator:a39478c238846a05c222ffa3ef632f2b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -133,24 +136,104 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad3a6c3d8a05ea09b6784d41c02615ab9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3a6c3d8a05ea09b6784d41c02615ab9"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>LoadDlg</b> (const QString &amp;title, QWidget *parent, nmfLogger *m_logger, nmfDatabase *m_databasePtr, const QString &amp;currentConfig)</td></tr>
 <tr class="separator:ad3a6c3d8a05ea09b6784d41c02615ab9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf8a0a1c0c6c338b97e6406eff6001e2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf8a0a1c0c6c338b97e6406eff6001e2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>reloadSystemsList</b> ()</td></tr>
-<tr class="separator:adf8a0a1c0c6c338b97e6406eff6001e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3467efc8f076abc7449ebce0dcd6e851"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3467efc8f076abc7449ebce0dcd6e851"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>saveSettings</b> ()</td></tr>
-<tr class="separator:a3467efc8f076abc7449ebce0dcd6e851"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a505a54f4e833266005f33aa76a6efa81"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a505a54f4e833266005f33aa76a6efa81"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>getSettingData</b> (SystemData &amp;m_data)</td></tr>
-<tr class="separator:a505a54f4e833266005f33aa76a6efa81"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a384057cc20502b742305587944bbcd30"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a384057cc20502b742305587944bbcd30"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>updateWindowTitle</b> ()</td></tr>
-<tr class="separator:a384057cc20502b742305587944bbcd30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f776310c37941b18b8e0ba79a88260c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_dlg.html#a7f776310c37941b18b8e0ba79a88260c">getSettingData</a> (SystemData &amp;data)</td></tr>
+<tr class="memdesc:a7f776310c37941b18b8e0ba79a88260c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the database data affiliated with the current System name.  <a href="#a7f776310c37941b18b8e0ba79a88260c">More...</a><br /></td></tr>
+<tr class="separator:a7f776310c37941b18b8e0ba79a88260c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Defines the behavior and callback functionality for the Load Systems Dialog. </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
-<li><a class="el" href="nmf_setup_tab04_8h_source.html">nmfSetupTab04.h</a></li>
-<li>nmfSetupTab04.cpp</li>
+<div class="textblock"><p>Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a6cc5137abdb06af001d798b678e2f333"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LoadDlg::callback_ItemDoubleClicked </td>
+          <td>(</td>
+          <td class="paramtype">QListWidgetItem *&#160;</td>
+          <td class="paramname"><em>item</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when user double clicks an item from the System names list. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">item</td><td>: item selected by user </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a3c8e4768be63763cc134fac2a64b937b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LoadDlg::callback_ShowContextMenu </td>
+          <td>(</td>
+          <td class="paramtype">const QPoint &amp;&#160;</td>
+          <td class="paramname"><em>pos</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when user right clicks over an existing System name to reveal the popup Delete menu item. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pos</td><td>: position on the screen where the popup menu will appear </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a7f776310c37941b18b8e0ba79a88260c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LoadDlg::getSettingData </td>
+          <td>(</td>
+          <td class="paramtype">SystemData &amp;&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the database data affiliated with the current System name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>: the data structure to load with the system data read from the database </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li><a class="el" href="_load_dlg_8h_source.html">LoadDlg.h</a></li>
+<li>LoadDlg.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

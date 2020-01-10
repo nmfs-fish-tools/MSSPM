@@ -1,274 +1,9 @@
-
 #include "nmfSetupTab04.h"
 #include "nmfConstantsMSSPM.h"
 #include "nmfUtilsQt.h"
 #include "nmfUtils.h"
 #include "nmfConstants.h"
 
-LoadDlg::LoadDlg(const QString &title,
-                 QWidget*     parent,
-                 nmfLogger*   theLogger,
-                 nmfDatabase* theDatabasePtr,
-                 const QString &currentConfig)
-    : QDialog(parent)
-{
-    QLabel *label0 = new QLabel("");
-
-    m_logger      = theLogger;
-    m_databasePtr = theDatabasePtr;
-    m_SettingNames.clear();
-    m_SettingsLW = new QListWidget();
-
-    reloadSystemsList();
-
-    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                     | QDialogButtonBox::Cancel);
-
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-
-    mainLayout->addWidget(label0);
-    mainLayout->addWidget(m_SettingsLW);
-    mainLayout->addWidget(m_buttonBox);
-    setLayout(mainLayout);
-    setWindowTitle(title);
-
-    // Add context menu for delete item
-    m_SettingsLW->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    connect(m_SettingsLW,SIGNAL(customContextMenuRequested(QPoint)),
-            this,      SLOT(callback_ShowContextMenu(QPoint)));
-
-    connect(m_buttonBox,  SIGNAL(accepted()),    this, SLOT(callback_LoadOk()));
-    connect(m_buttonBox,  SIGNAL(rejected()),    this, SLOT(reject()));
-    connect(m_SettingsLW, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-            this,       SLOT(callback_ItemDoubleClicked(QListWidgetItem*)));
-
-    m_buttonBox->setFocus();
-
-    // Set currentConfig
-    QList<QListWidgetItem*> items = m_SettingsLW->findItems(currentConfig,Qt::MatchExactly);
-    if (items.size() > 0) {
-        m_SettingsLW->setCurrentItem(items[0]);
-    }    
-
-}
-
-void
-LoadDlg::callback_ShowContextMenu(const QPoint &pos)
-{
-    // Handle global position
-    QPoint globalPos = m_SettingsLW->mapToGlobal(pos);
-
-    // Create menu and insert some actions
-    QMenu myMenu;
-    myMenu.addAction("Delete", this, SLOT(callback_DeleteItem()));
-
-    // Show context menu at handling position
-    myMenu.exec(globalPos);
-}
-
-
-void
-LoadDlg::callback_ItemDoubleClicked(QListWidgetItem* item)
-{
-    callback_LoadOk();
-}
-
-
-
-void
-LoadDlg::reloadSystemsList()
-{
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::string name;
-    QListWidgetItem *item;
-
-    m_SettingsLW->clear();
-    m_SettingNames.clear();
-
-    fields     = {"SystemName"};
-    queryStr   = "SELECT SystemName FROM Systems";
-    dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    for (unsigned int i=0; i<dataMap["SystemName"].size(); ++i) {
-        name = dataMap["SystemName"][i];
-        m_SettingNames.push_back(name);
-        item = new QListWidgetItem();
-        item->setText(QString::fromStdString(name));
-        m_SettingsLW->addItem(item);
-    }
-}
-
-void
-LoadDlg::callback_LoadOk()
-{
-    if (m_SettingsLW->selectedItems().size() == 0) {
-        QMessageBox::information(this, "NULL Selection",
-                                 "\nPlease select a Settings configuration to load or click Cancel.\n");
-        return;
-    }
-    saveSettings();
-    accept();
-}
-
-
-void
-LoadDlg::saveSettings()
-{
-    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
-
-    settings->beginGroup("Settings");
-    settings->setValue("Name", m_SettingsLW->currentItem()->text());
-    settings->endGroup();
-
-    delete settings;
-
-    updateWindowTitle();
-}
-
-void
-LoadDlg::updateWindowTitle()
-{
-    std::string ProjectName;
-    std::string ProjectSettingsConfig;
-    std::string winTitle;
-
-    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
-
-    settings->beginGroup("SetupTab");
-    ProjectName     = settings->value("ProjectName","").toString().toStdString();
-    settings->endGroup();
-
-    settings->beginGroup("Settings");
-    ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
-    settings->endGroup();
-
-    delete settings;
-
-    winTitle = "MSSPM (" + ProjectName + " - " + ProjectSettingsConfig + ")";
-
-    foreach (QWidget *w, qApp->topLevelWidgets())
-        if (QMainWindow* mainWin = qobject_cast<QMainWindow*>(w))
-            mainWin->setWindowTitle(QString::fromStdString(winTitle));
-}
-
-
-void
-LoadDlg::callback_DeleteItem()
-{
-    QMessageBox::StandardButton reply;
-    QString msg;
-    QString currentItem = m_SettingsLW->currentItem()->text();
-    std::string cmd;
-    std::string errorMsg;
-
-    msg = "\nOK to delete configuration: " + currentItem + " ?";
-    reply = QMessageBox::question(this, tr("Delete Configuration"),
-                       tr(msg.toLatin1()),
-                       QMessageBox::No|QMessageBox::Yes,
-                       QMessageBox::Yes);
-    if (reply == QMessageBox::Yes) {
-        cmd  = "DELETE FROM Systems WHERE SystemName = '" + currentItem.toStdString() + "'";
-        errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
-            m_logger->logMsg(nmfConstants::Error,"SaveDlg callback_DeleteItem: Delete error: " + errorMsg);
-            m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            return;
-        }
-        reloadSystemsList();
-        emit ClearSystemName();
-        QMessageBox::information(this, "Settings Configuration",
-                                 "\nSuccessfully deleted Settings configuration.\n");
-    }
-}
-
-void
-LoadDlg::getSettingData(SystemData &data)
-{
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::string GrowthStr,HarvestStr,CompetitionStr,PredationStr;
-
-    if (m_SettingsLW->selectionModel()->selectedRows().size() == 0) {
-        m_logger->logMsg(nmfConstants::Error,"LoadDlg callback_LoadOk: No Settings configuration selected. ");
-        QMessageBox::information(this, "NULL Selection",
-                                 "\nPlease select a Settings configuration to load.\n");
-        return;
-    }
-
-    QString currentItem = m_SettingsLW->currentItem()->text();
-
-    fields    = {"SystemName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm",
-                 "WithinGuildCompetitionForm","NumberOfRuns","RunLength","TimeStep",
-                 "Algorithm","Minimizer","ObjectiveCriterion","Scaling",
-                 "GAGenerations","GAPopulationSize","GAMutationRate","GAConvergence",
-                 "BeesNumTotal","BeesNumElite","BeesNumOther",
-                 "BeesNumEliteSites","BeesNumBestSites","BeesNumRepetitions",
-                 "BeesMaxGenerations","BeesNeighborhoodSize",
-                 "GradMaxIterations","GradMaxLineSearches",
-                 "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter",
-                 "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter"};
-    queryStr  = "SELECT SystemName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,";
-    queryStr += "WithinGuildCompetitionForm,NumberOfRuns,RunLength,TimeStep,";
-    queryStr += "Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-    queryStr += "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence,";
-    queryStr += "BeesNumTotal,BeesNumElite,BeesNumOther,";
-    queryStr += "BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions,";
-    queryStr += "BeesMaxGenerations,BeesNeighborhoodSize,";
-    queryStr += "GradMaxIterations,GradMaxLineSearches,";
-    queryStr += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
-    queryStr += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter ";
-    queryStr += "FROM Systems WHERE SystemName = '" + currentItem.toStdString() + "'";
-    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SystemName"].size();
-    if (NumRecords != 1) {
-        m_logger->logMsg(nmfConstants::Error,"LoadDlg callback_LoadOk: No records found to load");
-        return;
-    }
-
-    GrowthStr      = dataMap["GrowthForm"][0];
-    HarvestStr     = dataMap["HarvestForm"][0];
-    CompetitionStr = dataMap["WithinGuildCompetitionForm"][0];
-    PredationStr   = dataMap["PredationForm"][0];
-    if (GrowthStr.empty())      GrowthStr      = "Null";
-    if (HarvestStr.empty())     HarvestStr     = "Null";
-    if (CompetitionStr.empty()) CompetitionStr = "Null";
-    if (PredationStr.empty())   PredationStr   = "Null";
-
-    data.Name                  = dataMap["SystemName"][0];
-    data.CarryingCapacity      = dataMap["CarryingCapacity"][0];
-    data.GrowthForm            = GrowthStr;
-    data.HarvestForm           = HarvestStr;
-    data.CompetitionForm       = CompetitionStr;
-    data.PredationForm         = PredationStr;
-    data.NumberOfRuns          = std::stoi(dataMap["NumberOfRuns"][0]);
-    data.RunLength             = std::stoi(dataMap["RunLength"][0]);
-    data.TimeStep              = std::stoi(dataMap["TimeStep"][0]);
-    data.Algorithm             = dataMap["Algorithm"][0];
-    data.Minimizer             = dataMap["Minimizer"][0];
-    data.ObjectiveCriterion    = dataMap["ObjectiveCriterion"][0];
-    data.Scaling               = dataMap["Scaling"][0];
-    data.BeesNumTotal          = std::stoi(dataMap["BeesNumTotal"][0]);
-    data.BeesNumElite          = std::stoi(dataMap["BeesNumElite"][0]);
-    data.BeesNumOther          = std::stoi(dataMap["BeesNumOther"][0]);
-    data.BeesNumEliteSites     = std::stoi(dataMap["BeesNumEliteSites"][0]);
-    data.BeesNumBestSites      = std::stoi(dataMap["BeesNumBestSites"][0]);
-    data.BeesNumRepetitions    = std::stoi(dataMap["BeesNumRepetitions"][0]);
-    data.BeesMaxGenerations    = std::stoi(dataMap["BeesMaxGenerations"][0]);
-    data.BeesNeighborhoodSize  = std::stof(dataMap["BeesNeighborhoodSize"][0]);
-    data.Scaling               = dataMap["Scaling"][0];
-    data.GradMaxIterations     = std::stoi(dataMap["GradMaxIterations"][0]);
-    data.GradMaxLineSearches   = std::stoi(dataMap["GradMaxLineSearches"][0]);
-    data.NLoptUseStopVal       = std::stoi(dataMap["NLoptUseStopVal"][0]);
-    data.NLoptUseStopAfterTime = std::stoi(dataMap["NLoptUseStopAfterTime"][0]);
-    data.NLoptUseStopAfterIter = std::stoi(dataMap["NLoptUseStopAfterIter"][0]);
-    data.NLoptStopVal          = std::stod(dataMap["NLoptStopVal"][0]);
-    data.NLoptStopAfterTime    = std::stoi(dataMap["NLoptStopAfterTime"][0]);
-    data.NLoptStopAfterIter    = std::stoi(dataMap["NLoptStopAfterIter"][0]);
-}
 
 nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
                              nmfLogger*   logger,
@@ -313,7 +48,7 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tab4_HarvestHighlightPB       = Setup_Tabs->findChild<QPushButton  *>("HarvestHighlightPB");
     Setup_Tab4_PredationHighlightPB     = Setup_Tabs->findChild<QPushButton  *>("PredationHighlightPB");
     Setup_Tab4_CompetitionHighlightPB   = Setup_Tabs->findChild<QPushButton  *>("CompetitionHighlightPB");
-    Setup_Tab4_SystemNamePB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_SystemNamePB");
+    Setup_Tab4_NewSystemPB             = Setup_Tabs->findChild<QPushButton   *>("Setup_Tab4_NewSystemPB");
     Setup_Tab4_StartYearSB              = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab4_StartYearSB");
     Setup_Tab4_EndYearLE                = Setup_Tabs->findChild<QLineEdit    *>("Setup_Tab4_EndYearLE");
     Setup_Tab4_RunLengthSB              = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab4_RunLengthSB");
@@ -342,17 +77,17 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     setHighlightColors();
 
     connect(Setup_Tab4_ModelPresetsCMB,        SIGNAL(currentTextChanged(QString)),
-            this,                              SLOT(callback_Setup_Tab4_ModelPresetsCMB(QString)));
+            this,                              SLOT(callback_ModelPresetsCMB(QString)));
     connect(Setup_Tab4_GrowthFormCMB,          SIGNAL(currentTextChanged(QString)),
-            this,                              SLOT(callback_Setup_Tab4_GrowthFormCMB(QString)));
+            this,                              SLOT(callback_GrowthFormCMB(QString)));
     connect(Setup_Tab4_PredationFormCMB,       SIGNAL(currentTextChanged(QString)),
-            this,                              SLOT(callback_Setup_Tab4_PredationFormCMB(QString)));
+            this,                              SLOT(callback_PredationFormCMB(QString)));
     connect(Setup_Tab4_HarvestFormCMB,         SIGNAL(currentTextChanged(QString)),
-            this,                              SLOT(callback_Setup_Tab4_HarvestFormCMB(QString)));
+            this,                              SLOT(callback_HarvestFormCMB(QString)));
     connect(Setup_Tab4_CompetitionFormCMB,     SIGNAL(currentTextChanged(QString)),
-            this,                              SLOT(callback_Setup_Tab4_CompetitionFormCMB(QString)));
+            this,                              SLOT(callback_CompetitionFormCMB(QString)));
     connect(Setup_Tab4_FontSizeCMB,            SIGNAL(currentTextChanged(QString)),
-            this,                              SLOT(callback_Setup_Tab4_FontSizeCMB(QString)));
+            this,                              SLOT(callback_FontSizeCMB(QString)));
     connect(Setup_Tab4_GrowthHighlightPB,      SIGNAL(clicked()),
             this,                              SLOT(callback_GrowthHighlightPB()));
     connect(Setup_Tab4_HarvestHighlightPB,     SIGNAL(clicked()),
@@ -361,20 +96,20 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
             this,                              SLOT(callback_PredationHighlightPB()));
     connect(Setup_Tab4_CompetitionHighlightPB, SIGNAL(clicked()),
             this,                              SLOT(callback_CompetitionHighlightPB()));
-    connect(Setup_Tab4_SystemNamePB,           SIGNAL(clicked()),
-            this,                              SLOT(callback_SystemNamePB()));
+    connect(Setup_Tab4_NewSystemPB,            SIGNAL(clicked()),
+            this,                              SLOT(callback_NewSystemPB()));
     connect(Setup_Tab4_CalcPB,                 SIGNAL(clicked()),
             this,                              SLOT(callback_CalcPB()));
     connect(Setup_Tab4_LoadPB,                 SIGNAL(clicked()),
-            this,                              SLOT(callback_Setup_Tab4_LoadPB()));
+            this,                              SLOT(callback_LoadPB()));
     connect(Setup_Tab4_DelPB,                  SIGNAL(clicked()),
-            this,                              SLOT(callback_Setup_Tab4_DelPB()));
+            this,                              SLOT(callback_DelPB()));
     connect(Setup_Tab4_SavePB,                 SIGNAL(clicked()),
-            this,                              SLOT(callback_Setup_Tab4_SavePB()));
+            this,                              SLOT(callback_SavePB()));
     connect(Setup_Tab4_PrevPB,                 SIGNAL(clicked()),
-            this,                              SLOT(callback_Setup_Tab4_PrevPB()));
+            this,                              SLOT(callback_PrevPB()));
     connect(Setup_Tab4_NextPB,                 SIGNAL(clicked()),
-            this,                              SLOT(callback_Setup_Tab4_NextPB()));
+            this,                              SLOT(callback_NextPB()));
     connect(Setup_Tab4_StartYearSB,            SIGNAL(valueChanged(int)),
             this,                              SLOT(callback_UpdateEndYear(int)));
     connect(Setup_Tab4_RunLengthSB,            SIGNAL(valueChanged(int)),
@@ -491,28 +226,28 @@ nmfSetup_Tab4::getHighlightColors(QString& growthHighlightColor,
 
 
 QComboBox*
-nmfSetup_Tab4::modelPresetsCMB()
+nmfSetup_Tab4::getModelPresetsCMB()
 {
     return Setup_Tab4_ModelPresetsCMB;
 }
 
 QComboBox*
-nmfSetup_Tab4::growthFormCMB()
+nmfSetup_Tab4::getGrowthFormCMB()
 {
     return Setup_Tab4_GrowthFormCMB;
 }
 QComboBox*
-nmfSetup_Tab4::predationFormCMB()
+nmfSetup_Tab4::getPredationFormCMB()
 {
     return Setup_Tab4_PredationFormCMB;
 }
 QComboBox*
-nmfSetup_Tab4::harvestFormCMB()
+nmfSetup_Tab4::getHarvestFormCMB()
 {
     return Setup_Tab4_HarvestFormCMB;
 }
 QComboBox*
-nmfSetup_Tab4::competitionFormCMB()
+nmfSetup_Tab4::getCompetitionFormCMB()
 {
     return Setup_Tab4_CompetitionFormCMB;
 }
@@ -521,7 +256,7 @@ void
 nmfSetup_Tab4::drawEquation(QString Label, QString Eqn, QString Key)
 {
     Setup_Tab4_ModelEquationTE->setText("<p><br/>"+Label+"<br/><br/>"+Eqn+"<br/><br/>"+Key+"</p>");
-    callback_Setup_Tab4_FontSizeCMB(Setup_Tab4_FontSizeCMB->currentText());
+    callback_FontSizeCMB(Setup_Tab4_FontSizeCMB->currentText());
 }
 
 
@@ -556,7 +291,7 @@ nmfSetup_Tab4::saveSettings()
 }
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_PrevPB()
+nmfSetup_Tab4::callback_PrevPB()
 {
     int prevPage = Setup_Tabs->currentIndex()-1;
     Setup_Tabs->setCurrentIndex(prevPage);
@@ -564,7 +299,7 @@ nmfSetup_Tab4::callback_Setup_Tab4_PrevPB()
 
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_NextPB()
+nmfSetup_Tab4::callback_NextPB()
 {
     int nextPage = Setup_Tabs->currentIndex()+1;
     Setup_Tabs->setCurrentIndex(nextPage);
@@ -643,7 +378,7 @@ nmfSetup_Tab4::loadSystem()
     if (data.StartYear < nmfConstantsMSSPM::Start_Year)
         data.StartYear = nmfConstantsMSSPM::Start_Year;
 
-    loadDialog->getSettingData(data);
+    m_LoadDialog->getSettingData(data);
 
     Setup_Tab4_SystemNameLE->setText(QString::fromStdString(data.Name));
     Setup_Tab4_SystemCarryingCapacityLE->setText(QString::fromStdString(data.CarryingCapacity));
@@ -681,16 +416,16 @@ nmfSetup_Tab4::loadSystem()
 }
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_LoadPB()
+nmfSetup_Tab4::callback_LoadPB()
 {
-    loadDialog = new LoadDlg(tr("Load Settings"), Setup_Tabs,
+    m_LoadDialog = new LoadDlg(tr("Load Settings"), Setup_Tabs,
                              m_logger, m_databasePtr,
                              QString::fromStdString(m_ProjectSettingsConfig));
 
-    connect(loadDialog, SIGNAL(ClearSystemName()),
+    connect(m_LoadDialog, SIGNAL(ClearSystemName()),
             this,       SLOT(callback_ClearSystemName()));
 
-    if (loadDialog->exec() == QDialog::Accepted) {
+    if (m_LoadDialog->exec() == QDialog::Accepted) {
         loadSystem();
     }
 }
@@ -746,7 +481,7 @@ nmfSetup_Tab4::calculateSystemCarryingCapacity()
 
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_DelPB()
+nmfSetup_Tab4::callback_DelPB()
 {
     QMessageBox::StandardButton reply;
     QString msg;
@@ -795,16 +530,11 @@ nmfSetup_Tab4::callback_ClearSystemName()
 }
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_SavePB()
+nmfSetup_Tab4::callback_SavePB()
 {
     saveSystem(true);
 }
 
-void
-nmfSetup_Tab4::callback_SaveSystem()
-{
-    saveSystem(true);
-}
 
 void
 nmfSetup_Tab4::reloadSystemName()
@@ -936,17 +666,10 @@ nmfSetup_Tab4::saveSettingsConfiguration(bool verbose,
 }
 
 void
-nmfSetup_Tab4::callback_ReloadWidgets()
-{
-    emit ReloadWidgets();
-}
-
-void
 nmfSetup_Tab4::updateOutputWidget()
 {
 
 }
-
 
 void
 nmfSetup_Tab4::loadWidgets()
@@ -1027,7 +750,7 @@ nmfSetup_Tab4::clearWidgets()
 
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_ModelPresetsCMB(QString name)
+nmfSetup_Tab4::callback_ModelPresetsCMB(QString name)
 {
     std::vector<std::string> ModelPreset = m_ModelPresets[name.toStdString()];
 
@@ -1058,7 +781,7 @@ nmfSetup_Tab4::setModelName(std::string modelName)
 
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_GrowthFormCMB(QString growthForm)
+nmfSetup_Tab4::callback_GrowthFormCMB(QString growthForm)
 {
     int i=0;
     int NumPresets = m_ModelPresets.size();
@@ -1086,7 +809,7 @@ nmfSetup_Tab4::callback_Setup_Tab4_GrowthFormCMB(QString growthForm)
 }
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_HarvestFormCMB(QString harvestForm)
+nmfSetup_Tab4::callback_HarvestFormCMB(QString harvestForm)
 {
     int i=0;
     int NumPresets = m_ModelPresets.size();
@@ -1120,7 +843,7 @@ nmfSetup_Tab4::callback_Setup_Tab4_HarvestFormCMB(QString harvestForm)
 }
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_CompetitionFormCMB(QString competitionForm)
+nmfSetup_Tab4::callback_CompetitionFormCMB(QString competitionForm)
 {
     int i=0;
     int NumPresets = m_ModelPresets.size();
@@ -1150,7 +873,7 @@ nmfSetup_Tab4::callback_Setup_Tab4_CompetitionFormCMB(QString competitionForm)
 }
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_PredationFormCMB(QString predationForm)
+nmfSetup_Tab4::callback_PredationFormCMB(QString predationForm)
 {
     int i=0;
     int NumPresets = m_ModelPresets.size();
@@ -1180,7 +903,7 @@ nmfSetup_Tab4::callback_Setup_Tab4_PredationFormCMB(QString predationForm)
 }
 
 void
-nmfSetup_Tab4::callback_Setup_Tab4_FontSizeCMB(QString theFontSize)
+nmfSetup_Tab4::callback_FontSizeCMB(QString theFontSize)
 {
     int fontSize = theFontSize.toInt();
 
@@ -1260,7 +983,7 @@ nmfSetup_Tab4::callback_CalcPB()
 }
 
 void
-nmfSetup_Tab4::callback_SystemNamePB()
+nmfSetup_Tab4::callback_NewSystemPB()
 {
     bool ok;
     QString SystemName = QInputDialog::getText(Setup_Tabs,

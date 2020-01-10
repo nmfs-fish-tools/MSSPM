@@ -27,12 +27,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    LoadDlg.cpp \
     nmfSetupTab01.cpp \
     nmfSetupTab02.cpp \
     nmfSetupTab03.cpp \
     nmfSetupTab04.cpp
 
 HEADERS += \
+    LoadDlg.h \
     mainpage.h \
     nmfSetupTab01.h \
     nmfSetupTab02.h \

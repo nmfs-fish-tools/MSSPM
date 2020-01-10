@@ -1,3 +1,9 @@
+/** @file nmfDiagnosticTab02.h
+ * @brief GUI definition for the nmfDiagnostic_Tab2 Retrospective Analysis Diagnostics Data class
+ *
+ * This file contains the GUI definition for the Retrospective Analysis Diagnostics page.
+ *
+ */
 #ifndef NMFDIAGNOSTICTAB2_H
 #define NMFDIAGNOSTICTAB2_H
 

@@ -1,3 +1,11 @@
+/** @file ClearOutputDialog.h
+ * @brief GUI definition for the Algorithm-Specific ClearOutputDialog widget
+ *
+ * This file contains the GUI definitions for the Algorithm-Specific Clear
+ * Output Dialog. This dialog allows the user to clear output data
+ * obtained from a specific combination of Model Estimation algorithms.
+ */
+
 #pragma once
 
 #include "nmfDatabase.h"

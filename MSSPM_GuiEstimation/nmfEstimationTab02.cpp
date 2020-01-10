@@ -293,3 +293,12 @@ nmfEstimation_Tab2::callback_HarvestFormChanged(QString harvestForm)
     loadWidgets();
 }
 
+bool
+nmfEstimation_Tab2::areTablesOK()
+{
+    return nmfUtilsQt::allCellsArePopulated(
+                Estimation_Tabs,
+                Estimation_Tab2_CatchTV,
+                nmfConstantsMSSPM::DontShowError);
+}
+

@@ -58,10 +58,10 @@ nmfForecast_Tab1::nmfForecast_Tab1(QTabWidget*  tabs,
             this,                          SLOT(callback_LoadPB()));
     connect(Forecast_Tab1_SavePB,          SIGNAL(clicked()),
             this,                          SLOT(callback_SavePB()));
-    connect(Forecast_Tab1_AlgorithmCMB,    SIGNAL(activated(QString)),
-            this,                          SLOT(callback_AlgorithmCMB(QString)));
-    connect(Forecast_Tab1_MinimizerCMB,    SIGNAL(activated(QString)),
-            this,                          SLOT(callback_MinimizerCMB(QString)));
+//    connect(Forecast_Tab1_AlgorithmCMB,    SIGNAL(activated(QString)),
+//            this,                          SLOT(callback_AlgorithmCMB(QString)));
+//    connect(Forecast_Tab1_MinimizerCMB,    SIGNAL(activated(QString)),
+//            this,                          SLOT(callback_MinimizerCMB(QString)));
     connect(Forecast_Tab1_RunLengthSB,     SIGNAL(valueChanged(int)),
             this,                          SLOT(callback_RunLengthSB(int)));
     connect(Forecast_Tab1_DeterministicCB, SIGNAL(stateChanged(int)),

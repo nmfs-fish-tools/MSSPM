@@ -19,5 +19,6 @@ var searchData=
   ['callback_5fstopaftertimecb',['callback_StopAfterTimeCB',['../classnmf_estimation___tab6.html#a598ae12325d506f449464de250bcb630',1,'nmfEstimation_Tab6']]],
   ['callback_5fstopvalcb',['callback_StopValCB',['../classnmf_estimation___tab6.html#aeee2c7be131477d6efda0226dad88ab6',1,'nmfEstimation_Tab6']]],
   ['callback_5fupdateinitialobservedbiomass',['callback_UpdateInitialObservedBiomass',['../classnmf_estimation___tab5.html#a040ea1a551c45f77d03bba8305cb9b49',1,'nmfEstimation_Tab5']]],
-  ['clearoutputte',['clearOutputTE',['../classnmf_estimation___tab6.html#aff1da981b2dcc93776be29bba7ec4cb1',1,'nmfEstimation_Tab6']]]
+  ['clearoutputte',['clearOutputTE',['../classnmf_estimation___tab6.html#aff1da981b2dcc93776be29bba7ec4cb1',1,'nmfEstimation_Tab6']]],
+  ['clearwidgets',['clearWidgets',['../classnmf_estimation___tab1.html#a0e41a91dbc55562ba02fb9eef37a35e6',1,'nmfEstimation_Tab1::clearWidgets()'],['../classnmf_estimation___tab2.html#aa28f54f7a7c2cf18d31ca7df6e46d781',1,'nmfEstimation_Tab2::clearWidgets()'],['../classnmf_estimation___tab3.html#ac181a0f5624567062f2de767e3053b73',1,'nmfEstimation_Tab3::clearWidgets()'],['../classnmf_estimation___tab4.html#acebcaad1dbb53f38e21e39d0d6b78c8c',1,'nmfEstimation_Tab4::clearWidgets()'],['../classnmf_estimation___tab5.html#acdcfaa4b4632eb18c1d322330e9b0adf',1,'nmfEstimation_Tab5::clearWidgets()']]]
 ];

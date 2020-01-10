@@ -1,3 +1,12 @@
+/** @file NLopt_Estimator.h
+ * @brief Class definition for the NLopt_Estimator API
+ *
+ * This file contains the class definition for the NLopt_Estimator API. This
+ * API acts as an interface class between the Main calling program and the lower-level
+ * NLopt 3rd party library.
+ */
+
+
 #pragma once
 
 #include "nmfUtils.h"
@@ -32,6 +41,8 @@ private:
     boost::numeric::ublas::matrix<double>  m_EstAlpha;
     boost::numeric::ublas::matrix<double>  m_EstBetaSpecies;
     boost::numeric::ublas::matrix<double>  m_EstBetaGuilds;
+    std::vector<double>                    m_EstCarryingCapacities;
+    std::vector<double>                    m_EstGrowthRates;
     boost::numeric::ublas::matrix<double>  m_EstPredation;
     boost::numeric::ublas::matrix<double>  m_EstHandling;
     std::map<std::string,nlopt::algorithm> m_MinimizerToEnum;
@@ -54,61 +65,190 @@ private:
                                     const boost::numeric::ublas::matrix<double> &matrix);
 
 signals:
-    void RunCompleted(std::string outputStr);
-    void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
+    /**
+     * @brief Signal emitted with NLopt Estimation run has complete
+     * @param bestFitness : string representing the best fitness value
+     */
+    void RunCompleted(std::string bestFitness);
+//  void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
 
 public:
+    /**
+     * @brief Class constructor for the NLopt Estimation interface
+     */
     NLopt_Estimator();
    ~NLopt_Estimator();
 
-    static int          m_nloptIters;
-    static int          m_counter;
-    static int          m_RunNum;
-    std::vector<double> m_EstGrowthRates;
-    std::vector<double> m_EstCarryingCapacities;
+    /**
+     * @brief Counts the number of run iterations
+     */
+    static int m_NLoptIters;
+    /**
+     * @brief Counts the number of run iterations by the thousands
+     */
+    static int m_Counter;
+    /**
+     * @brief Keeps track of the run number
+     */
+    static int m_RunNum;
 
-    static double calculateSumOfSquares(const boost::numeric::ublas::matrix<double>& EstBiomass,
-                                        const boost::numeric::ublas::matrix<double>& ObsBiomass);
-    static double calculateModelEfficiency(const boost::numeric::ublas::matrix<double>& EstBiomass,
-                                           const boost::numeric::ublas::matrix<double>& ObsBiomass);
-    void estimateParameters(Data_Struct &nloptStruct,
-                            int RunNum);
-    static double extractParameters(const Data_Struct& NLoptDataStruct,
-                                    const double *EstParameters,
-                                    std::vector<double>& growthRate,
-                                    std::vector<double>& carryingCapacity,
-                                    std::vector<double>& catchabilityRate,
-                                    boost::numeric::ublas::matrix<double>& competitionAlpha,
-                                    boost::numeric::ublas::matrix<double>& competitionBetaSpecies,
-                                    boost::numeric::ublas::matrix<double>& competitionBetaGuilds,
-                                    boost::numeric::ublas::matrix<double>& predation,
-                                    boost::numeric::ublas::matrix<double>& handling,
-                                    std::vector<double>& exponent);
-    void getEstGrowthRates(std::vector<double>& GrowthRates);
-    void getEstCarryingCapacities(std::vector<double>& CarryingCapacities);
-    void getEstCatchability(std::vector<double> &theEstCatchability);
-    void getEstCompetitionAlpha(boost::numeric::ublas::matrix<double> &theEstInteraction);
-    void getEstCompetitionBetaSpecies(boost::numeric::ublas::matrix<double> &theEstCompSpecies);
-    void getEstCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &theEstCompGuilds);
-    void getEstPredation(boost::numeric::ublas::matrix<double> &theEstPredation);
-    void getEstHandling(boost::numeric::ublas::matrix<double> &theEstHandling);
-    void getEstExponent(std::vector<double> &theEstExponent);
-    static double objectiveFunction(unsigned n,
-                                    const double *x,
-                                    double *gradient,
-                                    void *functionData);
-    static void rescaleMean(const boost::numeric::ublas::matrix<double> &matrix,
-                            boost::numeric::ublas::matrix<double> &rescaledMatrix);
-    static void rescaleMinMax(const boost::numeric::ublas::matrix<double> &matrix,
-                              boost::numeric::ublas::matrix<double> &rescaledMatrix);
-
-    static void writeCurrentLoopFile(std::string &MSSPMName,
-                                     int         &NumGens,
-                                     double      &BestFitness,
-                                     std::string &ObjectiveCriterion,
-                                     int         &NumGensSinceBestFit);
+    /**
+     * @brief Calculates the model efficiency fitness of 1 - ⵉ(Be - Bo)² / ⵉ(Bo - Bm)²
+     * where (e)stimated, (o)bserved, and (m)ean (B)iomass
+     * @param EstBiomass : estimated biomass matrix
+     * @param ObsBiomass : observed biomass matrix
+     * @return Returns the model efficiency value
+     */
+    static double calculateModelEfficiency(
+            const boost::numeric::ublas::matrix<double>& EstBiomass,
+            const boost::numeric::ublas::matrix<double>& ObsBiomass);
+    /**
+     * @brief Calculates the sum of squares fitness of ⵉ(Be - Bo)²
+     * where (e)stimated and (o)bserved (B)iomass
+     * @param EstBiomass : estimated biomass matrix
+     * @param ObsBiomass : observed biomass matrix
+     * @return Returns the sum of squares value
+     */
+    static double calculateSumOfSquares(
+            const boost::numeric::ublas::matrix<double>& EstBiomass,
+            const boost::numeric::ublas::matrix<double>& ObsBiomass);
+    /**
+     * @brief The main routine that runs the NLopt Optimizer
+     * @param NLoptDataStruct : structure containing all of the parameters needed by NLopt
+     * @param RunNum : the number of the run
+     */
+    void estimateParameters(
+            Data_Struct& NLoptDataStruct,
+            int          RunNum);
+    /**
+     * @brief Extracts the estimated parameters from the NLopt Optimizer run
+     * @param NLoptDataStruct : input parameters to the NLopt Optimizer
+     * @param EstParameters : output estimated parameters from the NLopt Optimizer
+     * @param GrowthRate : estimated growth rate parameters
+     * @param CarryingCapacity : estimated carrying capacity parameters
+     * @param CatchabilityRate : estimated catchability parameters
+     * @param CompetitionAlpha : estimated competition alpha parameters
+     * @param CompetitionBetaSpecies : estimated food competition beta parameters per Species
+     * @param CompetitionBetaGuilds : estimated food competition beta parameters per Guild
+     * @param Predation : estimated predation parameters
+     * @param Handling : estimated handling parameters
+     * @param Exponent : estimated handling parameters
+     */
+    static void extractParameters(
+            const Data_Struct&                     NLoptDataStruct,
+            const double*                          EstParameters,
+            std::vector<double>&                   GrowthRate,
+            std::vector<double>&                   CarryingCapacity,
+            std::vector<double>&                   CatchabilityRate,
+            boost::numeric::ublas::matrix<double>& CompetitionAlpha,
+            boost::numeric::ublas::matrix<double>& CompetitionBetaSpecies,
+            boost::numeric::ublas::matrix<double>& CompetitionBetaGuilds,
+            boost::numeric::ublas::matrix<double>& Predation,
+            boost::numeric::ublas::matrix<double>& Handling,
+            std::vector<double>&                   Exponent);
+    /**
+     * @brief Get the estimated carrying capacity values
+     * @param EstCarryingCapacities : the estimated carrying capacity values to return
+     */
+    void getEstCarryingCapacities(
+            std::vector<double>& EstCarryingCapacities);
+    /**
+     * @brief Get the estimated catchability values
+     * @param EstCatchability : the estimated catchability values to return
+     */
+    void getEstCatchability(
+            std::vector<double>& EstCatchability);
+    /**
+     * @brief Get the estimated food competition alpha values
+     * @param EstInteraction : the estimated food competition alpha values to return
+     */
+    void getEstCompetitionAlpha(
+            boost::numeric::ublas::matrix<double>& EstInteraction);
+    /**
+     * @brief Get the estimated food competition beta values per Guild
+     * @param EstCompGuilds : the estimated food competition beta values per Guild to return
+     */
+    void getEstCompetitionBetaGuilds(
+            boost::numeric::ublas::matrix<double>& EstCompGuilds);
+    /**
+     * @brief Get the estimated food competition beta values per Species
+     * @param EstCompSpecies : the estimated food competition beta values per Species to return
+     */
+    void getEstCompetitionBetaSpecies(
+            boost::numeric::ublas::matrix<double>& EstCompSpecies);
+    /**
+     * @brief Get the estimated exponent values
+     * @param EstExponent : the estimated exponent values to return
+     */
+    void getEstExponent(
+            std::vector<double>& EstExponent);
+    /**
+     * @brief Get the estimated growth rate values
+     * @param GrowthRates : the estimated growth rate values to return
+     */
+    void getEstGrowthRates(
+            std::vector<double>& GrowthRates);
+    /**
+     * @brief Get the estimated handling values
+     * @param EstHandling : the estimated handling values to return
+     */
+    void getEstHandling(
+            boost::numeric::ublas::matrix<double>& EstHandling);
+    /**
+     * @brief Get the estimated predation values
+     * @param EstPredation : the estimated predation values to return
+     */
+    void getEstPredation(
+            boost::numeric::ublas::matrix<double>& EstPredation);
+    /**
+     * @brief Calculates the objective function fitness value
+     * @param n : unused (needed by NLopt library)
+     * @param EstParameters : estimated parameter values
+     * @param Gradient : unused (needed by NLopt library)
+     * @param FunctionData : input parameter estimation data
+     * @return
+     */
+    static double objectiveFunction(
+            unsigned      n,
+            const double* EstParameters,
+            double*       Gradient,
+            void*         FunctionData);
+    /**
+     * @brief Rescales each column of the input matrix with (x - ave)/(max-min)
+     * @param Matrix : input matrix to be rescaled
+     * @param RescaledMatrix : the output rescaled matrix
+     */
+    static void rescaleMean(
+            const boost::numeric::ublas::matrix<double>& Matrix,
+            boost::numeric::ublas::matrix<double>&       RescaledMatrix);
+    /**
+     * @brief Rescales each column of the input matrix with (x - min)/(max-min)
+     * @param Matrix : input matrix to be rescaled
+     * @param RescaledMatrix : the output rescaled matrix
+     */
+    static void rescaleMinMax(
+            const boost::numeric::ublas::matrix<double>& Matrix,
+            boost::numeric::ublas::matrix<double>&       RescaledMatrix);
+    /**
+     * @brief Updates the output chart data file with Optimization status. Another
+     * process reads this file and updates the progress chart accordingly.
+     * @param MSSPMName : name of the run
+     * @param NumGens : iteration number counted by thousand
+     * @param BestFitness : fitness value
+     * @param ObjectiveCriterion : name of objective criterion (Least Squares or Model Efficiency)
+     * @param NumGensSinceBestFit : unused
+     */
+    static void writeCurrentLoopFile(
+            std::string& MSSPMName,
+            int&         NumGens,
+            double&      BestFitness,
+            std::string& ObjectiveCriterion,
+            int&         NumGensSinceBestFit);
 
 public slots:
+    /**
+     * @brief Callback invoked when the user stops the Estimation run
+     */
     void callback_StopTheOptimizer();
 
 };

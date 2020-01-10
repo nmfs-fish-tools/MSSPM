@@ -1,3 +1,9 @@
+/** @file nmfForecastTab01.h
+ * @brief GUI definition for the nmfForecast_Tab1 Forecast Setup Data class
+ *
+ * This file contains the GUI definition for the Forecast Setup Data. The widgets
+ * defined here allow the user to enter or modify the data needed to set up a Forecast.
+ */
 #ifndef NMFFORECASTTAB1_H
 #define NMFFORECASTTAB1_H
 
@@ -48,7 +54,7 @@ private:
 
 public:
     /**
-     * @brief nmfForecast_Tab1 : class constructor
+     * @brief nmfForecast_Tab1 : class constructor for the Forecast Setup GUI page
      * @param tabs : the tab widget into which this Forecast tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -65,8 +71,9 @@ public:
      */
     void        clearWidgets();
     /**
-     * @brief Returns the forecast name the user inputted. This is the name of the forecast that will be generated.
-     * @return Returns the string name of the forecast the user inputted
+     * @brief Returns the Forecast name the user inputted. This is the name
+     * of the Forecast that will be generated.
+     * @return Returns the string name of the Forecast the user inputted
      */
     std::string getForecastName();
     /**
@@ -75,8 +82,8 @@ public:
      */
     int         getSeed();
     /**
-     * @brief Returns the start year associated with this forecast
-     * @return The integer start year associated with this forecast
+     * @brief Returns the start year associated with this Forecast
+     * @return The integer start year associated with this Forecast
      */
     int         getStartForecastYear();
     /**
@@ -91,8 +98,8 @@ public:
 
 signals:
     /**
-     * @brief Signal emitted when a new forecast has been loaded
-     * @param forecastLoaded : the name of the forecast loaded
+     * @brief Signal emitted when a new Forecast has been loaded
+     * @param forecastLoaded : the name of the Forecast loaded
      */
     void ForecastLoaded(std::string forecastLoaded);
     /**
@@ -102,36 +109,42 @@ signals:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user clicks Load button
+     * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when user clicks Save button
+     * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
     /**
-     * @brief Callback invoked when user clicks Next Page button
+     * @brief Callback invoked when the user clicks the Next Page button
      */
     void callback_NextPB();
     /**
-     * @brief Callback invoked when user clicks the Set button. It loads the forecast name with the name of the last project settings configuration.
+     * @brief Callback invoked when the user clicks the Set button. It
+     * loads the Forecast name with the name of the last project
+     * settings configuration.
      */
     void callback_SetNamePB();
 //  void callback_PreviousRunCB(bool state);
 //  void callback_AlgorithmCMB(QString algorithm);
 //  void callback_MinimizerCMB(QString minimizer);
     /**
-     * @brief Callback invoked when user changes the Number of Years in Run widget
-     * @param numYears : Number of years in current forecast
+     * @brief Callback invoked when the user changes the Number of
+     * Years in Run widget
+     * @param numYears : Number of years in current Forecast
      */
     void callback_RunLengthSB(int numYears);
     /**
-     * @brief Callback invoked when user changes the deterministic checkbox. This checkbox is used to determine if the current forecast should run deterministically or stochastically.
+     * @brief Callback invoked when the user changes the Deterministic
+     * checkbox. This checkbox is used to determine if the current
+     * Forecast should run deterministically or stochastically.
      * @param checked : The checked state of the checkbox
      */
     void callback_DeterministicCB(int checked);
     /**
-     * @brief Callback invoked when user changes the year range from the Setup -> Model Setup page
+     * @brief Callback invoked when the user changes the Year Range
+     * from the Setup -> Model Setup page
      */
     void callback_UpdateForecastYears();
 };

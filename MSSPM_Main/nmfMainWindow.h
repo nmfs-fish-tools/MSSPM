@@ -1,3 +1,10 @@
+/** @file nmfMainWindow.h
+ * @brief GUI definition for the main nmfMainWindow MSSPM Application class
+ *
+ * This file contains the Main Window Application class. All of the menu
+ * interactions are done through this class.
+ */
+
 #ifndef NMFMAINWINDOW_H
 #define NMFMAINWINDOW_H
 
@@ -236,13 +243,7 @@ private:
     void   initPostGuiConnections();
     void   showDockWidgets(bool show);
 
-public:
-    /**
-     * @brief The Main MSSPM Application Window
-     * @param parent : parent widget (defaults to 0 if not specified)
-     */
-    explicit nmfMainWindow(QWidget *parent = 0);
-    ~nmfMainWindow();
+
 
     void adjustProgressWidget();
     double calculateMonteCarloValue(const double& uncertainty,
@@ -616,7 +617,7 @@ public:
         const boost::numeric::ublas::matrix<double> &EstPredation,
         const boost::numeric::ublas::matrix<double> &EstHandling,
         const std::vector<double>                   &EstExponent);
-    void updateTextBoxFormula();
+    void updateModelEquationSummary();
 
     void getSurfaceData(
             boost::numeric::ublas::matrix<double>& rowValues,
@@ -655,57 +656,245 @@ public:
     //                            std::string &ObjectiveCriterion,
     //                            std::string &Scaling);
 
+
+public:
+    /**
+     * @brief The Main MSSPM Application Window
+     * @param parent : parent widget (defaults to 0 if not specified)
+     */
+    explicit nmfMainWindow(QWidget *parent = 0);
+    ~nmfMainWindow();
+
 protected:
     bool eventFilter(QObject *object, QEvent *event);
 
 public slots:
+    /**
+     * @brief Callback invoked when user Runs an Estimation
+     */
+    void callback_CheckEstimationTablesAndRun();
+    /**
+     * @brief Callback invoked to clear all of the Estimation tables. This happens
+     * if the user selects a new Project.
+     */
     void callback_ClearEstimationTables();
+    /**
+     * @brief Callback invoked when user selects a tab from the Diagnostics tab group
+     * @param tab : Diagnostics tab selected
+     */
     void callback_DiagnosticsTabChanged(int tab);
+    /**
+     * @brief Callback invoked to set the state of the toolbar's filter buttons
+     * @param state : state to set the toolbar filter buttons to
+     */
     void callback_EnableFilterButtons(bool state);
+    /**
+     * @brief Callback invoked when user selects a tab from the Estimation tab group
+     * @param tab : Estimation tab selected
+     */
     void callback_EstimationTabChanged(int tab);
+    /**
+     * @brief Callback invoked when user changes the Output Controls line brightness widget
+     * @param brightnessFactor : the new brightness factor value
+     */
     void callback_ForecastLineBrightnessChanged(double brightnessFactor);
+    /**
+     * @brief Callback invoked when user loads a new Forecast so as appropriate GUI widgets are auto filled
+     * @param ForecastName : name of Forecast loaded
+     */
     void callback_ForecastLoaded(std::string ForecastName);
+    /**
+     * @brief Callback invoked when user selects a tab from the Forecast tab group
+     * @param tab : Forecast tab selected
+     */
     void callback_ForecastTabChanged(int tab);
-    void callback_Hovered(bool status, int index, QBarSet *barset);
+//  void callback_Hovered(bool status, int index, QBarSet *barset);
+    /**
+     * @brief Callback invoked when user loads a new database
+     * @param databaseName : name of database to load
+     */
     void callback_LoadDatabase(QString databaseName);
+    /**
+     * @brief Callback invoked when user needs to load parameters for a Diagnostics run
+     */
     void callback_LoadDataStruct();
+    /**
+     * @brief Callback invoked to set the proper state of the GUI after a new Project has been loaded
+     */
     void callback_LoadProject();
+    /**
+     * @brief Callback invoked when user selects an item from the Navigator list
+     */
     void callback_NavigatorSelectionChanged();
+    /**
+     * @brief Callback invoked when application realizes no System file has been set
+     */
     void callback_NoSystemsSet();
-    void callback_OutputTypeCMB(QString type,std::map<QString,QStringList> SortedForecastLabelsMap);
+    /**
+     * @brief Callback invoked when a Forecast has run
+     * @param Type : type of Output Chart desired
+     * @param SortedForecastLabelsMap : map of forecast labels used for annotation
+     */
+    void callback_OutputTypeCMB(
+            QString Type,
+            std::map<QString,QStringList> SortedForecastLabelsMap);
+    /**
+     * @brief Callback invoked when the progress chart timer times out. In this fashion,
+     * the progress chart is updated while another process is running.
+     */
     void callback_ReadProgressChartDataFile();
+    /**
+     * @brief Callback invoked when user needs to reset the Output Controls widgets
+     */
     void callback_RefreshOutput();
+    /**
+     * @brief Callback invoked when user needs to reload the Main application's widgets
+     */
     void callback_ReloadWidgets();
+    /**
+     * @brief Callback invoked when user needs to reset the toolbar's filter buttons
+     */
     void callback_ResetFilterButtons();
-    void callback_RunCompleted(std::string outputStr);
+    /**
+     * @brief Callback invoked when Estimation run has completed
+     * @param outputMsg : output message for Estimation run completion
+     */
+    void callback_RunCompleted(std::string outputMsg);
+    /**
+     * @brief Callback invoked when user runs Estimations as part of a Retrospective Analysis Diagnostics run
+     * @param ranges : year ranges for current run
+     */
     void callback_RunDiagnosticEstimation(std::vector<std::pair<int,int> > ranges);
+    /**
+     * @brief Callback invoked with user runs an Estimation
+     */
     void callback_RunEstimation();
-    void callback_RunForecast(std::string ForecastName,bool GenerateBiomass);
+    /**
+     * @brief Callback invoked when user runs a Forecast
+     * @param ForecastName : name of Forecast to run
+     * @param GenerateBiomass : boolean used to specify whether or not user wants to
+     * update the Output Biomass table with the Forecast data
+     */
+    void callback_RunForecast(std::string ForecastName, bool GenerateBiomass);
+    /**
+     * @brief Callback invoked when user wants to save the Qt Settings for the Main application page
+     */
     void callback_SaveMainSettings();
+    /**
+     * @brief Callback invoked when user changes the type of Output chart desired
+     * @param type : type of Output chart to view
+     * @param method : diagnostic method if chart type is Diagnostics
+     */
     void callback_SetChartType(std::string type,std::string method);
-    void callback_SetChartView2d(bool state);
+    /**
+     * @brief Callback invoked to toggle between a 2d and 3d chart
+     * @param setTo2d : Boolean used to set the chart type to 2d (True) or 3d (False)
+     */
+    void callback_SetChartView2d(bool setTo2d);
+    /**
+     * @brief Callback invoked when user changes the Competition form so that the Model Equation is updated
+     * @param type : newly selected Competition form
+     */
     void callback_Setup_Tab4_CompetitionFormCMB(QString type);
+    /**
+     * @brief Callback invoked when user changes the Growth form so that the Model Equation is updated
+     * @param type : newly selected Growth form
+     */
     void callback_Setup_Tab4_GrowthFormCMB(QString type);
+    /**
+     * @brief Callback invoked when user changes the Harvest form so that the Model Equation is updated
+     * @param type : newly selected Harvest form
+     */
     void callback_Setup_Tab4_HarvestFormCMB(QString type);
+    /**
+     * @brief Callback invoked when user selects a new Model Preset so that the Model Equation is updated
+     * @param type : newly selected Model Preset
+     */
     void callback_Setup_Tab4_ModelPresetsCMB(QString type);
+    /**
+     * @brief Callback invoked when user changes the Predation form so that the Model Equation is updated
+     * @param type : newly selected Predation form
+     */
     void callback_Setup_Tab4_PredationFormCMB(QString type);
+    /**
+     * @brief Callback invoked when user selects a tab on the UI's SetupInputTabWidget
+     * @param tab : tab selected by the user
+     */
     void callback_SetupTabChanged(int tab);
+    /**
+     * @brief Callback invoked when user wants to update the Output chart
+     * @param outputType : type of chart to display
+     * @param outputSpecies : Species whose data to show in the chart
+     * @return Boolean describing a successful display (True) or error getting supporting data (False)
+     */
     bool callback_ShowChart(QString outputType,QString outputSpecies);
+    /**
+     * @brief Callback invoked when user selects a Retrospective Analysis chart to view
+     * @return Boolean describing a successful display (True) or error getting supporting data (False)
+     */
     bool callback_ShowChartMohnsRho();
+    /**
+     * @brief Callback invoked when user selects a Scenario chart to view
+     * @param SortedForecastLabels : list of Forecast labels to show on the plot
+     * @return Boolean signifying a succesful data fetch and display or unsuccesful (True/False)
+     */
     bool callback_ShowChartMultiScenario(QStringList SortedForecastLabels);
+    /**
+     * @brief Callback invoked when user enables the 3d Diagnostics chart functionality
+     * @return true
+     */
     bool callback_ShowDiagnosticsChart3d();
+    /**
+     * @brief Callback invoked when user completes an Estimation run and needs to update the Run Summary text box
+     * @param fontName : name of font to use in the Run Summary text edit box
+     */
     void callback_ShowRunMessage(QString fontName);
+    /**
+     * @brief Callback invoked when user presses the Select Center Point for the 3d Diagnostics plot
+     */
     void callback_SelectCenterSurfacePoint();
+    /**
+     * @brief Callback invoked to set the Output Scenario name from the Output Controls GUI
+     */
     void callback_SetOutputScenarioForecast();
+    /**
+     * @brief Callback invoked when user changes the application style from the Preferences dialog
+     * @param style : style of application (Light or Dark)
+     */
     void callback_SetStyleSheet(QString style);
+    /**
+     * @brief Callback invoked when a Bees Estimation Algorithm sub run has completed
+     * @param RunNum : number of run
+     * @param SubRunNum : number of sub run
+     * @param NumSubRuns : total number of sub runs
+     */
     void callback_SubRunCompleted(int RunNum,int SubRunNum,int NumSubRuns);
+    /**
+     * @brief Callback invoked when user loads a System from the Setup Page 4 GUI
+     */
     void callback_SystemLoaded();
+    /**
+     * @brief Callback invoked when user saves the current System from the Setup Page 4 GUI
+     */
     void callback_SystemSaved();
-    void callback_TestTimer();
-    void callback_UpdateProgressData(int SpeciesNum,int NumParams,QString elapsedTime);
+//  void callback_UpdateProgressData(int SpeciesNum,int NumParams,QString elapsedTime);
+    /**
+     * @brief Callback invoked when the run has completed and user wants to update the Run Statistics
+     */
     void callback_UpdateSummaryStatistics();
-    void callback_UpdateTextBoxFormula();
+    /**
+     * @brief Callback invoked to update the Model Equation in the Setup page 4 summary text box
+     */
+    void callback_UpdateModelEquationSummary();
+    /**
+     * @brief Callback invoked to update the text in the title bar of the main window to include
+     * the application name, project name, and settings file name
+     */
     void callback_UpdateWindowTitle();
+    /**
+     * @brief Callback invoked when user changes the y axis minimum value slider in the Output Controls GUI
+     * @param value : unused
+     */
     void callback_YAxisMinValueChanged(int value);
 
     /**

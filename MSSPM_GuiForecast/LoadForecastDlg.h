@@ -1,6 +1,11 @@
+/** @file LoadForecastDlg.h
+ * @brief GUI definition for the LoadForecastDlg widget class
+ *
+ * This file is the dialog that appears when a user wishes to select a Forecast
+ * to load.
+ */
 
 #pragma once
-
 
 /**
  * @brief Dialog to Load a Forecast

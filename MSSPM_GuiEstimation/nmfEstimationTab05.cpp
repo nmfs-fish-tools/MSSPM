@@ -426,3 +426,12 @@ nmfEstimation_Tab5::callback_UpdateInitialObservedBiomass()
     Estimation_Tab5_BiomassTV->resizeColumnsToContents();
 
 }
+
+bool
+nmfEstimation_Tab5::areTablesOK()
+{
+    return nmfUtilsQt::allCellsArePopulated(
+                Estimation_Tabs,
+                Estimation_Tab5_BiomassTV,
+                nmfConstantsMSSPM::DontShowError);
+}

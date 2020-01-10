@@ -1,8 +1,12 @@
+
 /**
  * @mainpage This project contains the MSSPM Diagnostic GUIs.
  *
  * @authors Ronald Klasky
  * @date Dec. 20, 2019
+ *
+ * @brief Main page for the MSSPM_GuiDiagnostic project
+ *
  *
  * @section Description
  *

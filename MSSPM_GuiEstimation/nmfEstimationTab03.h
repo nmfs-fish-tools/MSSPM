@@ -1,11 +1,18 @@
+/** @file nmfEstimationTab03.h
+ * @brief GUI definition for the nmfEstimation_Tab3 Competition Data class
+ *
+ * This file contains the GUI definition for the Competition Data page. This
+ * page allows the user to enter/modify tables of data that correspond to
+ * min/max competitive effects of predators on prey (i.e., of column Species
+ * on row Species).
+ */
 #ifndef NMFESTIMATIONTAB3_H
 #define NMFESTIMATIONTAB3_H
-
 
 /**
  * @brief Competition Data
  *
- * These tables allow user to enter and modify minimum and
+ * These tables allow the user to enter and modify minimum and
  * maximum alpha and beta food Competition data.
  */
 class nmfEstimation_Tab3: public QObject
@@ -54,7 +61,7 @@ private:
 
 public:
     /**
-     * @brief nmfEstimation_Tab3 : class constructor
+     * @brief nmfEstimation_Tab3 : class constructor for the Competition Parameters GUI page
      * @param tabs : the tab widget into which this Estimation tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -78,40 +85,40 @@ public:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user clicks Load button
+     * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when user clicks Save button
+     * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
     /**
-     * @brief Callback invoked when user clicks Previous Page button
+     * @brief Callback invoked when the user clicks the Previous Page button
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when user clicks Next Page button
+     * @brief Callback invoked when the user clicks the Next Page button
      */
     void callback_NextPB();
     /**
-     * @brief Callback invoked when user changes any of the Minimum Competitive Effects splitters
+     * @brief Callback invoked when the user changes any of the Minimum Competitive Effects splitters
      * @param pos : position of the splitter
      * @param index : the index of the splitter changed
      */
     void callback_MinSplitterMoved(int pos, int index);
     /**
-     * @brief Callback invoked when user changes any of the Maximum Competitive Effects splitters
+     * @brief Callback invoked when the user changes any of the Maximum Competitive Effects splitters
      * @param pos : position of the splitter
      * @param index : the index of the splitter changed
      */
     void callback_MaxSplitterMoved(int pos, int index);
     /**
-     * @brief Callback invoked when user updates the Competition Form in the Setup -> Model Setup page
+     * @brief Callback invoked when the user updates the Competition Form in the Setup -> Model Setup page
      * @param competitionForm : the competition form selected by the user
      */
     void callback_CompetitionFormChanged(QString competitionForm);
     /**
-     * @brief Callback invoked when user toggles the Estimate checkbox
+     * @brief Callback invoked when the user toggles the Estimate checkbox
      * @param state : when set to Checked means that the minimum and maxumum estimated value limits are the same (effectively defining the parameter(s))
      */
     void callback_EstimateChecked(int state);

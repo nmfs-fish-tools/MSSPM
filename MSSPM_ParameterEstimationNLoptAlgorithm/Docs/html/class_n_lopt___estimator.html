@@ -63,6 +63,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="inherits.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 <!-- window showing the filter options -->
@@ -112,20 +113,15 @@ Collaboration diagram for NLopt_Estimator:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-slots"></a>
 Public Slots</h2></td></tr>
 <tr class="memitem:aaae74241fa2521962c5e11cc0aecbb08"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaae74241fa2521962c5e11cc0aecbb08"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_StopTheOptimizer</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aaae74241fa2521962c5e11cc0aecbb08">callback_StopTheOptimizer</a> ()</td></tr>
+<tr class="memdesc:aaae74241fa2521962c5e11cc0aecbb08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user stops the Estimation run. <br /></td></tr>
 <tr class="separator:aaae74241fa2521962c5e11cc0aecbb08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
-<tr class="memitem:a630116793ba266dee1c94498bac26d79"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a630116793ba266dee1c94498bac26d79"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RunCompleted</b> (QString outputStr)</td></tr>
-<tr class="separator:a630116793ba266dee1c94498bac26d79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afaf2cf3ed3215bd0c94bd2c34429a90b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afaf2cf3ed3215bd0c94bd2c34429a90b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SubRunCompleted</b> (int RunNum, int SubRun, int NumSubRuns)</td></tr>
-<tr class="separator:afaf2cf3ed3215bd0c94bd2c34429a90b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3e4171895a30443810c7750f2ee64d0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3e4171895a30443810c7750f2ee64d0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateProgressData</b> (int NumSpecies, int NumParams, QString elapsedTime)</td></tr>
-<tr class="separator:ad3e4171895a30443810c7750f2ee64d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbafb9ea54235692c80d86c98b2e23e5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#adbafb9ea54235692c80d86c98b2e23e5">RunCompleted</a> (std::string bestFitness)</td></tr>
+<tr class="memdesc:adbafb9ea54235692c80d86c98b2e23e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted with NLopt Estimation run has complete.  <a href="#adbafb9ea54235692c80d86c98b2e23e5">More...</a><br /></td></tr>
+<tr class="separator:adbafb9ea54235692c80d86c98b2e23e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -195,20 +191,54 @@ std::vector&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:a759c01a1f41eb6c1464ce06720509592"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a759c01a1f41eb6c1464ce06720509592"></a>
-static int&#160;</td><td class="memItemRight" valign="bottom"><b>m_nloptIters</b> = 0</td></tr>
-<tr class="separator:a759c01a1f41eb6c1464ce06720509592"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a719ea17d321b2535d129f83c5d49fbad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a719ea17d321b2535d129f83c5d49fbad"></a>
-static int&#160;</td><td class="memItemRight" valign="bottom"><b>m_counter</b> = 0</td></tr>
-<tr class="separator:a719ea17d321b2535d129f83c5d49fbad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8390f640ca0db1f63c6f8f17ae0752a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af8390f640ca0db1f63c6f8f17ae0752a"></a>
+static int&#160;</td><td class="memItemRight" valign="bottom"><b>m_NLoptIters</b></td></tr>
+<tr class="separator:af8390f640ca0db1f63c6f8f17ae0752a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78d40bc33cbe473e814ee13ff4bb6957"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a78d40bc33cbe473e814ee13ff4bb6957"></a>
+static int&#160;</td><td class="memItemRight" valign="bottom"><b>m_Counter</b></td></tr>
+<tr class="separator:a78d40bc33cbe473e814ee13ff4bb6957"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a403cc73341b100609390d5480f4a207f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a403cc73341b100609390d5480f4a207f"></a>
-static int&#160;</td><td class="memItemRight" valign="bottom"><b>m_RunNum</b> = 0</td></tr>
+static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a403cc73341b100609390d5480f4a207f">m_RunNum</a> = 0</td></tr>
+<tr class="memdesc:a403cc73341b100609390d5480f4a207f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keeps track of the run number. <br /></td></tr>
 <tr class="separator:a403cc73341b100609390d5480f4a207f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This class acts as an interface class to the NLopt library. </p>
 <p>NLopt is an open-source library for non-linear optimization. </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="adbafb9ea54235692c80d86c98b2e23e5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::RunCompleted </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>bestFitness</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted with NLopt Estimation run has complete. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bestFitness</td><td>: string representing the best fitness value </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="_n_lopt___estimator_8h_source.html">NLopt_Estimator.h</a></li>
 <li>NLopt_Estimator.cpp</li>
 </ul>

@@ -1,57 +1,22 @@
+/** @file nmfSetupTab04.h
+ * @brief GUI definition for the Setup Model page class nmfSetup_Tab4
+ *
+ * This file contains the GUI definitions for the Setup Model page. This
+ * page contains the GUI widgets that allow the user to enter and modify
+ * data corresponding to general data (i.e., year range). In addition,
+ * the user constructs their Model by selecting types from each of the 4 forms:
+ * Growth, Harvest, Competition, and Predation. The user can then inspect the resulting formula
+ * created in the Model Equation window and highlight each form for clarity.
+ */
+
 #ifndef NMFSETUPTAB4_H
 #define NMFSETUPTAB4_H
 
+#include "LoadDlg.h"
 
-class QDialogButtonBox;
-
-
-/**
- * @brief Defines the behavior and callback functionality for the Load Systems Dialog.
- */
-class LoadDlg : public QDialog
-{
-    Q_OBJECT
-
-private:
-    int               m_NumberOfRuns;
-    int               m_RunLength;
-    int               m_TimeStep;
-    nmfLogger*        m_logger;
-    nmfDatabase*      m_databasePtr;
-    QDialogButtonBox* m_buttonBox;
-    QListWidget*      m_SettingsLW;
-    std::string       m_GrowthForm;
-    std::string       m_HarvestForm;
-    std::string       m_CompetitionForm;
-    std::string       m_PredationForm;
-    SystemData        m_data;
-    std::vector<std::string> m_SettingNames;
-
-public:
-    LoadDlg(const QString &title,
-                  QWidget *parent,
-                  nmfLogger* m_logger,
-                  nmfDatabase* m_databasePtr,
-            const QString &currentConfig);
-   ~LoadDlg() {}
-
-    void reloadSystemsList();
-    void saveSettings();
-    void getSettingData(SystemData &m_data);
-    void updateWindowTitle();
-
-signals:
-    void ClearSystemName();
-
-public slots:
-    void callback_LoadOk();
-    void callback_ItemDoubleClicked(QListWidgetItem* item);
-    void callback_ShowContextMenu(const QPoint &pos);
-    void callback_DeleteItem();
-};
 
 /**
- * @brief Defines the behavior and callback functionality for Setup Tab 4.
+ * @brief The Setup Tab 4 allows the user to enter and modify general System and Model Setup data
  *
  * This tab allows the user to define a System which contains data related to the
  * current model such as run length, year range, and model form.
@@ -69,6 +34,7 @@ class nmfSetup_Tab4: public QObject
     QPushButton* m_okBtn;
     std::vector<std::string> m_ModelPresetNames;
     std::map<std::string,std::vector<std::string> > m_ModelPresets;
+    LoadDlg*     m_LoadDialog;
 
     QTabWidget*  Setup_Tabs;
     QLabel*      Setup_Tab4_ModelPresetsLBL;
@@ -93,7 +59,7 @@ class nmfSetup_Tab4: public QObject
     QPushButton* Setup_Tab4_DelPB;
     QPushButton* Setup_Tab4_NextPB;
     QPushButton* Setup_Tab4_PrevPB;
-    QPushButton* Setup_Tab4_SystemNamePB;
+    QPushButton* Setup_Tab4_NewSystemPB;
     QSpinBox*    Setup_Tab4_NumberOfRunsSB;
     QSpinBox*    Setup_Tab4_StartYearSB;
     QLineEdit*   Setup_Tab4_EndYearLE;
@@ -112,14 +78,14 @@ class nmfSetup_Tab4: public QObject
     bool   saveSettingsConfiguration(bool verbose,
                                      std::string CurrentSettingsName);
 
-public:
-    LoadDlg*   loadDialog;
-    QComboBox* modelPresetsCMB();
-    QComboBox* growthFormCMB();
-    QComboBox* predationFormCMB();
-    QComboBox* harvestFormCMB();
-    QComboBox* competitionFormCMB();
+    void clearWidgets();
+    void loadSystem();
+    void readSettings();
+    void saveSettings();
+    void setModelName(std::string modelName);
+    void updateOutputWidget();
 
+public:
     /**
      * @brief nmfSetup_Tab4 : class constructor
      * @param tabs : the tab widget into which this Setup tab will be placed
@@ -133,79 +99,252 @@ public:
                   std::string& projectDir);
     virtual ~nmfSetup_Tab4();
 
-    void clearWidgets();
+    /**
+     * @brief Deletes the passed System
+     * @param systemToDelete : name of System to delete
+     */
     void deleteSystem(QString systemToDelete);
-    void drawEquation(QString label, QString eqn, QString Key);
+    /**
+     * @brief Writes the current Model Equation and variable descriptions into the Model
+     * Equation text box
+     * @param label : Type of model (i.e., Single Species or Multi Species)
+     * @param eqn : The equation comprised of the selected forms
+     * @param key : The description of all of the variables comprising the current Model Equation
+     */
+    void drawEquation(QString label, QString eqn, QString key);
+    /**
+     * @brief Gets the font size for the Model Equation text box
+     * @return The font size for the Model Equation text box
+     */
     int  getFontSize();
+    /**
+     * @brief Gets the Competition Form GUI combo box
+     * @return The Competition Form GUI combo box widget
+     */
+    QComboBox* getCompetitionFormCMB();
+    /**
+     * @brief Gets the Growth Form GUI combo box
+     * @return The Growth Form GUI combo box widget
+     */
+    QComboBox* getGrowthFormCMB();
+    /**
+     * @brief Gets the Harvest Form GUI combo box
+     * @return The Harvest Form GUI combo box widget
+     */
+    QComboBox* getHarvestFormCMB();
+    /**
+     * @brief Gets the Model Presets GUI combo box
+     * @return The Model Presets GUI combo box widget
+     */
+    QComboBox* getModelPresetsCMB();
+    /**
+     * @brief Gets the Predation Form GUI combo box
+     * @return The Predation Form GUI combo box widget
+     */
+    QComboBox* getPredationFormCMB();
+    /**
+     * @brief Gets the RunLength-1 value from the GUI
+     * @return The number of years in the current Run
+     */
     int  getRunLength();
+    /**
+     * @brief Returns whether or not Growth Form is highlighted
+     * @return True if Growth Form is highlighted, else False
+     */
     bool isGrowthFormHighlighted();
+    /**
+     * @brief Returns whether or not Harvest Form is highlighted
+     * @return True if Harvest Form is highlighted, else False
+     */
     bool isHarvestFormHighlighted();
+    /**
+     * @brief Returns whether or not Predation Form is highlighted
+     * @return True if Predation Form is highlighted, else False
+     */
     bool isPredationFormHighlighted();
+    /**
+     * @brief Returns whether or not Competition Form is highlighted
+     * @return True if Competition Form is highlighted, else False
+     */
     bool isCompetitionFormHighlighted();
+    /**
+     * @brief Returns whether or not current Predation Form is Agg Prod
+     * @return True if Predation Form is Agg Prod else False
+     */
     bool isAggProd();
+    /**
+     * @brief Returns whether or not current Predation Form is Type III
+     * @return True if Predation Form is Type III else False
+     */
     bool isTypeIII();
-    void loadSpeciesTable();
+    /**
+     * @brief Load all widgets for this Setup GUI page
+     */
     void loadWidgets();
-    void populateARowSpecies(int row, int ncols);
-    void populateARowGuilds(int row, int ncols);
-    void readSettings();
+    /**
+     * @brief Reloads System settings for current System name
+     */
     void reloadSystemName();
-    void renameSpecies(std::string newSpeName, std::string existingSpeName);
-    void saveSettings();
+    /**
+     * @brief Saves System parameters
+     * @param RunChecks : boolean value used to determine if System parameter checks should be run
+     */
     void saveSystem(bool RunChecks);
-    void setModelName(std::string modelName);
+    /**
+     * @brief Sets the value of the Start Year to the passed value
+     * @param StartYear : new Start Year for all application data
+     */
     void setStartYear(int StartYear);
+    /**
+     * @brief Sets the length of the current Run in years (including first and last years)
+     * @param RunLength : number of years in current Run (including first and last years)
+     */
     void setRunLength(int RunLength);
+    /**
+     * @brief Sets the Model Equation font size to the passed value
+     * @param fontSize : new font size for the Model Equation
+     */
     void setFontSize(int fontSize);
+    /**
+     * @brief Sets the button highlight colors to their appropriate values
+     */
     void setHighlightColors();
+    /**
+     * @brief Sets the System name to the passed argument
+     * @param systemName : the new System name
+     */
     void setSystemName(QString systemName);
-    bool speciesFieldsOK(int NumSpecies);
+    /**
+     * @brief Unchecks the formula highlight buttons
+     */
     void uncheckHighlightButtons();
-    void updateOutputWidget();
-    void updateSpeciesTable(int NumSpecies);
 
 signals:
+    /**
+     * @brief Signal emitted when the user changes the Competition form (needed by the Estimation Tab 3 page)
+     * @param competitionForm : the current Competition Form name
+     */
     void CompetitionFormChanged(QString competitionForm);
-    void CreateAllDatabaseTables();
-    void DeactivateRunButtons();
-    void HarvestFormChanged(QString harvestForm);
+    /**
+     * @brief Signal emitted when the user changes the Predation form (needed by the Estimation Tab 4 page)
+     * @param predationForm : the current Predation Form name
+     */
     void PredationFormChanged(QString predationForm);
+    /**
+     * @brief Signal emitted when the user needs to redraw the equation in the Model Equation text box
+     */
     void RedrawEquation();
+    /**
+     * @brief Signal emitted when the user needs to reload the current widgets
+     */
     void ReloadWidgets();
-    void SystemSaved();
+    /**
+     * @brief Signal emitted after the user loads an existing System from the database
+     */
     void SystemLoaded();
-    void SetAlgorithm(QString algorithm);
-    void SaveMainSettings();
+    /**
+     * @brief Signal emitted when the user needs to save the Estimation Run settings
+     */
     void SaveEstimationRunSettings();
-    void SSVPALoadWidgets(int TabNum);
-    void UpdateNavigator(int item);
-    void UpdateNavigator(std::string type, int index);
+    /**
+     * @brief Signal emitted when the user needs to save the Main Application settings
+     */
+    void SaveMainSettings();
+    /**
+     * @brief Signal emitted to update the initial Forecast year
+     */
     void UpdateInitialForecastYear();
+    /**
+     * @brief Signal emitted to update the initial Observed Biomass values
+     */
     void UpdateInitialObservedBiomass();
 
 public Q_SLOTS:
-    void callback_Setup_Tab4_SavePB();
-    void callback_Setup_Tab4_DelPB();
-    void callback_Setup_Tab4_LoadPB();
-    void callback_Setup_Tab4_NextPB();
-    void callback_Setup_Tab4_PrevPB();
-    void callback_Setup_Tab4_ModelPresetsCMB(QString val);
-    void callback_Setup_Tab4_GrowthFormCMB(QString name);
-    void callback_Setup_Tab4_PredationFormCMB(QString name);
-    void callback_Setup_Tab4_HarvestFormCMB(QString name);
-    void callback_Setup_Tab4_CompetitionFormCMB(QString name);
-    void callback_Setup_Tab4_FontSizeCMB(QString theFontSize);
-    void callback_GrowthHighlightPB();
-    void callback_HarvestHighlightPB();
-    void callback_PredationHighlightPB();
-    void callback_CompetitionHighlightPB();
-    void callback_ReloadWidgets();
-    void callback_UpdateEndYear(int value);
-    void callback_SystemNamePB();
-    void callback_ClearSystemName();
+    /**
+     * @brief Callback invoked when the user wants to re-calculate the total
+     * System Carrying Capacity (K) value
+     */
     void callback_CalcPB();
-    void loadSystem();
-    void callback_SaveSystem();
+    /**
+     * @brief Callback invoked when the user needs to clear the System name
+     */
+    void callback_ClearSystemName();
+    /**
+     * @brief Callback invoked when the user selects a Competition Form
+     * @param name : name of the Competition Form selected
+     */
+    void callback_CompetitionFormCMB(QString name);
+    /**
+     * @brief Callback invoked when the user clicks the Competition Form highlight button
+     */
+    void callback_CompetitionHighlightPB();
+    /**
+     * @brief Callback invoked when the user clicks the Delete System Configuration button
+     */
+    void callback_DelPB();
+    /**
+     * @brief Callback invoked when the user changes the Model Equation text box font size
+     * @param fontSize : new font size chosen by the user
+     */
+    void callback_FontSizeCMB(QString fontSize);
+    /**
+     * @brief Callback invoked when the user selects a Growth Form
+     * @param name : name of the Growth Form selected
+     */
+    void callback_GrowthFormCMB(QString name);
+    /**
+     * @brief Callback invoked when the user clicks the Growth Form highlight button
+     */
+    void callback_GrowthHighlightPB();
+    /**
+     * @brief Callback invoked when the user selects a Harvest Form
+     * @param name : name of the Harvest Form selected
+     */
+    void callback_HarvestFormCMB(QString name);
+    /**
+     * @brief Callback invoked when the user clicks the Harvest Form highlight button
+     */
+    void callback_HarvestHighlightPB();
+    /**
+     * @brief Callback invoked when the user clicks the Load Settings button
+     */
+    void callback_LoadPB();
+    /**
+     * @brief Callback invoked when the user selects a Preset from the Model
+     * Presets combo box
+     * @param preset : name of Model Preset selected by the user
+     */
+    void callback_ModelPresetsCMB(QString preset);
+    /**
+     * @brief Callback invoked when the user clicks the New System button
+     */
+    void callback_NewSystemPB();
+    /**
+     * @brief Callback invoked when the user clicks the Next Page button
+     */
+    void callback_NextPB();
+    /**
+     * @brief Callback invoked when the user selects a Predation Form
+     * @param name : name of the Predation Form selected
+     */
+    void callback_PredationFormCMB(QString name);
+    /**
+     * @brief Callback invoked when the user clicks the Predation Form highlight button
+     */
+    void callback_PredationHighlightPB();
+    /**
+     * @brief Callback invoked when the user clicks the Previous Page button
+     */
+    void callback_PrevPB();
+    /**
+     * @brief Callback invoked when the user clicks the Save button
+     */
+    void callback_SavePB();
+    /**
+     * @brief Callback invoked to update the End Year edit widget
+     * @param value : value of new end year
+     */
+    void callback_UpdateEndYear(int value);
 };
 
 #endif // NMFSETUPTAB3_H

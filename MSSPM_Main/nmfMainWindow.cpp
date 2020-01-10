@@ -230,12 +230,6 @@ nmfMainWindow::menu_layoutDefault()
 }
 
 
-void
-nmfMainWindow::callback_TestTimer()
-{
-    std::cout << "testTimer" << std::endl;
-}
-
 nmfMainWindow::~nmfMainWindow()
 {
     delete m_UI;
@@ -1902,7 +1896,7 @@ nmfMainWindow::setupProgressChart()
 
     disconnect(m_ProgressChartTimer,0,0,0);
     connect(m_ProgressChartTimer, SIGNAL(timeout()),
-            this,               SLOT(callback_ReadProgressChartDataFile()));
+            this,                 SLOT(callback_ReadProgressChartDataFile()));
 
     ProgressMainLayt = new QVBoxLayout();
     m_ProgressWidget = new nmfProgressWidget(m_ProgressChartTimer,
@@ -2549,38 +2543,40 @@ nmfMainWindow::initConnections()
 
     connect(Setup_Tab2_ptr,  SIGNAL(SaveMainSettings()),
             this,            SLOT(callback_SaveMainSettings()));
-    connect(Setup_Tab2_ptr,  SIGNAL(LoadDatabase(QString)),
-            this,            SLOT(callback_LoadDatabase(QString)));
-    connect(Setup_Tab2_ptr,  SIGNAL(RemoveGuildsAndSpecies()),
-            Setup_Tab3_ptr,  SLOT(callback_RemoveGuildsAndSpecies()));
-    connect(Setup_Tab2_ptr,  SIGNAL(ReloadWidgets()),
-            this,            SLOT(callback_ReloadWidgets()));
+//    connect(Setup_Tab2_ptr,  SIGNAL(LoadDatabase(QString)),
+//            this,            SLOT(callback_LoadDatabase(QString)));
+//    connect(Setup_Tab2_ptr,  SIGNAL(RemoveGuildsAndSpecies()),
+//            Setup_Tab3_ptr,  SLOT(callback_RemoveGuildsAndSpecies()));
+//    connect(Setup_Tab2_ptr,  SIGNAL(ReloadWidgets()),
+//            this,            SLOT(callback_ReloadWidgets()));
     connect(Setup_Tab2_ptr,  SIGNAL(ClearEstimationTables()),
             this,            SLOT(callback_ClearEstimationTables()));
     connect(Setup_Tab2_ptr,  SIGNAL(UpdateWindowTitle()),
             this,            SLOT(callback_UpdateWindowTitle()));
+    connect(Setup_Tab3_ptr,      SIGNAL(ReloadWidgets()),
+            this,                SLOT(callback_ReloadWidgets()));
     connect(Setup_Tab4_ptr,  SIGNAL(SaveMainSettings()),
             this,            SLOT(callback_SaveMainSettings()));
 
-    connect(Setup_Tab4_ptr->modelPresetsCMB(),    SIGNAL(currentTextChanged(QString)),
-            this,                                 SLOT(callback_Setup_Tab4_ModelPresetsCMB(QString)));
-    connect(Setup_Tab4_ptr->growthFormCMB(),      SIGNAL(currentTextChanged(QString)),
-            this,                                 SLOT(callback_Setup_Tab4_GrowthFormCMB(QString)));
-    connect(Setup_Tab4_ptr->predationFormCMB(),   SIGNAL(currentTextChanged(QString)),
-            this,                                 SLOT(callback_Setup_Tab4_PredationFormCMB(QString)));
-    connect(Setup_Tab4_ptr->harvestFormCMB(),     SIGNAL(currentTextChanged(QString)),
-            this,                                 SLOT(callback_Setup_Tab4_HarvestFormCMB(QString)));
-    connect(Setup_Tab4_ptr->competitionFormCMB(), SIGNAL(currentTextChanged(QString)),
-            this,                                 SLOT(callback_Setup_Tab4_CompetitionFormCMB(QString)));
+    connect(Setup_Tab4_ptr->getModelPresetsCMB(),    SIGNAL(currentTextChanged(QString)),
+            this,                                    SLOT(callback_Setup_Tab4_ModelPresetsCMB(QString)));
+    connect(Setup_Tab4_ptr->getGrowthFormCMB(),      SIGNAL(currentTextChanged(QString)),
+            this,                                    SLOT(callback_Setup_Tab4_GrowthFormCMB(QString)));
+    connect(Setup_Tab4_ptr->getPredationFormCMB(),   SIGNAL(currentTextChanged(QString)),
+            this,                                    SLOT(callback_Setup_Tab4_PredationFormCMB(QString)));
+    connect(Setup_Tab4_ptr->getHarvestFormCMB(),     SIGNAL(currentTextChanged(QString)),
+            this,                                    SLOT(callback_Setup_Tab4_HarvestFormCMB(QString)));
+    connect(Setup_Tab4_ptr->getCompetitionFormCMB(), SIGNAL(currentTextChanged(QString)),
+            this,                                    SLOT(callback_Setup_Tab4_CompetitionFormCMB(QString)));
 
     connect(Setup_Tab4_ptr,      SIGNAL(RedrawEquation()),
-            this,                SLOT(callback_UpdateTextBoxFormula()));
-    connect(Setup_Tab4_ptr,      SIGNAL(SystemSaved()),
-            this,                SLOT(callback_SystemSaved()));
+            this,                SLOT(callback_UpdateModelEquationSummary()));
+//    connect(Setup_Tab4_ptr,      SIGNAL(SystemSaved()),
+//            this,                SLOT(callback_SystemSaved()));
     connect(Setup_Tab4_ptr,      SIGNAL(SystemLoaded()),
             this,                SLOT(callback_SystemLoaded()));
-    connect(Setup_Tab4_ptr,      SIGNAL(SetAlgorithm(QString)),
-            Estimation_Tab5_ptr, SLOT(callback_SetAlgorithm(QString)));
+//    connect(Setup_Tab4_ptr,      SIGNAL(SetAlgorithm(QString)),
+//            Estimation_Tab5_ptr, SLOT(callback_SetAlgorithm(QString)));
     connect(Setup_Tab4_ptr,      SIGNAL(CompetitionFormChanged(QString)),
             Estimation_Tab3_ptr, SLOT(callback_CompetitionFormChanged(QString)));
     connect(Setup_Tab4_ptr,      SIGNAL(PredationFormChanged(QString)),
@@ -2608,6 +2604,8 @@ nmfMainWindow::initConnections()
             Estimation_Tab2_ptr, SLOT(callback_LoadPB()));
     connect(Estimation_Tab6_ptr, SIGNAL(UpdateForecastYears()),
             Estimation_Tab5_ptr, SLOT(callback_LoadPB()));
+    connect(Estimation_Tab6_ptr, SIGNAL(CheckAllEstimationTablesAndRun()),
+            this,                SLOT(callback_CheckEstimationTablesAndRun()));
 
     connect(Forecast_Tab1_ptr,   SIGNAL(ForecastLoaded(std::string)),
             this,                SLOT(callback_ForecastLoaded(std::string)));
@@ -2624,7 +2622,7 @@ nmfMainWindow::initConnections()
     connect(Forecast_Tab4_ptr,   SIGNAL(SetChartType(QString,std::map<QString,QStringList>)),
             this,                SLOT(callback_OutputTypeCMB(QString,std::map<QString,QStringList>)));
     connect(Forecast_Tab4_ptr,   SIGNAL(UpdateOutputScenarios()),
-            Output_Controls_ptr, SLOT(callback_loadScenariosWidget()));
+            Output_Controls_ptr, SLOT(callback_LoadScenariosWidget()));
     connect(Forecast_Tab4_ptr,   SIGNAL(QueryOutputScenario()),
             this,                SLOT(callback_SetOutputScenarioForecast()));
     connect(Forecast_Tab4_ptr,   SIGNAL(SetOutputScenarioText(QString)),
@@ -2638,17 +2636,15 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_SetChartType(std::string,std::string)));
     connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimation(std::vector<std::pair<int,int> >)),
             this,                SLOT(callback_RunDiagnosticEstimation(std::vector<std::pair<int,int> >)));
-//    connect(Diagnostic_Tab2_ptr, SIGNAL(ResaveSystem()),
-//            Setup_Tab4_ptr,      SLOT(callback_SaveSystem()));
 
     connect(m_UI->EstimationDataInputTabWidget,  SIGNAL(currentChanged(int)),
-            this,                              SLOT(callback_EstimationTabChanged(int)));
+            this,                                SLOT(callback_EstimationTabChanged(int)));
     connect(m_UI->SetupInputTabWidget,           SIGNAL(currentChanged(int)),
-            this,                              SLOT(callback_SetupTabChanged(int)));
+            this,                                SLOT(callback_SetupTabChanged(int)));
     connect(m_UI->ForecastDataInputTabWidget,    SIGNAL(currentChanged(int)),
-            this,                              SLOT(callback_ForecastTabChanged(int)));
+            this,                                SLOT(callback_ForecastTabChanged(int)));
     connect(m_UI->DiagnosticsDataInputTabWidget, SIGNAL(currentChanged(int)),
-            this,                              SLOT(callback_DiagnosticsTabChanged(int)));
+            this,                                SLOT(callback_DiagnosticsTabChanged(int)));
 
     connect(Output_Controls_ptr, SIGNAL(SetChartView2d(bool)),
             this,                SLOT(callback_SetChartView2d(bool)));
@@ -2668,8 +2664,8 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_ForecastLineBrightnessChanged(double)));
     connect(Output_Controls_ptr, SIGNAL(YAxisMinValueChanged(int)),
             this,                SLOT(callback_YAxisMinValueChanged(int)));
-    connect(Output_Controls_ptr, SIGNAL(NoSystemsSet()),
-            this,                SLOT(callback_NoSystemsSet()));
+//  connect(Output_Controls_ptr, SIGNAL(NoSystemsSet()),
+//          this,                SLOT(callback_NoSystemsSet()));
     connect(Output_Controls_ptr, SIGNAL(ShowChartMohnsRho()),
             this,                SLOT(callback_ShowChartMohnsRho()));
 //  connect(Output_Controls_ptr, SIGNAL(UpdateSummaryStatistics()),
@@ -7209,11 +7205,11 @@ nmfMainWindow::runBeesAlgorithm()
                 m_DataStruct,
                 m_RunNumBees++);
 
-    static const QMetaMethod updateProgressSignal = QMetaMethod::fromSignal(&Bees_Estimator::UpdateProgressData);
-    if (! isSignalConnected(updateProgressSignal)) {
-        connect(m_Estimator_Bees, SIGNAL(UpdateProgressData(int,int,QString)),
-                this, SLOT(callback_UpdateProgressData(int,int,QString)));
-    }
+//    static const QMetaMethod updateProgressSignal = QMetaMethod::fromSignal(&Bees_Estimator::UpdateProgressData);
+//    if (! isSignalConnected(updateProgressSignal)) {
+//        connect(m_Estimator_Bees, SIGNAL(UpdateProgressData(int,int,QString)),
+//                this, SLOT(callback_UpdateProgressData(int,int,QString)));
+//    }
 
     /****************************************************/
     /* Any statements after this point will be executed */
@@ -7260,11 +7256,11 @@ nmfMainWindow::runNLoptAlgorithm()
                 m_DataStruct,
                 m_RunNumNLopt++);
 
-    static const QMetaMethod updateProgressSignal = QMetaMethod::fromSignal(&NLopt_Estimator::UpdateProgressData);
-    if (! isSignalConnected(updateProgressSignal)) {
-        connect(m_Estimator_NLopt, SIGNAL(UpdateProgressData(int,int,QString)),
-                this,              SLOT(callback_UpdateProgressData(int,int,QString)));
-    }
+//    static const QMetaMethod updateProgressSignal = QMetaMethod::fromSignal(&NLopt_Estimator::UpdateProgressData);
+//    if (! isSignalConnected(updateProgressSignal)) {
+//        connect(m_Estimator_NLopt, SIGNAL(UpdateProgressData(int,int,QString)),
+//                this,              SLOT(callback_UpdateProgressData(int,int,QString)));
+//    }
 
     /****************************************************/
     /* Any statements after this point will be executed */
@@ -7899,35 +7895,32 @@ nmfMainWindow::callback_SetChartType(std::string type, std::string method)
    Output_Controls_ptr->setOutputDiagnostics(QString::fromStdString(method));
 }
 
-void
-nmfMainWindow::callback_Hovered(bool status, int index, QBarSet *barset)
-{
-    if (status) {
-        QString msg;
-        msg  = QString::number(barset->at(index)) + " parameters;";
-        msg += m_SpeciesTimeMap[index];
-        QToolTip::showText(QCursor::pos(),msg); //,this,QRect(0,0,100,20),2000); // this doesn't work...perhaps it's fixed in a later Qt version
-    } else {
-        QToolTip::hideText();
-    }
-}
+//void
+//nmfMainWindow::callback_Hovered(bool status, int index, QBarSet *barset)
+//{
+//    if (status) {
+//        QString msg;
+//        msg  = QString::number(barset->at(index)) + " parameters;";
+//        msg += m_SpeciesTimeMap[index];
+//        QToolTip::showText(QCursor::pos(),msg); //,this,QRect(0,0,100,20),2000); // this doesn't work...perhaps it's fixed in a later Qt version
+//    } else {
+//        QToolTip::hideText();
+//    }
+//}
 
-void
-nmfMainWindow::callback_UpdateProgressData(int SpeciesNum,
-                                           int NumParams,
-                                           QString elapsedTime)
-{
-    QBarSet *barSet;
-    QList<QAbstractSeries *> allSeries = m_ProgressChartBees->series();
-
-    m_ProgressSeries = qobject_cast<QBarSeries *>(allSeries[0]);
-    barSet = m_ProgressSeries->barSets()[0];
-    m_SpeciesTimeMap[SpeciesNum] = elapsedTime;
-    *barSet << NumParams;
-
-    m_ProgressChartBees->update();
-
-} // end outputProgressData
+//void
+//nmfMainWindow::callback_UpdateProgressData(int SpeciesNum,
+//                                           int NumParams,
+//                                           QString elapsedTime)
+//{
+//    QBarSet *barSet;
+//    QList<QAbstractSeries *> allSeries = m_ProgressChartBees->series();
+//    m_ProgressSeries = qobject_cast<QBarSeries *>(allSeries[0]);
+//    barSet = m_ProgressSeries->barSets()[0];
+//    m_SpeciesTimeMap[SpeciesNum] = elapsedTime;
+//    *barSet << NumParams;
+//    m_ProgressChartBees->update();
+//} // end outputProgressData
 
 
 /*
@@ -9183,24 +9176,24 @@ nmfMainWindow::callback_Setup_Tab4_ModelPresetsCMB(QString type)
 {
     // Call each of the callbacks for the ...FormCMB's so the
     // GUIs in the individual tabs will be correct.
-    callback_Setup_Tab4_GrowthFormCMB(Setup_Tab4_ptr->growthFormCMB()->currentText());
-    callback_Setup_Tab4_PredationFormCMB(Setup_Tab4_ptr->predationFormCMB()->currentText());
-    callback_Setup_Tab4_HarvestFormCMB(Setup_Tab4_ptr->harvestFormCMB()->currentText());
-    callback_Setup_Tab4_CompetitionFormCMB(Setup_Tab4_ptr->competitionFormCMB()->currentText());
+    callback_Setup_Tab4_GrowthFormCMB(Setup_Tab4_ptr->getGrowthFormCMB()->currentText());
+    callback_Setup_Tab4_PredationFormCMB(Setup_Tab4_ptr->getPredationFormCMB()->currentText());
+    callback_Setup_Tab4_HarvestFormCMB(Setup_Tab4_ptr->getHarvestFormCMB()->currentText());
+    callback_Setup_Tab4_CompetitionFormCMB(Setup_Tab4_ptr->getCompetitionFormCMB()->currentText());
 
-    updateTextBoxFormula();
+    updateModelEquationSummary();
 }
 
 void
 nmfMainWindow::callback_Setup_Tab4_GrowthFormCMB(QString name)
 {
-    updateTextBoxFormula();
+    updateModelEquationSummary();
 }
 
 void
 nmfMainWindow::callback_Setup_Tab4_PredationFormCMB(QString name)
 {
-    updateTextBoxFormula();
+    updateModelEquationSummary();
 }
 
 void
@@ -9208,13 +9201,13 @@ nmfMainWindow::callback_Setup_Tab4_HarvestFormCMB(QString name)
 {
     Estimation_Tab2_ptr->setHarvestType(name.toStdString());
 
-    updateTextBoxFormula();
+    updateModelEquationSummary();
 }
 
 void
 nmfMainWindow::callback_Setup_Tab4_CompetitionFormCMB(QString name)
 {
-    updateTextBoxFormula();
+    updateModelEquationSummary();
 }
 
 void
@@ -9478,9 +9471,9 @@ nmfMainWindow::updateProgressChartAnnotation(double xMin, double xMax, double xI
 }
 
 void
-nmfMainWindow::callback_UpdateTextBoxFormula()
+nmfMainWindow::callback_UpdateModelEquationSummary()
 {
-  updateTextBoxFormula();
+  updateModelEquationSummary();
 }
 
 void
@@ -9602,7 +9595,26 @@ nmfMainWindow::callback_ClearEstimationTables()
 }
 
 void
-nmfMainWindow::updateTextBoxFormula()
+nmfMainWindow::callback_CheckEstimationTablesAndRun()
+{
+    QString msg;
+    if ((Estimation_Tab2_ptr->areTablesOK()) &&
+//      (Estimation_Tab3_ptr->areTablesOK()) &&
+//      (Estimation_Tab4_ptr->areTablesOK()) &&
+        (Estimation_Tab5_ptr->areTablesOK()))
+    {
+        callback_RunEstimation();
+    } else {
+        msg = "Invalid or missing data found in input Estimation tables. Please re-check all input tables.";
+        QMessageBox::critical(this, "Error",
+                              "\n"+msg+"\n", QMessageBox::Ok);
+        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+
+    }
+}
+
+void
+nmfMainWindow::updateModelEquationSummary()
 {
     bool isAGGPROD = isAggProd();
     bool isTypeIII = Setup_Tab4_ptr->isTypeIII();
@@ -9694,10 +9706,10 @@ nmfMainWindow::updateTextBoxFormula()
     predationKey["Type II"]     = rhoij + " = Predation Coefficient for " + predj + " on " + preyi + "<br/>" + hkj + " = Handling time for " + predj + " with " + preyk + "<br/>";
     predationKey["Type III"]    = rhoij + " = Predation Coefficient for " + predj + " on " + preyi + "<br/>" + hkj + " = Handling time for " + predj + " with " + preyk + "<br/>b = Predator Dependent Parameter<br/>";
 
-    QString growth      = Setup_Tab4_ptr->growthFormCMB()->currentText();
-    QString predation   = Setup_Tab4_ptr->predationFormCMB()->currentText();
-    QString harvest     = Setup_Tab4_ptr->harvestFormCMB()->currentText();
-    QString competition = Setup_Tab4_ptr->competitionFormCMB()->currentText();
+    QString growth      = Setup_Tab4_ptr->getGrowthFormCMB()->currentText();
+    QString predation   = Setup_Tab4_ptr->getPredationFormCMB()->currentText();
+    QString harvest     = Setup_Tab4_ptr->getHarvestFormCMB()->currentText();
+    QString competition = Setup_Tab4_ptr->getCompetitionFormCMB()->currentText();
 
     bool isLightTheme = (qApp->styleSheet().isEmpty());
 

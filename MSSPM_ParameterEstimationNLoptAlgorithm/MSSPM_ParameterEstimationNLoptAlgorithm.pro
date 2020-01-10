@@ -27,7 +27,8 @@ SOURCES += \
     NLopt_Estimator.cpp
 
 HEADERS += \
-    NLopt_Estimator.h
+    NLopt_Estimator.h \
+    mainpage.h
 
 unix {
     target.path = /usr/lib

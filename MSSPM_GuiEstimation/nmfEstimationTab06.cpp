@@ -158,9 +158,13 @@ nmfEstimation_Tab6::callback_PrevPB()
 void
 nmfEstimation_Tab6::callback_RunPB()
 {
+    // Rerun all data checks, in case user changes number of Species or Guilds and
+    // then tries to re-run.
     m_Logger->logMsg(nmfConstants::Normal,"");
     m_Logger->logMsg(nmfConstants::Normal,"Start Estimation");
-    emit RunEstimation();
+    emit CheckAllEstimationTablesAndRun();
+
+//  emit RunEstimation();
 }
 
 void

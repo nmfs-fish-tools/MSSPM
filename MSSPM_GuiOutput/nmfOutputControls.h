@@ -1,3 +1,11 @@
+/** @file nmfOutputControls.h
+ * @brief GUI definition for the Control widgets class MSSPM_GuiOutputControls in the Output area
+ *
+ * This file contains the GUI definitions for the Output Control widgets. This
+ * class describes the widgets that the user will use to control the selection,
+ * behavior, and appearance of the Output plots.
+ */
+
 #ifndef MSSPM_GUIOUTPUTCONTROLS_H
 #define MSSPM_GUIOUTPUTCONTROLS_H
 
@@ -99,57 +107,57 @@ public:
      */
     void            enableBrightnessWidgets(bool state);
     /**
-     * @brief Allows the user to get the brightness factor set by the slider widget
+     * @brief Get the brightness factor set by the Forecast Run Brightness slider widget
      * @return The brightness value desired for the stochastic Forecast plots
      */
     double          getOutputBrightnessFactor();
     /**
-     * @brief Allows the user to select a Diagnostic method
+     * @brief Get the currently selected Diagnostic method
      * @return The name of the Diagnostic method chosen by the user
      */
     QString         getOutputDiagnostics();
     /**
-     * @brief Allows the user to select which Diagnostic parameter to view
+     * @brief Get the currently selected Diagnostic parameter
      * @return The name of the Diagnostic parameter chosen by the user
      */
     QString         getOutputParameter();
     /**
-     * @brief User can set the scale of the y-axis to one of several preset scales.
+     * @brief Get the currently selected scale of the y-axis
      * @return The name of the scale (in groups of 000) (i.e., "000" or "000 000")
      */
     QString         getOutputScale();
     /**
-     * @brief User can set a particular Scenario to view
+     * @brief Get the currently selected Scenario name
      * @return The Scenario (i.e., collection of Forecasts) to view
      */
     QString         getOutputScenario();
     /**
-     * @brief User can select output to view for a particular Species
+     * @brief Get the currently selected Output Species name
      * @return The name of the Species whose output the user wishes to view
      */
     QString         getOutputSpecies();
     /**
-     * @brief  User can select output to view for a particular Species
+     * @brief  Get the currently selected Output Species index value
      * @return The integer index of the Species whose output the user wishes to view
      */
     int             getOutputSpeciesIndex();
     /**
-     * @brief The output chart type the user wishes to view
+     * @brief Get the currently selected Output Chart type
      * @return The name of the chart type user wishes to view
      */
     QString         getOutputType();
     /**
-     * @brief Species list (currently disabled) used for other possible chart types
+     * @brief Get the Species list widget (currently disabled) used for other possible chart types
      * @return The widget representing the viewport of the species listview
      */
     QWidget*        getListViewViewport();
     /**
-     * @brief List of selected indexes (currently disabled) used for other possible chart types
+     * @brief Get the list of selected indexes (currently disabled) used for other possible chart types
      * @return The list of selected model indexes
      */
     QModelIndexList getListViewSelectedIndexes();
     /**
-     * @brief This Y Min slider allows the user to change the minimum value that appears on the y-axis.
+     * @brief Get the Y Min slider value which allows the user to change the minimum value that appears on the y-axis.
      * @return The value set by the user on this slider widget
      */
     int             getYMinSliderVal();
@@ -255,11 +263,11 @@ signals:
      */
     void ResetFilterButtons();
     /**
-     * @brief Signal emiited when user has pressed the Output controls button signifying they want to reset the 3d surface "current point" button
+     * @brief Signal emiited when the user has pressed the Output controls button signifying they want to reset the 3d surface "current point" button
      */
     void SelectCenterSurfacePoint();
     /**
-     * @brief Signal emiited when user selects a 2d surface visualization chart type
+     * @brief Signal emiited when the user selects a 2d surface visualization chart type
      * @param isVisible : boolean set to True for 2d chart or False for 3d chart
      */
     void SetChartView2d(bool isVisible);
@@ -270,20 +278,20 @@ signals:
      */
     void ShowChart(QString OutputType, QString OutputSpecies);
     /**
-     * @brief Signal emitted when user wants to show a MultiScenario chart
+     * @brief Signal emitted when the user wants to show a MultiScenario chart
      * @param sortedForecastLabels : list of Forecast names to show in the MultiScenario chart
      */
     void ShowChartMultiScenario(QStringList sortedForecastLabels);
     /**
-     * @brief Signal emitted when user wants to show a 3d Diagnostic chart
+     * @brief Signal emitted when the user wants to show a 3d Diagnostic chart
      */
     void ShowDiagnosticsChart3d();
     /**
-     * @brief Signal emitted when user wants to show a Retrospective Analysis chart
+     * @brief Signal emitted when the user wants to show a Retrospective Analysis chart
      */
     void ShowChartMohnsRho();
     /**
-     * @brief Signal emitted when user has changed the Y Axis Minumun Value slider widget
+     * @brief Signal emitted when the user has changed the Y Axis Minumun Value slider widget
      */
     void YAxisMinValueChanged(int value);
 
@@ -319,17 +327,17 @@ public slots:
      */
     void callback_OutputParametersCB(int state);
     /**
-     * @brief Callback invoked when the user checks the BMSY check box
+     * @brief Callback invoked when the user checks the BMSY checkbox
      * @param state : state of the BMSY check box
      */
     void callback_OutputShowBMSYCB(int state);
     /**
-     * @brief Callback invoked when the user checks the MSY check box
+     * @brief Callback invoked when the user checks the MSY checkbox
      * @param state : state of the MSY check box
      */
     void callback_OutputMSYCB(int val);
     /**
-     * @brief Callback invoked when the user checks the FMSY check box
+     * @brief Callback invoked when the user checks the FMSY checkbox
      * @param state : state of the FMSY check box
      */
     void callback_OutputShowFMSYCB(int val);

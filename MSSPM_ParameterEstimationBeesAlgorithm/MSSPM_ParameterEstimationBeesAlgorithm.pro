@@ -29,7 +29,8 @@ SOURCES += \
 
 HEADERS += \
     Bees_Estimator.h \
-    BeesStats.h
+    BeesStats.h \
+    mainpage.h
 
 unix {
     target.path = /usr/lib

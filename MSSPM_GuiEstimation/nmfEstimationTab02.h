@@ -1,3 +1,10 @@
+/** @file nmfEstimationTab02.h
+ * @brief GUI definition for the nmfEstimation_Tab2 Harvest Data class
+ *
+ * This file contains the GUI definition for the Harvest Data page. This
+ * page allows the user to enter/modify a table of data representing the
+ * harvest per Species per year.
+ */
 #ifndef NMFESTIMATIONTAB2_H
 #define NMFESTIMATIONTAB2_H
 
@@ -33,7 +40,7 @@ class nmfEstimation_Tab2: public QObject
 
 public:
     /**
-     * @brief nmfEstimation_Tab2 : class constructor
+     * @brief nmfEstimation_Tab2 : class constructor for the Harvest Parameters GUI page
      * @param tabs : the tab widget into which this Estimation tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -45,6 +52,11 @@ public:
                        std::string& projectDir);
     virtual ~nmfEstimation_Tab2();
 
+    /**
+     * @brief Checks that all tables in this GUI are properly populated
+     * @return Boolean value signifying if tables are properly loaded
+     */
+    bool areTablesOK();
     /**
      * @brief Clears the GUI's widgets
      */
@@ -69,23 +81,23 @@ public:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user clicks Load button
+     * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when user clicks Save button
+     * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
     /**
-     * @brief Callback invoked when user clicks Previous Page button
+     * @brief Callback invoked when the user clicks the Previous Page button
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when user clicks Next Page button
+     * @brief Callback invoked when the user clicks the Next Page button
      */
     void callback_NextPB();
     /**
-     * @brief Callback invoked when user modifies the Harvest Form in the Setup -> Model Setup page
+     * @brief Callback invoked when the user modifies the Harvest Form in the Setup -> Model Setup page
      * @param harvestForm : the harvest form selected by the user
      */
     void callback_HarvestFormChanged(QString harvestForm);

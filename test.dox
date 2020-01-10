@@ -1,0 +1,18 @@
+/*! @page User_Manual User Manual (tbd)
+
+@par Table of Contents
+
+- @ref User_Manual
+    - @ref Introduction
+        - @ref Theory
+        - @ref Model Development
+        - @ref Database Structure
+    - @ref Setup
+    - @ref Parameter Estimation
+        - @ref Algorithms
+    - @ref Diagnostics
+    - @ref Forecasts
+    - @ref Scenarios
+
+
+*/

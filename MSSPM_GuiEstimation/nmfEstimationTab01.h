@@ -1,3 +1,9 @@
+/** @file nmfEstimationTab01.h
+ * @brief GUI definition for the nmfEstimation_Tab1 Population Parameters Data class
+ *
+ * This file contains the GUI definition for the Population Parameters page. This
+ * page shows a summary of min/max parameter values per Species.
+ */
 #ifndef NMFESTIMATIONTAB1_H
 #define NMFESTIMATIONTAB1_H
 
@@ -37,7 +43,7 @@ signals:
 
 public:
     /**
-     * @brief nmfEstimation_Tab1 : class constructor
+     * @brief nmfEstimation_Tab1 : class constructor for the Populate Parameters GUI page
      * @param tabs : the tab widget into which this Estimation tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -63,15 +69,15 @@ public:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user clicks the Load button
+     * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when user clicks the Save button
+     * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
     /**
-     * @brief Callback invoked when user clicks the Next Page button
+     * @brief Callback invoked when the user clicks the Next Page button
      */
     void callback_NextPB();
 };

@@ -1,3 +1,11 @@
+/** @file PreferencesDialog.h
+ * @brief GUI definition for the PreferencesDialog dialog class
+ *
+ * This file contains the GUI definitions for the PreferencesDialog dialog class.
+ * The application preferences allow the user to customize various aspects
+ * of the user interface.
+ */
+
 #pragma once
 
 #include "nmfDatabase.h"

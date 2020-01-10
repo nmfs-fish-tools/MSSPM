@@ -6,10 +6,10 @@
  *
  * @section Description
  *
- * The classes in this package define GUI forms available to the user for data input. In addition
- * to data input, they allow the user to select the type of estimation desired from various
- * algorithms and sub-algorithms, along with their associated parameters. Finally, the user runs
- * the estimation from the final GUI, having output automatically directed to other GUIs in the
+ * The classes in this package define GUI forms available to the user for Estimation data input. In addition
+ * to data input, they allow the user to select the type of Estimation desired from various
+ * algorithms and sub-algorithms, along with its associated parameters. Finally, the user runs
+ * the Estimation from the final GUI, having output automatically directed to other GUIs in the
  * application.
  *
  * @section License

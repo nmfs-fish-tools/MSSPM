@@ -1,3 +1,11 @@
+/** @file MultiScenarioSaveDlg.h
+ * @brief GUI definition for the MultiScenarioSaveDlg widget class
+ *
+ * This file contains the GUI definition for the MultiScenario Save Dialog.
+ * It allows the user to assign Forecasts to Scenarios.  Scenarios may then
+ * be graphically viewed as a collected of Forecast plots.
+ */
+
 #pragma once
 
 #include "nmfDatabase.h"
@@ -63,7 +71,7 @@ class MultiScenarioSaveDlg : public QDialog
 
 public:
     /**
-     * @brief MultiScenarioSaveDlg : class constructor for Scenario dialog that allows user to assign Forecasts to Scenarios
+     * @brief MultiScenarioSaveDlg : class constructor for a Scenario dialog that allows the user to assign Forecasts to Scenarios
      * @param parent : the tab widget into which this Estimation tab will be placed
      * @param databasePtr : pointer to the application database
      * @param logger : pointer to the application logger
@@ -86,8 +94,8 @@ public:
      */
     std::string getScenarioName();
     /**
-     * @brief Gets the current Forecast label from the appropriate GUI widget. Each Forecast show
-     * in a Scenario has the Forecast name as its label.
+     * @brief Gets the current Forecast label from the appropriate GUI widget. Each
+     * Forecast shown in a Scenario plot has its Forecast name as its label.
      * @return Returns the current Forecast label
      */
     std::string getForecastLabel();
@@ -110,44 +118,44 @@ signals:
 
 private Q_SLOTS:
     /**
-     * @brief Callback invoked when user selects from the Scenario Name GUI widget
+     * @brief Callback invoked when the user selects from the Scenario Name GUI widget
      * @param scenario : current Scenario name
      */
     void callback_ScenarioNameCMB(QString scenario);
     /**
-     * @brief Callback invoked when user clicks New Scenario button
+     * @brief Callback invoked when the user clicks the New Scenario button
      */
     void callback_NewScenarioPB();
     /**
-     * @brief Callback invoked when user clicks Delete Scenario button
+     * @brief Callback invoked when the user clicks the Delete Scenario button
      */
     void callback_DelScenarioPB();
     /**
-     * @brief Callback invoked when user clicks Rename Scenario button
+     * @brief Callback invoked when the user clicks the Rename Scenario button
      */
     void callback_RenScenarioPB();
     /**
-     * @brief Callback invoked when user clicks Set Forecast Label button
+     * @brief Callback invoked when the user clicks the Set Forecast Label button
      */
     void callback_SetForecastPB();
     /**
-     * @brief Callback invoked when user clicks Delete Forecast from Scenario button
+     * @brief Callback invoked when the user clicks the Delete Forecast from Scenario button
      */
     void callback_DelForecastPB();
     /**
-     * @brief Callback invoked when user clicks Rename Current Forecast button
+     * @brief Callback invoked when the user clicks the Rename Current Forecast button
      */
     void callback_RenForecastPB();
     /**
-     * @brief Callback invoked when user clicks OK to Save Current Forecast to Current Scenario button
+     * @brief Callback invoked when the user clicks the OK to Save Current Forecast to Current Scenario button
      */
     void callback_OkPB();
     /**
-     * @brief Callback invoked when user clicks Set Order and Close button
+     * @brief Callback invoked when the user clicks the Set Order and Close button
      */
     void callback_SetOrderPB();
     /**
-     * @brief Callback invoked when user clicks Show Sort Order button
+     * @brief Callback invoked when the user clicks the Show Sort Order button
      */
     void callback_ShowSortPB();
 };

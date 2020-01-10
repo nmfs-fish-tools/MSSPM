@@ -1,3 +1,10 @@
+/** @file nmfForecastTab03.h
+ * @brief GUI definition for the nmfForecast_Tab3 Forecast Uncertainty Parameter Data class
+ *
+ * This file contains the GUI definition for the Uncertainty Parameter Data. The widgets
+ * defined here allow the user to enter or modify the data needed for Uncertainty Parameter values
+ * for a Forecast. User can set the state of the GUI to auto run a Forecast after a Save.
+ */
 #ifndef NMFFORECASTTAB3_H
 #define NMFFORECASTTAB3_H
 
@@ -49,7 +56,7 @@ private:
 
 public:
     /**
-     * @brief nmfForecast_Tab3 : class constructor
+     * @brief nmfForecast_Tab3 : class constructor for the Uncertainty Parameters GUI page
      * @param tabs : the tab widget into which this Forecast tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -78,24 +85,24 @@ signals:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user clicks Load button
+     * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when user clicks Save button
+     * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
     /**
-     * @brief Callback invoked when user clicks Previous Page button
+     * @brief Callback invoked when the user clicks the Previous Page button
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when user clicks Next Page button
+     * @brief Callback invoked when the user clicks the Next Page button
      */
     void callback_NextPB();
     /**
      * @brief Callback invoked when the user changes an item in the Uncertainty Parameters data table. If
-     * the autosave button is checked, the Forecast will update after the user changes an item.
+     * the Auto Save button is checked, the Forecast will update after the user changes an item.
      * @param unusedA : unused parameter
      * @param unusedB : unused parameter
      */
@@ -108,7 +115,7 @@ public Q_SLOTS:
      */
     void callback_ContextMenu(QPoint point);
     /**
-     * @brief Callback invoked when the user selects clear from the right click context menu
+     * @brief Callback invoked when the user selects Clear from the right click context menu
      */
     void callback_ClearSelection();
 };

@@ -1,3 +1,11 @@
+/** @file Bees_Estimator.h
+ * @brief Class definition for the Bees_Estimator API
+ *
+ * This file contains the class definition for the Bees_Estimator API. This
+ * API acts as an interface class between the Main calling program and the lower-level
+ * Bess Algorithm implementation.
+ */
+
 #pragma once
 
 #include "boost/random.hpp"
@@ -69,24 +77,78 @@ private:
     bool wasStoppedByUser();
 
 signals:
-    void RunCompleted(std::string outputStr);
+    /**
+     * @brief Signal emitted with the Run has completed
+     * @param bestFitness : string value representing the best fitness value
+     */
+    void RunCompleted(std::string bestFitness);
+    /**
+     * @brief Signal emitted when a sub run is completed
+     * @param RunNum : the number of the parent run
+     * @param SubRun : the number of the child sub run
+     * @param NumSubRuns : number of sub runs in the parent run
+     */
     void SubRunCompleted(int RunNum, int SubRun, int NumSubRuns);
-    void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
+//  void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
 
 public:
+    /**
+     * @brief Class constructor for the Bees Estimation Algorithm interface class
+     */
     Bees_Estimator();
    ~Bees_Estimator();
 
-    void estimateParameters(Data_Struct &siStruct,int RunNum);
-    void getEstimatedGrowthRates(std::vector<double> &EstGrowthRates);
+    /**
+     * @brief The main routine that runs the Bees Estimation algorithm
+     * @param BeeStruct : data structure containing parameters needed for the Bees algorithm
+     * @param RunNum : the run number
+     */
+    void estimateParameters(Data_Struct &BeeStruct,int RunNum);
+    /**
+     * @brief Gets the estimated carrying capacity values per species
+     * @param EstCarryingCapacity : vector of carrying capacities per species
+     */
     void getEstimatedCarryingCapacities(std::vector<double> &EstCarryingCapacity);
+    /**
+     * @brief Gets the estimated catchability values per species
+     * @param EstCatchability : vector of catchability values per species
+     */
     void getEstimatedCatchability(std::vector<double> &EstCatchability);
+    /**
+     * @brief Gets the estimated alpha interaction values per species
+     * @param EstInteraction : vector of alpha interaction values per species
+     */
     void getEstimatedCompetitionAlpha(boost::numeric::ublas::matrix<double> &EstInteraction);
-    void getEstimatedCompetitionBetaSpecies(boost::numeric::ublas::matrix<double> &theEstCompSpecies);
-    void getEstimatedCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &theEstCompGuilds);
-    void getEstimatedPredation(boost::numeric::ublas::matrix<double> &EstPredation);
-    void getEstimatedHandling(boost::numeric::ublas::matrix<double> &EstHandling);
+    /**
+     * @brief Gets the estimated beta competition values per guild
+     * @param EstCompGuilds : vector of beta competition values per guild
+     */
+    void getEstimatedCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &EstCompGuilds);
+    /**
+     * @brief Gets the estimated beta competition values per species
+     * @param EstCompSpecies : vector of beta competition values per species
+     */
+    void getEstimatedCompetitionBetaSpecies(boost::numeric::ublas::matrix<double> &EstCompSpecies);
+    /**
+     * @brief Gets the estimated exponent values per species
+     * @param EstExponent : vector of exponent values per species
+     */
     void getEstimatedExponent(std::vector<double> &EstExponent);
+    /**
+     * @brief Gets the estimated growth rate values per species
+     * @param EstGrowthRates : vector of growth rate values per species
+     */
+    void getEstimatedGrowthRates(std::vector<double> &EstGrowthRates);
+    /**
+     * @brief Gets the estimated handling values per species
+     * @param EstHandling : vector of handling values per species
+     */
+    void getEstimatedHandling(boost::numeric::ublas::matrix<double> &EstHandling);
+    /**
+     * @brief Gets the estimated predation values per species
+     * @param EstPredation : vector of predation values per species
+     */
+    void getEstimatedPredation(boost::numeric::ublas::matrix<double> &EstPredation);
 
 };
 

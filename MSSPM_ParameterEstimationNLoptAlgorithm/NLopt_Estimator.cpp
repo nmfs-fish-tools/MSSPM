@@ -7,8 +7,8 @@
 #include <math.h>
 
 bool m_Quit;
-int NLopt_Estimator::m_nloptIters = 0;
-int NLopt_Estimator::m_counter    = 0;
+int NLopt_Estimator::m_NLoptIters = 0;
+int NLopt_Estimator::m_Counter    = 0;
 int NLopt_Estimator::m_RunNum     = 0;
 
 std::unique_ptr<nmfGrowthForm>      NLoptGrowthForm;
@@ -20,7 +20,7 @@ std::unique_ptr<nmfPredationForm>   NLoptPredationForm;
 NLopt_Estimator::NLopt_Estimator()
 {
     m_Quit = false;
-    m_counter = 0;
+    m_Counter = 0;
     m_MinimizerToEnum.clear();
 
     // Load Minimizer Name Map
@@ -36,7 +36,7 @@ NLopt_Estimator::~NLopt_Estimator()
 }
 
 
-double
+void
 NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
                                    const double *EstParameters,
                                    std::vector<double>& growthRate,
@@ -341,10 +341,10 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //                "-"    + std::to_string(subRunNum);
     std::string MSSPMName = "Run " + std::to_string(m_RunNum) + "-1";
 
-    ++m_nloptIters;
-    if (m_nloptIters%1000 == 0) {
-        ++m_counter;
-        val = m_counter*1000;
+    ++m_NLoptIters;
+    if (m_NLoptIters%1000 == 0) {
+        ++m_Counter;
+        val = m_Counter*1000;
         writeCurrentLoopFile(MSSPMName,
                              val,
                              fitness,
@@ -461,8 +461,8 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
 
     startTimeSpecies = nmfUtils::startTimer();
 
-    m_nloptIters = 0;
-    m_counter    = 0;
+    m_NLoptIters = 0;
+    m_Counter    = 0;
     m_Quit       = false;
     m_RunNum    += 1;
 
@@ -545,7 +545,7 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
         for (int i=0; i<m_Parameters.size(); ++i) {
             std::cout << "  Est Param: " << m_Parameters[i] << std::endl;
         }
-        std::cout << "Num iterations: " << m_nloptIters << std::endl;
+        std::cout << "Num iterations: " << m_NLoptIters << std::endl;
 
         extractParameters(NLoptStruct, &m_Parameters[0],
                           m_EstGrowthRates, m_EstCarryingCapacities,
@@ -870,7 +870,7 @@ NLopt_Estimator::rescaleMean(const boost::numeric::ublas::matrix<double> &matrix
         avgValues[species] = avgVal;
     }
 
-    // Rescale each column of the matrix with (x - min)/(max-min) formula.
+    // Rescale each column of the matrix with (x - ave)/(max-min) formula.
     for (int species=0; species<numSpecies; ++species) {
         minVal = minValues[species];
         maxVal = maxValues[species];

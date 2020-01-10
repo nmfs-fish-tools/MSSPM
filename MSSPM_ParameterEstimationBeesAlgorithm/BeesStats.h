@@ -1,3 +1,11 @@
+/** @file BeesStats.h
+ * @brief Class definition for the BeesStats structure
+ *
+ * This file contains the class definition for the BeesStats structure. This
+ * structure contains the variables necessary to run an Estimation using the
+ * Bees Algorithm.
+ */
+
 #ifndef BEESSTATS_H
 #define BEESSTATS_H
 
@@ -28,10 +36,26 @@ public:
     BeesStats(const int &totParameters, const int& numRuns);
    ~BeesStats() {}
 
+    /**
+     * @brief Loads data into the private data members
+     * @param bestFitness : best fitness value to load
+     * @param parameters : list of parameter values to load
+     */
     void addData(const double& bestFitness,
                  const std::vector<double>& parameters);
+    /**
+     * @brief Finds the mean fitness value
+     * @param fitness : the mean fitness value
+     * @param parameters : vector of mean estimated parameter values
+     */
     void getMean(double& fitness,
                  std::vector<double>& parameters);
+    /**
+     * @brief Gets the standard deviation of each of the parameter values
+     * @param fitnessStdDev : the fitness standard deviation
+     * @param totStdDev : the total standard deviation
+     * @param stdDevParameters : the standard deviation of each of the estimated parameters
+     */
     void getStdDev(double& fitnessStdDev,
                    double& totStdDev,
                    std::vector<double>& stdDevParameters);

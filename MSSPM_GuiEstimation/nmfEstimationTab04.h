@@ -1,3 +1,12 @@
+/** @file nmfEstimationTab04.h
+ * @brief GUI definition for the nmfEstimation_Tab4 Predation Data class
+ *
+ * This file contains the GUI definition for the Predation Data page. This
+ * page allows the user to enter/modify tables of data that correspond to
+ * min/max predation coefficients (predators as columns and prey as rows). The
+ * coefficients are Predation Effect, Handling Time, and Predation Exponent.
+ */
+
 #ifndef NMFESTIMATIONTAB4_H
 #define NMFESTIMATIONTAB4_H
 
@@ -5,7 +14,7 @@
 /**
  * @brief Predation Data
  *
- * These tables allow user to enter and modify minimum and
+ * These tables allow the user to enter and modify minimum and
  * maximum coefficients for Predation Effect (rho), Handling Time (h),
  * and Predation Exponent (b).
  */
@@ -54,7 +63,7 @@ class nmfEstimation_Tab4: public QObject
 
 public:
     /**
-     * @brief nmfEstimation_Tab4 : class constructor
+     * @brief nmfEstimation_Tab4 : class constructor for the Predation Parameters GUI page
      * @param tabs : the tab widget into which this Estimation tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -79,40 +88,40 @@ public:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user clicks Load button
+     * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when user clicks Save button
+     * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
     /**
-     * @brief Callback invoked when user clicks Previous Page button
+     * @brief Callback invoked when the user clicks the Previous Page button
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when user clicks Next Page button
+     * @brief Callback invoked when the user clicks the Next Page button
      */
     void callback_NextPB();
     /**
-     * @brief Callback invoked when user updates the Predation Form in the Setup -> Model Setup page
+     * @brief Callback invoked when the user updates the Predation Form in the Setup -> Model Setup page
      * @param predationForm : the predation form selected by the user
      */
     void callback_PredationFormChanged(QString predationForm);
     /**
-     * @brief Callback invoked when user changes any of the Minimum Predator Coeficients splitters
+     * @brief Callback invoked when the user changes any of the Minimum Predator Coeficients splitters
      * @param pos : position of the splitter
      * @param index : the index of the splitter changed
      */
     void callback_MinSplitterMoved(int pos, int index);
     /**
-     * @brief Callback invoked when user changes any of the Minimum Competitive Effects splitters
+     * @brief Callback invoked when the user changes any of the Minimum Competitive Effects splitters
      * @param pos : position of the splitter
      * @param index : the index of the splitter changed
      */
     void callback_MaxSplitterMoved(int pos, int index);
     /**
-     * @brief Callback invoked when user toggles the Estimate checkbox
+     * @brief Callback invoked when the user toggles the Estimate checkbox
      * @param state : when set to Checked means that the minimum and maxumum estimated value limits are the same (effectively defining the parameter(s))
      */
     void callback_EstimateChecked(int state);

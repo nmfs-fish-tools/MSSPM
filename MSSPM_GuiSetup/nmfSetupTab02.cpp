@@ -594,9 +594,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
             return;
     }
 
-    // 32 of 53: PredatonLossRates
+    // 32 of 53: PredationLossRates
     // 33 of 53: SpatialOverlap
-    for (std::string tableName : {"PredatonLossRates",
+    for (std::string tableName : {"PredationLossRates",
                                   "SpatialOverlap"})
     {
         fullTableName = db + "." + tableName;

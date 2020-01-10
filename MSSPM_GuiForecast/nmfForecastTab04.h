@@ -1,3 +1,10 @@
+/** @file nmfForecastTab04.h
+ * @brief GUI definition for the nmfForecast_Tab4 Forecast Run class
+ *
+ * This file contains the GUI definition for the Forecast Run. The widgets
+ * defined here allow the user to run a Forecast, add the run to a MultiScenario plot,
+ * and to view the run results in a text box.
+ */
 #ifndef NMFFORECASTTAB4_H
 #define NMFFORECASTTAB4_H
 
@@ -44,7 +51,7 @@ class nmfForecast_Tab4: public QObject
 
 public:
     /**
-     * @brief nmfForecast_Tab4 : class constructor for the Run Forecast GUI
+     * @brief nmfForecast_Tab4 : class constructor for the Run Forecast GUI page
      * @param tabs : the tab widget into which this Forecast tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
@@ -57,7 +64,7 @@ public:
     virtual ~nmfForecast_Tab4();
 
     /**
-     * @brief appends text to Run Information window
+     * @brief Appends text to the Run Information window
      * @param msg - the text to append to the Run Information window
      */
     void appendOutputTE(QString msg);
@@ -76,7 +83,7 @@ public:
      */
     bool loadWidgets();
     /**
-     * @brief Saves the GUIs settings to a Qt settings file
+     * @brief Saves the current GUI page settings to a Qt settings file
      */
     void saveSettings();
     /**
@@ -85,7 +92,7 @@ public:
      */
     void setFontSize(int fontSize);
     /**
-     * @brief Sets the output scenario name for the Forecast being generated
+     * @brief Sets the output Scenario name for the Forecast being generated
      * @param scenario : name of the current Forecast's Scenario
      */
     void setOutputScenario(std::string scenario);
@@ -129,24 +136,24 @@ signals:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user clicks the Run Forecast button
+     * @brief Callback invoked when the user clicks the Run Forecast button
      */
     void callback_RunPB();
     /**
-     * @brief Callback invoked when user clicks Previous Page button
+     * @brief Callback invoked when the user clicks Previous Page button
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when user changes the font size
+     * @brief Callback invoked when the user changes the font size
      * @param fontSize : new font size selected
      */
     void callback_FontSizeCMB(QString fontSize);
     /**
-     * @brief Callback invoked when user clicks the Multi-Scenario Forecast button
+     * @brief Callback invoked when the user clicks the Multi-Scenario Forecast button
      */
     void callback_RunMultiScenarioPB();
     /**
-     * @brief Callback invoked after user updates a Scenario
+     * @brief Callback invoked after the user updates a Scenario
      */
     void callback_RefreshOutput();
 };

@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$class_clear_output_dialog.html" title="Clear Dialog. " alt="" coords="133,5,263,32"/>
+<area shape="rect" id="node3" href="$class_load_dlg.html" title="Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4..." alt="" coords="163,56,233,83"/>
+<area shape="rect" id="node4" href="$class_load_forecast_dlg.html" title="Dialog to Load a Forecast. " alt="" coords="137,107,259,133"/>
+<area shape="rect" id="node5" href="$class_multi_scenario_save_dlg.html" title="Dialog to Save Multiple Forecasts. " alt="" coords="123,157,273,184"/>
+<area shape="rect" id="node6" href="$class_preferences_dialog.html" title="Preferences Dialog. " alt="" coords="133,208,263,235"/>
+</map>
