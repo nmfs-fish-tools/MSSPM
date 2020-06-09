@@ -1,14 +1,38 @@
-/** @file nmfSetupTab03.h
+/**
+ * @file nmfSetupTab03.h
  * @brief GUI definition for the Setup Species page class nmfSetup_Tab3
  *
  * This file contains the GUI definitions for the Setup Species page. This
  * page contains the GUI widgets that allow the user to enter and modify
  * Species and Guild data. Guild data should be entered first as it
  * automatically populates the Guild pulldown field widget in the Species data.
+ *
+ * @copyright
+ * Public Domain Notice\n
+ *
+ * National Oceanic And Atmospheric Administration\n\n
+ *
+ * This software is a "United States Government Work" under the terms of the
+ * United States Copyright Act.  It was written as part of the author's official
+ * duties as a United States Government employee/contractor and thus cannot be copyrighted.
+ * This software is freely available to the public for use. The National Oceanic
+ * And Atmospheric Administration and the U.S. Government have not placed any
+ * restriction on its use or reproduction.  Although all reasonable efforts have
+ * been taken to ensure the accuracy and reliability of the software and data,
+ * the National Oceanic And Atmospheric Administration and the U.S. Government
+ * do not and cannot warrant the performance or results that may be obtained
+ * by using this software or data. The National Oceanic And Atmospheric
+ * Administration and the U.S. Government disclaim all warranties, express
+ * or implied, including warranties of performance, merchantability or fitness
+ * for any particular purpose.\n\n
+ *
+ * Please cite the author(s) in any work or product based on this material.
  */
 
 #ifndef NMFSETUPTAB3_H
 #define NMFSETUPTAB3_H
+
+#include <set>
 
 /**
  * @brief The Setup Tab 3 allows the user to enter and modify Species data
@@ -52,8 +76,6 @@ class nmfSetup_Tab3: public QObject
     QLineEdit*    Setup_Tab2_FirstYearLE;
     QLineEdit*    Setup_Tab2_LastYearLE;
     QLineEdit*    Setup_Tab2_NumSeasonsLE;
-    QCheckBox*    Setup_Tab3_SpeciesCB;
-    QCheckBox*    Setup_Tab3_GuildsCB;
     QLabel*       Setup_Tab3_NumSpeciesLBL;
     QLabel*       Setup_Tab3_NumGuildsLBL;
     QPushButton*  Setup_Tab3_AddSpeciesPB;
@@ -79,11 +101,14 @@ class nmfSetup_Tab3: public QObject
     void pruneTablesForGuilds(std::vector<std::string>& Guilds);
     void pruneTablesForSpecies(std::vector<std::string>& Species);
     void readSettings();
-    void removeFromTable(QTableWidgetItem *itemToRemove,
-                         QList<QString>& TablesToDeleteFrom);
+    void removeFromTables(const QString& type,
+                          const QTableWidgetItem *itemToRemove,
+                          const std::vector<std::string>& TablesToDeleteFrom);
     void saveGuildData();
     void saveSettings();
     void saveSpeciesData();
+    void setupHelp();
+    void executeDelete(std::string cmd);
 
 public:
     /**
@@ -132,9 +157,25 @@ public Q_SLOTS:
      */
     void callback_Setup_Tab3_DelSpeciesPB();
     /**
+     * @brief Callback invoked when user clicks the Reload Guilds button
+     */
+    void callback_Setup_Tab3_ReloadGuildsPB();
+    /**
+     * @brief Callback invoked when user emits a signal to Reload the Guilds
+     * @param showPopup : boolean specifying whether or not a popup should be
+     * shown to the user acknowledging a successful Guilds reload
+     */
+    void callback_Setup_Tab3_ReloadGuildsPB(bool showPopup);
+    /**
      * @brief Callback invoked when user clicks the Reload Species button
      */
     void callback_Setup_Tab3_ReloadSpeciesPB();
+    /**
+     * @brief Callback invoked when user emits a signal to Reload the Species
+     * @param showPopup : boolean specifying whether or not a popup should be
+     * shown to the user acknowledging a successful Species reload
+     */
+    void callback_Setup_Tab3_ReloadSpeciesPB(bool showPopup);
     /**
      * @brief Callback invoked when user clicks the Save Species button
      */
@@ -152,10 +193,6 @@ public Q_SLOTS:
      */
     void callback_Setup_Tab3_DelGuildPB();
     /**
-     * @brief Callback invoked when user clicks the Reload Guilds button
-     */
-    void callback_Setup_Tab3_ReloadGuildsPB();
-    /**
      * @brief Callback invoked when user modifies the Species table
      */
     void callback_Setup_Tab3_SpeciesTableChanged(int,int);
@@ -169,6 +206,7 @@ public Q_SLOTS:
      * on the Species page.
      */
     void callback_Setup_Tab3_UpdateSpeciesPB();
+
 };
 
 #endif // NMFSETUPTAB4_H

@@ -312,7 +312,7 @@ MultiScenarioSaveDlg::callback_OkPB()
 {
    bool dataWritten  = false;
    bool okToWriteFile = true;
-   bool ForecastAlreadyInMap = false;
+// bool ForecastAlreadyInMap = false;
    int NumRecords;
    int NumYears;
    int NumSpecies;
@@ -363,7 +363,7 @@ MultiScenarioSaveDlg::callback_OkPB()
                                      QMessageBox::No|QMessageBox::Yes,
                                      QMessageBox::Yes);
        okToWriteFile = (reply == QMessageBox::Yes);
-       ForecastAlreadyInMap = true;
+//     ForecastAlreadyInMap = true;
    }
 
    if (okToWriteFile)

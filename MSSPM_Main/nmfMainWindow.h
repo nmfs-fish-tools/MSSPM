@@ -1,14 +1,36 @@
-/** @file nmfMainWindow.h
+/**
+ * @file nmfMainWindow.h
  * @brief GUI definition for the main nmfMainWindow MSSPM Application class
  *
  * This file contains the Main Window Application class. All of the menu
  * interactions are done through this class.
+ *
+ * @copyright
+ * Public Domain Notice\n
+ *
+ * National Oceanic And Atmospheric Administration\n\n
+ *
+ * This software is a "United States Government Work" under the terms of the
+ * United States Copyright Act.  It was written as part of the author's official
+ * duties as a United States Government employee/contractor and thus cannot be copyrighted.
+ * This software is freely available to the public for use. The National Oceanic
+ * And Atmospheric Administration and the U.S. Government have not placed any
+ * restriction on its use or reproduction.  Although all reasonable efforts have
+ * been taken to ensure the accuracy and reliability of the software and data,
+ * the National Oceanic And Atmospheric Administration and the U.S. Government
+ * do not and cannot warrant the performance or results that may be obtained
+ * by using this software or data. The National Oceanic And Atmospheric
+ * Administration and the U.S. Government disclaim all warranties, express
+ * or implied, including warranties of performance, merchantability or fitness
+ * for any particular purpose.\n\n
+ *
+ * Please cite the author(s) in any work or product based on this material.
  */
 
 #ifndef NMFMAINWINDOW_H
 #define NMFMAINWINDOW_H
 
-#include <nlopt.hpp>
+//#include <nlopt.hpp>
 
 #include "nmfDatabase.h"
 #include "nmfLogWidget.h"
@@ -17,13 +39,14 @@
 #include "nmfUtilsQt.h"
 
 #include "nmfChartBar.h"
+#include "nmfChartLegend.h"
 #include "nmfChartLine.h"
 #include "nmfChartLineWithScatter.h"
 #include "nmfChartScatter.h"
 #include "nmfChartSurface.h"
 #include "nmfProgressWidget.h"
 #include "ClearOutputDialog.h"
-#include "PreferencesDialog.h"
+//#include "PreferencesDialog.h"
 #include "nmfDatabaseConnectDialog.h"
 #include "nmfOutputChart3DBarModifier.h"
 #include "nmfOutputChart3D.h"
@@ -63,6 +86,12 @@
 #include "nmfForecastTab04.h"
 
 #include "nmfOutputControls.h"
+#include "nmfViewerWidget.h"
+
+#include <QtDataVisualization>
+#include <QImage>
+#include <QOpenGLWidget>
+#include <QPixmap>
 
 //class Gradient_Estimator;
 
@@ -172,6 +201,14 @@ private:
     QMap<int,QString>                     m_SpeciesTimeMap;
     std::string                           m_Username;
     std::vector<std::pair<int,int> >      m_MohnsRhoRanges;
+    bool                                  m_ScreenshotOn;
+    std::vector<QPixmap>                  m_Pixmaps;
+    int                                   m_NumScreenShot;
+    int                                   m_MShotNumRows;
+    int                                   m_MShotNumCols;
+    nmfViewerWidget*                      m_ViewerWidget;
+//    QString                               m_outputFile;
+    bool                                  m_isStartUpOK;
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
@@ -183,6 +220,7 @@ private:
     QTableView*              HandlingTV;
     QTableView*              ExponentTV;
     QTableView*              CarryingCapacityTV;
+    QTableView*              CatchabilityTV;
     QTableView*              BMSYTV;
     QTableView*              MSYTV;
     QTableView*              FMSYTV;
@@ -190,7 +228,6 @@ private:
     QTableView*              DiagnosticSummaryTV;
     QTableView*              OutputBiomassTV;
     QTableView*              OutputBiomassMSSPMTV;
-    QVBoxLayout*             ProgressMainLayt;
     QVBoxLayout*             VChartLayt;
     QVBoxLayout*             OutputChartMainLayt;
 //    QSurfaceDataProxy*       SurfaceProxy;
@@ -215,6 +252,10 @@ private:
     nmfSetup_Tab2*           Setup_Tab2_ptr;
     nmfSetup_Tab3*           Setup_Tab3_ptr;
     nmfSetup_Tab4*           Setup_Tab4_ptr;
+    QDialog*                 m_PreferencesDlg;
+    QWidget*                 m_PreferencesWidget;
+    QTabWidget*              m_EstimatedParametersTW;
+    std::map<QString,QTableView*> m_EstimatedParametersMap;
 
 //  Gradient_Struct             gradientStruct;
 //  int                         RunNumGenetic;
@@ -229,7 +270,7 @@ private:
 //  nmfSimulation_Tab5*         Simulation_Tab5_ptr;
 //  nmfSimulation_Tab6*         Simulation_Tab6_ptr;
 //  LogisticMultiSpeciesDialog* LogisticMultiSpeciesDlg;
-
+    int getTabIndex(QTabWidget* tabWidget, QString tabName);
     void   clearOutputData(std::string algorithm,
                            std::string minimizer,
                            std::string objectiveCriterion,
@@ -241,11 +282,17 @@ private:
     void   initializeNavigatorTree();
     void   initLogo();
     void   initPostGuiConnections();
+    void   initializePreferencesDlg();
     void   showDockWidgets(bool show);
-
+//    void   screenShot();
 
 
     void adjustProgressWidget();
+    bool areFieldsValid(std::string table,
+                        std::vector<std::string> fields);
+    bool areFieldsValid(std::string table,
+                        std::string system,
+                        std::vector<std::string> fields);
     double calculateMonteCarloValue(const double& uncertainty,
                                     const double& value);
     void calculateSummaryStatistics(QStandardItemModel *smodel,
@@ -258,6 +305,9 @@ private:
                                     const int         &NumSpecies,
                                     const bool        &isMohnsRho);
     bool calculateSummaryStatisticsMohnsRhoBiomass(std::vector<double>& mohnsRhoEstimatedBiomass);
+    bool checkFields(std::string& table,
+                     std::map<std::string, std::vector<std::string> >& dataMap,
+                     std::vector<std::string>& fields);
     bool checkIfTablesAlreadyCreated();
     bool clearOutputBiomassTable(std::string& ForecastName,
                                  std::string& Algorithm,
@@ -269,8 +319,14 @@ private:
     void clearOutputTables();
     void closeEvent(QCloseEvent *event);
     void completeApplicationInitialization();
+    std::pair<bool,QString> dataAdequateForCurrentModel(QStringList estParamNames);
     bool deleteAllMohnsRho(const std::string& TableName);
     bool deleteAllOutputMohnsRho();
+    /**
+     * @brief Forces user to input and save project data.  Until they do so, application
+     * functionality is disabled (i.e., grayed out).
+     */
+    void enableApplicationFeatures(bool enable);
     QTableView* findTableInFocus();
     void getAlgorithmIdentifiers(std::string& algorithm,
                                  std::string& minimizer,
@@ -453,13 +509,15 @@ private:
     void queryUserPreviousDatabase();
     void readSettings(QString name);
     void readSettings();
-    void runBeesAlgorithm();
+    void readSettingsGuiPositionOrientationOnly();
+    void runBeesAlgorithm(bool showDiagnosticsChart);
     void runNextMohnsRhoEstimation();
-    void runNLoptAlgorithm();
+    void runNLoptAlgorithm(bool showDiagnosticChart);
     bool saveScreenshot(QString &outputfile, QPixmap &pm);
     void saveSettings();
     bool scaleTimeSeries(const std::vector<double>&             Uncertainty,
                          boost::numeric::ublas::matrix<double>& HarvestMatrix);
+    void setDefaultDockWidgetsVisibility();
     void setNumLines(int numLines);
     void setup2dChart();
     void setup3dChart();
@@ -467,6 +525,8 @@ private:
     void setupOutputEstimateParametersWidgets();
     void setupOutputModelFitSummaryWidgets();
     void setupOutputDiagnosticSummaryWidgets();
+    void setupOutputScreenShotViewerWidgets();
+    void setupOutputViewerWidget();
     void setupProgressChart();
     void showChartBcBoVsTime(
             const int &NumSpecies,
@@ -619,11 +679,20 @@ private:
         const std::vector<double>                   &EstExponent);
     void updateModelEquationSummary();
 
+    void updateScreenShotViewer(QString filename);
+
     void getSurfaceData(
             boost::numeric::ublas::matrix<double>& rowValues,
             boost::numeric::ublas::matrix<double>& columnValues,
-            boost::numeric::ublas::matrix<double>& heightValues);
-
+            boost::numeric::ublas::matrix<double>& heightValues,
+            const int& yMax);
+    QString getColorName(int line);
+    bool selectMinimumSurfacePoint();
+    /**
+     * @brief Callback invoked to update the text in the title bar of the main window to include
+     * the application name, project name, and settings file name
+     */
+    void updateWindowTitle();
 
     //    bool isThereMohnsRhoData();
     //    bool loadGradientParameters(Gradient_Struct &gradientStruct);
@@ -660,10 +729,16 @@ private:
 public:
     /**
      * @brief The Main MSSPM Application Window
-     * @param parent : parent widget (defaults to 0 if not specified)
+     * @param parent : parent widget (defaults to nullptr if not specified)
      */
-    explicit nmfMainWindow(QWidget *parent = 0);
+    explicit nmfMainWindow(QWidget *parent = nullptr);
     ~nmfMainWindow();
+
+    /**
+     * @brief Notifies main routine if MainWindow has been started correctly with MySQL active
+     * @return true/false signifying the state of the application start
+     */
+    bool isStartUpOK();
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);
@@ -726,10 +801,10 @@ public slots:
      * @brief Callback invoked when user selects an item from the Navigator list
      */
     void callback_NavigatorSelectionChanged();
-    /**
-     * @brief Callback invoked when application realizes no System file has been set
-     */
-    void callback_NoSystemsSet();
+//    /**
+//     * @brief Callback invoked when application realizes no System file has been set
+//     */
+//    void callback_NoSystemsSet();
     /**
      * @brief Callback invoked when a Forecast has run
      * @param Type : type of Output Chart desired
@@ -739,10 +814,22 @@ public slots:
             QString Type,
             std::map<QString,QStringList> SortedForecastLabelsMap);
     /**
+     * @brief Callback invoked when a user has saved new project settings
+     */
+    void callback_ProjectSaved();
+    /**
      * @brief Callback invoked when the progress chart timer times out. In this fashion,
      * the progress chart is updated while another process is running.
      */
     void callback_ReadProgressChartDataFile();
+    /**
+     * @brief Callback invoked when the progress chart timer times out. In this fashion,
+     * the progress chart is updated while another process is running.
+     * @param validPointsOnly : boolean signifying whether all points or only valid points should
+     * be displayed. Valid points are those points not including the 99999 out of range points.
+     * @param clearChart : boolean signifying if chart should be cleared before redrawing
+     */
+    void callback_ReadProgressChartDataFile(bool validPointsOnly, bool clearChart);
     /**
      * @brief Callback invoked when user needs to reset the Output Controls widgets
      */
@@ -756,10 +843,16 @@ public slots:
      */
     void callback_ResetFilterButtons();
     /**
+     * @brief Callback invoked when user wants to reset the current species in the
+     * Output widget to what it was just prior to modifying the Population Parameters
+     */
+    void callback_RestoreOutputSpecies();
+    /**
      * @brief Callback invoked when Estimation run has completed
      * @param outputMsg : output message for Estimation run completion
+     * @param showDiagnosticChart :
      */
-    void callback_RunCompleted(std::string outputMsg);
+    void callback_RunCompleted(std::string outputMsg, bool showDiagnosticChart);
     /**
      * @brief Callback invoked when user runs Estimations as part of a Retrospective Analysis Diagnostics run
      * @param ranges : year ranges for current run
@@ -767,8 +860,9 @@ public slots:
     void callback_RunDiagnosticEstimation(std::vector<std::pair<int,int> > ranges);
     /**
      * @brief Callback invoked with user runs an Estimation
+     * @param showDiagnosticsChart : boolean that when true will show the Diagnostics Chart in the OutputDockWidget
      */
-    void callback_RunEstimation();
+    void callback_RunEstimation(bool showDiagnosticsChart);
     /**
      * @brief Callback invoked when user runs a Forecast
      * @param ForecastName : name of Forecast to run
@@ -840,6 +934,11 @@ public slots:
      */
     bool callback_ShowChartMultiScenario(QStringList SortedForecastLabels);
     /**
+     * @brief Callback invoked when user modifies the Population Parameters with the modifier slider
+     * @return true
+     */
+    bool callback_ShowDiagnostics();
+    /**
      * @brief Callback invoked when user enables the 3d Diagnostics chart functionality
      * @return true
      */
@@ -854,6 +953,10 @@ public slots:
      */
     void callback_SelectCenterSurfacePoint();
     /**
+     * @brief Callback invoked when user presses the Select Minimum Point for the 3d Diagnostics plot
+     */
+    void callback_SelectMinimumSurfacePoint();
+    /**
      * @brief Callback invoked to set the Output Scenario name from the Output Controls GUI
      */
     void callback_SetOutputScenarioForecast();
@@ -861,7 +964,12 @@ public slots:
      * @brief Callback invoked when user changes the application style from the Preferences dialog
      * @param style : style of application (Light or Dark)
      */
-    void callback_SetStyleSheet(QString style);
+    void callback_PreferencesSetStyleSheet(QString style);
+    /**
+     * @brief Callback invoked when user is modifying the Population Parameters and needs to
+     * store the current value of the Output widget's species
+     */
+    void callback_StoreOutputSpecies();
     /**
      * @brief Callback invoked when a Bees Estimation Algorithm sub run has completed
      * @param RunNum : number of run
@@ -887,16 +995,15 @@ public slots:
      */
     void callback_UpdateModelEquationSummary();
     /**
-     * @brief Callback invoked to update the text in the title bar of the main window to include
-     * the application name, project name, and settings file name
+     * @brief Callback invoked when user changes the y axis maximum value slider in the Output Controls GUI
+     * @param value : unused
      */
-    void callback_UpdateWindowTitle();
+    void callback_YAxisMaxValueChanged(int value);
     /**
      * @brief Callback invoked when user changes the y axis minimum value slider in the Output Controls GUI
      * @param value : unused
      */
     void callback_YAxisMinValueChanged(int value);
-
     /**
      * @brief Raises an About MSSPM Dialog
      *
@@ -965,9 +1072,18 @@ public slots:
      */
     void menu_quit();
     /**
+     * @brief Resets the application cursor to the arrow cursor
+     */
+    void menu_resetCursor();
+    /**
      * @brief Save all data generated by current run and display charts
      */
     void menu_saveAndShowCurrentRun();
+    /**
+     * @brief Save all data generated by current run and display charts
+     * @param showDiagnosticChart : boolean to not change chart type
+     */
+    void menu_saveAndShowCurrentRun(bool showDiagnosticChart);
     /**
      * @brief Save all data generated by current run
      */
@@ -977,9 +1093,17 @@ public slots:
      */
     void menu_saveSettings();
     /**
+     * @brief Puts the screen shot functionality in multi shot mode
+     */
+    void menu_screenMultiShot();
+    /**
      * @brief Take a screen shot of the current image displayed
      */
-    void menu_screenshot();
+    void menu_screenShot();
+    /**
+     * @brief Take a screen shot of all of the Species' Biomass plots composited into a single image
+     */
+    void menu_screenShotAll();
     /**
      * @brief Selects all of the table's cells
      */
@@ -1020,6 +1144,9 @@ public slots:
      */
     void menu_whatsThis();
 
+    void callback_PreferencesMShotOkPB();
+    void callback_ErrorFound(std::string errorMsg);
+
 //  /**
 //   * @brief Copy TestData into OutputGrowthRate
 //   */
@@ -1039,6 +1166,7 @@ public slots:
 //  void menu_generateLinearObservedBiomass();
 //  void menu_generateLogisticObservedBiomass();
 //  void menu_generateLogisticMultiSpeciesObservedBiomass();
+
 
 };
 

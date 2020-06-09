@@ -772,13 +772,13 @@ This value is read-only and auto-generated.</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>105</width>
+                    <width>110</width>
                     <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>105</width>
+                    <width>110</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -1061,13 +1061,13 @@ This value is read-only and auto-generated.</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>105</width>
+                    <width>110</width>
                     <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>105</width>
+                    <width>110</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -1090,12 +1090,12 @@ This value is read-only and auto-generated.</string>
                   </item>
                   <item>
                    <property name="text">
-                    <string>F</string>
+                    <string>Exploitation (F)</string>
                    </property>
                   </item>
                   <item>
                    <property name="text">
-                    <string>QE</string>
+                    <string>Effort (qE)</string>
                    </property>
                   </item>
                   <item>

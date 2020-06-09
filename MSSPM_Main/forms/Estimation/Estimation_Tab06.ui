@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>452</width>
-    <height>631</height>
+    <width>542</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,8 +46,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>477</width>
-            <height>515</height>
+            <width>500</width>
+            <height>550</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -83,6 +83,124 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout">
               <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_8">
+                <item>
+                 <widget class="QLabel" name="Estimation_Tab6_ObjectiveCriterionLBL">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>130</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>130</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>Algorithms used to calculate parameter fitness values.</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Algorithms used to calculate parameter fitness values.</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Objective Criteria&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;There are 3 types of Objective Criteria available. Each of these measures how well the estimated biomass fits the observed biomass.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#000000;&quot;&gt;[1] Least Squares&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;The least squares algorithm uses the scaled estimated biomass and scaled observed biomass tables. It calculates the sum of the squares of the differences between these two biomass values over all species and over all years in the model. It uses the formula:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;fitness = ⵉ(Be - Bo)²&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;It then takes the common log (log10) of the final sum+1.  The 1 is added to the final sum so that the log10 won't ever produce a negative number (which it would do if the sum were between 0 and 1).  The closer this value is to 0, the better the fit.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#000000;&quot;&gt;[2] Maximum Likelihood&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The maximum likelihood algorithm uses the unscaled estimated biomass and unscaled observed biomass tables. It combines the values using the following formula:&lt;/p&gt;&lt;p&gt;fitness = Π{[1/sqrt(2πσ²)]*exp((-1/(2*σ²))(Bo-Be)²)}&lt;/p&gt;&lt;p&gt;where σ&lt;span style=&quot; color:#000000;&quot;&gt;²&lt;/span&gt; = (1/(N-1))*&lt;span style=&quot; color:#000000;&quot;&gt;ⵉ[(Bo-Bm)²]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If you take the negative natural log (-ln), fitness becomes:&lt;/p&gt;&lt;p&gt;fitness = ln[sqrt(2π)] + ln[σ] + 0.5*[(Bo-Be)/σ]²&lt;/p&gt;&lt;p&gt;The closer this value is to 0, the better the fit.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#000000;&quot;&gt;[3] Model Efficiency&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;The Nash-Sutcliffe Model Efficiency algorithm uses the scaled estimated biomass and scaled observed biomass tables as well as the mean of the scaled observed biomass.  It combines the values using the following formula: &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;fitness = 1 - ⵉ(Be - Bo)² / ⵉ(Bo - Bm)² &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;to calculate a fitness value. The closer this value is to 1, the better the fit.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>Objective Criterion:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="Estimation_Tab6_ObjectiveCriterionCMB">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>1</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>145</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>145</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>Algorithms used to calculate parameter fitness values.</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>Algorithms used to calculate parameter fitness values.</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Objective Criteria&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;There are 3 types of Objective Criteria available. Each of these measures how well the estimated biomass fits the observed biomass.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#000000;&quot;&gt;[1] Least Squares&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;The least squares algorithm uses the scaled estimated biomass and scaled observed biomass tables. It calculates the sum of the squares of the differences between these two biomass values over all species and over all years in the model. It uses the formula:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;fitness = ⵉ(Be - Bo)²&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;It then takes the common log (log10) of the final sum+1.  The 1 is added to the final sum so that the log10 won't ever produce a negative number (which it would do if the sum were between 0 and 1).  The closer this value is to 0, the better the fit.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#000000;&quot;&gt;[2] Maximum Likelihood&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The maximum likelihood algorithm uses the unscaled estimated biomass and unscaled observed biomass tables. It combines the values using the following formula:&lt;/p&gt;&lt;p&gt;fitness = Π{[1/sqrt(2πσ²)]*exp((-1/(2*σ²))(Bo-Be)²)}&lt;/p&gt;&lt;p&gt;where σ&lt;span style=&quot; color:#000000;&quot;&gt;²&lt;/span&gt; = (1/(N-1))*&lt;span style=&quot; color:#000000;&quot;&gt;ⵉ[(Bo-Bm)²]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If you take the negative natural log (-ln), fitness becomes:&lt;/p&gt;&lt;p&gt;fitness = ln[sqrt(2π)] + ln[σ] + 0.5*[(Bo-Be)/σ]²&lt;/p&gt;&lt;p&gt;The closer this value is to 0, the better the fit.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#000000;&quot;&gt;[3] Model Efficiency&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;The Nash-Sutcliffe Model Efficiency algorithm uses the scaled estimated biomass and scaled observed biomass tables as well as the mean of the scaled observed biomass.  It combines the values using the following formula: &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;fitness = 1 - ⵉ(Be - Bo)² / ⵉ(Bo - Bm)² &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;to calculate a fitness value. The closer this value is to 1, the better the fit.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="currentIndex">
+                   <number>1</number>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>Least Squares</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Maximum Likelihood</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Model Efficiency</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_26">
                 <item>
                  <widget class="QLabel" name="Estimation_Tab6_EstimationAlgorithmLBL">
@@ -111,10 +229,13 @@
                    </font>
                   </property>
                   <property name="toolTip">
-                   <string>Algorithms used to estimate model parameters.</string>
+                   <string>Algorithm types used to estimate model parameters.</string>
                   </property>
                   <property name="statusTip">
-                   <string>Algorithms used to estimate model parameters.</string>
+                   <string>Algorithm types used to estimate model parameters.</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;MSSPM has two parameter estimation libraries available for the user.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[1] Bees Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is a stochastic search algorithm modeled after the foraging behavior of honey bees. It performs a neighborhood search in addition to a global search. An implementation of it was written by Dr Marco Castellani and is available for download at: http://beesalgorithmsite.altervista.org/. It requires the fine tuning of 8 parameters. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[2] NLopt Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is a free/open-source library for nonlinear optimization. It contains both local and global optimization algorithms, although only global algorithms are available in this application. Each algorithm is described in the whatsThis help for the Minimizer Algorithm widgets. These algorithms only require the user to specify a stopping parameter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
                    <string>Estimation Algorithm:</string>
@@ -131,13 +252,13 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>142</width>
+                    <width>145</width>
                     <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>142</width>
+                    <width>145</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -148,10 +269,13 @@
                    </font>
                   </property>
                   <property name="toolTip">
-                   <string>Algorithms used to estimate model parameters.</string>
+                   <string>Algorithm types used to estimate model parameters.</string>
                   </property>
                   <property name="statusTip">
-                   <string>Algorithms used to estimate model parameters.</string>
+                   <string>Algorithm types used to estimate model parameters.</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;MSSPM has two parameter estimation libraries available for the user.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[1] Bees Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is a stochastic search algorithm modeled after the foraging behavior of honey bees. It performs a neighborhood search in addition to a global search. An implementation of it was written by Dr Marco Castellani and is available for download at: http://beesalgorithmsite.altervista.org/. It requires the fine tuning of 8 parameters. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[2] NLopt Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is a free/open-source library for nonlinear optimization. It contains both local and global optimization algorithms, although only global algorithms are available in this application. Each algorithm is described in the whatsThis help for the Minimizer Algorithm widgets. These algorithms only require the user to specify a stopping parameter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <item>
                    <property name="text">
@@ -212,13 +336,13 @@
                    </font>
                   </property>
                   <property name="toolTip">
-                   <string>Objective Function's Minimizing Function</string>
+                   <string>Objective Function's Minimizing Function (i.e., the Parameter Optimization algorithm)</string>
                   </property>
                   <property name="statusTip">
-                   <string>Objective Function's Minimizing Function</string>
+                   <string>Objective Function's Minimizing Function (i.e., the Parameter Optimization algorithm)</string>
                   </property>
                   <property name="whatsThis">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minimizer Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Certain Estimation algorithms use a Minimizer algorithm for their Objective Function.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minimizer Algorithms&lt;/span&gt;&lt;/p&gt;&lt;p&gt;MSSPM includes several minimization (i.e., optimization) algorithms from the NLopt C++ library. The coded algorithm name is of the format {G,L}{N,D}_xxxx where:&lt;/p&gt;&lt;p&gt;&amp;quot;G/L&amp;quot; corresponds to a global/local optimization algorithm&lt;br/&gt;&amp;quot;N/D&amp;quot; corresponds to a derivative-free/gradient-based optimization algorithm&lt;br/&gt;&amp;quot;xxxx&amp;quot; corresponds to the algoriithm's name&lt;/p&gt;&lt;p&gt;The available algorithms are as follows (their descriptions are taken directly from the NLopt page: https://nlopt.readthedocs.io/en/latest/):&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[1] GN_ORIG_DIRECT_L - Original DIviding RECTangles Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Ref: J. M. Gablonsky and C. T. Kelley, &amp;quot;A locally-biased form of the DIRECT algorithm,&amp;quot; J. Global Optimization, vol. 21 (1), p. 27-37 (2001)&lt;/p&gt;&lt;p&gt;This is a deterministic-search algorithm based on systematic division of the search domain into smaller and smaller hyperrectangles. The Gablonsky version makes the algorithm &amp;quot;more biased towards local search&amp;quot; so that it is more efficient for functions without too many local minima. This algorithm, based on the original Fortran code, has a number of hard-coded limitations (i.e., the number of function evaluations). There is some support for arbitrary nonlinear inequality constraints.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[2] GN_DIRECT_L - Locally Biased DIviding RECTangles Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Ref: J. M. Gablonsky and C. T. Kelley, &amp;quot;A locally-biased form of the DIRECT algorithm,&amp;quot; J. Global Optimization, vol. 21 (1), p. 27-37 (2001)&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;This is a deterministic-search algorithm based on systematic division of the search domain into smaller and smaller hyper-rectangles. The Gablonsky version makes the algorithm &amp;quot;more biased towards local search&amp;quot; so that it is more efficient for functions without too many local minima. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[3] GN_DIRECT_L_RAND - Locally Biased DIviding RECTangles Algorithm with Randomization&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Ref: J. M. Gablonsky and C. T. Kelley, &amp;quot;A locally-biased form of the DIRECT algorithm,&amp;quot; J. Global Optimization, vol. 21 (1), p. 27-37 (2001)&lt;/p&gt;&lt;p&gt;This is a deterministic-search algorithm based on systematic division of the search domain into smaller and smaller hyperrectangles. The Gablonsky version makes the algorithm &amp;quot;more biased towards local search&amp;quot; so that it is more efficient for functions without too many local minima. This is a slightly randomized variant of GN_DIRECT_L which uses some randomization to help decide which dimension to halve next in the case of near-ties.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[4] GN_CRS2_LM - Controlled Random Search with Local Mutation&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt;Ref: P. Kaelo and M. M. Ali, &amp;quot;Some variants of the controlled random search algorithm for global optimization,&amp;quot; &lt;/span&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; font-style:italic; color:#000000;&quot;&gt;J. Optim. Theory Appl.&lt;/span&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt; 130 (2), 253-264 (2006)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt;This algorithm is sometime compared to a genetic algorithm as it starts with a random population of points and randomly evolve these points by heuristic rules. For this algorithm, the &amp;quot;evolution&amp;quot; somewhat resembles a randomized Nelder-Mead algorithm.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[5] GD_StoGO - Stochastic Global Optimization&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt;Ref: K. Madsen, S. Zertchaninov, and A. Zilinskas, &amp;quot;Global Optimization using Branch-and-Bound,&amp;quot; unpublished (1998).&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt;This algorithm is a global optimization algorithm that works by systematically dividing the search space (which must be bound-constrained) into smaller hyper-rectangles via a branch-and-bound technique, and searching them by a gradient-based local-search algorithm (a BFGS variant), optionally including some randomness.&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
                    <string>Minimizer Algorithm:</string>
@@ -238,13 +362,13 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>142</width>
+                    <width>145</width>
                     <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>142</width>
+                    <width>145</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -255,132 +379,38 @@
                    </font>
                   </property>
                   <property name="toolTip">
-                   <string>Objective Function's Minimizing Function</string>
+                   <string>Objective Function's Minimizing Function (i.e., the Parameter Optimization algorithm)</string>
                   </property>
                   <property name="statusTip">
-                   <string>Objective Function's Minimizing Function</string>
+                   <string>Objective Function's Minimizing Function (i.e., the Parameter Optimization algorithm)</string>
                   </property>
                   <property name="whatsThis">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minimizer Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Certain Estimation algorithms use a Minimizer algorithm for their Objective Function.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minimizer Algorithms&lt;/span&gt;&lt;/p&gt;&lt;p&gt;MSSPM includes several minimization (i.e., optimization) algorithms from the NLopt C++ library. The coded algorithm name is of the format {G,L}{N,D}_xxxx where:&lt;/p&gt;&lt;p&gt;&amp;quot;G/L&amp;quot; corresponds to a global/local optimization algorithm&lt;br/&gt;&amp;quot;N/D&amp;quot; corresponds to a derivative-free/gradient-based optimization algorithm&lt;br/&gt;&amp;quot;xxxx&amp;quot; corresponds to the algoriithm's name&lt;/p&gt;&lt;p&gt;The available algorithms are as follows (their descriptions are taken directly from the NLopt page: https://nlopt.readthedocs.io/en/latest/):&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[1] GN_ORIG_DIRECT_L - Original DIviding RECTangles Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Ref: J. M. Gablonsky and C. T. Kelley, &amp;quot;A locally-biased form of the DIRECT algorithm,&amp;quot; J. Global Optimization, vol. 21 (1), p. 27-37 (2001)&lt;/p&gt;&lt;p&gt;This is a deterministic-search algorithm based on systematic division of the search domain into smaller and smaller hyperrectangles. The Gablonsky version makes the algorithm &amp;quot;more biased towards local search&amp;quot; so that it is more efficient for functions without too many local minima. This algorithm, based on the original Fortran code, has a number of hard-coded limitations (i.e., the number of function evaluations). There is some support for arbitrary nonlinear inequality constraints.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[2] GN_DIRECT_L - Locally Biased DIviding RECTangles Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Ref: J. M. Gablonsky and C. T. Kelley, &amp;quot;A locally-biased form of the DIRECT algorithm,&amp;quot; J. Global Optimization, vol. 21 (1), p. 27-37 (2001)&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;This is a deterministic-search algorithm based on systematic division of the search domain into smaller and smaller hyper-rectangles. The Gablonsky version makes the algorithm &amp;quot;more biased towards local search&amp;quot; so that it is more efficient for functions without too many local minima. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[3] GN_DIRECT_L_RAND - Locally Biased DIviding RECTangles Algorithm with Randomization&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Ref: J. M. Gablonsky and C. T. Kelley, &amp;quot;A locally-biased form of the DIRECT algorithm,&amp;quot; J. Global Optimization, vol. 21 (1), p. 27-37 (2001)&lt;/p&gt;&lt;p&gt;This is a deterministic-search algorithm based on systematic division of the search domain into smaller and smaller hyperrectangles. The Gablonsky version makes the algorithm &amp;quot;more biased towards local search&amp;quot; so that it is more efficient for functions without too many local minima. This is a slightly randomized variant of GN_DIRECT_L which uses some randomization to help decide which dimension to halve next in the case of near-ties.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[4] GN_CRS2_LM - Controlled Random Search with Local Mutation&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt;Ref: P. Kaelo and M. M. Ali, &amp;quot;Some variants of the controlled random search algorithm for global optimization,&amp;quot; &lt;/span&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; font-style:italic; color:#000000;&quot;&gt;J. Optim. Theory Appl.&lt;/span&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt; 130 (2), 253-264 (2006)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt;This algorithm is sometime compared to a genetic algorithm as it starts with a random population of points and randomly evolve these points by heuristic rules. For this algorithm, the &amp;quot;evolution&amp;quot; somewhat resembles a randomized Nelder-Mead algorithm.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[5] GD_StoGO - Stochastic Global Optimization&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt;Ref: K. Madsen, S. Zertchaninov, and A. Zilinskas, &amp;quot;Global Optimization using Branch-and-Bound,&amp;quot; unpublished (1998).&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'arial, sans-serif'; color:#000000;&quot;&gt;This algorithm is a global optimization algorithm that works by systematically dividing the search space (which must be bound-constrained) into smaller hyper-rectangles via a branch-and-bound technique, and searching them by a gradient-based local-search algorithm (a BFGS variant), optionally including some randomness.&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <spacer name="horizontalSpacer_6">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_8">
-                <item>
-                 <widget class="QLabel" name="Estimation_Tab6_ObjectiveCriterionLBL">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>130</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>130</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
+                 <widget class="QComboBox" name="Estimation_Tab6_MinimizerTypeCMB">
                   <property name="toolTip">
-                   <string>Algorithms used to calculate parameter fitness values.</string>
+                   <string>Valid types are global or local</string>
                   </property>
                   <property name="statusTip">
-                   <string>Algorithms used to calculate parameter fitness values.</string>
+                   <string>Valid types are global or local</string>
                   </property>
-                  <property name="text">
-                   <string>Objective Criterion:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="Estimation_Tab6_ObjectiveCriterionCMB">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>1</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>142</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>142</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="toolTip">
-                   <string>Algorithms used to calculate parameter fitness values.</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>Algorithms used to calculate parameter fitness values.</string>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minimizer Type&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The NLopt algorithms are divided into 2 main groups: global and local. Setting the type here will allow only those types of algorithms to be displayed in the drop down box to the left.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <item>
                    <property name="text">
-                    <string>Least Squares</string>
+                    <string>global</string>
                    </property>
                   </item>
                   <item>
                    <property name="text">
-                    <string>Model Efficiency</string>
+                    <string>local</string>
                    </property>
                   </item>
                  </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
                 </item>
                </layout>
               </item>
@@ -407,10 +437,13 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Set the type of normalization desired for the Biomass time series data</string>
+                   <string>The type of normalization desired for the Biomass time series data</string>
                   </property>
                   <property name="statusTip">
-                   <string>Set the type of normalization desired for the Biomass time series data</string>
+                   <string>The type of normalization desired for the Biomass time series data</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Scaling Algorithms&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Since the biomass values for each species most likely are not scaled the same, these algorithms will rescale those data so that the final fitness values for each species may be combined.&lt;/p&gt;&lt;p&gt;N.B. This option is not available for the Maximum Likelihood Objective Criterion since rescaling data for that algorithm causes erroneous results when calculating the necessary sigma value.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[1] Mean&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This algorithm rescales each year's biomass data according to:&lt;/p&gt;&lt;p&gt;(B - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;ave&lt;/span&gt;) / (B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;)&lt;/p&gt;&lt;p&gt;where B is the biomass value for a particular species at a particular year, B&lt;span style=&quot; vertical-align:sub;&quot;&gt;ave&lt;/span&gt; is the average biomass over all years for a particular species, and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt; are the maximum and minimum biomass values for a particular species.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[2] Min Max&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This algorithm rescales each year's biomass data according to:&lt;/p&gt;&lt;p&gt;(B - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;) / (B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;)&lt;/p&gt;&lt;p&gt;where B is the biomass value for a particular species at a particular year and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt; are the maximum and minimum biomass values for a particular species.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
                    <string>Scaling Algorithm:</string>
@@ -427,21 +460,24 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>142</width>
+                    <width>145</width>
                     <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>142</width>
+                    <width>145</width>
                     <height>16777215</height>
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Set the type of normalization desired for the Biomass time series data</string>
+                   <string>The type of normalization desired for the Biomass time series data</string>
                   </property>
                   <property name="statusTip">
-                   <string>Set the type of normalization desired for the Biomass time series data</string>
+                   <string>The type of normalization desired for the Biomass time series data</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Scaling Algorithms&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Since the biomass values for each species most likely are not scaled the same, these algorithms will rescale those data so that the final fitness values for each species may be combined.&lt;/p&gt;&lt;p&gt;N.B. This option is not available for the Maximum Likelihood Objective Criterion since rescaling data for that algorithm causes erroneous results when calculating the necessary sigma value.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[1] Mean&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This algorithm rescales each year's biomass data according to:&lt;/p&gt;&lt;p&gt;(B - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;ave&lt;/span&gt;) / (B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;)&lt;/p&gt;&lt;p&gt;where B is the biomass value for a particular species at a particular year, B&lt;span style=&quot; vertical-align:sub;&quot;&gt;ave&lt;/span&gt; is the average biomass over all years for a particular species, and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt; are the maximum and minimum biomass values for a particular species.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[2] Min Max&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This algorithm rescales each year's biomass data according to:&lt;/p&gt;&lt;p&gt;(B - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;) / (B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;)&lt;/p&gt;&lt;p&gt;where B is the biomass value for a particular species at a particular year and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt; are the maximum and minimum biomass values for a particular species.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <item>
                    <property name="text">
@@ -1358,7 +1394,7 @@ with the non-assigned bees being assigned to random positions.</string>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_35">
                 <item>
-                 <widget class="QCheckBox" name="Estimation_Tab6_NL_StopValCB">
+                 <widget class="QCheckBox" name="Estimation_Tab6_NL_StopAfterValueCB">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -1392,7 +1428,7 @@ with the non-assigned bees being assigned to random positions.</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="Estimation_Tab6_NL_StopValLE">
+                 <widget class="QLineEdit" name="Estimation_Tab6_NL_StopAfterValueLE">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
@@ -1534,16 +1570,16 @@ with the non-assigned bees being assigned to random positions.</string>
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Estimation execution stops when this many iterations have been completed</string>
+                   <string>Estimation execution stops when this many function evaluations have been completed</string>
                   </property>
                   <property name="statusTip">
-                   <string>Estimation execution stops when this many iterations have been completed</string>
+                   <string>Estimation execution stops when this many function evaluations have been completed</string>
                   </property>
                   <property name="whatsThis">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of function evaluations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
-                   <string>Stop after (iterations):</string>
+                   <string>Stop after (fcn evals):</string>
                   </property>
                  </widget>
                 </item>
@@ -1571,13 +1607,13 @@ with the non-assigned bees being assigned to random positions.</string>
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Estimation execution stops when this many iterations have been completed</string>
+                   <string>Estimation execution stops when this many function evaluations have been completed</string>
                   </property>
                   <property name="statusTip">
-                   <string>Estimation execution stops when this many iterations have been completed</string>
+                   <string>Estimation execution stops when this many function evaluations have been completed</string>
                   </property>
                   <property name="whatsThis">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of function evaluations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="minimum">
                    <number>1</number>

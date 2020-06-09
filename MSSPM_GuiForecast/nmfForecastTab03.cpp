@@ -63,8 +63,8 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_Rho   = QString("Predation (")   + QChar(0x03C1) + QString(")");
     m_FormMap["Linear"]   = {"Growth Rate (r)"};
     m_FormMap["Logistic"] = {"Growth Rate (r)","Carrying Capacity (K)"};
-    m_FormMap["F"]        = {"Exploitation"};
-    m_FormMap["QE"]       = {"Catchability (q)","Effort"};
+    m_FormMap["Exploitation (F)"] = {"Exploitation"};
+    m_FormMap["Effort (qE)"]      = {"Catchability (q)","Effort"};
     m_FormMap["Catch"]    = {"Catch"};
     m_FormMap["NO_K"]     = {m_Alpha.toStdString()};
     m_FormMap["MS-PROD"]  = {m_BetaS.toStdString(),m_BetaG.toStdString()};

@@ -46,6 +46,7 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
     double MeanFitness     = 0;
     double lastBestFitness = 99999;
     std::string msg;
+    std::string errorMsg;
     std::string bestFitnessStr;
     std::vector<double> lastBestParameters;
 
@@ -88,7 +89,15 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
         beesStats = std::make_unique<BeesStats>(
                     beeStruct.TotalNumberParameters,NumSubRuns);
         beesAlg->initializeParameterRangesAndPatchSizes();
-        ok = beesAlg->estimateParameters(bestFitness,EstParameters,RunNum,subRunNum);
+        errorMsg.clear();
+        ok = beesAlg->estimateParameters(
+                    bestFitness,EstParameters,
+                    RunNum,subRunNum,errorMsg);
+        if (! errorMsg.empty()) {
+            ok = false;
+            emit ErrorFound(errorMsg);
+            break;
+        }
         if (ok) {
             msg = "Run " + std::to_string(subRunNum);
             printBee(msg,bestFitness,EstParameters);
@@ -137,7 +146,7 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
         numTotalParameters = EstParameters.size();
         createOutputStr(numTotalParameters,numEstParameters,NumSubRuns,
                         bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
-        emit RunCompleted(bestFitnessStr);
+        emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
 
     }
     std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtils::elapsedTime(startTime);
@@ -196,7 +205,7 @@ Bees_Estimator::createOutputStr(const int&         numTotalParameters,
         bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity",m_EstCarryingCapacities,true);
     }
 
-    if (harvestForm == "QE") {
+    if (harvestForm == "Effort (qE)") {
         bestFitnessStr += convertValues1DToOutputStr("Catchability",m_EstCatchability,false);
     }
 
@@ -247,12 +256,12 @@ Bees_Estimator::convertValues1DToOutputStr(const std::string& label,
     bestFitnessStr += "<br>&nbsp;&nbsp;" + label + ":&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
     for (unsigned i=0; i<values.size(); ++i) {
         val = values[i];
-        bestFitnessStr += nmfUtils::to_string_scientificNotation(val) + "&nbsp;&nbsp;";
+        bestFitnessStr += nmfUtils::convertToScientificNotation(val) + "&nbsp;&nbsp;";
         totalVal += val;
     }
     if (includeTotal) {
         bestFitnessStr += "<br>&nbsp;&nbsp;Total " + label + ":&nbsp;&nbsp;" +
-                nmfUtils::to_string_scientificNotation(totalVal);
+                nmfUtils::convertToScientificNotation(totalVal);
     }
 
     return bestFitnessStr;
@@ -271,7 +280,7 @@ Bees_Estimator::convertValues2DToOutputStr(const std::string& label,
             if ((i == 0) && (j == 0)) {
                 bestFitnessStr += "&nbsp;&nbsp;" + label + ":<br>&nbsp;&nbsp;";
             }
-            bestFitnessStr += "&nbsp;&nbsp;&nbsp;" + nmfUtils::to_string_scientificNotation(matrix(i,j));
+            bestFitnessStr += "&nbsp;&nbsp;&nbsp;" + nmfUtils::convertToScientificNotation(matrix(i,j));
         }
     }
 

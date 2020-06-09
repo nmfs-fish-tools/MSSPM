@@ -41,10 +41,10 @@ SOURCES += \
     PreferencesDialog.cpp
 
 HEADERS  += \
+    mainpage.h \
     nmfMainWindow.h \
     ClearOutputDialog.h \
-    PreferencesDialog.h \
-    precompiled_header.h
+    PreferencesDialog.h
 
 FORMS += \
     nmfMainWindow.ui

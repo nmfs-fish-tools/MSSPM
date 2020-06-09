@@ -1,9 +1,32 @@
-/** @file nmfOutputControls.h
+/**
+ * @file nmfOutputControls.h
  * @brief GUI definition for the Control widgets class MSSPM_GuiOutputControls in the Output area
  *
  * This file contains the GUI definitions for the Output Control widgets. This
  * class describes the widgets that the user will use to control the selection,
  * behavior, and appearance of the Output plots.
+ *
+ * @copyright
+ * Public Domain Notice\n
+ *
+ * National Oceanic And Atmospheric Administration\n\n
+ *
+ * This software is a "United States Government Work" under the terms of the
+ * United States Copyright Act.  It was written as part of the author's official
+ * duties as a United States Government employee/contractor and thus cannot be copyrighted.
+ * This software is freely available to the public for use. The National Oceanic
+ * And Atmospheric Administration and the U.S. Government have not placed any
+ * restriction on its use or reproduction.  Although all reasonable efforts have
+ * been taken to ensure the accuracy and reliability of the software and data,
+ * the National Oceanic And Atmospheric Administration and the U.S. Government
+ * do not and cannot warrant the performance or results that may be obtained
+ * by using this software or data. The National Oceanic And Atmospheric
+ * Administration and the U.S. Government disclaim all warranties, express
+ * or implied, including warranties of performance, merchantability or fitness
+ * for any particular purpose.\n\n
+ *
+ * Please cite the author(s) in any work or product based on this material.
+ *
  */
 
 #ifndef MSSPM_GUIOUTPUTCONTROLS_H
@@ -13,6 +36,8 @@
 #include <QMessageBox>
 #include <QGroupBox>
 #include <QComboBox>
+#include <QCheckBox>
+#include <QSpinBox>
 
 /**
  * @brief
@@ -40,17 +65,22 @@ class MSSPM_GuiOutputControls: public QObject
     QLabel*      OutputScenariosLBL;
     QLabel*      OutputAgeListLBL;
     QLabel*      OutputYAxisMinLBL;
+    QLabel*      OutputYAxisMaxLBL;
     QLabel*      OutputScaleLBL;
     QLabel*      OutputLineBrightnessLBL;
+    QLabel*      OutputShowShadowLBL;
     QSlider*     OutputLineBrightnessSL;
     QComboBox*   OutputSpeciesCMB;
     QComboBox*   OutputParametersCMB;
     QComboBox*   OutputMethodsCMB;
     QComboBox*   OutputScenariosCMB;
     QCheckBox*   OutputParametersCB;
-    QPushButton* OutputParametersPB;
+    QPushButton* OutputParametersCenterPB;
+    QPushButton* OutputParametersMinimumPB;
     QComboBox*   OutputTypeCMB;
     QSlider*     OutputYAxisMinSL;
+//    QSlider*     OutputYAxisMaxSL;
+    QSpinBox*    OutputYAxisMaxSB;
     QComboBox*   OutputScaleCMB;
     QListView*   OutputAgeListLV;
     QListView*   OutputSpeListLV;
@@ -61,6 +91,7 @@ class MSSPM_GuiOutputControls: public QObject
     QLineEdit*   OutputShowMSYLE;
     QLineEdit*   OutputShowFMSYLE;
     QGroupBox*   ControlsGroupBox;
+    QCheckBox*   OutputShowShadowCB;
 
     void initConnections();
     void initWidgets();
@@ -70,6 +101,12 @@ class MSSPM_GuiOutputControls: public QObject
     bool isAggProd();
     void loadSortedForecastLabels();
     void readSettings();
+
+    /**
+     * @brief Show data in the data table only if use is viewing 2d data and not for the 3d data chart.
+     * @param showTable : boolean specifying whether table should be shown or not
+     */
+    void showDataTable(bool showTable);
 
 public:
     /**
@@ -157,6 +194,11 @@ public:
      */
     QModelIndexList getListViewSelectedIndexes();
     /**
+     * @brief Get the Y Max slider value which allows the user to change the maximum value that appears on the y-axis.
+     * @return The value set by the user on this slider widget
+     */
+    int             getYMaxSliderVal();
+    /**
      * @brief Get the Y Min slider value which allows the user to change the minimum value that appears on the y-axis.
      * @return The value set by the user on this slider widget
      */
@@ -183,6 +225,11 @@ public:
      */
     bool            isCheckedOutputFMSY();
     /**
+     * @brief Informs the user if the Show Shadow box is checked
+     * @return The state of the Show Shadow box
+     */
+    bool            isShadowShown();
+    /**
      * @brief Loads the Species list view widget that's used for specific (but currently disabled) Output chart types
      */
     void            loadSpeciesControlWidget();
@@ -202,6 +249,16 @@ public:
      * @brief Saves any Output Controls specific values to the Qt Settings file
      */
     void            saveSettings();
+    /**
+     * @brief Sets the Species combobox to be the passed species
+     * @param species : the species to set the species combo box
+     */
+    void setCurrentSpecies(QString species);
+    /**
+     * @brief Sets the current species of the Species combobox widget to the passed species
+     * @param species : the species to set the output species combo box to
+     */
+    void            setOutputSpecies(QString species);
     /**
      * @brief Sets the current index of the Species combobox widget to the passed index value
      * @param index : the index with which to set the Species combobox widget
@@ -263,11 +320,17 @@ signals:
      */
     void ResetFilterButtons();
     /**
-     * @brief Signal emiited when the user has pressed the Output controls button signifying they want to reset the 3d surface "current point" button
+     * @brief Signal emitted when the user has pressed the Output controls button signifying they
+     * want to reset the 3d surface "current point" button to the center point
      */
     void SelectCenterSurfacePoint();
     /**
-     * @brief Signal emiited when the user selects a 2d surface visualization chart type
+     * @brief Signal emitted when the user has pressed the Output controls button signifying they
+     * want to reset the 3d surface "current point" button to the minimum point
+     */
+    void SelectMinimumSurfacePoint();
+    /**
+     * @brief Signal emitted when the user selects a 2d surface visualization chart type
      * @param isVisible : boolean set to True for 2d chart or False for 3d chart
      */
     void SetChartView2d(bool isVisible);
@@ -291,7 +354,11 @@ signals:
      */
     void ShowChartMohnsRho();
     /**
-     * @brief Signal emitted when the user has changed the Y Axis Minumun Value slider widget
+     * @brief Signal emitted when the user has changed the Y Axis Maximum Value slider widget
+     */
+    void YAxisMaxValueChanged(int value);
+    /**
+     * @brief Signal emitted when the user has changed the Y Axis Minimum Value slider widget
      */
     void YAxisMinValueChanged(int value);
 
@@ -342,6 +409,11 @@ public slots:
      */
     void callback_OutputShowFMSYCB(int val);
     /**
+     * @brief Callback invoked when the user checks the Show Shadow check box
+     * @param dummy - unused
+     */
+    void callback_OutputShowShadowCB(int dummy);
+    /**
      * @brief Callback invoked when the user selects from the Scale Factor combo box widget
      * @param scale : the y-axis scale selected, values are strings of 0 triples (i.e., "000" or "000 000")
      */
@@ -352,6 +424,11 @@ public slots:
      */
     void callback_OutputLineBrightnessSL(int value);
     /**
+     * @brief Callback invoked when the user modifies the Y-Axis Maximum value slider
+     * @param value : the maximum value of the y-axis to set
+     */
+    void callback_OutputYAxisMaxSB(int value);
+    /**
      * @brief Callback invoked when the user modifies the Y-Axis Minimum value slider
      * @param value : the minimum value of the y-axis to set
      */
@@ -360,7 +437,12 @@ public slots:
      * @brief Callback invoked when the user clicks the Parameters button which resets the
      * current point to be the center point on the 3d data view's surface
      */
-    void callback_OutputParametersPB();
+    void callback_OutputParametersCenterPB();
+    /**
+     * @brief Callback invoked when the user clicks the Parameters button which resets the
+     * current point to be the minimum point on the 3d data view's surface
+     */
+    void callback_OutputParametersMinimumPB();
     /**
      * @brief Callback invoked to set Control widgets appropriately if model is an
      * AggProd model (i.e., inclusion of Guilds in Control widgets)

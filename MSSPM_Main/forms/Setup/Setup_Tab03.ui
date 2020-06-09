@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>503</width>
-    <height>402</height>
+    <width>881</width>
+    <height>529</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,6 +22,9 @@
   <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
     <widget class="QTabWidget" name="Setup_Tab3_GuildsSpeciesTabW">
+     <property name="whatsThis">
+      <string/>
+     </property>
      <property name="currentIndex">
       <number>1</number>
      </property>

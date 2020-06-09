@@ -1,4 +1,5 @@
-/** @file nmfSetupTab04.h
+/**
+ * @file nmfSetupTab04.h
  * @brief GUI definition for the Setup Model page class nmfSetup_Tab4
  *
  * This file contains the GUI definitions for the Setup Model page. This
@@ -7,6 +8,27 @@
  * the user constructs their Model by selecting types from each of the 4 forms:
  * Growth, Harvest, Competition, and Predation. The user can then inspect the resulting formula
  * created in the Model Equation window and highlight each form for clarity.
+ *
+ * @copyright
+ * Public Domain Notice\n
+ *
+ * National Oceanic And Atmospheric Administration\n\n
+ *
+ * This software is a "United States Government Work" under the terms of the
+ * United States Copyright Act.  It was written as part of the author's official
+ * duties as a United States Government employee/contractor and thus cannot be copyrighted.
+ * This software is freely available to the public for use. The National Oceanic
+ * And Atmospheric Administration and the U.S. Government have not placed any
+ * restriction on its use or reproduction.  Although all reasonable efforts have
+ * been taken to ensure the accuracy and reliability of the software and data,
+ * the National Oceanic And Atmospheric Administration and the U.S. Government
+ * do not and cannot warrant the performance or results that may be obtained
+ * by using this software or data. The National Oceanic And Atmospheric
+ * Administration and the U.S. Government disclaim all warranties, express
+ * or implied, including warranties of performance, merchantability or fitness
+ * for any particular purpose.\n\n
+ *
+ * Please cite the author(s) in any work or product based on this material.
  */
 
 #ifndef NMFSETUPTAB4_H
@@ -35,6 +57,7 @@ class nmfSetup_Tab4: public QObject
     std::vector<std::string> m_ModelPresetNames;
     std::map<std::string,std::vector<std::string> > m_ModelPresets;
     LoadDlg*     m_LoadDialog;
+    QStringList  m_EstimatedParameters;
 
     QTabWidget*  Setup_Tabs;
     QLabel*      Setup_Tab4_ModelPresetsLBL;
@@ -81,6 +104,7 @@ class nmfSetup_Tab4: public QObject
     void clearWidgets();
     void loadSystem();
     void readSettings();
+    void setEstimatedParameterNames();
     void saveSettings();
     void setModelName(std::string modelName);
     void updateOutputWidget();
@@ -112,6 +136,11 @@ public:
      * @param key : The description of all of the variables comprising the current Model Equation
      */
     void drawEquation(QString label, QString eqn, QString key);
+    /**
+     * @brief Gets the QString list of estimated parameter names
+     * @return QStringList of estimated parameter names
+     */
+    QStringList getEstimatedParameterNames();
     /**
      * @brief Gets the font size for the Model Equation text box
      * @return The font size for the Model Equation text box

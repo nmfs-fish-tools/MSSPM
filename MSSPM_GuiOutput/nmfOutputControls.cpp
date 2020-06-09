@@ -44,6 +44,8 @@ MSSPM_GuiOutputControls::initWidgets()
     QHBoxLayout* MSYLayt     = new QHBoxLayout();
     QHBoxLayout* FMSYLayt    = new QHBoxLayout();
     QHBoxLayout* ParametersLayt = new QHBoxLayout();
+    QHBoxLayout* ScaleLayt  = new QHBoxLayout();
+    QHBoxLayout* ShadowLayt = new QHBoxLayout();
     OutputTypeLBL           = new QLabel("Chart Type:");
     OutputSpeciesLBL        = new QLabel("Species:");
     OutputSpeListLBL        = new QLabel("Species:");
@@ -51,6 +53,7 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputParametersLBL     = new QLabel("Parameters:");
     OutputScenariosLBL      = new QLabel("Scenarios:");
     OutputYAxisMinLBL       = new QLabel("YAxis Min:");
+    OutputYAxisMaxLBL       = new QLabel("YAxis Max:");
     OutputScaleLBL          = new QLabel("Scale Factor:");
     OutputLineBrightnessLBL = new QLabel("Forecast Run Brightness:");
     OutputLineBrightnessSL  = new QSlider(Qt::Horizontal);
@@ -66,9 +69,11 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputMethodsCMB     = new QComboBox();
     OutputScenariosCMB   = new QComboBox();
     OutputParametersCB   = new QCheckBox();
-    OutputParametersPB   = new QPushButton();
+    OutputParametersCenterPB  = new QPushButton();
+    OutputParametersMinimumPB = new QPushButton();
     OutputScaleCMB       = new QComboBox();
     OutputYAxisMinSL     = new QSlider(Qt::Horizontal);
+    OutputYAxisMaxSB     = new QSpinBox();
     OutputSpeListLV      = new QListView();
     OutputShowBMSYCB     = new QCheckBox("B MSY:");
     OutputShowBMSYLE     = new QLineEdit();
@@ -76,6 +81,8 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputShowMSYLE      = new QLineEdit();
     OutputShowFMSYCB     = new QCheckBox("F MSY:");
     OutputShowFMSYLE     = new QLineEdit();
+    OutputShowShadowCB   = new QCheckBox();
+    OutputShowShadowLBL  = new QLabel("3d Surface Shadow: ");
     OutputShowBMSYCB->setMinimumWidth(120);
     OutputShowMSYCB->setMinimumWidth(120);
     OutputShowFMSYCB->setMinimumWidth(120);
@@ -87,7 +94,8 @@ MSSPM_GuiOutputControls::initWidgets()
     FMSYLayt->addWidget(OutputShowFMSYLE);
     OutputParametersCMB->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
     ParametersLayt->addWidget(OutputParametersCMB);
-    ParametersLayt->addWidget(OutputParametersPB);
+    ParametersLayt->addWidget(OutputParametersCenterPB);
+    ParametersLayt->addWidget(OutputParametersMinimumPB);
     ParametersLayt->addWidget(OutputParametersCB);
     controlLayt->addWidget(OutputTypeLBL);
     controlLayt->addWidget(OutputTypeCMB);
@@ -109,8 +117,16 @@ MSSPM_GuiOutputControls::initWidgets()
     controlLayt->addWidget(OutputLineBrightnessSL);
     controlLayt->addWidget(OutputYAxisMinLBL);
     controlLayt->addWidget(OutputYAxisMinSL);
-    controlLayt->addWidget(OutputScaleLBL);
-    controlLayt->addWidget(OutputScaleCMB);
+    controlLayt->addWidget(OutputYAxisMaxLBL);
+    controlLayt->addWidget(OutputYAxisMaxSB);
+    ScaleLayt->addWidget(OutputScaleLBL);
+    ScaleLayt->addWidget(OutputScaleCMB);
+    ScaleLayt->addStretch();
+    controlLayt->addLayout(ScaleLayt);
+    ShadowLayt->addWidget(OutputShowShadowLBL);
+    ShadowLayt->addWidget(OutputShowShadowCB);
+    ShadowLayt->addStretch();
+    controlLayt->addLayout(ShadowLayt);
     ControlsGroupBox->setLayout(controlLayt);
     OutputSpeListLBL->setEnabled(false);
     OutputSpeListLV->setEnabled(false);
@@ -131,12 +147,18 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputYAxisMinLBL->setStatusTip("Set the min value of the y-axis");
     OutputYAxisMinSL->setToolTip("Set the min value of the y-axis");
     OutputYAxisMinSL->setStatusTip("Set the min value of the y-axis");
+    OutputYAxisMaxLBL->setToolTip("Set the max value of the y-axis");
+    OutputYAxisMaxLBL->setStatusTip("Set the max value of the y-axis");
+    OutputYAxisMaxSB->setToolTip("Set the max value of the y-axis");
+    OutputYAxisMaxSB->setStatusTip("Set the max value of the y-axis");
     OutputScenariosLBL->setToolTip("These are the available Forecast Scenarios");
     OutputScenariosLBL->setStatusTip("These are the available Forecast Scenarios");
     OutputScenariosCMB->setToolTip("These are the available Multi-Forecast Scenarios");
     OutputScenariosCMB->setStatusTip("These are the available Multi-Forecast Scenarios");
     OutputYAxisMinSL->setMaximum(100);
     OutputYAxisMinSL->setValue(OutputYAxisMinSL->maximum());
+    OutputYAxisMaxSB->setMaximum(99999);
+    OutputYAxisMaxSB->setValue(OutputYAxisMaxSB->maximum());
     OutputShowBMSYLE->setReadOnly(true);
     OutputShowMSYLE->setReadOnly(true);
     OutputShowFMSYLE->setReadOnly(true);
@@ -145,6 +167,10 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputShowBMSYLE->setAlignment(Qt::AlignRight);
     OutputShowMSYLE->setAlignment(Qt::AlignRight);
     OutputShowFMSYLE->setAlignment(Qt::AlignRight);
+    OutputShowShadowLBL->setToolTip("Toggles the 3d surface's shadow");
+    OutputShowShadowLBL->setStatusTip("Toggles the 3d surface's shadow");
+    OutputShowShadowCB->setToolTip("Toggles the 3d surface's shadow");
+    OutputShowShadowCB->setStatusTip("Toggles the 3d surface's shadow");
 
     OutputTypeLBL->setToolTip("The type of chart that will be displayed");
     OutputTypeLBL->setStatusTip("The type of chart that will be displayed");
@@ -169,6 +195,8 @@ MSSPM_GuiOutputControls::initWidgets()
         OutputTypeCMB->model()->setData(index, vNull, Qt::UserRole-1);
     }
 
+    QIcon centerIcon(":/icons/center.png");
+    QIcon minimumIcon(":/icons/minimum.png");
     OutputMethodsCMB->addItem("Parameter Profiles");
     OutputMethodsCMB->addItem("Retrospective Analysis");
     OutputParametersLBL->setEnabled(false);
@@ -178,12 +206,20 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputParametersCB->setText("");
     OutputParametersCB->setToolTip("Toggles between 2d and 3d Diagnostics View");
     OutputParametersCB->setStatusTip("Toggles between 2d and 3d Diagnostics View");
-    OutputParametersPB->setText("");
-    OutputParametersPB->setFixedWidth(15);
-    OutputParametersPB->setFixedHeight(20);
-    OutputParametersPB->setToolTip("Selects center point on surface\n(i.e., the estimated r and K values)");
-    OutputParametersPB->setStatusTip("Selects center point on surface\n(i.e., the estimated r and K values)");
-    OutputParametersPB->setEnabled(false);
+    OutputParametersCenterPB->setText("");
+    OutputParametersCenterPB->setIcon(centerIcon);
+    OutputParametersCenterPB->setFixedWidth(20);
+    OutputParametersCenterPB->setFixedHeight(20);
+    OutputParametersCenterPB->setToolTip("Selects center point on surface\n(i.e., the estimated r and K values)");
+    OutputParametersCenterPB->setStatusTip("Selects center point on surface\n(i.e., the estimated r and K values)");
+    OutputParametersCenterPB->setEnabled(false);
+    OutputParametersMinimumPB->setText("");
+    OutputParametersMinimumPB->setIcon(minimumIcon);
+    OutputParametersMinimumPB->setFixedWidth(20);
+    OutputParametersMinimumPB->setFixedHeight(20);
+    OutputParametersMinimumPB->setToolTip("Selects minimum point on surface\n(i.e., the estimated r and K values)");
+    OutputParametersMinimumPB->setStatusTip("Selects minimum point on surface\n(i.e., the estimated r and K values)");
+    OutputParametersMinimumPB->setEnabled(false);
     OutputScenariosLBL->setEnabled(false);
     OutputScenariosCMB->setEnabled(false);
     OutputMethodsCMB->setEnabled(false);
@@ -220,10 +256,26 @@ MSSPM_GuiOutputControls::initWidgets()
 
     OutputShowMSYCB->setEnabled( false);
     OutputShowFMSYCB->setEnabled(false);
+    OutputYAxisMaxLBL->setEnabled(false);
+    OutputYAxisMaxSB->setEnabled(false);
+    OutputShowShadowCB->setEnabled(false);
+    OutputShowShadowCB->setChecked(true);
+    OutputShowShadowLBL->setEnabled(false);
 
     ControlsGroupBox->setMinimumHeight(100);
 }
 
+bool
+MSSPM_GuiOutputControls::isShadowShown()
+{
+    return OutputShowShadowCB->isChecked();
+}
+
+void
+MSSPM_GuiOutputControls::setCurrentSpecies(QString species)
+{
+    OutputSpeciesCMB->setCurrentText(species);
+}
 
 void
 MSSPM_GuiOutputControls::initConnections()
@@ -250,10 +302,16 @@ MSSPM_GuiOutputControls::initConnections()
             this,                   SLOT(callback_OutputScaleCMB(QString)));
     connect(OutputLineBrightnessSL, SIGNAL(valueChanged(int)),
             this,                   SLOT(callback_OutputLineBrightnessSL(int)));
-    connect(OutputParametersPB,     SIGNAL(clicked()),
-            this,                   SLOT(callback_OutputParametersPB()));
+    connect(OutputParametersCenterPB, SIGNAL(clicked()),
+            this,                   SLOT(callback_OutputParametersCenterPB()));
+    connect(OutputParametersMinimumPB,SIGNAL(clicked()),
+            this,                   SLOT(callback_OutputParametersMinimumPB()));
     connect(OutputYAxisMinSL,       SIGNAL(valueChanged(int)),
             this,                   SLOT(callback_OutputYAxisMinSL(int)));
+    connect(OutputYAxisMaxSB,       SIGNAL(valueChanged(int)),
+            this,                   SLOT(callback_OutputYAxisMaxSB(int)));
+    connect(OutputShowShadowCB,     SIGNAL(stateChanged(int)),
+            this,                   SLOT(callback_OutputShowShadowCB(int)));
 }
 
 void
@@ -318,7 +376,7 @@ MSSPM_GuiOutputControls::loadSpeciesControlWidget()
     m_DatabasePtr->getAlgorithmIdentifiers(
                 ControlsGroupBox,m_Logger,m_ProjectSettingsConfig,
                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                CompetitionForm,nmfConstantsMSSPM::ShowPopupError);
+                CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     if (! getGuilds(NumGuilds,GuildList)) {
         m_Logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::loadSpeciesControlWidget: No records found in table Guilds, Name = "+m_ProjectSettingsConfig);
@@ -433,6 +491,11 @@ MSSPM_GuiOutputControls::getYMinSliderVal()
     return OutputYAxisMinSL->value();
 }
 
+int
+MSSPM_GuiOutputControls::getYMaxSliderVal()
+{
+    return OutputYAxisMaxSB->value();
+}
 
 void
 MSSPM_GuiOutputControls::callback_OutputYAxisMinSL(int value)
@@ -440,11 +503,23 @@ MSSPM_GuiOutputControls::callback_OutputYAxisMinSL(int value)
     emit YAxisMinValueChanged(value);
 }
 
+void
+MSSPM_GuiOutputControls::callback_OutputYAxisMaxSB(int value)
+{
+    emit YAxisMaxValueChanged(value);
+}
+
 
 void
-MSSPM_GuiOutputControls::callback_OutputParametersPB()
+MSSPM_GuiOutputControls::callback_OutputParametersCenterPB()
 {
     emit SelectCenterSurfacePoint();
+}
+
+void
+MSSPM_GuiOutputControls::callback_OutputParametersMinimumPB()
+{
+    emit SelectMinimumSurfacePoint();
 }
 
 
@@ -476,6 +551,8 @@ MSSPM_GuiOutputControls::callback_OutputTypeCMB(QString outputType)
     bool isDiagnostic    = (outputType == "Diagnostics");
     bool isMultiScenario = (outputType == "Multi-Scenario Plots");
     bool paramIsChecked  = (OutputParametersCB->checkState() == Qt::Checked);
+    bool isBcBoVsTime    = (outputType == "Bc & Bo vs Time");
+    bool is3dChecked     = OutputParametersCB->isChecked();
     QString scenario     = getOutputScenario();
     QStringList emptyList;
 
@@ -489,16 +566,25 @@ MSSPM_GuiOutputControls::callback_OutputTypeCMB(QString outputType)
     OutputMethodsCMB->setEnabled(isDiagnostic);
     OutputParametersCMB->setEnabled(isDiagnostic && isParameterProfiles);
     OutputParametersCB->setEnabled(isDiagnostic);
-    OutputParametersPB->setEnabled(false);
+    OutputParametersCenterPB->setEnabled(false);
+    OutputParametersMinimumPB->setEnabled(false);
     if (paramIsChecked) {
         OutputParametersCMB->setEnabled(false); // this should override the previous statement
         OutputParametersCB->setEnabled(false);
-        OutputParametersPB->setEnabled(true);
+        OutputParametersCenterPB->setEnabled(true);
+        OutputParametersMinimumPB->setEnabled(true);
     }
     OutputParametersCB->setEnabled(isDiagnostic);
     OutputParametersLBL->setEnabled(isDiagnostic && isParameterProfiles);
     OutputScenariosLBL->setEnabled(isMultiScenario);
     OutputScenariosCMB->setEnabled(isMultiScenario);
+
+    OutputYAxisMinLBL->setEnabled(isBcBoVsTime);
+    OutputYAxisMinSL->setEnabled(isBcBoVsTime);
+    OutputYAxisMaxLBL->setEnabled(isDiagnostic);
+    OutputYAxisMaxSB->setEnabled(isDiagnostic);
+    OutputShowShadowCB->setEnabled(isDiagnostic && is3dChecked);
+    OutputShowShadowLBL->setEnabled(isDiagnostic && is3dChecked);
 
     if (isDiagnostic) {
         if (isParameterProfiles) {
@@ -511,10 +597,12 @@ MSSPM_GuiOutputControls::callback_OutputTypeCMB(QString outputType)
             emit ShowChartMohnsRho();
         }
     } else if (isForecast) {
+
         callback_ResetOutputWidgetsForAggProd();
         emit SetChartView2d(true);
         emit ShowChart("","");
     } else if (isMultiScenario) {
+
         callback_ResetOutputWidgetsForAggProd();
         emit SetChartView2d(true);
         if (scenario.isEmpty()) {
@@ -695,14 +783,32 @@ MSSPM_GuiOutputControls::callback_OutputParametersCB(int state)
 {
     if (state == Qt::Checked) {
         OutputParametersCMB->setEnabled(false);
-        OutputParametersPB->setEnabled(true);
+        OutputParametersCenterPB->setEnabled(true);
+        OutputParametersMinimumPB->setEnabled(true);
         emit ShowDiagnosticsChart3d();
         emit SetChartView2d(false);
+        showDataTable(false);
     } else {
         OutputParametersCMB->setEnabled(true);
-        OutputParametersPB->setEnabled(false);
+        OutputParametersCenterPB->setEnabled(false);
+        OutputParametersMinimumPB->setEnabled(false);
         emit SetChartView2d(true);
+        showDataTable(true);
     }
+    OutputShowShadowLBL->setEnabled(state == Qt::Checked);
+    OutputShowShadowCB->setEnabled(state == Qt::Checked);
+}
+
+void
+MSSPM_GuiOutputControls::callback_OutputShowShadowCB(int dummy)
+{
+    emit ShowChart("","");
+}
+
+void
+MSSPM_GuiOutputControls::showDataTable(bool showTable)
+{
+
 }
 
 void
@@ -887,7 +993,13 @@ MSSPM_GuiOutputControls::getOutputScenario()
 void
 MSSPM_GuiOutputControls::setOutputParametersCB(bool checked)
 {
-    OutputParametersCB->setChecked(false);
+    OutputParametersCB->setChecked(checked);
+}
+
+void
+MSSPM_GuiOutputControls::setOutputSpecies(QString species)
+{
+    OutputSpeciesCMB->setCurrentText(species);
 }
 
 void

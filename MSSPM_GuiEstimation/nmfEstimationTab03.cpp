@@ -462,7 +462,7 @@ nmfEstimation_Tab3::callback_SavePB()
                 return;
             }
 
-            cmd = "INSERT INTO " + m_BetaGuildsTables[k] + " (SystemName,SpeName,Guild,Value) VALUES ";
+            cmd = "INSERT INTO " + m_BetaGuildsTables[k] + " (SystemName,Guild,SpeciesA,SpeciesB,Value) VALUES ";
             for (int i=0; i<m_SModels[tableInc]->rowCount(); ++i) {
                 for (int j=0; j<m_SModels[tableInc]->columnCount(); ++ j) {
                     index = m_SModels[tableInc]->index(i,j);
@@ -489,6 +489,10 @@ nmfEstimation_Tab3::callback_SavePB()
     QMessageBox::information(Estimation_Tabs, "Competition Min/Max Updated",
                              "\nCompetition Min/Max tables have been successfully updated.\n",
                              QMessageBox::Ok);
+
+
+    // Reload widgets so column sizing will re-adjust
+    loadWidgets();
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
 }
@@ -555,6 +559,8 @@ nmfEstimation_Tab3::loadWidgets()
     // Get Species and Guild names
     m_SpeciesNames = getSpecies();
     m_GuildNames   = getGuilds();
+    NumSpecies     = m_SpeciesNames.size();
+    NumGuilds      = m_GuildNames.size();
 
     // Get competitionForm
     fields    = {"WithinGuildCompetitionForm"};

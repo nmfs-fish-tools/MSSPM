@@ -1,15 +1,38 @@
-/** @file NLopt_Estimator.h
+/**
+ * @file NLopt_Estimator.h
  * @brief Class definition for the NLopt_Estimator API
  *
  * This file contains the class definition for the NLopt_Estimator API. This
  * API acts as an interface class between the Main calling program and the lower-level
  * NLopt 3rd party library.
+ *
+ * @copyright
+ * Public Domain Notice\n
+ *
+ * National Oceanic And Atmospheric Administration\n\n
+ *
+ * This software is a "United States Government Work" under the terms of the
+ * United States Copyright Act.  It was written as part of the author's official
+ * duties as a United States Government employee/contractor and thus cannot be copyrighted.
+ * This software is freely available to the public for use. The National Oceanic
+ * And Atmospheric Administration and the U.S. Government have not placed any
+ * restriction on its use or reproduction.  Although all reasonable efforts have
+ * been taken to ensure the accuracy and reliability of the software and data,
+ * the National Oceanic And Atmospheric Administration and the U.S. Government
+ * do not and cannot warrant the performance or results that may be obtained
+ * by using this software or data. The National Oceanic And Atmospheric
+ * Administration and the U.S. Government disclaim all warranties, express
+ * or implied, including warranties of performance, merchantability or fitness
+ * for any particular purpose.\n\n
+ *
+ * Please cite the author(s) in any work or product based on this material.
  */
 
 
 #pragma once
 
 #include "nmfUtils.h"
+#include "nmfUtilsStatistics.h"
 #include "nmfConstantsMSSPM.h"
 #include "nmfGrowthForm.h"
 #include "nmfHarvestForm.h"
@@ -21,6 +44,8 @@
 
 #include <exception>
 #include <nlopt.hpp>
+#include <random>
+
 
 /**
  * @brief This class acts as an interface class to the NLopt library.
@@ -34,7 +59,7 @@ class  NLopt_Estimator : public QObject
     Q_OBJECT
 
 private:
-    nlopt::opt                             m_Optimizer;
+    static nlopt::opt                             m_Optimizer;
     std::vector<double>                    m_InitialCarryingCapacities;
     std::vector<double>                    m_EstCatchability;
     std::vector<double>                    m_EstExponent;
@@ -47,6 +72,7 @@ private:
     boost::numeric::ublas::matrix<double>  m_EstHandling;
     std::map<std::string,nlopt::algorithm> m_MinimizerToEnum;
     std::vector<double>                    m_Parameters;
+
 
     std::string returnCode(int result);
     void stopRun(const std::string &elapsedTimeStr,
@@ -63,13 +89,20 @@ private:
                                     const bool& includeTotal);
     std::string convertValues2DToOutputStr(const std::string& label,
                                     const boost::numeric::ublas::matrix<double> &matrix);
+    static void incrementObjectiveFunctionCounter(std::string MSSPMName,
+                                           double fitness,
+                                           Data_Struct NLoptDataStruct);
+//    double  dnorm4(double x, double mu, double sigma, int give_log);
 
 signals:
     /**
      * @brief Signal emitted with NLopt Estimation run has complete
      * @param bestFitness : string representing the best fitness value
+     * @param showDiagnosticsChart : boolean signfying whether the
+     * diagnostic 3d chart should be displayed after the run completes
      */
-    void RunCompleted(std::string bestFitness);
+    void RunCompleted(std::string bestFitness, bool showDiagnosticsChart);
+
 //  void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
 
 public:
@@ -79,39 +112,24 @@ public:
     NLopt_Estimator();
    ~NLopt_Estimator();
 
+//    /**
+//     * @brief Counts the number of run iterations
+//     */
+//    static int m_NLoptIters;
     /**
-     * @brief Counts the number of run iterations
+     * @brief Counts the number of function evaluations
      */
-    static int m_NLoptIters;
-    /**
-     * @brief Counts the number of run iterations by the thousands
-     */
-    static int m_Counter;
+    static int m_NLoptFcnEvals;
+
+    static int m_NumObjFcnCalls;
+//    /**
+//     * @brief Counts the number of run iterations by the thousands
+//     */
+//    static int m_Counter;
     /**
      * @brief Keeps track of the run number
      */
     static int m_RunNum;
-
-    /**
-     * @brief Calculates the model efficiency fitness of 1 - ⵉ(Be - Bo)² / ⵉ(Bo - Bm)²
-     * where (e)stimated, (o)bserved, and (m)ean (B)iomass
-     * @param EstBiomass : estimated biomass matrix
-     * @param ObsBiomass : observed biomass matrix
-     * @return Returns the model efficiency value
-     */
-    static double calculateModelEfficiency(
-            const boost::numeric::ublas::matrix<double>& EstBiomass,
-            const boost::numeric::ublas::matrix<double>& ObsBiomass);
-    /**
-     * @brief Calculates the sum of squares fitness of ⵉ(Be - Bo)²
-     * where (e)stimated and (o)bserved (B)iomass
-     * @param EstBiomass : estimated biomass matrix
-     * @param ObsBiomass : observed biomass matrix
-     * @return Returns the sum of squares value
-     */
-    static double calculateSumOfSquares(
-            const boost::numeric::ublas::matrix<double>& EstBiomass,
-            const boost::numeric::ublas::matrix<double>& ObsBiomass);
     /**
      * @brief The main routine that runs the NLopt Optimizer
      * @param NLoptDataStruct : structure containing all of the parameters needed by NLopt
@@ -201,6 +219,11 @@ public:
     void getEstPredation(
             boost::numeric::ublas::matrix<double>& EstPredation);
     /**
+     * @brief Gets the NLopt version
+     * @return Returns a QString which comprises the major, minor, and bugfix version of NLopt
+     */
+    QString getVersion();
+    /**
      * @brief Calculates the objective function fitness value
      * @param n : unused (needed by NLopt library)
      * @param EstParameters : estimated parameter values
@@ -235,7 +258,7 @@ public:
      * @param MSSPMName : name of the run
      * @param NumGens : iteration number counted by thousand
      * @param BestFitness : fitness value
-     * @param ObjectiveCriterion : name of objective criterion (Least Squares or Model Efficiency)
+     * @param ObjectiveCriterion : name of objective criterion (Least Squares, Maximum Likelihood, or Model Efficiency)
      * @param NumGensSinceBestFit : unused
      */
     static void writeCurrentLoopFile(

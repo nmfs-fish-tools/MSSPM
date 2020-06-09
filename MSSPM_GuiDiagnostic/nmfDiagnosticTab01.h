@@ -1,7 +1,29 @@
-/** @file nmfDiagnosticTab01.h
+/**
+ * @file nmfDiagnosticTab01.h
  * @brief GUI definition for the nmfDiagnostic_Tab1 Parameter Profiles Diagnostics Data class
+ * @date Nov 21, 2019
+ * @author Ronald Klasky
  *
- * This file contains the GUI definition for the Parameter Profiles Diagnostics page.
+ * @copyright
+ * Public Domain Notice\n
+ *
+ * National Oceanic And Atmospheric Administration\n\n
+ *
+ * This software is a "United States Government Work" under the terms of the
+ * United States Copyright Act.  It was written as part of the author's official
+ * duties as a United States Government employee/contractor and thus cannot be copyrighted.
+ * This software is freely available to the public for use. The National Oceanic
+ * And Atmospheric Administration and the U.S. Government have not placed any
+ * restriction on its use or reproduction.  Although all reasonable efforts have
+ * been taken to ensure the accuracy and reliability of the software and data,
+ * the National Oceanic And Atmospheric Administration and the U.S. Government
+ * do not and cannot warrant the performance or results that may be obtained
+ * by using this software or data. The National Oceanic And Atmospheric
+ * Administration and the U.S. Government disclaim all warranties, express
+ * or implied, including warranties of performance, merchantability or fitness
+ * for any particular purpose.\n\n
+ *
+ * Please cite the author(s) in any work or product based on this material.
  *
  */
 #ifndef NMFDIAGNOSTICTAB1_H
@@ -46,6 +68,16 @@ private:
     std::string  m_ProjectDir;
     std::string  m_ProjectSettingsConfig;
 
+    double calculateFitness(int     SpeciesOrGuildNum,
+                            QString ParameterName,
+                            double  ParameterValue);
+    double calculateFitness(int     SpeciesOrGuildNum,
+                            double  rParameter,
+                            double  KParameter);
+    bool isAggProd(std::string Algorithm,
+                   std::string Minimizer,
+                   std::string ObjectiveCriterion,
+                   std::string Scaling);
     /**
      * @brief Reads the appropriate table and loads the passed in parameter
      * @param algorithm : name of estimation algorithm
@@ -61,34 +93,6 @@ private:
                                 const std::string&   scaling,
                                 const QString&       parameterName,
                                 std::vector<double>& estParameter);
-    void updateParameterTable(const int&         NumSpeciesOrGuilds,
-                              const int&         NumPoints,
-                              const std::string& Algorithm,
-                              const std::string& Minimizer,
-                              const std::string& ObjectiveCriterion,
-                              const std::string& Scaling,
-                              const std::string& isAggProd,
-                              const QString&     ParameterName,
-                              std::vector<DiagnosticTuple>& DiagnosticTupleVector);
-    void updateParameterTable(const std::string& Algorithm,
-                              const std::string& Minimizer,
-                              const std::string& ObjectiveCriterion,
-                              const std::string& Scaling,
-                              const std::string& isAggProd,
-                              std::vector<DiagnosticTuple>& DiagnosticTupleVector);
-    void parameterToTableName(const std::string whichTable,
-                              const QString& parameter,
-                                    QString& tableName);
-    bool isAggProd(std::string Algorithm,
-                   std::string Minimizer,
-                   std::string ObjectiveCriterion,
-                   std::string Scaling);
-    double calculateFitness(int     SpeciesOrGuildNum,
-                            QString ParameterName,
-                            double  ParameterValue);
-    double calculateFitness(int     SpeciesOrGuildNum,
-                            double  rParameter,
-                            double  KParameter);
     void loadGrowthParameters(
             const int&           NumSpeciesOrGuilds,
             const std::string&   Algorithm,
@@ -121,10 +125,29 @@ private:
             const std::string&   ObjectCriterion,
             const std::string&   Scaling,
             std::vector<double>& Parameters);
+    void parameterToTableName(const std::string whichTable,
+                              const QString& parameter,
+                                    QString& tableName);
     /**
      * @brief Reads the program settings file and sets appropriate class variables
      */
     void readSettings();
+    void updateParameterTable(const int&         NumSpeciesOrGuilds,
+                              const int&         NumPoints,
+                              const std::string& Algorithm,
+                              const std::string& Minimizer,
+                              const std::string& ObjectiveCriterion,
+                              const std::string& Scaling,
+                              const std::string& isAggProd,
+                              const QString&     ParameterName,
+                              std::vector<DiagnosticTuple>& DiagnosticTupleVector);
+    void updateParameterTable(const std::string& Algorithm,
+                              const std::string& Minimizer,
+                              const std::string& ObjectiveCriterion,
+                              const std::string& Scaling,
+                              const std::string& isAggProd,
+                              std::vector<DiagnosticTuple>& DiagnosticTupleVector);
+
 
 public:
     /**
@@ -214,7 +237,7 @@ public slots:
     /**
      * @brief Callback for when the Run button is pressed
      */
-    void callback_Diagnostic_Tab1_RunPB();
+    void callback_RunPB();
 };
 
 #endif

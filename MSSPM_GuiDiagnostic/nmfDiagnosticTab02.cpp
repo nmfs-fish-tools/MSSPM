@@ -219,11 +219,12 @@ void
 nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_NumPeelsSB(int numPeels)
 {
     int RunLength = 0;
+    int StartYear = 0;
     if (getPeelPosition() == "From Beginning") {
         setStartYearLE(getStartYearLBL() + numPeels);
     } else if (getPeelPosition() == "From End") {
         // RSK incorrect if doing a MohnsRho run
-        m_DatabasePtr->getRunLength(m_Logger,m_ProjectSettingsConfig,RunLength);
+        m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear);
         setEndYearLE(getStartYearLBL()+RunLength-numPeels ); //getEndYearLBL() - numPeels);
     }
 }

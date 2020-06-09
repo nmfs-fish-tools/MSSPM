@@ -454,10 +454,10 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>Select a database name.</string>
+           <string>Select a database name or click Add... to add a new database.</string>
           </property>
           <property name="statusTip">
-           <string>Select a database name.</string>
+           <string>Select a database name or click Add... to add a new database.</string>
           </property>
           <property name="whatsThis">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Entering/Selecting a Database&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The user may either enter in a new database name to be created or select a current database and modify its name. It may be convenient to select an existing database in order to append a version, such as, _v01_02_18.&lt;br/&gt;&lt;br/&gt;If the user tries to create a database that already exists, the user will be informed as such and will be prompted to supply another database name.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

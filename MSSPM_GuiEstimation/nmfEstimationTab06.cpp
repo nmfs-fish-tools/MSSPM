@@ -39,6 +39,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_ObjectiveCriterionCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_ObjectiveCriterionCMB");
     Estimation_Tab6_MinimizerAlgorithmCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinimizerAlgorithmCMB");
     Estimation_Tab6_MinimizerAlgorithmLBL   = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_MinimizerAlgorithmLBL");
+    Estimation_Tab6_MinimizerTypeCMB        = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinimizerTypeCMB");
     Estimation_Tab6_RunTE                   = Estimation_Tabs->findChild<QTextEdit   *>("Estimation_Tab6_RunTE");
     Estimation_Tab6_RunPB                   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_RunPB");
     Estimation_Tab6_ReloadPB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_ReloadPB");
@@ -54,11 +55,12 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_Bees_NumBestBeesSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumOtherBeesSB");
     Estimation_Tab6_Bees_MaxGenerationsSB   = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_MaxGenerationsSB");
     Estimation_Tab6_Bees_NeighborhoodSizeSB = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NeighborhoodSizeSB");
+    Estimation_Tab6_ScalingLBL              = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_ScalingLBL");
     Estimation_Tab6_ScalingCMB              = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_ScalingCMB");
-    Estimation_Tab6_NL_StopValCB            = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopValCB");
+    Estimation_Tab6_NL_StopAfterValueCB     = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopAfterValueCB");
     Estimation_Tab6_NL_StopAfterTimeCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopAfterTimeCB");
     Estimation_Tab6_NL_StopAfterIterCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopAfterIterCB");
-    Estimation_Tab6_NL_StopValLE            = Estimation_Tabs->findChild<QLineEdit   *>("Estimation_Tab6_NL_StopValLE");
+    Estimation_Tab6_NL_StopAfterValueLE     = Estimation_Tabs->findChild<QLineEdit   *>("Estimation_Tab6_NL_StopAfterValueLE");
     Estimation_Tab6_NL_StopAfterTimeSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_NL_StopAfterTimeSB");
     Estimation_Tab6_NL_StopAfterIterSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_NL_StopAfterIterSB");
 
@@ -87,13 +89,17 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     connect(Estimation_Tab6_MonoCB,                 SIGNAL(stateChanged(int)),
             this,                                   SLOT(callback_Estimation_Tab6_MonoCB(int)));
     connect(Estimation_Tab6_EstimationAlgorithmCMB, SIGNAL(currentTextChanged(QString)),
-            this,                                   SLOT(callback_Estimation_Tab6_EstimationAlgorithmCMB(QString)));
-    connect(Estimation_Tab6_NL_StopValCB,           SIGNAL(stateChanged(int)),
+            this,                                   SLOT(callback_EstimationAlgorithmCMB(QString)));
+    connect(Estimation_Tab6_ObjectiveCriterionCMB,  SIGNAL(currentTextChanged(QString)),
+            this,                                   SLOT(callback_ObjectiveCriterionCMB(QString)));
+    connect(Estimation_Tab6_NL_StopAfterValueCB,    SIGNAL(stateChanged(int)),
             this,                                   SLOT(callback_StopValCB(int)));
     connect(Estimation_Tab6_NL_StopAfterTimeCB,     SIGNAL(stateChanged(int)),
             this,                                   SLOT(callback_StopAfterTimeCB(int)));
     connect(Estimation_Tab6_NL_StopAfterIterCB,     SIGNAL(stateChanged(int)),
             this,                                   SLOT(callback_StopAfterIterCB(int)));
+    connect(Estimation_Tab6_MinimizerTypeCMB,       SIGNAL(currentTextChanged(QString)),
+            this,                                   SLOT(callback_MinimizerTypeCMB(QString)));
 
     readSettings();
 
@@ -105,7 +111,10 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     QFont defaultFont(fontName,11,QFont::Medium,false);
     setFont(defaultFont);
 
-    callback_Estimation_Tab6_EstimationAlgorithmCMB("Bees Algorithm");
+    callback_EstimationAlgorithmCMB("Bees Algorithm");
+    Estimation_Tab6_RunPB->setEnabled(true);
+
+    callback_MinimizerTypeCMB(Estimation_Tab6_MinimizerTypeCMB->currentText());
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfMSPRODTab6::nmfMSPRODTab6 Complete");
 }
@@ -113,6 +122,24 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
 
 nmfEstimation_Tab6::~nmfEstimation_Tab6()
 {
+}
+
+bool
+nmfEstimation_Tab6::isStopAfterValue()
+{
+    return Estimation_Tab6_NL_StopAfterValueCB->isChecked();
+}
+
+bool
+nmfEstimation_Tab6::isStopAfterTime()
+{
+    return Estimation_Tab6_NL_StopAfterTimeCB->isChecked();
+}
+
+bool
+nmfEstimation_Tab6::isStopAfterNumEvals()
+{
+    return Estimation_Tab6_NL_StopAfterIterCB->isChecked();
 }
 
 void
@@ -158,13 +185,24 @@ nmfEstimation_Tab6::callback_PrevPB()
 void
 nmfEstimation_Tab6::callback_RunPB()
 {
-    // Rerun all data checks, in case user changes number of Species or Guilds and
-    // then tries to re-run.
-    m_Logger->logMsg(nmfConstants::Normal,"");
-    m_Logger->logMsg(nmfConstants::Normal,"Start Estimation");
-    emit CheckAllEstimationTablesAndRun();
+    QString msg;
 
-//  emit RunEstimation();
+    if (isStopAfterValue() ||
+        isStopAfterTime()  ||
+        isStopAfterNumEvals())
+    {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+
+        // Rerun all data checks, in case user changes number of Species or Guilds and
+        // then tries to re-run.
+        m_Logger->logMsg(nmfConstants::Normal,"");
+        m_Logger->logMsg(nmfConstants::Normal,"Start Estimation");
+
+        emit CheckAllEstimationTablesAndRun();
+    } else {
+        msg = "\nPlease select at least one Stop parameter.\n";
+        QMessageBox::warning(Estimation_Tabs, "Error", msg, QMessageBox::Ok);
+    }
 }
 
 void
@@ -177,6 +215,7 @@ void
 nmfEstimation_Tab6::callback_SavePB()
 {
     saveSystem(true);
+    Estimation_Tab6_RunPB->setEnabled(true);
 }
 
 void
@@ -234,10 +273,10 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
            ",  BeesNumRepetitions = "    + std::to_string(Estimation_Tab6_NumberOfRunsSB->value()) +
            ",  BeesMaxGenerations = "    + std::to_string(Estimation_Tab6_Bees_MaxGenerationsSB->value()) +
            ",  BeesNeighborhoodSize = "  + std::to_string(Estimation_Tab6_Bees_NeighborhoodSizeSB->value()) +
-           ",  NLoptUseStopVal = "       + std::to_string(Estimation_Tab6_NL_StopValCB->isChecked() ? 1 : 0) +
+           ",  NLoptUseStopVal = "       + std::to_string(Estimation_Tab6_NL_StopAfterValueCB->isChecked() ? 1 : 0) +
            ",  NLoptUseStopAfterTime = " + std::to_string(Estimation_Tab6_NL_StopAfterTimeCB->isChecked() ? 1 : 0) +
            ",  NLoptUseStopAfterIter = " + std::to_string(Estimation_Tab6_NL_StopAfterIterCB->isChecked() ? 1 : 0) +
-           ",  NLoptStopVal = "          + Estimation_Tab6_NL_StopValLE->text().toStdString() +
+           ",  NLoptStopVal = "          + Estimation_Tab6_NL_StopAfterValueLE->text().toStdString() +
            ",  NLoptStopAfterTime = "    + std::to_string(Estimation_Tab6_NL_StopAfterTimeSB->value()) +
            ",  NLoptStopAfterIter = "    + std::to_string(Estimation_Tab6_NL_StopAfterIterSB->value()) +
            "   WHERE SystemName = '"     + CurrentSettingsName + "'";
@@ -259,7 +298,171 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
 }
 
 void
-nmfEstimation_Tab6::callback_Estimation_Tab6_EstimationAlgorithmCMB(QString algorithm)
+nmfEstimation_Tab6::callback_MinimizerTypeCMB(QString type)
+{
+    QString msg;
+    Estimation_Tab6_MinimizerAlgorithmCMB->clear();
+    if (type.toLower() == "global") {
+        msg = "<html>\
+<strong><center>Global Minimizer Algorithms</center></strong>\
+<br>\
+MSSPM includes several minimization (i.e., optimization) algorithms from the NLopt C++ library. \
+The algorithm name is formatted {G,L}{N,D}_xxxx where:<br><br>\
+\"G/L\" corresponds to a global/local optimization algorithm<br>\
+\"N/D\" corresponds to a derivative-free/gradient-based optimization algorithm<br>\
+<br>\
+The available global algorithms are as follows:<br>\
+<br>\
+<strong>[1] GN_ORIG_DIRECT_L - Original DIviding RECTangles Algorithm</strong><br>\
+<br>\
+Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", J. Global Optimization, \
+vol. 21 (1), p. 27-37 (2001)<br>\
+<br>\
+This is a deterministic-search algorithm based on systematic division \
+of the search domain into smaller and smaller hyper-rectangles. The Gablonsky version makes the algorithm \
+\"more biased towards local search\" so that it is more efficient for functions without too many \
+local minima. This algorithm, based on the original Fortran code, has a number of hard-coded limitations \
+(i.e., the number of function evaluations). There is some support for arbitrary nonlinear inequality \
+constraints.<br>\
+<br>\
+<strong>[2] GN_DIRECT_L - Locally Biased DIviding RECTangles Algorithm</strong><br>\
+<br>\
+Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT \
+algorithm\", J. Global Optimization, vol. 21 (1), p. 27-37 (2001)<br>\
+<br>\
+This is a deterministic-search algorithm based on systematic division of the search domain into smaller and smaller \
+hyper-rectangles. The Gablonsky version makes the algorithm \"more biased towards local search\" \
+so that it is more efficient for functions without too many local minima.<br>\
+<br>\
+<strong>[3] GN_DIRECT_L_RAND - Locally Biased DIviding RECTangles Algorithm with Randomization</strong><br>\
+<br>\
+Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", \
+J. Global Optimization, vol. 21 (1), p. 27-37 (2001)<br>\
+<br>\
+This is a deterministic-search algorithm based \
+on systematic division of the search domain into smaller and smaller hyper-rectangles. The Gablonsky \
+version makes the algorithm \"more biased towards local search\" so that it is more efficient \
+for functions without too many local minima. This is a slightly randomized variant of GN_DIRECT_L \
+which uses some randomization to help decide which dimension to halve next in the case of near-ties.<br>\
+<br>\
+<strong>[4] GN_CRS2_LM - Controlled Random Search with Local Mutation</strong><br>\
+<br>\
+Ref: P. Kaelo and M. M. Ali, \"Some variants of the controlled random search algorithm for global optimization\", \
+J. Optim. Theory Appl. 130 (2), 253-264 (2006)<br>\
+<br>\
+This is sometimes compared to a genetic algorithm as it starts with a random population \
+of points and randomly evolves these points by heuristic rules. \
+The \"evolution\" somewhat resembles a randomized Nelder-Mead algorithm.<br>\
+<br>\
+<strong>[5] GD_StoGO - Stochastic Global Optimization</strong><br>\
+<br>\
+Ref: K. Madsen, S. Zertchaninov, and A. Zilinskas, \"Global Optimization using Branch-and-Bound,\" \
+unpublished (1998).<br>\
+<br>\
+This is a global optimization algorithm that works by systematically dividing the \
+search space (which must be bound-constrained) into smaller hyper-rectangles via a \
+branch-and-bound technique, and searching them by a gradient-based local-search \
+algorithm (a BFGS variant), optionally including some randomness.\
+</html>";
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GN_ORIG_DIRECT_L");
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L");
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L_RAND");
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GN_CRS2_LM");
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GD_StoGO");
+
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(0,
+            "Global, Non-Derivative Dividing Rectangles Algorithm with Hard-Coded Limitations", Qt::ToolTipRole);
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(1,
+            "Global, Non-Derivative Dividing Rectangles Algorithm", Qt::ToolTipRole);
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(2,
+            "Global, Non-Derivative Dividing Rectangles Algorithm with Randomization", Qt::ToolTipRole);
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(3,
+            "Global, Non-Derivative Controlled Random Search with Local Mutation Algorithm with Evolution", Qt::ToolTipRole);
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(4,
+            "Global, Gradient-Based Stochastic Search followed by a Local Gradient-based Algorithm", Qt::ToolTipRole);
+    } else if (type.toLower() == "local") {
+        msg ="<html>\
+<strong><center>Local Minimizer Algorithms</center></strong><br>\
+These are local NLopt optimization functions available to the user in MSSPM.<br>\
+<br>\
+<strong>[1] LN_COBYLA - Constrained Optimization BY Linear Approximations</strong><br>\
+<br>\
+Ref: M.J.D. Powell, \"A direct search optimization method that models \
+the objective and constraint functions by linear interpolation,\" in \
+Advances in Optimization and Numerical Analysis, (Kluwer Academic: Dordrecht, 1994), p. 51-67<br>\
+<br>\
+It constructs successive linear approximations of the objective function \
+and constraints via a simplex of n+1 points (in n dimensions), and \
+optimizes these approximations in a trust region at each step.<br>\
+<br>\
+<strong>[2] LN_NELDERMEAD - Nelder-Mead Simplex</strong><br>\
+<br>\
+Ref: J. A. Nelder and R. Mead, \"A simplex method for function minimization,\" \
+The Computer Journal 7, p. 308-313 (1965)<br>\
+<br>\
+An implementation of almost the original Nelder-Mead simplex algorithm. N.B. It\
+does fail to converge at all for some functions and examples may be constructed in \
+which it converges to a point that is not a local minimum.<br>\
+<br>\
+<strong>[3] LN_SBPLX - Subplex Nelder-Mead Variant Using Sequence of Subspaces</strong><br>\
+<br>\
+Ref: T. Rowan, \"Functional Stability Analysis of Numerical Algorithms\", \
+Ph.D. thesis, Department of Computer Sciences, University of Texas at Austin, 1990<br>\
+<br>\
+Subplex (a variant of Nelder-Mead using a sequence of subspaces) \
+is claimed to be much more efficient and robust than the original Nelder-Mead, \
+while retaining the latter's facility with discontinuous objectives. Implementation \
+exists fo explicit support for bound constraints (via the method in [M. J. \
+Box, \"A new method of constrained optimization and a comparison with other methods,\" \
+Computer J. 8 (1), 42-52 (1965)] as \
+described above). This seems to be a big improvement in the case where the optimum \
+lies against one of the constraints. <br>\
+<br>\
+<strong>[4] LD_LBFGS - Low-storage BFGS (Broyden-Fletcher-Goldfarb-Shanno)</strong><br>\
+<br>\
+Ref: J. Nocedal, \"Updating quasi-Newton matrices with limited storage,\" Math. Comput. \
+35, 773-782 (1980)<br>\
+<br>\
+This algorithm is based on a Fortran implementation of the low-storage BFGS algorithm \
+written by Prof. Ladislav Luksan.<br>\
+<br>\
+<strong>[5] LD_MMA - Method of Moving Asymptotes</strong><br>\
+<br>\
+Ref: Krister Svanberg, \"A class of globally convergent optimization methods \
+based on conservative convex separable approximations,\" SIAM J. Optim. 12 (2), \
+p. 555-573 (2002)<br>\
+<br>\
+This is a globally convergent algorithm which does not mean it converges to the \
+global optimum; it means that it is guaranteed to converge to some local minimum \
+from any feasible starting point. At each point x, MMA forms a local approximation \
+using the gradient of f and the constraint functions, plus a quadratic \"penalty\" \
+term to make the approximations \"conservative\" (upper bounds for the exact functions).\
+</html>";
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("LN_COBYLA");
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("LN_NELDERMEAD");
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("LN_SBPLX");
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("LD_LBFGS");
+        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("LD_MMA");
+
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(0,
+            "Local, Non-Derivative Constrained Optimization BY Linear Approximations Algorithm", Qt::ToolTipRole);
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(1,
+            "Local, Non-Derivative Nelder-Mead Simplex Algorithm", Qt::ToolTipRole);
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(2,
+            "Local, Non-Derivative Nelder-Mead Variant Using a Sequence of Subspaces Algorithm", Qt::ToolTipRole);
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(3,
+            "Local, Gradient-Based Low-Storage BFGS (Broyden-Fletcher-Goldfarb-Shanno) Algorithm", Qt::ToolTipRole);
+        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(4,
+            "Local, Gradient-Based Method of Moving Asymptotes Algorithm", Qt::ToolTipRole);
+
+    }
+    Estimation_Tab6_MinimizerAlgorithmCMB->setWhatsThis(msg);
+    Estimation_Tab6_MinimizerAlgorithmLBL->setWhatsThis(msg);
+
+}
+
+void
+nmfEstimation_Tab6::callback_EstimationAlgorithmCMB(QString algorithm)
 {
     algorithm = Estimation_Tab6_EstimationAlgorithmCMB->currentText();
 
@@ -271,29 +474,11 @@ nmfEstimation_Tab6::callback_Estimation_Tab6_EstimationAlgorithmCMB(QString algo
         return;
     }
 
+
     Estimation_Tab6_Bees_ParametersGB->hide();
     Estimation_Tab6_NL_ParametersGB->hide();
     Estimation_Tab6_MinimizerAlgorithmCMB->setEnabled(enableMinimizer);
     Estimation_Tab6_MinimizerAlgorithmLBL->setEnabled(enableMinimizer);
-    Estimation_Tab6_MinimizerAlgorithmCMB->clear();
-    if (isNLoptAlgorithm) {
-        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GN_ORIG_DIRECT_L");
-        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L");
-        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L_RAND");
-        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GN_CRS2_LM");
-        Estimation_Tab6_MinimizerAlgorithmCMB->addItem("GD_StoGO");
-        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(0,
-            "Global Non-derivative Dividing Rectangles Algorithm with Hard-Coded Limitations", Qt::ToolTipRole);
-        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(1,
-            "Global Non-derivative Dividing Rectangles Algorithm", Qt::ToolTipRole);
-        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(2,
-            "Global Non-derivative Dividing Rectangles Algorithm with Randomization", Qt::ToolTipRole);
-        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(3,
-            "Controlled Random Search with Local Mutation Algorithm with Evolution similar to Nelder-Mead algorithm", Qt::ToolTipRole);
-        Estimation_Tab6_MinimizerAlgorithmCMB->setItemData(4,
-           "Global Stochastic Search followed by a Local Gradient-based Algorithm", Qt::ToolTipRole);
-
-    }
 
     // Enable all ObjectiveCriterion
     for (int i=0; i<Estimation_Tab6_ObjectiveCriterionCMB->count(); ++i)
@@ -301,13 +486,30 @@ nmfEstimation_Tab6::callback_Estimation_Tab6_EstimationAlgorithmCMB(QString algo
 
     if (isBeesAlgorithm) {
         Estimation_Tab6_Bees_ParametersGB->show();
-        Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText("Least Squares"); // override what was in the table
+//      Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText("Least Squares"); // override what was in the table
     }  else if (isNLoptAlgorithm) {
         Estimation_Tab6_NL_ParametersGB->show();
-        Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText("Least Squares"); // override what was in the table
+//      Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText("Least Squares"); // override what was in the table
     }
 
+    // Disable Run button until user Saves new model
+    Estimation_Tab6_RunPB->setEnabled(false);
+
     emit SetAlgorithm(algorithm);
+}
+
+void
+nmfEstimation_Tab6::callback_ObjectiveCriterionCMB(QString objCrit)
+{
+    bool isMaximumLikelihood = (objCrit == "Maximum Likelihood");
+
+    Estimation_Tab6_ScalingCMB->clear();
+    Estimation_Tab6_ScalingLBL->setEnabled(! isMaximumLikelihood);
+    Estimation_Tab6_ScalingCMB->setEnabled(! isMaximumLikelihood);
+    if (! isMaximumLikelihood) {
+        Estimation_Tab6_ScalingCMB->addItem("Mean");
+        Estimation_Tab6_ScalingCMB->addItem("Min Max");
+    }
 }
 
 std::string
@@ -331,7 +533,7 @@ nmfEstimation_Tab6::getCurrentObjectiveCriterion()
 void
 nmfEstimation_Tab6::callback_StopValCB(int isChecked)
 {
-    Estimation_Tab6_NL_StopValLE->setEnabled(isChecked == Qt::Checked);
+    Estimation_Tab6_NL_StopAfterValueLE->setEnabled(isChecked == Qt::Checked);
 }
 
 void
@@ -375,6 +577,7 @@ nmfEstimation_Tab6::loadWidgets()
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     std::string algorithm = getCurrentAlgorithm();
+    QString objectiveCriterion;
 
     readSettings();
 
@@ -421,6 +624,7 @@ nmfEstimation_Tab6::loadWidgets()
         return false;
     }
 
+    objectiveCriterion = QString::fromStdString(dataMap["ObjectiveCriterion"][0]);
     Estimation_Tab6_NumberOfRunsSB->setValue(std::stoi(dataMap["NumberOfRuns"][0]));
     Estimation_Tab6_EstimationAlgorithmCMB->setCurrentText(QString::fromStdString(dataMap["Algorithm"][0]));
     Estimation_Tab6_Bees_NumBeesSB->setValue(std::stoi(dataMap["BeesNumTotal"][0]));
@@ -431,20 +635,24 @@ nmfEstimation_Tab6::loadWidgets()
     Estimation_Tab6_NumberOfRunsSB->setValue(std::stoi(dataMap["BeesNumRepetitions"][0]));
     Estimation_Tab6_Bees_MaxGenerationsSB->setValue(std::stoi(dataMap["BeesMaxGenerations"][0]));
     Estimation_Tab6_Bees_NeighborhoodSizeSB->setValue(std::stof(dataMap["BeesNeighborhoodSize"][0]));
-    Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(QString::fromStdString(dataMap["ObjectiveCriterion"][0]));
+    Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(objectiveCriterion);
     Estimation_Tab6_ScalingCMB->setCurrentText(QString::fromStdString(dataMap["Scaling"][0]));
-    Estimation_Tab6_NL_StopValCB->setChecked(dataMap["NLoptUseStopVal"][0] == "1");
+    Estimation_Tab6_NL_StopAfterValueCB->setChecked(dataMap["NLoptUseStopVal"][0] == "1");
     Estimation_Tab6_NL_StopAfterTimeCB->setChecked(dataMap["NLoptUseStopAfterTime"][0] == "1");
     Estimation_Tab6_NL_StopAfterIterCB->setChecked(dataMap["NLoptUseStopAfterIter"][0] == "1");
-    Estimation_Tab6_NL_StopValLE->setText(QString::fromStdString(dataMap["NLoptStopVal"][0]));
+    Estimation_Tab6_NL_StopAfterValueLE->setText(QString::fromStdString(dataMap["NLoptStopVal"][0]));
     Estimation_Tab6_NL_StopAfterTimeSB->setValue(std::stoi(dataMap["NLoptStopAfterTime"][0]));
     Estimation_Tab6_NL_StopAfterIterSB->setValue(std::stoi(dataMap["NLoptStopAfterIter"][0]));
 
-    callback_Estimation_Tab6_EstimationAlgorithmCMB(QString::fromStdString(dataMap["Algorithm"][0]));
+    callback_EstimationAlgorithmCMB(QString::fromStdString(dataMap["Algorithm"][0]));
     Estimation_Tab6_MinimizerAlgorithmCMB->setCurrentText(QString::fromStdString(dataMap["Minimizer"][0]));
+    callback_ObjectiveCriterionCMB(objectiveCriterion);
 
     // RSK Hack to set the CMB correctly. Remove after implementing all of the disabled items in the 3 algorithm CMB's.
     Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(QString::fromStdString(dataMap["ObjectiveCriterion"][0]));
+
+    // Enable Run button
+    Estimation_Tab6_RunPB->setEnabled(true);
 
     return true;
 }

@@ -331,6 +331,9 @@ nmfEstimation_Tab4::callback_SavePB()
                              "\nPredation Min/Max tables have been successfully updated.\n",
                              QMessageBox::Ok);
 
+    // So columns resize appropriately
+    loadWidgets();
+
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
 }
 

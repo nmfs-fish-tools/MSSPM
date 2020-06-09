@@ -214,14 +214,18 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
     SystemName =  parts[0];
 
     readSettings();
+
+    clearWidgets();
+
     if (SystemName.isEmpty())
         return false;
     if (m_HarvestType.empty() || (m_HarvestType == "Null")) {
         m_Logger->logMsg(nmfConstants::Warning,"Warning: Harvest Type set to Null.");
+        Estimation_Tab2_CatchTV->setEnabled(false);
         return true;
     }
 
-    clearWidgets();
+    Estimation_Tab2_CatchTV->setEnabled(true);
 
     Estimation_Tab2_CatchGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_HarvestType]));
 
@@ -278,12 +282,12 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
 void
 nmfEstimation_Tab2::setHarvestType(std::string harvestType)
 {
-    m_HarvestType = harvestType;
-    if (m_HarvestType == "F") {
-        m_HarvestType = "Exploitation";
-    } else if (m_HarvestType == "QE") {
-        m_HarvestType = "Effort";
-    }
+    m_HarvestType = (QString::fromStdString(harvestType).split(" ")[0]).toStdString();
+//    if (m_HarvestType == "Exploitation (F)") {
+//        m_HarvestType = "Exploitation";
+//    } else if (m_HarvestType == "Effort (qE)") {
+//        m_HarvestType = "Effort";
+//    }
 }
 
 void

@@ -120,6 +120,9 @@ nmfEstimation_Tab5::callback_SavePB()
     }
     SpeciesKMin.clear();
 
+    // Re-load first row of biomass since the init biomass is not allowed to be changed
+    loadWidgetsFirstRow();
+
     // Find number of species
     NumSpecies = m_SModelBiomass->columnCount();
 
@@ -220,7 +223,7 @@ nmfEstimation_Tab5::callback_SavePB()
             return;
         }
     }
-    emit ReloadSpecies();
+    emit ReloadSpecies(nmfConstantsMSSPM::ShowPopupError);
 
 
     cmd = "DELETE FROM Covariate";
@@ -297,6 +300,38 @@ nmfEstimation_Tab5::loadWidgets()
 }
 
 bool
+nmfEstimation_Tab5::loadWidgetsFirstRow()
+{
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    QStandardItem *item;
+    Qt::ItemFlags flags;
+
+    m_SModelBiomass = qobject_cast<QStandardItemModel*>(Estimation_Tab5_BiomassTV->model());
+
+    fields     = {"SpeName","InitBiomass"};
+    queryStr   = "SELECT SpeName,InitBiomass FROM Species";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+
+    for (unsigned j=0; j<dataMap["SpeName"].size(); ++j) {
+        item = new QStandardItem(QString::fromStdString(dataMap["InitBiomass"][j]));
+        item->setTextAlignment(Qt::AlignCenter);
+//        item->setEditable(false); // Make first row read-only
+//        item->setBackground(QBrush(QColor(240,240,240)));
+        m_SModelBiomass->setItem(0, j, item);
+    }
+
+    //        Estimation_Tab5_BiomassTV->setModel(m_SModelBiomass);
+    Estimation_Tab5_BiomassTV->resizeColumnsToContents();
+
+
+
+
+    return true;
+}
+
+bool
 nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
 {
     int m;
@@ -308,9 +343,10 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     QStandardItem *item;
-    QStringList SpeciesNames;
+    std::vector<std::string> SpeciesNames;
     QStringList VerticalList;
-    QStringList CovariatesHeader;
+    QStringList CovariatesHeaderList;
+    QStringList SpeciesList;
     QString SystemName = QString::fromStdString(m_ProjectSettingsConfig);
 
     // Strip off the MohnsRho suffix
@@ -323,23 +359,15 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
 
     clearWidgets();
 
-    fields   = {"RunLength","StartYear"};
-    queryStr = "SELECT RunLength,StartYear FROM Systems where SystemName = '" + SystemName.toStdString() + "'";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["RunLength"].size() == 0)  {
-        std::cout << "Error: No records found in Systems table." << std::endl;
+    if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear)) {
         return false;
     }
-    RunLength = std::stoi(dataMap["RunLength"][0]);
-    StartYear = std::stoi(dataMap["StartYear"][0]);
 
-    fields     = {"SpeName"};
-    queryStr   = "SELECT SpeName FROM Species";
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumSpecies = dataMap["SpeName"].size();
-    for (int j=0; j<NumSpecies; ++j) {
-        SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
+    if (! m_DatabasePtr->getAllSpecies(m_Logger,SpeciesNames)) {
+        return false;
     }
+    NumSpecies = SpeciesNames.size();
+    nmfUtilsQt::convertVectorToStrList(SpeciesNames,SpeciesList);
 
     fields     = {"MohnsRhoLabel","SystemName","SpeName","Year","Value"};
     queryStr   = "SELECT MohnsRhoLabel,SystemName,SpeName,Year,Value FROM ObservedBiomass WHERE SystemName = '" +
@@ -347,27 +375,41 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
                  MohnsRhoLabel.toStdString() + "' ORDER BY SpeName,Year ";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();
+    Qt::ItemFlags flags;
 
-    // Load BiomassTV
-    m = 0;
-    for (int i=0; i<=RunLength; ++i) {
-        VerticalList << " " + QString::number(StartYear+i) + " ";
-    }
-    m_SModelBiomass = new QStandardItemModel( RunLength, NumSpecies );
-    for (int j=0; j<NumSpecies; ++j) {
+    if (NumRecords > 0) {
+        // Load BiomassTV
+        m = 0;
         for (int i=0; i<=RunLength; ++i) {
-            if ((m < NumRecords) && (SpeciesNames[j].toStdString() == dataMap["SpeName"][m]))
-                item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
-            else
-                item = new QStandardItem(QString(""));
-            item->setTextAlignment(Qt::AlignCenter);
-            m_SModelBiomass->setItem(i, j, item);
+            VerticalList << " " + QString::number(StartYear+i) + " ";
         }
+        m_SModelBiomass = new QStandardItemModel( RunLength, NumSpecies );
+        for (int j=0; j<NumSpecies; ++j) {
+            for (int i=0; i<=RunLength; ++i) {
+                if ((m < NumRecords) && (SpeciesNames[j] == dataMap["SpeName"][m])) {
+                    item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
+                } else {
+                    item = new QStandardItem(QString(""));
+                }
+                item->setTextAlignment(Qt::AlignCenter);
+                item->setEditable(i != 0); // Make first row read-only
+                if (i == 0) {
+                    item->setBackground(QBrush(QColor(240,240,240)));
+                    flags = item->flags();
+                    flags &= ~(Qt::ItemIsSelectable | Qt::ItemIsEditable); // reset/clear the flag
+                    item->setFlags(flags);
+                }
+                m_SModelBiomass->setItem(i, j, item);
+            }
+        }
+
+        m_SModelBiomass->setVerticalHeaderLabels(VerticalList);
+        m_SModelBiomass->setHorizontalHeaderLabels(SpeciesList);
+        Estimation_Tab5_BiomassTV->setModel(m_SModelBiomass);
+        Estimation_Tab5_BiomassTV->resizeColumnsToContents();
+    } else {
+        callback_UpdateInitialObservedBiomass();
     }
-    m_SModelBiomass->setVerticalHeaderLabels(VerticalList);
-    m_SModelBiomass->setHorizontalHeaderLabels(SpeciesNames);
-    Estimation_Tab5_BiomassTV->setModel(m_SModelBiomass);
-    Estimation_Tab5_BiomassTV->resizeColumnsToContents();
 
     // Load Covariate table
     fields     = {"Year","Value"};
@@ -385,9 +427,9 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
         item->setTextAlignment(Qt::AlignCenter);
         m_SModelCovariates->setItem(i, 0, item);
     }
-    CovariatesHeader << "Covariates";
+    CovariatesHeaderList << "Covariates";
     m_SModelCovariates->setVerticalHeaderLabels(VerticalList);
-    m_SModelCovariates->setHorizontalHeaderLabels(CovariatesHeader);
+    m_SModelCovariates->setHorizontalHeaderLabels(CovariatesHeaderList);
     Estimation_Tab5_CovariatesTV->setModel(m_SModelCovariates);
     Estimation_Tab5_CovariatesTV->resizeColumnsToContents();
 
@@ -398,6 +440,8 @@ void
 nmfEstimation_Tab5::callback_UpdateInitialObservedBiomass()
 {
     int NumSpecies;
+    int RunLength;
+    int StartYear;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -405,19 +449,28 @@ nmfEstimation_Tab5::callback_UpdateInitialObservedBiomass()
     QStringList VerticalList;
     QStandardItem *item;
 
+    m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear);
+
     // Populate first row of Observed Biomass with Init Biomass from Species
     fields     = {"SpeName","InitBiomass"};
     queryStr   = "SELECT SpeName,InitBiomass FROM Species";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
 
-    m_SModelBiomass = new QStandardItemModel( 1, NumSpecies );
+    m_SModelBiomass = new QStandardItemModel( RunLength, NumSpecies );
 
+    for (int i=0; i<=RunLength; ++i) {
+        VerticalList << " " + QString::number(StartYear+i) + " ";
+    }
     for (int j=0; j<NumSpecies; ++j) {
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
         item = new QStandardItem(QString::fromStdString(dataMap["InitBiomass"][j]));
         item->setTextAlignment(Qt::AlignCenter);
         m_SModelBiomass->setItem(0, j, item);
+        for (int k=1; k<RunLength; ++k) {
+            item = new QStandardItem("");
+            m_SModelBiomass->setItem(k, j, item);
+        }
     }
 
     m_SModelBiomass->setVerticalHeaderLabels(VerticalList);

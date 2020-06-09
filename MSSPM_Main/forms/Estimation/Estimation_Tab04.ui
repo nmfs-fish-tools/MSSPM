@@ -106,7 +106,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Predation Effect (rho)</string>
+             <string>Predation Rate (rho)</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -278,7 +278,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Predation Effect (rho)</string>
+             <string>Predation Rate (rho)</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

@@ -1,9 +1,31 @@
-/** @file Bees_Estimator.h
+/**
+ * @file Bees_Estimator.h
  * @brief Class definition for the Bees_Estimator API
  *
  * This file contains the class definition for the Bees_Estimator API. This
  * API acts as an interface class between the Main calling program and the lower-level
  * Bess Algorithm implementation.
+ *
+ * @copyright
+ * Public Domain Notice\n
+ *
+ * National Oceanic And Atmospheric Administration\n\n
+ *
+ * This software is a "United States Government Work" under the terms of the
+ * United States Copyright Act.  It was written as part of the author's official
+ * duties as a United States Government employee/contractor and thus cannot be copyrighted.
+ * This software is freely available to the public for use. The National Oceanic
+ * And Atmospheric Administration and the U.S. Government have not placed any
+ * restriction on its use or reproduction.  Although all reasonable efforts have
+ * been taken to ensure the accuracy and reliability of the software and data,
+ * the National Oceanic And Atmospheric Administration and the U.S. Government
+ * do not and cannot warrant the performance or results that may be obtained
+ * by using this software or data. The National Oceanic And Atmospheric
+ * Administration and the U.S. Government disclaim all warranties, express
+ * or implied, including warranties of performance, merchantability or fitness
+ * for any particular purpose.\n\n
+ *
+ * Please cite the author(s) in any work or product based on this material.
  */
 
 #pragma once
@@ -18,7 +40,7 @@
 #include "time.h"
 #include "nmfConstantsMSSPM.h"
 #include "nmfUtils.h"
-#include "nmfRandom.h"
+//#include "nmfRandom.h"
 
 #include "BeesAlgorithm.h"
 #include "BeesStats.h"
@@ -78,10 +100,17 @@ private:
 
 signals:
     /**
+     * @brief Signal emitted to update the calling program of an error in the Bees algorithm
+     * @param errorMsg : string value the error message from the Bees algorithm
+     */
+    void ErrorFound(std::string errorMsg);
+    /**
      * @brief Signal emitted with the Run has completed
      * @param bestFitness : string value representing the best fitness value
+     * @param showDiagnosticsChart : boolean signfying whether the
+     * diagnostic 3d chart should be displayed after the run completes
      */
-    void RunCompleted(std::string bestFitness);
+    void RunCompleted(std::string bestFitness, bool showDiagnosticsChart);
     /**
      * @brief Signal emitted when a sub run is completed
      * @param RunNum : the number of the parent run

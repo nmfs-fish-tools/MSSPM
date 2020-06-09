@@ -27,5 +27,10 @@
         <file>icons/NOAAsmall.png</file>
         <file>icons/scrgrb.png</file>
         <file>forms/Diagnostic/Diagnostic_Tab02.ui</file>
+        <file>icons/center.png</file>
+        <file>icons/minimum.png</file>
+        <file>icons/multishot.png</file>
+        <file>forms/Main/PreferencesDlg.ui</file>
+        <file>icons/scrgrbAll.png</file>
     </qresource>
 </RCC>

@@ -5,6 +5,8 @@
 #include "nmfUtils.h"
 #include "nmfConstants.h"
 
+#include <QCheckBox>
+
 nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
                              nmfLogger*   logger,
                              nmfDatabase* databasePtr,
@@ -33,20 +35,21 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     // Add the loaded widget as the new tabbed page
     Setup_Tabs->addTab(Setup_Tab3_Widget, tr("3. Species Setup"));
 
-    Setup_Tab3_GuildsTW          = Setup_Tabs->findChild<QTableWidget *>("Setup_Tab3_GuildsTW");
-    Setup_Tab3_SpeciesTW         = Setup_Tabs->findChild<QTableWidget *>("Setup_Tab3_SpeciesTW");
-    Setup_Tab3_NumGuildsSB       = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab3_NumGuildsSB");
-    Setup_Tab3_AddGuildPB        = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_AddGuildPB");
-    Setup_Tab3_DelGuildPB        = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_DelGuildPB");
-    Setup_Tab3_ReloadGuildsPB    = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_ReloadGuildsPB");
-    Setup_Tab3_NumSpeciesSB      = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab3_NumSpeciesSB");
-    Setup_Tab3_AddSpeciesPB      = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_AddSpeciesPB");
-    Setup_Tab3_DelSpeciesPB      = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_DelSpeciesPB");
-    Setup_Tab3_ReloadSpeciesPB   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_ReloadSpeciesPB");
-    Setup_Tab3_SavePB            = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_SavePB");
-    Setup_Tab3_PrevPB            = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_PrevPB");
-    Setup_Tab3_UpdateSpeciesPB   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_UpdateSpeciesPB");
-    Setup_Tab3_GuildsSpeciesTabW = Setup_Tabs->findChild<QTabWidget   *>("Setup_Tab3_GuildsSpeciesTabW");
+    Setup_Tab3_GuildsTW           = Setup_Tabs->findChild<QTableWidget *>("Setup_Tab3_GuildsTW");
+    Setup_Tab3_SpeciesTW          = Setup_Tabs->findChild<QTableWidget *>("Setup_Tab3_SpeciesTW");
+    Setup_Tab3_NumGuildsSB        = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab3_NumGuildsSB");
+    Setup_Tab3_AddGuildPB         = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_AddGuildPB");
+    Setup_Tab3_DelGuildPB         = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_DelGuildPB");
+    Setup_Tab3_ReloadGuildsPB     = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_ReloadGuildsPB");
+    Setup_Tab3_NumSpeciesSB       = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab3_NumSpeciesSB");
+    Setup_Tab3_AddSpeciesPB       = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_AddSpeciesPB");
+    Setup_Tab3_DelSpeciesPB       = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_DelSpeciesPB");
+    Setup_Tab3_ReloadSpeciesPB    = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_ReloadSpeciesPB");
+    Setup_Tab3_LoadPB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_LoadPB");
+    Setup_Tab3_SavePB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_SavePB");
+    Setup_Tab3_PrevPB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_PrevPB");
+    Setup_Tab3_UpdateSpeciesPB    = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_UpdateSpeciesPB");
+    Setup_Tab3_GuildsSpeciesTabW  = Setup_Tabs->findChild<QTabWidget   *>("Setup_Tab3_GuildsSpeciesTabW");
 
     connect(Setup_Tab3_NumGuildsSB,     SIGNAL(valueChanged(int)),
             this,                       SLOT(callback_Setup_Tab3_NumGuilds(int)));
@@ -75,20 +78,25 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     connect(Setup_Tab3_UpdateSpeciesPB, SIGNAL(clicked()),
             this,                       SLOT(callback_Setup_Tab3_UpdateSpeciesPB()));
 
+    Setup_Tab3_LoadPB->hide();
+
     Setup_Tab3_PrevPB->setText("\u25C1--");
     Setup_Tab3_SavePB->setEnabled(true);
     Setup_Tab3_GuildsTW->setSelectionMode(QAbstractItemView::ContiguousSelection);
     Setup_Tab3_SpeciesTW->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
-    m_colLabelsSpecies << "Name" << "Guild" << "Initial Biomass" << "Initial Biomas Min" << "Initial Biomass Max"
-                       << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max" << "Growth Rate Covar Coeff"
-                       << "Species K" << "Species K Min" << "Species K Max" << "Species K Covar Coeff"
-                       << "Survey Q" << "Survey Q Min" << "Survey Q Max"
-                       << "CatchabilityMin" << "CatchabilityMax" << "Dependence";
+//    m_colLabelsSpecies << "Name" << "Guild" << "Initial Biomass" << "Initial Biomas Min" << "Initial Biomass Max"
+//                       << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max" << "Growth Rate Covar Coeff"
+//                       << "Species K" << "Species K Min" << "Species K Max" << "Species K Covar Coeff"
+//                       << "Survey Q" << "Survey Q Min" << "Survey Q Max"
+//                       << "CatchabilityMin" << "CatchabilityMax" << "Dependence";
 
-    m_colLabelsGuilds << "Guild Name" << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max"
-                      << "Carrying Capacity" << "Carrying Capacity Min" << "Carrying Capacity Max"
-                      << "Catchability Min" << "Catchability Max";
+    m_colLabelsSpecies << "Name" << "Guild" << "Initial Biomass" << "Growth Rate" << "Species K" ;
+    m_colLabelsGuilds << "Guild Name" << "Growth Rate" << "Carrying Capacity";
+
+//    m_colLabelsGuilds << "Guild Name" << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max"
+//                      << "Carrying Capacity" << "Carrying Capacity Min" << "Carrying Capacity Max"
+//                      << "Catchability Min" << "Catchability Max";
 }
 
 
@@ -96,115 +104,224 @@ nmfSetup_Tab3::~nmfSetup_Tab3()
 {
 }
 
-
 void
 nmfSetup_Tab3::callback_Setup_Tab3_ReloadGuildsPB()
 {
+    callback_Setup_Tab3_ReloadGuildsPB(nmfConstantsMSSPM::ShowPopupError);
+}
+
+void
+nmfSetup_Tab3::callback_Setup_Tab3_ReloadGuildsPB(bool showPopup)
+{
     loadGuilds();
 
-    QMessageBox::information(Setup_Tabs,"Reload",
-                             "\nGuilds reloaded.\n",
-                             QMessageBox::Ok);
+    if (showPopup) {
+        QMessageBox::information(Setup_Tabs,"Reload",
+                                 "\nGuilds reloaded.\n",
+                                 QMessageBox::Ok);
+    }
 }
 
 void
 nmfSetup_Tab3::callback_Setup_Tab3_ReloadSpeciesPB()
 {
-    loadSpecies();
-
-    QMessageBox::information(Setup_Tabs,"Reload",
-                             "\nSpecies reloaded.\n",
-                             QMessageBox::Ok);
+    callback_Setup_Tab3_ReloadSpeciesPB(nmfConstantsMSSPM::ShowPopupError);
 }
 
+void
+nmfSetup_Tab3::callback_Setup_Tab3_ReloadSpeciesPB(bool showPopup)
+{
+    loadSpecies();
+
+    if (showPopup) {
+        QMessageBox::information(Setup_Tabs,"Reload",
+                                 "\nSpecies reloaded.\n",
+                                 QMessageBox::Ok);
+    }
+}
+
+
+//void
+//nmfSetup_Tab3::callback_Setup_Tab3_DelGuildPB()
+//{
+// //  QList<QString> TablesToDeleteFrom = {"Guilds"};
+//    // Delete row(s) from table.  If the Species has been saved, this should happen automatically when
+//    // the Species are reloaded.  However, if the user is just entering the data and hasn't yet
+//    // saved and wants to delete a row, this statement is necessary.
+//    QList<QTableWidgetItem*> selItems = Setup_Tab3_GuildsTW->selectedItems();
+//    int numSelItems = selItems.size();
+//    if (numSelItems == 0) {
+//        return;
+//    }
+//    int firstSelRow = selItems[0]->row();
+//    int lastSelRow  = selItems[numSelItems-1]->row();
+//    if (firstSelRow > lastSelRow) {
+//        std::swap(firstSelRow,lastSelRow);
+//    }
+//    int firstRow = firstSelRow;
+//    int numRowsToDelete = lastSelRow - firstSelRow + 1;
+//    for (int i=0; i<numRowsToDelete; ++i) {
+// //      removeFromTable("Guilds",Setup_Tab3_GuildsTW->item(firstRow,0),TablesToDeleteFrom); // Remove from database table
+//        Setup_Tab3_GuildsTW->removeRow(firstRow);// Remove from widget  (Refactor this with a model!!)
+//    }
+//    // Enable spin box if there are 0 rows left
+//    Setup_Tab3_NumGuildsSB->setEnabled(Setup_Tab3_GuildsTW->rowCount() == 0);
+//}
 
 void
 nmfSetup_Tab3::callback_Setup_Tab3_DelGuildPB()
 {
-//  QList<QString> TablesToDeleteFrom = {"Guilds"};
+    std::string msg;
+    QMessageBox::StandardButton reply;
+    std::set<int> rowsToDelete;
+    std::set<int>::reverse_iterator rowsToDeleteReverseIter;
+    std::vector<std::string> AllTables;
+    m_databasePtr->getAllTables(AllTables);
 
-    // Delete row(s) from table.  If the Species has been saved, this should happen automatically when
-    // the Species are reloaded.  However, if the user is just entering the data and hasn't yet
+    // Delete row(s) from table.  If the Guilds have been saved, this should happen automatically when
+    // the Guilds are reloaded.  However, if the user is just entering the data and hasn't yet
     // saved and wants to delete a row, this statement is necessary.
     QList<QTableWidgetItem*> selItems = Setup_Tab3_GuildsTW->selectedItems();
     int numSelItems = selItems.size();
     if (numSelItems == 0) {
         return;
     }
-    int firstSelRow = selItems[0]->row();
-    int lastSelRow  = selItems[numSelItems-1]->row();
-    if (firstSelRow > lastSelRow) {
-        std::swap(firstSelRow,lastSelRow);
+
+    // Find row numbers to delete
+    for (int i=0; i<numSelItems; ++i) {
+        rowsToDelete.insert(selItems[i]->row());
     }
-    int firstRow = firstSelRow;
-    int numRowsToDelete = lastSelRow - firstSelRow + 1;
-    for (int i=0; i<numRowsToDelete; ++i) {
-//      removeFromTable(Setup_Tab3_GuildsTW->item(firstRow,0),TablesToDeleteFrom); // Remove from database table
-        Setup_Tab3_GuildsTW->removeRow(firstRow);// Remove from widget  (Refactor this with a model!!)
+    int numRowsToDelete = rowsToDelete.size();
+
+    // Query user and make sure they want to delete the species.
+    msg  = "\nOK to delete the " + std::to_string(numRowsToDelete) + " selected guild(s)?\n";
+    msg += "All associated data in all tables in this database will also be deleted.\n";
+    msg += "\nThis cannot be undone.\n";
+    reply = QMessageBox::question(Setup_Tabs, tr("Delete"), tr(msg.c_str()),
+                                  QMessageBox::No|QMessageBox::Yes,
+                                  QMessageBox::Yes);
+
+    if (reply == QMessageBox::Yes) {
+        Setup_Tabs->setCursor(Qt::WaitCursor);
+        rowsToDeleteReverseIter = rowsToDelete.rbegin();
+        for (int i=0; i<numRowsToDelete; ++i) {
+//std::cout << "-----> Deleting guild: " << Setup_Tab3_GuildsTW->item(*rowsToDeleteReverseIter,0)->text().toStdString() << std::endl;
+            removeFromTables("Guilds",Setup_Tab3_GuildsTW->item(*rowsToDeleteReverseIter,0),AllTables);
+            Setup_Tab3_GuildsTW->removeRow(*rowsToDeleteReverseIter++);// Remove from widget  (RSK Refactor this with a model!!)
+        }
+        // Enable spin box if there are 0 rows left
+        Setup_Tab3_NumGuildsSB->setEnabled(Setup_Tab3_GuildsTW->rowCount() == 0);
+        Setup_Tabs->setCursor(Qt::ArrowCursor);
     }
 
-    // Enable spin box if there are 0 rows left
-    Setup_Tab3_NumGuildsSB->setEnabled(Setup_Tab3_GuildsTW->rowCount() == 0);
+    emit ReloadWidgets();
 }
 
 
 void
 nmfSetup_Tab3::callback_Setup_Tab3_DelSpeciesPB()
 {
-    QList<QString> TablesToDeleteFrom = {"Species","Catch",
-                                         "Effort","ObservedBiomass"};
+    std::string msg;
+    QMessageBox::StandardButton reply;
+    std::set<int> rowsToDelete;
+    std::set<int>::reverse_iterator rowsToDeleteReverseIter;
+    std::vector<std::string> AllTables;
+    m_databasePtr->getAllTables(AllTables);
 
     // Delete row(s) from table.  If the Species has been saved, this should happen automatically when
     // the Species are reloaded.  However, if the user is just entering the data and hasn't yet
     // saved and wants to delete a row, this statement is necessary.
     QList<QTableWidgetItem*> selItems = Setup_Tab3_SpeciesTW->selectedItems();
-    int numSelItems = selItems.size();
+    int numSelItems = (int)selItems.size();
     if (numSelItems == 0) {
         return;
     }
-    int firstSelRow = selItems[0]->row();
-    int lastSelRow  = selItems[numSelItems-1]->row();
-    if (firstSelRow > lastSelRow) {
-        std::swap(firstSelRow,lastSelRow);
+
+    // Find row numbers to delete
+    for (int i=0; i<numSelItems; ++i) {
+        rowsToDelete.insert(selItems[i]->row());
     }
-    int firstRow = firstSelRow;
-    int numRowsToDelete = lastSelRow - firstSelRow + 1;
-    for (int i=0; i<numRowsToDelete; ++i) {
-//      removeFromTable(Setup_Tab3_SpeciesTW->item(firstRow,0),TablesToDeleteFrom); // Remove from database table
-        Setup_Tab3_SpeciesTW->removeRow(firstRow);// Remove from widget  (Refactor this with a model!!)
+    int numRowsToDelete = rowsToDelete.size();
+
+    // Query user and make sure they want to delete the species.
+    msg  = "\nOK to delete the " + std::to_string(numRowsToDelete) + " selected species?\n";
+    msg += "All associated data in all tables in this database will also be deleted.\n";
+    msg += "\nThis cannot be undone.\n";
+    reply = QMessageBox::question(Setup_Tabs, tr("Delete"), tr(msg.c_str()),
+                                  QMessageBox::No|QMessageBox::Yes,
+                                  QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        Setup_Tabs->setCursor(Qt::WaitCursor);
+        rowsToDeleteReverseIter = rowsToDelete.rbegin();
+        for (int i=0; i<numRowsToDelete; ++i) {
+//std::cout << "-----> Deleting species: " << Setup_Tab3_SpeciesTW->item(*rowsToDeleteReverseIter,0)->text().toStdString() << std::endl;
+            removeFromTables("Species",Setup_Tab3_SpeciesTW->item(*rowsToDeleteReverseIter,0),AllTables); // Remove from database table
+            Setup_Tab3_SpeciesTW->removeRow(*rowsToDeleteReverseIter++);// Remove from widget  (RSK Refactor this with a model!!)
+        }
+        // Enable spin box if there are 0 rows left
+        Setup_Tab3_NumSpeciesSB->setEnabled(Setup_Tab3_SpeciesTW->rowCount() == 0);
+        Setup_Tabs->setCursor(Qt::ArrowCursor);
     }
 
-    // Enable spin box if there are 0 rows left
-    Setup_Tab3_NumSpeciesSB->setEnabled(Setup_Tab3_SpeciesTW->rowCount() == 0);
+    emit ReloadWidgets();
+}
 
-} // end callback_Setup_Tab3_DelSpeciesPB
 
 void
-nmfSetup_Tab3::removeFromTable(QTableWidgetItem *itemToRemove,
-                               QList<QString>& TablesToDeleteFrom)
+nmfSetup_Tab3::removeFromTables(const QString& type,
+                                const QTableWidgetItem *itemToRemove,
+                                const std::vector<std::string>& TablesToDeleteFrom)
 {
     std::string cmd;
-    std::string field;
+    std::string prefix;
     std::string errorMsg;
-    QString SpeciesOrGuildName;
+    std::string SpeciesOrGuildName;
+
+    Setup_Tabs->setCursor(Qt::WaitCursor);
 
     if (itemToRemove != NULL) {
-        SpeciesOrGuildName = itemToRemove->text();
-        if (! SpeciesOrGuildName.isEmpty()) {
-            for (QString Table : TablesToDeleteFrom)
+        SpeciesOrGuildName = itemToRemove->text().toStdString();
+        if (! SpeciesOrGuildName.empty()) {
+            for (std::string Table : TablesToDeleteFrom)
             {
-                field = (Table == "Guilds") ? "GuildName" : "SpeName";
-                cmd = "DELETE FROM " + Table.toStdString() +" WHERE " + field +
-                      " = '" + SpeciesOrGuildName.toStdString() + "'";
-                errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-                if (errorMsg != " ") {
-                    m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 removeFromTable: Delete table error: " + errorMsg);
-                    m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-                    return;
+                prefix = "DELETE FROM " + Table + " WHERE ";
+                if (type == "Species") {
+                    cmd = prefix + "SpeName   = '" + SpeciesOrGuildName + "'";
+                    executeDelete(cmd);
+                    cmd = prefix + "SpeciesA  = '" + SpeciesOrGuildName + "'";
+                    executeDelete(cmd);
+                    cmd = prefix + "SpeciesB  = '" + SpeciesOrGuildName + "'";
+                    executeDelete(cmd);
+                } else if (type == "Guilds") {
+                    cmd = prefix + "GuildName = '" + SpeciesOrGuildName + "'";
+                    executeDelete(cmd);
+                    cmd = prefix + "GuildA    = '" + SpeciesOrGuildName + "'";
+                    executeDelete(cmd);
+                    cmd = prefix + "GuildB    = '" + SpeciesOrGuildName + "'";
+                    executeDelete(cmd);
                 }
             }
         }
     }
+
+    Setup_Tabs->setCursor(Qt::ArrowCursor);
+}
+
+/*
+if (errorMsg != " ") {
+    m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 removeFromTable: Delete table error: " + errorMsg);
+    m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+    return;
+}
+*/
+
+void
+nmfSetup_Tab3::executeDelete(std::string cmd)
+{
+    std::string errorMsg;
+
+//std::cout << "delete cmd: " << cmd << std::endl;
+    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
 }
 
 void
@@ -235,6 +352,7 @@ nmfSetup_Tab3::callback_Setup_Tab3_AddSpeciesPB()
         Setup_Tab3_SpeciesTW->setColumnCount(numCols);
         Setup_Tab3_SpeciesTW->setHorizontalHeaderLabels(m_colLabelsSpecies);
         Setup_Tab3_SpeciesTW->resizeColumnsToContents();
+        setupHelp();
     }
 
     Setup_Tab3_SpeciesTW->insertRow(numRows);
@@ -298,7 +416,7 @@ nmfSetup_Tab3::saveGuildData()
     std::string errorMsg;
     std::string GuildName,GuildK;
     std::string GuildKMin,GuildKMax;
-    std::string GrowthRate,GrowthRateMin,GrowthRateMax,CatchabilityMin,CatchabilityMax;
+    std::string GrowthRate,GrowthRateMin,GrowthRateMax,Catchability,CatchabilityMin,CatchabilityMax;
     double GuildKVal,GuildKMinVal,GuildKMaxVal;
     double GrowthRateVal,GrowthRateMinVal,GrowthRateMaxVal;
     std::vector<std::string> guilds;
@@ -315,36 +433,47 @@ nmfSetup_Tab3::saveGuildData()
     // 2. Check Growth Rate is between its Min,Max values
     // 3. Repeat above 2 steps for Carrying Capacity
     // If not, display error and return.
+    QStringList GuildList;
     for (int i=0; i<NumGuilds; ++i) {
         GuildName        = Setup_Tab3_GuildsTW->item(i,0)->text().toStdString();
         GrowthRateVal    = Setup_Tab3_GuildsTW->item(i,1)->text().toDouble();
-        GrowthRateMinVal = Setup_Tab3_GuildsTW->item(i,2)->text().toDouble();
-        GrowthRateMaxVal = Setup_Tab3_GuildsTW->item(i,3)->text().toDouble();
-        GuildKVal        = Setup_Tab3_GuildsTW->item(i,4)->text().toDouble();
-        GuildKMinVal     = Setup_Tab3_GuildsTW->item(i,5)->text().toDouble();
-        GuildKMaxVal     = Setup_Tab3_GuildsTW->item(i,6)->text().toDouble();
-        if (GrowthRateMinVal > GrowthRateMaxVal) {
-            errorMsg = "\nFound: GrowthRateMinVal > GrowthRateMaxVal for Guild: " + GuildName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+        GuildKVal        = Setup_Tab3_GuildsTW->item(i,2)->text().toDouble();
+
+//        GrowthRateMinVal = Setup_Tab3_GuildsTW->item(i,2)->text().toDouble();
+//        GrowthRateMaxVal = Setup_Tab3_GuildsTW->item(i,3)->text().toDouble();
+//        GuildKMinVal     = Setup_Tab3_GuildsTW->item(i,5)->text().toDouble();
+//        GuildKMaxVal     = Setup_Tab3_GuildsTW->item(i,6)->text().toDouble();
+        if (GuildList.contains(QString::fromStdString(GuildName))) {
+            errorMsg = "\nFound duplicate Guild name: " + GuildName;
+            errorMsg += "\n\nEach Guild name must be unique.\n";
+            QMessageBox::warning(Setup_Tabs,"Error", QString::fromStdString(errorMsg),
                                  QMessageBox::Ok);
             return;
-        } else if ((GrowthRateVal < GrowthRateMinVal) || (GrowthRateVal > GrowthRateMaxVal)) {
-            errorMsg = "\nFound: GrowthRate value outside of its Min,Max range for Guild: " + GuildName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return;
+        } else {
+            GuildList << QString::fromStdString(GuildName);
         }
-        if (GuildKMinVal > GuildKMaxVal) {
-            errorMsg = "\nFound: GuildKMinVal > GuildKMaxVal for Guild: " + GuildName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return;
-        } else if ((GuildKVal < GuildKMinVal) || (GuildKVal > GuildKMaxVal)) {
-            errorMsg = "\nFound: GuildKVal value outside of its Min,Max range for Guild: " + GuildName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return;
-        }
+//        if (GrowthRateMinVal > GrowthRateMaxVal) {
+//            errorMsg = "\nFound: GrowthRateMinVal > GrowthRateMaxVal for Guild: " + GuildName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        } else if ((GrowthRateVal < GrowthRateMinVal) || (GrowthRateVal > GrowthRateMaxVal)) {
+//            errorMsg = "\nFound: GrowthRate value outside of its Min,Max range for Guild: " + GuildName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        }
+//        if (GuildKMinVal > GuildKMaxVal) {
+//            errorMsg = "\nFound: GuildKMinVal > GuildKMaxVal for Guild: " + GuildName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        } else if ((GuildKVal < GuildKMinVal) || (GuildKVal > GuildKMaxVal)) {
+//            errorMsg = "\nFound: GuildKVal value outside of its Min,Max range for Guild: " + GuildName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        }
     }
 
     // Delete current Guilds table
@@ -363,17 +492,19 @@ nmfSetup_Tab3::saveGuildData()
     for (int i=0; i<NumGuilds; ++i) {
         GuildName       = Setup_Tab3_GuildsTW->item(i,0)->text().toStdString();
         GrowthRate      = Setup_Tab3_GuildsTW->item(i,1)->text().toStdString();
-        GrowthRateMin   = Setup_Tab3_GuildsTW->item(i,2)->text().toStdString();
-        GrowthRateMax   = Setup_Tab3_GuildsTW->item(i,3)->text().toStdString();
-        GuildK          = Setup_Tab3_GuildsTW->item(i,4)->text().toStdString();
-        GuildKMin       = Setup_Tab3_GuildsTW->item(i,5)->text().toStdString();
-        GuildKMax       = Setup_Tab3_GuildsTW->item(i,6)->text().toStdString();
-        CatchabilityMin = Setup_Tab3_GuildsTW->item(i,7)->text().toStdString();
-        CatchabilityMax = Setup_Tab3_GuildsTW->item(i,8)->text().toStdString();
-        cmd  = "INSERT INTO Guilds (GuildName,GrowthRate,GrowthRateMin,GrowthRateMax,GuildK,GuildKMin,GuildKMax,CatchabilityMin,CatchabilityMax) ";
-        cmd += "VALUES ('" + GuildName + "'," + GrowthRate + "," + GrowthRateMin + "," + GrowthRateMax + "," +
-                GuildK + "," + GuildKMin + "," + GuildKMax + "," +
-                CatchabilityMin  + "," + CatchabilityMax + ");";
+        GuildK          = Setup_Tab3_GuildsTW->item(i,2)->text().toStdString();
+//        GrowthRateMin   = Setup_Tab3_GuildsTW->item(i,2)->text().toStdString();
+//        GrowthRateMax   = Setup_Tab3_GuildsTW->item(i,3)->text().toStdString();
+//        GuildKMin       = Setup_Tab3_GuildsTW->item(i,5)->text().toStdString();
+//        GuildKMax       = Setup_Tab3_GuildsTW->item(i,6)->text().toStdString();
+//        CatchabilityMin = Setup_Tab3_GuildsTW->item(i,7)->text().toStdString();
+//        CatchabilityMax = Setup_Tab3_GuildsTW->item(i,8)->text().toStdString();
+//        cmd  = "INSERT INTO Guilds (GuildName,GrowthRate,GrowthRateMin,GrowthRateMax,GuildK,GuildKMin,GuildKMax,CatchabilityMin,CatchabilityMax) ";
+        cmd  = "INSERT INTO Guilds (GuildName,GrowthRate,GuildK) ";
+//        cmd += "VALUES ('" + GuildName + "'," + GrowthRate + "," + GrowthRateMin + "," + GrowthRateMax + "," +
+//                GuildK + "," + GuildKMin + "," + GuildKMax + "," +
+//                CatchabilityMin  + "," + CatchabilityMax + ");";
+        cmd += "VALUES ('" + GuildName + "'," + GrowthRate +  "," + GuildK + ");";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (errorMsg != " ") {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (Guilds): Write table error: " + errorMsg);
@@ -415,10 +546,10 @@ nmfSetup_Tab3::saveSpeciesData()
     std::string MohnsRhoLabel = "";
     std::string InitBiomass,SurveyQ,SpeciesK,SpeciesKCovarCoeff,GrowthRate,GrowthRateCovarCoeff;
     std::string InitBiomassMin,InitBiomassMax,SurveyQMin,SurveyQMax,GrowthRateMin;
-    std::string GrowthRateMax,SpeciesKMin,SpeciesKMax,CatchabilityMin,CatchabilityMax,SpeDependence;
+    std::string GrowthRateMax,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SpeDependence;
     std::map<std::string,double> guildKMap;
     QString value;
-    bool okValue;
+//  bool okValue;
     double InitBiomassVal,InitBiomassMinVal,InitBiomassMaxVal;
     double GrowthRateVal,GrowthRateMinVal,GrowthRateMaxVal;
     double SpeciesKVal,SpeciesKMinVal,SpeciesKMaxVal;
@@ -446,7 +577,7 @@ nmfSetup_Tab3::saveSpeciesData()
                                              QMessageBox::Ok);
                         return;
                     } else if (value.contains(',')) {
-                        if (! okValue) {
+//                      if (! okValue) {
                             msg = "Found an invalid numeric value of: " + value.toStdString();
                             msg += ". No commas or special characters allowed.";
                             m_logger->logMsg(nmfConstants::Error,msg);
@@ -454,7 +585,7 @@ nmfSetup_Tab3::saveSpeciesData()
                                                  QString::fromStdString("\n"+msg+"\n"),
                                                  QMessageBox::Ok);
                             return;
-                        }
+//                      }
                     }
                 }
             }
@@ -462,111 +593,127 @@ nmfSetup_Tab3::saveSpeciesData()
     }
 
     // Species Data Integrity Checks:
-    // 1. Check to make sure that the SpeciesKMin values are > than the InitBiomass values
-    // 2. Check min biomass < max biomass
-    // 3. Check init biomass is between min and max
-    // 4. Repeat above 3 steps for r and K
+    // 1. Check to make sure each Species name is unique.
+    // 2. Check to make sure that the SpeciesKMin values are > than the InitBiomass values
+    // 3. Check min biomass < max biomass
+    // 4. Check init biomass is between min and max
+    // 5. Repeat above 3 steps for r and K
     // If not, display error and return.
+    QStringList SpeciesList;
     for (int i=0; i<NumSpecies; ++i) {
         SpeciesName       = Setup_Tab3_SpeciesTW->item(i, 0)->text().toStdString();
+
         InitBiomassVal    = Setup_Tab3_SpeciesTW->item(i, 2)->text().toDouble();
-        InitBiomassMinVal = Setup_Tab3_SpeciesTW->item(i, 3)->text().toDouble();
-        InitBiomassMaxVal = Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
+        GrowthRateVal     = Setup_Tab3_SpeciesTW->item(i, 3)->text().toDouble();
+        SpeciesKVal       = Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
+
+//        InitBiomassMinVal = Setup_Tab3_SpeciesTW->item(i, 3)->text().toDouble();
+//        InitBiomassMaxVal = Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
+//        GrowthRateMinVal  = Setup_Tab3_SpeciesTW->item(i, 6)->text().toDouble();
+//        GrowthRateMaxVal  = Setup_Tab3_SpeciesTW->item(i, 7)->text().toDouble();
+//        SpeciesKMinVal    = Setup_Tab3_SpeciesTW->item(i,10)->text().toDouble();
+//        SpeciesKMaxVal    = Setup_Tab3_SpeciesTW->item(i,11)->text().toDouble();
+        /*
+        InitBiomassVal    = Setup_Tab3_SpeciesTW->item(i, 2)->text().toDouble();
         GrowthRateVal     = Setup_Tab3_SpeciesTW->item(i, 5)->text().toDouble();
-        GrowthRateMinVal  = Setup_Tab3_SpeciesTW->item(i, 6)->text().toDouble();
-        GrowthRateMaxVal  = Setup_Tab3_SpeciesTW->item(i, 7)->text().toDouble();
         SpeciesKVal       = Setup_Tab3_SpeciesTW->item(i, 9)->text().toDouble();
-        SpeciesKMinVal    = Setup_Tab3_SpeciesTW->item(i,10)->text().toDouble();
-        SpeciesKMaxVal    = Setup_Tab3_SpeciesTW->item(i,11)->text().toDouble();
-        if (InitBiomassVal > SpeciesKMinVal) {
-            errorMsg = "\nFound: SpeciesKMin < InitBiomass for Species: " + SpeciesName;
-            errorMsg += "\n\nSpeciesKMin must be greater than InitBiomass.\n";
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+        */
+        if (SpeciesList.contains(QString::fromStdString(SpeciesName))) {
+            errorMsg = "\nFound duplicate Species name: " + SpeciesName;
+            errorMsg += "\n\nEach Species name must be unique.\n";
+            QMessageBox::warning(Setup_Tabs,"Error", QString::fromStdString(errorMsg),
                                  QMessageBox::Ok);
             return;
+        } else {
+            SpeciesList << QString::fromStdString(SpeciesName);
         }
-        if (InitBiomassMinVal > InitBiomassMaxVal) {
-            errorMsg = "\nFound: InitBiomassMin > InitBiomassMax for Species: " + SpeciesName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return;
-        } else if ((InitBiomassVal < InitBiomassMinVal) || (InitBiomassVal > InitBiomassMaxVal)) {
-            errorMsg = "\nFound: InitBiomass value outside of its Min,Max range for Species: " + SpeciesName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return;
-        }
-        if (GrowthRateMinVal > GrowthRateMaxVal) {
-            errorMsg = "\nFound: GrowthRateMinVal > GrowthRateMaxVal for Species: " + SpeciesName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return;
-        } else if ((GrowthRateVal < GrowthRateMinVal) || (GrowthRateVal > GrowthRateMaxVal)) {
-            errorMsg = "\nFound: GrowthRate value outside of its Min,Max range for Species: " + SpeciesName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return;
-        }
-        if (SpeciesKMinVal > SpeciesKMaxVal) {
-            errorMsg = "\nFound: SpeciesKMinVal > SpeciesKMaxVal for Species: " + SpeciesName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return;
-        } else if ((SpeciesKVal < SpeciesKMinVal) || (SpeciesKVal > SpeciesKMaxVal)) {
-            errorMsg = "\nFound: SpeciesKVal value outside of its Min,Max range for Species: " + SpeciesName;
-            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return;
-        }
+//        if (InitBiomassVal > SpeciesKMinVal) {
+//            errorMsg = "\nFound: SpeciesKMin < InitBiomass for Species: " + SpeciesName;
+//            errorMsg += "\n\nSpeciesKMin must be greater than InitBiomass.\n";
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        }
+//        if (InitBiomassMinVal > InitBiomassMaxVal) {
+//            errorMsg = "\nFound: InitBiomassMin > InitBiomassMax for Species: " + SpeciesName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        } else if ((InitBiomassVal < InitBiomassMinVal) || (InitBiomassVal > InitBiomassMaxVal)) {
+//            errorMsg = "\nFound: InitBiomass value outside of its Min,Max range for Species: " + SpeciesName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        }
+//        if (GrowthRateMinVal > GrowthRateMaxVal) {
+//            errorMsg = "\nFound: GrowthRateMinVal > GrowthRateMaxVal for Species: " + SpeciesName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        } else if ((GrowthRateVal < GrowthRateMinVal) || (GrowthRateVal > GrowthRateMaxVal)) {
+//            errorMsg = "\nFound: GrowthRate value outside of its Min,Max range for Species: " + SpeciesName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        }
+//        if (SpeciesKMinVal > SpeciesKMaxVal) {
+//            errorMsg = "\nFound: SpeciesKMinVal > SpeciesKMaxVal for Species: " + SpeciesName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        } else if ((SpeciesKVal < SpeciesKMinVal) || (SpeciesKVal > SpeciesKMaxVal)) {
+//            errorMsg = "\nFound: SpeciesKVal value outside of its Min,Max range for Species: " + SpeciesName;
+//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
+//                                 QMessageBox::Ok);
+//            return;
+//        }
     }
 
     // Delete current Species table
-    cmd = "truncate table Species";
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::saveSpeciesData: DELETE error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        QMessageBox::warning(Setup_Tabs, "Error",
-                             "\nError in Save command. Couldn't delete all records from Species table.\n",
-                             QMessageBox::Ok);
-        return;
-    }
+//    cmd = "truncate table Species";
+//    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+//    if (errorMsg != " ") {
+//        m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::saveSpeciesData: DELETE error: " + errorMsg);
+//        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+//        QMessageBox::warning(Setup_Tabs, "Error",
+//                             "\nError in Save command. Couldn't delete all records from Species table.\n",
+//                             QMessageBox::Ok);
+//        return;
+//    }
 
     // Save Species table from table widget
     for (int i=0; i<NumSpecies; ++i) {
         SpeciesName          = Setup_Tab3_SpeciesTW->item(i, 0)->text().toStdString();
         GuildName            = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(i,1))->currentText().toStdString();
         InitBiomass          = Setup_Tab3_SpeciesTW->item(i, 2)->text().toStdString();
-        InitBiomassMin       = Setup_Tab3_SpeciesTW->item(i, 3)->text().toStdString();
-        InitBiomassMax       = Setup_Tab3_SpeciesTW->item(i, 4)->text().toStdString();
-        GrowthRate           = Setup_Tab3_SpeciesTW->item(i, 5)->text().toStdString();
-        GrowthRateMin        = Setup_Tab3_SpeciesTW->item(i, 6)->text().toStdString();
-        GrowthRateMax        = Setup_Tab3_SpeciesTW->item(i, 7)->text().toStdString();
-        GrowthRateCovarCoeff = Setup_Tab3_SpeciesTW->item(i, 8)->text().toStdString();
-        SpeciesK             = Setup_Tab3_SpeciesTW->item(i, 9)->text().toStdString();
-        SpeciesKMin          = Setup_Tab3_SpeciesTW->item(i,10)->text().toStdString();
-        SpeciesKMax          = Setup_Tab3_SpeciesTW->item(i,11)->text().toStdString();
-        SpeciesKCovarCoeff   = Setup_Tab3_SpeciesTW->item(i,12)->text().toStdString();
-        SurveyQ              = Setup_Tab3_SpeciesTW->item(i,13)->text().toStdString();
-        SurveyQMin           = Setup_Tab3_SpeciesTW->item(i,14)->text().toStdString();
-        SurveyQMax           = Setup_Tab3_SpeciesTW->item(i,15)->text().toStdString();
-        CatchabilityMin      = Setup_Tab3_SpeciesTW->item(i,16)->text().toStdString();
-        CatchabilityMax      = Setup_Tab3_SpeciesTW->item(i,17)->text().toStdString();
-        SpeDependence        = Setup_Tab3_SpeciesTW->item(i,18)->text().toStdString();
+        GrowthRate           = Setup_Tab3_SpeciesTW->item(i, 3)->text().toStdString();
+        SpeciesK             = Setup_Tab3_SpeciesTW->item(i, 4)->text().toStdString();
+
+//        InitBiomassMin       = Setup_Tab3_SpeciesTW->item(i, 3)->text().toStdString();
+//        InitBiomassMax       = Setup_Tab3_SpeciesTW->item(i, 4)->text().toStdString();
+//        GrowthRateMin        = Setup_Tab3_SpeciesTW->item(i, 6)->text().toStdString();
+//        GrowthRateMax        = Setup_Tab3_SpeciesTW->item(i, 7)->text().toStdString();
+//        GrowthRateCovarCoeff = Setup_Tab3_SpeciesTW->item(i, 8)->text().toStdString();
+//        SpeciesKMin          = Setup_Tab3_SpeciesTW->item(i,10)->text().toStdString();
+//        SpeciesKMax          = Setup_Tab3_SpeciesTW->item(i,11)->text().toStdString();
+//        SpeciesKCovarCoeff   = Setup_Tab3_SpeciesTW->item(i,12)->text().toStdString();
+//        SurveyQ              = Setup_Tab3_SpeciesTW->item(i,13)->text().toStdString();
+//        SurveyQMin           = Setup_Tab3_SpeciesTW->item(i,14)->text().toStdString();
+//        SurveyQMax           = Setup_Tab3_SpeciesTW->item(i,15)->text().toStdString();
+//        CatchabilityMin      = Setup_Tab3_SpeciesTW->item(i,16)->text().toStdString();
+//        CatchabilityMax      = Setup_Tab3_SpeciesTW->item(i,17)->text().toStdString();
+//        SpeDependence        = Setup_Tab3_SpeciesTW->item(i,18)->text().toStdString();
         guildKMap[GuildName] += std::stod(SpeciesK);
         systemK += std::stod(SpeciesK);
         cmd  = "INSERT INTO Species (";
-        cmd += "SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax,";
-        cmd += "GrowthRate,GrowthRateMin,GrowthRateMax,GrowthRateCovarCoeff,";
-        cmd += "SpeciesK,SpeciesKMin,SpeciesKMax,SpeciesKCovarCoeff,";
-        cmd += "SurveyQ,SurveyQMin,SurveyQMax,";
-        cmd += "CatchabilityMin,CatchabilityMax,SpeDependence) ";
-        cmd += "VALUES ('" + SpeciesName + "', '" + GuildName +
-                "', "+ InitBiomass + ", " + InitBiomassMin + ", " + InitBiomassMax +
-                ", " + GrowthRate + ", " + GrowthRateMin + ", " + GrowthRateMax + ", " + GrowthRateCovarCoeff +
-                ", " + SpeciesK + ", " + SpeciesKMin + ", " + SpeciesKMax + ", " + SpeciesKCovarCoeff +
-                ", " + SurveyQ + ", " + SurveyQMin + ", " + SurveyQMax +
-                ", " + CatchabilityMin + ", " + CatchabilityMax + ", " + SpeDependence + ");";
+        cmd += "SpeName,GuildName,InitBiomass,GrowthRate,SpeciesK) ";
+        cmd += " VALUES ('" + SpeciesName + "', '" + GuildName +
+                "', "+ InitBiomass + ", " + GrowthRate + ", " + SpeciesK + ") ";
+        cmd += "ON DUPLICATE KEY UPDATE ";
+        cmd += "GuildName = '"  + GuildName   + "', ";
+        cmd += "InitBiomass = " + InitBiomass + ", ";
+        cmd += "GrowthRate = "  + GrowthRate  + ", ";
+        cmd += "SpeciesK = "    + SpeciesK    + ";";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (errorMsg != " ") {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (Species): Write table error: " + errorMsg);
@@ -667,8 +814,6 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
         "CompetitionAlpha",
         "CompetitionAlphaMax",
         "CompetitionAlphaMin",
-        "CompetitionBetaGuildsMax",
-        "CompetitionBetaGuildsMin",
         "CompetitionBetaSpeciesMax",
         "CompetitionBetaSpeciesMin",
         "HandlingTime",
@@ -686,6 +831,8 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
     std::vector<std::string> SpeNameTables =
     {
         "Catch",
+        "CompetitionBetaGuildsMax",
+        "CompetitionBetaGuildsMin",
         "DiagnosticCarryingCapacity",
         "DiagnosticGRandCC",
         "DiagnosticGrowthRate",
@@ -840,9 +987,41 @@ nmfSetup_Tab3::callback_Setup_Tab3_NumSpecies(int numSpecies)
     }
     Setup_Tab3_SpeciesTW->setHorizontalHeaderLabels(m_colLabelsSpecies);
     Setup_Tab3_SpeciesTW->resizeColumnsToContents();
+    setupHelp();
 
 }
 
+void
+nmfSetup_Tab3::setupHelp()
+{
+    QString msg;
+    QString prefix = "<html>";
+    QString suffix = "</html>";
+
+    // set Tool tips here for column headings
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(0)->setToolTip("Species Name");
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(1)->setToolTip("Guild Name");
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(2)->setToolTip("Species Initial Biomass");
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(3)->setToolTip("Species Growth Rate");
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(4)->setToolTip("Species Carrying Capacity");
+
+    msg  = "</html><strong><center>Species Name</center></strong><br>";
+    msg += "The Species name entered must be unique.";
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(0)->setWhatsThis(prefix+msg+suffix);
+    msg  = "</html><strong><center>Guild Name</center></strong><br>";
+    msg += "The user must create Guilds prior to being able to select one here.";
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(1)->setWhatsThis(prefix+msg+suffix);
+    msg  = "</html><strong><center>Initial Biomass</center></strong><br>";
+    msg += "The initial species biomass is in units of metric tons.";
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(2)->setWhatsThis(prefix+msg+suffix);
+    msg  = "</html><strong><center>Growth Rate</center></strong><br>";
+    msg += "The Species growth rate (r) is a unit-less value typically between 0.0 and 1.0.";
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(3)->setWhatsThis(prefix+msg+suffix);
+    msg  = "</html><strong><center>Species K</center></strong><br>";
+    msg += "The Species carrying capacity (K) is the number of individuals<br>";
+    msg += "in a population that can be supported by the habitat's resources.";
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(4)->setWhatsThis(prefix+msg+suffix);
+}
 
 void
 nmfSetup_Tab3::readSettings()
@@ -877,13 +1056,13 @@ nmfSetup_Tab3::loadGuilds()
 
     clearGuildWidgets();
 
-    GuildColumns << "Guild Name" << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max" <<
-                    "Carrying Capacity" << "Carrying Capacity Min" << "Carrying Capacity Max" <<
-                    "Catchability Min" << "Catchability Max";
-
+//    GuildColumns << "Guild Name" << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max" <<
+//                    "Carrying Capacity" << "Carrying Capacity Min" << "Carrying Capacity Max" <<
+//                    "Catchability Min" << "Catchability Max";
+    GuildColumns << "Guild Name" << "Growth Rate" << "Carrying Capacity";
     // Get Guild data from database
-    fields = {"GuildName","GrowthRate","GrowthRateMin","GrowthRateMax","GuildK","GuildKMin","GuildKMax","CatchabilityMin","CatchabilityMax"};
-    queryStr   = "SELECT GuildName,GrowthRate,GrowthRateMin,GrowthRateMax,GuildK,GuildKMin,GuildKMax,CatchabilityMin,CatchabilityMax FROM Guilds";
+    fields = {"GuildName","GrowthRate","GuildK"};
+    queryStr   = "SELECT GuildName,GrowthRate,GuildK FROM Guilds";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds  = dataMap["GuildName"].size();
     if (NumGuilds == 0) {
@@ -898,13 +1077,7 @@ nmfSetup_Tab3::loadGuilds()
         for (int i=0; i<NumGuilds; ++i) {
             Setup_Tab3_GuildsTW->item(i,0)->setText(QString::fromStdString(dataMap["GuildName"][i]));
             Setup_Tab3_GuildsTW->item(i,1)->setText(QString::fromStdString(dataMap["GrowthRate"][i]));
-            Setup_Tab3_GuildsTW->item(i,2)->setText(QString::fromStdString(dataMap["GrowthRateMin"][i]));
-            Setup_Tab3_GuildsTW->item(i,3)->setText(QString::fromStdString(dataMap["GrowthRateMax"][i]));
-            Setup_Tab3_GuildsTW->item(i,4)->setText(QString::fromStdString(dataMap["GuildK"][i]));
-            Setup_Tab3_GuildsTW->item(i,5)->setText(QString::fromStdString(dataMap["GuildKMin"][i]));
-            Setup_Tab3_GuildsTW->item(i,6)->setText(QString::fromStdString(dataMap["GuildKMax"][i]));
-            Setup_Tab3_GuildsTW->item(i,7)->setText(QString::fromStdString(dataMap["CatchabilityMin"][i]));
-            Setup_Tab3_GuildsTW->item(i,8)->setText(QString::fromStdString(dataMap["CatchabilityMax"][i]));
+            Setup_Tab3_GuildsTW->item(i,2)->setText(QString::fromStdString(dataMap["GuildK"][i]));
         }
         Setup_Tab3_NumGuildsSB->setEnabled(false);
     }
@@ -929,16 +1102,8 @@ nmfSetup_Tab3::loadSpecies()
 
     clearSpeciesWidgets();
 
-    fields = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax",
-              "GrowthRate","GrowthRateMin","GrowthRateMax","GrowthRateCovarCoeff",
-              "SpeciesK","SpeciesKMin","SpeciesKMax","SpeciesKCovarCoeff",
-              "SurveyQ","SurveyQMin","SurveyQMax",
-              "CatchabilityMin","CatchabilityMax","SpeDependence"};
-    queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax,";
-    queryStr  += "GrowthRate,GrowthRateMin,GrowthRateMax,GrowthRateCovarCoeff,";
-    queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,SpeciesKCovarCoeff,";
-    queryStr  += "SurveyQ,SurveyQMin,SurveyQMax,";
-    queryStr  += "CatchabilityMin,CatchabilityMax,SpeDependence FROM Species";
+    fields = {"SpeName","GuildName","InitBiomass","GrowthRate","SpeciesK"};
+    queryStr   = "SELECT SpeName,GuildName,InitBiomass,GrowthRate,SpeciesK FROM Species";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     if (NumSpecies == 0) {
@@ -956,24 +1121,10 @@ nmfSetup_Tab3::loadSpecies()
         for (int i=0; i<NumSpecies; ++i) {
 
             // Populate text fields
-            Setup_Tab3_SpeciesTW->item(i, 0)->setText(QString::fromStdString(dataMap["SpeName"][i]));
-            Setup_Tab3_SpeciesTW->item(i, 2)->setText(QString::fromStdString(dataMap["InitBiomass"][i]));
-            Setup_Tab3_SpeciesTW->item(i, 3)->setText(QString::fromStdString(dataMap["InitBiomassMin"][i]));
-            Setup_Tab3_SpeciesTW->item(i, 4)->setText(QString::fromStdString(dataMap["InitBiomassMax"][i]));
-            Setup_Tab3_SpeciesTW->item(i, 5)->setText(QString::fromStdString(dataMap["GrowthRate"][i]));
-            Setup_Tab3_SpeciesTW->item(i, 6)->setText(QString::fromStdString(dataMap["GrowthRateMin"][i]));
-            Setup_Tab3_SpeciesTW->item(i, 7)->setText(QString::fromStdString(dataMap["GrowthRateMax"][i]));
-            Setup_Tab3_SpeciesTW->item(i, 8)->setText(QString::fromStdString(dataMap["GrowthRateCovarCoeff"][i]));
-            Setup_Tab3_SpeciesTW->item(i, 9)->setText(QString::fromStdString(dataMap["SpeciesK"][i]));
-            Setup_Tab3_SpeciesTW->item(i,10)->setText(QString::fromStdString(dataMap["SpeciesKMin"][i]));
-            Setup_Tab3_SpeciesTW->item(i,11)->setText(QString::fromStdString(dataMap["SpeciesKMax"][i]));
-            Setup_Tab3_SpeciesTW->item(i,12)->setText(QString::fromStdString(dataMap["SpeciesKCovarCoeff"][i]));
-            Setup_Tab3_SpeciesTW->item(i,13)->setText(QString::fromStdString(dataMap["SurveyQ"][i]));
-            Setup_Tab3_SpeciesTW->item(i,14)->setText(QString::fromStdString(dataMap["SurveyQMin"][i]));
-            Setup_Tab3_SpeciesTW->item(i,15)->setText(QString::fromStdString(dataMap["SurveyQMax"][i]));
-            Setup_Tab3_SpeciesTW->item(i,16)->setText(QString::fromStdString(dataMap["CatchabilityMin"][i]));
-            Setup_Tab3_SpeciesTW->item(i,17)->setText(QString::fromStdString(dataMap["CatchabilityMax"][i]));
-            Setup_Tab3_SpeciesTW->item(i,18)->setText(QString::fromStdString(dataMap["SpeDependence"][i]));
+            Setup_Tab3_SpeciesTW->item(i,0)->setText(QString::fromStdString(dataMap["SpeName"][i]));
+            Setup_Tab3_SpeciesTW->item(i,2)->setText(QString::fromStdString(dataMap["InitBiomass"][i]));
+            Setup_Tab3_SpeciesTW->item(i,3)->setText(QString::fromStdString(dataMap["GrowthRate"][i]));
+            Setup_Tab3_SpeciesTW->item(i,4)->setText(QString::fromStdString(dataMap["SpeciesK"][i]));
 
             // Set Guild combo box
             guild  = dataMap["GuildName"][i];
@@ -998,6 +1149,8 @@ nmfSetup_Tab3::loadWidgets()
 
     loadGuilds();
     loadSpecies();
+
+
 }
 
 
@@ -1041,6 +1194,7 @@ nmfSetup_Tab3::callback_Setup_Tab3_GuildsTableChanged(int row, int col)
 {
     Setup_Tab3_NumGuildsSB->setEnabled(false);
 }
+
 
 
 void

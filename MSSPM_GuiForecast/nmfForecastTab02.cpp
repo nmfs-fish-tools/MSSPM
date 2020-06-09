@@ -329,7 +329,7 @@ nmfForecast_Tab2::restoreData(int minRow, int minCol, int maxRow, int maxCol)
     int m;
     int NumSpecies;
     int RunLength=0;
-    int StartYear=nmfConstantsMSSPM::Start_Year;
+//  int StartYear=nmfConstantsMSSPM::Start_Year;
     int NumRecords;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -350,7 +350,7 @@ nmfForecast_Tab2::restoreData(int minRow, int minCol, int maxRow, int maxCol)
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         RunLength  = std::stoi(dataMap["RunLength"][0]);
-        StartYear  = std::stoi(dataMap["StartYear"][0]);
+//      StartYear  = std::stoi(dataMap["StartYear"][0]);
     }
 
     fields     = {"ForecastName","SpeName","Year","Value"};
@@ -433,9 +433,9 @@ nmfForecast_Tab2::loadWidgets()
     harvestForm = dataMap["HarvestForm"][0];
     if (harvestForm == "Catch") {
         m_HarvestType = "ForecastCatch";
-    } else if (harvestForm == "F") {
+    } else if (harvestForm == "Exploitation (F)") {
         m_HarvestType = "ForecastExploitation";
-    } else if (harvestForm == "QE") {
+    } else if (harvestForm == "Effort (qE)") {
         m_HarvestType = "ForecastEffort";
     }
 

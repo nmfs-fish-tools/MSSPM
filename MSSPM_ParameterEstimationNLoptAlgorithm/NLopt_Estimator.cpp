@@ -7,9 +7,12 @@
 #include <math.h>
 
 bool m_Quit;
-int NLopt_Estimator::m_NLoptIters = 0;
-int NLopt_Estimator::m_Counter    = 0;
-int NLopt_Estimator::m_RunNum     = 0;
+//int NLopt_Estimator::m_NLoptIters    = 0;
+int NLopt_Estimator::m_NLoptFcnEvals = 0;
+int NLopt_Estimator::m_NumObjFcnCalls = 0;
+//int NLopt_Estimator::m_Counter       = 0;
+int NLopt_Estimator::m_RunNum        = 0;
+nlopt::opt       NLopt_Estimator::m_Optimizer;
 
 std::unique_ptr<nmfGrowthForm>      NLoptGrowthForm;
 std::unique_ptr<nmfHarvestForm>     NLoptHarvestForm;
@@ -20,21 +23,45 @@ std::unique_ptr<nmfPredationForm>   NLoptPredationForm;
 NLopt_Estimator::NLopt_Estimator()
 {
     m_Quit = false;
-    m_Counter = 0;
+//  m_Counter = 0;
     m_MinimizerToEnum.clear();
 
-    // Load Minimizer Name Map
+    // Load Minimizer Name Map with global algorithms
     m_MinimizerToEnum["GN_ORIG_DIRECT_L"] = nlopt::GN_ORIG_DIRECT_L;
     m_MinimizerToEnum["GN_DIRECT_L"]      = nlopt::GN_DIRECT_L;
     m_MinimizerToEnum["GN_DIRECT_L_RAND"] = nlopt::GN_DIRECT_L_RAND;
     m_MinimizerToEnum["GN_CRS2_LM"]       = nlopt::GN_CRS2_LM;
     m_MinimizerToEnum["GD_StoGO"]         = nlopt::GD_STOGO;
+
+    // Load Minimizer Name Map with local algorithms
+    m_MinimizerToEnum["LN_COBYLA"]        = nlopt::LN_COBYLA;
+    m_MinimizerToEnum["LN_BOBYQA"]        = nlopt::LN_BOBYQA;
+    m_MinimizerToEnum["LN_PRAXIS"]        = nlopt::LN_PRAXIS;
+    m_MinimizerToEnum["LN_NELDERMEAD"]    = nlopt::LN_NELDERMEAD;
+    m_MinimizerToEnum["LN_SBPLX"]         = nlopt::LN_SBPLX;
+    m_MinimizerToEnum["LD_MMA"]           = nlopt::LD_MMA;
+    m_MinimizerToEnum["LD_SLSQP"]         = nlopt::LD_SLSQP;
+    m_MinimizerToEnum["LD_LBFGS"]         = nlopt::LD_LBFGS;
+
 }
 
 NLopt_Estimator::~NLopt_Estimator()
 {
 }
 
+QString
+NLopt_Estimator::getVersion()
+{
+    int major;
+    int minor;
+    int bugfix;
+
+    nlopt::version(major,minor,bugfix);
+
+    return (QString::number(major) + "." +
+            QString::number(minor) + "." +
+            QString::number(bugfix));
+}
 
 void
 NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
@@ -50,7 +77,7 @@ NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
                                    std::vector<double>& exponent)
 {
     bool isLogistic     = (NLoptDataStruct.GrowthForm      == "Logistic");
-    bool isCatchability = (NLoptDataStruct.HarvestForm     == "QE");
+    bool isCatchability = (NLoptDataStruct.HarvestForm     == "Effort (qE)");
     bool isAlpha        = (NLoptDataStruct.CompetitionForm == "NO_K");
     bool isMSPROD       = (NLoptDataStruct.CompetitionForm == "MS-PROD");
     bool isAGGPROD      = (NLoptDataStruct.CompetitionForm == "AGG-PROD");
@@ -176,7 +203,6 @@ NLopt_Estimator::objectiveFunction(unsigned n,
                                    void* dataPtr)
 {
     const int DefaultFitness = 99999;
-
     Data_Struct NLoptDataStruct = *((Data_Struct *)dataPtr);
     bool isAggProd = (NLoptDataStruct.CompetitionForm == "AGG-PROD");
     double EstBiomassVal;
@@ -188,13 +214,11 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     double guildK;
     double fitness=0;
     int timeMinus1;
-    int val;
     int NumYears   = NLoptDataStruct.RunLength+1;
     int NumSpecies = NLoptDataStruct.NumSpecies;
     int NumGuilds  = NLoptDataStruct.NumGuilds;
-    int guildNum;
+    int guildNum = 0;
     int NumSpeciesOrGuilds;
-    int unused=-1;
     std::vector<double> growthRate;
     std::vector<double> carryingCapacity;
     std::vector<double> guildCarryingCapacity;
@@ -214,6 +238,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     boost::numeric::ublas::matrix<double> Effort       = NLoptDataStruct.Effort;
     boost::numeric::ublas::matrix<double> Exploitation = NLoptDataStruct.Exploitation;
     std::map<int,std::vector<int> > GuildSpecies = NLoptDataStruct.GuildSpecies;
+    std::string MSSPMName = "Run " + std::to_string(m_RunNum) + "-1";
 
     if (m_Quit) {
        throw nlopt::forced_stop();
@@ -260,6 +285,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     }
 
     if (NLoptGrowthForm == nullptr) {
+        incrementObjectiveFunctionCounter(MSSPMName,-1.0,NLoptDataStruct);
         return -1;
     }
     for (int time=1; time<NumYears; ++time) {
@@ -295,8 +321,10 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //             ", p: " << PredationTerm << std::endl;
 
             if ((EstBiomassVal < 0) || (std::isnan(std::fabs(EstBiomassVal)))) {
+                incrementObjectiveFunctionCounter(MSSPMName,(double)DefaultFitness,NLoptDataStruct);
                 return DefaultFitness;
             }
+
             EstBiomassSpecies(time,i) = EstBiomassVal;
 
             // update EstBiomassGuilds for next time step
@@ -317,7 +345,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
         rescaleMean(EstBiomassSpecies, EstBiomassRescaled);
         rescaleMean(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     } else {
-        std::cout << "Error: No Scaling Algorithm detected. Defaulting to Min Max." << std::endl;
+//      std::cout << "Error: No Scaling Algorithm detected. Defaulting to Min Max." << std::endl;
         rescaleMinMax(EstBiomassSpecies, EstBiomassRescaled);
         rescaleMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     }
@@ -325,36 +353,95 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     // Calculate fitness using the appropriate objective criterion
     if (NLoptDataStruct.ObjectiveCriterion == "Least Squares") {
 
-        fitness =  calculateSumOfSquares(EstBiomassRescaled,
-                                         ObsBiomassBySpeciesOrGuildsRescaled);
-
+        fitness =  nmfUtilsStatistics::calculateSumOfSquares(
+                    EstBiomassRescaled,
+                    ObsBiomassBySpeciesOrGuildsRescaled);
     } else if (NLoptDataStruct.ObjectiveCriterion == "Model Efficiency") {
 
         // Negate the MEF here since the ranges is from -inf to 1, where 1 is best.  So we negate it,
         // then minimize that, and then negate and plot the resulting value.
-        fitness = -calculateModelEfficiency(EstBiomassRescaled,
-                                            ObsBiomassBySpeciesOrGuildsRescaled);
-    }
+        fitness = -nmfUtilsStatistics::calculateModelEfficiency(
+                    EstBiomassRescaled,
+                    ObsBiomassBySpeciesOrGuildsRescaled);
+    } else if (NLoptDataStruct.ObjectiveCriterion == "Maximum Likelihood") {
+        // The maximum likelihood calculations must use the unscaled data or else the
+        // results will be incorrect.
+        fitness =  nmfUtilsStatistics::calculateMaximumLikelihoodNoRescale(
+                    EstBiomassSpecies,
+                    ObsBiomassBySpeciesOrGuilds);
+     }
 
-//    std::cout << "fitness: " << fitness << std::endl;
-//    std::string MSSPMName = "Run " + std::to_string(m_RunNum) +
-//                "-"    + std::to_string(subRunNum);
-    std::string MSSPMName = "Run " + std::to_string(m_RunNum) + "-1";
-
-    ++m_NLoptIters;
-    if (m_NLoptIters%1000 == 0) {
-        ++m_Counter;
-        val = m_Counter*1000;
-        writeCurrentLoopFile(MSSPMName,
-                             val,
-                             fitness,
-                             NLoptDataStruct.ObjectiveCriterion,
-                             unused);
-    }
+    incrementObjectiveFunctionCounter(MSSPMName,fitness,NLoptDataStruct);
 
     return fitness;
 }
 
+
+void
+NLopt_Estimator::incrementObjectiveFunctionCounter(std::string MSSPMName,
+                                                   double fitness,
+                                                   Data_Struct NLoptDataStruct)
+{
+    int unused = -1;
+
+    // Update progress output file
+    // RSK - comment out for now, some algorithms yield 0 evals while they're calculating
+    m_NLoptFcnEvals = m_Optimizer.get_numevals();
+
+    ++m_NumObjFcnCalls;
+//std::cout << "x,y: " << m_NumObjFcnCalls << "," << fitness << std::endl;
+    if (m_NumObjFcnCalls%1000 == 0) {
+
+    writeCurrentLoopFile(MSSPMName,
+                         m_NumObjFcnCalls,
+                         fitness,
+                         NLoptDataStruct.ObjectiveCriterion,
+                         unused);
+}
+//    if (m_NLoptFcnEvals == 0) {
+//        if (m_NumObjFcnCalls%10 == 0) {
+//            if (NLoptDataStruct.NLoptUseStopAfterIter) {
+//                if (m_NumObjFcnCalls <= m_Optimizer.get_maxeval())
+//                {
+//                    writeCurrentLoopFile(MSSPMName,
+//                                         m_NumObjFcnCalls,
+//                                         fitness,
+//                                         NLoptDataStruct.ObjectiveCriterion,
+//                                         unused);
+//                }
+//            } else {
+//                writeCurrentLoopFile(MSSPMName,
+//                                     m_NumObjFcnCalls,
+//                                     fitness,
+//                                     NLoptDataStruct.ObjectiveCriterion,
+//                                     unused);
+//            }
+//        }
+//    }
+//    else {
+//        if (m_NLoptFcnEvals%10 == 0) {
+//            if (NLoptDataStruct.NLoptUseStopAfterIter) {
+//                if (m_NLoptFcnEvals <= m_Optimizer.get_maxeval())
+//                {
+//                    writeCurrentLoopFile(MSSPMName,
+//                                         m_NLoptFcnEvals,
+//                                         fitness,
+//                                         NLoptDataStruct.ObjectiveCriterion,
+//                                         unused);
+//                }
+//            } else {
+//                writeCurrentLoopFile(MSSPMName,
+//                                     m_NLoptFcnEvals,
+//                                     fitness,
+//                                     NLoptDataStruct.ObjectiveCriterion,
+//                                     unused);
+//            }
+//        }
+//    }
+
+
+
+}
 
 void
 NLopt_Estimator::writeCurrentLoopFile(std::string &MSSPMName,
@@ -388,63 +475,38 @@ NLopt_Estimator::writeCurrentLoopFile(std::string &MSSPMName,
 }
 
 
-
 /*
+ *	double dnorm4(double x, double mu, double sigma, int give_log)
+ *	      {dnorm (..) is synonymous and preferred inside R}
  *
- * Fitness = ⵉ(Be - Bo)², where (e)stimated and (o)bserved (B)iomass
- *
+ *	Compute the density of the normal distribution.
  */
-double
-NLopt_Estimator::calculateSumOfSquares(const boost::numeric::ublas::matrix<double>& EstBiomass,
-                                       const boost::numeric::ublas::matrix<double>& ObsBiomass)
-{
-    double diff;
-    double sumSquares = 0;
 
-    for (unsigned time=0; time<EstBiomass.size1(); ++time) {
-        for (unsigned species=0; species<EstBiomass.size2(); ++species) {
-            diff = EstBiomass(time,species) - ObsBiomass(time,species);
-            sumSquares += (diff*diff);
-        }
-    }
-    return sumSquares;
-}
+//double
+//NLopt_Estimator::dnorm4(double x, double mu, double sigma, int give_log)
+//{
 
-/*
- *
- * Fitness = 1 - ⵉ(Be - Bo)² / ⵉ(Bo - Bm)²,
- * where (e)stimated, (o)bserved, and (m)ean (B)iomass
- *
- */
-double
-NLopt_Estimator::calculateModelEfficiency(const boost::numeric::ublas::matrix<double>& EstBiomass,
-                                          const boost::numeric::ublas::matrix<double>& ObsBiomass)
-{
-    int nrows = EstBiomass.size1();
-    int ncols = EstBiomass.size2();
-    double diff;
-    double meanObs    = 0;
-    double deviation  = 0;
-    double sumSquares = 0;
+//    x = (x - mu) / sigma;
+//    x = fabs (x);
+//    if (give_log) {
+//        return -(M_LN_SQRT_2PI + 0.5 * x * x + log(sigma));
+//    }
+//    //  M_1_SQRT_2PI = 1 / sqrt(2 * pi)
+// //#ifdef MATHLIB_FAST_dnorm
+// //    return M_1_SQRT_2PI * exp(-0.5 * x * x) / sigma;
+// //#else
+//    // more accurate, less fast :
+//    if (x < 5) {
+//        return M_1_SQRT_2PI * exp(-0.5 * x * x) / sigma;
+//    }
 
-    for (int time=0; time<nrows; ++time) {
-        for (int species=0; species<ncols; ++species) {
-            meanObs += ObsBiomass(time,species);
-        }
-    }
-    meanObs /= (nrows*ncols);
+//    double x1 = ldexp( R_forceint(ldexp(x, 16)), -16);
+//    double x2 = x - x1;
+//    return M_1_SQRT_2PI / sigma * ( exp(-0.5 *x1*x1)*exp((-0.5*x2-x1)*x2) );
+//#endif
+//}
 
-    for (int time=0; time<nrows; ++time) {
-        for (int species=0; species<ncols; ++species) {
-            diff = EstBiomass(time,species) - ObsBiomass(time,species);
-            sumSquares += (diff*diff);
-            diff = ObsBiomass(time,species) - meanObs;
-            deviation  += (diff*diff);
-        }
-    }
 
-    return (deviation == 0) ? 0 : (1.0 - sumSquares/deviation); // Nash-Sutcliffe Model Efficiency Coefficient
-}
 
 
 void
@@ -461,10 +523,12 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
 
     startTimeSpecies = nmfUtils::startTimer();
 
-    m_NLoptIters = 0;
-    m_Counter    = 0;
-    m_Quit       = false;
-    m_RunNum    += 1;
+//  m_NLoptIters    = 0;
+    m_NLoptFcnEvals = 0;
+    m_NumObjFcnCalls = 0;
+//  m_Counter       = 0;
+    m_Quit          = false;
+    m_RunNum       += 1;
 
     // Define forms
     NLoptGrowthForm      = std::make_unique<nmfGrowthForm>(     NLoptStruct.GrowthForm);
@@ -500,17 +564,19 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
 
     // Set starting points for all parameters
     for (int i=0; i<NumEstParameters; ++i) {
-        m_Parameters.push_back(lowerBounds[i] + (upperBounds[i]-lowerBounds[i])/2.0);
+        if (lowerBounds[i] == upperBounds[i]) {
+            m_Parameters.push_back(lowerBounds[i]);
+        } else {
+            m_Parameters.push_back(lowerBounds[i] + (upperBounds[i]-lowerBounds[i])/2.0);
+        }
     }
     NLoptStruct.Parameters = m_Parameters;
 
-//std::cout << "num params: " << m_Parameters.size() << std::endl;
-//for (int i=0; i<m_Parameters.size(); ++i) {
-//std::cout << "=> " << m_Parameters[i] << std::endl;
-//}
-
     // Call the appropriate Objective Function
     if (NLoptStruct.ObjectiveCriterion == "Least Squares") {
+        MaxOrMin = "minimum";
+        m_Optimizer.set_min_objective(objectiveFunction, &NLoptStruct);
+    } else if (NLoptStruct.ObjectiveCriterion == "Maximum Likelihood") {
         MaxOrMin = "minimum";
         m_Optimizer.set_min_objective(objectiveFunction, &NLoptStruct);
     } else if (NLoptStruct.ObjectiveCriterion == "Model Efficiency") {
@@ -520,32 +586,37 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
 
     // Set Stopping Criteria
     if (NLoptStruct.NLoptUseStopVal) {
+        std::cout << "Setting stop fitness value: " << NLoptStruct.NLoptStopVal << std::endl;
         m_Optimizer.set_stopval(NLoptStruct.NLoptStopVal);
     }
     if (NLoptStruct.NLoptUseStopAfterTime) {
+        std::cout << "Setting max run time: " << NLoptStruct.NLoptStopAfterTime << std::endl;
         m_Optimizer.set_maxtime(NLoptStruct.NLoptStopAfterTime);
     }
     if (NLoptStruct.NLoptUseStopAfterIter) {
+        std::cout << "Setting max num function evaluations: " << NLoptStruct.NLoptStopAfterIter << std::endl;
         m_Optimizer.set_maxeval(NLoptStruct.NLoptStopAfterIter);
     }
-    // Run the Optimizer
+
+    //
+    // Run the Optimizer using the previously defined objective function
+    //
     nlopt::result result;
     try {
         double minf=0;
         try {
             result = m_Optimizer.optimize(m_Parameters, minf);
+            std::cout << "\nOptimizer return code: " << returnCode(result) << std::endl;
         } catch (const std::exception& e) {
             std::cout << "Exception thrown: " << e.what() << std::endl;
         } catch (...) {
             std::cout << "Error: Unknown error from NLopt_Estimator::estimateParameters m_Optimizer.optimize()" << std::endl;
         }
 
-        std::cout << "\nOptimizer return code: " << returnCode(result) << std::endl;
         std::cout << "Found " + MaxOrMin + " fitness of: " << minf << std::endl;
-        for (int i=0; i<m_Parameters.size(); ++i) {
+        for (unsigned i=0; i<m_Parameters.size(); ++i) {
             std::cout << "  Est Param: " << m_Parameters[i] << std::endl;
         }
-        std::cout << "Num iterations: " << m_NLoptIters << std::endl;
 
         extractParameters(NLoptStruct, &m_Parameters[0],
                           m_EstGrowthRates, m_EstCarryingCapacities,
@@ -557,19 +628,24 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
                         m_Parameters.size(),NumSubRuns,
                         minf,fitnessStdDev,NLoptStruct,bestFitnessStr);
 
-        emit RunCompleted(bestFitnessStr);
-    }
-    catch (std::exception &e) {
-        std::cout << "nlopt failed: " << e.what() << std::endl;
+        emit RunCompleted(bestFitnessStr,NLoptStruct.showDiagnosticChart);
+
     }
     catch (nlopt::forced_stop &e) {
         std::cout << "User terminated application: " << e.what() << std::endl;
+    }
+    catch (std::exception &e) {
+        std::cout << "nlopt failed: " << e.what() << std::endl;
     }
 
     std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtils::elapsedTime(startTime);
     std::cout << elapsedTimeStr << std::endl;
 
     stopRun(elapsedTimeStr,bestFitnessStr);
+
+//std::cout << "throwing nlopt::forced_stop()" << std::endl;
+//    throw nlopt::forced_stop();
+
 }
 
 void
@@ -614,7 +690,7 @@ NLopt_Estimator::createOutputStr(const int&         numTotalParameters,
         bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity",m_EstCarryingCapacities,true);
     }
 
-    if (harvestForm == "QE") {
+    if (harvestForm == "Effort (qE)") {
         bestFitnessStr += convertValues1DToOutputStr("Catchability",m_EstCatchability,false);
     }
     if (competitionForm == "NO_K") {
@@ -659,12 +735,12 @@ NLopt_Estimator::convertValues1DToOutputStr(const std::string& label,
     bestFitnessStr += "<br>&nbsp;&nbsp;" + label + ":&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
     for (unsigned i=0; i<Values.size(); ++i) {
         val = Values[i];
-        bestFitnessStr += nmfUtils::to_string_scientificNotation(val) + "&nbsp;&nbsp;";
+        bestFitnessStr += nmfUtils::convertToScientificNotation(val) + "&nbsp;&nbsp;";
         totalVal += val;
     }
     if (includeTotal) {
         bestFitnessStr += "<br>&nbsp;&nbsp;Total " + label + ":&nbsp;&nbsp;" +
-                nmfUtils::to_string_scientificNotation(totalVal);
+                nmfUtils::convertToScientificNotation(totalVal);
     }
 
     return bestFitnessStr;
@@ -683,7 +759,7 @@ NLopt_Estimator::convertValues2DToOutputStr(const std::string& label,
             if ((i == 0) && (j == 0)) {
                 bestFitnessStr += "&nbsp;&nbsp;" + label + ":<br>&nbsp;&nbsp;";
             }
-            bestFitnessStr += "&nbsp;&nbsp;&nbsp;" + nmfUtils::to_string_scientificNotation(matrix(i,j));
+            bestFitnessStr += "&nbsp;&nbsp;&nbsp;" + nmfUtils::convertToScientificNotation(matrix(i,j));
         }
     }
 

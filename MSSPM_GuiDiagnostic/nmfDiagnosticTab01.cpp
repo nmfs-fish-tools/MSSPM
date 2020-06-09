@@ -38,7 +38,7 @@ nmfDiagnostic_Tab1::nmfDiagnostic_Tab1(QTabWidget*  tabs,
 
     // Setup connections
     connect(m_Diagnostic_Tab1_RunPB, SIGNAL(clicked()),
-            this,                    SLOT(callback_Diagnostic_Tab1_RunPB()));
+            this,                    SLOT(callback_RunPB()));
 
     readSettings();
 
@@ -253,7 +253,7 @@ nmfDiagnostic_Tab1::isAggProd(std::string Algorithm,
 }
 
 void
-nmfDiagnostic_Tab1::callback_Diagnostic_Tab1_RunPB()
+nmfDiagnostic_Tab1::callback_RunPB()
 {
     int NumSpecies;
     int NumGuilds;
@@ -327,7 +327,8 @@ nmfDiagnostic_Tab1::callback_Diagnostic_Tab1_RunPB()
 
     m_Diagnostic_Tabs->setCursor(Qt::WaitCursor);
 
-    // Hardcode parameter names for diagnostics. Save to the 1-parameter tables.
+    // Hardcode parameter names for diagnostics. Save to the 1-parameter tables to be
+    // used in the 2d plots.
     QStringList ParameterNames = {"Growth Rate (r)","Carrying Capacity (K)"};
     for (QString parameterName : ParameterNames) {
 
@@ -378,7 +379,8 @@ nmfDiagnostic_Tab1::callback_Diagnostic_Tab1_RunPB()
     }
 
     // Now save to the 2-parameter table
-    // Calculate all parameter increment values and save to table
+    // Calculate all parameter increment values and save to table to be
+    // used in the 3d plots.
     DiagnosticTupleVector.clear();
     for (int SpeciesNum=0; SpeciesNum<NumSpeciesOrGuilds; ++SpeciesNum) {
         rParameter       =  rEstParameter[SpeciesNum];
@@ -434,8 +436,8 @@ nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
     int NumSpecies;
     int NumGuilds;
     int NumSpeciesOrGuilds;
-    unsigned unused1;
-    double unused2[1];
+    unsigned unused1 = 0;
+    double unused2[] = {0};
     double retv = 0;
     std::string Algorithm;
     std::string Minimizer;
@@ -475,19 +477,23 @@ nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
 
     if (Algorithm == "Bees Algorithm") {
 
-        BeesAlgorithm *beesAlg = new BeesAlgorithm(m_DataStruct,nmfConstantsMSSPM::VerboseOff);
-        return beesAlg->evaluateObjectiveFunction(parameters);
+        std::unique_ptr<BeesAlgorithm> beesAlg = std::make_unique<BeesAlgorithm>(m_DataStruct,nmfConstantsMSSPM::VerboseOff);
+        retv = beesAlg->evaluateObjectiveFunction(parameters);
 
     } else if (Algorithm == "NLopt Algorithm") {
 
-        NLopt_Estimator *nlopt_Estimator = new NLopt_Estimator();
+        std::unique_ptr<NLopt_Estimator> nlopt_Estimator = std::make_unique<NLopt_Estimator>();
         retv = nlopt_Estimator->objectiveFunction(unused1,&parameters[0],unused2,&m_DataStruct);
         if (retv == -1) {
             m_Logger->logMsg(nmfConstants::Warning,"Please run Estimation prior to running this Diagnostic");
         }
-        return retv;
+
+    } else {
+
+        retv = -1;
 
     }
+    return retv;
 }
 
 
@@ -500,8 +506,9 @@ nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
     int NumSpecies;
     int NumGuilds;
     int NumSpeciesOrGuilds;
-    unsigned unused1;
-    double unused2[1];
+    unsigned unused1 = 0;
+    double unused2[] = {0};
+    double retv = -1;
     std::string Algorithm;
     std::string Minimizer;
     std::string ObjectiveCriterion;
@@ -532,12 +539,19 @@ nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
     parameters[NumSpeciesOrGuilds+ SpeciesOrGuildNum] = KParameter; // NumSpeciesOrGuilds+ offset since need to skip over Growth Rate parameters
 
     if (Algorithm == "Bees Algorithm") {
-        std::unique_ptr<BeesAlgorithm> beesAlg(new BeesAlgorithm(m_DataStruct,nmfConstantsMSSPM::VerboseOff));
-        return beesAlg->evaluateObjectiveFunction(parameters);
+
+        std::unique_ptr<BeesAlgorithm> beesAlg = std::make_unique<BeesAlgorithm>(m_DataStruct,nmfConstantsMSSPM::VerboseOff);
+        retv = beesAlg->evaluateObjectiveFunction(parameters);
+
     } else if (Algorithm == "NLopt Algorithm") {
-        std::unique_ptr<NLopt_Estimator> nlopt_Estimator(new NLopt_Estimator());
-        return nlopt_Estimator->objectiveFunction(unused1,&parameters[0],unused2,&m_DataStruct);
+
+        std::unique_ptr<NLopt_Estimator> nlopt_Estimator = std::make_unique<NLopt_Estimator>();
+        retv = nlopt_Estimator->objectiveFunction(unused1,&parameters[0],unused2,&m_DataStruct);
+
+    } else {
+        retv = -1;
     }
+    return retv;
 }
 
 
@@ -606,7 +620,7 @@ nmfDiagnostic_Tab1::loadHarvestParameters(
     std::string queryStr;
     QStringList tableNames = {};
 
-    if (m_DataStruct.HarvestForm == "QE") {
+    if (m_DataStruct.HarvestForm == "Effort (qE)") {
         tableNames << "OutputCatchability";
     }
     for (QString table : tableNames) {

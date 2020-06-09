@@ -17,6 +17,7 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     m_logger      = logger;
     m_ProjectDir  = projectDir;
     m_ProjectSettingsConfig.clear();
+    m_EstimatedParameters.clear();
 
     Setup_Tab4_GrowthHighlightPB = nullptr;
 
@@ -37,8 +38,8 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     m_ModelPresets["Logistic"]             = {"Logistic", "Null",   "Null",  "Null"};
     m_ModelPresets["Schaefer"]             = {"Logistic", "Null",   "Catch", "Null"};
     m_ModelPresets["GB-Pilot"]             = {"Linear",   "Null",   "Catch", "NO_K"};
-    m_ModelPresets["MS-PROD"]              = {"Logistic", "Type I", "F",     "MS-PROD"};
-    m_ModelPresets["AGG-PROD"]             = {"Logistic", "Type I", "F",     "AGG-PROD"};
+    m_ModelPresets["MS-PROD"]              = {"Logistic", "Type I", "Exploitation (F)", "MS-PROD"};
+    m_ModelPresets["AGG-PROD"]             = {"Logistic", "Type I", "Exploitation (F)", "AGG-PROD"};
 
     Setup_Tab4_SystemNameLE             = Setup_Tabs->findChild<QLineEdit *>("Setup_Tab4_SystemNameLE");
     Setup_Tab4_SystemCarryingCapacityLE = Setup_Tabs->findChild<QLineEdit *>("Setup_Tab4_SystemCarryingCapacityLE");
@@ -66,6 +67,7 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tab4_CalcPB                   = Setup_Tabs->findChild<QPushButton    *>("Setup_Tab4_CalcPB");
 
     // Set widget parameters
+    Setup_Tab4_LoadPB->show();
     Setup_Tab4_LoadPB->setEnabled(true);
     Setup_Tab4_SavePB->setEnabled(true);
     Setup_Tab4_PrevPB->setText("\u25C1--");
@@ -413,6 +415,8 @@ nmfSetup_Tab4::loadSystem()
     saveSettings();
 
     emit SystemLoaded();
+
+    setEstimatedParameterNames();
 }
 
 void
@@ -533,8 +537,60 @@ void
 nmfSetup_Tab4::callback_SavePB()
 {
     saveSystem(true);
+    setEstimatedParameterNames();
 }
 
+QStringList
+nmfSetup_Tab4::getEstimatedParameterNames()
+{
+    return m_EstimatedParameters;
+}
+
+void
+nmfSetup_Tab4::setEstimatedParameterNames()
+{
+    QString growthForm      = getGrowthFormCMB()->currentText();
+    QString harvestForm     = getHarvestFormCMB()->currentText();
+    QString competitionForm = getCompetitionFormCMB()->currentText();
+    QString predationForm   = getPredationFormCMB()->currentText();
+
+    m_EstimatedParameters.clear();
+
+    // Load Growth estimated parameters
+    if (growthForm == "Linear") {
+        m_EstimatedParameters.push_back("Growth Rate");
+    } else if (growthForm == "Logistic") {
+        m_EstimatedParameters.push_back("Growth Rate");
+        m_EstimatedParameters.push_back("Carrying Capacity");
+    }
+
+    // Load Harvest estimated parameters
+    if (harvestForm == "Effort (qE)") {
+        m_EstimatedParameters.push_back("Catchability");
+    }
+
+    // Load Competition estimated parameters
+    if (competitionForm == "NO_K") {
+        m_EstimatedParameters.push_back("Alpha");
+    } else if (competitionForm == "MS-PROD") {
+        m_EstimatedParameters.push_back("Beta SpeciesSpecies");
+        m_EstimatedParameters.push_back("Beta GuildSpecies");
+    } else if (competitionForm == "AGG-PROD") {
+        m_EstimatedParameters.push_back("Beta GuildGuild");
+    }
+
+    // Load Predation estimated parameters
+    if (predationForm == "Type I") {
+        m_EstimatedParameters.push_back("Predation Effect");
+    } else if (predationForm == "Type II") {
+        m_EstimatedParameters.push_back("Predation Effect");
+        m_EstimatedParameters.push_back("Handling Time");
+    } else if (predationForm == "Type III") {
+        m_EstimatedParameters.push_back("Predation Effect");
+        m_EstimatedParameters.push_back("Handling Time");
+        m_EstimatedParameters.push_back("Predation Exponent");
+    }
+}
 
 void
 nmfSetup_Tab4::reloadSystemName()
@@ -579,6 +635,7 @@ nmfSetup_Tab4::saveSystem(bool RunChecks)
 
     emit UpdateInitialObservedBiomass();
     emit UpdateInitialForecastYear();
+    emit ReloadWidgets();
 
 }
 
@@ -605,7 +662,7 @@ nmfSetup_Tab4::saveSettingsConfiguration(bool verbose,
         NumberOfParameters += 1;
     else if (GrowthForm == "Logistic")
         NumberOfParameters += 2;
-    if (HarvestForm == "F")
+    if (HarvestForm == "Exploitation (F)")
         NumberOfParameters += 1;
     if (CompetitionForm != "Null")
         NumberOfParameters += 1;
@@ -734,6 +791,10 @@ nmfSetup_Tab4::loadWidgets()
     Setup_Tab4_StartYearSB->setValue(std::stoi(dataMap["StartYear"][0]));
     setRunLength(std::stoi(dataMap["RunLength"][0]));
     Setup_Tab4_EndYearLE->setText(QString::number(Setup_Tab4_StartYearSB->value()+getRunLength()));
+
+    setEstimatedParameterNames();
+
+    emit RedrawEquation();
 }
 
 
@@ -817,10 +878,11 @@ nmfSetup_Tab4::callback_HarvestFormCMB(QString harvestForm)
     std::vector<std::string> ModelPreset;
 
     // Change the Estimation->Harvest Parameters table to correspond with the selected harvestForm
-    if (harvestForm == "QE")
-        harvestForm = "Effort";
-    else if (harvestForm == "F")
-        harvestForm = "Exploitation";
+//    if (harvestForm == "Effort (qE)")
+//        harvestForm = "Effort";
+//    else if (harvestForm == "Exploitation (F)")
+//        harvestForm = "Exploitation";
+    harvestForm = harvestForm.split(" ")[0];
 
     while (!done and (i<NumPresets)) {
         for (std::string ModelName : m_ModelPresetNames) {

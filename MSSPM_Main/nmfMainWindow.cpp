@@ -5,6 +5,7 @@
 
 //#include "Gradient_Estimator.h"
 #include "nmfConstants.h"
+#include "nmfConstantsMSSPM.h"
 
 #include <QLineSeries>
 
@@ -22,6 +23,12 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_RunOutputMsg.clear();
     m_NumMohnsRhoRanges = 0;
     m_SeedValue = -1;
+    m_ScreenshotOn = false;
+    m_NumScreenShot = 0;
+    m_Pixmaps.clear();
+    m_MShotNumRows = 4;
+    m_MShotNumCols = 3;
+    m_isStartUpOK = true;
 
     m_ProjectDir.clear();
     m_ProjectDatabase.clear();
@@ -31,27 +38,38 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_Username.clear();
     m_Password.clear();
 //  m_Session.clear();
-    m_RunNumBees       = 1;
-    m_RunNumNLopt      = 1;
-//  RunNumGenetic      = 1;
-//  RunNumGradient     = 1;
-    Setup_Tab3_ptr     = nullptr;
-//  paramObj           = nullptr;
-//  modelParamObj      = nullptr;
-    GrowthRateTV       = nullptr;
-    CompetitionAlphaTV = nullptr;
-    CompetitionBetaSTV = nullptr;
-    CompetitionBetaGTV = nullptr;
-    PredationTV        = nullptr;
-    HandlingTV         = nullptr;
-    ExponentTV         = nullptr;
-    CarryingCapacityTV = nullptr;
-//  LogisticMultiSpeciesDlg = nullptr;
-    m_ChartView3d         = nullptr;
-    m_Modifier            = nullptr;
-    m_Graph3D             = nullptr;
+    m_RunNumBees        = 1;
+    m_RunNumNLopt       = 1;
+//  RunNumGenetic       = 1;
+//  RunNumGradient      = 1;
+    Setup_Tab3_ptr      = nullptr;
+//  paramObj            = nullptr;
+//  modelParamObj       = nullptr;
+    GrowthRateTV        = nullptr;
+    CompetitionAlphaTV  = nullptr;
+    CompetitionBetaSTV  = nullptr;
+    CompetitionBetaGTV  = nullptr;
+    PredationTV         = nullptr;
+    HandlingTV          = nullptr;
+    ExponentTV          = nullptr;
+    CarryingCapacityTV  = nullptr;
+    CatchabilityTV      = nullptr;
+    m_ChartView3d       = nullptr;
+    m_Modifier          = nullptr;
+    m_Graph3D           = nullptr;
+    OutputChartMainLayt = nullptr;
+    Output_Controls_ptr = nullptr;
+    m_PreferencesDlg    = new QDialog();
+    m_PreferencesWidget = nullptr;
+    m_ViewerWidget      = nullptr;
+
     OutputChartMainLayt   = nullptr;
-    Output_Controls_ptr   = nullptr;
+    m_ChartWidget         = nullptr;
+    m_ChartView2d         = nullptr;
+    m_EstimatedParametersTW = nullptr;
+    m_EstimatedParametersMap.clear();
+
+    m_UI->actionShowAllSavedRunsTB->setEnabled(false);
 
     // This is needed since a custom signal is passing a std::string type
     qRegisterMetaType<std::string>("std::string");
@@ -72,7 +90,13 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_Logger->initLogger("MSSPM");
 
     m_DatabasePtr = new nmfDatabase();
+    readSettingsGuiPositionOrientationOnly();
     readSettings();
+
+    initializePreferencesDlg();
+
+    // Hide Progress Chart and Log dock widgets. Show them once user does their first MSSPM run.
+    setDefaultDockWidgetsVisibility();
 
     // Prompt user for database login and password
     if (nmfDatabaseUtils::menu_connectToDatabase(
@@ -80,8 +104,13 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
                 m_Username,m_Password))
     {
         queryUserPreviousDatabase();
+    } else {
+        m_isStartUpOK = false;
+        return;
     }
-    loadDatabase();
+    if (m_LoadLastProject) {
+        loadDatabase();
+    }
 
     // Setup Log Widget
     setupLogWidget();
@@ -91,6 +120,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     setupOutputEstimateParametersWidgets();
     setupOutputModelFitSummaryWidgets();
     setupOutputDiagnosticSummaryWidgets();
+    setupOutputViewerWidget();
     setupProgressChart();
 
     // Load GUIs and Connections
@@ -103,6 +133,12 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_SaveSettings = true;
     qApp->installEventFilter(this);
 
+    if (! m_LoadLastProject) {
+        Setup_Tab2_ptr->clearProject();
+        enableApplicationFeatures(false);
+    }
+
+
     // Turn these off for now
     m_UI->actionGeneticTB->setVisible(false);
     m_UI->actionGradientTB->setVisible(false);
@@ -114,6 +150,82 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     readSettings("ProgressDockWidgetIsVisible");
 
     callback_SystemLoaded();
+
+
+}
+
+
+nmfMainWindow::~nmfMainWindow()
+{
+    delete m_UI;
+}
+
+bool
+nmfMainWindow::isStartUpOK()
+{
+    return m_isStartUpOK;
+}
+
+void
+nmfMainWindow::initializePreferencesDlg()
+{
+    QUiLoader loader;
+    QFile file(":/forms/Main/PreferencesDlg.ui");
+    file.open(QFile::ReadOnly);
+    m_PreferencesWidget = loader.load(&file,this);
+    file.close();
+
+    QSpinBox*    numRowsSB    = m_PreferencesWidget->findChild<QSpinBox*>("PrefNumRowsSB");
+    QSpinBox*    numColumnsSB = m_PreferencesWidget->findChild<QSpinBox*>("PrefNumColumnsSB");
+    QComboBox*   styleCMB     = m_PreferencesWidget->findChild<QComboBox*>("PrefAppStyleCMB");
+    QPushButton* cancelPB     = m_PreferencesWidget->findChild<QPushButton*>("PrefCancelPB");
+    QPushButton* okPB         = m_PreferencesWidget->findChild<QPushButton*>("PrefOkPB");
+
+    QVBoxLayout* layt = new QVBoxLayout();
+    layt->addWidget(m_PreferencesWidget);
+    m_PreferencesDlg->setLayout(layt);
+    m_PreferencesDlg->setWindowTitle("Preferences");
+
+    numRowsSB->setValue(m_MShotNumRows);
+    numColumnsSB->setValue(m_MShotNumCols);
+
+    connect(styleCMB,         SIGNAL(currentTextChanged(QString)),
+            this,             SLOT(callback_PreferencesSetStyleSheet(QString)));
+    connect(okPB,             SIGNAL(clicked()),
+            this,             SLOT(callback_PreferencesMShotOkPB()));
+    connect(cancelPB,         SIGNAL(clicked()),
+            m_PreferencesDlg, SLOT(close()));
+}
+
+
+void
+nmfMainWindow::enableApplicationFeatures(bool enable)
+{
+    QTreeWidgetItem* item;
+
+    // Adjust some items in the Setup group
+    item = NavigatorTree->topLevelItem(0);
+    if (enable) {
+        for (int j=2; j<item->childCount(); ++j) {
+            item->child(j)->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+            Setup_Tab2_ptr->enableSetupTabs(true);
+        }
+    } else {
+        for (int j=2; j<item->childCount(); ++j) {
+            item->child(j)->setFlags(Qt::NoItemFlags);
+            Setup_Tab2_ptr->enableSetupTabs(false);
+        }
+    }
+
+    // Adjust other Navigation groups
+    for (int i=1; i<NavigatorTree->topLevelItemCount(); ++i) {
+        item = NavigatorTree->topLevelItem(i);
+        if (enable) {
+            item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+        } else {
+            item->setFlags(Qt::NoItemFlags);
+        }
+    }
 }
 
 void
@@ -126,11 +238,7 @@ nmfMainWindow::queryUserPreviousDatabase()
                                   QMessageBox::Yes);
 
     m_LoadLastProject = (reply == QMessageBox::Yes);
-    showDockWidgets(true);
 
-    // Hide Progress Chart and Log widgets. Show them once user does their first MSSPM run.
-    m_UI->ProgressDockWidget->hide();
-    m_UI->LogDockWidget->hide();
 }
 
 
@@ -230,12 +338,6 @@ nmfMainWindow::menu_layoutDefault()
 }
 
 
-nmfMainWindow::~nmfMainWindow()
-{
-    delete m_UI;
-}
-
-
 void
 nmfMainWindow::setupOutputChartWidgets()
 {
@@ -247,9 +349,19 @@ nmfMainWindow::setupOutputChartWidgets()
 void
 nmfMainWindow::setup2dChart()
 {
-    OutputChartMainLayt   = new QVBoxLayout();
-    m_ChartWidget         = new QChart();
-    m_ChartView2d         = new QChartView(m_ChartWidget);
+    if (OutputChartMainLayt != nullptr) {
+        delete OutputChartMainLayt;
+    }
+    OutputChartMainLayt = new QVBoxLayout();
+    if (m_ChartWidget != nullptr) {
+        delete m_ChartWidget;
+    }
+    m_ChartWidget = new QChart();
+    if (m_ChartView2d != nullptr) {
+        delete m_ChartView2d;
+    }
+    m_ChartView2d = new QChartView(m_ChartWidget);
+
     OutputChartMainLayt->addWidget(m_ChartView2d);
     m_UI->MSSPMOutputChartTab->setLayout(OutputChartMainLayt);
 }
@@ -257,8 +369,8 @@ nmfMainWindow::setup2dChart()
 void
 nmfMainWindow::setupOutputEstimateParametersWidgets()
 {
-    QTabWidget*  estimatedParametersTW  = new QTabWidget();
-    QVBoxLayout* mainLayt               = new QVBoxLayout();
+    m_EstimatedParametersTW  = new QTabWidget();
+    QVBoxLayout* mainLayt    = new QVBoxLayout();
 
     GrowthRateTV       = new QTableView();
     CompetitionAlphaTV = new QTableView();
@@ -268,30 +380,47 @@ nmfMainWindow::setupOutputEstimateParametersWidgets()
     HandlingTV         = new QTableView();
     ExponentTV         = new QTableView();
     CarryingCapacityTV = new QTableView();
+    CatchabilityTV     = new QTableView();
     BMSYTV             = new QTableView();
     MSYTV              = new QTableView();
     FMSYTV             = new QTableView();
     OutputBiomassTV    = new QTableView();
 
-    estimatedParametersTW->addTab(GrowthRateTV,"Growth Rate (r):");
-    estimatedParametersTW->addTab(CarryingCapacityTV,"Carrying Capacity (K):");
-    estimatedParametersTW->addTab(CompetitionAlphaTV,"Competition ("+QString(QChar(0x03B1))+"):");
-    estimatedParametersTW->addTab(CompetitionBetaSTV,"Competition ("+QString(QChar(0x03B2))+":Species):");
-    estimatedParametersTW->addTab(CompetitionBetaGTV,"Competition ("+QString(QChar(0x03B2))+":Guilds):");
-    estimatedParametersTW->addTab(PredationTV,"Predation ("+ QString(QChar(0x03C1)) +"): ");
-    estimatedParametersTW->addTab(HandlingTV,"Handling (h): ");
-    estimatedParametersTW->addTab(ExponentTV,"Exponent (b): ");
-    estimatedParametersTW->addTab(OutputBiomassTV,"Output Biomass:");
-    estimatedParametersTW->addTab(BMSYTV,"Biomass MSY (K/2):");
-    estimatedParametersTW->addTab(MSYTV, "MSY (rK/4):");
-    estimatedParametersTW->addTab(FMSYTV,"Fishing Mortality MSY (r/2):");
+    m_EstimatedParametersTW->addTab(GrowthRateTV,"Growth Rate (r):");
+    m_EstimatedParametersTW->addTab(CarryingCapacityTV,"Carrying Capacity (K):");
+    m_EstimatedParametersTW->addTab(CatchabilityTV,"Catchability (q):");
+    m_EstimatedParametersTW->addTab(CompetitionAlphaTV,"Competition ("+QString(QChar(0x03B1))+"):");
+    m_EstimatedParametersTW->addTab(CompetitionBetaSTV,"Competition ("+QString(QChar(0x03B2))+":Species):");
+    m_EstimatedParametersTW->addTab(CompetitionBetaGTV,"Competition ("+QString(QChar(0x03B2))+":Guilds):");
+    m_EstimatedParametersTW->addTab(PredationTV,"Predation ("+ QString(QChar(0x03C1)) +"): ");
+    m_EstimatedParametersTW->addTab(HandlingTV,"Handling (h): ");
+    m_EstimatedParametersTW->addTab(ExponentTV,"Exponent (b): ");
+    m_EstimatedParametersTW->addTab(OutputBiomassTV,"Output Biomass:");
+    m_EstimatedParametersTW->addTab(BMSYTV,"Biomass MSY (K/2):");
+    m_EstimatedParametersTW->addTab(MSYTV, "MSY (rK/4):");
+    m_EstimatedParametersTW->addTab(FMSYTV,"Fishing Mortality MSY (r/2):");
+    m_EstimatedParametersTW->setObjectName("EstimatedParametersTab");
 
-    QTabBar* bar = estimatedParametersTW->tabBar();
+    m_EstimatedParametersMap["Growth Rate (r):"] = GrowthRateTV;
+    m_EstimatedParametersMap["Carrying Capacity (K):"] = CarryingCapacityTV;
+    m_EstimatedParametersMap["Catchability (q):"] = CatchabilityTV;
+    m_EstimatedParametersMap["Competition ("+QString(QChar(0x03B1))+"):"] = CompetitionAlphaTV;
+    m_EstimatedParametersMap["Competition ("+QString(QChar(0x03B2))+":Species):"] = CompetitionBetaSTV;
+    m_EstimatedParametersMap["Competition ("+QString(QChar(0x03B2))+":Guilds):"] = CompetitionBetaGTV;
+    m_EstimatedParametersMap["Predation ("+ QString(QChar(0x03C1)) +"): "] = PredationTV;
+    m_EstimatedParametersMap["Handling (h): "] = HandlingTV;
+    m_EstimatedParametersMap["Exponent (b): "] = ExponentTV;
+    m_EstimatedParametersMap["Output Biomass:"] = OutputBiomassTV;
+    m_EstimatedParametersMap["Biomass MSY (K/2):"] = BMSYTV;
+    m_EstimatedParametersMap["MSY (rK/4):"] = MSYTV;
+    m_EstimatedParametersMap["Fishing Mortality MSY (r/2):"] = FMSYTV;
+
+    QTabBar* bar = m_EstimatedParametersTW->tabBar();
     QFont font = bar->font();
     font.setBold(true);
     bar->setFont(font);
 
-    mainLayt->addWidget(estimatedParametersTW);
+    mainLayt->addWidget(m_EstimatedParametersTW);
 
     m_UI->MSSPMOutputEstimatedParametersTab->setLayout(mainLayt);
 
@@ -730,6 +859,7 @@ nmfMainWindow::getDiagnosticsData(
     int m=0;
     int NumRecords;
     int TotalNumPoints = 2*NumPoints+1;
+    int fitness;
     std::vector<std::string> fields;
     std::string queryStr;
     std::string errorMsg;
@@ -759,10 +889,13 @@ nmfMainWindow::getDiagnosticsData(
 
     nmfUtils::initialize(DiagnosticsValue,  TotalNumPoints,NumSpeciesOrGuilds);
     nmfUtils::initialize(DiagnosticsFitness,TotalNumPoints,NumSpeciesOrGuilds);
+    int yMax = Output_Controls_ptr->getYMaxSliderVal();
     for (int j=0; j<NumSpeciesOrGuilds; ++j) {
         for (int i=0; i<TotalNumPoints; ++i) {
             DiagnosticsValue(i,j)   = std::stod(dataMap["Value"][m]);
-            DiagnosticsFitness(i,j) = std::stod(dataMap["Fitness"][m]);
+            fitness = std::stod(dataMap["Fitness"][m]);
+            fitness = (fitness > yMax) ? yMax : fitness;
+            DiagnosticsFitness(i,j) = fitness;
             ++m;
         }
     }
@@ -1035,7 +1168,7 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
         }
         OutputBiomass.push_back(TmpMatrix);
     }
-    m_Logger->logMsg(nmfConstants::Normal,"Read Output Biomass");
+//    m_Logger->logMsg(nmfConstants::Normal,"Read Output Biomass");
 
     return true;
 }
@@ -1272,301 +1405,6 @@ nmfMainWindow::updateOutputBiomassTableFromTestValues()
 }
 
 
-/*
-void
-nmfMainWindow::menu_clearCompetition()
-{
-    int NumSpecies;
-    double value = 0;
-    std::string cmd;
-    std::string errorMsg;
-    std::string Algorithm;
-    std::string Minimizer;
-    std::string ObjectiveCriterion;
-    std::string Scaling;
-    std::string CompetitionForm;
-    QStringList SpeciesList;
-    QString msg;
-
-    m_DatabasePtr->getAlgorithmIdentifiers(
-                m_Logger,m_ProjectSettingsConfig,
-                Algorithm,Minimizer,ObjectiveCriterion,
-                Scaling,CompetitionForm);
-    if (! getSpecies(NumSpecies,SpeciesList))
-        return;
-
-    cmd = "DELETE FROM OutputCompetitionAlpha WHERE Algorithm='" + Algorithm +
-            "' AND Minimizer = '" + Minimizer +
-            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-            "' AND Scaling = '" + Scaling + "'";
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] callback_clearCompetition: DELETE error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        msg = "\nError in updateOutputTables command.  Couldn't delete all records from OutputCompetitionAlpha table.\n";
-        QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
-        return;
-    }
-
-    cmd = "INSERT INTO OutputCompetitionAlpha (Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeciesA,SpeciesB,Value) VALUES ";
-    for (unsigned int row=0; row<SpeciesList.size(); ++row) {
-        for (unsigned int col=0; col<SpeciesList.size(); ++col) {
-            std::ostringstream val;
-            val << value;
-            cmd += "('" + Algorithm +
-                    "','" + Minimizer +
-                    "','" + ObjectiveCriterion +
-                    "','" + Scaling +
-                    "','" + SpeciesList[row].toStdString() +
-                    "','" + SpeciesList[col].toStdString() +
-                    "',"  + val.str() + "),";
-        }
-    }
-
-    cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 2] callback_clearCompetition: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        QMessageBox::warning(this, "Error",
-                             "\nError in updateOutputTables command.  Check that all cells are populated.\n",
-                             QMessageBox::Ok);
-        return;
-    }
-
-    updateOutputBiomassTableFromTestValues();
-
-    menu_showCurrentRun();
-}
-*/
-
-/*
-void
-nmfMainWindow::menu_resetCompetition()
-{
-    int m;
-    int NumSpecies;
-    std::string cmd;
-    std::string errorMsg;
-    std::string Algorithm;
-    std::string Minimizer;
-    std::string ObjectiveCriterion;
-    std::string Scaling;
-    std::string CompetitionForm;
-    QStringList SpeciesList;
-    std::vector<std::string> TestCompetitionData;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    m_DatabasePtr->getAlgorithmIdentifiers(
-                m_Logger,m_ProjectSettingsConfig,
-                Algorithm,Minimizer,ObjectiveCriterion,
-                Scaling,CompetitionForm);
-    if (! getSpecies(NumSpecies,SpeciesList))
-        return;
-
-    // Load TestCompetition data into a vector
-    fields   = {"SpeciesA","SpeciesB","Value"};
-    queryStr = "SELECT SpeciesA,SpeciesB,Value from TestCompetition ORDER BY SpeciesA,SpeciesB";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    for (unsigned i=0; i<dataMap["SpeciesA"].size(); ++i) {
-        TestCompetitionData.push_back(dataMap["Value"][i]);
-    }
-    if (TestCompetitionData.size() != NumSpecies*NumSpecies) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] callback_resetCompetition: TestCompetition table size is incorrect.");
-        return;
-    }
-
-    cmd = "DELETE FROM OutputCompetitionAlpha WHERE Algorithm='" + Algorithm +
-            "' AND Minimizer = '" + Minimizer +
-            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-            "' AND Scaling = '" + Scaling + "'";
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 2] callback_resetCompetition: DELETE error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
-
-    m = 0;
-    cmd = "INSERT INTO OutputCompetitionAlpha (Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeciesA,SpeciesB,Value) VALUES ";
-    for (unsigned int row=0; row<SpeciesList.size(); ++row) {
-        for (unsigned int col=0; col<SpeciesList.size(); ++col) {
-            std::ostringstream val;
-            val << TestCompetitionData[m++];
-            cmd += "('" + Algorithm +
-                    "','" + Minimizer +
-                    "','" + ObjectiveCriterion +
-                    "','" + Scaling +
-                    "','" + SpeciesList[row].toStdString() +
-                    "','" + SpeciesList[col].toStdString() +
-                    "',"  + val.str() + "),";
-        }
-    }
-
-    cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 3] callback_resetCompetition: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
-
-    updateOutputBiomassTableFromTestValues();
-
-    menu_showCurrentRun();
-}
-*/
-/*
-void
-nmfMainWindow::menu_resetGrowthRate()
-{
-    int m;
-    int NumSpecies;
-    double TestGrowthRate;
-    std::string cmd;
-    std::string errorMsg;
-    std::string Algorithm;
-    std::string Minimizer;
-    std::string ObjectiveCriterion;
-    std::string Scaling;
-    std::string CompetitionForm;
-    QStringList SpeciesList;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    m_DatabasePtr->getAlgorithmIdentifiers(
-                m_Logger,m_ProjectSettingsConfig,
-                Algorithm,Minimizer,ObjectiveCriterion,
-                Scaling,CompetitionForm);
-    if (! getSpecies(NumSpecies, SpeciesList))
-        return;
-
-    // Load TestData data
-    fields   = {"GrowthRate"};
-    queryStr = "SELECT GrowthRate FROM TestData ";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["GrowthRate"].size() != 1) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] callback_resetGrowthRate: TestData table size is incorrect.");
-        return;
-    }
-    TestGrowthRate = std::stod(dataMap["GrowthRate"][0]);
-
-    cmd = "DELETE FROM OutputGrowthRate WHERE Algorithm='" + Algorithm +
-            "' AND Minimizer = '" + Minimizer +
-            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-            "' AND Scaling = '" + Scaling + "'";
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 2] callback_resetGrowthRate: DELETE error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
-
-    m = 0;
-    cmd = "INSERT INTO OutputGrowthRate (Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value) VALUES ";
-    for (unsigned int row=0; row<SpeciesList.size(); ++row) {
-        std::ostringstream val;
-        val << TestGrowthRate;
-        cmd += "('"   + Algorithm +
-                "','" + Minimizer +
-                "','" + ObjectiveCriterion +
-                "','" + Scaling +
-                "','" + SpeciesList[row].toStdString() +
-                "',"  + val.str() + "),";
-    }
-
-    cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 3] callback_resetCompetition: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
-
-    updateOutputBiomassTableFromTestValues();
-
-    menu_showCurrentRun();
-
-}
-*/
-/*
-void
-nmfMainWindow::menu_resetCarryingCapacity()
-{
-    int m;
-    int NumSpecies;
-    double TestCarryingCapacity;
-    std::string cmd;
-    std::string errorMsg;
-    std::string Algorithm;
-    std::string Minimizer;
-    std::string ObjectiveCriterion;
-    std::string Scaling;
-    std::string CompetitionForm;
-    QStringList SpeciesList;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-
-    m_DatabasePtr->getAlgorithmIdentifiers(
-                m_Logger,m_ProjectSettingsConfig,
-                Algorithm,Minimizer,ObjectiveCriterion,
-                Scaling,CompetitionForm);
-    if (! getSpecies(NumSpecies,SpeciesList))
-        return;
-
-    // Load TestData data
-    fields   = {"CarryingCapacity"};
-    queryStr = "SELECT CarryingCapacity FROM TestData ";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["CarryingCapacity"].size() != 1) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] callback_resetCarryingCapacity: TestData table size is incorrect.");
-        return;
-    }
-    TestCarryingCapacity = std::stod(dataMap["CarryingCapacity"][0]);
-
-    cmd = "DELETE FROM OutputCarryingCapacity WHERE Algorithm='" + Algorithm +
-            "' AND Minimizer = '" + Minimizer +
-            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-            "' AND Scaling = '" + Scaling + "'";
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 2] callback_resetCarryingCapacity: DELETE error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
-
-    m = 0;
-    cmd = "INSERT INTO OutputCarryingCapacity (Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value) VALUES ";
-    for (unsigned row=0; row<SpeciesList.size(); ++row) {
-        std::ostringstream val;
-        val << TestCarryingCapacity;
-        cmd += "('"   + Algorithm +
-                "','" + Minimizer +
-                "','" + ObjectiveCriterion +
-                "','" + Scaling +
-                "','" + SpeciesList[row].toStdString() +
-                "',"  + val.str() + "),";
-    }
-
-    cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 3] callback_resetCarryingCapacity: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
-
-    updateOutputBiomassTableFromTestValues();
-
-    menu_showCurrentRun();
-
-}
-*/
-
 void
 nmfMainWindow::menu_stopRun()
 {
@@ -1580,51 +1418,242 @@ nmfMainWindow::menu_whatsThis()
 }
 
 void
-nmfMainWindow::menu_screenshot()
+nmfMainWindow::menu_screenMultiShot()
+{
+    int xOffset = 0;
+    int yOffset = 0;
+    int totPmHeight = 0;
+    int maxPmWidth  = 0;
+    int tempTotPmWidth = 0;
+    int numImages = (int)m_Pixmaps.size();
+    int numRows   = numImages/m_MShotNumCols + 1;
+    int numImage=0;
+    int imageHeight=0;
+    int lastImageHeight=0;
+    QPixmap pm;
+    QPixmap finalPm;
+    QString outputFile;
+
+    if (m_ScreenshotOn && (m_Pixmaps.size() > 0)) {
+
+        // Calculate height and width of final composited image
+        yOffset = 0;
+        for (int i=0; i<numRows; ++i) {
+            xOffset = 0;
+            lastImageHeight = 0;
+            tempTotPmWidth = 0;
+            // Lay out all images in a row
+            for (int col=0; col<m_MShotNumCols; ++col) {
+                if (numImage < numImages) {
+                    pm = m_Pixmaps[numImage];
+                    tempTotPmWidth += pm.width();
+                    imageHeight = pm.height();
+                    imageHeight = (imageHeight > lastImageHeight) ? imageHeight : lastImageHeight;
+                    lastImageHeight = imageHeight;
+                    ++numImage;
+                }
+            }
+            totPmHeight += imageHeight;
+            maxPmWidth = (tempTotPmWidth > maxPmWidth) ? tempTotPmWidth : maxPmWidth;
+            if (numImage >= numImages) {
+                break;
+            }
+        }
+
+        // Set final image parameters
+        QImage result(maxPmWidth,totPmHeight,QImage::Format_ARGB32_Premultiplied);
+        QPainter painter(&result);
+        QPixmap pmBG = QPixmap(maxPmWidth,totPmHeight);
+        pmBG.fill();
+        painter.drawPixmap(0,0,pmBG);
+
+        // Lay out the individual images correctly in the composite image
+        numImage = 0;
+        yOffset = 0;
+        for (int i=0; i<numRows; ++i) {
+            xOffset = 0;
+            lastImageHeight = 0;
+            // Lay out all images in a row
+            for (int col=0; col<m_MShotNumCols; ++col) {
+                if (numImage < numImages) {
+                    pm = m_Pixmaps[numImage];
+                    painter.drawPixmap(xOffset,yOffset,pm );
+                    xOffset += pm.width();
+                    imageHeight = pm.height();
+                    imageHeight = (imageHeight > lastImageHeight) ? imageHeight : lastImageHeight;
+                    lastImageHeight = imageHeight;
+                    ++numImage;
+                }
+            }
+            yOffset += imageHeight;
+        }
+
+        // Query the user for name of composite image file
+        nmfStructsQt::ChartSaveDlg *dlg = new nmfStructsQt::ChartSaveDlg(this);
+        if (dlg->exec()) {
+            outputFile = dlg->getFilename();
+        }
+        delete dlg;
+        if (! outputFile.isEmpty()) {
+            // Write out the final composited image file
+            finalPm = QPixmap::fromImage(result);
+            saveScreenshot(outputFile,finalPm);
+        }
+    }
+
+    m_Pixmaps.clear();
+    m_NumScreenShot = 0;
+    // toggle the boolean indicating multi shot mode is on/off
+    m_ScreenshotOn = ! m_ScreenshotOn;
+}
+
+
+void
+nmfMainWindow::menu_screenShot()
 {
     QPixmap pm;
     QString outputFile;
 
-    if (m_ChartView2d->isVisible() || m_ChartView3d->isVisible())
-    {
-        nmfStructsQt::FileDialogWithType *dlg = new nmfStructsQt::FileDialogWithType();
-        if (dlg->exec()) {
-            outputFile = dlg->filename();
+    QString currentTabName = nmfUtilsQt::getCurrentTabName(m_UI->MSSPMOutputTabWidget);
+
+    if ((currentTabName != "Chart") && (currentTabName != "Screen Shot Viewer")) {
+        // Save numeric table
+        if (currentTabName == "Estimated Parameters")
+        {
+            QString currentSubTabName = nmfUtilsQt::getCurrentTabName(m_EstimatedParametersTW);
+            nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,
+                                           currentSubTabName.toStdString(),
+                                           m_EstimatedParametersMap[currentSubTabName]);
+        } else if ((currentTabName == "Data") ||
+                   (currentTabName == "Model Fit Summary"))
+        {
+            nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,
+                                           currentTabName.toStdString(),
+                                           m_EstimatedParametersMap[currentTabName]);
         }
-        if (outputFile.isEmpty())
-            return;
-
-        // Grab the image and store in a pixmap
-        if (m_ChartView2d->isVisible())
-            pm = m_ChartView2d->grab();
-        else if (m_ChartView3d->isVisible())
-            pm = m_ChartView3d->grab();
-
-        // Save the image
-        saveScreenshot(outputFile,pm);
+        return;
     }
 
-    /*
-     * RSK add...
-     *
-     * else check for visible table
-     *
-     */
 
+    // Need this so as to ensure each screen shot finishes
+    // before the next one starts.
+    QApplication::sync();
+
+    m_UI->MSSPMOutputTabWidget->setCurrentIndex(nmfUtilsQt::getTabIndex(m_UI->MSSPMOutputTabWidget,"Chart"));
+
+    if (m_ChartView2d->isVisible() || m_ChartView3d->isVisible())
+    {
+        if (! m_ScreenshotOn) {
+            nmfStructsQt::ChartSaveDlg *dlg = new nmfStructsQt::ChartSaveDlg(this);
+            if (dlg->exec()) {
+                outputFile = dlg->getFilename();
+            }
+            delete dlg;
+            if (outputFile.isEmpty())
+                return;
+        }
+
+        // Grab the image and store in a pixmap
+        if (m_ChartView2d->isVisible()) {
+            m_ChartView2d->update();
+            m_ChartView2d->repaint();
+            pm = m_ChartView2d->grab();
+
+        } else if (m_ChartView3d->isVisible()) {
+            m_ChartView3d->update();
+            m_ChartView3d->repaint();
+            pm.convertFromImage(m_Graph3D->renderToImage());
+        }
+
+        // Either load pixmap into vector of pixmaps for a composite image
+        // or save the pixmap to disk
+        if (m_ScreenshotOn) {
+            m_Pixmaps.push_back(pm);
+        } else {
+            saveScreenshot(outputFile,pm);
+        }
+
+    }
+
+    // RSK add...
+    // else check for visible table
+
+}
+
+void
+nmfMainWindow::menu_screenShotAll()
+{
+    int NumSpecies = 0;
+    QStringList SpeciesList;
+    QString currentTabName = nmfUtilsQt::getCurrentTabName(m_UI->MSSPMOutputTabWidget);
+
+    if ((currentTabName != "Chart") && (currentTabName != "Screen Shot Viewer")) {
+        return;
+    }
+
+    // Find species info
+    if (! getSpecies(NumSpecies,SpeciesList))
+        return;
+
+    // Flip to last species so clearing (as I do in setup2dChart) will work properly
+    Output_Controls_ptr->setCurrentSpecies(SpeciesList.last());
+
+    // Flip through all of the species and build a composite image
+    // from each of their screen shots
+    menu_screenMultiShot();
+    bool is3dImage = m_ChartView3d->isVisible();
+    for (QString species : SpeciesList) {
+        if (is3dImage) {
+            setup3dChart();
+        } else {
+            setup2dChart();
+        }
+        Output_Controls_ptr->setCurrentSpecies(species);
+        menu_screenShot();
+    }
+    menu_screenMultiShot();
 }
 
 void
 nmfMainWindow::menu_importDatabase()
 {
+    QMessageBox::StandardButton reply;
+
+    // Go to project data page
+    NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(0,0));
+    m_UI->SetupInputTabWidget->setCurrentIndex(1);
+
+    // Ask if user wants to clear the Project meta data
+    std::string msg  = "\nDo you want to overwrite current Project data with imported database information?";
+    msg += "\n\nYes: Overwrites Project data\nNo: Clears Project data, user enters new Project data\n";
+    reply = QMessageBox::question(this, tr("Import Database"), tr(msg.c_str()),
+                                  QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
+                                  QMessageBox::Yes);
+    if (reply == QMessageBox::Cancel) {
+        return;
+    }
+
+    // Do the import
+    this->setCursor(Qt::WaitCursor);
     bool importOK = m_DatabasePtr->importDatabase(this,
                                                   m_Logger,
                                                   m_ProjectDir,
                                                   m_Username,
                                                   m_Password);
     if (importOK) {
-        Setup_Tab2_ptr->loadWidgets();
-        Setup_Tab3_ptr->loadWidgets();
+//        Setup_Tab2_ptr->loadWidgets();
+//        Setup_Tab3_ptr->loadWidgets();
+        loadGuis();
+        if (reply == QMessageBox::No) {
+            Setup_Tab2_ptr->clearProject();
+            QMessageBox::information(this, tr("Project"),
+                                     tr("\nPlease fill in Project data fields before continuing."),
+                                     QMessageBox::Ok);
+            Setup_Tab2_ptr->enableProjectData();
+        }
     }
+    this->setCursor(Qt::ArrowCursor);
+
 }
 
 void
@@ -1641,7 +1670,7 @@ bool
 nmfMainWindow::saveScreenshot(QString &outputFile, QPixmap &pm)
 {
     QString msg;
-    QString path = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstants::OutputImagesDir));
+    QString path = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDir));
     QMessageBox::StandardButton reply;
     QString outputFileWithPath;
 
@@ -1663,23 +1692,34 @@ nmfMainWindow::saveScreenshot(QString &outputFile, QPixmap &pm)
     // Save the image
     pm.save(outputFileWithPath);
 
+
     // Notify user image has been saved
     msg = "\nCapture image saved to file:\n\n" + outputFileWithPath;
-    QMessageBox::information(this,
-                             tr("Image Saved"),
-                             tr(msg.toLatin1()),
-                             QMessageBox::Ok);
+    msg += "\n\nView captured image in \"Screen Shot Viewer\" tab?\n";
+    reply = QMessageBox::question(this,
+                                  tr("Image Saved"),
+                                  tr(msg.toLatin1()),
+                                  QMessageBox::No|QMessageBox::Yes,
+                                  QMessageBox::Yes);
+    if (reply == QMessageBox::Yes)
+    {
+        // Enable the viewer tab
+        m_ViewerWidget->updateScreenShotViewer(outputFile);
+        m_UI->MSSPMOutputTabWidget->setCurrentIndex(nmfUtilsQt::getTabIndex(m_UI->MSSPMOutputTabWidget,"Screen Shot Viewer"));
+    }
 
     m_Logger->logMsg(nmfConstants::Normal,"menu_screenshot: Image saved: "+ outputFile.toStdString());
 
     return true;
 }
 
+
+
 void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.10beta";
+    QString version = "MSSPM v0.9.0 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -1725,9 +1765,13 @@ nmfMainWindow::menu_about()
     boostLink = QString("<a href='https://www.boost.org'>https://www.boost.org</a>");
 
     // NLopt version and link
-    int major,minor,bugfix;
-    nlopt::version(major,minor,bugfix);
-    nloptVersion = QString::number(major)+"."+QString::number(minor)+"."+QString::number(bugfix);
+    // RSK - this line crashes the program on Windows
+    // I think it's only a problem when I use NLopt version 2.6.1. Version 2.4.2
+    // behaves correctly and doesn't crash on Windows.
+//  int major,minor,bugfix;
+//  nlopt::version(major,minor,bugfix);
+//  nloptVersion = QString::number(major)+"."+QString::number(minor)+"."+QString::number(bugfix);
+    nloptVersion = m_Estimator_NLopt->getVersion();
     nloptLink = QString("<a href='https://nlopt.readthedocs.io'>https://nlopt.readthedocs.io</a>");
 
     // Bees link
@@ -1750,22 +1794,19 @@ nmfMainWindow::menu_about()
     msg += QString("<li>")+QString("linuxdeployqt 6 (January 27, 2019)<br>")+linuxDeployLink+QString("</li>");
     msg += QString("</ul>");
 
-    nmfUtilsQt::menu_about(name,os,version,specialAcknowledgement,msg);
+    nmfUtilsQt::showAboutWidget(this,name,os,version,specialAcknowledgement,msg);
+}
+
+void
+nmfMainWindow::menu_resetCursor()
+{
+    QApplication::restoreOverrideCursor();
 }
 
 void
 nmfMainWindow::menu_preferences()
 {
-    PreferencesDialog* PreferencesDlg = new PreferencesDialog(this,m_DatabasePtr);
-
-    disconnect(PreferencesDlg,0,0,0);
-    connect(PreferencesDlg, SIGNAL(SetStyleSheet(QString)),
-            this,           SLOT(callback_SetStyleSheet(QString)));
-
-    if (PreferencesDlg->exec()) {  // OK pressed
-        saveSettings();
-    }
-    readSettings("style");
+    m_PreferencesDlg->show();
 }
 
 void
@@ -1785,6 +1826,10 @@ nmfMainWindow::setupOutputModelFitSummaryWidgets()
     summaryLayt->addWidget(SummaryTV);
     summaryGB->setLayout(summaryLayt);
     mainLayt->addWidget(summaryGB);
+
+    m_EstimatedParametersMap["Model Fit Summary"] = SummaryTV;
+
+    m_EstimatedParametersMap["Data"] = m_UI->MSSPMOutputTV;
 
     // Make the title bold
     QFont font = summaryGB->font();
@@ -1818,7 +1863,6 @@ nmfMainWindow::setupOutputDiagnosticSummaryWidgets()
     m_UI->MSSPMOutputDiagnosticSummaryTab->setLayout(mainLayt);
 }
 
-
 bool
 nmfMainWindow::isStopped(std::string& runName,
                          std::string& msg1,
@@ -1845,15 +1889,27 @@ nmfMainWindow::isStopped(std::string& runName,
 
 } // end isStoppedAndComplete
 
-
 void
 nmfMainWindow::callback_ReadProgressChartDataFile()
 {
+    bool validPointsOnly = m_ProgressWidget->readValidPointsOnly();
+
+    callback_ReadProgressChartDataFile(validPointsOnly,false);
+}
+
+void
+nmfMainWindow::callback_ReadProgressChartDataFile(bool validPointsOnly,
+                                                  bool clearChart)
+{
     QString outputMsg;
 
+    if (clearChart) {
+        m_ProgressWidget->clearChartOnly();
+    }
     m_ProgressWidget->readChartDataFile("MSSPM",
                                         nmfConstantsMSSPM::MSSPMProgressChartFile,
-                                        nmfConstantsMSSPM::MSSPMProgressChartLabelFile);
+                                        nmfConstantsMSSPM::MSSPMProgressChartLabelFile,
+                                        validPointsOnly);
     std::string runName = "";
     std::string stopRunFile = nmfConstantsMSSPM::MSSPMStopRunFile;
     std::string state = "";
@@ -1863,13 +1919,27 @@ nmfMainWindow::callback_ReadProgressChartDataFile()
         m_ProgressWidget->stopTimer();
         // Read chart once more just in case you've missed the last point.
         m_ProgressWidget->readChartDataFile("MSSPM",
-                                               nmfConstantsMSSPM::MSSPMProgressChartFile,
-                                               nmfConstantsMSSPM::MSSPMProgressChartLabelFile);
+                                            nmfConstantsMSSPM::MSSPMProgressChartFile,
+                                            nmfConstantsMSSPM::MSSPMProgressChartLabelFile,
+                                            validPointsOnly);
         outputMsg = "<br>" + QString::fromStdString(msg1);
         Estimation_Tab6_ptr->appendOutputTE(outputMsg);
     }
-
+    if (clearChart) {
+        m_ProgressWidget->callback_rangeSetPB();
+    }
 }
+
+
+void
+nmfMainWindow::setupOutputViewerWidget()
+{
+    // Setup viewer widget into tab
+    QString imagePath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputImages");
+    m_ViewerWidget = new nmfViewerWidget(this,imagePath,m_Logger);
+    m_UI->MSSPMOutputScreenShotViewerTab->setLayout(m_ViewerWidget->mainLayt);
+}
+
 
 void
 nmfMainWindow::setupProgressChart()
@@ -1898,7 +1968,6 @@ nmfMainWindow::setupProgressChart()
     connect(m_ProgressChartTimer, SIGNAL(timeout()),
             this,                 SLOT(callback_ReadProgressChartDataFile()));
 
-    ProgressMainLayt = new QVBoxLayout();
     m_ProgressWidget = new nmfProgressWidget(m_ProgressChartTimer,
                                            m_Logger,
                                            "MSSPM",
@@ -1907,15 +1976,10 @@ nmfMainWindow::setupProgressChart()
                                            "Fitness Convergence Value",
                                             0.0,(double)NumGenerations,5.0,
                                             0.0,40.0,2.0);
-
     m_ProgressWidget->startTimer(100); //Move this later
     m_ProgressWidget->setupConnections();
     updateProgressChartAnnotation(0,(double)NumGenerations,5.0);
-
-    m_ProgressWidgetContainer = new QWidget();
-    m_ProgressWidgetContainer->setLayout(m_ProgressWidget->hMainLayt);
-    ProgressMainLayt->addWidget(m_ProgressWidgetContainer);
-    m_UI->ProgressWidget->setLayout(ProgressMainLayt);
+    m_UI->ProgressWidget->setLayout(m_ProgressWidget->hMainLayt);
 
     // Initialize progress output file
     std::ofstream outputFileMSSPM(nmfConstantsMSSPM::MSSPMProgressChartFile);
@@ -1941,6 +2005,14 @@ nmfMainWindow::menu_clear()
 void
 nmfMainWindow::menu_copy()
 {
+    try {
+        findTableInFocus();
+        // RSK - this causes a hard crash if user copies cells one of which has a combobox
+    } catch (...) {
+        std::cout << "\nError: Invalid cells found to copy." << std::endl;
+        return;
+    }
+
     QString retv = nmfUtilsQt::copy(qApp,findTableInFocus());
     if (! retv.isEmpty()) {
         QMessageBox::question(this,tr("Copy"),retv,QMessageBox::Ok);
@@ -2098,10 +2170,14 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
 //    chartView2d->chart()->removeAllSeries();
 //    clearOutputTables();
 
-    // Take user back to System Settings page
-    QModelIndex topLevelndex = NavigatorTree->model()->index(0,0);
-    QModelIndex childIndex   = topLevelndex.child(2,0);
-    NavigatorTree->setCurrentIndex(childIndex);
+//  Take user back to System Settings page
+//  QModelIndex topLevelndex = NavigatorTree->model()->index(0,0);
+//  QModelIndex childIndex   = topLevelndex.child(2,0);  // the child() method has been deprecated
+//  NavigatorTree->setCurrentIndex(childIndex);
+
+  NavigatorTree->blockSignals(true);
+  NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(0,0));
+  NavigatorTree->blockSignals(false);
 
     menu_showAllSavedRuns();
 }
@@ -2109,7 +2185,7 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
 void
 nmfMainWindow::clearOutputTables()
 {
-    for (QTableView *tv : {GrowthRateTV, CarryingCapacityTV,
+    for (QTableView *tv : {GrowthRateTV, CarryingCapacityTV, CatchabilityTV,
                            CompetitionAlphaTV, CompetitionBetaSTV,
                            CompetitionBetaGTV, PredationTV,
                            HandlingTV, ExponentTV,
@@ -2121,262 +2197,6 @@ nmfMainWindow::clearOutputTables()
     }
 }
 
-/*
-void
-nmfMainWindow::menu_generateLinearObservedBiomass()
-{
-    std::string Type = "Linear";
-    menu_generateObservedBiomass(Type);
-}
-void
-nmfMainWindow::menu_generateLogisticObservedBiomass()
-{
-    std::string Type = "Logistic";
-    menu_generateObservedBiomass(Type);
-}
-void
-nmfMainWindow::menu_generateLogisticMultiSpeciesObservedBiomass()
-{
-    std::string Type = "LogisticMultiSpecies";
-    menu_generateObservedBiomass(Type);
-}
-
-void
-nmfMainWindow::menu_generateObservedBiomass(std::string &Type)
-{
-    bool InteractionDataFound;
-    int m;
-    int NumSpecies;
-    int NumRecords;
-    std::string cmd;
-    std::string errorMsg;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::vector<double> ARow;
-    std::vector<std::vector<double> > SavedAlpha;
-    std::vector<std::vector<double> > DefaultAlpha;
-    QStringList SpeciesList;
-    double SavedGrowthRate;
-    double SavedCarryingCapacity;
-    double DefaultGrowthRate;
-    double DefaultCarryingCapacity;
-
-    if (! getSpecies(NumSpecies,SpeciesList))
-        return;
-
-    // Find current test growth rate and carrying capacity
-    fields     = {"GrowthRate","CarryingCapacity"};
-    queryStr   = "SELECT GrowthRate,CarryingCapacity FROM TestData";
-    dataMap    = databasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["GrowthRate"].size();
-    if (NumRecords != 1) {
-        DefaultGrowthRate       = 0;
-        DefaultCarryingCapacity = 0;
-    } else {
-        DefaultGrowthRate       = std::stod(dataMap["GrowthRate"][0]);
-        DefaultCarryingCapacity = std::stod(dataMap["CarryingCapacity"][0]);
-    }
-
-    // Find current test competition coefficients
-    fields     = {"SpeciesA","SpeciesB","Value"};
-    queryStr   = "SELECT SpeciesA,SpeciesB,Value FROM TestCompetition ORDER BY SpeciesA,SpeciesB";
-    dataMap    = databasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SpeciesA"].size();
-    InteractionDataFound = (NumRecords == NumSpecies*NumSpecies);
-    m = 0;
-    for (int row=0; row<NumSpecies; ++row) {
-        ARow.clear();
-        for (int col=0; col<NumSpecies; ++col) {
-            if (InteractionDataFound)
-                ARow.push_back(std::stod(dataMap["Value"][m++]));
-            else
-                ARow.push_back(0);
-        }
-        DefaultAlpha.push_back(ARow);
-    }
-
-    //
-    // Create dialog for user input r, K, alpha, and rho
-    //
-    LogisticMultiSpeciesDlg = new LogisticMultiSpeciesDialog(this,
-          Type,
-          NumSpecies,
-          SpeciesList,
-          DefaultGrowthRate,
-          DefaultCarryingCapacity,
-          DefaultAlpha);
-    LogisticMultiSpeciesDlg->setMinimumWidth(LogisticMultiSpeciesDlg->alphaTableWidget()->width()+75);
-    LogisticMultiSpeciesDlg->setMinimumHeight(LogisticMultiSpeciesDlg->alphaTableWidget()->height());
-    if (LogisticMultiSpeciesDlg->exec()) {  // OK pressed
-
-        SavedGrowthRate       = LogisticMultiSpeciesDlg->growthRate();
-        SavedCarryingCapacity = LogisticMultiSpeciesDlg->carryingCapacity();
-        LogisticMultiSpeciesDlg->competitionCoefficients(SavedAlpha);
-
-
-        // Save r and K
-        cmd = "DELETE FROM TestData";
-        errorMsg = databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
-            logger->logMsg(nmfConstants::Error,"[Error 1] menu_generateObservedBiomass: DELETE error: " + errorMsg);
-            logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            return;
-        }
-        m = 0;
-        cmd = "INSERT INTO TestData (GrowthRate,CarryingCapacity) VALUES ";
-        cmd += "(" + std::to_string(SavedGrowthRate) +
-                "," + std::to_string(SavedCarryingCapacity) + ")";
-        errorMsg = databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
-            logger->logMsg(nmfConstants::Error,"[Error 2] menu_generateObservedBiomass: Write table error: " + errorMsg);
-            logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            return;
-        }
-
-        // Save alpha to table
-        cmd = "DELETE FROM TestCompetition";
-        errorMsg = databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
-            logger->logMsg(nmfConstants::Error,"[Error 3] menu_generateObservedBiomass: DELETE error: " + errorMsg);
-            logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            return;
-        }
-        m = 0;
-        cmd = "INSERT INTO TestCompetition (SpeciesA,SpeciesB,Value) VALUES ";
-        for (int row=0; row<NumSpecies; ++row) {
-            for (int col=0; col<NumSpecies; ++col) {
-                std::ostringstream val;
-                val << SavedAlpha[row][col];
-                cmd += "('"   + SpeciesList[row].toStdString() +
-                        "','" + SpeciesList[col].toStdString() +
-                        "', " + val.str() + "),";
-            }
-        }
-        cmd = cmd.substr(0,cmd.size()-1);
-
-        errorMsg = databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
-            logger->logMsg(nmfConstants::Error,"[Error 4] menu_generateObservedBiomass: Write table error: " + errorMsg);
-            logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            return;
-        }
-
-        simulateBiomass(SavedGrowthRate,
-                        SavedCarryingCapacity,
-                        SavedAlpha);
-
-        QMessageBox::information(this,
-                                 tr("Biomass Updated"),
-                                 tr("\nObserved Biomass table successfully updated."),
-                                 QMessageBox::Ok);
-        Estimation_Tab5_ptr->loadWidgets();
-
-    } // end OK pressed
-
-}
-
-
-void
-nmfMainWindow::simulateBiomass(double &growthRate,
-                               double &carryingCapacity,
-                               std::vector<std::vector<double> > &SavedAlpha)
-{
-    int m;
-    int NumRecords;
-    int NumSpecies;
-    int RunLength;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::string errorMsg;
-    std::string cmd;
-    double val;
-    double LogisticTerm;
-    double AlphaTerm;
-    boost::numeric::ublas::matrix<double> Catch;
-    QStringList SpeciesList;
-
-    // Find RunLength
-    fields    = {"RunLength"};
-    queryStr  = "SELECT RunLength FROM Systems WHERE ";
-    queryStr += "SystemName = '" + m_ProjectSettingsConfig + "'";
-    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["RunLength"].size();
-    if (NumRecords == 0) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] simulateBiomass: No records found in table Systems for Name = "+m_ProjectSettingsConfig);
-        return;
-    }
-    RunLength = std::stoi(dataMap["RunLength"][0]);
-
-    // Load Catch data
-    if (! getSpecies(NumSpecies,SpeciesList))
-        return;
-    if (! getTimeSeriesData(m_MohnsRhoLabel,"","Catch",NumSpecies,RunLength,Catch))
-        return;
-
-    //
-    // Generate observed Biomass based upon passed growthRate and carryingCapacity (if provided)
-    //
-    // Ex.
-    // B(i,t+1) = B(i,t) + r(i)B(i,t) - C(i,t) - B(i,t)∑α(i,j)B(j,t)
-    //
-    QList<QList<double> > BiomassData; // A Vector of row vectors
-    QList<double> BiomassRow;
-    BiomassData.clear();
-    BiomassRow.clear();
-    if (! getInitialObservedBiomass(BiomassRow))
-        return;
-    BiomassData.push_back(BiomassRow);
-
-    for (int t=1; t<=RunLength; ++t) {
-
-        BiomassRow.clear();
-        for (int i=0; i<NumSpecies; ++i) {
-            val = BiomassData[t-1][i];
-
-            // Calculate AlphaTerm
-            AlphaTerm = 0;
-            for (int col=0; col<NumSpecies; ++col) {
-                AlphaTerm += SavedAlpha[i][col]*BiomassData[t-1][col];
-            }
-
-            // Calculate LogisticTerm
-            LogisticTerm = (carryingCapacity == 0) ? 1.0 : (1.0 - val/carryingCapacity);
-            val += growthRate*val*LogisticTerm - Catch(t-1,i) - val*AlphaTerm;
-            val = (val < 0) ? 0 : val;
-            BiomassRow.push_back(val);
-        }
-        BiomassData.push_back(BiomassRow);
-    }
-
-    // Save to ObservedBiomass
-    cmd = "DELETE FROM ObservedBiomass";
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 5] simulateBiomass: DELETE error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
-
-    m = 0;
-    cmd = "INSERT INTO ObservedBiomass (SpeName,Year,Value) VALUES ";
-    for (int j=0; j<NumSpecies; ++j) { // Species
-        for (int i=0; i<=RunLength; ++i) { // Time in years
-            cmd += "('" + SpeciesList[j].toStdString() + "'," + std::to_string(i) +
-                    ", " + std::to_string(BiomassData[i][j]) + "),";
-        }
-    }
-    cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 6] simulateBiomass: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
-
-}
-*/
 
 void
 nmfMainWindow::loadDatabase()
@@ -2400,7 +2220,9 @@ std::cout << "Loading GUIs..." << std::endl;
         QString filename = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(m_ProjectName));
 
         // RSK - Bug here....this causes loadGuis to get called an extra time!
-        Setup_Tab2_ptr->loadProject(m_Logger,filename);
+        if (! Setup_Tab2_ptr->loadProject(m_Logger,filename)) {
+            enableApplicationFeatures(false);
+        }
     }
     Setup_Tab2_ptr->loadWidgets();
     Setup_Tab3_ptr->loadWidgets();
@@ -2528,33 +2350,39 @@ nmfMainWindow::initConnections()
             this,                                                SLOT(menu_whatsThis()));
     connect(m_UI->actionAbout,                                   SIGNAL(triggered()),
             this,                                                SLOT(menu_about()));
+    connect(m_UI->actionResetCursor,                             SIGNAL(triggered()),
+            this,                                                SLOT(menu_resetCursor()));
     connect(m_UI->actionPreferences,                             SIGNAL(triggered()),
             this,                                                SLOT(menu_preferences()));
     connect(m_UI->actionScreenShot,                              SIGNAL(triggered()),
-            this,                                                SLOT(menu_screenshot()));
+            this,                                                SLOT(menu_screenShot()));
+    connect(m_UI->actionScreenShotAll,                           SIGNAL(triggered()),
+            this,                                                SLOT(menu_screenShotAll()));
+    connect(m_UI->actionMultiShot,                               SIGNAL(triggered()),
+            this,                                                SLOT(menu_screenMultiShot()));
     connect(m_UI->actionImportDatabase,                          SIGNAL(triggered()),
             this,                                                SLOT(menu_importDatabase()));
     connect(m_UI->actionExportDatabase,                          SIGNAL(triggered()),
             this,                                                SLOT(menu_exportDatabase()));
-
     // Widget connections
     connect(NavigatorTree,   SIGNAL(itemSelectionChanged()),
             this,            SLOT(callback_NavigatorSelectionChanged()));
 
-    connect(Setup_Tab2_ptr,  SIGNAL(SaveMainSettings()),
-            this,            SLOT(callback_SaveMainSettings()));
+
 //    connect(Setup_Tab2_ptr,  SIGNAL(LoadDatabase(QString)),
 //            this,            SLOT(callback_LoadDatabase(QString)));
 //    connect(Setup_Tab2_ptr,  SIGNAL(RemoveGuildsAndSpecies()),
 //            Setup_Tab3_ptr,  SLOT(callback_RemoveGuildsAndSpecies()));
 //    connect(Setup_Tab2_ptr,  SIGNAL(ReloadWidgets()),
 //            this,            SLOT(callback_ReloadWidgets()));
+    connect(Setup_Tab2_ptr,  SIGNAL(SaveMainSettings()),
+            this,            SLOT(callback_SaveMainSettings()));
     connect(Setup_Tab2_ptr,  SIGNAL(ClearEstimationTables()),
             this,            SLOT(callback_ClearEstimationTables()));
-    connect(Setup_Tab2_ptr,  SIGNAL(UpdateWindowTitle()),
-            this,            SLOT(callback_UpdateWindowTitle()));
-    connect(Setup_Tab3_ptr,      SIGNAL(ReloadWidgets()),
-            this,                SLOT(callback_ReloadWidgets()));
+    connect(Setup_Tab2_ptr,  SIGNAL(ProjectSaved()),
+            this,            SLOT(callback_ProjectSaved()));
+    connect(Setup_Tab3_ptr,  SIGNAL(ReloadWidgets()),
+            this,            SLOT(callback_ReloadWidgets()));
     connect(Setup_Tab4_ptr,  SIGNAL(SaveMainSettings()),
             this,            SLOT(callback_SaveMainSettings()));
 
@@ -2590,12 +2418,27 @@ nmfMainWindow::initConnections()
     connect(Setup_Tab4_ptr,      SIGNAL(UpdateInitialForecastYear()),
             Forecast_Tab1_ptr,   SLOT(callback_UpdateForecastYears()));
 
-    connect(Estimation_Tab6_ptr, SIGNAL(RunEstimation()),
-            this,                SLOT(callback_RunEstimation()));
-    connect(Estimation_Tab5_ptr, SIGNAL(ReloadSpecies()),
-            Setup_Tab3_ptr,      SLOT(callback_Setup_Tab3_ReloadSpeciesPB()));
-    connect(Estimation_Tab1_ptr, SIGNAL(ReloadSpecies()),
-            Setup_Tab3_ptr,      SLOT(callback_Setup_Tab3_ReloadSpeciesPB()));
+    connect(Estimation_Tab1_ptr, SIGNAL(StoreOutputSpecies()),
+            this,                SLOT(callback_StoreOutputSpecies()));
+    connect(Estimation_Tab1_ptr, SIGNAL(RestoreOutputSpecies()),
+            this,                SLOT(callback_RestoreOutputSpecies()));
+
+    connect(Estimation_Tab1_ptr, SIGNAL(RunEstimation(bool)),
+            this,                SLOT(callback_RunEstimation(bool)));
+    connect(Estimation_Tab1_ptr, SIGNAL(ShowDiagnostics()),
+            this,                SLOT(callback_ShowDiagnostics()));
+    connect(Estimation_Tab1_ptr, SIGNAL(RunDiagnostics()),
+            Diagnostic_Tab1_ptr, SLOT(callback_RunPB()));
+//    connect(Estimation_Tab6_ptr, SIGNAL(RunEstimation(bool)),
+//            this,                SLOT(callback_RunEstimation(bool)));
+    connect(Estimation_Tab5_ptr, SIGNAL(ReloadSpecies(bool)),
+            Setup_Tab3_ptr,      SLOT(callback_Setup_Tab3_ReloadSpeciesPB(bool)));
+    connect(Estimation_Tab1_ptr, SIGNAL(ReloadSpecies(bool)),
+            Setup_Tab3_ptr,      SLOT(callback_Setup_Tab3_ReloadSpeciesPB(bool)));
+
+    connect(Estimation_Tab1_ptr, SIGNAL(ReloadGuilds(bool)),
+            Setup_Tab3_ptr,      SLOT(callback_Setup_Tab3_ReloadGuildsPB(bool)));
+
     connect(Estimation_Tab6_ptr, SIGNAL(ShowRunMessage(QString)),
             this,                SLOT(callback_ShowRunMessage(QString)));
     connect(Estimation_Tab6_ptr, SIGNAL(UpdateForecastYears()),
@@ -2605,6 +2448,8 @@ nmfMainWindow::initConnections()
     connect(Estimation_Tab6_ptr, SIGNAL(UpdateForecastYears()),
             Estimation_Tab5_ptr, SLOT(callback_LoadPB()));
     connect(Estimation_Tab6_ptr, SIGNAL(CheckAllEstimationTablesAndRun()),
+            this,                SLOT(callback_CheckEstimationTablesAndRun()));
+    connect(Estimation_Tab1_ptr, SIGNAL(CheckAllEstimationTablesAndRun()),
             this,                SLOT(callback_CheckEstimationTablesAndRun()));
 
     connect(Forecast_Tab1_ptr,   SIGNAL(ForecastLoaded(std::string)),
@@ -2660,16 +2505,16 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_ShowDiagnosticsChart3d()));
     connect(Output_Controls_ptr, SIGNAL(SelectCenterSurfacePoint()),
             this,                SLOT(callback_SelectCenterSurfacePoint()));
+    connect(Output_Controls_ptr, SIGNAL(SelectMinimumSurfacePoint()),
+            this,                SLOT(callback_SelectMinimumSurfacePoint()));
     connect(Output_Controls_ptr, SIGNAL(ForecastLineBrightnessChanged(double)),
             this,                SLOT(callback_ForecastLineBrightnessChanged(double)));
     connect(Output_Controls_ptr, SIGNAL(YAxisMinValueChanged(int)),
             this,                SLOT(callback_YAxisMinValueChanged(int)));
-//  connect(Output_Controls_ptr, SIGNAL(NoSystemsSet()),
-//          this,                SLOT(callback_NoSystemsSet()));
+    connect(Output_Controls_ptr, SIGNAL(YAxisMaxValueChanged(int)),
+            this,                SLOT(callback_YAxisMaxValueChanged(int)));
     connect(Output_Controls_ptr, SIGNAL(ShowChartMohnsRho()),
             this,                SLOT(callback_ShowChartMohnsRho()));
-//  connect(Output_Controls_ptr, SIGNAL(UpdateSummaryStatistics()),
-//          this,                SLOT(callback_UpdateSummaryStatistics()));
 
     callback_Setup_Tab4_GrowthFormCMB("Null");
     callback_Setup_Tab4_HarvestFormCMB("Null");
@@ -2681,7 +2526,6 @@ nmfMainWindow::initConnections()
     m_isPressedGeneticButton  = m_UI->actionGeneticTB->isChecked();
     m_isPressedGradientButton = m_UI->actionGradientTB->isChecked();
 }
-
 
 void
 nmfMainWindow::initPostGuiConnections()
@@ -2734,8 +2578,10 @@ nmfMainWindow::findTableInFocus()
     } else if (m_UI->SetupInputTabWidget->findChild<QTableView *>("Setup_Tab3_GuildsTW")->hasFocus()) {
         return m_UI->SetupInputTabWidget->findChild<QTableView *>("Setup_Tab3_GuildsTW");
 
-    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_PopulationTV")->hasFocus()) {
-        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_PopulationTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_GuildPopulationTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_GuildPopulationTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_SpeciesPopulationTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_SpeciesPopulationTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaMinTV")->hasFocus()) {
@@ -2790,6 +2636,8 @@ nmfMainWindow::findTableInFocus()
         return ExponentTV;
     } else if (CarryingCapacityTV->hasFocus()) {
         return CarryingCapacityTV;
+    } else if (CatchabilityTV->hasFocus()) {
+        return CatchabilityTV;
     } else if (MSYTV->hasFocus()) {
         return MSYTV;
     } else if (BMSYTV->hasFocus()) {
@@ -2860,6 +2708,7 @@ nmfMainWindow::menu_showAllSavedRuns()
         return;
     }
     clearOutputTables(); // Since the data would be ambiguous since you're looking at more than one plot
+
 }
 
 void
@@ -2948,7 +2797,6 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
     nmfUtils::initialize(EstHandling,              NumSpecies,NumSpecies);
 
     if ((Algorithm == "NLopt Algorithm") && m_Estimator_NLopt) {
-
         m_Estimator_NLopt->getEstGrowthRates(EstGrowthRates);
         m_Estimator_NLopt->getEstCarryingCapacities(EstCarryingCapacities);
         m_Estimator_NLopt->getEstCatchability(EstCatchability);
@@ -2958,7 +2806,6 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
         m_Estimator_NLopt->getEstPredation(EstPredation);
         m_Estimator_NLopt->getEstHandling(EstHandling);
         m_Estimator_NLopt->getEstExponent(EstExponent);
-
         updateOutputTables(Algorithm, Minimizer, ObjectiveCriterion,
                            Scaling, isCompetitionAGGPROD,
                            SpeciesList, GuildList,
@@ -2980,6 +2827,7 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
                                  GrowthRateTable,CarryingCapacityTable,
                                  CatchabilityTable,BiomassTable);
     } else if ((Algorithm == "Bees Algorithm") && m_Estimator_Bees) {
+
 
         m_Estimator_Bees->getEstimatedGrowthRates(EstGrowthRates);
         m_Estimator_Bees->getEstimatedCarryingCapacities(EstCarryingCapacities);
@@ -3085,8 +2933,19 @@ nmfMainWindow::isMohnsRho()
 void
 nmfMainWindow::menu_saveAndShowCurrentRun()
 {
+    menu_saveAndShowCurrentRun(nmfConstantsMSSPM::DontShowDiagnosticsChart);
+}
+
+void
+nmfMainWindow::menu_saveAndShowCurrentRun(bool showDiagnosticChart)
+{
     menu_saveCurrentRun();
     menu_showCurrentRun();
+
+    if (showDiagnosticChart) {
+        Output_Controls_ptr->setOutputType("Diagnostics");
+        Output_Controls_ptr->callback_OutputParametersCB(Qt::Checked);
+    }
 }
 
 bool
@@ -3110,11 +2969,14 @@ void
 nmfMainWindow::menu_setBees(bool isPressed)
 {
     m_isPressedBeesButton = isPressed;
+    m_UI->actionShowAllSavedRunsTB->setEnabled(isAtLeastOneFilterPressed());
 }
+
 void
 nmfMainWindow::menu_setNLopt(bool isPressed)
 {
-    m_isPressedNLoptButton = isPressed;
+    m_isPressedNLoptButton = isPressed;    
+    m_UI->actionShowAllSavedRunsTB->setEnabled(isAtLeastOneFilterPressed());
 }
 /*
 void
@@ -3612,7 +3474,7 @@ nmfMainWindow::calculateMonteCarloValue(const double& uncertainty,
 
     if (uncertainty != 0) {
         m_SeedValue = (m_SeedValue > 0) ? ++m_SeedValue : m_SeedValue;
-        randomVal = nmfUtils::randomNumber(m_SeedValue,value*(1.0-uncertainty),value*(1.0+uncertainty));
+        randomVal = nmfUtils::getRandomNumber(m_SeedValue,value*(1.0-uncertainty),value*(1.0+uncertainty));
     }
 
     return randomVal;
@@ -3640,7 +3502,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                         std::string& BiomassTable)
 {
     bool   loadOK;
-    bool   isCatchability = (HarvestForm     == "QE");
+    bool   isCatchability = (HarvestForm     == "Effort (qE)");
     bool   isAggProd      = (CompetitionForm == "AGG-PROD");
     bool   isAlpha        = (CompetitionForm == "NO_K");
     bool   isBetaSpecies  = (CompetitionForm == "MS-PROD");
@@ -3911,7 +3773,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         if (isMonteCarlo) {
             scaleTimeSeries(HarvestUncertainty,Catch);
         }
-    } else if (HarvestForm == "QE") {
+    } else if (HarvestForm == "Effort (qE)") {
         if (isAggProd) {
             if (! getTimeSeriesDataByGuild(ForecastName,"Effort",NumSpeciesOrGuilds,RunLength,Effort))
                 return false;
@@ -3922,7 +3784,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         if (isMonteCarlo) {
             scaleTimeSeries(HarvestUncertainty,Effort);
         }
-    } else if (HarvestForm == "F") {
+    } else if (HarvestForm == "Exploitation (F)") {
         if (isAggProd) {
             if (! getTimeSeriesDataByGuild(ForecastName,"Exploitation",NumSpeciesOrGuilds,RunLength,Exploitation))
                 return false;
@@ -4122,23 +3984,27 @@ nmfMainWindow::callback_ResetFilterButtons()
 }
 
 void
+nmfMainWindow::callback_RestoreOutputSpecies()
+{
+    Output_Controls_ptr->setOutputSpecies(Estimation_Tab1_ptr->getOutputSpecies());
+}
+
+void
 nmfMainWindow::callback_EnableFilterButtons(bool state)
 {
     m_UI->actionBeesTB->setEnabled(state);
     m_UI->actionNLoptTB->setEnabled(state);
     m_UI->actionGeneticTB->setEnabled(state);
     m_UI->actionGradientTB->setEnabled(state);
-    m_UI->actionShowAllSavedRunsTB->setEnabled(state);
+    m_UI->actionShowAllSavedRunsTB->setEnabled(false);
     m_UI->actionSaveAndShowCurrentRun->trigger();
 }
 
 bool
 nmfMainWindow::isAtLeastOneFilterPressed()
 {
-  return (m_isPressedBeesButton    ||
-          m_isPressedNLoptButton   ||
-          m_isPressedGeneticButton ||
-          m_isPressedGradientButton);
+  return (m_isPressedBeesButton ||
+          m_isPressedNLoptButton);
 }
 
 std::string
@@ -4147,7 +4013,9 @@ nmfMainWindow::getFilterButtonsResult()
     std::string queryStr = " WHERE ";
     std::string conj = "";
 
-    queryStr += "(";
+    if (m_isPressedBeesButton || m_isPressedNLoptButton) {
+        queryStr += "(";
+    }
     if (m_isPressedBeesButton) {
         queryStr += " Algorithm = 'Bees Algorithm' ";
         conj = "OR";
@@ -4156,20 +4024,13 @@ nmfMainWindow::getFilterButtonsResult()
         queryStr += conj + " Algorithm = 'NLopt Algorithm' ";
         conj = "OR";
     }
-    if (m_isPressedGeneticButton) {
-        queryStr += conj + " Algorithm = 'Genetic Algorithm' ";
-        conj = "OR";
+    if (m_isPressedBeesButton || m_isPressedNLoptButton) {
+        queryStr += ")";
     }
-    if (m_isPressedGradientButton) {
-        queryStr += conj + " Algorithm = 'Gradient-Based Algorithm' ";
-    }
-    queryStr += ")";
 
-    if ((! m_isPressedBeesButton)    &&
-        (! m_isPressedNLoptButton)   &&
-        (! m_isPressedGeneticButton) &&
-        (! m_isPressedGradientButton))
-        queryStr = "MohnsRhoLabel=''";
+    if ((! m_isPressedBeesButton) &&
+        (! m_isPressedNLoptButton))
+        queryStr += " MohnsRhoLabel=''";
     else
         queryStr += " AND isAggProd=0 AND MohnsRhoLabel='' ";
 
@@ -4218,6 +4079,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     double ScaleVal = 1.0;
     double val = 0.0;
     double YMinSliderVal = Output_Controls_ptr->getYMinSliderVal();
+    double YMaxSliderVal = Output_Controls_ptr->getYMaxSliderVal();
     std::vector<std::string> fields;
     std::string queryStr;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -4299,15 +4161,17 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     // Load various tables
     QList<QString>     TableNames  = {"OutputGrowthRate",
                                       "OutputCarryingCapacity",
+                                      "OutputCatchability",
                                       "OutputMSYBiomass",
                                       "OutputMSY",
                                       "OutputMSYFishing"};
     if (isExponent) {
       TableNames.append("OutputExponent");
     }
-    QList<QString>     TableLabels = {"r","K","BMSY","MSY","FMSY","b"};
+    QList<QString>     TableLabels = {"r","K","q","BMSY","MSY","FMSY","b"};
     QList<QTableView*> TableViews  = {GrowthRateTV,
                                       CarryingCapacityTV,
+                                      CatchabilityTV,
                                       BMSYTV,
                                       MSYTV,
                                       FMSYTV,
@@ -4571,11 +4435,13 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     }
 
     else if (OutputType == "Diagnostics") {
+
         if (OutputMethod == "Parameter Profiles") {
             if (! showDiagnosticsChart2d(ScaleStr,ScaleVal,YMinSliderVal)) {
                 return false;
             }
             callback_ShowDiagnosticsChart3d();
+
         } else if (OutputMethod == "Retrospective Analysis") {
             callback_ShowChartMohnsRho();
         }
@@ -4625,6 +4491,7 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
 
     int NumSpeciesOrGuilds;
     int RunLength;
+    int StartYear;
     QStandardItemModel *smodel;
     QStandardItem* item;
     QStringList vLabels;
@@ -4638,7 +4505,7 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     getSpecies(NumSpeciesOrGuilds,SpeciesList);
-    m_DatabasePtr->getRunLength(m_Logger,m_ProjectSettingsConfig,RunLength);
+    m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear);
 
     m_Logger->logMsg(nmfConstants::Normal,"Calculating Summary Statistics for Run of length: "+std::to_string(RunLength));
 
@@ -4690,7 +4557,7 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     msg += "<br>RI&nbsp;&nbsp;&nbsp;(Reliability Index):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exp[sqrt{(1/n)Σ([log(Oₜ/Eₜ)]²)}]";
     msg += "<br>AE&nbsp;&nbsp;&nbsp;(Ave Error or Bias):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Σ(Eₜ-Oₜ) / n";
     msg += "<br>AAE&nbsp;&nbsp;(Ave Abs Error):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Σ|Eₜ-Oₜ| / n";
-    msg += "<br>MEF&nbsp;&nbsp;(Modeling Efficiency):&nbsp;&nbsp;&nbsp;Σ(Oₜ-&#332;)²-Σ(Eₜ-Oₜ)² / Σ(Oₜ-&#332;)²";
+    msg += "<br>MEF&nbsp;&nbsp;(Modeling Efficiency):&nbsp;&nbsp;&nbsp;[Σ(Oₜ-&#332;)²-Σ(Eₜ-Oₜ)²] / Σ(Oₜ-&#332;)²";
     msg += "<br><br>where O = Observed Biomass";
     msg += "<br>and&nbsp;&nbsp;&nbsp;E = Estimated Biomass";
     msg += "</p>";
@@ -4706,6 +4573,7 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
 
     int NumSpeciesOrGuilds;
     int RunLength;
+    int StartYear;
     QStandardItemModel *smodel;
     QStandardItem* item;
     QStringList vLabels;
@@ -4718,7 +4586,7 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     getSpecies(NumSpeciesOrGuilds,SpeciesList);
-    m_DatabasePtr->getRunLength(m_Logger,m_ProjectSettingsConfig,RunLength);
+    m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear);
 
     std::vector<QString> statistics = {"Mohn's Rho (r)",
                                        "Mohn's Rho (K)",
@@ -5043,7 +4911,7 @@ nmfMainWindow::showDiagnosticsChart2d(QString& ScaleStr,
                              DiagnosticsValue,
                              DiagnosticsFitness))
     {
-        Output_Controls_ptr->setOutputParametersCB(false);
+        Output_Controls_ptr->setOutputParametersCB(nmfConstants::NotChecked);
         m_ChartView2d->hide();
         msg = "No Diagnostic records found. Please make sure a Diagnostic has been run.";
         m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
@@ -5051,12 +4919,14 @@ nmfMainWindow::showDiagnosticsChart2d(QString& ScaleStr,
         QMessageBox::warning(this, "Warning", msg, QMessageBox::Ok);
         return false;
     }
+
     showDiagnosticsFitnessVsParameter(NumPoints,ParameterName,"Fitness Value",
                               NumSpeciesOrGuilds,OutputSpecies,
                               SpeciesNum,
                               DiagnosticsValue,
                               DiagnosticsFitness,
                               YMinSliderVal);
+
     // Update Output->Data table
     double XStart = -Diagnostic_Tab1_ptr->getLastRunsPctVariation();
     double XInc   = -XStart/NumPoints;
@@ -5070,8 +4940,10 @@ nmfMainWindow::showDiagnosticsChart2d(QString& ScaleStr,
         item->setTextAlignment(Qt::AlignCenter);
         smodel2->setItem(i, 1, item);
     }
+
     smodel2->setHorizontalHeaderLabels(ColHeadings);
     m_UI->MSSPMOutputTV->setModel(smodel2);
+    m_UI->MSSPMOutputTV->show();
 
     return true;
 }
@@ -5208,6 +5080,7 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     SpeciesOrGuildAbbrevList << SpeciesOrGuildList[SpeciesNum];
     smodel2->setHorizontalHeaderLabels(SpeciesOrGuildAbbrevList);
     m_UI->MSSPMOutputTV->setModel(smodel2);
+    m_UI->MSSPMOutputTV->show();
 
     return true;
 }
@@ -5483,11 +5356,11 @@ nmfMainWindow::showChartTableVsTime(
     // Draw the line chart
     //
     bool AddScatter = (NumLines == 1);
+    int NumLineColors = nmfConstants::LineColors.size();
     double den = 0.0;
     double dvalue;
     QColor ScatterColor;
     QColor ChartColor;
-    QList<QColor> LineColors;
     QStringList RowLabelsForBars;
     QStringList ColumnLabelsForLegend;
     boost::numeric::ublas::matrix<double> ChartMSYData;
@@ -5527,13 +5400,6 @@ nmfMainWindow::showChartTableVsTime(
     YLabel    = (label == "Fishing Mortality (C/Bc)") ?
                 label :
                 label + " (" + ScaleStr.toStdString() + "metric tons)";
-
-    LineColors.push_back(QColor(  0,114,178)); // blue
-    LineColors.push_back(QColor(230,159,  0)); // orange
-    LineColors.push_back(QColor(  0,  0,  0)); // black
-    LineColors.push_back(QColor( 86,180,233)); // sky blue
-    LineColors.push_back(QColor(200,200,200)); // gray
-    LineColors.push_back(QColor(255,  0,  0)); // red
 
     m_ChartWidget->removeAllSeries();
 
@@ -5611,7 +5477,8 @@ nmfMainWindow::showChartTableVsTime(
                                      Theme,
                                      ChartColor,
                                      ScatterColor,
-                                     LineColors[line%LineColors.size()]);
+                                     nmfConstants::LineColors[line%NumLineColors],
+                                     nmfConstants::LineColorNames[line%NumLineColors]);
         }
 
         AddScatter = (line+1 == NumLines-1);
@@ -5643,9 +5510,9 @@ nmfMainWindow::showChartTableVsTime(
             if (m_ChartWidget != nullptr) {
                 nmfChartLine* lineChart = new nmfChartLine();
                 if ((label == "Catch") || (label == "Fishing Mortality (C/Bc)"))
-                    lineColor = LineColors[(line+1)%LineColors.size()];
+                    lineColor = QColor(nmfConstants::LineColors[(line+1)%NumLineColors].c_str());
                 else
-                    lineColor = LineColors[line%LineColors.size()];
+                    lineColor = QColor(nmfConstants::LineColors[line%NumLineColors].c_str());
                 lineChart->populateChart(m_ChartWidget,
                                          ChartType,
                                          LineStyle,
@@ -5661,8 +5528,9 @@ nmfMainWindow::showChartTableVsTime(
                                          YLabel,
                                          GridLines,
                                          Theme,
-                                         lineColor,
-                                         {},1.0);
+                                         {},
+                                         "",
+                                         1.0);
             }
         }
     }
@@ -5713,16 +5581,17 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    XLabel += " Percent Deviation";
    MainTitle = YLabel + " vs " + XLabel + " for: " + OutputSpecies.toStdString();
 
-   LineColors.push_back(QColor(  0,114,178)); // blue
-   LineColors.push_back(QColor(230,159,  0)); // orange
-   LineColors.push_back(QColor(  0,  0,  0)); // black
-   LineColors.push_back(QColor( 86,180,233)); // sky blue
-   LineColors.push_back(QColor( 90,180,172)); // teal
-   LineColors.push_back(QColor(230,230,230)); // gray
+//   LineColors.push_back(QColor(  0,114,178)); // blue
+//   LineColors.push_back(QColor(230,159,  0)); // orange
+//   LineColors.push_back(QColor(  0,  0,  0)); // black
+//   LineColors.push_back(QColor( 86,180,233)); // sky blue
+//   LineColors.push_back(QColor( 90,180,172)); // teal
+//   LineColors.push_back(QColor(230,230,230)); // gray
 
    m_ChartWidget->removeAllSeries();
 
    ChartLineData.clear();
+
    for (int line=0; line<NumLines; ++line)
    {
        Years.clear();
@@ -5737,11 +5606,12 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    }
 
    // Set all line colors to be the first
-   for (int i=1; i<LineColors.size(); ++i) {
-       LineColors[i] = LineColors[0];
+   for (int i=1; i<nmfConstants::LineColors.size(); ++i) {
+       LineColors.push_back(QColor(nmfConstants::LineColors[0].c_str()));
    }
 
    if (m_ChartWidget != nullptr) {
+
        nmfChartLine* lineChart = new nmfChartLine();
        lineChart->populateChart(m_ChartWidget,
                                 ChartType,
@@ -5758,9 +5628,10 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
                                 YLabel,
                                 GridLines,
                                 Theme,
-                                {},
-                                LineColors,
+                                LineColors[0],
+                                "",
                                 XInc);
+
    }
 }
 
@@ -5836,14 +5707,14 @@ nmfMainWindow::showMohnsRhoBiomassVsTime(
     XLabel    = "Year";
     YLabel    = label + " (" + ScaleStr.toStdString() + "metric tons)";
 
-    LineColors.push_back(QColor(  0,114,178)); // blue
-    LineColors.push_back(QColor(245,130, 49)); // orange
-    LineColors.push_back(QColor(128,  0,  0)); // maroon
-    LineColors.push_back(QColor( 86,180,233)); // sky blue
-    LineColors.push_back(QColor(230,230,230)); // gray
-    LineColors.push_back(QColor(  0,  0,  0)); // black
+//    LineColors.push_back(QColor(  0,114,178)); // blue
+//    LineColors.push_back(QColor(245,130, 49)); // orange
+//    LineColors.push_back(QColor(128,  0,  0)); // maroon
+//    LineColors.push_back(QColor( 86,180,233)); // sky blue
+//    LineColors.push_back(QColor(230,230,230)); // gray
+//    LineColors.push_back(QColor(  0,  0,  0)); // black
 
-    NumColors = LineColors.size();
+    NumColors = nmfConstants::LineColors.size();
 
     if (clearChart) {
         m_ChartWidget->removeAllSeries();
@@ -5865,9 +5736,9 @@ nmfMainWindow::showMohnsRhoBiomassVsTime(
 
     // Use same color for all Mho's Rho plots since it's obvious which lines
     // refer to which time periods by their length
-    lineColor = LineColors[0];
+    lineColor = QColor(nmfConstants::LineColors[0].c_str());
     for (int i=0; i<NumColors; ++i) {
-        LineColors[i] = lineColor;
+        LineColors.push_back(lineColor);
     }
 
     if (m_ChartWidget != nullptr) {
@@ -5887,8 +5758,8 @@ nmfMainWindow::showMohnsRhoBiomassVsTime(
                                  YLabel,
                                  GridLines,
                                  Theme,
-                                 {},
-                                 LineColors,
+                                 LineColors[0],
+                                 "",
                                  1.0);
     }
 }
@@ -5944,14 +5815,14 @@ nmfMainWindow::showForecastBiomassVsTime(
     XLabel    = "Year";
     YLabel    = label + " (" + ScaleStr.toStdString() + "metric tons)";
 
-    LineColors.push_back(QColor(  0,114,178)); // blue
-    LineColors.push_back(QColor(245,130, 49)); // orange
-    LineColors.push_back(QColor(128,  0,  0)); // maroon
-    LineColors.push_back(QColor( 86,180,233)); // sky blue
-    LineColors.push_back(QColor(230,230,230)); // gray
-    LineColors.push_back(QColor(  0,  0,  0)); // black
+//    LineColors.push_back(QColor(  0,114,178)); // blue
+//    LineColors.push_back(QColor(245,130, 49)); // orange
+//    LineColors.push_back(QColor(128,  0,  0)); // maroon
+//    LineColors.push_back(QColor( 86,180,233)); // sky blue
+//    LineColors.push_back(QColor(230,230,230)); // gray
+//    LineColors.push_back(QColor(  0,  0,  0)); // black
 
-    NumColors = LineColors.size();
+    NumColors = nmfConstants::LineColors.size();
 
     if (clearChart) {
         m_ChartWidget->removeAllSeries();
@@ -6003,10 +5874,9 @@ nmfMainWindow::showForecastBiomassVsTime(
                                  YLabel,
                                  GridLines,
                                  Theme,
-                                 {},
-                                 LineColors,
+                                 LineColors[0],
+                                 "",
                                  1.0);
-
     }
 
     // Load ChartData into Output table view
@@ -6014,7 +5884,7 @@ nmfMainWindow::showForecastBiomassVsTime(
     smodel->setHorizontalHeaderLabels(SpeciesNames);
     smodel->setVerticalHeaderLabels(Years);
     m_UI->MSSPMOutputTV->setModel(smodel);
-
+    m_UI->MSSPMOutputTV->show();
 }
 
 std::string
@@ -6038,6 +5908,16 @@ nmfMainWindow::getLegendCode(std::string &Algorithm,
             code += "GnCRS2-";
         else if (Minimizer == "GD_StoGO")
             code += "GdStoGO-";
+        else if (Minimizer == "LN_COBYLA")
+            code += "LnCoby-";
+        else if (Minimizer == "LN_NELDERMEAD")
+            code += "LnNlMd-";
+        else if (Minimizer == "LN_SBPLX")
+            code += "LnSBPLX-";
+        else if (Minimizer == "LD_LBFGS")
+            code += "LdLBFGS-";
+        else if (Minimizer == "LD_MMA")
+            code += "LdMMA-";
         else
             code += "GnODL-";
     } else if (Algorithm == "Bees Algorithm")
@@ -6061,17 +5941,20 @@ nmfMainWindow::getLegendCode(std::string &Algorithm,
     if (ObjectiveCriterion == "Least Squares")
         code += "LsSq-";
     else if (ObjectiveCriterion == "Maximum Likelihood")
-        code += "MLE-";
+        code += "MLE";
     else if (ObjectiveCriterion == "Model Efficiency")
         code += "ModEff-";
 
-    if (Scaling == "Min Max")
-        code += "Mm";
-    else if (Scaling == "Mean")
-        code += "Mn";
+    if (ObjectiveCriterion != "Maximum Likelihood") {
+        if (Scaling == "Min Max")
+            code += "Mm";
+        else if (Scaling == "Mean")
+            code += "Mn";
+    }
 
     return code;
 }
+
 
 void
 nmfMainWindow::showChartBcBoVsTime(
@@ -6097,7 +5980,7 @@ nmfMainWindow::showChartBcBoVsTime(
     //
     QColor ScatterColor;
     QColor ChartColor;
-    QList<QColor> LineColors;
+    QString colorName;
     QStringList RowLabelsForBars;
     QStringList ColumnLabelsForLegend;
     boost::numeric::ublas::matrix<double> ChartBMSYData;
@@ -6121,11 +6004,12 @@ nmfMainWindow::showChartBcBoVsTime(
     std::string MainTitle;
     std::string XLabel;
     std::string YLabel;
-    std::string legendCode;
+    std::vector<std::string> legendCode;
     bool AddScatter = (NumLines == 1);
     int Theme = 0; // Replace with checkbox values
     std::vector<bool> GridLines(true,true); // Replace with checkbox values
     bool xAxisIsInteger = true;
+    int NumLineColors = nmfConstants::LineColors.size();
 
     ChartType = "Line";
     MainTitle = "Calculated Biomass Overlayed with Observed Biomass Points for: " + OutputSpecies.toStdString();
@@ -6133,14 +6017,10 @@ nmfMainWindow::showChartBcBoVsTime(
     YLabel    = "Biomass (" + ScaleStr.toStdString() + "metric tons)";
     ScatterColor = QColor(0,191,255); // deepskyblue
 
-    LineColors.push_back(QColor(  0,114,178)); // blue
-    LineColors.push_back(QColor(230,159,  0)); // orange
-    LineColors.push_back(QColor(  0,  0,  0)); // black
-    LineColors.push_back(QColor( 86,180,233)); // sky blue
-    LineColors.push_back(QColor(200,200,200)); // gray
-    LineColors.push_back(QColor(255,  0,  0)); // red
-
     m_ChartWidget->removeAllSeries();
+
+//    QAbstract3DAxis* axisX = qobject_cast<QAbstract3DAxis*>(m_ChartWidget->axisX());
+//    m_ChartWidget->removeAxis(qobject_cast<QtDataVisualization::QAbstract3DAxis*>(axisX));
 
     //  Load Scatter plot points into data structure
     for (int species=0; species<NumSpecies; ++species) {
@@ -6152,19 +6032,31 @@ nmfMainWindow::showChartBcBoVsTime(
         }
     }
 
+    nmfChartLineWithScatter* lineWithScatterChart = new nmfChartLineWithScatter();
+
+
+    for (int line=0; line<NumLines; ++line)
+    {
+        legendCode.push_back(getLegendCode(Algorithms[line],
+                                           Minimizers[line],
+                                           ObjectiveCriteria[line],
+                                           Scalings[line]));
+    }
+
     // Load Line plot points into data structure and update the chart
     for (int line=0; line<NumLines; ++line)
     {
         ColumnLabelsForLegend.clear();
+        colorName = getColorName(line);
         for (int species=0; species<NumSpecies; ++species) {
             if (species == SpeciesNum) {
                 for (int time=0; time<=RunLength; ++time) {
-                    if (time == 0) {
-                        legendCode = getLegendCode(Algorithms[line],
-                                                   Minimizers[line],
-                                                   ObjectiveCriteria[line],
-                                                   Scalings[line]);
-                    }
+//                    if (time == 0) {
+//                        legendCode = getLegendCode(Algorithms[line],
+//                                                   Minimizers[line],
+//                                                   ObjectiveCriteria[line],
+//                                                   Scalings[line]);
+//                    }
                     Years << QString::number(StartYear+time);
                     value = OutputBiomass[line](time,species);
                     ChartLineData(time,0) = value/ScaleVal;
@@ -6179,9 +6071,8 @@ nmfMainWindow::showChartBcBoVsTime(
 
         // Call the chart api function that will populate and annotate the
         // desired chart type.
-        ColumnLabelsForLegend << QString::fromStdString(legendCode);
+        ColumnLabelsForLegend << QString::fromStdString(legendCode[line]);
         if (m_ChartWidget != nullptr) {
-            nmfChartLineWithScatter* lineWithScatterChart = new nmfChartLineWithScatter();
             lineWithScatterChart->populateChart(m_ChartWidget,
                                                 ChartType,
                                                 LineStyle,
@@ -6201,7 +6092,8 @@ nmfMainWindow::showChartBcBoVsTime(
                                                 Theme,
                                                 ChartColor,
                                                 ScatterColor,
-                                                LineColors[line%LineColors.size()]);
+                                                nmfConstants::LineColors[line%NumLineColors],
+                                                colorName.toStdString());
         }
 
         AddScatter = (line+1 == NumLines-1);
@@ -6209,11 +6101,14 @@ nmfMainWindow::showChartBcBoVsTime(
 
     if (Output_Controls_ptr->isCheckedOutputBMSY()) {
 
-        LineStyle = "DashedLine";
+        nmfChartLegend* legend = new nmfChartLegend(m_ChartWidget);
+        std::vector<QString> markerColors;
+        LineStyle = "DottedLine";
         ColumnLabelsForLegend.clear();
-        ColumnLabelsForLegend << "B MSY - - - -";
 
         for (int line=0; line<NumLines; ++line) {
+
+            ColumnLabelsForLegend << "B MSY";
 
             // Draw the BMSY line
             for (int i=0; i<NumSpecies; ++i) {
@@ -6226,6 +6121,9 @@ nmfMainWindow::showChartBcBoVsTime(
             }
 
             if (m_ChartWidget != nullptr) {
+
+                colorName = getColorName(line);
+
                 nmfChartLine* lineChart = new nmfChartLine();
                 lineChart->populateChart(m_ChartWidget,
                                          ChartType,
@@ -6242,10 +6140,21 @@ nmfMainWindow::showChartBcBoVsTime(
                                          YLabel,
                                          GridLines,
                                          Theme,
-                                         LineColors[1], //LineColors[line%LineColors.size()],
-                                         {},1.0);
+                                         QColor(nmfConstants::LineColors[line%NumLineColors].c_str()),
+                                         colorName.toStdString(),
+                                         1.0);
+
+
+                markerColors.push_back(colorName);
             }
         }
+
+        // Add color for Biomass Obs
+        markerColors.push_back("Deep Sky Blue");
+        // Set up the legend for tooltips.  Needs to be done like this due to the
+        // B MSY labels being the same for all of the B MSY dotted line plots.
+        legend->setToolTips(markerColors);
+        legend->setConnections();
     }
 
     //
@@ -6254,9 +6163,24 @@ nmfMainWindow::showChartBcBoVsTime(
     smodel->setHorizontalHeaderLabels(SpeciesNames);
     smodel->setVerticalHeaderLabels(Years);
     m_UI->MSSPMOutputTV->setModel(smodel);
+
 }
 
+// If need to repeat colors, append a digit 1, 2, etc...regarding the number of times
+// you sequence through all of the colors
+QString
+nmfMainWindow::getColorName(int line)
+{
+    QString colorName;
+    int suffix = line/nmfConstants::LineColorNames.size();
+    int NumLineColors = nmfConstants::LineColors.size();
 
+    colorName = QString::fromStdString(nmfConstants::LineColorNames[line%NumLineColors]);
+    if (suffix > 0) {
+        colorName += QString::number(suffix);
+    }
+    return colorName;
+}
 
 void
 nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
@@ -6328,14 +6252,16 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
                                  YLabel,
                                  GridLines,
                                  Theme,
-                                 ChartColor,
-                                 {},1.0);
+                                 {},
+                                 "",
+                                 1.0);
     }
 
     //
     // Load ChartData into Output table view
     smodel->setHorizontalHeaderLabels(ColumnLabelsForLegend);
     m_UI->MSSPMOutputTV->setModel(smodel);
+    m_UI->MSSPMOutputTV->show();
 }
 
 void
@@ -6415,13 +6341,15 @@ nmfMainWindow::showChartBcVsTimeAllSpecies(
                                  YLabel,
                                  GridLines,
                                  Theme,
-                                 ChartColor,
-                                 {},1.0);
+                                 {},
+                                 "",
+                                 1.0);
     }
 
     // Load ChartData into Output table view
     smodel->setHorizontalHeaderLabels(ColumnLabelsForLegend);
     m_UI->MSSPMOutputTV->setModel(smodel);
+    m_UI->MSSPMOutputTV->show();
 }
 
 
@@ -6495,7 +6423,6 @@ nmfMainWindow::showChartCatchVsBc(
 
         // RSK - Hack when X is a float
         m_ChartWidget->addSeries(series);
-
         scatterChart->populateChart(m_ChartWidget,
                                 ChartType,
                                 nmfConstantsMSSPM::HideFirstPoint,
@@ -6514,6 +6441,7 @@ nmfMainWindow::showChartCatchVsBc(
     SpeciesNames << OutputSpecies;
     smodel->setHorizontalHeaderLabels(SpeciesNames);
     m_UI->MSSPMOutputTV->setModel(smodel);
+    m_UI->MSSPMOutputTV->show();
 }
 
 
@@ -6697,8 +6625,6 @@ nmfMainWindow::showDockWidgets(bool show)
     m_UI->LogDockWidget->setVisible(show);
     m_UI->OutputDockWidget->setVisible(show);
 
-    // Turn these off.
-    m_UI->SetupOutputTE->setVisible(false);
 
 } // end showDockWidgets
 
@@ -6710,7 +6636,7 @@ nmfMainWindow::closeEvent(QCloseEvent *event)
 }
 
 void
-nmfMainWindow::callback_SetStyleSheet(QString style)
+nmfMainWindow::callback_PreferencesSetStyleSheet(QString style)
 {
     if (style == "Dark") {
         QFile fileStyle(":qdarkstyle/style.qss");
@@ -6730,6 +6656,35 @@ nmfMainWindow::callback_SetStyleSheet(QString style)
     }
 }
 
+void
+nmfMainWindow::callback_PreferencesMShotOkPB()
+{
+    QSpinBox* numRowsSB    = m_PreferencesWidget->findChild<QSpinBox*>("PrefNumRowsSB");
+    QSpinBox* numColumnsSB = m_PreferencesWidget->findChild<QSpinBox*>("PrefNumColumnsSB");
+
+    m_MShotNumRows = numRowsSB->value();
+    m_MShotNumCols = numColumnsSB->value();
+
+    saveSettings();
+    m_PreferencesDlg->close();
+}
+
+void
+nmfMainWindow::setDefaultDockWidgetsVisibility()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    settings->beginGroup("MainWindow");
+    m_UI->OutputDockWidget->setVisible(settings->value("OutputDockWidgetIsVisible",false).toBool());
+    m_UI->ProgressDockWidget->setVisible(settings->value("ProgressDockWidgetIsVisible",false).toBool());
+    m_UI->LogDockWidget->setVisible(settings->value("LogDockWidgetIsVisible",false).toBool());
+    settings->endGroup();
+
+    delete settings;
+
+    // Turn these off
+    m_UI->SetupOutputTE->setVisible(false);
+}
 
 void
 nmfMainWindow::readSettings(QString Name)
@@ -6737,26 +6692,37 @@ nmfMainWindow::readSettings(QString Name)
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("MainWindow");
+    bool isVisibleOutputWidget = settings->value("OutputDockWidgetIsVisible",false).toBool();
+
     if (Name == "style") {
-        callback_SetStyleSheet(settings->value(Name,"").toString());
-    } else if (Name == "OutputDockWidgetIsFloating") {
-        m_UI->OutputDockWidget->setFloating(settings->value("OutputDockWidgetIsFloating",false).toBool());
-    } else if (Name == "OutputDockWidgetSize") {
-        m_UI->OutputDockWidget->resize(settings->value("OutputDockWidgetSize", QSize(400, 400)).toSize());
-    } else if (Name == "OutputDockWidgetPos") {
-        m_UI->OutputDockWidget->move(settings->value("OutputDockWidgetPos",    QPoint(200, 200)).toPoint());
+        callback_PreferencesSetStyleSheet(settings->value(Name,"").toString());
+    } else if (isVisibleOutputWidget) {
+        if (Name == "OutputDockWidgetIsFloating") {
+            m_UI->OutputDockWidget->setFloating(settings->value("OutputDockWidgetIsFloating",false).toBool());
+        } else if (Name == "OutputDockWidgetSize") {
+            m_UI->OutputDockWidget->resize(settings->value("OutputDockWidgetSize", QSize(400, 400)).toSize());
+        } else if (Name == "OutputDockWidgetPos") {
+            m_UI->OutputDockWidget->move(settings->value("OutputDockWidgetPos",    QPoint(200, 200)).toPoint());
+        }
     } else if (Name == "ProgressDockWidgetIsVisible") {
-        m_UI->ProgressDockWidget->setVisible(settings->value("ProgressDockWidgetIsVisible",200).toBool());
+        m_UI->ProgressDockWidget->setVisible(settings->value("ProgressDockWidgetIsVisible",false).toBool());
     } else if (Name == "LogDockWidgetIsVisible") {
-        //ui->LogDockWidget->setVisible(settings->value("LogDockWidgetIsVisible",200).toBool());
+        //ui->LogDockWidget->setVisible(settings->value("LogDockWidgetIsVisible",false).toBool());
     }
     settings->endGroup();
+
+    if (Name == "Preferences") {
+        settings->beginGroup("Preferences");
+        m_MShotNumRows = settings->value("MShotNumRows",3).toInt();
+        m_MShotNumCols = settings->value("MShotNumCols",4).toInt();
+        settings->endGroup();
+    }
 
     delete settings;
 }
 
 void
-nmfMainWindow::readSettings()
+nmfMainWindow::readSettingsGuiPositionOrientationOnly()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
@@ -6772,6 +6738,14 @@ nmfMainWindow::readSettings()
                       {NavDockWidth,OutputDockWidth,ProgressDockWidth},
                       Qt::Horizontal);
     settings->endGroup();
+
+    delete settings;
+}
+
+void
+nmfMainWindow::readSettings()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
     m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
@@ -6794,7 +6768,14 @@ nmfMainWindow::readSettings()
     m_ForecastFontSize = settings->value("FontSize",9).toInt();
     settings->endGroup();
 
-    callback_UpdateWindowTitle();
+    settings->beginGroup("Preferences");
+    m_MShotNumRows = settings->value("MShotNumRows",3).toInt();
+    m_MShotNumCols = settings->value("MShotNumCols",4).toInt();
+    settings->endGroup();
+
+    delete settings;
+
+    updateWindowTitle();
 }
 
 QString
@@ -6819,7 +6800,8 @@ nmfMainWindow::saveSettings() {
     settings->setValue("style",getCurrentStyle());
     settings->setValue("NavigatorDockWidgetWidth",   m_UI->NavigatorDockWidget->width());
     settings->setValue("OutputDockWidgetWidth",      m_UI->OutputDockWidget->width());
-    settings->setValue("LogDockWidgetIsVisible",     m_UI->ProgressDockWidget->isVisible());
+    settings->setValue("LogDockWidgetIsVisible",     m_UI->LogDockWidget->isVisible());
+    settings->setValue("OutputDockWidgetIsVisible",  m_UI->OutputDockWidget->isVisible());
     settings->setValue("ProgressDockWidgetIsVisible",m_UI->ProgressDockWidget->isVisible());
     settings->setValue("ProgressDockWidgetWidth",    m_UI->ProgressDockWidget->width());
     settings->setValue("OutputDockWidgetIsFloating", m_UI->OutputDockWidget->isFloating());
@@ -6827,8 +6809,13 @@ nmfMainWindow::saveSettings() {
     settings->setValue("OutputDockWidgetSize",       m_UI->OutputDockWidget->size());
     settings->endGroup();
 
-    settings->beginGroup("SetupTab");
+    settings->beginGroup("SetupTabIsVisible");
     settings->setValue("FontSize", Setup_Tab4_ptr->getFontSize());
+    settings->endGroup();
+
+    settings->beginGroup("Preferences");
+    settings->setValue("MShotNumRows", m_MShotNumRows);
+    settings->setValue("MShotNumCols", m_MShotNumCols);
     settings->endGroup();
 
     delete settings;
@@ -6974,7 +6961,7 @@ bool
 nmfMainWindow::isEstimationRunning()
 {
     std::string cmd="";
-    std::ifstream inputFile(nmfConstants::MSSPMStopRunFile);
+    std::ifstream inputFile(nmfConstantsMSSPM::MSSPMStopRunFile);
 
     if (inputFile) {
         std::getline(inputFile,cmd);
@@ -6985,7 +6972,7 @@ nmfMainWindow::isEstimationRunning()
 }
 
 void
-nmfMainWindow::callback_RunEstimation()
+nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
 {
     saveSettings();
     readSettings();
@@ -7005,12 +6992,17 @@ nmfMainWindow::callback_RunEstimation()
 
     // Disable Monte Carlo Output Widgets
     Output_Controls_ptr->enableBrightnessWidgets(false);
-
     if (Algorithm == "Bees Algorithm") {
-        runBeesAlgorithm();
+        runBeesAlgorithm(showDiagnosticsChart);
     } else if (Algorithm == "NLopt Algorithm") {
-        runNLoptAlgorithm();
+        runNLoptAlgorithm(showDiagnosticsChart);
     }
+
+    // Assure the Output Dock widget is visible
+    if (! m_UI->OutputDockWidget->isVisible()) {
+        m_UI->OutputDockWidget->setVisible(true);
+    }
+
 }
 
 void
@@ -7018,6 +7010,11 @@ nmfMainWindow::callback_ForecastLoaded(std::string ForecastName)
 {
     Forecast_Tab2_ptr->loadWidgets();
     Forecast_Tab3_ptr->loadWidgets();
+
+
+
+
+
 }
 
 
@@ -7173,22 +7170,25 @@ nmfMainWindow::callback_LoadDataStruct()
 }
 
 void
-nmfMainWindow::runBeesAlgorithm()
+nmfMainWindow::runBeesAlgorithm(bool showDiagnosticChart)
 {
     bool loadOK = loadParameters(m_DataStruct,nmfConstantsMSSPM::VerboseOn);
     if (! loadOK) {
         std::cout << "Run cancelled. LoadParameters returned: " << loadOK << std::endl;
         return;
     }
+    m_DataStruct.showDiagnosticChart = showDiagnosticChart;
 
     m_Estimator_Bees = new Bees_Estimator();
 
     // Set up connections
     disconnect(m_Estimator_Bees, 0, 0, 0);
-    connect(m_Estimator_Bees, SIGNAL(RunCompleted(std::string)),
-            this,             SLOT(callback_RunCompleted(std::string)));
+    connect(m_Estimator_Bees, SIGNAL(RunCompleted(std::string,bool)),
+            this,             SLOT(callback_RunCompleted(std::string,bool)));
     connect(m_Estimator_Bees, SIGNAL(SubRunCompleted(int,int,int)),
             this,             SLOT(callback_SubRunCompleted(int,int,int)));
+    connect(m_Estimator_Bees, SIGNAL(ErrorFound(std::string)),
+            this,             SLOT(callback_ErrorFound(std::string)));
 
     // Set up progress widget to show fitness vs generation
     m_ProgressWidget->startTimer(100);
@@ -7204,6 +7204,8 @@ nmfMainWindow::runBeesAlgorithm()
                 &Bees_Estimator::estimateParameters,
                 m_DataStruct,
                 m_RunNumBees++);
+
+    m_ProgressWidget->hideLegend();
 
 //    static const QMetaMethod updateProgressSignal = QMetaMethod::fromSignal(&Bees_Estimator::UpdateProgressData);
 //    if (! isSignalConnected(updateProgressSignal)) {
@@ -7225,13 +7227,14 @@ nmfMainWindow::runBeesAlgorithm()
 
 
 void
-nmfMainWindow::runNLoptAlgorithm()
+nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart)
 {
     bool loadOK = loadParameters(m_DataStruct,nmfConstantsMSSPM::VerboseOn);
     if (! loadOK) {
         std::cout << "Run cancelled. LoadParameters returned: " << loadOK << std::endl;
         return;
     }
+    m_DataStruct.showDiagnosticChart = showDiagnosticChart;
 
     // Create the NLopt object
     m_Estimator_NLopt = new NLopt_Estimator();
@@ -7240,21 +7243,25 @@ nmfMainWindow::runNLoptAlgorithm()
     disconnect(m_ProgressWidget, 0, 0, 0);
     connect(m_ProgressWidget,  SIGNAL(StopTheRun()),
             m_Estimator_NLopt, SLOT(callback_StopTheOptimizer()));
+    connect(m_ProgressWidget,  SIGNAL(RedrawValidPointsOnly(bool,bool)),
+            this,              SLOT(callback_ReadProgressChartDataFile(bool,bool)));
     disconnect(m_Estimator_NLopt, 0, 0, 0);
-    connect(m_Estimator_NLopt, SIGNAL(RunCompleted(std::string)),
-            this,              SLOT(callback_RunCompleted(std::string)));
+    connect(m_Estimator_NLopt, SIGNAL(RunCompleted(std::string,bool)),
+            this,              SLOT(callback_RunCompleted(std::string,bool)));
 
     // Start and initialize the Progress chart
     m_ProgressWidget->startTimer(100);
     m_ProgressWidget->startRun();
     updateProgressChartAnnotation(0,(double)m_DataStruct.NLoptStopAfterIter,5.0);
-
     // Run the optimizer
     QFuture<void> future = QtConcurrent::run(
                 m_Estimator_NLopt,
                 &NLopt_Estimator::estimateParameters,
                 m_DataStruct,
                 m_RunNumNLopt++);
+
+    m_ProgressWidget->hideLegend();
+
 
 //    static const QMetaMethod updateProgressSignal = QMetaMethod::fromSignal(&NLopt_Estimator::UpdateProgressData);
 //    if (! isSignalConnected(updateProgressSignal)) {
@@ -7430,8 +7437,9 @@ nmfMainWindow::runGradientAlgorithm(std::string &Algorithm,
 
 
 void
-nmfMainWindow::callback_RunCompleted(std::string output)
+nmfMainWindow::callback_RunCompleted(std::string output, bool showDiagnosticChart)
 {
+std::cout << "=====>>>>> run completed" << std::endl;
     m_Logger->logMsg(nmfConstants::Normal,"Run Completed");
 
     // Set Chart Type to "Bc & Bo vs Time"
@@ -7450,12 +7458,16 @@ nmfMainWindow::callback_RunCompleted(std::string output)
 
     m_RunOutputMsg = msg;
 
-    menu_saveAndShowCurrentRun();
+    menu_saveAndShowCurrentRun(showDiagnosticChart);
     if (isMohnsRho()) {
         runNextMohnsRhoEstimation();
     } else {
         callback_UpdateSummaryStatistics();
     }
+
+    m_ProgressWidget->showLegend();
+
+    Estimation_Tab1_ptr->checkIfRunFromModifySlider();
 }
 
 std::string
@@ -7482,11 +7494,28 @@ nmfMainWindow::callback_ShowRunMessage(QString fontName)
 }
 
 void
+nmfMainWindow::callback_StoreOutputSpecies()
+{
+    QString species = Output_Controls_ptr->getOutputSpecies();
+    Estimation_Tab1_ptr->setOutputSpecies(species);
+}
+
+void
 nmfMainWindow::callback_SubRunCompleted(int RunNum,
                                         int SubRunNum,
                                         int NumSubRuns)
 {
     m_ProgressWidget->setRunBoxes(RunNum,SubRunNum,NumSubRuns);
+}
+
+void
+nmfMainWindow::callback_ErrorFound(std::string errorMsg)
+{
+    QMessageBox::critical(this, "Error",
+                          QString::fromStdString(errorMsg),
+                          QMessageBox::Ok);
+    QApplication::restoreOverrideCursor();
+
 }
 
 void
@@ -7505,9 +7534,9 @@ nmfMainWindow::callback_RunDiagnosticEstimation(
     // First run the Mohns Rho
     if (! getModelFormData(GrowthForm,HarvestForm,CompetitionForm,PredationForm,RunLength,InitialYear))
         return;
-    if (HarvestForm == "QE") {
+    if (HarvestForm == "Effort (qE)") {
         HarvestTable = "Effort";
-    } else if (HarvestForm == "F") {
+    } else if (HarvestForm == "Exploitation (F)") {
         HarvestTable = "Exploitation";
     }
 
@@ -7552,9 +7581,9 @@ nmfMainWindow::runNextMohnsRhoEstimation()
 
     if (! getModelFormData(GrowthForm,HarvestForm,CompetitionForm,PredationForm,RunLength,InitialYear))
         return;
-    if (HarvestForm == "QE") {
+    if (HarvestForm == "Effort (qE)") {
         HarvestTable = "Effort";
-    } else if (HarvestForm == "F") {
+    } else if (HarvestForm == "Exploitation (F)") {
         HarvestTable = "Exploitation";
     }
 
@@ -7571,7 +7600,7 @@ nmfMainWindow::runNextMohnsRhoEstimation()
         MohnsRhoRunLength  = lastYear - firstYear;
         MohnsRhoSystemName = OriginalSystemName+"__"+MohnsRhoLabel;
 
-        m_Logger->logMsg(nmfConstantsMSSPM::Normal,"Start MohnsRhoAnalysis: " + MohnsRhoLabel.toStdString());
+        m_Logger->logMsg(nmfConstants::Normal,"Start MohnsRhoAnalysis: " + MohnsRhoLabel.toStdString());
 
         Setup_Tab4_ptr->setStartYear(MohnsRhoStartYear);
         Setup_Tab4_ptr->setRunLength(MohnsRhoRunLength);
@@ -7589,7 +7618,7 @@ nmfMainWindow::runNextMohnsRhoEstimation()
         ok = modifyTable(HarvestTable,OriginalSystemName,MohnsRhoLabel,
                          MohnsRhoStartYear,MohnsRhoRunLength,InitialYear);
         if (! ok) {
-            m_Logger->logMsg(nmfConstantsMSSPM::Warning,"runNextMohnsRhoEstimation: modifyTable returned false for HarvestTable");
+            m_Logger->logMsg(nmfConstants::Warning,"runNextMohnsRhoEstimation: modifyTable returned false for HarvestTable");
         }
         Estimation_Tab2_ptr->loadWidgets(MohnsRhoLabel);
 
@@ -7597,18 +7626,18 @@ nmfMainWindow::runNextMohnsRhoEstimation()
         ok = modifyTable(ObservedBiomassTable,OriginalSystemName,MohnsRhoLabel,
                          MohnsRhoStartYear,MohnsRhoRunLength,InitialYear);
         if (! ok) {
-            m_Logger->logMsg(nmfConstantsMSSPM::Warning,"runNextMohnsRhoEstimation: modifyTable returned false for ObservedBiomassTable");
+            m_Logger->logMsg(nmfConstants::Warning,"runNextMohnsRhoEstimation: modifyTable returned false for ObservedBiomassTable");
         }
         Estimation_Tab5_ptr->loadWidgets(MohnsRhoLabel);
 
         // 4. Run the Mohn's Rho system
         m_MohnsRhoLabel = MohnsRhoLabel.toStdString();
 
-        callback_RunEstimation();
+        callback_RunEstimation(nmfConstantsMSSPM::DontShowDiagnosticsChart);
     }
 
     this->setCursor(Qt::ArrowCursor);
-    m_Logger->logMsg(nmfConstantsMSSPM::Normal,"End MohnsRhoAnalysis: " + MohnsRhoLabel.toStdString());
+    m_Logger->logMsg(nmfConstants::Normal,"End MohnsRhoAnalysis: " + MohnsRhoLabel.toStdString());
 
     // This means that the MohnsRho analysis has completed and there are no more ranges to process.
     if (MohnsRhoLabel.isEmpty()) {
@@ -7661,8 +7690,10 @@ nmfMainWindow::calculateSummaryStatisticsMohnsRhoBiomass(
 {
     int NumPeels = Diagnostic_Tab2_ptr->getNumPeels();
     int RunLength;
-    if (! m_DatabasePtr->getRunLength(m_Logger,m_ProjectSettingsConfig,RunLength))
+    int StartYear;
+    if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear)) {
         return false;
+    }
     int FirstPeelMinYear = Diagnostic_Tab2_ptr->getStartYearLE();
     int FirstPeelMaxYear = FirstPeelMinYear + RunLength;
     int NumRecords;
@@ -7737,7 +7768,8 @@ nmfMainWindow::calculateSummaryStatisticsMohnsRhoBiomass(
     }
 
     std::vector<double> mohnsRhoValue;
-    nmfUtilsStatistics::calculateMohnsRhoForTimeSeries(NumPeels,NumSpecies,EstBiomass,mohnsRhoValue);
+    nmfUtilsStatistics::calculateMohnsRhoForTimeSeries(
+                NumPeels,NumSpecies,EstBiomass,mohnsRhoValue);
 
     // Display values
     for (unsigned p=0; p<mohnsRhoValue.size(); ++p) {
@@ -7971,7 +8003,7 @@ nmfMainWindow::loadGradientParameters(Gradient_Struct &gradientStruct)
     gradientStruct.MaxLineSearches     = std::stoi(dataMap["GradMaxLineSearches"][0]);
 
     if (gradientStruct.GrowthForm == "Null") {
-        msg = "\nPlease enter a non-null growth form.\n",
+        msg = "\nPlease enter a non-null growth form.\n";
                 QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
         return false;
     }
@@ -8210,7 +8242,7 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
     dataStruct.HandlingMax.clear();
     dataStruct.ExponentMin.clear();
     dataStruct.ExponentMax.clear();
-    dataStruct.OutputBiomass.clear();
+//  dataStruct.OutputBiomass.clear();
     dataStruct.Minimizer.clear();
     dataStruct.ObjectiveCriterion.clear();
     dataStruct.Scaling.clear();
@@ -8265,7 +8297,7 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
     predationForm   = dataStruct.PredationForm;
 
     if (growthForm == "Null") {
-        msg = "\nPlease enter a non-null growth form.\n",
+        msg = "\nPlease enter a non-null growth form.\n";
         QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
         return false;
     }
@@ -8456,7 +8488,7 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
     } else if (growthForm == "Logistic") {
         dataStruct.TotalNumberParameters = 2*NumSpecies;
     }
-    if (harvestForm == "QE") {
+    if (harvestForm == "Effort (qE)") {
         dataStruct.TotalNumberParameters += NumSpecies;
     }
     if (predationForm != "Null") {
@@ -8489,13 +8521,13 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
         if (verbose) {
             m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Catch");
         }
-    } else if (harvestForm == "QE") {
+    } else if (harvestForm == "Effort (qE)") {
         if (! getTimeSeriesData(m_MohnsRhoLabel,"","Effort",NumSpecies,RunLength,dataStruct.Effort))
             return false;
         if (verbose) {
             m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Effort");
         }
-    } else if (harvestForm == "F") {
+    } else if (harvestForm == "Exploitation (F)") {
         if (! getTimeSeriesData(m_MohnsRhoLabel,"","Exploitation",NumSpecies,RunLength,dataStruct.Exploitation))
             return false;
         if (verbose) {
@@ -9111,7 +9143,14 @@ nmfMainWindow::loadModelParamObj(ModelFormParameters* ptr)
 */
 
 void
-nmfMainWindow::callback_UpdateWindowTitle()
+nmfMainWindow::callback_ProjectSaved()
+{
+    updateWindowTitle();
+    enableApplicationFeatures(true);
+}
+
+void
+nmfMainWindow::updateWindowTitle()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
@@ -9139,35 +9178,35 @@ nmfMainWindow::initializeNavigatorTree()
     QTreeWidgetItem *item;
 
     NavigatorTree->clear();
-    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Setup","");
-    nmfUtilsQt::addTreeItem(item, "1. Getting Started",        "");
-    nmfUtilsQt::addTreeItem(item, "2. Project Setup",          "");
-    nmfUtilsQt::addTreeItem(item, "3. Species Setup",          "");
-    nmfUtilsQt::addTreeItem(item, "4. Model Setup",            "");
+    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Setup");
+    nmfUtilsQt::addTreeItem(item, "1. Getting Started");
+    nmfUtilsQt::addTreeItem(item, "2. Project Setup");
+    nmfUtilsQt::addTreeItem(item, "3. Species Setup");
+    nmfUtilsQt::addTreeItem(item, "4. Model Setup");
     item->setExpanded(true);
 
     // Create Estimation navigator group
-    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Estimation Data Input",    "");
-    nmfUtilsQt::addTreeItem(item, "1. Population Parameters",  "");
-    nmfUtilsQt::addTreeItem(item, "2. Harvest Parameters",     "");
-    nmfUtilsQt::addTreeItem(item, "3. Competition Parameters", "");
-    nmfUtilsQt::addTreeItem(item, "4. Predation Parameters",   "");
-    nmfUtilsQt::addTreeItem(item, "5. Observation Data",       "");
-    nmfUtilsQt::addTreeItem(item, "6. Run Estimation",         "");
+    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Estimation Data Input");
+    nmfUtilsQt::addTreeItem(item, "1. Population Parameters");
+    nmfUtilsQt::addTreeItem(item, "2. Harvest Parameters");
+    nmfUtilsQt::addTreeItem(item, "3. Competition Parameters");
+    nmfUtilsQt::addTreeItem(item, "4. Predation Parameters");
+    nmfUtilsQt::addTreeItem(item, "5. Observation Data");
+    nmfUtilsQt::addTreeItem(item, "6. Run Estimation");
     item->setExpanded(true);
 
     // Create Diagnostic navigator group
-    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Diagnostic Data Input",    "");
-    nmfUtilsQt::addTreeItem(item, "1. Parameter Profiles",     "");
-    nmfUtilsQt::addTreeItem(item, "2. Retrospective Analysis", "");
+    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Diagnostic Data Input");
+    nmfUtilsQt::addTreeItem(item, "1. Parameter Profiles");
+    nmfUtilsQt::addTreeItem(item, "2. Retrospective Analysis");
     item->setExpanded(true);
 
     // Create Simulation navigator group
-    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Forecast",                 "");
-    nmfUtilsQt::addTreeItem(item, "1. Setup",                  "");
-    nmfUtilsQt::addTreeItem(item, "2. Harvest Parameters",     "");
-    nmfUtilsQt::addTreeItem(item, "3. Uncertainty Parameters", "");
-    nmfUtilsQt::addTreeItem(item, "4. Run Forecast",           "");
+    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Forecast");
+    nmfUtilsQt::addTreeItem(item, "1. Setup");
+    nmfUtilsQt::addTreeItem(item, "2. Harvest Parameters");
+    nmfUtilsQt::addTreeItem(item, "3. Uncertainty Parameters");
+    nmfUtilsQt::addTreeItem(item, "4. Run Forecast");
     item->setExpanded(true);
 }
 
@@ -9222,7 +9261,7 @@ nmfMainWindow::setup3dChart()
         return;
     }
     m_Graph3D = new Q3DSurface();
-
+std::cout << "shadow quality: " << m_Graph3D->shadowQuality() << std::endl;
     Q3DTheme *myTheme;
     myTheme = m_Graph3D->activeTheme();
     myTheme->setLabelBorderEnabled(false);
@@ -9244,6 +9283,41 @@ nmfMainWindow::setup3dChart()
 }
 
 bool
+nmfMainWindow::selectMinimumSurfacePoint()
+{
+    if (m_Graph3D != nullptr) {
+
+        QString xLabel = "Carrying Capacity (K) Percent Deviation";
+        QString yLabel = "Fitness";
+        QString zLabel = "Growth Rate (r) Percent Deviation";
+        QString xLabelFormat = "%d";
+        QString zLabelFormat = "%d";
+
+        boost::numeric::ublas::matrix<double> rowValues;
+        boost::numeric::ublas::matrix<double> columnValues;
+        boost::numeric::ublas::matrix<double> heightValues;
+
+        int yMax = Output_Controls_ptr->getYMaxSliderVal();
+        getSurfaceData(rowValues,columnValues,heightValues,yMax);
+        nmfChartSurface surface(m_Graph3D,xLabel,yLabel,zLabel,
+                                xLabelFormat,zLabelFormat,
+                                rowValues,columnValues,heightValues,
+                                Output_Controls_ptr->isShadowShown());
+        surface.selectMinimumPoint();
+
+    }
+
+    return true;
+}
+
+bool
+nmfMainWindow::callback_ShowDiagnostics()
+{
+    callback_ShowDiagnosticsChart3d();
+    Output_Controls_ptr->setOutputParametersCB(nmfConstants::Checked);
+}
+
+bool
 nmfMainWindow::callback_ShowDiagnosticsChart3d()
 {
     if (m_Graph3D != nullptr) {
@@ -9251,17 +9325,19 @@ nmfMainWindow::callback_ShowDiagnosticsChart3d()
         QString xLabel = "Carrying Capacity (K) Percent Deviation";
         QString yLabel = "Fitness";
         QString zLabel = "Growth Rate (r) Percent Deviation";
-        QString xLabelFormat = "Age %d";
+        QString xLabelFormat = "%d";
         QString zLabelFormat = "%d";
 
         boost::numeric::ublas::matrix<double> rowValues;
         boost::numeric::ublas::matrix<double> columnValues;
         boost::numeric::ublas::matrix<double> heightValues;
 
-        getSurfaceData(rowValues,columnValues,heightValues);
+        int yMax = Output_Controls_ptr->getYMaxSliderVal();
+        getSurfaceData(rowValues,columnValues,heightValues,yMax);
         nmfChartSurface surface(m_Graph3D,xLabel,yLabel,zLabel,
                                 xLabelFormat,zLabelFormat,
-                                rowValues,columnValues,heightValues);
+                                rowValues,columnValues,heightValues,
+                                Output_Controls_ptr->isShadowShown());
         surface.selectCenterPoint();
 
     }
@@ -9273,7 +9349,8 @@ void
 nmfMainWindow::getSurfaceData(
         boost::numeric::ublas::matrix<double>& rowValues,
         boost::numeric::ublas::matrix<double>& columnValues,
-        boost::numeric::ublas::matrix<double>& heightValues)
+        boost::numeric::ublas::matrix<double>& heightValues,
+        const int& yMax)
 {
     int m=0;
     int NumRecords;
@@ -9291,6 +9368,7 @@ nmfMainWindow::getSurfaceData(
     std::string CompetitionForm;
     std::string isAggProdStr;
     std::string currentSpecies = Output_Controls_ptr->getOutputSpecies().toStdString();
+
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     QStringList TableNames = {"DiagnosticGRandCC"};
@@ -9319,6 +9397,7 @@ nmfMainWindow::getSurfaceData(
         msg += " expecting " + std::to_string(nrows*ncols);
         m_Logger->logMsg(nmfConstants::Error,msg);
         m_Logger->logMsg(nmfConstants::Error,queryStr);
+        return;
     }
 
     rowValues.resize(nrows,ncols);
@@ -9329,7 +9408,9 @@ nmfMainWindow::getSurfaceData(
             x = std::stod(dataMap["rPctVariation"][m]);
             y = std::stod(dataMap["Fitness"][m]);
             z = std::stod(dataMap["KPctVariation"][m]);
-            y = (y > 999.0) ? 1 : y;
+            if (yMax > 0) {
+                y = (y > yMax) ? yMax : y;
+            }
             rowValues(row,col)    = x;
             columnValues(row,col) = z;
             heightValues(row,col) = y;
@@ -9348,9 +9429,11 @@ nmfMainWindow::callback_SetChartView2d(bool setTo2d)
     if (setTo2d) {
         m_ChartView3d->hide();
         m_ChartView2d->show();
+        m_UI->MSSPMOutputTV->show();
     } else {
         m_ChartView2d->hide();
         m_ChartView3d->show();
+        m_UI->MSSPMOutputTV->hide();
     }
 }
 
@@ -9416,30 +9499,44 @@ nmfMainWindow::updateProgressChartAnnotation(double xMin, double xMax, double xI
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (Algorithm == "NLopt Algorithm") {
         if (ObjectiveCriterion == "Least Squares") {
-            whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the Sum of the Squares ";
-            whatsThis += "Error (SSE) vs the Number of NLopt Iterations.</p> ";
+            whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the log (base 10) Sum of the Squares ";
+            whatsThis += "Error (SSE) vs the Number of NLopt Objective Function Evaluations.</p> ";
             whatsThis += "The smaller the SSE the better the Parameter fit.</p>";
-            m_ProgressWidget->setYTitle("Sum of Squares (SSE)");
+            m_ProgressWidget->setYTitle("Log(SSE)");
             m_ProgressWidget->setYInc(0.1);
-            m_ProgressWidget->setMainTitle("<b>Sum of Squares (SSE) vs Iterations</b>");
+            m_ProgressWidget->setMainTitle("<b>Log Sum of Squares (SSE) vs Objective Function Evaluations</b>");
+        } else if (ObjectiveCriterion == "Maximum Likelihood") {
+            whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the Maximum Likelihood ";
+            whatsThis += "value vs the Number of NLopt Objective Function Evaluations.</p> ";
+            whatsThis += "The closer the MLE value is to 0 the better the Parameter fit.</p>";
+            m_ProgressWidget->setYTitle("Maximum Likelihood (MLE)");
+            m_ProgressWidget->setYInc(0.1);
+            m_ProgressWidget->setMainTitle("<b>Maximum Likelihood (MLE) vs Objective Function Evaluations</b>");
         } else if (ObjectiveCriterion == "Model Efficiency") {
             whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the Model Efficiency ";
-            whatsThis += "value vs the Number of NLopt Iterations.</p> ";
+            whatsThis += "value vs the Number of NLopt Objective Function Evaluations.</p> ";
             whatsThis += "The closer the MEF value is to 1 the better the Parameter fit.</p>";
             m_ProgressWidget->setYTitle("Model Efficiency (MEF)");
             m_ProgressWidget->setYInc(0.1);
-            m_ProgressWidget->setMainTitle("<b>Model Efficiency (MEF) vs Iterations</b>");
+            m_ProgressWidget->setMainTitle("<b>Model Efficiency (MEF) vs Objective Function Evaluations</b>");
         }
-        m_ProgressWidget->setYRange(0.0,10.0);
-        m_ProgressWidget->setXAxisTitleScale("Iterations",xMin,xMax,xInc);
+        m_ProgressWidget->setYRange(0.0,4.0);
+        m_ProgressWidget->setXAxisTitleScale("Objective Function Evaluations",xMin,xMax,xInc);
     } else if (Algorithm == "Bees Algorithm") {
         if (ObjectiveCriterion == "Least Squares") {
             whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the Sum of the Squares ";
             whatsThis += "Error (SSE) vs the Number of Bee Generations (i.e. Stochastic Cycles).</p> ";
             whatsThis += "The smaller the SSE the better the Parameter fit.</p>";
-            m_ProgressWidget->setYTitle("Sum of Squares (SSE)");
+            m_ProgressWidget->setYTitle("Log(Sum of Squares) (SSE)");
             m_ProgressWidget->setYInc(0.1);
-            m_ProgressWidget->setMainTitle("<b>Sum of Squares (SSE) vs Generation</b>");
+            m_ProgressWidget->setMainTitle("<b>Log(Sum of Squares) (SSE) vs Generation</b>");
+        } else if (ObjectiveCriterion == "Maximum Likelihood") {
+            whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the Maximium Likelihood (MLE) ";
+            whatsThis += "value vs the Number of Bee Generations (i.e. Stochastic Cycles).</p> ";
+            whatsThis += "The closer the MLE value is to 0 the better the Parameter fit.</p>";
+            m_ProgressWidget->setYTitle("Maximum Likelihood (MLE)");
+            m_ProgressWidget->setYInc(0.2);
+            m_ProgressWidget->setMainTitle("<b>Maximum Likelihood (MLE) vs Generation</b>");
         } else if (ObjectiveCriterion == "Model Efficiency") {
             whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the Model Efficiency (MEF) ";
             whatsThis += "value vs the Number of Bee Generations (i.e. Stochastic Cycles).</p> ";
@@ -9481,7 +9578,6 @@ nmfMainWindow::callback_SetupTabChanged(int tab)
 {
     QModelIndex topLevelndex = NavigatorTree->model()->index(0,0); // first 0 is Setup group in NavigatorTree
     QModelIndex childIndex   = topLevelndex.child(tab,0);
-
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
@@ -9492,7 +9588,6 @@ nmfMainWindow::callback_EstimationTabChanged(int tab)
 {
     QModelIndex topLevelndex = NavigatorTree->model()->index(1,0); // 1 is Estimation group in NavigatorTree
     QModelIndex childIndex   = topLevelndex.child(tab,0);
-
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
@@ -9503,7 +9598,6 @@ nmfMainWindow::callback_DiagnosticsTabChanged(int tab)
 {
     QModelIndex topLevelndex = NavigatorTree->model()->index(2,0); // 2 is Diagnostics group in NavigatorTree
     QModelIndex childIndex   = topLevelndex.child(tab,0);
-
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
@@ -9514,7 +9608,6 @@ nmfMainWindow::callback_ForecastTabChanged(int tab)
 {
     QModelIndex topLevelndex = NavigatorTree->model()->index(3,0); // 3 is Forecast group in NavigatorTree
     QModelIndex childIndex   = topLevelndex.child(tab,0);
-
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
@@ -9522,6 +9615,12 @@ nmfMainWindow::callback_ForecastTabChanged(int tab)
 
 void
 nmfMainWindow::callback_YAxisMinValueChanged(int value)
+{
+   callback_ShowChart("","");
+}
+
+void
+nmfMainWindow::callback_YAxisMaxValueChanged(int value)
 {
    callback_ShowChart("","");
 }
@@ -9561,14 +9660,20 @@ nmfMainWindow::callback_SelectCenterSurfacePoint()
 }
 
 void
-nmfMainWindow::callback_NoSystemsSet()
+nmfMainWindow::callback_SelectMinimumSurfacePoint()
 {
-    QString msg = "\nNo Systems set. Please confirm the following:\n\n";
-    msg += "1. In Setup Page 2: Create/Load a Project\n\n";
-    msg += "2. In Setup Page 3: Create Guilds/Species\n\n";
-    msg += "3. In Setup Page 4: Save a Model\n";
-    QMessageBox::warning(this, "Warning", msg, QMessageBox::Ok);
+    selectMinimumSurfacePoint();
 }
+
+//void
+//nmfMainWindow::callback_NoSystemsSet()
+//{
+//    QString msg = "\nNo Systems set. Please confirm the following:\n\n";
+//    msg += "1. In Setup Page 2: Create/Load a Project\n\n";
+//    msg += "2. In Setup Page 3: Create Guilds/Species\n\n";
+//    msg += "3. In Setup Page 4: Save a Model\n";
+//    QMessageBox::warning(this, "Warning", msg, QMessageBox::Ok);
+//}
 
 void
 nmfMainWindow::callback_SetOutputScenarioForecast()
@@ -9594,22 +9699,168 @@ nmfMainWindow::callback_ClearEstimationTables()
     Estimation_Tab5_ptr->clearWidgets();
 }
 
+bool
+nmfMainWindow::areFieldsValid(std::string table,
+                              std::string system,
+                              std::vector<std::string> fields)
+{
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    queryStr = "SELECT ";
+    for (std::string field : fields) {
+        queryStr += field + ",";
+    }
+    queryStr   = queryStr.substr(0,queryStr.size()-1); // strip last comma
+    queryStr  += " FROM " + table + " WHERE SystemName = \"" + system + "\"";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr,fields,nmfConstantsMSSPM::ShowBlankFields);
+
+    return checkFields(table,dataMap,fields);
+}
+
+
+bool
+nmfMainWindow::areFieldsValid(std::string table,
+                              std::vector<std::string> fields)
+{
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    queryStr = "SELECT ";
+    for (std::string field : fields) {
+        queryStr += field + ",";
+    }
+    queryStr   = queryStr.substr(0,queryStr.size()-1); // strip last comma
+    queryStr  += " FROM " + table;
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr,fields,nmfConstantsMSSPM::ShowBlankFields);
+
+    return checkFields(table,dataMap,fields);
+}
+
+bool
+nmfMainWindow::checkFields(std::string& table,
+                           std::map<std::string, std::vector<std::string> >& dataMap,
+                           std::vector<std::string>& fields)
+{
+    std::string msg;
+    QString value;
+    bool ok;
+
+    // Ensure there are no empty fields
+    for (std::string field : fields) {
+        if (dataMap[field].size() == 0) {
+            return false;
+        }
+        for (unsigned int i=0; i<dataMap[field].size(); ++i) {
+            value = QString::fromStdString(dataMap[field][i]);
+            msg = "Error in table: " + table +
+                    ", " + field + " = " + value.toStdString();
+            if (value.isEmpty() || value.contains(',')) {
+                m_Logger->logMsg(nmfConstants::Error,msg);
+                return false;
+            }
+            if (value.toDouble(&ok)) {
+                if (! ok) {
+                    m_Logger->logMsg(nmfConstants::Error,msg);
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+
+
+std::pair<bool,QString>
+nmfMainWindow::dataAdequateForCurrentModel(QStringList estParamNames)
+{
+    std::string msg;
+
+    // Log parameter names
+    for (unsigned int i=0; i<estParamNames.size(); ++i) {
+        msg = "Checking valid ranges for parameter: " + estParamNames[i].toStdString();
+        m_Logger->logMsg(nmfConstants::Normal,msg);
+    }
+
+    if (estParamNames.contains("Growth Rate")) {
+        // Check Species for valid r, r min, and r max values
+        if (! areFieldsValid("Species",{"SpeName","GrowthRate","GrowthRateMin","GrowthRateMax"})) {
+            return std::make_pair(false,"");
+        }
+    }
+    if (estParamNames.contains("Carrying Capacity")) {
+        // Check Species for valid K, K min, and K max values
+        if (! areFieldsValid("Species",{"SpeName","SpeciesK","SpeciesKMin","SpeciesKMax"})) {
+            return std::make_pair(false,"");
+        }
+    }
+    if (estParamNames.contains("Catchability")) {
+        // Check Species for valid q, q min, and q max values
+        if (! areFieldsValid("Species",{"SpeName","Catchability","CatchabilityMin","CatchabilityMax"})) {
+            return std::make_pair(false,"");
+        }
+    }
+
+    QStringList paramNames = {"Alpha","BetaSpecies","Predation Effect","Handling Time"};
+    QStringList tableNames = {"CompetitionAlphaMin","CompetitionAlphaMax",
+                              "CompetitionBetaSpeciesMin","CompetitionBetaSpeciesMax",
+                              "PredationLossRatesMin","PredationLossRatesMax",
+                              "HandlingTimeMin","HandlingTimeMax"};
+    for (unsigned int i=0; i<paramNames.size(); ++i) {
+        // Cycle through min/max tables
+        if (estParamNames.contains(paramNames[i])) {
+            for (int j=0; j<2; ++j) {
+                if (! areFieldsValid(tableNames[2*i+j].toStdString(),
+                                     m_ProjectSettingsConfig,
+                                     {"SpeciesA","SpeciesB","Value"}))
+                {
+                    return std::make_pair(false,tableNames[2*i+j]);
+                }
+            }
+        }
+
+    }
+
+    paramNames.clear();
+    tableNames.clear();
+    paramNames << "BetaGuilds" << "Predation Exponent";
+    tableNames << "CompetitionBetaGuildsMin" << "CompetitionBetaGuildsMax"
+               << "PredationLossRatesMin"    << "PredationLossRatesMax";
+    for (unsigned int i=0; i<paramNames.size(); ++i) {
+        // Cycle through min/max tables
+        if (estParamNames.contains(paramNames[i])) {
+            for (int j=0; j<2; ++j) {
+                if (! areFieldsValid(tableNames[2*i+j].toStdString(),
+                                     m_ProjectSettingsConfig,
+                                     {"SpeName","Value"}))
+                {
+                    return std::make_pair(false,tableNames[2*i+j]);
+                }
+            }
+        }
+    }
+
+    return std::make_pair(true,"");
+}
+
 void
 nmfMainWindow::callback_CheckEstimationTablesAndRun()
 {
     QString msg;
-    if ((Estimation_Tab2_ptr->areTablesOK()) &&
-//      (Estimation_Tab3_ptr->areTablesOK()) &&
-//      (Estimation_Tab4_ptr->areTablesOK()) &&
-        (Estimation_Tab5_ptr->areTablesOK()))
-    {
-        callback_RunEstimation();
+    QStringList estParamNames = Setup_Tab4_ptr->getEstimatedParameterNames();
+    std::pair<bool,QString> dataCheck = dataAdequateForCurrentModel(estParamNames);
+
+    if (dataCheck.first) {
+        callback_RunEstimation(nmfConstantsMSSPM::DontShowDiagnosticsChart);
     } else {
-        msg = "Invalid or missing data found in input Estimation tables. Please re-check all input tables.";
+        msg  = "Invalid or missing data found in input Estimation table: " + dataCheck.second;
+        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+        msg  = "Invalid or missing data found in input Estimation table:\n\n" + dataCheck.second;
+        msg += "\n\nPlease check this and all input tables for complete data.";
         QMessageBox::critical(this, "Error",
                               "\n"+msg+"\n", QMessageBox::Ok);
-        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
-
+        this->setCursor(Qt::ArrowCursor);
     }
 }
 
@@ -9664,13 +9915,13 @@ nmfMainWindow::updateModelEquationSummary()
 
     std::map<QString,QString> harvestMap;
     harvestMap["Null"]  = "";
-    harvestMap["F"]     = " - " +  Fit  + Bit;
-    harvestMap["QE"]    = " - " + qiEit + Bit;
+    harvestMap["Exploitation (F)"] = " - " +  Fit  + Bit;
+    harvestMap["Effort (qE)"]      = " - " + qiEit + Bit;
     harvestMap["Catch"] = " - " + Cit;
     std::map<QString,QString> harvestKey;
     harvestKey["Null"]  = "";
-    harvestKey["F"]     = "F = Exploitation Rate<br/>";
-    harvestKey["QE"]    = "q = Catchability<br/>E = Effort<br/>";
+    harvestKey["Exploitation (F)"] = "F = Exploitation Rate<br/>";
+    harvestKey["Effort (qE)"] = "q = Catchability<br/>E = Effort<br/>";
     harvestKey["Catch"] = "C = Catch<br/>";
 
     std::map<QString,QString> competitionMap;
@@ -9780,3 +10031,4 @@ nmfMainWindow::updateModelEquationSummary()
     }
     Setup_Tab4_ptr->drawEquation(ModelType,Equation,Key);
 }
+
