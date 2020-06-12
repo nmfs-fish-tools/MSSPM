@@ -386,7 +386,7 @@ NLopt_Estimator::incrementObjectiveFunctionCounter(std::string MSSPMName,
 
     // Update progress output file
     // RSK - comment out for now, some algorithms yield 0 evals while they're calculating
-    m_NLoptFcnEvals = m_Optimizer.get_numevals();
+//    m_NLoptFcnEvals = m_Optimizer.get_numevals();
 
     ++m_NumObjFcnCalls;
 //std::cout << "x,y: " << m_NumObjFcnCalls << "," << fitness << std::endl;

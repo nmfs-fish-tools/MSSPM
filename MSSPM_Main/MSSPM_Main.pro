@@ -161,5 +161,3 @@ else:unix: LIBS += -L$$PWD/../../build-MSSPM_GuiOutput-Qt_5_12_3_gcc64-Release/ 
 
 INCLUDEPATH += $$PWD/../MSSPM_GuiOutput
 DEPENDPATH += $$PWD/../MSSPM_GuiOutput
-
-
