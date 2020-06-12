@@ -267,10 +267,7 @@ signals:
      * @brief Signal emitted when the user needs to reload the current widgets
      */
     void ReloadWidgets();
-    /**
-     * @brief Signal emitted after the user loads an existing System from the database
-     */
-    void SystemLoaded();
+
     /**
      * @brief Signal emitted when the user needs to save the Estimation Run settings
      */
@@ -279,6 +276,14 @@ signals:
      * @brief Signal emitted when the user needs to save the Main Application settings
      */
     void SaveMainSettings();
+    /**
+     * @brief Signal emitted after the user loads an existing System from the database
+     */
+    void SystemLoaded();
+    /**
+     * @brief Signal emitted after used saves a new system
+     */
+    void SystemSaved();
     /**
      * @brief Signal emitted to update the initial Forecast year
      */

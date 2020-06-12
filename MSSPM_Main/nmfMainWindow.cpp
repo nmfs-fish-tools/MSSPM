@@ -135,7 +135,8 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
 
     if (! m_LoadLastProject) {
         Setup_Tab2_ptr->clearProject();
-        enableApplicationFeatures(false);
+        enableApplicationFeatures("SetupGroup",false);
+        enableApplicationFeatures("AllOtherGroups",false);
     }
 
 
@@ -150,6 +151,11 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     readSettings("ProgressDockWidgetIsVisible");
 
     callback_SystemLoaded();
+
+
+//    enableApplicationFeatures("SetupGroup",false);
+//    enableApplicationFeatures("AllOtherGroups",false);
+
 
 
 }
@@ -199,31 +205,34 @@ nmfMainWindow::initializePreferencesDlg()
 
 
 void
-nmfMainWindow::enableApplicationFeatures(bool enable)
+nmfMainWindow::enableApplicationFeatures(std::string navigatorGroup,
+                                         bool enable)
 {
     QTreeWidgetItem* item;
 
     // Adjust some items in the Setup group
-    item = NavigatorTree->topLevelItem(0);
-    if (enable) {
-        for (int j=2; j<item->childCount(); ++j) {
-            item->child(j)->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
-            Setup_Tab2_ptr->enableSetupTabs(true);
+    if (navigatorGroup == "SetupGroup") {
+        item = NavigatorTree->topLevelItem(0);
+        if (enable) {
+            for (int j=2; j<item->childCount(); ++j) {
+                item->child(j)->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+                Setup_Tab2_ptr->enableSetupTabs(true);
+            }
+        } else {
+            for (int j=2; j<item->childCount(); ++j) {
+                item->child(j)->setFlags(Qt::NoItemFlags);
+                Setup_Tab2_ptr->enableSetupTabs(false);
+            }
         }
     } else {
-        for (int j=2; j<item->childCount(); ++j) {
-            item->child(j)->setFlags(Qt::NoItemFlags);
-            Setup_Tab2_ptr->enableSetupTabs(false);
-        }
-    }
-
-    // Adjust other Navigation groups
-    for (int i=1; i<NavigatorTree->topLevelItemCount(); ++i) {
-        item = NavigatorTree->topLevelItem(i);
-        if (enable) {
-            item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
-        } else {
-            item->setFlags(Qt::NoItemFlags);
+        // Adjust other Navigation groups
+        for (int i=1; i<NavigatorTree->topLevelItemCount(); ++i) {
+            item = NavigatorTree->topLevelItem(i);
+            if (enable) {
+                item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+            } else {
+                item->setFlags(Qt::NoItemFlags);
+            }
         }
     }
 }
@@ -2207,6 +2216,12 @@ nmfMainWindow::loadDatabase()
 }
 
 void
+nmfMainWindow::callback_SaveSystem()
+{
+    enableApplicationFeatures("AllOtherGroups",true);
+}
+
+void
 nmfMainWindow::callback_ReloadWidgets()
 {
     loadGuis();
@@ -2221,7 +2236,8 @@ std::cout << "Loading GUIs..." << std::endl;
 
         // RSK - Bug here....this causes loadGuis to get called an extra time!
         if (! Setup_Tab2_ptr->loadProject(m_Logger,filename)) {
-            enableApplicationFeatures(false);
+            enableApplicationFeatures("SetupGroup",false);
+            enableApplicationFeatures("AllOtherGroups",false);
         }
     }
     Setup_Tab2_ptr->loadWidgets();
@@ -2413,6 +2429,8 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_ReloadWidgets()));
     connect(Setup_Tab4_ptr,      SIGNAL(SaveEstimationRunSettings()),
             Estimation_Tab6_ptr, SLOT(callback_SaveSettings()));
+    connect(Setup_Tab4_ptr,      SIGNAL(SaveSystem()),
+            this,                SLOT(callback_SaveSystem()));
     connect(Setup_Tab4_ptr,      SIGNAL(UpdateInitialObservedBiomass()),
             Estimation_Tab5_ptr, SLOT(callback_UpdateInitialObservedBiomass()));
     connect(Setup_Tab4_ptr,      SIGNAL(UpdateInitialForecastYear()),
@@ -5023,6 +5041,7 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
                                  ForecastBiomassMonteCarlo)) {
             return false;
         }
+
         ColumnLabelsForLegend.clear();
         ColumnLabelsForLegend << "";
         showForecastBiomassVsTime("Estimated Biomass",StartForecastYear,
@@ -5815,14 +5834,8 @@ nmfMainWindow::showForecastBiomassVsTime(
     XLabel    = "Year";
     YLabel    = label + " (" + ScaleStr.toStdString() + "metric tons)";
 
-//    LineColors.push_back(QColor(  0,114,178)); // blue
-//    LineColors.push_back(QColor(245,130, 49)); // orange
-//    LineColors.push_back(QColor(128,  0,  0)); // maroon
-//    LineColors.push_back(QColor( 86,180,233)); // sky blue
-//    LineColors.push_back(QColor(230,230,230)); // gray
-//    LineColors.push_back(QColor(  0,  0,  0)); // black
-
     NumColors = nmfConstants::LineColors.size();
+    LineColors.append(QColor(nmfConstants::LineColors[0].c_str()));
 
     if (clearChart) {
         m_ChartWidget->removeAllSeries();
@@ -5850,11 +5863,9 @@ nmfMainWindow::showForecastBiomassVsTime(
     // desired chart type.
     if (isMonteCarloSimulation) {
         brightnessFactor /= 3.0;
-        for (int i=0; i<NumColors; ++i) {
-            LineColors[i] = QColor(255-brightnessFactor*255,
-                                   255-brightnessFactor*255,
-                                   255-brightnessFactor*255);   // LineColors[5];
-        }
+        LineColors[0] = QColor(255-brightnessFactor*255,
+                               255-brightnessFactor*255,
+                               255-brightnessFactor*255);
     }
 
     if (m_ChartWidget != nullptr) {
@@ -5875,7 +5886,7 @@ nmfMainWindow::showForecastBiomassVsTime(
                                  GridLines,
                                  Theme,
                                  LineColors[0],
-                                 "",
+                                 "MonteCarloSimulation",
                                  1.0);
     }
 
@@ -7151,7 +7162,10 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     // Turn off wait cursor
     m_UI->ForecastDataInputTabWidget->setCursor(Qt::ArrowCursor);
 
+    // Assure Chart type is Forecast but don't change to a different species.
+    int currOutputSpecies = Output_Controls_ptr->getOutputSpeciesIndex();
     Output_Controls_ptr->setOutputType("Forecast");
+    Output_Controls_ptr->setOutputSpeciesIndex(currOutputSpecies);
 
 } // end callback_RunForecast
 
@@ -9146,7 +9160,7 @@ void
 nmfMainWindow::callback_ProjectSaved()
 {
     updateWindowTitle();
-    enableApplicationFeatures(true);
+    enableApplicationFeatures("SetupGroup",true);
 }
 
 void
@@ -9860,7 +9874,7 @@ nmfMainWindow::callback_CheckEstimationTablesAndRun()
         msg += "\n\nPlease check this and all input tables for complete data.";
         QMessageBox::critical(this, "Error",
                               "\n"+msg+"\n", QMessageBox::Ok);
-        this->setCursor(Qt::ArrowCursor);
+        QApplication::restoreOverrideCursor();
     }
 }
 

@@ -631,6 +631,7 @@ nmfSetup_Tab4::saveSystem(bool RunChecks)
         m_ProjectSettingsConfig = SystemName;
         saveSettingsConfiguration(RunChecks,SystemName);
         readSettings();
+        emit SystemSaved();
     }
 
     emit UpdateInitialObservedBiomass();

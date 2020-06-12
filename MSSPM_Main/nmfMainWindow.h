@@ -327,7 +327,8 @@ private:
      * @brief Forces user to input and save project data.  Until they do so, application
      * functionality is disabled (i.e., grayed out).
      */
-    void enableApplicationFeatures(bool enable);
+    void enableApplicationFeatures(std::string navigatorGroup,
+                                   bool enable);
     QTableView* findTableInFocus();
     void getAlgorithmIdentifiers(std::string& algorithm,
                                  std::string& minimizer,
@@ -875,6 +876,10 @@ public slots:
      * @brief Callback invoked when user wants to save the Qt Settings for the Main application page
      */
     void callback_SaveMainSettings();
+    /**
+     * @brief Callback invoked when user saves a new system
+     */
+    void callback_SaveSystem();
     /**
      * @brief Callback invoked when user changes the type of Output chart desired
      * @param type : type of Output chart to view
