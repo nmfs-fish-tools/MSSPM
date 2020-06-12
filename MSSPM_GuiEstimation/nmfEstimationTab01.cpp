@@ -1116,11 +1116,16 @@ nmfEstimation_Tab1::setupHelpSpecies()
 bool
 nmfEstimation_Tab1::loadWidgets()
 {
-    loadSpecies();
-    loadGuilds();
+    bool okSpecies = loadSpecies();
+    bool okGuilds  = loadGuilds();
+
     resetVisibleColumns();
-    setupHelpSpecies();
-    setupHelpGuilds();
+    if (okSpecies) {
+        setupHelpSpecies();
+    }
+    if (okGuilds) {
+        setupHelpGuilds();
+    }
 }
 
 bool
@@ -1172,7 +1177,7 @@ nmfEstimation_Tab1::loadGuilds()
     callback_GuildSuppCB(false);
     callback_GuildRangeCB(false);
 
-    return true;
+    return (NumGuilds > 0);
 }
 
 // Load all Species as you'll be hiding some
@@ -1236,7 +1241,7 @@ nmfEstimation_Tab1::loadSpecies()
     callback_SpeciesSuppCB(false);
     callback_SpeciesRangeCB(false);
 
-    return true;
+    return (NumSpecies > 0);
 }
 
 void

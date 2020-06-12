@@ -92,6 +92,7 @@
 #include <QImage>
 #include <QOpenGLWidget>
 #include <QPixmap>
+#include <QUiLoader>
 
 //class Gradient_Estimator;
 
