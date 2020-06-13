@@ -5,6 +5,7 @@ var NAVTREE =
       [ "Description", "index.html#Description", null ],
       [ "License", "index.html#License", null ]
     ] ],
+    [ "LICENSE", "md_LICENSE.html", null ],
     [ "README", "md_README.html", null ],
     [ "User Manual (tbd)", "User_Manual.html", null ],
     [ "Classes", "annotated.html", [
@@ -31,7 +32,7 @@ var NAVTREEINDEX =
 [
 "User_Manual.html",
 "classnmf_estimation___tab2.html#a81c4d112cfb52709ba46a2c287ea426e",
-"classnmf_setup___tab2.html#a540308d27b874635817ff1ff7c91cd54"
+"classnmf_setup___tab2.html#a47069ef51f0cbdfd40bdf931bc5efe8c"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

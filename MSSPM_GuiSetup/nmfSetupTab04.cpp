@@ -122,6 +122,11 @@ nmfSetup_Tab4::~nmfSetup_Tab4()
 {
 }
 
+QString
+nmfSetup_Tab4::getSystemFile()
+{
+    return Setup_Tab4_SystemNameLE->text();
+}
 
 void
 nmfSetup_Tab4::setStartYear(int StartYear)
@@ -508,6 +513,7 @@ nmfSetup_Tab4::callback_DelPB()
         deleteSystem(currentSystemName);
         QMessageBox::information(Setup_Tabs, "Settings Configuration",
                                  "\nSuccessfully deleted Settings configuration.\n");
+        emit SystemDeleted();
     }
 }
 

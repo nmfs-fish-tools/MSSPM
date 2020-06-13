@@ -152,12 +152,10 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
 
     callback_SystemLoaded();
 
-
-//    enableApplicationFeatures("SetupGroup",false);
-//    enableApplicationFeatures("AllOtherGroups",false);
-
-
-
+    // Enable rest of Navigator tree only if user has
+    // created and loaded a System file
+    enableApplicationFeatures("AllOtherGroups",
+        !Setup_Tab4_ptr->getSystemFile().isEmpty());
 }
 
 
@@ -210,6 +208,8 @@ nmfMainWindow::enableApplicationFeatures(std::string navigatorGroup,
 {
     QTreeWidgetItem* item;
 
+    this->setCursor(Qt::WaitCursor);
+
     // Adjust some items in the Setup group
     if (navigatorGroup == "SetupGroup") {
         item = NavigatorTree->topLevelItem(0);
@@ -235,6 +235,9 @@ nmfMainWindow::enableApplicationFeatures(std::string navigatorGroup,
             }
         }
     }
+
+    this->setCursor(Qt::ArrowCursor);
+
 }
 
 void
@@ -1548,7 +1551,7 @@ nmfMainWindow::menu_screenShot()
     // before the next one starts.
     QApplication::sync();
 
-    m_UI->MSSPMOutputTabWidget->setCurrentIndex(nmfUtilsQt::getTabIndex(m_UI->MSSPMOutputTabWidget,"Chart"));
+    setCurrentOutputTab("Chart");
 
     if (m_ChartView2d->isVisible() || m_ChartView3d->isVisible())
     {
@@ -1714,7 +1717,7 @@ nmfMainWindow::saveScreenshot(QString &outputFile, QPixmap &pm)
     {
         // Enable the viewer tab
         m_ViewerWidget->updateScreenShotViewer(outputFile);
-        m_UI->MSSPMOutputTabWidget->setCurrentIndex(nmfUtilsQt::getTabIndex(m_UI->MSSPMOutputTabWidget,"Screen Shot Viewer"));
+        setCurrentOutputTab("Screen Shot Viewer");
     }
 
     m_Logger->logMsg(nmfConstants::Normal,"menu_screenshot: Image saved: "+ outputFile.toStdString());
@@ -2222,6 +2225,12 @@ nmfMainWindow::callback_SaveSystem()
 }
 
 void
+nmfMainWindow::callback_DeleteSystem()
+{
+    enableApplicationFeatures("AllOtherGroups",false);
+}
+
+void
 nmfMainWindow::callback_ReloadWidgets()
 {
     loadGuis();
@@ -2429,8 +2438,10 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_ReloadWidgets()));
     connect(Setup_Tab4_ptr,      SIGNAL(SaveEstimationRunSettings()),
             Estimation_Tab6_ptr, SLOT(callback_SaveSettings()));
-    connect(Setup_Tab4_ptr,      SIGNAL(SaveSystem()),
+    connect(Setup_Tab4_ptr,      SIGNAL(SystemSaved()),
             this,                SLOT(callback_SaveSystem()));
+    connect(Setup_Tab4_ptr,      SIGNAL(SystemDeleted()),
+            this,                SLOT(callback_DeleteSystem()));
     connect(Setup_Tab4_ptr,      SIGNAL(UpdateInitialObservedBiomass()),
             Estimation_Tab5_ptr, SLOT(callback_UpdateInitialObservedBiomass()));
     connect(Setup_Tab4_ptr,      SIGNAL(UpdateInitialForecastYear()),
@@ -4817,6 +4828,8 @@ nmfMainWindow::callback_ShowChartMultiScenario(QStringList SortedForecastLabels)
                               nmfConstantsMSSPM::Clear,
                               ColumnLabelsForLegend);
 
+    setCurrentOutputTab("Chart");
+
     return true;
 }
 
@@ -5786,7 +5799,7 @@ nmfMainWindow::showMohnsRhoBiomassVsTime(
 
 void
 nmfMainWindow::showForecastBiomassVsTime(
-        const std::string &label,
+        const std::string &ChartTitle,
         const int &StartForecastYear,
         const int &NumSpecies,
         const QString &OutputSpecies,
@@ -5829,10 +5842,11 @@ nmfMainWindow::showForecastBiomassVsTime(
     int NumColors;
     std::vector<bool> GridLines(true,true); // Replace with checkbox values
 
+
     ChartType = "Line";
-    MainTitle = label + " for: " + OutputSpecies.toStdString();
+    MainTitle = ChartTitle + " for: " + OutputSpecies.toStdString();
     XLabel    = "Year";
-    YLabel    = label + " (" + ScaleStr.toStdString() + "metric tons)";
+    YLabel    = ChartTitle + " (" + ScaleStr.toStdString() + "metric tons)";
 
     NumColors = nmfConstants::LineColors.size();
     LineColors.append(QColor(nmfConstants::LineColors[0].c_str()));
@@ -5869,7 +5883,11 @@ nmfMainWindow::showForecastBiomassVsTime(
     }
 
     if (m_ChartWidget != nullptr) {
+        std::string lineColorName = "MonteCarloSimulation";
         nmfChartLine* lineChart = new nmfChartLine();
+        if (ChartTitle == "Multi-Forecast Scenario") {
+            lineColorName = "Multi-Forecast Scenario";
+        }
         lineChart->populateChart(m_ChartWidget,
                                  ChartType,
                                  LineStyle,
@@ -5886,7 +5904,7 @@ nmfMainWindow::showForecastBiomassVsTime(
                                  GridLines,
                                  Theme,
                                  LineColors[0],
-                                 "MonteCarloSimulation",
+                                 lineColorName,
                                  1.0);
     }
 
@@ -7014,6 +7032,8 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
         m_UI->OutputDockWidget->setVisible(true);
     }
 
+    // Assure Output tab is set to Chart
+    setCurrentOutputTab("Chart");
 }
 
 void
@@ -7166,6 +7186,9 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     int currOutputSpecies = Output_Controls_ptr->getOutputSpeciesIndex();
     Output_Controls_ptr->setOutputType("Forecast");
     Output_Controls_ptr->setOutputSpeciesIndex(currOutputSpecies);
+
+    // Assure Output tab is set to Chart
+    setCurrentOutputTab("Chart");
 
 } // end callback_RunForecast
 
@@ -7563,6 +7586,16 @@ nmfMainWindow::callback_RunDiagnosticEstimation(
     deleteAllOutputMohnsRho();
 
     runNextMohnsRhoEstimation();
+
+    // Assure Output tab is set to Chart
+    setCurrentOutputTab("Chart");
+
+}
+
+void
+nmfMainWindow::setCurrentOutputTab(QString outputTab)
+{
+    m_UI->MSSPMOutputTabWidget->setCurrentIndex(nmfUtilsQt::getTabIndex(m_UI->MSSPMOutputTabWidget,outputTab));
 }
 
 void
@@ -7939,6 +7972,7 @@ nmfMainWindow::callback_SetChartType(std::string type, std::string method)
 {
    Output_Controls_ptr->setOutputType(QString::fromStdString(type));
    Output_Controls_ptr->setOutputDiagnostics(QString::fromStdString(method));
+   setCurrentOutputTab("Chart");
 }
 
 //void

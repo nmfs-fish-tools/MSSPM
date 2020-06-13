@@ -13,5 +13,6 @@ var searchData=
   ['isprojectdatavalid',['isProjectDataValid',['../classnmf_setup___tab2.html#a47069ef51f0cbdfd40bdf931bc5efe8c',1,'nmfSetup_Tab2']]],
   ['isprojectnamevalid',['isProjectNameValid',['../classnmf_setup___tab2.html#a05749cba59ab4e9715273ff6f1005f85',1,'nmfSetup_Tab2']]],
   ['isshadowshown',['isShadowShown',['../class_m_s_s_p_m___gui_output_controls.html#afe0b395fa90ccc938a0a6bbb1bd259de',1,'MSSPM_GuiOutputControls']]],
+  ['isstartupok',['isStartUpOK',['../classnmf_main_window.html#a19bc4c57733ca92f5ce0166ef2ec4eda',1,'nmfMainWindow']]],
   ['istypeiii',['isTypeIII',['../classnmf_setup___tab4.html#a3c82879d04d4cae03c7f6a3410f6fb70',1,'nmfSetup_Tab4']]]
 ];

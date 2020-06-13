@@ -65,6 +65,7 @@ var searchData=
   ['getstartyearlbl',['getStartYearLBL',['../classnmf_diagnostic___tab2.html#af9f24ea2c27801187c086886a60d5814',1,'nmfDiagnostic_Tab2']]],
   ['getstartyearle',['getStartYearLE',['../classnmf_diagnostic___tab2.html#ae27f62b96717c716347978e83ad3b64d',1,'nmfDiagnostic_Tab2']]],
   ['getstddev',['getStdDev',['../class_bees_stats.html#a6244924ae5a8dc0048f5ee2ca8fba87d',1,'BeesStats']]],
+  ['getsystemfile',['getSystemFile',['../classnmf_setup___tab4.html#aaaece738b651fdaadb8668165c4fb19b',1,'nmfSetup_Tab4']]],
   ['gettablename',['getTableName',['../classnmf_diagnostic___tab1.html#af665a9793fb7508ddac717da46b8d374',1,'nmfDiagnostic_Tab1']]],
   ['getversion',['getVersion',['../class_n_lopt___estimator.html#ad6f0af00b4ad11256bbd094f4b100a08',1,'NLopt_Estimator']]],
   ['getymaxsliderval',['getYMaxSliderVal',['../class_m_s_s_p_m___gui_output_controls.html#a80739af66096a8a4646972967cb48981',1,'MSSPM_GuiOutputControls']]],

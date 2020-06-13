@@ -45,5 +45,7 @@ var searchData=
   ['showdiagnosticschart3d',['ShowDiagnosticsChart3d',['../class_m_s_s_p_m___gui_output_controls.html#aa4d48ef2fbd9c4b54f5612569bd29f75',1,'MSSPM_GuiOutputControls']]],
   ['showrunmessage',['ShowRunMessage',['../classnmf_estimation___tab6.html#a195dc59745deff48660a8781447ac42c',1,'nmfEstimation_Tab6']]],
   ['subruncompleted',['SubRunCompleted',['../class_bees___estimator.html#a27cc0ac3811f5a54557c99629131d77b',1,'Bees_Estimator']]],
-  ['systemloaded',['SystemLoaded',['../classnmf_setup___tab4.html#a6f2c34044cc618393dbf11d5bfb30baf',1,'nmfSetup_Tab4']]]
+  ['systemdeleted',['SystemDeleted',['../classnmf_setup___tab4.html#aff5b249d48b79fba1657e7f98b0a4950',1,'nmfSetup_Tab4']]],
+  ['systemloaded',['SystemLoaded',['../classnmf_setup___tab4.html#a6f2c34044cc618393dbf11d5bfb30baf',1,'nmfSetup_Tab4']]],
+  ['systemsaved',['SystemSaved',['../classnmf_setup___tab4.html#a68f31126829fcc4c17ca84428ee1d489',1,'nmfSetup_Tab4']]]
 ];

@@ -32,6 +32,7 @@ var classnmf_setup___tab4 =
     [ "getModelPresetsCMB", "classnmf_setup___tab4.html#a89c8cb3934dd739ea891f15bef6cd6ae", null ],
     [ "getPredationFormCMB", "classnmf_setup___tab4.html#a3b1edf4740f4f4ca5cd37d36d594c6ee", null ],
     [ "getRunLength", "classnmf_setup___tab4.html#a18923ddc807314aac61f35c835559ead", null ],
+    [ "getSystemFile", "classnmf_setup___tab4.html#aaaece738b651fdaadb8668165c4fb19b", null ],
     [ "isAggProd", "classnmf_setup___tab4.html#add32754853b7857cd5b846f7adb27242", null ],
     [ "isCompetitionFormHighlighted", "classnmf_setup___tab4.html#a67f052f1c492718921b626c9ddff8735", null ],
     [ "isGrowthFormHighlighted", "classnmf_setup___tab4.html#a37db9d3dd15dc9abf3175122bb8cbe8f", null ],
@@ -51,7 +52,9 @@ var classnmf_setup___tab4 =
     [ "setRunLength", "classnmf_setup___tab4.html#a07b9a3500afcc855a65691c6120f0748", null ],
     [ "setStartYear", "classnmf_setup___tab4.html#a30ddd30efca7140b4e35cb9f6a1f6c5d", null ],
     [ "setSystemName", "classnmf_setup___tab4.html#af23556129987dc539b21e4646ff2c900", null ],
+    [ "SystemDeleted", "classnmf_setup___tab4.html#aff5b249d48b79fba1657e7f98b0a4950", null ],
     [ "SystemLoaded", "classnmf_setup___tab4.html#a6f2c34044cc618393dbf11d5bfb30baf", null ],
+    [ "SystemSaved", "classnmf_setup___tab4.html#a68f31126829fcc4c17ca84428ee1d489", null ],
     [ "uncheckHighlightButtons", "classnmf_setup___tab4.html#ada01f3e67565bb07915a46e55f80be1e", null ],
     [ "UpdateInitialForecastYear", "classnmf_setup___tab4.html#affc8256ed5436cb7c97a0b5ec1e5f22d", null ],
     [ "UpdateInitialObservedBiomass", "classnmf_setup___tab4.html#a582ba9a7e456151eb1a37d472df0d40e", null ]

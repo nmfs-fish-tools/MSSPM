@@ -177,6 +177,11 @@ public:
      */
     int  getRunLength();
     /**
+     * @brief Returns the name of the current System file
+     * @return The current System file name
+     */
+    QString getSystemFile();
+    /**
      * @brief Returns whether or not Growth Form is highlighted
      * @return True if Growth Form is highlighted, else False
      */
@@ -276,6 +281,10 @@ signals:
      * @brief Signal emitted when the user needs to save the Main Application settings
      */
     void SaveMainSettings();
+    /**
+     * @brief Signal emitted after the user deletes an existing System from the database
+     */
+    void SystemDeleted();
     /**
      * @brief Signal emitted after the user loads an existing System from the database
      */

@@ -1,22 +1,22 @@
 <map id="MSSPM_Main/nmfMainWindow.h" name="MSSPM_Main/nmfMainWindow.h">
 <area shape="rect" id="node14" href="$_clear_output_dialog_8h.html" title="GUI definition for the Algorithm&#45;Specific ClearOutputDialog widget. " alt="" coords="99,80,239,107"/>
-<area shape="rect" id="node20" href="$_bees___estimator_8h.html" title="Class definition for the Bees_Estimator API. " alt="" coords="3500,80,3627,107"/>
-<area shape="rect" id="node24" href="$_n_lopt___estimator_8h.html" title="Class definition for the NLopt_Estimator API. " alt="" coords="1089,155,1219,181"/>
-<area shape="rect" id="node29" href="$nmf_setup_tab01_8h.html" title="GUI definition for the Setup Getting Started page class nmfSetup_Tab1. " alt="" coords="3651,80,3777,107"/>
-<area shape="rect" id="node30" href="$nmf_setup_tab02_8h.html" title="GUI definition for the Setup Project page class nmfSetup_Tab2. " alt="" coords="3801,80,3926,107"/>
-<area shape="rect" id="node31" href="$nmf_setup_tab04_8h.html" title="GUI definition for the Setup Model page class nmfSetup_Tab4. " alt="" coords="3950,80,4075,107"/>
-<area shape="rect" id="node32" href="$nmf_setup_tab03_8h.html" title="GUI definition for the Setup Species page class nmfSetup_Tab3. " alt="" coords="4099,80,4225,107"/>
-<area shape="rect" id="node33" href="$nmf_estimation_tab01_8h.html" title="GUI definition for the nmfEstimation_Tab1 Population Parameters Data class. " alt="" coords="1595,80,1748,107"/>
-<area shape="rect" id="node34" href="$nmf_estimation_tab02_8h.html" title="GUI definition for the nmfEstimation_Tab2 Harvest Data class. " alt="" coords="4249,80,4403,107"/>
-<area shape="rect" id="node35" href="$nmf_estimation_tab03_8h.html" title="GUI definition for the nmfEstimation_Tab3 Competition Data class. " alt="" coords="4427,80,4580,107"/>
-<area shape="rect" id="node36" href="$nmf_estimation_tab04_8h.html" title="GUI definition for the nmfEstimation_Tab4 Predation Data class. " alt="" coords="4604,80,4757,107"/>
-<area shape="rect" id="node37" href="$nmf_estimation_tab05_8h.html" title="GUI definition for the nmfEstimation_Tab5 Observation Data class. " alt="" coords="4781,80,4935,107"/>
-<area shape="rect" id="node38" href="$nmf_estimation_tab06_8h.html" title="GUI definition for the nmfEstimation_Tab6 Estimation Run class. " alt="" coords="263,80,416,107"/>
-<area shape="rect" id="node39" href="$nmf_diagnostic_tab01_8h.html" title="GUI definition for the nmfDiagnostic_Tab1 Parameter Profiles Diagnostics Data class. " alt="" coords="1077,80,1231,107"/>
-<area shape="rect" id="node40" href="$nmf_diagnostic_tab02_8h.html" title="GUI definition for the nmfDiagnostic_Tab2 Retrospective Analysis Diagnostics Data class..." alt="" coords="440,80,593,107"/>
-<area shape="rect" id="node41" href="$nmf_forecast_tab01_8h.html" title="GUI definition for the nmfForecast_Tab1 Forecast Setup Data class. " alt="" coords="4959,80,5101,107"/>
-<area shape="rect" id="node42" href="$nmf_forecast_tab02_8h.html" title="GUI definition for the nmfForecast_Tab2 Forecast Harvest Data class. " alt="" coords="5125,80,5268,107"/>
-<area shape="rect" id="node43" href="$nmf_forecast_tab03_8h.html" title="GUI definition for the nmfForecast_Tab3 Forecast Uncertainty Parameter Data class. " alt="" coords="5292,80,5435,107"/>
-<area shape="rect" id="node44" href="$nmf_forecast_tab04_8h.html" title="GUI definition for the nmfForecast_Tab4 Forecast Run class. " alt="" coords="5459,80,5601,107"/>
-<area shape="rect" id="node45" href="$nmf_output_controls_8h.html" title="GUI definition for the Control widgets class MSSPM_GuiOutputControls in the Output area..." alt="" coords="617,80,760,107"/>
+<area shape="rect" id="node20" href="$_bees___estimator_8h.html" title="Class definition for the Bees_Estimator API. " alt="" coords="3499,80,3625,107"/>
+<area shape="rect" id="node23" href="$_n_lopt___estimator_8h.html" title="Class definition for the NLopt_Estimator API. " alt="" coords="1087,155,1218,181"/>
+<area shape="rect" id="node28" href="$nmf_setup_tab01_8h.html" title="GUI definition for the Setup Getting Started page class nmfSetup_Tab1. " alt="" coords="3650,80,3775,107"/>
+<area shape="rect" id="node29" href="$nmf_setup_tab02_8h.html" title="GUI definition for the Setup Project page class nmfSetup_Tab2. " alt="" coords="3799,80,3925,107"/>
+<area shape="rect" id="node30" href="$nmf_setup_tab04_8h.html" title="GUI definition for the Setup Model page class nmfSetup_Tab4. " alt="" coords="3949,80,4074,107"/>
+<area shape="rect" id="node31" href="$nmf_setup_tab03_8h.html" title="GUI definition for the Setup Species page class nmfSetup_Tab3. " alt="" coords="4098,80,4223,107"/>
+<area shape="rect" id="node32" href="$nmf_estimation_tab01_8h.html" title="GUI definition for the nmfEstimation_Tab1 Population Parameters Data class. " alt="" coords="1543,80,1696,107"/>
+<area shape="rect" id="node33" href="$nmf_estimation_tab02_8h.html" title="GUI definition for the nmfEstimation_Tab2 Harvest Data class. " alt="" coords="4248,80,4401,107"/>
+<area shape="rect" id="node34" href="$nmf_estimation_tab03_8h.html" title="GUI definition for the nmfEstimation_Tab3 Competition Data class. " alt="" coords="4425,80,4579,107"/>
+<area shape="rect" id="node35" href="$nmf_estimation_tab04_8h.html" title="GUI definition for the nmfEstimation_Tab4 Predation Data class. " alt="" coords="4603,80,4756,107"/>
+<area shape="rect" id="node36" href="$nmf_estimation_tab05_8h.html" title="GUI definition for the nmfEstimation_Tab5 Observation Data class. " alt="" coords="4780,80,4933,107"/>
+<area shape="rect" id="node37" href="$nmf_estimation_tab06_8h.html" title="GUI definition for the nmfEstimation_Tab6 Estimation Run class. " alt="" coords="263,80,416,107"/>
+<area shape="rect" id="node38" href="$nmf_diagnostic_tab01_8h.html" title="GUI definition for the nmfDiagnostic_Tab1 Parameter Profiles Diagnostics Data class. " alt="" coords="1027,80,1180,107"/>
+<area shape="rect" id="node39" href="$nmf_diagnostic_tab02_8h.html" title="GUI definition for the nmfDiagnostic_Tab2 Retrospective Analysis Diagnostics Data class..." alt="" coords="440,80,593,107"/>
+<area shape="rect" id="node40" href="$nmf_forecast_tab01_8h.html" title="GUI definition for the nmfForecast_Tab1 Forecast Setup Data class. " alt="" coords="4957,80,5100,107"/>
+<area shape="rect" id="node41" href="$nmf_forecast_tab02_8h.html" title="GUI definition for the nmfForecast_Tab2 Forecast Harvest Data class. " alt="" coords="5124,80,5267,107"/>
+<area shape="rect" id="node42" href="$nmf_forecast_tab03_8h.html" title="GUI definition for the nmfForecast_Tab3 Forecast Uncertainty Parameter Data class. " alt="" coords="5291,80,5433,107"/>
+<area shape="rect" id="node43" href="$nmf_forecast_tab04_8h.html" title="GUI definition for the nmfForecast_Tab4 Forecast Run class. " alt="" coords="5457,80,5600,107"/>
+<area shape="rect" id="node44" href="$nmf_output_controls_8h.html" title="GUI definition for the Control widgets class MSSPM_GuiOutputControls in the Output area..." alt="" coords="617,80,760,107"/>
 </map>

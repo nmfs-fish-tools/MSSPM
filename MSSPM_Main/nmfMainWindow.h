@@ -519,6 +519,7 @@ private:
     void saveSettings();
     bool scaleTimeSeries(const std::vector<double>&             Uncertainty,
                          boost::numeric::ublas::matrix<double>& HarvestMatrix);
+    void setCurrentOutputTab(QString outputTab);
     void setDefaultDockWidgetsVisibility();
     void setNumLines(int numLines);
     void setup2dChart();
@@ -755,6 +756,10 @@ public slots:
      * if the user selects a new Project.
      */
     void callback_ClearEstimationTables();
+    /**
+     * @brief Callback invoked when user deletes a system
+     */
+    void callback_DeleteSystem();
     /**
      * @brief Callback invoked when user selects a tab from the Diagnostics tab group
      * @param tab : Diagnostics tab selected
