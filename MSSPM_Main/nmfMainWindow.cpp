@@ -16,6 +16,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_UI(new Ui::nmfMainWindow)
 {
+
     m_UI->setupUi(this);
 
     m_Estimator_Bees   = nullptr;
@@ -89,7 +90,13 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_Logger = new nmfLogger();
     m_Logger->initLogger("MSSPM");
 
+    // On Windows, the following Sql code must be done in main .exe file or else
+    // the program can't find the libmysql.dll driver.  Not sure why, but moving
+    // the following logic from nmfDatabase.dll to here fixes the issue.
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
     m_DatabasePtr = new nmfDatabase();
+    m_DatabasePtr->nmfSetConnectionByName(db.connectionName());
+
     readSettingsGuiPositionOrientationOnly();
     readSettings();
 
@@ -1646,15 +1653,14 @@ nmfMainWindow::menu_importDatabase()
     }
 
     // Do the import
-    this->setCursor(Qt::WaitCursor);
     bool importOK = m_DatabasePtr->importDatabase(this,
                                                   m_Logger,
                                                   m_ProjectDir,
                                                   m_Username,
                                                   m_Password);
     if (importOK) {
-//        Setup_Tab2_ptr->loadWidgets();
-//        Setup_Tab3_ptr->loadWidgets();
+        // Setup_Tab2_ptr->loadWidgets();
+        // Setup_Tab3_ptr->loadWidgets();
         loadGuis();
         if (reply == QMessageBox::No) {
             Setup_Tab2_ptr->clearProject();
@@ -1664,7 +1670,6 @@ nmfMainWindow::menu_importDatabase()
             Setup_Tab2_ptr->enableProjectData();
         }
     }
-    this->setCursor(Qt::ArrowCursor);
 
 }
 
@@ -1780,10 +1785,10 @@ nmfMainWindow::menu_about()
     // RSK - this line crashes the program on Windows
     // I think it's only a problem when I use NLopt version 2.6.1. Version 2.4.2
     // behaves correctly and doesn't crash on Windows.
-//  int major,minor,bugfix;
-//  nlopt::version(major,minor,bugfix);
-//  nloptVersion = QString::number(major)+"."+QString::number(minor)+"."+QString::number(bugfix);
-    nloptVersion = m_Estimator_NLopt->getVersion();
+    int major,minor,bugfix;
+    nlopt::version(major,minor,bugfix);
+    nloptVersion = QString::number(major)+"."+QString::number(minor)+"."+QString::number(bugfix);
+//  nloptVersion = m_Estimator_NLopt->getVersion();
     nloptLink = QString("<a href='https://nlopt.readthedocs.io'>https://nlopt.readthedocs.io</a>");
 
     // Bees link
