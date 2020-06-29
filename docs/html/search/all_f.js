@@ -27,6 +27,7 @@ var searchData=
   ['setoutputte',['setOutputTE',['../classnmf_estimation___tab6.html#afd007d6605c7b3d57b32f4c33ab82ced',1,'nmfEstimation_Tab6::setOutputTE()'],['../classnmf_forecast___tab4.html#a329c52ab3b92cd60950280760f27d272',1,'nmfForecast_Tab4::setOutputTE()']]],
   ['setoutputtype',['setOutputType',['../class_m_s_s_p_m___gui_output_controls.html#acd0f38ae6c4048f1783f0f6dbef17927',1,'MSSPM_GuiOutputControls']]],
   ['setprojectauthor',['setProjectAuthor',['../classnmf_setup___tab2.html#a57e096308e992572dd27eb7210d6cc65',1,'nmfSetup_Tab2']]],
+  ['setprojectdatabase',['setProjectDatabase',['../classnmf_setup___tab2.html#a524bd51bfc49d9a9923016b8ccd65374',1,'nmfSetup_Tab2']]],
   ['setprojectdescription',['setProjectDescription',['../classnmf_setup___tab2.html#ab660067a37336f997d5491c1924ae000',1,'nmfSetup_Tab2']]],
   ['setprojectdirectory',['setProjectDirectory',['../classnmf_setup___tab2.html#a6ef979291c2d0b7230d54a29fa3526be',1,'nmfSetup_Tab2']]],
   ['setprojectname',['setProjectName',['../classnmf_setup___tab2.html#aa410387de137c4c014c7ea875787c83f',1,'nmfSetup_Tab2']]],

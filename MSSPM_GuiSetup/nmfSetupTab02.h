@@ -203,6 +203,11 @@ public:
      */
     void setProjectAuthor(QString author);
     /**
+     * @brief Sets the current item in the pulldown to the passed database name
+     * @param dbName : name of database to set the pulldown to
+     */
+    void setProjectDatabase(QString dbName);
+    /**
      * @brief Writes the description of the project into the appropriate widget
      * @param desc : the description of the project
      */

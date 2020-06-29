@@ -38,6 +38,7 @@ var classnmf_setup___tab2 =
     [ "SaveMainSettings", "classnmf_setup___tab2.html#ab00e9b25cd1f4df41f17bad93ddcfe74", null ],
     [ "saveSettings", "classnmf_setup___tab2.html#a88cfb929eda5f5d0dc76f4d383cfcc4e", null ],
     [ "setProjectAuthor", "classnmf_setup___tab2.html#a57e096308e992572dd27eb7210d6cc65", null ],
+    [ "setProjectDatabase", "classnmf_setup___tab2.html#a524bd51bfc49d9a9923016b8ccd65374", null ],
     [ "setProjectDescription", "classnmf_setup___tab2.html#ab660067a37336f997d5491c1924ae000", null ],
     [ "setProjectDirectory", "classnmf_setup___tab2.html#a6ef979291c2d0b7230d54a29fa3526be", null ],
     [ "setProjectName", "classnmf_setup___tab2.html#aa410387de137c4c014c7ea875787c83f", null ]

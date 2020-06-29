@@ -721,8 +721,8 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " SurveyQMax           int(11) NULL,";
     cmd += " GrowthRateMin        float NULL,";
     cmd += " GrowthRateMax        float NULL,";
-    cmd += " SpeciesKMin          int(11) NULL,";
-    cmd += " SpeciesKMax          int(11) NULL,";
+    cmd += " SpeciesKMin          float NULL,";
+    cmd += " SpeciesKMax          float NULL,";
     cmd += " CatchabilityMin      float NULL,";
     cmd += " CatchabilityMax      float NULL,";
     cmd += " SpeDependence        float NULL,";
@@ -1541,6 +1541,11 @@ nmfSetup_Tab2::loadDatabaseNames(QString NameToSelect)
     }
 }
 
+void
+nmfSetup_Tab2::setProjectDatabase(QString dbName)
+{
+    Setup_Tab2_ProjectDatabaseCMB->setCurrentText(dbName);
+}
 
 void
 nmfSetup_Tab2::loadWidgets()

@@ -1653,12 +1653,12 @@ nmfMainWindow::menu_importDatabase()
     }
 
     // Do the import
-    bool importOK = m_DatabasePtr->importDatabase(this,
-                                                  m_Logger,
-                                                  m_ProjectDir,
-                                                  m_Username,
-                                                  m_Password);
-    if (importOK) {
+    QString dbName = m_DatabasePtr->importDatabase(this,
+                                                   m_Logger,
+                                                   m_ProjectDir,
+                                                   m_Username,
+                                                   m_Password);
+    if (!dbName.isEmpty()) {
         // Setup_Tab2_ptr->loadWidgets();
         // Setup_Tab3_ptr->loadWidgets();
         loadGuis();
@@ -1669,6 +1669,8 @@ nmfMainWindow::menu_importDatabase()
                                      QMessageBox::Ok);
             Setup_Tab2_ptr->enableProjectData();
         }
+        Setup_Tab2_ptr->setProjectDatabase(dbName);
+        Setup_Tab2_ptr->callback_Setup_Tab2_SaveProject();
     }
 
 }
@@ -9326,7 +9328,6 @@ std::cout << "shadow quality: " << m_Graph3D->shadowQuality() << std::endl;
         msgBox.exec();
         return;
     }
-
     m_ChartView3d->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
     OutputChartMainLayt->insertWidget(0,m_ChartView3d);
 
