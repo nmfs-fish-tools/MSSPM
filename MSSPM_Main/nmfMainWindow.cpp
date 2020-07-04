@@ -8,6 +8,9 @@
 #include "nmfConstantsMSSPM.h"
 
 #include <QLineSeries>
+#include <QProcess>
+#include <QtConcurrent>
+#include <QWhatsThis>
 
 // This is needed since a signal is passing a std::string type
 Q_DECLARE_METATYPE (std::string)
@@ -8058,7 +8061,7 @@ nmfMainWindow::loadGradientParameters(Gradient_Struct &gradientStruct)
     gradientStruct.MaxLineSearches     = std::stoi(dataMap["GradMaxLineSearches"][0]);
 
     if (gradientStruct.GrowthForm == "Null") {
-        msg = "\nPlease enter a non-null growth form.\n";
+        msg = "\nPlease enter *a non-null growth form.\n";
                 QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
         return false;
     }

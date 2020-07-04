@@ -42,6 +42,7 @@ nmfSetup_Tab2::nmfSetup_Tab2(QTabWidget* tabs,
     Setup_Tab2_ProjectDescLE      = Setup_Tabs->findChild<QLineEdit   *>("Setup_Tab2_ProjectDescriptionLE");
     Setup_Tab2_AddDatabasePB      = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_AddDatabasePB");
     Setup_Tab2_DelDatabasePB      = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_DelDatabasePB");
+    Setup_Tab2_RefreshDatabasePB  = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_RefreshDatabasePB");
     Setup_Tab2_SaveProjectPB      = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_SaveProjectPB");
     Setup_Tab2_NewProjectPB       = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_NewProjectPB");
     Setup_Tab2_BrowseProjectPB    = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_BrowseProjectPB");
@@ -64,6 +65,8 @@ nmfSetup_Tab2::nmfSetup_Tab2(QTabWidget* tabs,
             this,                          SLOT(callback_Setup_Tab2_NewProject()));
     connect(Setup_Tab2_DelProjectPB,       SIGNAL(clicked()),
             this,                          SLOT(callback_Setup_Tab2_DelProject()));
+    connect(Setup_Tab2_RefreshDatabasePB,  SIGNAL(clicked()),
+            this,                          SLOT(callback_Setup_Tab2_RefreshDatabase()));
     connect(Setup_Tab2_BrowseProjectPB,    SIGNAL(clicked()),
             this,                          SLOT(callback_Setup_Tab2_BrowseProject()));
     connect(Setup_Tab2_ReloadProjectPB,    SIGNAL(clicked()),
@@ -1423,6 +1426,14 @@ nmfSetup_Tab2::callback_Setup_Tab2_ReloadProject()
 {
     readSettings();
 }
+
+void
+nmfSetup_Tab2::callback_Setup_Tab2_RefreshDatabase()
+{
+    loadDatabaseNames(Setup_Tab2_ProjectDatabaseCMB->currentText());
+    QMessageBox::information(Setup_Tabs, "Refresh", "\nDatabase list refreshed.\n", QMessageBox::Ok);
+}
+
 
 QString
 nmfSetup_Tab2::getProjectName()

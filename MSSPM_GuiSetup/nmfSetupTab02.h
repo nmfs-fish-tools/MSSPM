@@ -66,6 +66,7 @@ class nmfSetup_Tab2: public QObject
     QPushButton* Setup_Tab2_SaveProjectPB;
     QPushButton* Setup_Tab2_NewProjectPB;
     QPushButton* Setup_Tab2_DelProjectPB;
+    QPushButton* Setup_Tab2_RefreshDatabasePB;
     QPushButton* Setup_Tab2_BrowseProjectPB;
     QPushButton* Setup_Tab2_SetProjectPB;
     QPushButton* Setup_Tab2_ReloadProjectPB;
@@ -272,6 +273,10 @@ public Q_SLOTS:
      * @brief Callback invoked when the user has finished editing the Project Name
      */
     void callback_Setup_Tab2_ProjectNameAdd();
+    /**
+     * @brief Callback invoked when the user wants to refresh the database pulldown list
+     */
+    void callback_Setup_Tab2_RefreshDatabase();
     /**
      * @brief Callback invoked when the user has clicked the Reload Project button
      */

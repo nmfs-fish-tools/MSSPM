@@ -14,6 +14,7 @@ var classnmf_setup___tab2 =
     [ "callback_Setup_Tab2_ProjectDirAdd", "classnmf_setup___tab2.html#a50bcaa7dafed911efe50ca0dea01b04f", null ],
     [ "callback_Setup_Tab2_ProjectDirBrowsePB", "classnmf_setup___tab2.html#ab3eaca349043df598140e4f5cf81820b", null ],
     [ "callback_Setup_Tab2_ProjectNameAdd", "classnmf_setup___tab2.html#a453301b436201b4b583824e4de15dcbe", null ],
+    [ "callback_Setup_Tab2_RefreshDatabase", "classnmf_setup___tab2.html#a196e09798c7670ec6d9738e018085432", null ],
     [ "callback_Setup_Tab2_ReloadProject", "classnmf_setup___tab2.html#a1e8e0c56d6a8a066e68ceff7bf9948b9", null ],
     [ "callback_Setup_Tab2_SaveProject", "classnmf_setup___tab2.html#a7fff7f48dd95138b7068c66f1552575d", null ],
     [ "ClearEstimationTables", "classnmf_setup___tab2.html#ac04dd20dfa450b9672872c13432e9390", null ],

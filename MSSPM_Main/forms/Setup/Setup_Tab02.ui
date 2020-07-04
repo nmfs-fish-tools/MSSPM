@@ -656,6 +656,40 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="5">
+         <widget class="QPushButton" name="Setup_Tab2_RefreshDatabasePB">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Refresh database list</string>
+          </property>
+          <property name="statusTip">
+           <string>Refresh database list</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Refresh Databases&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button reads the list of MSSPM databases from MySQL and displays them in the pulldown list to the left.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Ref</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
