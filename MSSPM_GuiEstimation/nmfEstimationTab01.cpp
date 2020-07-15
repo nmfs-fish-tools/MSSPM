@@ -49,6 +49,8 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     Estimation_Tab1_SpeciesSuppCB       = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab1_SpeciesSuppCB");
     Estimation_Tab1_GuildSuppCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab1_GuildSuppCB");
     Estimation_Tab1_SpeciesRangeCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab1_SpeciesRangeCB");
+    Estimation_Tab1_SpeciesRangeCMB     = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab1_SpeciesRangeCMB");
+    Estimation_Tab1_SpeciesRangeSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab1_SpeciesRangeSB");
     Estimation_Tab1_GuildRangeCB        = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab1_GuildRangeCB");
     Estimation_Tab1_ModifySL->setValue(m_StartPosSL); // Set midpoint position to start
 
@@ -79,6 +81,10 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
             this,                           SLOT(callback_SpeciesRangeCB(bool)));
     connect(Estimation_Tab1_SpeciesSuppCB,  SIGNAL(clicked(bool)),
             this,                           SLOT(callback_SpeciesSuppCB(bool)));
+    connect(Estimation_Tab1_SpeciesRangeCMB, SIGNAL(activated(QString)),
+            this,                            SLOT(callback_SpeciesRangeCMB(QString)));
+    connect(Estimation_Tab1_SpeciesRangeSB,  SIGNAL(valueChanged(int)),
+            this,                            SLOT(callback_SpeciesRangeSB(int)));
 
 
 // Program takes too much time to run the diagnostics to do the following in real-time
@@ -88,6 +94,9 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
             this,                        SLOT(callback_ModifyRunPB()));
 
     Estimation_Tab1_NextPB->setText("--\u25B7");
+
+    Estimation_Tab1_SpeciesRangeCMB->setEnabled(false);
+    Estimation_Tab1_SpeciesRangeSB->setEnabled(false);
 
 } // end constructor
 
@@ -368,6 +377,11 @@ nmfEstimation_Tab1::callback_SpeciesRangeCB(bool isBoxChecked)
     showNoColumns(Estimation_Tab1_SpeciesPopulationTV);
     showPrimaryColumns(Estimation_Tab1_SpeciesPopulationTV);
     showRangeColumns(Estimation_Tab1_SpeciesPopulationTV,isBoxChecked);
+    Estimation_Tab1_SpeciesRangeCMB->setEnabled(isBoxChecked);
+    Estimation_Tab1_SpeciesRangeSB->setEnabled(false);
+    Estimation_Tab1_SpeciesRangeSB->setEnabled(
+       (Estimation_Tab1_SpeciesRangeCMB->currentText()=="Percentage") &&
+       (isBoxChecked==true));
     if (isBoxChecked) {
         if (isChecked(Estimation_Tab1_SpeciesSuppCB)) {
             showAllColumns(Estimation_Tab1_SpeciesPopulationTV);
@@ -1208,6 +1222,7 @@ nmfEstimation_Tab1::loadSpecies()
     NumSpecies = dataMap["SpeName"].size();
     QStringList fieldList;
 
+
     m_originalSpeciesValuesAll.clear();
     m_SpeciesModel = new QStandardItemModel( NumSpecies, fields.size() );
     for (int i=0; i<NumSpecies; ++i) {
@@ -1254,4 +1269,108 @@ QString
 nmfEstimation_Tab1::getOutputSpecies()
 {
     return m_OutputSpecies;
+}
+
+QModelIndexList
+nmfEstimation_Tab1::getSelectedVisibleCells()
+{
+    QItemSelectionModel *selectionModel = Estimation_Tab1_SpeciesPopulationTV->selectionModel();
+    QModelIndexList indexes = selectionModel->selectedIndexes();
+    return indexes;
+}
+
+void
+nmfEstimation_Tab1::reselectVisibleCells(QModelIndexList indexes)
+{
+    if (indexes.size() > 0) {
+        QItemSelectionModel *selectionModel = Estimation_Tab1_SpeciesPopulationTV->selectionModel();
+        for (QModelIndex index : indexes) {
+            selectionModel->select(index,QItemSelectionModel::Select);
+        }
+    }
+}
+
+void
+nmfEstimation_Tab1::callback_SpeciesRangeCMB(QString value)
+{
+    Estimation_Tab1_SpeciesRangeSB->setEnabled(value == "Percentage");
+
+    QModelIndexList indexes = getSelectedVisibleCells();
+
+    if (value == "Percentage") {
+        callback_SpeciesRangeSB(Estimation_Tab1_SpeciesRangeSB->value());
+    } else {
+        loadWidgets();
+    }
+
+    reselectVisibleCells(indexes);
+}
+
+void
+nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
+{
+    // Change parameter min/max values for the selected parameters or if none
+    // are selected, for all parameters that have min/max values.
+    int col;
+    int row;
+    double pctVal = pct/100.0;
+    double parameterValue;
+    QModelIndex index,minIndex,maxIndex;
+    std::set<int> selectedParameters;
+    QStandardItem* minItem;
+    QStandardItem* maxItem;
+    // Column number of parameters that have min/max values associated with them
+    // Update this as necessary when implementing supplemental parameters.
+    std::vector<int> parameters = {1,4,8};  // Probably shouldn't be hard-coded.
+
+    QModelIndexList indexes = getSelectedVisibleCells();
+
+    int numRows = m_SpeciesModel->rowCount();
+    if (indexes.size() == 0) { // mean no selections, so set all min/max parameter values
+        for (int row=0; row<numRows; ++row) {
+            for (int col : parameters) {
+                index    = m_SpeciesModel->index(row,col);
+                minIndex = m_SpeciesModel->index(row,col+1);
+                maxIndex = m_SpeciesModel->index(row,col+2);
+                parameterValue = index.data().toDouble();
+                minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal)));
+                minItem->setTextAlignment(Qt::AlignCenter);
+                maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal)));
+                maxItem->setTextAlignment(Qt::AlignCenter);
+                m_SpeciesModel->setItem(row,col+1,minItem);
+                m_SpeciesModel->setItem(row,col+2,maxItem);
+            }
+        }
+    } else {
+        // Find all columns with a selection
+        for (QModelIndex index : indexes) {
+            row = index.row();
+            col = index.column();
+            switch (col) {
+                case 2:
+                case 5:
+                case 9:
+                    index    = m_SpeciesModel->index(row,col-1);
+                    minIndex = m_SpeciesModel->index(row,col);
+                    parameterValue = index.data().toDouble();
+                    minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal)));
+                    minItem->setTextAlignment(Qt::AlignCenter);
+                    m_SpeciesModel->setItem(row,col,minItem);
+                    break;
+                case 3:
+                case 6:
+                case 10:
+                    index    = m_SpeciesModel->index(row,col-2);
+                    maxIndex = m_SpeciesModel->index(row,col);
+                    parameterValue = index.data().toDouble();
+                    maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal)));
+                    maxItem->setTextAlignment(Qt::AlignCenter);
+                    m_SpeciesModel->setItem(row,col,maxItem);
+                    break;
+                default:
+                    break;
+            }
+        }
+        reselectVisibleCells(indexes);
+    }
 }

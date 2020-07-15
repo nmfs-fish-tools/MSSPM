@@ -31,6 +31,10 @@
 
 #include "nmfUtilsQt.h"
 
+#include <QComboBox>
+#include <QSpinBox>
+#include <set>
+
 /**
  * @brief Estimated Parameters
  *
@@ -71,6 +75,8 @@ class nmfEstimation_Tab1: public QObject
     QCheckBox*    Estimation_Tab1_SpeciesSuppCB;
     QCheckBox*    Estimation_Tab1_GuildRangeCB;
     QCheckBox*    Estimation_Tab1_SpeciesRangeCB;
+    QComboBox*    Estimation_Tab1_SpeciesRangeCMB;
+    QSpinBox*     Estimation_Tab1_SpeciesRangeSB;
     QCheckBox*    Estimation_Tab1_ModifyRunCB;
 
     bool arePopulationParametersWithinLimits();
@@ -79,10 +85,12 @@ class nmfEstimation_Tab1: public QObject
                                      QString name,
                                      QString badParameter,
                                      bool showPopup);
+    QModelIndexList getSelectedVisibleCells();
     void getSelectedIndexes();
     bool isChecked(QCheckBox* cb);
     bool loadGuilds();
     bool loadSpecies();
+    void reselectVisibleCells(QModelIndexList indexes);
     void resetModifySlider();
     void resetSelection();
     void resetVisibleColumns();
@@ -226,6 +234,11 @@ public Q_SLOTS:
      */
     void callback_GuildSuppCB(bool isChecked);
     /**
+     * @brief Callback invoked when user changes the range type combo box
+     * @param value : value of combobox setting (i.e., User Defined or Percentage)
+     */
+    void callback_SpeciesRangeCMB(QString value);
+    /**
      * @brief Callback invoked when user checks the Species Supplemental Data check box. This
      * shows or hides the supplemental data columns in the Species table.
      */
@@ -240,6 +253,11 @@ public Q_SLOTS:
      * shows or hides the range data columns in the Species table.
      */
     void callback_SpeciesRangeCB(bool isChecked);
+    /**
+     * @brief Callback invoked when user changes the Species range percent combo box
+     * @param pct - percentage value of how the min/max values should be set around each parameter
+     */
+    void callback_SpeciesRangeSB(int pct);
 
 };
 

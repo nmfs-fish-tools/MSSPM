@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>502</width>
+    <width>977</width>
     <height>322</height>
    </rect>
   </property>
@@ -214,7 +214,55 @@
               <enum>Qt::RightToLeft</enum>
              </property>
              <property name="text">
-              <string>Range Data</string>
+              <string>Range:  Data</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Estimation_Tab1_SpeciesRangeCMB">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Choose if user enters range manually or via percentage</string>
+             </property>
+             <property name="statusTip">
+              <string>Choose if user enters range manually or via percentage</string>
+             </property>
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Range Type&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this is set to User Defined, the user enters in the desired min/max range values directly into the table. If this is set to Percentage, the min/max range values are set by the percentage number set by the spin box to the right.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>User Defined</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Percentage</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="Estimation_Tab1_SpeciesRangeSB">
+             <property name="toolTip">
+              <string>Sets the percentage range min/max values</string>
+             </property>
+             <property name="statusTip">
+              <string>Sets the percentage range min/max values</string>
+             </property>
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Range Percentage&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This value represents the percentage of a parameter the min/max values will be set to. For example, if SpeciesK is 100 and this value is set to 10, SpeciesKMin will be set to 90 and SpeciesKMax will be set to 110.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -224,7 +272,7 @@
               <enum>Qt::RightToLeft</enum>
              </property>
              <property name="text">
-              <string>Supplemental Data</string>
+              <string>Supplemental:  Data</string>
              </property>
             </widget>
            </item>
