@@ -1555,7 +1555,11 @@ nmfSetup_Tab2::loadDatabaseNames(QString NameToSelect)
 void
 nmfSetup_Tab2::setProjectDatabase(QString dbName)
 {
-    Setup_Tab2_ProjectDatabaseCMB->setCurrentText(dbName);
+    if (nmfUtils::isOSWindows()) {
+        Setup_Tab2_ProjectDatabaseCMB->setCurrentText(dbName.toLower());
+    } else {
+        Setup_Tab2_ProjectDatabaseCMB->setCurrentText(dbName);
+    }
 }
 
 void
