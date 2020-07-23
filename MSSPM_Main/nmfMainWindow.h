@@ -235,6 +235,7 @@ private:
 //    QSurface3DSeries*        SurfaceSeries;
     QWidget*                 NavigatorTreeWidget;
     QTreeWidget*             NavigatorTree;
+	QDockWidget*			 MModeDockWidget;
 
     nmfDiagnostic_Tab1*      Diagnostic_Tab1_ptr;
     nmfDiagnostic_Tab2*      Diagnostic_Tab2_ptr;
@@ -254,7 +255,9 @@ private:
     nmfSetup_Tab3*           Setup_Tab3_ptr;
     nmfSetup_Tab4*           Setup_Tab4_ptr;
     QDialog*                 m_PreferencesDlg;
+	QDialog*				 m_TableNamesDlg;
     QWidget*                 m_PreferencesWidget;
+	QWidget*                 m_TableNamesWidget;
     QTabWidget*              m_EstimatedParametersTW;
     std::map<QString,QTableView*> m_EstimatedParametersMap;
 
@@ -284,6 +287,8 @@ private:
     void   initLogo();
     void   initPostGuiConnections();
     void   initializePreferencesDlg();
+	void   initializeTableNamesDlg();
+	void   initializeMMode();
     void   showDockWidgets(bool show);
 //    void   screenShot();
 
@@ -1054,6 +1059,10 @@ public slots:
      * @brief Exports the current database to a .sql disk file
      */
     void menu_exportDatabase();
+	/**
+     * @brief Export all databases to individual .sql disk files
+     */
+    void menu_exportAllDatabases();
     /**
      * @brief Imports a .sql disk file and loads it as the current database
      */
@@ -1155,6 +1164,7 @@ public slots:
      */
     void menu_whatsThis();
 
+    void callback_TableNamesOkPB();
     void callback_PreferencesMShotOkPB();
     void callback_ErrorFound(std::string errorMsg);
 
