@@ -32,5 +32,7 @@
         <file>icons/multishot.png</file>
         <file>forms/Main/PreferencesDlg.ui</file>
         <file>icons/scrgrbAll.png</file>
+        <file>forms/MMode/mModeWindow.ui</file>
+        <file>forms/Main/TableNamesDlg.ui</file>
     </qresource>
 </RCC>

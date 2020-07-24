@@ -1187,7 +1187,6 @@ public slots:
      * @brief Interrupt and stop the current run
      */
     void menu_stopRun();
-    void menu_toggleManagerMode();
     /**
      * @brief Puts application in What's This mode
      *
@@ -1197,6 +1196,7 @@ public slots:
      * neatly displayed in a tool tip.
      */
     void menu_whatsThis();
+    void menu_toggleManagerMode();
 
     void callback_TableNamesOkPB();
     void callback_PreferencesMShotOkPB();

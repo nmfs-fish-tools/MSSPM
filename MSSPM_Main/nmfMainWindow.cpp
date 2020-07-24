@@ -1716,6 +1716,7 @@ void
 nmfMainWindow::menu_exportDatabase()
 {
     m_DatabasePtr->exportDatabase(this,
+                                  nmfConstants::ExportDatabaseWithoutFileName,
                                   m_ProjectDir,
                                   m_Username,
                                   m_Password,
@@ -6756,7 +6757,7 @@ void
 nmfMainWindow::initializeTableNamesDlg()
 {
     QUiLoader loader;
-    QFile file(":/forms/Main/tablenames.ui");
+    QFile file(":/forms/Main/TableNamesDlg.ui");
     file.open(QFile::ReadOnly);
     m_TableNamesWidget = loader.load(&file,this);
     file.close();
