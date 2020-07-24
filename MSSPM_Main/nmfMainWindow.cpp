@@ -125,7 +125,8 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     }
 	
 	initializeTableNamesDlg();
-    initializeMMode();
+    //initializeMMode();
+	m_UI->actionToggleManagerMode->setEnabled(false);
 
     // Setup Log Widget
     setupLogWidget();
