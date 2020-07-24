@@ -291,7 +291,7 @@ private:
 	void   initializeMMode();
     void   showDockWidgets(bool show);
 //    void   screenShot();
-
+    QList<QString> getTableNames(bool isExponent);
 
     void adjustProgressWidget();
     bool areFieldsValid(std::string table,
@@ -301,6 +301,18 @@ private:
                         std::vector<std::string> fields);
     double calculateMonteCarloValue(const double& uncertainty,
                                     const double& value);
+    bool calculateMSYValues(
+            const bool& isAggProdStr,
+            const int& NumLines,
+            const int& NumSpeciesOrGuilds,
+            const std::string& Algorithm,
+            const std::string& Minimizer,
+            const std::string& ObjectiveCriterion,
+            const std::string& Scaling,
+            const QString& TableName,
+            QList<double>& BMSYValues,
+            QList<double>& MSYValues,
+            QList<double>& FMSYValues);
     void calculateSummaryStatistics(QStandardItemModel *smodel,
                                     const bool        &isAggProd,
                                     const std::string &Algorithm,
@@ -341,6 +353,12 @@ private:
                                  std::string& scaling,
                                  std::string& competitionForm);
     QString getCurrentStyle();
+
+    bool getSystemDataForChart(
+            int& StartYear,
+            int& RunLength,
+            std::string& CompetitionForm,
+            std::string& PredationForm);
     bool getDiagnosticsData(
             const int   &NumPoints,
             const int   &NumSpecies,
@@ -409,7 +427,17 @@ private:
             QStringList& ForecastLabels,
             std::vector<boost::numeric::ublas::matrix<double> >& MultiScenarioBiomass);
     int getNumLines();
+    boost::numeric::ublas::matrix<double> getObservedBiomass(
+            const int& NumGuilds,
+            const int& RunLength,
+            const std::string& type);
 
+    std::vector<boost::numeric::ublas::matrix<double> >
+    getOutputBiomass2(
+            const int& NumLines,
+            const int& RunLength,
+            const std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassSpecies,
+            const std::string& type);
     bool getOutputBiomass(const int &m_NumLines, const int &NumSpecies, const int &RunLength,
                           std::vector<std::string> &Algorithms,
                           std::vector<std::string> &Minimizers,
@@ -424,6 +452,9 @@ private:
     bool getRunLength(int &RunLength);
     bool getSpecies(int &NumSpecies, QStringList &SpeciesList);
     void getSpeciesGuildMap(std::map<std::string,std::string>& SpeciesGuildMap);
+    bool getSpeciesWithGuilds(int&         NumSpecies,
+                              QStringList& SpeciesList,
+                              QStringList& GuildList);
     int  getStartYearOffset();
 
     bool getTimeSeriesData(const std::string  MohnsRhoLabel,
@@ -536,7 +567,7 @@ private:
     void setupOutputScreenShotViewerWidgets();
     void setupOutputViewerWidget();
     void setupProgressChart();
-    void showChartBcBoVsTime(
+    void showChartBiomassVsTime(
             const int &NumSpecies,
             const QString &OutputSpecies,
             const int &SpeciesNum,
@@ -981,6 +1012,8 @@ public slots:
      * @param style : style of application (Light or Dark)
      */
     void callback_PreferencesSetStyleSheet(QString style);
+//    void callback_ShowChartByGuild();
+    void callback_ShowChartBy(QString type);
     /**
      * @brief Callback invoked when user is modifying the Population Parameters and needs to
      * store the current value of the Output widget's species
@@ -1154,6 +1187,7 @@ public slots:
      * @brief Interrupt and stop the current run
      */
     void menu_stopRun();
+    void menu_toggleManagerMode();
     /**
      * @brief Puts application in What's This mode
      *

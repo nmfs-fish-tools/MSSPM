@@ -46,7 +46,9 @@ MSSPM_GuiOutputControls::initWidgets()
     QHBoxLayout* ParametersLayt = new QHBoxLayout();
     QHBoxLayout* ScaleLayt  = new QHBoxLayout();
     QHBoxLayout* ShadowLayt = new QHBoxLayout();
-    OutputTypeLBL           = new QLabel("Chart Type:");
+    OutputChartTypeLBL      = new QLabel("Chart Type:");
+    OutputGroupTypeCMB      = new QComboBox();
+    OutputGroupTypeCMB->addItems({"Species:","Guild:","System"});
     OutputSpeciesLBL        = new QLabel("Species:");
     OutputSpeListLBL        = new QLabel("Species:");
     OutputMethodsLBL        = new QLabel("Methods:");
@@ -97,9 +99,9 @@ MSSPM_GuiOutputControls::initWidgets()
     ParametersLayt->addWidget(OutputParametersCenterPB);
     ParametersLayt->addWidget(OutputParametersMinimumPB);
     ParametersLayt->addWidget(OutputParametersCB);
-    controlLayt->addWidget(OutputTypeLBL);
+    controlLayt->addWidget(OutputChartTypeLBL);
     controlLayt->addWidget(OutputTypeCMB);
-    controlLayt->addWidget(OutputSpeciesLBL);
+    controlLayt->addWidget(OutputGroupTypeCMB);
     controlLayt->addWidget(OutputSpeciesCMB);
     controlLayt->addWidget(OutputMethodsLBL);
     controlLayt->addWidget(OutputMethodsCMB);
@@ -131,6 +133,8 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputSpeListLBL->setEnabled(false);
     OutputSpeListLV->setEnabled(false);
     OutputSpeListLV->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    OutputGroupTypeCMB->setToolTip("Type of Entity to plot (Species, Guild, or entire System)");
+    OutputGroupTypeCMB->setStatusTip("Type of Entity to plot (Species, Guild, or entire System)");
     OutputShowBMSYCB->setToolTip("Biomass Maximum Sustained Yield (K/2)");
     OutputShowBMSYCB->setStatusTip("Biomass Maximum Sustained Yield (K/2)");
     OutputShowBMSYLE->setToolTip("Biomass Maximum Sustained Yield (K/2)");
@@ -172,11 +176,11 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputShowShadowCB->setToolTip("Toggles the 3d surface's shadow");
     OutputShowShadowCB->setStatusTip("Toggles the 3d surface's shadow");
 
-    OutputTypeLBL->setToolTip("The type of chart that will be displayed");
-    OutputTypeLBL->setStatusTip("The type of chart that will be displayed");
+    OutputChartTypeLBL->setToolTip("The type of chart that will be displayed");
+    OutputChartTypeLBL->setStatusTip("The type of chart that will be displayed");
     OutputTypeCMB->setToolTip("The type of chart that will be displayed");
     OutputTypeCMB->setStatusTip("The type of chart that will be displayed");
-    OutputTypeCMB->addItem("Bc & Bo vs Time");
+    OutputTypeCMB->addItem("Biomass vs Time");
     OutputTypeCMB->addItem("Harvest vs Time");
     OutputTypeCMB->addItem("Fishing Mortality vs Time");
     OutputTypeCMB->addItem("(Abs) Bc vs Time");
@@ -282,6 +286,8 @@ MSSPM_GuiOutputControls::initConnections()
 {
     connect(OutputTypeCMB,          SIGNAL(currentIndexChanged(QString)),
             this,                   SLOT(callback_OutputTypeCMB(QString)));
+    connect(OutputGroupTypeCMB,     SIGNAL(currentIndexChanged(QString)),
+            this,                   SLOT(callback_OutputGroupTypeCMB(QString)));
     connect(OutputSpeciesCMB,       SIGNAL(currentIndexChanged(QString)),
             this,                   SLOT(callback_OutputSpeciesCMB(QString)));
     connect(OutputMethodsCMB,       SIGNAL(currentIndexChanged(QString)),
@@ -382,7 +388,7 @@ MSSPM_GuiOutputControls::loadSpeciesControlWidget()
         m_Logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::loadSpeciesControlWidget: No records found in table Guilds, Name = "+m_ProjectSettingsConfig);
         return;
     }
-    if (CompetitionForm == "AGG-PROD") {
+    if ((OutputGroupTypeCMB->currentText() == "Guild:") || (CompetitionForm == "AGG-PROD")) {
        NumSpecies  = NumGuilds;
        SpeciesList = GuildList;
     } else {
@@ -543,6 +549,21 @@ MSSPM_GuiOutputControls::enableBrightnessWidgets(bool state)
 
 
 void
+MSSPM_GuiOutputControls::callback_OutputGroupTypeCMB(QString outputGroupType)
+{
+    if (outputGroupType == "Species:" ) {
+        loadSpeciesControlWidget();
+        emit ShowChart("","");
+    } else if (outputGroupType == "Guild:") {
+        loadSpeciesControlWidget();
+        emit ShowChartBy("Guild");
+    } else if (outputGroupType == "System") {
+        OutputSpeciesCMB->clear();
+        emit ShowChartBy("System");
+    }
+}
+
+void
 MSSPM_GuiOutputControls::callback_OutputTypeCMB(QString outputType)
 {
     bool isParameterProfiles = (OutputMethodsCMB->currentText() == "Parameter Profiles");
@@ -551,7 +572,7 @@ MSSPM_GuiOutputControls::callback_OutputTypeCMB(QString outputType)
     bool isDiagnostic    = (outputType == "Diagnostics");
     bool isMultiScenario = (outputType == "Multi-Scenario Plots");
     bool paramIsChecked  = (OutputParametersCB->checkState() == Qt::Checked);
-    bool isBcBoVsTime    = (outputType == "Bc & Bo vs Time");
+    bool isBcBoVsTime    = (outputType == "Biomass vs Time");
     bool is3dChecked     = OutputParametersCB->isChecked();
     QString scenario     = getOutputScenario();
     QStringList emptyList;
@@ -614,9 +635,9 @@ MSSPM_GuiOutputControls::callback_OutputTypeCMB(QString outputType)
 
         emit SetChartView2d(true);
 
-        // Reset toolbar buttons and only enable them for "Bc & Bo vs Time"
+        // Reset toolbar buttons and only enable them for "Biomass vs Time"
         emit ResetFilterButtons();
-        emit EnableFilterButtons(outputType == "Bc & Bo vs Time");
+        emit EnableFilterButtons(outputType == "Biomass vs Time");
 
         OutputSpeListLV->clearSelection();
         emit ShowChart(outputType,"");
@@ -633,8 +654,8 @@ MSSPM_GuiOutputControls::callback_OutputTypeCMB(QString outputType)
     OutputSpeciesCMB->setEnabled(! speciesLVFlag);
     OutputSpeListLBL->setEnabled(  speciesLVFlag);
     OutputSpeListLV->setEnabled(   speciesLVFlag);
-    OutputShowBMSYCB->setEnabled( outputType == "Bc & Bo vs Time");
-    OutputShowBMSYLE->setEnabled( outputType == "Bc & Bo vs Time");
+    OutputShowBMSYCB->setEnabled( outputType == "Biomass vs Time");
+    OutputShowBMSYLE->setEnabled( outputType == "Biomass vs Time");
     OutputShowMSYCB->setEnabled(  outputType == "Harvest vs Time");
     OutputShowMSYLE->setEnabled(  outputType == "Harvest vs Time");
     OutputShowFMSYCB->setEnabled( outputType == "Fishing Mortality vs Time");
@@ -692,7 +713,11 @@ MSSPM_GuiOutputControls::callback_OutputSpeciesCMB(QString outputSpecies)
     } else if ((chartType == "Diagnostics") && (method == "Retrospective Analysis")) {
         emit ShowChartMohnsRho();
     } else {
-        emit ShowChart("",outputSpecies);
+        if (OutputGroupTypeCMB->currentText() == "Guild:") {
+            emit ShowChartBy("Guild");
+        } else if (OutputGroupTypeCMB->currentText() == "Species:") {
+            emit ShowChart("",outputSpecies);
+        }
     }
 
 }
@@ -958,6 +983,12 @@ MSSPM_GuiOutputControls::setForecastLabels(
 {
     m_SortedForecastLabelsMap = SortedForecastLabelsMap;
 
+}
+
+QString
+MSSPM_GuiOutputControls::getOutputGroupType()
+{
+    return OutputGroupTypeCMB->currentText();
 }
 
 QString

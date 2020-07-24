@@ -57,7 +57,8 @@ class MSSPM_GuiOutputControls: public QObject
     QHash<QString,int> m_SpeciesHash;
     QStringListModel*  m_SpeciesOrGuildModel;
 
-    QLabel*      OutputTypeLBL;
+    QLabel*      OutputChartTypeLBL;
+    QComboBox*   OutputGroupTypeCMB;
     QLabel*      OutputSpeciesLBL;
     QLabel*      OutputSpeListLBL;
     QLabel*      OutputMethodsLBL;
@@ -153,6 +154,11 @@ public:
      * @return The name of the Diagnostic method chosen by the user
      */
     QString         getOutputDiagnostics();
+    /**
+     * @brief Get the currently selected group type
+     * @return The name of the group type (i.e., Species, Guild, System)
+     */
+    QString getOutputGroupType();
     /**
      * @brief Get the currently selected Diagnostic parameter
      * @return The name of the Diagnostic parameter chosen by the user
@@ -340,6 +346,7 @@ signals:
      * @param OutputSpecies : the Species on which to base the Chart to be shown
      */
     void ShowChart(QString OutputType, QString OutputSpecies);
+    void ShowChartBy(QString type);
     /**
      * @brief Signal emitted when the user wants to show a MultiScenario chart
      * @param sortedForecastLabels : list of Forecast names to show in the MultiScenario chart
@@ -363,6 +370,12 @@ signals:
     void YAxisMinValueChanged(int value);
 
 public slots:
+    /**
+     * @brief Callback invoked when the user selects from the Output Group Type combobox.  The user
+     * may select a Species, Guild, or System group type to be displayed in the chart.
+     * @param outputGroupType : the type of group to be displayed (i.e., Species, Guild, System)
+     */
+    void callback_OutputGroupTypeCMB(QString outputGroupType);
     /**
      * @brief Callback invoked when the user selects from the Output Type combo box widget
      * @param outputType : the name of the output chart type selected
