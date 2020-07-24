@@ -756,6 +756,34 @@ nmfMainWindow::getInitialObservedBiomass(QList<double> &InitBiomass)
 }
 
 bool
+nmfMainWindow::getSpeciesWithGuilds(int&         NumSpecies,
+                                    QStringList& SpeciesList,
+                                    QStringList& GuildList)
+{
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    SpeciesList.clear();
+
+    fields   = {"SpeName","GuildName"};
+    queryStr = "SELECT SpeName,GuildName from Species";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumSpecies = dataMap["SpeName"].size();
+    if (NumSpecies == 0) {
+        m_Logger->logMsg(nmfConstants::Error,"[Error 1] getSpeciesWithGuilds: No species found in table Species");
+        return false;
+    }
+
+    for (int species=0; species<NumSpecies; ++species) {
+        SpeciesList << QString::fromStdString(dataMap["SpeName"][species]);
+        GuildList << QString::fromStdString(dataMap["GuildName"][species]);
+    }
+
+    return true;
+}
+
+bool
 nmfMainWindow::getSpecies(int &NumSpecies, QStringList &SpeciesList)
 {
     std::vector<std::string> fields;
@@ -1786,7 +1814,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.1 (beta)";
+    QString version = "MSSPM v0.9.2 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2233,18 +2261,10 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
     this->setCursor(Qt::ArrowCursor);
     QMessageBox::information(this, "Success", "\nOutput table(s) cleared successfully.", QMessageBox::Ok);
 
-    // Remove data from chart and clear tables
-//    chartView2d->chart()->removeAllSeries();
-//    clearOutputTables();
 
-//  Take user back to System Settings page
-//  QModelIndex topLevelndex = NavigatorTree->model()->index(0,0);
-//  QModelIndex childIndex   = topLevelndex.child(2,0);  // the child() method has been deprecated
-//  NavigatorTree->setCurrentIndex(childIndex);
-
-  NavigatorTree->blockSignals(true);
-  NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(0,0));
-  NavigatorTree->blockSignals(false);
+    NavigatorTree->blockSignals(true);
+    NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(0,0));
+    NavigatorTree->blockSignals(false);
 
     menu_showAllSavedRuns();
 }
@@ -2588,6 +2608,10 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_EnableFilterButtons(bool)));
     connect(Output_Controls_ptr, SIGNAL(ShowChart(QString,QString)),
             this,                SLOT(callback_ShowChart(QString,QString)));
+    connect(Output_Controls_ptr, SIGNAL(ShowChartBy(QString)),
+            this,                SLOT(callback_ShowChartBy(QString)));
+    connect(Output_Controls_ptr, SIGNAL(ShowChartBy(QString)),
+            this,                SLOT(callback_ShowChartBy(QString)));
     connect(Output_Controls_ptr, SIGNAL(ShowChartMultiScenario(QStringList)),
             this,                SLOT(callback_ShowChartMultiScenario(QStringList)));
     connect(Output_Controls_ptr, SIGNAL(ShowDiagnosticsChart3d()),
@@ -4156,6 +4180,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     bool isHandling;
     bool isAggProd;
     bool isExponent;
+    bool isGuild = (Output_Controls_ptr->getOutputGroupType() == "Guild:");
     int m;
     int ii=0;
     int SpeciesNum;
@@ -4204,7 +4229,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
-    // Find RunLength
+    // Get Systems data
     fields     = {"RunLength","StartYear","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
     queryStr   = "SELECT RunLength,StartYear,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm";
     queryStr  += " FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
@@ -4225,6 +4250,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     isHandling      = (PredationForm == "Type II") || (PredationForm == "Type III");
     isExponent      = (PredationForm == "Type III");
     isAggProdStr    = (isAggProd) ? "1" : "0";
+
 
     if (OutputType.isEmpty()) {
         OutputType = Output_Controls_ptr->getOutputType();
@@ -4427,7 +4453,6 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                            isAggProdStr,OutputBiomass)) {
         return false;
     }
-
     // Load Observed (ie, original) Biomass
     if (isAggProd) {
         if (! getTimeSeriesDataByGuild("","ObservedBiomass",NumSpeciesOrGuilds,RunLength,ObservedBiomass)) {
@@ -4438,7 +4463,6 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
             return false;
         }
     }
-
     TableViews.clear();
     TableViews.append(OutputBiomassTV);
     TableNames.clear();
@@ -4464,8 +4488,8 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     // Calculate ScaleStr and Scaleval
     ScaleVal = convertUnitsStringToValue(ScaleStr);
 
-    if (OutputType == "Bc & Bo vs Time") {
-        showChartBcBoVsTime(NumSpeciesOrGuilds,OutputSpecies,
+    if (OutputType == "Biomass vs Time") {
+        showChartBiomassVsTime(NumSpeciesOrGuilds,OutputSpecies,
                             SpeciesNum,RunLength,StartYear,
                             NumLines,
                             Algorithms,
@@ -4546,6 +4570,171 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     }
 
     return true;
+}
+
+
+boost::numeric::ublas::matrix<double>
+nmfMainWindow::getObservedBiomass(const int& NumGuilds,
+                                  const int& RunLength,
+                                  const std::string& type)
+{
+    boost::numeric::ublas::matrix<double> tmpObservedBiomass;
+    boost::numeric::ublas::matrix<double> ObservedBiomass;
+
+    if (type == "Guild") {
+        getTimeSeriesDataByGuild("","ObservedBiomass",NumGuilds,RunLength,ObservedBiomass);
+    } else if (type == "System") {
+        // Find total system observed biomass
+        if (! getTimeSeriesDataByGuild("","ObservedBiomass",NumGuilds,RunLength,tmpObservedBiomass)) {
+            return ObservedBiomass;
+        }
+        nmfUtils::initialize(ObservedBiomass,RunLength+1,1);
+        for (int guild=0; guild<NumGuilds; ++guild) {
+            for (int time=0; time<=RunLength; ++time) {
+                ObservedBiomass(time,0) += tmpObservedBiomass(time,guild);
+            }
+        }
+    }
+
+    return ObservedBiomass;
+}
+
+std::vector<boost::numeric::ublas::matrix<double> >
+nmfMainWindow::getOutputBiomass2(
+        const int& NumLines,
+        const int& RunLength,
+        const std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassSpecies,
+        const std::string& type)
+{
+    QStringList SpeciesList;
+    QStringList GuildList;
+    std::vector<std::string> guildOrder;
+    std::set<std::string> guilds;
+    std::map<std::string, int> GuildMap;
+    int i=0;
+    int guildNum;
+    int NumSpecies;
+    std::string guildName;
+    std::string guild;
+    std::vector<boost::numeric::ublas::matrix<double> > OutputBiomassGuilds;
+    boost::numeric::ublas::matrix<double> TmpMatrix;
+
+    if (! getSpeciesWithGuilds(NumSpecies,SpeciesList,GuildList))
+        return OutputBiomassGuilds;
+
+    if (type == "Guild") {
+        NumSpecies = SpeciesList.size();
+        for (unsigned i=0; i<NumSpecies; ++i) {
+            guildName = GuildList[i].toStdString();
+            guildOrder.push_back(guildName);
+            guilds.insert(guildName);
+        }
+        for (std::string guild : guilds) {
+            GuildMap[guild] = i++;
+        }
+        for (int chart=0; chart<NumLines; ++chart) {
+            nmfUtils::initialize(TmpMatrix,RunLength+1,guilds.size());
+            for (int species=0; species<NumSpecies; ++species) {
+                guild = guildOrder[species];
+                guildNum = GuildMap[guild];
+                for (int time=0; time<=RunLength; ++time) {
+                    TmpMatrix(time,guildNum) += OutputBiomassSpecies[chart](time,species);
+                }
+            }
+            OutputBiomassGuilds.push_back(TmpMatrix);
+        }
+    } else if (type == "System") {
+        for (int chart=0; chart<NumLines; ++chart) {
+            nmfUtils::initialize(TmpMatrix,RunLength+1,1);
+            for (int species=0; species<NumSpecies; ++species) {
+                for (int time=0; time<=RunLength; ++time) {
+                    TmpMatrix(time,0) += OutputBiomassSpecies[chart](time,species);
+                }
+            }
+            OutputBiomassGuilds.push_back(TmpMatrix);
+        }
+    }
+
+    return OutputBiomassGuilds;
+}
+
+void
+nmfMainWindow::callback_ShowChartBy(QString type)
+{
+    int NumGuilds;
+    int NumSpecies;
+    int RunLength;
+    int StartYear;
+    int NumLines          = getNumLines();
+    int SpeciesNum        = Output_Controls_ptr->getOutputSpeciesIndex();
+    double YMinSliderVal  = Output_Controls_ptr->getYMinSliderVal();
+    QString OutputType    = Output_Controls_ptr->getOutputType();
+    QString OutputSpecies = Output_Controls_ptr->getOutputSpecies();
+    QString ScaleStr      = Output_Controls_ptr->getOutputScale();
+    QString OutputMethod  = Output_Controls_ptr->getOutputDiagnostics();
+    double ScaleVal       = convertUnitsStringToValue(ScaleStr);
+    QStringList SpeciesList;
+    QStringList GuildList;
+    std::string CompetitionForm;
+    std::string Algorithm;
+    std::string Minimizer;
+    std::string ObjectiveCriterion;
+    std::string Scaling;
+    std::string isAggProdStr = "0";
+    std::vector<std::string> Algorithms;
+    std::vector<std::string> Minimizers;
+    std::vector<std::string> ObjectiveCriteria;
+    std::vector<std::string> Scalings;
+    boost::numeric::ublas::matrix<double> ObservedBiomass;
+    std::vector<boost::numeric::ublas::matrix<double> > OutputBiomassSpecies;
+    std::vector<boost::numeric::ublas::matrix<double> > OutputBiomass;
+    QList<double> BMSYValues;
+
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+
+    getInitialYear(StartYear,RunLength);
+    if (! getGuilds(NumGuilds,GuildList))
+        return;
+    if (! getSpecies(NumSpecies,SpeciesList))
+        return;
+    if (! getOutputBiomass(NumLines,NumSpecies,RunLength,
+                           Algorithms,Minimizers,ObjectiveCriteria,Scalings,
+                           isAggProdStr,OutputBiomassSpecies)) {
+        return;
+    }
+    NumLines = OutputBiomassSpecies.size();
+
+    // type specific code here
+    OutputBiomass   = getOutputBiomass2(NumLines,RunLength,OutputBiomassSpecies,type.toStdString());
+    ObservedBiomass = getObservedBiomass(NumGuilds,RunLength,type.toStdString());
+    if (type == "System") {
+        NumGuilds  = 1;
+        SpeciesNum = 0;
+    }
+
+    // Draw the appropriate chart
+    if (OutputType == "Biomass vs Time") {
+        showChartBiomassVsTime(NumGuilds,  OutputSpecies,
+                               SpeciesNum, RunLength,StartYear,
+                               NumLines,
+                               Algorithms,
+                               Minimizers,
+                               ObjectiveCriteria,
+                               Scalings,
+                               OutputBiomass,
+                               ObservedBiomass,
+                               BMSYValues,
+                               ScaleStr,ScaleVal,
+                               YMinSliderVal);
+//        Output_Controls_ptr->clearOutputBMSY();
+//        if (Output_Controls_ptr->isCheckedOutputBMSY() and (NumLines == 1)) {
+//            Output_Controls_ptr->setTextOutputBMSY(QString::number(BMSYValues[SpeciesNum]/ScaleVal));
+//        }
+    }
+
 }
 
 void
@@ -6046,7 +6235,7 @@ nmfMainWindow::getLegendCode(std::string &Algorithm,
 
 
 void
-nmfMainWindow::showChartBcBoVsTime(
+nmfMainWindow::showChartBiomassVsTime(
         const int &NumSpecies,
         const QString &OutputSpecies,
         const int &SpeciesNum,
@@ -7586,8 +7775,8 @@ nmfMainWindow::callback_RunCompleted(std::string output, bool showDiagnosticChar
 std::cout << "=====>>>>> run completed" << std::endl;
     m_Logger->logMsg(nmfConstants::Normal,"Run Completed");
 
-    // Set Chart Type to "Bc & Bo vs Time"
-    Output_Controls_ptr->setOutputType("Bc & Bo vs Time");
+    // Set Chart Type to "Biomass vs Time"
+    Output_Controls_ptr->setOutputType("Biomass vs Time");
 
     // General Results Output to Results window
     QString msg = "<strong>Run Summary</strong><br>";
@@ -9455,6 +9644,8 @@ nmfMainWindow::selectMinimumSurfacePoint()
         getSurfaceData(rowValues,columnValues,heightValues,yMax);
         nmfChartSurface surface(m_Graph3D,xLabel,yLabel,zLabel,
                                 xLabelFormat,zLabelFormat,
+                                nmfConstants::DontReverseAxis,
+                                nmfConstants::DontReverseAxis,
                                 rowValues,columnValues,heightValues,
                                 Output_Controls_ptr->isShadowShown());
         surface.selectMinimumPoint();
@@ -9469,6 +9660,8 @@ nmfMainWindow::callback_ShowDiagnostics()
 {
     callback_ShowDiagnosticsChart3d();
     Output_Controls_ptr->setOutputParametersCB(nmfConstants::Checked);
+
+    return true;
 }
 
 bool
@@ -9490,6 +9683,8 @@ nmfMainWindow::callback_ShowDiagnosticsChart3d()
         getSurfaceData(rowValues,columnValues,heightValues,yMax);
         nmfChartSurface surface(m_Graph3D,xLabel,yLabel,zLabel,
                                 xLabelFormat,zLabelFormat,
+                                nmfConstants::DontReverseAxis,
+                                nmfConstants::DontReverseAxis,
                                 rowValues,columnValues,heightValues,
                                 Output_Controls_ptr->isShadowShown());
         surface.selectCenterPoint();
@@ -9730,8 +9925,8 @@ nmfMainWindow::callback_UpdateModelEquationSummary()
 void
 nmfMainWindow::callback_SetupTabChanged(int tab)
 {
-    QModelIndex topLevelndex = NavigatorTree->model()->index(0,0); // first 0 is Setup group in NavigatorTree
-    QModelIndex childIndex   = topLevelndex.child(tab,0);
+    QModelIndex topLevelIndex = NavigatorTree->model()->index(0,0); // first 0 is Setup group in NavigatorTree
+    QModelIndex childIndex    = topLevelIndex.model()->index(tab,0,topLevelIndex);
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
@@ -9740,8 +9935,8 @@ nmfMainWindow::callback_SetupTabChanged(int tab)
 void
 nmfMainWindow::callback_EstimationTabChanged(int tab)
 {
-    QModelIndex topLevelndex = NavigatorTree->model()->index(1,0); // 1 is Estimation group in NavigatorTree
-    QModelIndex childIndex   = topLevelndex.child(tab,0);
+    QModelIndex topLevelIndex = NavigatorTree->model()->index(1,0); // 1 is Estimation group in NavigatorTree
+    QModelIndex childIndex    = topLevelIndex.model()->index(tab,0,topLevelIndex);
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
@@ -9750,8 +9945,8 @@ nmfMainWindow::callback_EstimationTabChanged(int tab)
 void
 nmfMainWindow::callback_DiagnosticsTabChanged(int tab)
 {
-    QModelIndex topLevelndex = NavigatorTree->model()->index(2,0); // 2 is Diagnostics group in NavigatorTree
-    QModelIndex childIndex   = topLevelndex.child(tab,0);
+    QModelIndex topLevelIndex = NavigatorTree->model()->index(2,0); // 2 is Diagnostics group in NavigatorTree
+    QModelIndex childIndex    = topLevelIndex.model()->index(tab,0,topLevelIndex);
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
@@ -9760,8 +9955,8 @@ nmfMainWindow::callback_DiagnosticsTabChanged(int tab)
 void
 nmfMainWindow::callback_ForecastTabChanged(int tab)
 {
-    QModelIndex topLevelndex = NavigatorTree->model()->index(3,0); // 3 is Forecast group in NavigatorTree
-    QModelIndex childIndex   = topLevelndex.child(tab,0);
+    QModelIndex topLevelIndex = NavigatorTree->model()->index(3,0); // 3 is Forecast group in NavigatorTree
+    QModelIndex childIndex    = topLevelIndex.model()->index(tab,0,topLevelIndex);
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
