@@ -40,6 +40,7 @@ var searchData=
   ['settextoutputmsy',['setTextOutputMSY',['../class_m_s_s_p_m___gui_output_controls.html#a4ab439432ddf47c8ca7a0495982f11fe',1,'MSSPM_GuiOutputControls']]],
   ['setvariation',['setVariation',['../classnmf_diagnostic___tab1.html#ad39304bb5ed04752fc306fc9107d99de',1,'nmfDiagnostic_Tab1']]],
   ['showchart',['ShowChart',['../class_m_s_s_p_m___gui_output_controls.html#a3b4c23220b3b3242a212c1d7cb581dcb',1,'MSSPM_GuiOutputControls']]],
+  ['showchartby',['ShowChartBy',['../class_m_s_s_p_m___gui_output_controls.html#a600f658bdec56d840dce9df6647b2275',1,'MSSPM_GuiOutputControls']]],
   ['showchartmohnsrho',['ShowChartMohnsRho',['../class_m_s_s_p_m___gui_output_controls.html#a9d1e34d7d7d92351ed13b09870eca22a',1,'MSSPM_GuiOutputControls']]],
   ['showchartmultiscenario',['ShowChartMultiScenario',['../class_m_s_s_p_m___gui_output_controls.html#a6e14cd7a7c1799002704d51a33f7a43d',1,'MSSPM_GuiOutputControls']]],
   ['showdiagnostics',['ShowDiagnostics',['../classnmf_estimation___tab1.html#a732806eeb8122d872621e6ed26ec6257',1,'nmfEstimation_Tab1']]],

@@ -6,6 +6,8 @@ var searchData=
   ['ischeckedoutputfmsy',['isCheckedOutputFMSY',['../class_m_s_s_p_m___gui_output_controls.html#a953aed28fa7018c1334ad0715f81e98c',1,'MSSPM_GuiOutputControls']]],
   ['ischeckedoutputmsy',['isCheckedOutputMSY',['../class_m_s_s_p_m___gui_output_controls.html#aae6d27a14863cee54ebd11ecd507ccc3',1,'MSSPM_GuiOutputControls']]],
   ['iscompetitionformhighlighted',['isCompetitionFormHighlighted',['../classnmf_setup___tab4.html#a67f052f1c492718921b626c9ddff8735',1,'nmfSetup_Tab4']]],
+  ['isenabledoutputfmsy',['isEnabledOutputFMSY',['../class_m_s_s_p_m___gui_output_controls.html#aed968b1e05673d0457bbef8ff916733e',1,'MSSPM_GuiOutputControls']]],
+  ['isenabledoutputmsy',['isEnabledOutputMSY',['../class_m_s_s_p_m___gui_output_controls.html#a6b990d4c2698e8bb362215bf28adb6e5',1,'MSSPM_GuiOutputControls']]],
   ['isgrowthformhighlighted',['isGrowthFormHighlighted',['../classnmf_setup___tab4.html#a37db9d3dd15dc9abf3175122bb8cbe8f',1,'nmfSetup_Tab4']]],
   ['isharvestformhighlighted',['isHarvestFormHighlighted',['../classnmf_setup___tab4.html#a54a3665275cb5a3fb54e6b25bd09ae23',1,'nmfSetup_Tab4']]],
   ['ispredationformhighlighted',['isPredationFormHighlighted',['../classnmf_setup___tab4.html#a6bf895a7cef7c71eda8efb5fea3c9ec8',1,'nmfSetup_Tab4']]],
