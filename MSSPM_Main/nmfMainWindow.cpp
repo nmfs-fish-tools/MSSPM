@@ -123,10 +123,10 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     if (m_LoadLastProject) {
         loadDatabase();
     }
-	
-	initializeTableNamesDlg();
+
+    initializeTableNamesDlg();
     //initializeMMode();
-	m_UI->actionToggleManagerMode->setEnabled(false);
+    m_UI->actionToggleManagerMode->setEnabled(false);
 
     // Setup Log Widget
     setupLogWidget();
@@ -1714,13 +1714,10 @@ void
 nmfMainWindow::menu_exportDatabase()
 {
     m_DatabasePtr->exportDatabase(this,
-                                  nmfConstants::ExportDatabaseWithoutFileName,
                                   m_ProjectDir,
                                   m_Username,
                                   m_Password,
                                   m_ProjectDatabase);
-    QMessageBox::information(this,"Export Database",
-                             "\nThe database has been successfully exported.\n");
 }
 
 void
@@ -1736,15 +1733,11 @@ nmfMainWindow::menu_exportAllDatabases()
         projectDatabase = authDBsIterator->toStdString();
 
         m_DatabasePtr->exportDatabase(this,
-                                      nmfConstants::ExportDatabaseWithFileName,
                                       m_ProjectDir,
                                       m_Username,
                                       m_Password,
                                       projectDatabase);
     }
-
-    QMessageBox::information(this,"Export All Databases",
-                             "\nAll databases have been successfully exported.\n");
 }
 
 void
