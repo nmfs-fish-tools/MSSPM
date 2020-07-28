@@ -14,6 +14,8 @@ var classnmf_estimation___tab1 =
     [ "callback_SavePB", "classnmf_estimation___tab1.html#a9741486fd83c5ed7000ef9887e5ef947", null ],
     [ "callback_SelectionChangedTV", "classnmf_estimation___tab1.html#ad92ff002c0b38264230fb3d6f0e00316", null ],
     [ "callback_SpeciesRangeCB", "classnmf_estimation___tab1.html#a1fd3a724a2620b28f38b64a0c43bb3ec", null ],
+    [ "callback_SpeciesRangeCMB", "classnmf_estimation___tab1.html#a12b41bf726cbd981b475a468dce15c97", null ],
+    [ "callback_SpeciesRangeSB", "classnmf_estimation___tab1.html#af062b27b5d1bba356b068be15c92a0e2", null ],
     [ "callback_SpeciesSuppCB", "classnmf_estimation___tab1.html#aeaa604f622fa168cd706ea4c15c9acb4", null ],
     [ "CheckAllEstimationTablesAndRun", "classnmf_estimation___tab1.html#a242d5cfac4a1be555fb00f1ce75da2f9", null ],
     [ "checkIfRunFromModifySlider", "classnmf_estimation___tab1.html#af2283ab9044188d70ce57f70883aa094", null ],

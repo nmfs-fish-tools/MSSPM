@@ -456,7 +456,12 @@ private:
                               QStringList& SpeciesList,
                               QStringList& GuildList);
     int  getStartYearOffset();
-
+    bool getMSYData(const int&     NumLines,
+                    const int&     NumGroups,
+                    const std::string& Group,
+                    QList<double>& BMSYValues,
+                    QList<double>& MSYValues,
+                    QList<double>& FMSYValues);
     bool getTimeSeriesData(const std::string  MohnsRhoLabel,
                            const std::string  ForecastName,
                            const std::string& TableName,
@@ -1043,16 +1048,6 @@ public slots:
      * @brief Callback invoked to update the Model Equation in the Setup page 4 summary text box
      */
     void callback_UpdateModelEquationSummary();
-    /**
-     * @brief Callback invoked when user changes the y axis maximum value slider in the Output Controls GUI
-     * @param value : unused
-     */
-    void callback_YAxisMaxValueChanged(int value);
-    /**
-     * @brief Callback invoked when user changes the y axis minimum value slider in the Output Controls GUI
-     * @param value : unused
-     */
-    void callback_YAxisMinValueChanged(int value);
     /**
      * @brief Raises an About MSSPM Dialog
      *

@@ -63,15 +63,15 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_Graph3D           = nullptr;
     OutputChartMainLayt = nullptr;
     Output_Controls_ptr = nullptr;
-    m_PreferencesDlg    = new QDialog();
-    m_TableNamesDlg = new QDialog();
+    m_PreferencesDlg    = new QDialog(this);
+    m_TableNamesDlg     = new QDialog(this);
     m_PreferencesWidget = nullptr;
-	m_TableNamesWidget = nullptr;
+    m_TableNamesWidget  = nullptr;
     m_ViewerWidget      = nullptr;
 
-    OutputChartMainLayt   = nullptr;
-    m_ChartWidget         = nullptr;
-    m_ChartView2d         = nullptr;
+    OutputChartMainLayt     = nullptr;
+    m_ChartWidget           = nullptr;
+    m_ChartView2d           = nullptr;
     m_EstimatedParametersTW = nullptr;
     m_EstimatedParametersMap.clear();
 
@@ -1639,32 +1639,30 @@ nmfMainWindow::menu_screenShot()
 void
 nmfMainWindow::menu_screenShotAll()
 {
-    int NumSpecies = 0;
-    QStringList SpeciesList;
     QString currentTabName = nmfUtilsQt::getCurrentTabName(m_UI->MSSPMOutputTabWidget);
 
     if ((currentTabName != "Chart") && (currentTabName != "Screen Shot Viewer")) {
         return;
     }
 
-    // Find species info
-    if (! getSpecies(NumSpecies,SpeciesList))
+    int NumSpeciesOrGuilds = Output_Controls_ptr->getNumberSpecies();
+    if (NumSpeciesOrGuilds <= 0)
         return;
 
     // Flip to last species so clearing (as I do in setup2dChart) will work properly
-    Output_Controls_ptr->setCurrentSpecies(SpeciesList.last());
+    Output_Controls_ptr->setSpeciesNum(NumSpeciesOrGuilds-1);
 
     // Flip through all of the species and build a composite image
     // from each of their screen shots
     menu_screenMultiShot();
     bool is3dImage = m_ChartView3d->isVisible();
-    for (QString species : SpeciesList) {
+    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         if (is3dImage) {
             setup3dChart();
         } else {
             setup2dChart();
         }
-        Output_Controls_ptr->setCurrentSpecies(species);
+        Output_Controls_ptr->setSpeciesNum(i);
         menu_screenShot();
     }
     menu_screenMultiShot();
@@ -1752,8 +1750,8 @@ nmfMainWindow::menu_exportAllDatabases()
 void
 nmfMainWindow::menu_toggleManagerMode()
 {
-
     bool isVisible = MModeDockWidget->isVisible();
+
     MModeDockWidget->setVisible(! isVisible);
     //m_UI->LogDockWidget->setVisible(isVisible);
     //m_UI->OutputDockWidget->setVisible(isVisible);
@@ -1788,7 +1786,6 @@ nmfMainWindow::saveScreenshot(QString &outputFile, QPixmap &pm)
     // Save the image
     pm.save(outputFileWithPath);
 
-
     // Notify user image has been saved
     msg = "\nCapture image saved to file:\n\n" + outputFileWithPath;
     msg += "\n\nView captured image in \"Screen Shot Viewer\" tab?\n";
@@ -1808,7 +1805,6 @@ nmfMainWindow::saveScreenshot(QString &outputFile, QPixmap &pm)
 
     return true;
 }
-
 
 
 void
@@ -2623,10 +2619,6 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_SelectMinimumSurfacePoint()));
     connect(Output_Controls_ptr, SIGNAL(ForecastLineBrightnessChanged(double)),
             this,                SLOT(callback_ForecastLineBrightnessChanged(double)));
-    connect(Output_Controls_ptr, SIGNAL(YAxisMinValueChanged(int)),
-            this,                SLOT(callback_YAxisMinValueChanged(int)));
-    connect(Output_Controls_ptr, SIGNAL(YAxisMaxValueChanged(int)),
-            this,                SLOT(callback_YAxisMaxValueChanged(int)));
     connect(Output_Controls_ptr, SIGNAL(ShowChartMohnsRho()),
             this,                SLOT(callback_ShowChartMohnsRho()));
 
@@ -4254,7 +4246,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
 
     if (OutputType.isEmpty()) {
-        OutputType = Output_Controls_ptr->getOutputType();
+        OutputType = Output_Controls_ptr->getOutputChartType();
     }
     if (OutputSpecies.isEmpty()) {
         OutputSpecies = Output_Controls_ptr->getOutputSpecies();
@@ -4659,21 +4651,157 @@ nmfMainWindow::getOutputBiomass2(
     return OutputBiomassGuilds;
 }
 
+bool
+nmfMainWindow::getMSYData(const int& NumLines,
+                          const int& NumGroups,
+                          const std::string& group,
+                          QList<double>& BMSYValues,
+                          QList<double>& MSYValues,
+                          QList<double>& FMSYValues)
+{
+    double BMSYVal = 0;
+    double MSYVal  = 0;
+    double FMSYVal = 0;
+    int NumGuilds;
+    int NumSpecies;
+    std::string msg;
+    std::string Algorithm;
+    std::string Minimizer;
+    std::string ObjectiveCriterion;
+    std::string Scaling;
+    std::vector<std::string> fields;
+    std::string queryStr;
+    std::string CompetitionForm;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    QStringList MSYTableNames = {"OutputMSYBiomass","OutputMSY","OutputMSYFishing"};
+    QString MSYTableName;
+    std::string isAggProdStr = "0";
+    QList<double> tmpBMSYValues;
+    QList<double> tmpMSYValues;
+    QList<double> tmpFMSYValues;
+    QStringList SpeciesList;
+    QStringList GuildList;
+    QString Species;
+    QMap<QString,QString> GuildMap;
+    QMap<QString,int> GuildNumMap; // Num of species per guild
+    QMap<QString,double> BMSYMap;
+    QMap<QString,double> MSYMap;
+    QMap<QString,double> FMSYMap;
+
+    BMSYValues.clear();
+    MSYValues.clear();
+    FMSYValues.clear();
+    GuildNumMap.clear();
+
+    if (! getSpeciesWithGuilds(NumSpecies,SpeciesList,GuildList)) {
+        return false;
+    }
+    int i=0;
+    for (QString species : SpeciesList) {
+        GuildNumMap[GuildList[i]] += 1;
+        GuildMap[species] = GuildList[i++];
+    }
+
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectSettingsConfig,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+
+    for (int i=0; i<MSYTableNames.size(); ++i) {
+        MSYTableName = MSYTableNames[i];
+        if ((NumLines == 1) && (! isAtLeastOneFilterPressed()))  {
+            fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                    MSYTableName.toStdString();
+            queryStr  += " WHERE Algorithm = '" + Algorithm +
+                    "' AND Minimizer = '" + Minimizer +
+                    "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                    "' AND Scaling = '" + Scaling +
+                    "' AND isAggProd = " + isAggProdStr +
+                    " ORDER by SpeName";
+        } else {
+            fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + MSYTableName.toStdString();
+            queryStr  += getFilterButtonsResult();
+            queryStr  += " ORDER by Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName";
+        }
+
+        dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+        NumSpecies = dataMap["SpeName"].size();
+        if (NumSpecies == 0) {
+            m_Logger->logMsg(nmfConstants::Error, queryStr);
+            msg = "\nNo data found in: " + MSYTableName.toStdString() + " for current configuration.\n\n";
+            msg += "Please run an Estimation with the current algorithm configuration.";
+            QMessageBox::information(this,
+                                     tr("No Output Data"),
+                                     tr(msg.c_str()),
+                                     QMessageBox::Ok);
+            return false;
+        }
+
+
+        for (int line=0; line<NumLines; ++line) {
+            for (int j=0; j<NumSpecies; ++j) {
+                Species = QString::fromStdString(dataMap["SpeName"][j]);
+                if (group == "Guild") {
+                    if (MSYTableName == "OutputMSYBiomass") {
+                        BMSYMap[GuildMap[Species]] += std::stod(dataMap["Value"][j]);
+                    } else if (MSYTableName == "OutputMSY") {
+                        MSYMap[GuildMap[Species]]  += std::stod(dataMap["Value"][j]);
+                    } else if (MSYTableName == "OutputMSYFishing") {
+                        FMSYMap[GuildMap[Species]] += std::stod(dataMap["Value"][j]);
+                    }
+                } else if (group == "System") {
+                    if (MSYTableName == "OutputMSYBiomass") {
+                        tmpBMSYValues.append(std::stod(dataMap["Value"][j]));
+                    } else if (MSYTableName == "OutputMSY") {
+                        tmpMSYValues.append( std::stod(dataMap["Value"][j]));
+                    } else if (MSYTableName == "OutputMSYFishing") {
+                        tmpFMSYValues.append(std::stod(dataMap["Value"][j]));
+                    }
+                }
+            }
+        }
+    }
+
+    GuildList.clear();
+    Output_Controls_ptr->getGuilds(NumGuilds,GuildList);
+    if (group == "Guild") {
+        for (QString guild : GuildList) {
+            BMSYValues.append(BMSYMap[guild]);
+            MSYValues.append( MSYMap[guild]);
+            FMSYValues.append(FMSYMap[guild]/GuildNumMap[guild]);
+        }
+    } else if (group == "System") {
+        for (int i=0; i<NumSpecies;++i) {
+            BMSYVal += tmpBMSYValues[i];
+            MSYVal  += tmpMSYValues[i];
+            FMSYVal += tmpFMSYValues[i];
+        }
+        BMSYValues.append(BMSYVal);
+        MSYValues.append( MSYVal);
+        FMSYValues.append(FMSYVal/NumSpecies);
+    }
+
+    return true;
+}
+
+
 void
-nmfMainWindow::callback_ShowChartBy(QString type)
+nmfMainWindow::callback_ShowChartBy(QString ChartType)
 {
     int NumGuilds;
+    int NumGuildsOrSpecies;
     int NumSpecies;
     int RunLength;
     int StartYear;
-    int NumLines          = getNumLines();
-    int SpeciesNum        = Output_Controls_ptr->getOutputSpeciesIndex();
-    double YMinSliderVal  = Output_Controls_ptr->getYMinSliderVal();
-    QString OutputType    = Output_Controls_ptr->getOutputType();
-    QString OutputSpecies = Output_Controls_ptr->getOutputSpecies();
-    QString ScaleStr      = Output_Controls_ptr->getOutputScale();
-    QString OutputMethod  = Output_Controls_ptr->getOutputDiagnostics();
-    double ScaleVal       = convertUnitsStringToValue(ScaleStr);
+    int NumLines            = getNumLines();
+    int SpeciesNum          = Output_Controls_ptr->getOutputSpeciesIndex();
+    double YMinSliderVal    = Output_Controls_ptr->getYMinSliderVal();
+    QString OutputChartType = Output_Controls_ptr->getOutputChartType();
+    QString OutputSpecies   = Output_Controls_ptr->getOutputSpecies();
+    QString ScaleStr        = Output_Controls_ptr->getOutputScale();
+    double ScaleVal         = convertUnitsStringToValue(ScaleStr);
     QStringList SpeciesList;
     QStringList GuildList;
     std::string CompetitionForm;
@@ -4690,6 +4818,11 @@ nmfMainWindow::callback_ShowChartBy(QString type)
     std::vector<boost::numeric::ublas::matrix<double> > OutputBiomassSpecies;
     std::vector<boost::numeric::ublas::matrix<double> > OutputBiomass;
     QList<double> BMSYValues;
+    QList<double> MSYValues;
+    QList<double> FMSYValues;
+    boost::numeric::ublas::matrix<double> tmpCatch;
+    boost::numeric::ublas::matrix<double> Catch;
+    std::vector<boost::numeric::ublas::matrix<double> > CatchVec;
 
     m_DatabasePtr->getAlgorithmIdentifiers(
                 this,m_Logger,m_ProjectSettingsConfig,
@@ -4709,16 +4842,22 @@ nmfMainWindow::callback_ShowChartBy(QString type)
     NumLines = OutputBiomassSpecies.size();
 
     // type specific code here
-    OutputBiomass   = getOutputBiomass2(NumLines,RunLength,OutputBiomassSpecies,type.toStdString());
-    ObservedBiomass = getObservedBiomass(NumGuilds,RunLength,type.toStdString());
-    if (type == "System") {
-        NumGuilds  = 1;
+    OutputBiomass   = getOutputBiomass2(NumLines,RunLength,OutputBiomassSpecies,ChartType.toStdString());
+    ObservedBiomass = getObservedBiomass(NumGuilds,RunLength,ChartType.toStdString());
+    if (ChartType == "Guild") {
+        NumGuildsOrSpecies = NumGuilds;
+    } else if (ChartType == "System") {
+        NumGuildsOrSpecies  = 1;
         SpeciesNum = 0;
+        OutputSpecies = "System";
     }
 
+    getMSYData(NumLines,NumGuildsOrSpecies,ChartType.toStdString(),
+               BMSYValues,MSYValues,FMSYValues);
+
     // Draw the appropriate chart
-    if (OutputType == "Biomass vs Time") {
-        showChartBiomassVsTime(NumGuilds,  OutputSpecies,
+    if (OutputChartType == "Biomass vs Time") {
+        showChartBiomassVsTime(NumGuildsOrSpecies,  OutputSpecies,
                                SpeciesNum, RunLength,StartYear,
                                NumLines,
                                Algorithms,
@@ -4730,10 +4869,64 @@ nmfMainWindow::callback_ShowChartBy(QString type)
                                BMSYValues,
                                ScaleStr,ScaleVal,
                                YMinSliderVal);
-//        Output_Controls_ptr->clearOutputBMSY();
-//        if (Output_Controls_ptr->isCheckedOutputBMSY() and (NumLines == 1)) {
-//            Output_Controls_ptr->setTextOutputBMSY(QString::number(BMSYValues[SpeciesNum]/ScaleVal));
-//        }
+        Output_Controls_ptr->clearOutputBMSY();
+        if (Output_Controls_ptr->isCheckedOutputBMSY() and (NumLines == 1)) {
+            Output_Controls_ptr->setTextOutputBMSY(QString::number(BMSYValues[SpeciesNum]/ScaleVal));
+        }
+    }
+    else if (OutputChartType == "Harvest vs Time") {
+        if (ChartType == "Guild") {
+            getTimeSeriesDataByGuild("","Catch",NumGuildsOrSpecies,RunLength,Catch);
+        } else if (ChartType == "System") {
+            getTimeSeriesDataByGuild("","Catch",NumGuilds,RunLength,tmpCatch);
+            nmfUtils::initialize(Catch,RunLength+1,1);
+            for (int guild=0; guild<NumGuilds; ++guild) {
+                for (int time=0; time<=RunLength; ++time) {
+                    Catch(time,0) += tmpCatch(time,guild);
+                }
+            }
+        }
+        CatchVec.push_back(Catch);
+        showChartTableVsTime("Catch",
+                             NumGuilds,OutputSpecies,
+                             SpeciesNum,RunLength,StartYear,
+                             NumLines,
+                             Catch,
+                             CatchVec,
+                             MSYValues,
+                             ScaleStr,ScaleVal,
+                             YMinSliderVal);
+
+        Output_Controls_ptr->clearOutputMSY();
+        if (Output_Controls_ptr->isCheckedOutputMSY() and (NumLines == 1)) {
+            Output_Controls_ptr->setTextOutputMSY(QString::number(MSYValues[SpeciesNum]/ScaleVal));
+        }
+    }
+    else if (OutputChartType == "Fishing Mortality vs Time") {
+        // Load Catch
+        if (ChartType == "Guild") {
+            getTimeSeriesDataByGuild("","Catch",NumGuildsOrSpecies,RunLength,Catch);
+        } else if (ChartType == "System") {
+            getTimeSeriesDataByGuild("","Catch",NumGuilds,RunLength,tmpCatch);
+            nmfUtils::initialize(Catch,RunLength+1,1);
+            for (int guild=0; guild<NumGuilds; ++guild) {
+                for (int time=0; time<=RunLength; ++time) {
+                    Catch(time,0) += tmpCatch(time,guild);
+                }
+            }
+        }
+        showChartTableVsTime("Fishing Mortality (C/Bc)",
+                             NumGuilds,OutputSpecies,
+                             SpeciesNum,RunLength,StartYear,
+                             NumLines,
+                             Catch,
+                             OutputBiomass,
+                             FMSYValues,
+                             ScaleStr,ScaleVal,
+                             YMinSliderVal);
+        Output_Controls_ptr->clearOutputFMSY();
+        if (Output_Controls_ptr->isCheckedOutputFMSY() and (NumLines == 1))
+            Output_Controls_ptr->setTextOutputFMSY(QString::number(FMSYValues[SpeciesNum]/ScaleVal));
     }
 
 }
@@ -5638,6 +5831,10 @@ nmfMainWindow::showChartTableVsTime(
     // Draw the line chart
     //
     bool AddScatter = (NumLines == 1);
+    bool isCheckedOutputMSY  = Output_Controls_ptr->isCheckedOutputMSY();
+    bool isEnabledOutputMSY  = Output_Controls_ptr->isEnabledOutputMSY();
+    bool isCheckedOutputFMSY = Output_Controls_ptr->isCheckedOutputFMSY();
+    bool isEnabledOutputFMSY = Output_Controls_ptr->isEnabledOutputFMSY();
     int NumLineColors = nmfConstants::LineColors.size();
     double den = 0.0;
     double dvalue;
@@ -5648,14 +5845,6 @@ nmfMainWindow::showChartTableVsTime(
     boost::numeric::ublas::matrix<double> ChartMSYData;
     boost::numeric::ublas::matrix<double> ChartLineData;
     boost::numeric::ublas::matrix<double> ChartScatterData;
-    ChartMSYData.resize(RunLength+1,1); // NumSpecies);
-    ChartMSYData.clear();
-    ChartLineData.resize(RunLength+1,1); // NumSpecies);
-    ChartLineData.clear();
-    ChartScatterData.resize(RunLength+1,1); // NumSpecies);
-    ChartScatterData.clear();
-    RowLabelsForBars.clear();
-    ColumnLabelsForLegend.clear();
     std::string value;
     std::string LineStyle = "SolidLine";
     std::string msg;
@@ -5672,6 +5861,16 @@ nmfMainWindow::showChartTableVsTime(
     std::vector<bool> GridLines(true,true); // Replace with checkbox values
     QColor lineColor;
     bool xAxisIsInteger = true;
+    QString colorName;
+
+    ChartMSYData.resize(RunLength+1,1); // NumSpecies);
+    ChartMSYData.clear();
+    ChartLineData.resize(RunLength+1,1); // NumSpecies);
+    ChartLineData.clear();
+    ChartScatterData.resize(RunLength+1,1); // NumSpecies);
+    ChartScatterData.clear();
+    RowLabelsForBars.clear();
+    ColumnLabelsForLegend.clear();
 
     AddScatter = (label == "Catch") || (label == "Fishing Mortality (C/Bc)") ? false : AddScatter;
     NumLines   = (label == "Catch") || (label == "Fishing Mortality (C/Bc)") ?   1   : NumLines;
@@ -5766,19 +5965,19 @@ nmfMainWindow::showChartTableVsTime(
         AddScatter = (line+1 == NumLines-1);
     } // end for line
 
-    if ((Output_Controls_ptr->isCheckedOutputMSY()  && (label == "Catch")) ||
-        (Output_Controls_ptr->isCheckedOutputFMSY() && (label == "Fishing Mortality (C/Bc)")))
+    if ((isCheckedOutputMSY  && (label == "Catch")) ||
+        (isCheckedOutputFMSY && (label == "Fishing Mortality (C/Bc)")))
     {
         LineStyle = "DashedLine";
         ColumnLabelsForLegend.clear();
-        if (Output_Controls_ptr->isCheckedOutputMSY())
-            ColumnLabelsForLegend << "MSY - - - -";
-        else
-            ColumnLabelsForLegend << "F MSY - - - -";
 
+        if (isCheckedOutputMSY && isEnabledOutputMSY) {
+            ColumnLabelsForLegend << "MSY - - - -";
+        } else if (isCheckedOutputFMSY && isEnabledOutputFMSY) {
+            ColumnLabelsForLegend << "F MSY - - - -";
+        }
         for (int line=0; line<NumLines; ++line)
         {
-
             // Draw the MSY or FMSY line
             for (int i=0; i<NumSpecies; ++i) {
                 if (i == SpeciesNum) {
@@ -5788,6 +5987,7 @@ nmfMainWindow::showChartTableVsTime(
                     break;
                 }
             }
+            colorName = getColorName(line);
 
             if (m_ChartWidget != nullptr) {
                 nmfChartLine* lineChart = new nmfChartLine();
@@ -5811,7 +6011,7 @@ nmfMainWindow::showChartTableVsTime(
                                          GridLines,
                                          Theme,
                                          {},
-                                         "",
+                                         colorName.toStdString(),
                                          1.0);
             }
         }
@@ -6330,12 +6530,6 @@ nmfMainWindow::showChartBiomassVsTime(
         for (int species=0; species<NumSpecies; ++species) {
             if (species == SpeciesNum) {
                 for (int time=0; time<=RunLength; ++time) {
-//                    if (time == 0) {
-//                        legendCode = getLegendCode(Algorithms[line],
-//                                                   Minimizers[line],
-//                                                   ObjectiveCriteria[line],
-//                                                   Scalings[line]);
-//                    }
                     Years << QString::number(StartYear+time);
                     value = OutputBiomass[line](time,species);
                     ChartLineData(time,0) = value/ScaleVal;
@@ -6470,7 +6664,7 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
     QStringList RowLabelsForBars;
     QStringList ColumnLabelsForLegend;
     std::string ChartType = "Line";
-    std::string type = (Output_Controls_ptr->getOutputType() == "(Abs) Bc vs Time") ?
+    std::string type = (Output_Controls_ptr->getOutputChartType() == "(Abs) Bc vs Time") ?
                         "Abs" : "Rel";
     std::string MainTitle = "Calculated (" + type + ") Biomass for Selected Species";
     std::string XLabel    = "Year";
@@ -9961,18 +10155,6 @@ nmfMainWindow::callback_ForecastTabChanged(int tab)
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
-}
-
-void
-nmfMainWindow::callback_YAxisMinValueChanged(int value)
-{
-   callback_ShowChart("","");
-}
-
-void
-nmfMainWindow::callback_YAxisMaxValueChanged(int value)
-{
-   callback_ShowChart("","");
 }
 
 void

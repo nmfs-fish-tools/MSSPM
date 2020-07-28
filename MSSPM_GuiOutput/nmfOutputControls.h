@@ -78,36 +78,35 @@ class MSSPM_GuiOutputControls: public QObject
     QCheckBox*   OutputParametersCB;
     QPushButton* OutputParametersCenterPB;
     QPushButton* OutputParametersMinimumPB;
-    QComboBox*   OutputTypeCMB;
+    QComboBox*   OutputChartTypeCMB;
     QSlider*     OutputYAxisMinSL;
-//    QSlider*     OutputYAxisMaxSL;
+//  QSlider*     OutputYAxisMaxSL;
     QSpinBox*    OutputYAxisMaxSB;
     QComboBox*   OutputScaleCMB;
     QListView*   OutputAgeListLV;
     QListView*   OutputSpeListLV;
+    QCheckBox*   OutputShowBMSYCB;
     QCheckBox*   OutputShowMSYCB;
     QCheckBox*   OutputShowFMSYCB;
-    QCheckBox*   OutputShowBMSYCB;
     QLineEdit*   OutputShowBMSYLE;
     QLineEdit*   OutputShowMSYLE;
     QLineEdit*   OutputShowFMSYLE;
     QGroupBox*   ControlsGroupBox;
     QCheckBox*   OutputShowShadowCB;
 
-    void initConnections();
-    void initWidgets();
     void enableMSYWidgets(bool state);
     bool getSpecies(int& NumSpecies, QStringList& SpeciesList);
-    bool getGuilds( int& NumGuilds,  QStringList& GuildList);
+    void initConnections();
+    void initWidgets();
     bool isAggProd();
     void loadSortedForecastLabels();
     void readSettings();
-
     /**
      * @brief Show data in the data table only if use is viewing 2d data and not for the 3d data chart.
      * @param showTable : boolean specifying whether table should be shown or not
      */
     void showDataTable(bool showTable);
+    void updateChart();
 
 public:
     /**
@@ -145,10 +144,25 @@ public:
      */
     void            enableBrightnessWidgets(bool state);
     /**
+     * @brief Returns the number of and the list of unique guilds
+     * @param NumGuilds : number of guilds
+     * @param GuildList : list of guild names
+     * @return Returns true/false based upon if an error was encountered
+     */
+    bool            getGuilds(int& NumGuilds, QStringList& GuildList);
+
+    int             getNumberSpecies();
+    void            setSpeciesNum(int speciesNum);
+    /**
      * @brief Get the brightness factor set by the Forecast Run Brightness slider widget
      * @return The brightness value desired for the stochastic Forecast plots
      */
     double          getOutputBrightnessFactor();
+    /**
+     * @brief Get the currently selected Chart type
+     * @return The name of the Chart type chosen by the user
+     */
+    QString         getOutputChartType();
     /**
      * @brief Get the currently selected Diagnostic method
      * @return The name of the Diagnostic method chosen by the user
@@ -158,7 +172,7 @@ public:
      * @brief Get the currently selected group type
      * @return The name of the group type (i.e., Species, Guild, System)
      */
-    QString getOutputGroupType();
+    QString         getOutputGroupType();
     /**
      * @brief Get the currently selected Diagnostic parameter
      * @return The name of the Diagnostic parameter chosen by the user
@@ -184,11 +198,6 @@ public:
      * @return The integer index of the Species whose output the user wishes to view
      */
     int             getOutputSpeciesIndex();
-    /**
-     * @brief Get the currently selected Output Chart type
-     * @return The name of the chart type user wishes to view
-     */
-    QString         getOutputType();
     /**
      * @brief Get the Species list widget (currently disabled) used for other possible chart types
      * @return The widget representing the viewport of the species listview
@@ -230,6 +239,16 @@ public:
      * @return The state of the FMSY checkbox
      */
     bool            isCheckedOutputFMSY();
+    /**
+     * @brief Informs the user if the MSY checkbox has been enabled
+     * @return The state of the MSY checkbox
+     */
+    bool            isEnabledOutputMSY();
+    /**
+     * @brief Informs the user if the FMSY checkbox has been enbled
+     * @return The state of the FMSY checkbox
+     */
+    bool            isEnabledOutputFMSY();
     /**
      * @brief Informs the user if the Show Shadow box is checked
      * @return The state of the Show Shadow box
@@ -346,6 +365,10 @@ signals:
      * @param OutputSpecies : the Species on which to base the Chart to be shown
      */
     void ShowChart(QString OutputType, QString OutputSpecies);
+    /**
+     * @brief Signal emitted when a Chart is to be redrawn after te group type has been changed
+     * @param type : the type of group for the current chart (i.e., Species, Guild, System)
+     */
     void ShowChartBy(QString type);
     /**
      * @brief Signal emitted when the user wants to show a MultiScenario chart
@@ -360,14 +383,6 @@ signals:
      * @brief Signal emitted when the user wants to show a Retrospective Analysis chart
      */
     void ShowChartMohnsRho();
-    /**
-     * @brief Signal emitted when the user has changed the Y Axis Maximum Value slider widget
-     */
-    void YAxisMaxValueChanged(int value);
-    /**
-     * @brief Signal emitted when the user has changed the Y Axis Minimum Value slider widget
-     */
-    void YAxisMinValueChanged(int value);
 
 public slots:
     /**
@@ -380,7 +395,7 @@ public slots:
      * @brief Callback invoked when the user selects from the Output Type combo box widget
      * @param outputType : the name of the output chart type selected
      */
-    void callback_OutputTypeCMB(QString outputType);
+    void callback_OutputChartTypeCMB(QString outputType);
     /**
      * @brief Callback invoked when the user selects from the Species combo box widget
      * @param species : the name of the Species the user selected
@@ -410,7 +425,7 @@ public slots:
      * @brief Callback invoked when the user checks the BMSY checkbox
      * @param state : state of the BMSY check box
      */
-    void callback_OutputShowBMSYCB(int state);
+    void callback_OutputBMSYCB(int state);
     /**
      * @brief Callback invoked when the user checks the MSY checkbox
      * @param state : state of the MSY check box
@@ -420,7 +435,7 @@ public slots:
      * @brief Callback invoked when the user checks the FMSY checkbox
      * @param state : state of the FMSY check box
      */
-    void callback_OutputShowFMSYCB(int val);
+    void callback_OutputFMSYCB(int val);
     /**
      * @brief Callback invoked when the user checks the Show Shadow check box
      * @param dummy - unused

@@ -11,6 +11,7 @@ var searchData=
   ['menu_5fcopy',['menu_copy',['../classnmf_main_window.html#a3471d97e12d0f5d0690d776de6bc4fa1',1,'nmfMainWindow']]],
   ['menu_5fcreatetables',['menu_createTables',['../classnmf_main_window.html#a3ff656bccc928e18ca6b9cb82cb1f3c5',1,'nmfMainWindow']]],
   ['menu_5fdeselectall',['menu_deselectAll',['../classnmf_main_window.html#a5513d3a8e141f72c5a46534eecb4f783',1,'nmfMainWindow']]],
+  ['menu_5fexportalldatabases',['menu_exportAllDatabases',['../classnmf_main_window.html#a4f64e7a3f46e7e0ecfb6beb3d790cbae',1,'nmfMainWindow']]],
   ['menu_5fexportdatabase',['menu_exportDatabase',['../classnmf_main_window.html#a029a6abc2292440d65c7a61900a6e6a8',1,'nmfMainWindow']]],
   ['menu_5fimportdatabase',['menu_importDatabase',['../classnmf_main_window.html#ac9d999d1bb30c1030db7a6ac465c7267',1,'nmfMainWindow']]],
   ['menu_5flayoutdefault',['menu_layoutDefault',['../classnmf_main_window.html#a0c02f5e986910c8a5c1271b2d885c81d',1,'nmfMainWindow']]],
