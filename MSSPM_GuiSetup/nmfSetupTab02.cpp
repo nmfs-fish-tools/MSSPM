@@ -125,9 +125,8 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
         return;
     }
 
-    m_ProjectName = getProjectName();
+    m_ProjectName     = getProjectName();
     m_ProjectDatabase = getProjectDatabase();
-
     if (! isProjectNameValid(m_ProjectName)) {
         return;
     }
@@ -1150,6 +1149,9 @@ nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
     // Auto save project
     callback_Setup_Tab2_SaveProject();
 
+    // Set Navigator to Setup enabled only mode
+    emit AddedNewDatabase();
+
 } // end callback_Setup_Tab2_AddDatabase
 
 
@@ -1322,11 +1324,13 @@ nmfSetup_Tab2::loadProject(nmfLogger *logger, QString fileName)
 
     file.close();
 
+    initDatabase(m_ProjectDatabase);
+
     saveSettings();
     emit LoadProject();
     readSettings();
 
-    initDatabase(m_ProjectDatabase);
+//    initDatabase(m_ProjectDatabase);
 
     logger->logMsg(nmfConstants::Normal,"loadProject end");
 

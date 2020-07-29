@@ -80,6 +80,7 @@ class nmfSetup_Tab2: public QObject
 
 
 signals:
+    void AddedNewDatabase();
     /**
      * @brief Signal emitted to clear the Estimation data tables
      * after user has deleted the current database
