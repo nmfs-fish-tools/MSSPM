@@ -565,6 +565,7 @@ private:
     void setNumLines(int numLines);
     void setup2dChart();
     void setup3dChart();
+    bool setupIsComplete();
     void setupOutputChartWidgets();
     void setupOutputEstimateParametersWidgets();
     void setupOutputModelFitSummaryWidgets();
@@ -865,6 +866,7 @@ public slots:
      * @brief Callback invoked when a user has saved new project settings
      */
     void callback_ProjectSaved();
+    void callback_AddedNewDatabase();
     /**
      * @brief Callback invoked when the progress chart timer times out. In this fashion,
      * the progress chart is updated while another process is running.

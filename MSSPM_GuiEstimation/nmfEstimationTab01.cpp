@@ -207,9 +207,10 @@ nmfEstimation_Tab1::callback_ModifyReleasedSL()
         } else {
             emit CheckAllEstimationTablesAndRun();
         }
-    } else {
-        QApplication::restoreOverrideCursor();
     }
+
+    QApplication::restoreOverrideCursor();
+
 }
 
 void

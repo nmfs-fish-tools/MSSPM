@@ -2476,6 +2476,8 @@ nmfMainWindow::initConnections()
             this,            SLOT(callback_ClearEstimationTables()));
     connect(Setup_Tab2_ptr,  SIGNAL(ProjectSaved()),
             this,            SLOT(callback_ProjectSaved()));
+    connect(Setup_Tab2_ptr,  SIGNAL(AddedNewDatabase()),
+            this,            SLOT(callback_AddedNewDatabase()));
     connect(Setup_Tab3_ptr,  SIGNAL(ReloadWidgets()),
             this,            SLOT(callback_ReloadWidgets()));
     connect(Setup_Tab4_ptr,  SIGNAL(SaveMainSettings()),
@@ -7067,8 +7069,29 @@ nmfMainWindow::callback_LoadProject()
 
   connect(Setup_Tab2_ptr, SIGNAL(LoadProject()),
           this,           SLOT(callback_LoadProject()));
+
+  enableApplicationFeatures("AllOtherGroups",setupIsComplete());
 }
 
+bool
+nmfMainWindow::setupIsComplete()
+{
+    // Setup is complete iff at least one guild, one species,
+    // and one system have been created.
+    int NumSpecies;
+    int NumGuilds;
+    QString LoadedSystem;
+    QStringList SpeciesList;
+    QStringList GuildList;
+
+    getSpecies(NumSpecies,SpeciesList);
+    getGuilds( NumGuilds, GuildList);
+    LoadedSystem = Setup_Tab4_ptr->getSystemFile();
+
+    return ((NumSpecies > 1) &&
+            (NumGuilds  > 1) &&
+            (! LoadedSystem.isEmpty()));
+}
 
 void
 nmfMainWindow::callback_SaveMainSettings()
@@ -9675,10 +9698,19 @@ nmfMainWindow::loadModelParamObj(ModelFormParameters* ptr)
 */
 
 void
+nmfMainWindow::callback_AddedNewDatabase()
+{
+    updateWindowTitle();
+    enableApplicationFeatures("SetupGroup",true);
+    enableApplicationFeatures("AllOtherGroups",false);
+}
+
+void
 nmfMainWindow::callback_ProjectSaved()
 {
     updateWindowTitle();
     enableApplicationFeatures("SetupGroup",true);
+    enableApplicationFeatures("AllOtherGroups",setupIsComplete());
 }
 
 void
@@ -10379,10 +10411,12 @@ nmfMainWindow::callback_CheckEstimationTablesAndRun()
     if (dataCheck.first) {
         callback_RunEstimation(nmfConstantsMSSPM::DontShowDiagnosticsChart);
     } else {
-        msg  = "Invalid or missing data found in input Estimation table: " + dataCheck.second;
+//      msg  = "Invalid or missing data found in input Estimation table: " + dataCheck.second;
+        msg  = "Invalid or missing data found in one or more input Estimation tables.";
         m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
-        msg  = "Invalid or missing data found in input Estimation table:\n\n" + dataCheck.second;
-        msg += "\n\nPlease check this and all input tables for complete data.";
+//      msg  = "Invalid or missing data found in input Estimation table:\n\n" + dataCheck.second;
+//      msg += "\n\nPlease check this and all input tables for complete data.";
+        msg += "\n\nPlease check all input tables for complete data.";
         QMessageBox::critical(this, "Error",
                               "\n"+msg+"\n", QMessageBox::Ok);
         QApplication::restoreOverrideCursor();
