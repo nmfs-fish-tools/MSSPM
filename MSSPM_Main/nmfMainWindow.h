@@ -1037,10 +1037,10 @@ public slots:
      * @brief Callback invoked when user loads a System from the Setup Page 4 GUI
      */
     void callback_SystemLoaded();
-    /**
-     * @brief Callback invoked when user saves the current System from the Setup Page 4 GUI
-     */
-    void callback_SystemSaved();
+//    /**
+//     * @brief Callback invoked when user saves the current System from the Setup Page 4 GUI
+//     */
+//    void callback_SystemSaved();
 //  void callback_UpdateProgressData(int SpeciesNum,int NumParams,QString elapsedTime);
     /**
      * @brief Callback invoked when the run has completed and user wants to update the Run Statistics

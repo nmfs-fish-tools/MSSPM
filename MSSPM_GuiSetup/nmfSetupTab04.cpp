@@ -432,10 +432,11 @@ nmfSetup_Tab4::callback_LoadPB()
                              QString::fromStdString(m_ProjectSettingsConfig));
 
     connect(m_LoadDialog, SIGNAL(ClearSystemName()),
-            this,       SLOT(callback_ClearSystemName()));
+            this,         SLOT(callback_ClearSystemName()));
 
     if (m_LoadDialog->exec() == QDialog::Accepted) {
         loadSystem();
+        emit SystemSaved();
     }
 }
 

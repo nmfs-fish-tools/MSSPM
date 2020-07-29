@@ -2284,12 +2284,6 @@ nmfMainWindow::loadDatabase()
 }
 
 void
-nmfMainWindow::callback_SaveSystem()
-{
-    enableApplicationFeatures("AllOtherGroups",true);
-}
-
-void
 nmfMainWindow::callback_DeleteSystem()
 {
     enableApplicationFeatures("AllOtherGroups",false);
@@ -7088,8 +7082,8 @@ nmfMainWindow::setupIsComplete()
     getGuilds( NumGuilds, GuildList);
     LoadedSystem = Setup_Tab4_ptr->getSystemFile();
 
-    return ((NumSpecies > 1) &&
-            (NumGuilds  > 1) &&
+    return ((NumSpecies > 0) &&
+            (NumGuilds  > 0) &&
             (! LoadedSystem.isEmpty()));
 }
 
@@ -10008,12 +10002,20 @@ nmfMainWindow::callback_SetChartView2d(bool setTo2d)
 
 
 void
-nmfMainWindow::callback_SystemSaved()
+nmfMainWindow::callback_SaveSystem()
 {
-    saveSettings();
-    readSettings();
-    loadGuis();
+//    enableApplicationFeatures("AllOtherGroups",true);
+    enableApplicationFeatures("AllOtherGroups",setupIsComplete());
 }
+
+
+//void
+//nmfMainWindow::callback_SystemSaved()
+//{
+//    saveSettings();
+//    readSettings();
+//    loadGuis();
+//}
 
 void
 nmfMainWindow::callback_SystemLoaded()
