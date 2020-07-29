@@ -131,8 +131,6 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
         return;
     }
 
-    Setup_Tabs->setCursor(Qt::WaitCursor);
-
     // Build the filename, add the .prj prefix if one isn't already there and
     // check to see if the file already exists.
     fullFilename = QDir(m_ProjectDir).filePath(m_ProjectName);
@@ -148,10 +146,11 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
                                       QMessageBox::Yes|QMessageBox::No,
                                       QMessageBox::Yes);
         if (reply == QMessageBox::No) {
-            Setup_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
     }
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 
     // Write out the project file
     outFile = std::ofstream(fullFilename.toLatin1());
@@ -185,7 +184,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
     QString fileName = QDir(m_ProjectDir).filePath(m_ProjectName+".prj");
     loadProject(m_Logger,fileName);
 
-    Setup_Tabs->setCursor(Qt::ArrowCursor);
+    QApplication::restoreOverrideCursor();
 
 } // end callback_Setup_Tab2_SaveProject
 
