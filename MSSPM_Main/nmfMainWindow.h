@@ -1019,7 +1019,10 @@ public slots:
      * @param style : style of application (Light or Dark)
      */
     void callback_PreferencesSetStyleSheet(QString style);
-//    void callback_ShowChartByGuild();
+    /**
+     * @brief Callback invoked when user changes the chart group type
+     * @param type : type of chart grouping desired: species, guild, system
+     */
     void callback_ShowChartBy(QString type);
     /**
      * @brief Callback invoked when user is modifying the Population Parameters and needs to
@@ -1037,10 +1040,6 @@ public slots:
      * @brief Callback invoked when user loads a System from the Setup Page 4 GUI
      */
     void callback_SystemLoaded();
-//    /**
-//     * @brief Callback invoked when user saves the current System from the Setup Page 4 GUI
-//     */
-//    void callback_SystemSaved();
 //  void callback_UpdateProgressData(int SpeciesNum,int NumParams,QString elapsedTime);
     /**
      * @brief Callback invoked when the run has completed and user wants to update the Run Statistics

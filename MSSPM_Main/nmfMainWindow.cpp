@@ -625,21 +625,23 @@ nmfMainWindow::getTimeSeriesData(
     if (NumRecords == 0) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] getTimeSeriesData: No records found in table "+TableName);
         m_Logger->logMsg(nmfConstants::Error,queryStr);
-        msg = "\nMissing data. Please populate table: " + QString::fromStdString(TableName);
+        msg = "\nMissing or unsaved data. Please populate and resave table: " + QString::fromStdString(TableName);
         QMessageBox::critical(this, "Error", msg, QMessageBox::Ok);
         return false;
     }
     if (NumRecords != NumSpecies*(RunLength+1)) {
-        errorMsg  = "[Warning 1] getTimeSeriesData: Number of records found (" + std::to_string(NumRecords) + ") in ";
+        errorMsg  = "[Error 2] getTimeSeriesData: Number of records found (" + std::to_string(NumRecords) + ") in ";
         errorMsg += "table " + ModifiedTableName + " does not equal number of Species*(RunLength+1) (";
         errorMsg += std::to_string(NumSpecies) + "*" + std::to_string((RunLength+1)) + "=";
         errorMsg += std::to_string(NumSpecies*(RunLength+1)) + ") records";
         errorMsg += "\n" + queryStr;
         m_Logger->logMsg(nmfConstants::Error,errorMsg);
-        //return false;
+        msg = "\nMissing or unsaved data.\n\nPlease populate and resave table: " + QString::fromStdString(ModifiedTableName) + "\n";
+        QMessageBox::critical(this, "Error", msg, QMessageBox::Ok);
+        return false;
     }
 
-    // Figure out what to do here with the hardoced 0 for time=0.....RSK
+    // Figure out what to do here with the hardcoded 0 for time=0.....RSK
     for (int species=0; species<NumSpecies; ++species) {
         for (int time=0; time<=RunLength; ++time) {
             TableData(time,species) = std::stod(dataMap["Value"][m++]);
@@ -7674,6 +7676,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     if (! showForecastChart(isAggProd,ForecastName,StartYear,
                             ScaleStr,ScaleVal,YMinSliderValue,
                             Output_Controls_ptr->getOutputBrightnessFactor())) {
+        m_UI->ForecastDataInputTabWidget->setCursor(Qt::ArrowCursor);
         return;
     }
 
@@ -9083,8 +9086,9 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
             m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Exploitation");
         }
     }
-    if (! getTimeSeriesData(m_MohnsRhoLabel,"","ObservedBiomass",NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies))
+    if (! getTimeSeriesData(m_MohnsRhoLabel,"","ObservedBiomass",NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
         return false;
+    }
 
     // Load time series by guild observed biomass just load the first year's
     nmfUtils::initialize(dataStruct.ObservedBiomassByGuilds,RunLength+1,NumGuilds);
@@ -10004,18 +10008,9 @@ nmfMainWindow::callback_SetChartView2d(bool setTo2d)
 void
 nmfMainWindow::callback_SaveSystem()
 {
-//    enableApplicationFeatures("AllOtherGroups",true);
     enableApplicationFeatures("AllOtherGroups",setupIsComplete());
 }
 
-
-//void
-//nmfMainWindow::callback_SystemSaved()
-//{
-//    saveSettings();
-//    readSettings();
-//    loadGuis();
-//}
 
 void
 nmfMainWindow::callback_SystemLoaded()
@@ -10421,8 +10416,9 @@ nmfMainWindow::callback_CheckEstimationTablesAndRun()
         msg += "\n\nPlease check all input tables for complete data.";
         QMessageBox::critical(this, "Error",
                               "\n"+msg+"\n", QMessageBox::Ok);
-        QApplication::restoreOverrideCursor();
     }
+    QApplication::restoreOverrideCursor();
+
 }
 
 void
