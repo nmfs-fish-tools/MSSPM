@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>mModeWindowWidget</class>
+ <widget class="QWidget" name="mModeWindowWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -74,24 +74,32 @@
               </widget>
              </item>
              <item>
-              <widget class="QListWidget" name="MModeLowerPlotWidget">
+              <widget class="QWidget" name="MModeHarvestChartWidget" native="true">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>800</width>
-                 <height>200</height>
+                 <width>0</width>
+                 <height>250</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
-                 <height>200</height>
+                 <height>250</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::WheelFocus</enum>
                </property>
               </widget>
              </item>
@@ -258,6 +266,12 @@
                           <bold>false</bold>
                          </font>
                         </property>
+                        <property name="toolTip">
+                         <string>The duration of the Forecast in years.</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>The duration of the Forecast in years.</string>
+                        </property>
                         <property name="text">
                          <string>Years / Run:</string>
                         </property>
@@ -332,6 +346,12 @@
                           <width>100</width>
                           <height>20</height>
                          </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>The duration of the Forecast in years.</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>The duration of the Forecast in years.</string>
                         </property>
                         <property name="minimum">
                          <number>1</number>
@@ -414,6 +434,15 @@
                           <bold>false</bold>
                          </font>
                         </property>
+                        <property name="toolTip">
+                         <string>The duration of the Forecast in years.</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>The duration of the Forecast in years.</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
                         <property name="readOnly">
                          <bool>true</bool>
                         </property>
@@ -470,6 +499,12 @@
                           <weight>50</weight>
                           <bold>false</bold>
                          </font>
+                        </property>
+                        <property name="toolTip">
+                         <string>The number of times the Forecast will be run.</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>The number of times the Forecast will be run.</string>
                         </property>
                         <property name="text">
                          <string>Runs / Forecast: </string>
@@ -545,6 +580,12 @@
                           <width>100</width>
                           <height>20</height>
                          </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>The number of times the Forecast will be run.</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>The number of times the Forecast will be run.</string>
                         </property>
                         <property name="minimum">
                          <number>1</number>
@@ -632,6 +673,15 @@
                           <weight>50</weight>
                           <bold>false</bold>
                          </font>
+                        </property>
+                        <property name="toolTip">
+                         <string>The number of times the Forecast will be run.</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>The number of times the Forecast will be run.</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                         </property>
                         <property name="readOnly">
                          <bool>true</bool>
@@ -721,6 +771,12 @@
                       <width>100</width>
                       <height>16777215</height>
                      </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Sets Forecast runs to be either deterministic or stochastic.</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Sets Forecast runs to be either deterministic or stochastic.</string>
                     </property>
                     <property name="maximum">
                      <number>1</number>
@@ -1033,7 +1089,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="MModeSpeciesCB">
+                   <widget class="QComboBox" name="MModeSpeciesCMB">
                     <property name="minimumSize">
                      <size>
                       <width>200</width>
@@ -1176,7 +1232,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="MModeDataCB">
+                   <widget class="QComboBox" name="MModeDataCMB">
                     <property name="minimumSize">
                      <size>
                       <width>200</width>
@@ -1408,6 +1464,9 @@
                           <bold>false</bold>
                          </font>
                         </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
                         <property name="readOnly">
                          <bool>true</bool>
                         </property>
@@ -1513,6 +1572,12 @@
                         <bold>false</bold>
                        </font>
                       </property>
+                      <property name="toolTip">
+                       <string>Growth Rate Percentage Error</string>
+                      </property>
+                      <property name="statusTip">
+                       <string>Growth Rate Percentage Error</string>
+                      </property>
                       <property name="text">
                        <string>r</string>
                       </property>
@@ -1590,6 +1655,15 @@
                           <bold>false</bold>
                          </font>
                         </property>
+                        <property name="toolTip">
+                         <string>Growth Rate Percentage Error</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>Growth Rate Percentage Error</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
                         <property name="readOnly">
                          <bool>true</bool>
                         </property>
@@ -1630,6 +1704,12 @@
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Carrying Capacity Percentage Error</string>
+                      </property>
+                      <property name="statusTip">
+                       <string>Carrying Capacity Percentage Error</string>
                       </property>
                       <property name="text">
                        <string>K</string>
@@ -1708,6 +1788,15 @@
                           <bold>false</bold>
                          </font>
                         </property>
+                        <property name="toolTip">
+                         <string>Carrying Capacity Percentage Error</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>Carrying Capacity Percentage Error</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
                         <property name="readOnly">
                          <bool>true</bool>
                         </property>
@@ -1748,6 +1837,12 @@
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Catch Percentage Error</string>
+                      </property>
+                      <property name="statusTip">
+                       <string>Catch Percentage Error</string>
                       </property>
                       <property name="text">
                        <string>Catch</string>
@@ -1825,10 +1920,19 @@
                         </property>
                         <property name="font">
                          <font>
-                          <pointsize>10</pointsize>
+                          <pointsize>8</pointsize>
                           <weight>50</weight>
                           <bold>false</bold>
                          </font>
+                        </property>
+                        <property name="toolTip">
+                         <string>Catch Percentage Error</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>Catch Percentage Error</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                         </property>
                         <property name="readOnly">
                          <bool>true</bool>
@@ -1872,6 +1976,79 @@
                 </item>
                </layout>
               </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_10">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_13">
+               <item>
+                <spacer name="horizontalSpacer_24">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>80</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="MModeForecastRunPB">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>75</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>75</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Run</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_25">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>80</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
              </item>
              <item>
               <spacer name="verticalSpacer_9">

@@ -63,6 +63,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_Graph3D           = nullptr;
     OutputChartMainLayt = nullptr;
     Output_Controls_ptr = nullptr;
+    MMode_Controls_ptr  = nullptr;
     m_PreferencesDlg    = new QDialog(this);
     m_TableNamesDlg     = new QDialog(this);
     m_PreferencesWidget = nullptr;
@@ -125,8 +126,10 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     }
 
     initializeTableNamesDlg();
-    //initializeMMode();
-    m_UI->actionToggleManagerMode->setEnabled(false);
+    initializeMMode();
+    //m_UI->actionToggleManagerMode->setEnabled(false);
+
+    this->setMouseTracking(true);
 
     // Setup Log Widget
     setupLogWidget();
@@ -1753,6 +1756,12 @@ nmfMainWindow::menu_toggleManagerMode()
     m_UI->NavigatorDockWidget->setVisible(isVisible);
     //m_UI->ProgressDockWidget->setVisible(isVisible);
     m_UI->centralWidget->setVisible(isVisible);
+
+    int numSpecies;
+    QStringList speciesList;
+
+    getSpecies(numSpecies, speciesList);
+    MMode_Controls_ptr->setData(speciesList);
 }
 
 bool
@@ -2612,6 +2621,10 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_ForecastLineBrightnessChanged(double)));
     connect(Output_Controls_ptr, SIGNAL(ShowChartMohnsRho()),
             this,                SLOT(callback_ShowChartMohnsRho()));
+    connect(this,                SIGNAL(KeyPressed(QKeyEvent*)),
+            MMode_Controls_ptr,  SLOT(callback_keyPressed(QKeyEvent*)));
+    connect(this,                SIGNAL(MouseMoved(QMouseEvent*)),
+            MMode_Controls_ptr,  SLOT(callback_mouseMoved(QMouseEvent*)));
 
     callback_Setup_Tab4_GrowthFormCMB("Null");
     callback_Setup_Tab4_HarvestFormCMB("Null");
@@ -2641,7 +2654,10 @@ nmfMainWindow::eventFilter(QObject *object, QEvent *event)
     RowNumList.clear();
     RowNameList.clear();
 
-    if (object == Output_Controls_ptr->getListViewViewport()) {
+    if (event->type() == QEvent::MouseMove) {
+        QMouseEvent* mouseEvent = (QMouseEvent*) event;
+        emit MouseMoved(mouseEvent);
+    } else if (object == Output_Controls_ptr->getListViewViewport()) {
         if (event->type() == QEvent::MouseButtonRelease)
         {
             QModelIndexList modelList = Output_Controls_ptr->getListViewSelectedIndexes();
@@ -2663,6 +2679,19 @@ nmfMainWindow::eventFilter(QObject *object, QEvent *event)
     }
 
     return QObject::eventFilter(object, event);
+}
+
+void
+nmfMainWindow::keyPressEvent(QKeyEvent *event)
+{
+    emit KeyPressed(event);
+}
+
+void
+nmfMainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    std::cout << "nmfMainWindow mouse moved" << std::endl;
+    emit MouseMoved(event);
 }
 
 QTableView*
@@ -6924,10 +6953,10 @@ nmfMainWindow::initializeMMode()
     addDockWidget(Qt::RightDockWidgetArea, MModeDockWidget);
 
     MModeDockWidget->setWindowTitle("Manager Mode");
-
-    //UncertaintyCatchDL = m_UI->MModeDockWidget->findChild<QDial *>("UncertaintyCatchDL");
-
     MModeDockWidget->hide();
+
+    MMode_Controls_ptr = new MSSPM_GuiManagerMode(m_DatabasePtr, m_Logger, MModeWidget);
+    MMode_Controls_ptr->setupConnections();
 }
 
 void
