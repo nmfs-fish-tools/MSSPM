@@ -94,6 +94,8 @@
 #include <QPixmap>
 #include <QUiLoader>
 
+#include "MSSPM_GuiManagerMode.h"
+
 //class Gradient_Estimator;
 
 /**
@@ -250,6 +252,7 @@ private:
     nmfForecast_Tab3*        Forecast_Tab3_ptr;
     nmfForecast_Tab4*        Forecast_Tab4_ptr;
     MSSPM_GuiOutputControls* Output_Controls_ptr;
+    MSSPM_GuiManagerMode*    MMode_Controls_ptr;
     nmfSetup_Tab1*           Setup_Tab1_ptr;
     nmfSetup_Tab2*           Setup_Tab2_ptr;
     nmfSetup_Tab3*           Setup_Tab3_ptr;
@@ -771,6 +774,10 @@ private:
     //                            std::string &Scaling);
 
 
+signals:
+    void KeyPressed(QKeyEvent* event);
+    void MouseMoved(QMouseEvent* event);
+
 public:
     /**
      * @brief The Main MSSPM Application Window
@@ -787,6 +794,8 @@ public:
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
 public slots:
     /**
