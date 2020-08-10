@@ -131,8 +131,6 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
         return;
     }
 
-    Setup_Tabs->setCursor(Qt::WaitCursor);
-
     // Build the filename, add the .prj prefix if one isn't already there and
     // check to see if the file already exists.
     fullFilename = QDir(m_ProjectDir).filePath(m_ProjectName);
@@ -148,10 +146,11 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
                                       QMessageBox::Yes|QMessageBox::No,
                                       QMessageBox::Yes);
         if (reply == QMessageBox::No) {
-            Setup_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
     }
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 
     // Write out the project file
     outFile = std::ofstream(fullFilename.toLatin1());
@@ -185,7 +184,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
     QString fileName = QDir(m_ProjectDir).filePath(m_ProjectName+".prj");
     loadProject(m_Logger,fileName);
 
-    Setup_Tabs->setCursor(Qt::ArrowCursor);
+    QApplication::restoreOverrideCursor();
 
 } // end callback_Setup_Tab2_SaveProject
 
@@ -1111,7 +1110,6 @@ nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
                                          tr("Enter new database name:"),
                                          QLineEdit::Normal,
                                          "", &ok);
-
     nmfUtilsQt::checkForAndReplaceInvalidCharacters(enteredName);
 
     if (! ok || enteredName.isEmpty())
@@ -1124,13 +1122,21 @@ nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
         return;
     }
 
-    Setup_Tabs->setCursor(Qt::WaitCursor);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 
     // OK to now add the database and create the necessary table definitions
     cmd = "CREATE database " + enteredName.toStdString();
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (errorMsg != " ") {
-        nmfUtils::printError("Function: callback_Setup_Tab2_AddDatabase ",errorMsg);
+        QApplication::restoreOverrideCursor();
+        if (QString::fromStdString(errorMsg).contains("database exists")) {
+            QMessageBox::critical(Setup_Tabs,tr("Invalid Database Name"),
+                                  tr("\nDatabase exists from another application. Please choose a different name."),
+                                  QMessageBox::Ok);
+            msg = "Error: Database " + enteredName.toStdString() + " exists from another application. Please choose a different name.";
+            m_Logger->logMsg(nmfConstants::Error,msg);
+            return;
+        }
     } else {
         createTables(enteredName);
         loadDatabaseNames(enteredName);
@@ -1151,6 +1157,9 @@ nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
 
     // Set Navigator to Setup enabled only mode
     emit AddedNewDatabase();
+
+    QApplication::restoreOverrideCursor();
+
 
 } // end callback_Setup_Tab2_AddDatabase
 

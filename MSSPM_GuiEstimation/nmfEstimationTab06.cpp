@@ -203,6 +203,7 @@ nmfEstimation_Tab6::callback_RunPB()
         msg = "\nPlease select at least one Stop parameter.\n";
         QMessageBox::warning(Estimation_Tabs, "Error", msg, QMessageBox::Ok);
     }
+    QApplication::restoreOverrideCursor();
 }
 
 void
