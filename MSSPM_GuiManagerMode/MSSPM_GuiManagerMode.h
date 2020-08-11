@@ -61,6 +61,7 @@ private:
 signals:
     void KeyPressed(QKeyEvent* event);
     void MouseMoved(QMouseEvent* event);
+    void MouseReleased(QMouseEvent* event);
 
 public:
     /**
@@ -122,6 +123,7 @@ public Q_SLOTS:
     void callback_RunPB();
     void callback_keyPressed(QKeyEvent* event);
     void callback_mouseMoved(QMouseEvent* event);
+    void callback_mouseReleased(QMouseEvent* event);
 
 };
 

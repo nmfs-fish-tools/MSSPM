@@ -2626,6 +2626,8 @@ nmfMainWindow::initConnections()
             MMode_Controls_ptr,  SLOT(callback_keyPressed(QKeyEvent*)));
     connect(this,                SIGNAL(MouseMoved(QMouseEvent*)),
             MMode_Controls_ptr,  SLOT(callback_mouseMoved(QMouseEvent*)));
+    connect(this,                SIGNAL(MouseReleased(QMouseEvent*)),
+            MMode_Controls_ptr,  SLOT(callback_mouseReleased(QMouseEvent*)));
 
     callback_Setup_Tab4_GrowthFormCMB("Null");
     callback_Setup_Tab4_HarvestFormCMB("Null");
@@ -2677,6 +2679,9 @@ nmfMainWindow::eventFilter(QObject *object, QEvent *event)
         else if (event->type() == QEvent::MouseButtonDblClick) {
             return true;
         }
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent* mouseEvent = (QMouseEvent*) event;
+        emit MouseReleased(mouseEvent);
     }
 
     return QObject::eventFilter(object, event);

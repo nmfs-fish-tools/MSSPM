@@ -777,6 +777,7 @@ private:
 signals:
     void KeyPressed(QKeyEvent* event);
     void MouseMoved(QMouseEvent* event);
+    void MouseReleased(QMouseEvent* event);
 
 public:
     /**

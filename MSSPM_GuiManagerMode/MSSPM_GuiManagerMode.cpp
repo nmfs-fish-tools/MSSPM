@@ -79,6 +79,8 @@ MSSPM_GuiManagerMode::MSSPM_GuiManagerMode(
             m_MovableLineChart,    SLOT(callback_keyPressed(QKeyEvent*)));
     connect(this,                SIGNAL(MouseMoved(QMouseEvent*)),
             m_MovableLineChart,    SLOT(callback_mouseMoved(QMouseEvent*)));
+    connect(this,                SIGNAL(MouseReleased(QMouseEvent*)),
+            m_MovableLineChart,    SLOT(callback_mouseReleased(QMouseEvent*)));
 }
 
 MSSPM_GuiManagerMode::~MSSPM_GuiManagerMode()
@@ -208,6 +210,12 @@ void
 MSSPM_GuiManagerMode::callback_mouseMoved(QMouseEvent* event)
 {
     emit MouseMoved(event);
+}
+
+void
+MSSPM_GuiManagerMode::callback_mouseReleased(QMouseEvent* event)
+{
+    emit MouseReleased(event);
 }
 
 void
@@ -440,6 +448,8 @@ MSSPM_GuiManagerMode::drawChart()
     QChart*     chartWidget = new QChart();
     QChartView* chartView   = new QChartView(chartWidget);
 
+    QMargins chartMargins(22, 10, 20, 10);
+    chartWidget->setMargins(chartMargins);
     QVBoxLayout* vlayt = new QVBoxLayout();
     vlayt->addWidget(chartView);
     MModeUpperPlotWidget->setLayout(vlayt);
