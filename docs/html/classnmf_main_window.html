@@ -107,6 +107,7 @@ $(document).ready(function(){initNavTree('classnmf_main_window.html','');});
 <div class="header">
   <div class="summary">
 <a href="#pub-slots">Public Slots</a> &#124;
+<a href="#signals">Signals</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="classnmf_main_window-members.html">List of all members</a>  </div>
@@ -184,6 +185,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#ad9b3fdcf247607d280593570a5d22519">callback_ProjectSaved</a> ()</td></tr>
 <tr class="memdesc:ad9b3fdcf247607d280593570a5d22519"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when a user has saved new project settings. <br /></td></tr>
 <tr class="separator:ad9b3fdcf247607d280593570a5d22519"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac600b760994837bec3cfad9111521f6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac600b760994837bec3cfad9111521f6d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_AddedNewDatabase</b> ()</td></tr>
+<tr class="separator:ac600b760994837bec3cfad9111521f6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ccb8eba6f948fdd69a6927985dc6104"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ccb8eba6f948fdd69a6927985dc6104"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a3ccb8eba6f948fdd69a6927985dc6104">callback_ReadProgressChartDataFile</a> ()</td></tr>
 <tr class="memdesc:a3ccb8eba6f948fdd69a6927985dc6104"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the progress chart timer times out. In this fashion, the progress chart is updated while another process is running. <br /></td></tr>
@@ -284,8 +288,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a34f5f6c819aa6b5089520fb7eaf12118"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a34f5f6c819aa6b5089520fb7eaf12118">callback_PreferencesSetStyleSheet</a> (QString style)</td></tr>
 <tr class="memdesc:a34f5f6c819aa6b5089520fb7eaf12118"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user changes the application style from the Preferences dialog.  <a href="#a34f5f6c819aa6b5089520fb7eaf12118">More...</a><br /></td></tr>
 <tr class="separator:a34f5f6c819aa6b5089520fb7eaf12118"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae14e08c6f07f27597438a02af01700fa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae14e08c6f07f27597438a02af01700fa"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_ShowChartBy</b> (QString type)</td></tr>
+<tr class="memitem:ae14e08c6f07f27597438a02af01700fa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#ae14e08c6f07f27597438a02af01700fa">callback_ShowChartBy</a> (QString type)</td></tr>
+<tr class="memdesc:ae14e08c6f07f27597438a02af01700fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user changes the chart group type.  <a href="#ae14e08c6f07f27597438a02af01700fa">More...</a><br /></td></tr>
 <tr class="separator:ae14e08c6f07f27597438a02af01700fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a694a015f16a2420aba7a6701df0e12d3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a694a015f16a2420aba7a6701df0e12d3"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a694a015f16a2420aba7a6701df0e12d3">callback_StoreOutputSpecies</a> ()</td></tr>
@@ -298,10 +302,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a3e0082084aa73d1ff41376517013b8e2">callback_SystemLoaded</a> ()</td></tr>
 <tr class="memdesc:a3e0082084aa73d1ff41376517013b8e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user loads a System from the Setup Page 4 GUI. <br /></td></tr>
 <tr class="separator:a3e0082084aa73d1ff41376517013b8e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a559c78f2b3b9fc2a028a388a28953c4b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a559c78f2b3b9fc2a028a388a28953c4b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a559c78f2b3b9fc2a028a388a28953c4b">callback_SystemSaved</a> ()</td></tr>
-<tr class="memdesc:a559c78f2b3b9fc2a028a388a28953c4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user saves the current System from the Setup Page 4 GUI. <br /></td></tr>
-<tr class="separator:a559c78f2b3b9fc2a028a388a28953c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04f9838ce833a75b7c8f225d93fafa86"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04f9838ce833a75b7c8f225d93fafa86"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a04f9838ce833a75b7c8f225d93fafa86">callback_UpdateSummaryStatistics</a> ()</td></tr>
 <tr class="memdesc:a04f9838ce833a75b7c8f225d93fafa86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the run has completed and user wants to update the Run Statistics. <br /></td></tr>
@@ -450,6 +450,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_PreferencesM
 void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_ErrorFound</b> (std::string errorMsg)</td></tr>
 <tr class="separator:a3b6106e9eb52de719c60e4119caca902"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
+Signals</h2></td></tr>
+<tr class="memitem:a7bed941f44cecf48ab27735d112f8323"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7bed941f44cecf48ab27735d112f8323"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>KeyPressed</b> (QKeyEvent *event)</td></tr>
+<tr class="separator:a7bed941f44cecf48ab27735d112f8323"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45dc27e957c9ea75788c0e13f86ccf7e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45dc27e957c9ea75788c0e13f86ccf7e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>MouseMoved</b> (QMouseEvent *event)</td></tr>
+<tr class="separator:a45dc27e957c9ea75788c0e13f86ccf7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a5da3be9e59593e85e16518f30076b6ad"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a5da3be9e59593e85e16518f30076b6ad">nmfMainWindow</a> (QWidget *parent=nullptr)</td></tr>
@@ -464,6 +473,12 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:a0f7e6431e66ad61ee29b11ecd0887d7f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0f7e6431e66ad61ee29b11ecd0887d7f"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>eventFilter</b> (QObject *object, QEvent *event)</td></tr>
 <tr class="separator:a0f7e6431e66ad61ee29b11ecd0887d7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a110bf8561b89568e809f1eea6613fcfb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a110bf8561b89568e809f1eea6613fcfb"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>keyPressEvent</b> (QKeyEvent *event)</td></tr>
+<tr class="separator:a110bf8561b89568e809f1eea6613fcfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8641b917a24d3d99bb70e100c882b93e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8641b917a24d3d99bb70e100c882b93e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseMoveEvent</b> (QMouseEvent *event)</td></tr>
+<tr class="separator:a8641b917a24d3d99bb70e100c882b93e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The MSSPM Main Window. </p>
@@ -1302,6 +1317,38 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>eventFilter</b> (QObj
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Boolean describing a successful display (True) or error getting supporting data (False) </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae14e08c6f07f27597438a02af01700fa"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfMainWindow::callback_ShowChartBy </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>type</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when user changes the chart group type. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>: type of chart grouping desired: species, guild, system </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

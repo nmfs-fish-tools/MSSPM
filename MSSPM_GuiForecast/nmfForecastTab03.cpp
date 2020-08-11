@@ -222,6 +222,7 @@ nmfForecast_Tab3::callback_SavePB()
     for (int i=0; i<m_SModel->rowCount(); ++i) { // Species
             cmd += "('" + SpeNames[i] + "','" + ForecastName + "','" + Algorithm +
                     "','" + Minimizer + "','" + ObjectiveCriterion + "','" + Scaling + "'";
+std::cout << "COL CT: " << m_SModel->columnCount() << std::endl;
             for (int j=0; j<m_SModel->columnCount(); ++j) { // Parameters
                 index = m_SModel->index(i,j);
                 cmd  += "," + index.data().toString().toStdString();

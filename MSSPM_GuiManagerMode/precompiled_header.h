@@ -1,17 +1,21 @@
 
 #include <iostream>
 
-#include <QWidget>
-#include <QObject>
-#include <QSlider>
-#include <QStringList>
-#include <QLineEdit>
+#include <QApplication>
+#include <QChart>
 #include <QComboBox>
 #include <QDial>
-#include <QChart>
-#include <QPushButton>
+#include <QLineEdit>
 #include <QMessageBox>
+#include <QObject>
+#include <QPushButton>
+#include <QSlider>
+#include <QStringList>
+#include <QWidget>
 
+#include "nmfConstants.h"
 #include "nmfDatabase.h"
 #include "nmfLogger.h"
-#include "nmfConstants.h"
+#include "nmfConstantsMSSPM.h"
+#include "nmfChartMovableLine.h"
+

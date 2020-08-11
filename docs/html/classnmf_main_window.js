@@ -2,6 +2,7 @@ var classnmf_main_window =
 [
     [ "nmfMainWindow", "classnmf_main_window.html#a5da3be9e59593e85e16518f30076b6ad", null ],
     [ "~nmfMainWindow", "classnmf_main_window.html#ab7994747a769ab6d69ba75c81299e299", null ],
+    [ "callback_AddedNewDatabase", "classnmf_main_window.html#ac600b760994837bec3cfad9111521f6d", null ],
     [ "callback_CheckEstimationTablesAndRun", "classnmf_main_window.html#a2d8b210481b0f27c616b397a811e7851", null ],
     [ "callback_ClearEstimationTables", "classnmf_main_window.html#aaef0c8f713498c17962f330d9731b42c", null ],
     [ "callback_DeleteSystem", "classnmf_main_window.html#af5d7beadb1340e397e0d74fdc4c4de53", null ],
@@ -53,12 +54,13 @@ var classnmf_main_window =
     [ "callback_StoreOutputSpecies", "classnmf_main_window.html#a694a015f16a2420aba7a6701df0e12d3", null ],
     [ "callback_SubRunCompleted", "classnmf_main_window.html#a477973972e4f361c6b9ef585d1396fb2", null ],
     [ "callback_SystemLoaded", "classnmf_main_window.html#a3e0082084aa73d1ff41376517013b8e2", null ],
-    [ "callback_SystemSaved", "classnmf_main_window.html#a559c78f2b3b9fc2a028a388a28953c4b", null ],
     [ "callback_TableNamesOkPB", "classnmf_main_window.html#acba0ef02945b35e9c445ba43151d2fb9", null ],
     [ "callback_UpdateModelEquationSummary", "classnmf_main_window.html#ae51df316bad8e821afba19f8f2f94359", null ],
     [ "callback_UpdateSummaryStatistics", "classnmf_main_window.html#a04f9838ce833a75b7c8f225d93fafa86", null ],
     [ "eventFilter", "classnmf_main_window.html#a0f7e6431e66ad61ee29b11ecd0887d7f", null ],
     [ "isStartUpOK", "classnmf_main_window.html#a19bc4c57733ca92f5ce0166ef2ec4eda", null ],
+    [ "KeyPressed", "classnmf_main_window.html#a7bed941f44cecf48ab27735d112f8323", null ],
+    [ "keyPressEvent", "classnmf_main_window.html#a110bf8561b89568e809f1eea6613fcfb", null ],
     [ "menu_about", "classnmf_main_window.html#a3060c0d740270bfac32d8f326602e009", null ],
     [ "menu_clear", "classnmf_main_window.html#af25fcc17289205abeeba711d3be5eba6", null ],
     [ "menu_clearAll", "classnmf_main_window.html#a5354cf87c11a30fd650c483c94874f62", null ],
@@ -92,5 +94,7 @@ var classnmf_main_window =
     [ "menu_showTableNames", "classnmf_main_window.html#a7d06a686e89e20ca9e84427e07592121", null ],
     [ "menu_stopRun", "classnmf_main_window.html#a3f08c57d1a3fe7a0ef6eb4ec9b9ae5e6", null ],
     [ "menu_toggleManagerMode", "classnmf_main_window.html#a7b979c7bb44ce607a3a4ded5d4e488f8", null ],
-    [ "menu_whatsThis", "classnmf_main_window.html#a64bce52e0998209531614754f980bbfb", null ]
+    [ "menu_whatsThis", "classnmf_main_window.html#a64bce52e0998209531614754f980bbfb", null ],
+    [ "MouseMoved", "classnmf_main_window.html#a45dc27e957c9ea75788c0e13f86ccf7e", null ],
+    [ "mouseMoveEvent", "classnmf_main_window.html#a8641b917a24d3d99bb70e100c882b93e", null ]
 ];

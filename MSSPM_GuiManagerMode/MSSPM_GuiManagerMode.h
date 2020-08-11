@@ -2,8 +2,13 @@
 #define MSSPM_GUIMANAGERMODE_H
 
 #include <QDial>
+#include <QVBoxLayout>
+#include "nmfChartMovableLine.h"
+#include "nmfChartLine.h"
+#include <string.h>
 
-QT_CHARTS_USE_NAMESPACE
+
+//QT_CHARTS_USE_NAMESPACE
 
 /**
  * @brief The MSSPM_GuiManagerMode class
@@ -13,10 +18,10 @@ class MSSPM_GuiManagerMode : public QObject
     Q_OBJECT
 
 private:
-    QSlider*     MModeYearsPerRunHS;
-    QSlider*     MModeRunsPerForeHS;
+    QSlider*     MModeYearsPerRunSL;
+    QSlider*     MModeRunsPerForecastSL;
     QLineEdit*   MModeYearsPerRunLE;
-    QLineEdit*   MModeRunsPerForeLE;
+    QLineEdit*   MModeRunsPerForecastLE;
     QLineEdit*   MModePercMSYLE;
     QLineEdit*   MModeRParamLE;
     QLineEdit*   MModeKParamLE;
@@ -27,13 +32,31 @@ private:
     QDial*       MModeCParamDL;
     QComboBox*   MModeSpeciesCMB;
     QWidget*     MModeHarvestChartWidget;
+    QWidget*     MModeUpperPlotWidget;
     QWidget*     MModeWindowWidget;
     QPushButton* MModeForecastRunPB;
 
-    QChart*      m_MModeHarvestChartWidget;
-    QChart*      m_MModeOutputChartWidget;
-    nmfDatabase* m_DatabasePtr;
-    nmfLogger*   m_Logger;
+    QChart*              m_MModeHarvestChartWidget;
+    QChart*              m_MModeOutputChartWidget;
+    nmfDatabase*         m_DatabasePtr;
+    nmfLogger*           m_Logger;
+    std::string          m_ProjectSettingsConfig;
+    nmfChartMovableLine* m_MovableLineChart;
+
+    int         m_NumUnusedParameters;
+    std::string m_ForecastName;
+    std::string m_HarvestType;
+    int m_NumYearsInForecast;
+
+    void drawChart();
+    void saveHarvestData();
+    void saveUncertaintyParameters();
+    double getScaleValueFromPlot(int speciesNum,
+                            int yearNum);
+    void getYearRange(int& firstYear, int& lastYear);
+    int getNumYearsPerRun();
+    int getNumRunsPerForecast();
+
 
 signals:
     void KeyPressed(QKeyEvent* event);
@@ -44,8 +67,16 @@ public:
      * @brief MSSPM_GuiManagerMode
      * @param MModeWidget
      */
-    MSSPM_GuiManagerMode(nmfDatabase* databasePtr, nmfLogger* logger, QWidget* MModeWidget);
+    MSSPM_GuiManagerMode(
+            nmfDatabase* databasePtr,
+            nmfLogger*   logger,
+            std::string& projectSettingsConfig,
+            QWidget*     MModeWidget);
     ~MSSPM_GuiManagerMode();
+
+    void getLastYearsCatchValues(
+            int& lastYear,
+            std::vector<double>& lastYearsCatchValues);
 
     /**
      * @brief setupConnections
@@ -88,11 +119,10 @@ public Q_SLOTS:
      * @param value
      */
     void callback_CParam(int value);
-    void callback_ForecastRun();
+    void callback_RunPB();
     void callback_keyPressed(QKeyEvent* event);
     void callback_mouseMoved(QMouseEvent* event);
 
-    void saveUncertaintyParameters();
 };
 
 #endif // MSSPM_GUIMANAGERMODE_H
