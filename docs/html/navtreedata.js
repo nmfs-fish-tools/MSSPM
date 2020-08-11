@@ -31,8 +31,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "User_Manual.html",
-"classnmf_estimation___tab2.html",
-"classnmf_setup___tab2.html#a0920ef41d33ad08d0f5ee21c0dea6d70"
+"classnmf_estimation___tab1.html#a4217b8d1c837de6a31d46743c088b8f3",
+"classnmf_main_window.html#abdf25ab238dd454a1100d4616017d988",
+"struct_init_species_data_struct.html#a6d9768253e70e4be98145f793d3b6149"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

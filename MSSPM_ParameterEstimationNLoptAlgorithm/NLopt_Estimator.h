@@ -68,6 +68,7 @@ private:
     boost::numeric::ublas::matrix<double>  m_EstBetaGuilds;
     std::vector<double>                    m_EstCarryingCapacities;
     std::vector<double>                    m_EstGrowthRates;
+    std::vector<double>                    m_EstInitialBiomass;
     boost::numeric::ublas::matrix<double>  m_EstPredation;
     boost::numeric::ublas::matrix<double>  m_EstHandling;
     std::map<std::string,nlopt::algorithm> m_MinimizerToEnum;

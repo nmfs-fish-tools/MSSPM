@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1293</width>
-    <height>785</height>
+    <height>863</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,20 +58,7 @@
               <enum>QLayout::SetFixedSize</enum>
              </property>
              <item>
-              <widget class="QListWidget" name="MModeUpperPlotWidget">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>800</width>
-                 <height>400</height>
-                </size>
-               </property>
-              </widget>
+              <widget class="QWidget" name="MModeUpperPlotWidget" native="true"/>
              </item>
              <item>
               <widget class="QWidget" name="MModeHarvestChartWidget" native="true">
@@ -328,7 +315,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QSlider" name="MModeYearsPerRunHS">
+                       <widget class="QSlider" name="MModeYearsPerRunSL">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -562,7 +549,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QSlider" name="MModeRunsPerForeHS">
+                       <widget class="QSlider" name="MModeRunsPerForecastSL">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -649,7 +636,7 @@
                        </spacer>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="MModeRunsPerForeLE">
+                       <widget class="QLineEdit" name="MModeRunsPerForecastLE">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>

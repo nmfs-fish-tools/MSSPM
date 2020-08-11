@@ -6,6 +6,7 @@ var annotated_dup =
     [ "InitSpeciesDataStruct", "struct_init_species_data_struct.html", "struct_init_species_data_struct" ],
     [ "LoadDlg", "class_load_dlg.html", "class_load_dlg" ],
     [ "LoadForecastDlg", "class_load_forecast_dlg.html", "class_load_forecast_dlg" ],
+    [ "MSSPM_GuiManagerMode", "class_m_s_s_p_m___gui_manager_mode.html", "class_m_s_s_p_m___gui_manager_mode" ],
     [ "MSSPM_GuiOutputControls", "class_m_s_s_p_m___gui_output_controls.html", "class_m_s_s_p_m___gui_output_controls" ],
     [ "MultiScenarioSaveDlg", "class_multi_scenario_save_dlg.html", "class_multi_scenario_save_dlg" ],
     [ "NLopt_Estimator", "class_n_lopt___estimator.html", "class_n_lopt___estimator" ],

@@ -366,6 +366,7 @@ nmfMainWindow::menu_layoutDefault()
     this->addDockWidget(Qt::BottomDockWidgetArea, m_UI->ProgressDockWidget);
     this->addDockWidget(Qt::BottomDockWidgetArea, m_UI->LogDockWidget);
     this->tabifyDockWidget(m_UI->LogDockWidget, m_UI->ProgressDockWidget);
+
 }
 
 
@@ -1751,10 +1752,10 @@ nmfMainWindow::menu_toggleManagerMode()
     bool isVisible = MModeDockWidget->isVisible();
 
     MModeDockWidget->setVisible(! isVisible);
-    //m_UI->LogDockWidget->setVisible(isVisible);
-    //m_UI->OutputDockWidget->setVisible(isVisible);
+    m_UI->LogDockWidget->setVisible(isVisible);
+    m_UI->OutputDockWidget->setVisible(isVisible);
     m_UI->NavigatorDockWidget->setVisible(isVisible);
-    //m_UI->ProgressDockWidget->setVisible(isVisible);
+    m_UI->ProgressDockWidget->setVisible(isVisible);
     m_UI->centralWidget->setVisible(isVisible);
 
     int numSpecies;
@@ -6955,14 +6956,15 @@ nmfMainWindow::initializeMMode()
     MModeDockWidget->setWindowTitle("Manager Mode");
     MModeDockWidget->hide();
 
-    MMode_Controls_ptr = new MSSPM_GuiManagerMode(m_DatabasePtr, m_Logger, MModeWidget);
+    MMode_Controls_ptr = new MSSPM_GuiManagerMode(
+                m_DatabasePtr, m_Logger, m_ProjectSettingsConfig, MModeWidget);
     MMode_Controls_ptr->setupConnections();
 }
 
 void
 nmfMainWindow::menu_showTableNames()
 {
-    QLabel*      DatabaseNameLB = m_TableNamesWidget->findChild<QLabel*>("DatabaseNameLB");
+    QLabel* DatabaseNameLB = m_TableNamesWidget->findChild<QLabel*>("DatabaseNameLB");
     DatabaseNameLB->setText(QString::fromStdString(m_ProjectDatabase));
     m_TableNamesDlg->show();
 }
@@ -7008,8 +7010,8 @@ nmfMainWindow::initializeTableNamesDlg()
     m_TableNamesDlg->setLayout(layout);
     m_TableNamesDlg->setWindowTitle("Table Names");
 
-    connect(TableNamesOkPB,             SIGNAL(clicked()),
-            this,             SLOT(callback_TableNamesOkPB()));
+    connect(TableNamesOkPB, SIGNAL(clicked()),
+            this,           SLOT(callback_TableNamesOkPB()));
 }
 
 void
@@ -7185,6 +7187,8 @@ nmfMainWindow::showDockWidgets(bool show)
     m_UI->ProgressDockWidget->setVisible(show);
     m_UI->LogDockWidget->setVisible(show);
     m_UI->OutputDockWidget->setVisible(show);
+    this->tabifyDockWidget(m_UI->LogDockWidget, m_UI->ProgressDockWidget);
+
 
 
 } // end showDockWidgets
@@ -7236,9 +7240,19 @@ nmfMainWindow::setDefaultDockWidgetsVisibility()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("MainWindow");
+
+    bool progressDockVis = settings->value("ProgressDockWidgetIsVisible",false).toBool();
+    bool logDockVis      = settings->value("LogDockWidgetIsVisible",false).toBool();
+
+    this->addDockWidget(Qt::BottomDockWidgetArea, m_UI->ProgressDockWidget);
+    this->addDockWidget(Qt::BottomDockWidgetArea, m_UI->LogDockWidget);
+
     m_UI->OutputDockWidget->setVisible(settings->value("OutputDockWidgetIsVisible",false).toBool());
-    m_UI->ProgressDockWidget->setVisible(settings->value("ProgressDockWidgetIsVisible",false).toBool());
-    m_UI->LogDockWidget->setVisible(settings->value("LogDockWidgetIsVisible",false).toBool());
+    m_UI->ProgressDockWidget->setVisible(progressDockVis);
+    m_UI->LogDockWidget->setVisible(logDockVis);
+    if (progressDockVis && logDockVis) {
+        this->tabifyDockWidget(m_UI->LogDockWidget, m_UI->ProgressDockWidget);
+    }
     settings->endGroup();
 
     delete settings;
@@ -8772,7 +8786,7 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
     int RunLength;
     int NumSpecies;
     int NumGuilds;
-    int guildNum;
+    int GuildNum;
     int NumCompetitionParameters = 0;
     int NumPredationParameters   = 0;
     int NumHandlingParameters    = 0;
@@ -8951,9 +8965,9 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
             dataStruct.CatchabilityMin(guild)     = std::stod(dataMap["CatchabilityMin"][guild]);
             dataStruct.CatchabilityMax(guild)     = std::stod(dataMap["CatchabilityMax"][guild]);
             guildName = dataMap["GuildName"][guild];
-            guildNum  = GuildMap[guildName];
-            dataStruct.GuildSpecies[guildNum].push_back(guild);
-            dataStruct.GuildNum.push_back(guildNum);
+            GuildNum  = GuildMap[guildName];
+            dataStruct.GuildSpecies[GuildNum].push_back(guild);
+            dataStruct.GuildNum.push_back(GuildNum);
         }
 
         fields     = {"SpeName","GuildName","InitBiomass","GrowthRateMin","GrowthRateMax",
@@ -8993,10 +9007,10 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
             dataStruct.CatchabilityMin(species)     = std::stod(dataMap["CatchabilityMin"][species]);
             dataStruct.CatchabilityMax(species)     = std::stod(dataMap["CatchabilityMax"][species]);
             guildName = dataMap["GuildName"][species];
-            guildNum  = GuildMap[guildName];
+            GuildNum  = GuildMap[guildName];
             initialGuildBiomass[guildName] += std::stod(dataMap["InitBiomass"][species]);
-            dataStruct.GuildSpecies[guildNum].push_back(species);
-            dataStruct.GuildNum.push_back(guildNum);
+            dataStruct.GuildSpecies[GuildNum].push_back(species);
+            dataStruct.GuildNum.push_back(GuildNum);
         }
     }
 
@@ -10617,4 +10631,5 @@ nmfMainWindow::updateModelEquationSummary()
     }
     Setup_Tab4_ptr->drawEquation(ModelType,Equation,Key);
 }
+
 

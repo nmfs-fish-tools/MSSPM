@@ -2,6 +2,7 @@ var classnmf_setup___tab2 =
 [
     [ "nmfSetup_Tab2", "classnmf_setup___tab2.html#ae63d073f24a25de9a73ba5f11d8902ad", null ],
     [ "~nmfSetup_Tab2", "classnmf_setup___tab2.html#a413d1f2781c185f74bf8823503b55962", null ],
+    [ "AddedNewDatabase", "classnmf_setup___tab2.html#a89b23ff407991c9a1c7a3f36e96da2fa", null ],
     [ "callback_progressDlgCancel", "classnmf_setup___tab2.html#aba06cd43bd9e79586d690c0776f311cb", null ],
     [ "callback_Setup_Tab2_AddDatabase", "classnmf_setup___tab2.html#aa2dbb7dd6645a158d1975449009d39ab", null ],
     [ "callback_Setup_Tab2_BrowseProject", "classnmf_setup___tab2.html#a6fe7a9c7d676ba22b43a4531eea4d2f2", null ],

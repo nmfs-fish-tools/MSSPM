@@ -32,6 +32,7 @@ var searchData=
   ['menu_5fshowtablenames',['menu_showTableNames',['../classnmf_main_window.html#a7d06a686e89e20ca9e84427e07592121',1,'nmfMainWindow']]],
   ['menu_5fstoprun',['menu_stopRun',['../classnmf_main_window.html#a3f08c57d1a3fe7a0ef6eb4ec9b9ae5e6',1,'nmfMainWindow']]],
   ['menu_5fwhatsthis',['menu_whatsThis',['../classnmf_main_window.html#a64bce52e0998209531614754f980bbfb',1,'nmfMainWindow']]],
+  ['msspm_5fguimanagermode',['MSSPM_GuiManagerMode',['../class_m_s_s_p_m___gui_manager_mode.html#a2bcd62bfb5e89e0cfd41d80899b5dd92',1,'MSSPM_GuiManagerMode']]],
   ['msspm_5fguioutputcontrols',['MSSPM_GuiOutputControls',['../class_m_s_s_p_m___gui_output_controls.html#a21fb41942a2fc2a1e774bbcf6a97bef8',1,'MSSPM_GuiOutputControls']]],
   ['multiscenariosavedlg',['MultiScenarioSaveDlg',['../class_multi_scenario_save_dlg.html#a02fa16cdc0f9dfbac44881dba488077b',1,'MultiScenarioSaveDlg']]]
 ];

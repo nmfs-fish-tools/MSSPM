@@ -605,7 +605,9 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
     try {
         double minf=0;
         try {
+            //------------------------------------------------
             result = m_Optimizer.optimize(m_Parameters, minf);
+            //------------------------------------------------
             std::cout << "\nOptimizer return code: " << returnCode(result) << std::endl;
         } catch (const std::exception& e) {
             std::cout << "Exception thrown: " << e.what() << std::endl;
@@ -615,7 +617,7 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
 
         std::cout << "Found " + MaxOrMin + " fitness of: " << minf << std::endl;
         for (unsigned i=0; i<m_Parameters.size(); ++i) {
-            std::cout << "  Est Param: " << m_Parameters[i] << std::endl;
+            std::cout << "  Est Param[" << i << "]: " << m_Parameters[i] << std::endl;
         }
 
         extractParameters(NLoptStruct, &m_Parameters[0],
