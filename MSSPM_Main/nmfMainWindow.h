@@ -382,15 +382,15 @@ private:
                             std::string &ObjectiveCriterion,
                             std::string &Scaling,
                             std::vector<boost::numeric::ublas::matrix<double> > &ForecastBiomass);
-    bool getForecastBiomassMonteCarlo(const std::string& ForecastName,
-                                      const int&         NumSpecies,
-                                      const int&         RunLength,
-                                      const int&         NumRuns,
-                                      std::string&       Algorithm,
-                                      std::string&       Minimizer,
-                                      std::string&       ObjectiveCriterion,
-                                      std::string&       Scaling,
-                                      std::vector<boost::numeric::ublas::matrix<double> >& ForecastBiomassMonteCarlo);
+//    bool getForecastBiomassMonteCarlo(const std::string& ForecastName,
+//                                      const int&         NumSpecies,
+//                                      const int&         RunLength,
+//                                      const int&         NumRuns,
+//                                      std::string&       Algorithm,
+//                                      std::string&       Minimizer,
+//                                      std::string&       ObjectiveCriterion,
+//                                      std::string&       Scaling,
+//                                      std::vector<boost::numeric::ublas::matrix<double> >& ForecastBiomassMonteCarlo);
     bool getGuildData(const int                             &NumGuilds,
                       const int                             &RunLength,
                       const QStringList                     &GuildList,
@@ -933,6 +933,11 @@ public slots:
      * @brief Callback invoked when user wants to save the Qt Settings for the Main application page
      */
     void callback_SaveMainSettings();
+    /**
+     * @brief Callback invoked when user wants to save the output biomass data when generating a forecast
+     * @param ForecastName : name of Forecast that's currently being run
+     */
+    void callback_SaveOutputBiomassData(std::string ForecastName);
     /**
      * @brief Callback invoked when user saves a new system
      */

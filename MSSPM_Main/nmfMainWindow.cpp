@@ -839,6 +839,7 @@ nmfMainWindow::getGuilds(int &NumGuilds, QStringList &GuildList)
     return true;
 }
 
+/*
 bool
 nmfMainWindow::getForecastBiomassMonteCarlo(const std::string& ForecastName,
                                             const int&         NumSpecies,
@@ -905,7 +906,7 @@ nmfMainWindow::getForecastBiomassMonteCarlo(const std::string& ForecastName,
 
     return true;
 }
-
+*/
 bool
 nmfMainWindow::getDiagnosticsData(
         const int   &NumPoints,
@@ -1816,7 +1817,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.3 (beta)";
+    QString version = "MSSPM v0.9.4 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2626,6 +2627,8 @@ nmfMainWindow::initConnections()
             MMode_Controls_ptr,  SLOT(callback_keyPressed(QKeyEvent*)));
     connect(this,                SIGNAL(MouseMoved(QMouseEvent*)),
             MMode_Controls_ptr,  SLOT(callback_mouseMoved(QMouseEvent*)));
+    connect(MMode_Controls_ptr,  SIGNAL(SaveOutputBiomassData(std::string)),
+            this,                SLOT(callback_SaveOutputBiomassData(std::string)));
 
     callback_Setup_Tab4_GrowthFormCMB("Null");
     callback_Setup_Tab4_HarvestFormCMB("Null");
@@ -3978,7 +3981,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                     GuildCarryingCapacity += EstCarryingCapacities[GuildSpecies[guildNum][j]];
                 }
             }
-
             EstimatedBiomassTimeMinus1  = EstimatedBiomassBySpecies(timeMinus1,species);
             growthTerm      = growthForm->evaluate(species,EstimatedBiomassTimeMinus1,
                                                    EstGrowthRates,EstCarryingCapacities);
@@ -4001,14 +4003,12 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                       EstPredation,EstHandling,EstExponent,
                                                       EstimatedBiomassBySpecies,EstimatedBiomassTimeMinus1);
             EstimatedBiomassTimeMinus1 += growthTerm - harvestTerm - competitionTerm - predationTerm;
-
             if ( std::isnan(std::fabs(EstimatedBiomassTimeMinus1)) ||
                 (EstimatedBiomassTimeMinus1 < 0) )
             {
                 EstimatedBiomassTimeMinus1 = 0;
             }
             EstimatedBiomassBySpecies(time,species) = EstimatedBiomassTimeMinus1;
-
             // update estBiomassGuilds for next time step
             if (isAggProd) {
                 for (int i=0; i<NumGuilds; ++i) {
@@ -5466,6 +5466,7 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     std::string Minimizer;
     std::string ObjectiveCriterion;
     std::string Scaling;
+    std::string TableName = "Forecasts";
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -5496,26 +5497,33 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     }
 
     // Find Forecast info
-    fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
-    queryStr  = "SELECT ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,StartYear,EndYear,NumRuns FROM Forecasts where ";
-    queryStr += "ForecastName = '" + ForecastName + "'";
-    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["ForecastName"].size() != 0) {
-        RunLength          = std::stoi(dataMap["RunLength"][0]);
-        StartForecastYear  = std::stoi(dataMap["StartYear"][0]);
-        // EndYear         = std::stoi(dataMap["EndYear"][0]);
-        Algorithm          = dataMap["Algorithm"][0];
-        Minimizer          = dataMap["Minimizer"][0];
-        ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
-        Scaling            = dataMap["Scaling"][0];
-        NumRuns            = std::stoi(dataMap["NumRuns"][0]);
+//    fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
+//    queryStr  = "SELECT ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,StartYear,EndYear,NumRuns FROM Forecasts where ";
+//    queryStr += "ForecastName = '" + ForecastName + "'";
+//    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+//    if (dataMap["ForecastName"].size() != 0) {
+//        RunLength          = std::stoi(dataMap["RunLength"][0]);
+//        StartForecastYear  = std::stoi(dataMap["StartYear"][0]);
+//        // EndYear         = std::stoi(dataMap["EndYear"][0]);
+//        Algorithm          = dataMap["Algorithm"][0];
+//        Minimizer          = dataMap["Minimizer"][0];
+//        ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
+//        Scaling            = dataMap["Scaling"][0];
+//        NumRuns            = std::stoi(dataMap["NumRuns"][0]);
+    //    }
+    if (! m_DatabasePtr->getForecastInfo(
+         TableName,ForecastName,RunLength,StartForecastYear,
+         Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
+            return false;
     }
 
     // Plot ForecastBiomassMonteCarlo data
     if (NumRuns > 0) {
-        if (! getForecastBiomassMonteCarlo(ForecastName,NumSpeciesOrGuilds,RunLength,NumRuns,
-                                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                                 ForecastBiomassMonteCarlo)) {
+        if (! m_DatabasePtr->getForecastBiomassMonteCarlo(this,m_Logger,
+              ForecastName,NumSpeciesOrGuilds,RunLength,NumRuns,
+              Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+              ForecastBiomassMonteCarlo)) {
+            m_ChartView2d->hide();
             return false;
         }
 
@@ -6958,7 +6966,6 @@ nmfMainWindow::initializeMMode()
 
     MMode_Controls_ptr = new MSSPM_GuiManagerMode(
                 m_DatabasePtr, m_Logger, m_ProjectSettingsConfig, MModeWidget);
-    MMode_Controls_ptr->setupConnections();
 }
 
 void
@@ -7594,6 +7601,87 @@ nmfMainWindow::callback_ForecastLoaded(std::string ForecastName)
 
 }
 
+void
+nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
+{
+    bool updateOK = true;
+    bool isMonteCarlo;
+    bool isAggProd;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    int RunLength = 0;
+    int StartYear = nmfConstantsMSSPM::Start_Year;
+    int NullStartYear = 0;
+    int EndYear = StartYear;
+    int NumRuns = 0;
+    int RunNum = 0;
+    std::string Algorithm;
+    std::string Minimizer;
+    std::string ObjectiveCriterion;
+    std::string Scaling;
+    std::string GrowthForm;
+    std::string HarvestForm;
+    std::string CompetitionForm;
+    std::string PredationForm;
+    std::string isAggProdStr;
+    std::string GrowthRateTable        = "OutputGrowthRate";
+    std::string CarryingCapacityTable  = "OutputCarryingCapacity";
+    std::string CatchabilityTable      = "OutputCatchability";
+    std::string BiomassTable           = "ForecastBiomass";
+    std::string BiomassMonteCarloTable = "ForecastBiomassMonteCarlo";
+
+    // Find Forecast info
+    fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
+    queryStr  = "SELECT ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,StartYear,EndYear,NumRuns FROM Forecasts where ";
+    queryStr += "ForecastName = '" + ForecastName + "'";
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    if (dataMap["ForecastName"].size() != 0) {
+        RunLength          = std::stoi(dataMap["RunLength"][0]);
+        StartYear          = std::stoi(dataMap["StartYear"][0]);
+        EndYear            = std::stoi(dataMap["EndYear"][0]);
+        Algorithm          = dataMap["Algorithm"][0];
+        Minimizer          = dataMap["Minimizer"][0];
+        ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
+        Scaling            = dataMap["Scaling"][0];
+        GrowthForm         = dataMap["GrowthForm"][0];
+        HarvestForm        = dataMap["HarvestForm"][0];
+        CompetitionForm    = dataMap["WithinGuildCompetitionForm"][0];
+        PredationForm      = dataMap["PredationForm"][0];
+        NumRuns            = std::stoi(dataMap["NumRuns"][0]);
+    }
+    isAggProd = (CompetitionForm == "AGG-PROD");
+    isAggProdStr = (isAggProd) ? "1" : "0";
+
+    // Calculate Monte Carlo simulations
+    isMonteCarlo = true;
+    clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,
+                            ObjectiveCriterion,Scaling,
+                            isAggProdStr,BiomassMonteCarloTable);
+    for (RunNum=0; RunNum<NumRuns; ++RunNum) {
+        updateOK = updateOutputBiomassTable(ForecastName,NullStartYear,RunLength,isMonteCarlo,RunNum,
+                                            Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
+                                            GrowthForm,HarvestForm,CompetitionForm,PredationForm,
+                                            GrowthRateTable,CarryingCapacityTable,CatchabilityTable,
+                                            BiomassMonteCarloTable);
+        if (! updateOK) {
+            m_Logger->logMsg(nmfConstants::Error,"[Error 1] callback_SaveOutputBiomassData: Problem with Monte Carlo simulation");
+            QApplication::restoreOverrideCursor();
+            return;
+        }
+    }
+    // Calculate Forecast Biomass without any errors and ensure it appears superimposed over
+    // Monte Carlo simulations
+    isMonteCarlo = false;
+    RunNum = 0;
+    clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                            isAggProdStr,BiomassTable);
+    updateOK = updateOutputBiomassTable(ForecastName,NullStartYear,RunLength,isMonteCarlo,RunNum,
+                                        Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
+                                        GrowthForm,HarvestForm,CompetitionForm,PredationForm,
+                                        GrowthRateTable,CarryingCapacityTable,CatchabilityTable,
+                                        BiomassTable);
+}
 
 void
 nmfMainWindow::callback_RunForecast(std::string ForecastName,
@@ -7602,7 +7690,6 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     bool updateOK = true;
     bool isMonteCarlo;
     bool isAggProd;
-    // int NumSpecies;
     int RunLength = 0;
     int StartYear = nmfConstantsMSSPM::Start_Year;
     int NullStartYear = 0;
@@ -7633,16 +7720,10 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     m_SeedValue = Forecast_Tab1_ptr->getSeed();
 
     // Turn on wait cursor
-    m_UI->ForecastDataInputTabWidget->setCursor(Qt::WaitCursor);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 
     Forecast_Tab4_ptr->clearOutputTE();
     Forecast_Tab4_ptr->setOutputTE(QString("<b>Summary:<\b>"));
-
-    // Find species info
-    fields = {"SpeName"};
-    queryStr   = "SELECT SpeName FROM Species";
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    // NumSpecies = dataMap["SpeName"].size();
 
     // Find Forecast info
     fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
@@ -7663,24 +7744,26 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
         PredationForm      = dataMap["PredationForm"][0];
         NumRuns            = std::stoi(dataMap["NumRuns"][0]);
     }
-    isAggProd = (CompetitionForm == "AGG-PROD");
+    isAggProd    = (CompetitionForm == "AGG-PROD");
     isAggProdStr = (isAggProd) ? "1" : "0";
 
     Forecast_Tab4_ptr->appendOutputTE(QString("<br>Run Length (years): ") + QString::number(RunLength));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Year Range: ") + QString::number(StartYear) +
-                                      QString(" to ") + QString::number(EndYear));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Number of Runs: ") + QString::number(NumRuns));
-    Forecast_Tab4_ptr->appendOutputTE(QString("<br>Algorithm: ") + QString::fromStdString(Algorithm));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Minimizer: ") + QString::fromStdString(Minimizer));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Objective Criterion: ") + QString::fromStdString(ObjectiveCriterion));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Scaling Algorithm: ") + QString::fromStdString(Scaling));
-    Forecast_Tab4_ptr->appendOutputTE(QString("<br>Growth Form: ") + QString::fromStdString(GrowthForm));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Harvest Form: ") + QString::fromStdString(HarvestForm));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Competition Form: ") + QString::fromStdString(CompetitionForm));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Predation Form: ") + QString::fromStdString(PredationForm));
+    Forecast_Tab4_ptr->appendOutputTE(QString("Year Range: ")             + QString::number(StartYear) +
+                                      QString(" to ")                     + QString::number(EndYear));
+    Forecast_Tab4_ptr->appendOutputTE(QString("Number of Runs: ")         + QString::number(NumRuns));
+    Forecast_Tab4_ptr->appendOutputTE(QString("<br>Algorithm: ")          + QString::fromStdString(Algorithm));
+    Forecast_Tab4_ptr->appendOutputTE(QString("Minimizer: ")              + QString::fromStdString(Minimizer));
+    Forecast_Tab4_ptr->appendOutputTE(QString("Objective Criterion: ")    + QString::fromStdString(ObjectiveCriterion));
+    Forecast_Tab4_ptr->appendOutputTE(QString("Scaling Algorithm: ")      + QString::fromStdString(Scaling));
+    Forecast_Tab4_ptr->appendOutputTE(QString("<br>Growth Form: ")        + QString::fromStdString(GrowthForm));
+    Forecast_Tab4_ptr->appendOutputTE(QString("Harvest Form: ")           + QString::fromStdString(HarvestForm));
+    Forecast_Tab4_ptr->appendOutputTE(QString("Competition Form: ")       + QString::fromStdString(CompetitionForm));
+    Forecast_Tab4_ptr->appendOutputTE(QString("Predation Form: ")         + QString::fromStdString(PredationForm));
 
     if (GenerateBiomass)
     {
+        callback_SaveOutputBiomassData(ForecastName);
+/*
         // Calculate Monte Carlo simulations
         isMonteCarlo = true;
         clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,
@@ -7694,7 +7777,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
                                                 BiomassMonteCarloTable);
             if (! updateOK) {
                 m_Logger->logMsg(nmfConstants::Error,"[Error 1] callback_RunForecast: Problem with Monte Carlo simulation");
-                m_UI->ForecastDataInputTabWidget->setCursor(Qt::ArrowCursor);
+                QApplication::restoreOverrideCursor();
                 return;
             }
         }
@@ -7709,9 +7792,10 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
                                             GrowthForm,HarvestForm,CompetitionForm,PredationForm,
                                             GrowthRateTable,CarryingCapacityTable,CatchabilityTable,
                                             BiomassTable);
+*/
     }
     if (! updateOK) {
-        m_UI->ForecastDataInputTabWidget->setCursor(Qt::ArrowCursor);
+        QApplication::restoreOverrideCursor();
         return;
     }
 
@@ -7719,7 +7803,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     if (! showForecastChart(isAggProd,ForecastName,StartYear,
                             ScaleStr,ScaleVal,YMinSliderValue,
                             Output_Controls_ptr->getOutputBrightnessFactor())) {
-        m_UI->ForecastDataInputTabWidget->setCursor(Qt::ArrowCursor);
+        QApplication::restoreOverrideCursor();
         return;
     }
 
@@ -7727,7 +7811,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     Output_Controls_ptr->enableBrightnessWidgets(true);
 
     // Turn off wait cursor
-    m_UI->ForecastDataInputTabWidget->setCursor(Qt::ArrowCursor);
+    QApplication::restoreOverrideCursor();
 
     // Assure Chart type is Forecast but don't change to a different species.
     int currOutputSpecies = Output_Controls_ptr->getOutputSpeciesIndex();

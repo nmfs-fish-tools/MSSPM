@@ -1,7 +1,9 @@
 #ifndef MSSPM_GUIMANAGERMODE_H
 #define MSSPM_GUIMANAGERMODE_H
 
+#include <QCheckBox>
 #include <QDial>
+#include <QLineSeries>
 #include <QVBoxLayout>
 #include "nmfChartMovableLine.h"
 #include "nmfChartLine.h"
@@ -22,11 +24,9 @@ private:
     QSlider*     MModeRunsPerForecastSL;
     QLineEdit*   MModeYearsPerRunLE;
     QLineEdit*   MModeRunsPerForecastLE;
-    QLineEdit*   MModePercMSYLE;
     QLineEdit*   MModeRParamLE;
     QLineEdit*   MModeKParamLE;
     QLineEdit*   MModeCParamLE;
-    QDial*       MModePercMSYDL;
     QDial*       MModeRParamDL;
     QDial*       MModeKParamDL;
     QDial*       MModeCParamDL;
@@ -35,6 +35,11 @@ private:
     QWidget*     MModeUpperPlotWidget;
     QWidget*     MModeWindowWidget;
     QPushButton* MModeForecastRunPB;
+    QCheckBox*   MModeShowMSYCB;
+    QSlider*     MModeDetStocSL;
+    QDial*       MModePctMSYDL;
+    QLineEdit*   MModePctMSYLE;
+    QCheckBox*   MModeEnablePctMSYCB;
 
     QChart*              m_MModeHarvestChartWidget;
     QChart*              m_MModeOutputChartWidget;
@@ -42,25 +47,33 @@ private:
     nmfLogger*           m_Logger;
     std::string          m_ProjectSettingsConfig;
     nmfChartMovableLine* m_MovableLineChart;
+    QChart*              m_ChartWidget;
+    QChartView*          m_ChartView;
+    nmfChartLine*        m_ForecastLineChart;
+    nmfChartLine*        m_MSYLineChart;
 
     int         m_NumUnusedParameters;
     std::string m_ForecastName;
     std::string m_HarvestType;
-    int m_NumYearsInForecast;
+    int m_NumYearsPerRun;
+    int m_NumRunsPerForecast;
 
-    void drawChart();
+    void drawChart(bool MSYOnly);
     void saveHarvestData();
     void saveUncertaintyParameters();
+    void saveOutputBiomassData();
     double getScaleValueFromPlot(int speciesNum,
                             int yearNum);
     void getYearRange(int& firstYear, int& lastYear);
     int getNumYearsPerRun();
     int getNumRunsPerForecast();
-
+    bool isMSYBoxChecked();
+    bool isEnablePctMSYBoxChecked();
 
 signals:
     void KeyPressed(QKeyEvent* event);
     void MouseMoved(QMouseEvent* event);
+    void SaveOutputBiomassData(std::string forecastName);
 
 public:
     /**
@@ -73,6 +86,8 @@ public:
             std::string& projectSettingsConfig,
             QWidget*     MModeWidget);
     ~MSSPM_GuiManagerMode();
+
+
 
     void getLastYearsCatchValues(
             int& lastYear,
@@ -89,6 +104,14 @@ public:
     void setData(const QStringList& speciesList);
 
 public Q_SLOTS:
+
+    void callback_PctMSYDL();
+    void callback_EnablePctMSYCB(bool isChecked);
+    /**
+     * @brief callback_MSYCB
+     * @param isChecked
+     */
+    void callback_MSYCB(bool isChecked);
     /**
      * @brief callback_YearsPerRun
      * @param value
@@ -100,10 +123,10 @@ public Q_SLOTS:
      */
     void callback_RunsPerFore(int value);
     /**
-     * @brief callback_PercMSY
+     * @brief callback_PctMSY
      * @param value
      */
-    void callback_PercMSY(int value);
+    void callback_PctMSY(int value);
     /**
      * @brief callback_RParam
      * @param value
@@ -120,6 +143,7 @@ public Q_SLOTS:
      */
     void callback_CParam(int value);
     void callback_RunPB();
+    void callback_RunPB(bool MSYOnly);
     void callback_keyPressed(QKeyEvent* event);
     void callback_mouseMoved(QMouseEvent* event);
 
