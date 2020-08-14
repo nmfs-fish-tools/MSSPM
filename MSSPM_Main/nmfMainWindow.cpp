@@ -127,7 +127,6 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
 
     initializeTableNamesDlg();
     initializeMMode();
-    //m_UI->actionToggleManagerMode->setEnabled(false);
 
     this->setMouseTracking(true);
 
@@ -966,68 +965,7 @@ nmfMainWindow::getDiagnosticsData(
     return true;
 }
 
-bool
-nmfMainWindow::getForecastBiomass(const std::string &ForecastName,
-                                  const int   &NumSpecies,
-                                  const int   &RunLength,
-                                  std::string &Algorithm,
-                                  std::string &Minimizer,
-                                  std::string &ObjectiveCriterion,
-                                  std::string &Scaling,
-                                  std::vector<boost::numeric::ublas::matrix<double> > &ForecastBiomass)
-{
-    int m=0;
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::string queryStr;
-    std::string errorMsg;
-    QString msg;
-    std::map<std::string, std::vector<std::string> > dataMapForecastBiomass;
 
-    ForecastBiomass.clear();
-
-    // Load Forecast Biomass data (ie, calculated from estimated parameters r and alpha)
-    fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Year","Value"};
-    queryStr  = "SELECT ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value FROM ForecastBiomass";
-    queryStr += " WHERE ForecastName = '" + ForecastName +
-                "' AND Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
-                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' ORDER BY SpeName,Year";
-    dataMapForecastBiomass = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMapForecastBiomass["SpeName"].size();
-    if (NumRecords == 0) {
-        m_ChartView2d->hide();
-        errorMsg  = "[Warning] getForecastBiomass: No records found in table ForecastBiomass";
-        //errorMsg += "\n" + queryStr;
-        m_Logger->logMsg(nmfConstants::Warning,errorMsg);
-        msg = "\nNo ForecastBiomass records found.\n\nPlease make sure a Forecast has been run.\n";
-        QMessageBox::warning(this, "Warning", msg, QMessageBox::Ok);
-        return false;
-    }
-    if (NumRecords != NumSpecies*(RunLength+1)) {
-        errorMsg  = "[Error 2] getForecastBiomass: Number of records found (" + std::to_string(NumRecords) + ") in ";
-        errorMsg += "table ForecastBiomass does not equal number of NumSpecies*(RunLength+1) (";
-        errorMsg += std::to_string(NumSpecies) + "*" + std::to_string((RunLength+1)) + "=";
-        errorMsg += std::to_string(NumSpecies*(RunLength+1)) + ") records";
-        errorMsg += "\n" + queryStr;
-        m_Logger->logMsg(nmfConstants::Error,errorMsg);
-        return false;
-    }
-
-    boost::numeric::ublas::matrix<double> TmpMatrix;
-    nmfUtils::initialize(TmpMatrix,RunLength+1,NumSpecies);
-
-    for (int species=0; species<NumSpecies; ++species) {
-        for (int time=0; time<=RunLength; ++time) {
-            TmpMatrix(time,species) = std::stod(dataMapForecastBiomass["Value"][m++]);
-        }
-    }
-    ForecastBiomass.push_back(TmpMatrix);
-
-    return true;
-}
 
 int
 nmfMainWindow::getNumDistinctRecords(const std::string& field,
@@ -2627,6 +2565,8 @@ nmfMainWindow::initConnections()
             MMode_Controls_ptr,  SLOT(callback_keyPressed(QKeyEvent*)));
     connect(this,                SIGNAL(MouseMoved(QMouseEvent*)),
             MMode_Controls_ptr,  SLOT(callback_mouseMoved(QMouseEvent*)));
+    connect(this,                SIGNAL(MouseReleased(QMouseEvent*)),
+            MMode_Controls_ptr,  SLOT(callback_mouseReleased(QMouseEvent*)));
     connect(MMode_Controls_ptr,  SIGNAL(SaveOutputBiomassData(std::string)),
             this,                SLOT(callback_SaveOutputBiomassData(std::string)));
 
@@ -2680,6 +2620,9 @@ nmfMainWindow::eventFilter(QObject *object, QEvent *event)
         else if (event->type() == QEvent::MouseButtonDblClick) {
             return true;
         }
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent* mouseEvent = (QMouseEvent*) event;
+        emit MouseReleased(mouseEvent);
     }
 
     return QObject::eventFilter(object, event);
@@ -5541,7 +5484,7 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     }
 
     // Plot ForecastBiomass data
-    if (! getForecastBiomass(ForecastName,NumSpeciesOrGuilds,RunLength,
+    if (! m_DatabasePtr->getForecastBiomass(this,m_Logger,ForecastName,NumSpeciesOrGuilds,RunLength,
                              Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                              ForecastBiomass)) {
         return false;
@@ -6028,6 +5971,7 @@ nmfMainWindow::showChartTableVsTime(
                                          ChartType,
                                          LineStyle,
                                          nmfConstantsMSSPM::ShowFirstPoint,
+                                         nmfConstants::ShowLegend,
                                          StartYear,
                                          xAxisIsInteger,
                                          YMinSliderVal,
@@ -6128,6 +6072,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
                                 ChartType,
                                 LineStyle,
                                 nmfConstantsMSSPM::ShowFirstPoint,
+                                nmfConstants::ShowLegend,
                                 StartXValue,
                                 nmfConstantsMSSPM::LabelXAxisAsReals,
                                 YMinSliderVal,
@@ -6258,6 +6203,7 @@ nmfMainWindow::showMohnsRhoBiomassVsTime(
                                  ChartType,
                                  LineStyle,
                                  nmfConstantsMSSPM::ShowFirstPoint,
+                                 nmfConstants::DontShowLegend,
                                  StartYear,
                                  nmfConstantsMSSPM::LabelXAxisAsInts,
                                  YMinSliderVal,
@@ -6296,6 +6242,7 @@ nmfMainWindow::showForecastBiomassVsTime(
     //
     // Draw the line chart
     //
+    bool ShowLegend = false;
     int NumLines = Biomass.size();
     QList<QColor> LineColors;
     QStringList RowLabelsForBars;
@@ -6366,11 +6313,13 @@ nmfMainWindow::showForecastBiomassVsTime(
         nmfChartLine* lineChart = new nmfChartLine();
         if (ChartTitle == "Multi-Forecast Scenario") {
             lineColorName = "Multi-Forecast Scenario";
+            ShowLegend = true;
         }
         lineChart->populateChart(m_ChartWidget,
                                  ChartType,
                                  LineStyle,
                                  nmfConstantsMSSPM::ShowFirstPoint,
+                                 ShowLegend,
                                  StartForecastYear,
                                  nmfConstantsMSSPM::LabelXAxisAsInts,
                                  YMinSliderVal,
@@ -6631,6 +6580,7 @@ nmfMainWindow::showChartBiomassVsTime(
                                          ChartType,
                                          LineStyle,
                                          nmfConstantsMSSPM::ShowFirstPoint,
+                                         nmfConstants::ShowLegend,
                                          StartYear,
                                          xAxisIsInteger,
                                          YMinSliderVal,
@@ -6743,6 +6693,7 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
                                  ChartType,
                                  LineStyle,
                                  nmfConstantsMSSPM::HideFirstPoint,
+                                 nmfConstants::DontShowLegend,
                                  0,
                                  false,
                                  YMinSliderVal,
@@ -6832,6 +6783,7 @@ nmfMainWindow::showChartBcVsTimeAllSpecies(
                                  ChartType,
                                  LineStyle,
                                  nmfConstantsMSSPM::HideFirstPoint,
+                                 nmfConstants::DontShowLegend,
                                  0,
                                  false,
                                  YMinSliderVal,
@@ -6955,14 +6907,34 @@ nmfMainWindow::initializeMMode()
     QFile file(":/forms/MMode/mModeWindow.ui");
     file.open(QFile::ReadOnly);
     QWidget* MModeWidget = loader.load(&file,this);
+    file.close();
+
     MModeDockWidget = new QDockWidget(this);
     MModeDockWidget->setWidget(MModeWidget);
     //MModeDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    file.close();
     addDockWidget(Qt::RightDockWidgetArea, MModeDockWidget);
 
-    MModeDockWidget->setWindowTitle("Manager Mode");
+    // Set dock window title
+    QFont mmodeFont = MModeDockWidget->font();
+    mmodeFont.setPointSize(12);
+    mmodeFont.setBold(true);
+
+
     MModeDockWidget->hide();
+
+    // Set a custom title for the Remora dock widget
+    QWidget* customTitleBar = new QWidget();
+    QHBoxLayout* hlayt = new QHBoxLayout;
+    hlayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    QLabel* title = new QLabel("<strong>REMORA</strong> (<strong>RE</strong>source <strong>M</strong>anagement <strong>O</strong>ption <strong>R</strong>eview and <strong>A</strong>nalysis)");
+    QFont titleFont = title->font();
+    titleFont.setPointSize(titleFont.pointSize()+4);
+    title->setFont(titleFont);
+    hlayt->addWidget(title);
+    hlayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    customTitleBar->setLayout(hlayt);
+    MModeDockWidget->setTitleBarWidget(customTitleBar);
+
 
     MMode_Controls_ptr = new MSSPM_GuiManagerMode(
                 m_DatabasePtr, m_Logger, m_ProjectSettingsConfig, MModeWidget);

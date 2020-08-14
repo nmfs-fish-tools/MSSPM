@@ -116,7 +116,6 @@
     <addaction name="separator"/>
     <addaction name="actionImportDatabase"/>
     <addaction name="actionExportDatabase"/>
-    <addaction name="actionExportAllDatabases"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
@@ -149,8 +148,6 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionWhatsThis"/>
-    <addaction name="actionResetCursor"/>
-    <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuUtilities">
@@ -171,9 +168,6 @@
     <addaction name="actionClearEstimatedCompetition"/>
     <addaction name="separator"/>
     <addaction name="actionStopRun"/>
-    <addaction name="separator"/>
-    <addaction name="separator"/>
-    <addaction name="actionToggleManagerMode"/>
    </widget>
    <widget class="QMenu" name="menuLayouts">
     <property name="title">
@@ -194,9 +188,6 @@
    <property name="windowTitle">
     <string>Main Toolbar</string>
    </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -212,10 +203,7 @@
    <addaction name="actionGeneticTB"/>
    <addaction name="actionGradientTB"/>
    <addaction name="separator"/>
-   <addaction name="actionScreenShotAll"/>
    <addaction name="actionScreenShot"/>
-   <addaction name="actionMultiShot"/>
-   <addaction name="separator"/>
    <addaction name="actionWhatsThisTB"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -286,16 +274,6 @@
           <widget class="QWidget" name="MSSPMOutputModelFitSummaryTab">
            <attribute name="title">
             <string>Model Fit Summary</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="MSSPMOutputDiagnosticSummaryTab">
-           <attribute name="title">
-            <string>Diagnostic Summary</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="MSSPMOutputScreenShotViewerTab">
-           <attribute name="title">
-            <string>Screen Shot Viewer</string>
            </attribute>
           </widget>
          </widget>
@@ -515,9 +493,6 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>View Current Run</string>
    </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;View Current Run&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Shows the current run for the currently selected Species. This is the run that was previously saved.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
   </action>
   <action name="actionShowAllSavedRunsTB">
    <property name="text">
@@ -526,9 +501,6 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>View All Saved Runs</string>
    </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Show All Saved Runs&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This feature allows all the saved runs to be viewed on the same chart. This button must be used in conjunction with the BE and NL toggles to filter which saved runs are to be displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
   </action>
   <action name="actionSaveCurrentRunTB">
    <property name="text">
@@ -536,9 +508,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="toolTip">
     <string>Save Current Run</string>
-   </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Save Current Run&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Saves the current run so it can be viewed with other saved runs on same plot.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionBeesTB">
@@ -553,9 +522,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="toolTip">
     <string>Used with View* to show only Bees Algorithm curves</string>
-   </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Bees Filter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When used in conjunction with the View* button, this option allows all of the Bees saved plots to be viewed in the same chart.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionGeneticTB">
@@ -661,9 +627,6 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>Save the Current Run and View the Output</string>
    </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Save+View&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This feature allows the user to Save the current run and View it as the current plot. It is the default behavior of the tool.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
   </action>
   <action name="actionStopRun">
    <property name="text">
@@ -730,9 +693,6 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>What's This?</string>
    </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;WhatsThis? Help&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the WhatsThis? help functionality available in this application. Selecting this feature will transform the cursor into a WhatsThis? cursor. As the user hovers this transformed cursor over an object that has additional &amp;quot;WhatsThis?&amp;quot; help implemented, the cursor shape will change to a question mark with an arrow which signifies additional popup help will appear once the user clicks over the object.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
   </action>
   <action name="actionNLoptTB">
    <property name="checkable">
@@ -743,9 +703,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="toolTip">
     <string>Used with View* to show only the NLopt curves</string>
-   </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;NLopt Filter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When used in conjunction with the View* button, this option allows all of the NLopt saved plots to be viewed in the same chart.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionSaveSettings">
@@ -787,16 +744,13 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/icons/scrgrb.png</normaloff>:/icons/scrgrb.png</iconset>
    </property>
    <property name="text">
-    <string>Save Current Output Chart or Table Data</string>
-   </property>
-   <property name="iconText">
-    <string>Save Current Output Chart or Table Data</string>
+    <string>Save Current Output Chart</string>
    </property>
    <property name="toolTip">
-    <string>Save Current Output Chart or Table Data</string>
+    <string>Save Current Output Chart</string>
    </property>
    <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Snapshot&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This function saves either the current Output Chart or Output Table Data when clicked, depending upon what's currently visible, after prompting the user for a file name.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Snapshot&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This function saves either the current Output Table or Output Chart when clicked, after prompting the user for a file name.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionImportDatabase">
@@ -819,61 +773,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="statusTip">
     <string>Export MySQL Database</string>
-   </property>
-  </action>
-  <action name="actionMultiShot">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>:/icons/multishot2.png</normaloff>
-     <normalon>:/icons/multishot.png</normalon>:/icons/multishot2.png</iconset>
-   </property>
-   <property name="text">
-    <string>MultiShot</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggles multi shot mode</string>
-   </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Multi Shot&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button acts as a toggle for capturing multiple plots to the same image file. The user clicks this button once to activate multi shot mode. The user then captures plots in whatever order desired by using the camera icon to the left. The user exits multi shot mode by clicking this button again.&lt;/p&gt;&lt;p&gt;When the uiser leaves the multi shot mode, they will be prompted for an image file name which will contain all of the captured plots merged vertically into a single image file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-  </action>
-  <action name="actionScreenShotAll">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/icons/scrgrbAll.png</normaloff>:/icons/scrgrbAll.png</iconset>
-   </property>
-   <property name="text">
-    <string>ScreenShotAll</string>
-   </property>
-   <property name="toolTip">
-    <string>Captures all Species/Guild plots (for the current Chart Type) at once</string>
-   </property>
-   <property name="whatsThis">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;All Species Capture&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This feature allows the user to capture all the Species or Guild plots (for the current chart type) into one composite image. The layout of plots is per the layout defined in the Preferences. The composite plot is then available to the user in the Screen Shot Viewer tab for viewing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-  </action>
-  <action name="actionResetCursor">
-   <property name="text">
-    <string>Reset Cursor</string>
-   </property>
-  </action>
-  <action name="actionExportAllDatabases">
-   <property name="text">
-    <string>Export All Databases...</string>
-   </property>
-   <property name="toolTip">
-    <string>Export All MySQL Databases</string>
-   </property>
-  </action>
-  <action name="actionToggleManagerMode">
-   <property name="text">
-    <string>Toggle REMORA Management Tool</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

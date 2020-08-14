@@ -4,6 +4,8 @@
 #include <QCheckBox>
 #include <QDial>
 #include <QLineSeries>
+#include <QPushButton>
+#include <QRadioButton>
 #include <QVBoxLayout>
 #include "nmfChartMovableLine.h"
 #include "nmfChartLine.h"
@@ -36,10 +38,16 @@ private:
     QWidget*     MModeWindowWidget;
     QPushButton* MModeForecastRunPB;
     QCheckBox*   MModeShowMSYCB;
-    QSlider*     MModeDetStocSL;
+//    QSlider*     MModeDetStocSL;
     QDial*       MModePctMSYDL;
     QLineEdit*   MModePctMSYLE;
     QCheckBox*   MModeEnablePctMSYCB;
+    QRadioButton* MModeDeterministicRB;
+    QRadioButton* MModeStochasticRB;
+    QRadioButton* MModePlotTypeSSRB;
+    QRadioButton* MModePlotTypeMSRB;
+    QPushButton*  MModeCParamPB;
+    QLabel*       MModePctMSYLBL;
 
     QChart*              m_MModeHarvestChartWidget;
     QChart*              m_MModeOutputChartWidget;
@@ -49,6 +57,7 @@ private:
     nmfChartMovableLine* m_MovableLineChart;
     QChart*              m_ChartWidget;
     QChartView*          m_ChartView;
+    nmfChartLine*        m_ForecastLineChartMonteCarlo;
     nmfChartLine*        m_ForecastLineChart;
     nmfChartLine*        m_MSYLineChart;
 
@@ -73,6 +82,7 @@ private:
 signals:
     void KeyPressed(QKeyEvent* event);
     void MouseMoved(QMouseEvent* event);
+    void MouseReleased(QMouseEvent* event);
     void SaveOutputBiomassData(std::string forecastName);
 
 public:
@@ -105,6 +115,7 @@ public:
 
 public Q_SLOTS:
 
+    void callback_MModeCParamPB();
     void callback_PctMSYDL();
     void callback_EnablePctMSYCB(bool isChecked);
     /**
@@ -116,12 +127,12 @@ public Q_SLOTS:
      * @brief callback_YearsPerRun
      * @param value
      */
-    void callback_YearsPerRun(int value);
+    void callback_YearsPerRunSL(int value);
     /**
      * @brief callback_RunsPerFore
      * @param value
      */
-    void callback_RunsPerFore(int value);
+    void callback_RunsPerForecastSL(int value);
     /**
      * @brief callback_PctMSY
      * @param value
@@ -146,6 +157,11 @@ public Q_SLOTS:
     void callback_RunPB(bool MSYOnly);
     void callback_keyPressed(QKeyEvent* event);
     void callback_mouseMoved(QMouseEvent* event);
+    void callback_mouseReleased(QMouseEvent* event);
+    void callback_StochasticPB(bool pressed);
+    void callback_DeterministicPB(bool pressed);
+    void callback_PlotTypeSSRB(bool pressed);
+    void callback_PlotTypeMSRB(bool pressed);
 
 };
 

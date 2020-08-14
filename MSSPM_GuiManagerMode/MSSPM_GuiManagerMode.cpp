@@ -29,29 +29,40 @@ MSSPM_GuiManagerMode::MSSPM_GuiManagerMode(
     m_Logger                = logger;
     m_ProjectSettingsConfig = projectSettingsConfig;
 
-    MModeYearsPerRunSL      = MModeWidget->findChild<QSlider*    >("MModeYearsPerRunSL");
-    MModeRunsPerForecastSL  = MModeWidget->findChild<QSlider*    >("MModeRunsPerForecastSL");
-    MModeDetStocSL          = MModeWidget->findChild<QSlider*    >("MModeDetStocSL");
-    MModeYearsPerRunLE      = MModeWidget->findChild<QLineEdit*  >("MModeYearsPerRunLE");
-    MModeRunsPerForecastLE  = MModeWidget->findChild<QLineEdit*  >("MModeRunsPerForecastLE");
-    MModePctMSYLE           = MModeWidget->findChild<QLineEdit*  >("MModePctMSYLE");
-    MModeRParamLE           = MModeWidget->findChild<QLineEdit*  >("MModeRParamLE");
-    MModeKParamLE           = MModeWidget->findChild<QLineEdit*  >("MModeKParamLE");
-    MModeCParamLE           = MModeWidget->findChild<QLineEdit*  >("MModeCParamLE");
-    MModePctMSYDL           = MModeWidget->findChild<QDial*      >("MModePctMSYDL");
-    MModeRParamDL           = MModeWidget->findChild<QDial*      >("MModeRParamDL");
-    MModeKParamDL           = MModeWidget->findChild<QDial*      >("MModeKParamDL");
-    MModeCParamDL           = MModeWidget->findChild<QDial*      >("MModeCParamDL");
-    MModeSpeciesCMB         = MModeWidget->findChild<QComboBox*  >("MModeSpeciesCMB");
-    MModeUpperPlotWidget    = MModeWidget->findChild<QWidget*    >("MModeUpperPlotWidget");
-    MModeHarvestChartWidget = MModeWidget->findChild<QWidget*    >("MModeHarvestChartWidget");
-    MModeWindowWidget       = MModeWidget->findChild<QWidget*    >("MModeWindowWidget");
-    MModeForecastRunPB      = MModeWidget->findChild<QPushButton*>("MModeForecastRunPB");
-    MModeShowMSYCB          = MModeWidget->findChild<QCheckBox*  >("MModeShowMSYCB");
-    MModeEnablePctMSYCB     = MModeWidget->findChild<QCheckBox*  >("MModeEnablePctMSYCB");
+    MModeYearsPerRunSL      = MModeWidget->findChild<QSlider*     >("MModeYearsPerRunSL");
+    MModeRunsPerForecastSL  = MModeWidget->findChild<QSlider*     >("MModeRunsPerForecastSL");
+//  MModeDetStocSL          = MModeWidget->findChild<QSlider*     >("MModeDetStocSL");
+    MModeYearsPerRunLE      = MModeWidget->findChild<QLineEdit*   >("MModeYearsPerRunLE");
+    MModeRunsPerForecastLE  = MModeWidget->findChild<QLineEdit*   >("MModeRunsPerForecastLE");
+    MModePctMSYLE           = MModeWidget->findChild<QLineEdit*   >("MModePctMSYLE");
+    MModeRParamLE           = MModeWidget->findChild<QLineEdit*   >("MModeRParamLE");
+    MModeKParamLE           = MModeWidget->findChild<QLineEdit*   >("MModeKParamLE");
+    MModeCParamLE           = MModeWidget->findChild<QLineEdit*   >("MModeCParamLE");
+    MModePctMSYDL           = MModeWidget->findChild<QDial*       >("MModePctMSYDL");
+    MModeRParamDL           = MModeWidget->findChild<QDial*       >("MModeRParamDL");
+    MModeKParamDL           = MModeWidget->findChild<QDial*       >("MModeKParamDL");
+    MModeCParamDL           = MModeWidget->findChild<QDial*       >("MModeCParamDL");
+    MModeSpeciesCMB         = MModeWidget->findChild<QComboBox*   >("MModeSpeciesCMB");
+    MModeUpperPlotWidget    = MModeWidget->findChild<QWidget*     >("MModeUpperPlotWidget");
+    MModeHarvestChartWidget = MModeWidget->findChild<QWidget*     >("MModeHarvestChartWidget");
+    MModeWindowWidget       = MModeWidget->findChild<QWidget*     >("MModeWindowWidget");
+    MModeForecastRunPB      = MModeWidget->findChild<QPushButton* >("MModeForecastRunPB");
+    MModeShowMSYCB          = MModeWidget->findChild<QCheckBox*   >("MModeShowMSYCB");
+    MModeEnablePctMSYCB     = MModeWidget->findChild<QCheckBox*   >("MModeEnablePctMSYCB");
+    MModeDeterministicRB    = MModeWidget->findChild<QRadioButton*>("MModeDeterministicRB");
+    MModeStochasticRB       = MModeWidget->findChild<QRadioButton*>("MModeStochasticRB");
+    MModePlotTypeSSRB       = MModeWidget->findChild<QRadioButton*>("MModePlotTypeSSRB");
+    MModePlotTypeMSRB       = MModeWidget->findChild<QRadioButton*>("MModePlotTypeMSRB");
+    MModeCParamPB           = MModeWidget->findChild<QPushButton* >("MModeCParamPB");
+    MModePctMSYLBL          = MModeWidget->findChild<QLabel*      >("MModePctMSYLBL");
+
+    MModeDeterministicRB->setChecked(false);
+    MModeStochasticRB->setChecked(true);
+    MModePlotTypeSSRB->setChecked(true);
+    MModePlotTypeMSRB->setChecked(false);
 
     // RSK - remove this later
-    MModeDetStocSL->setValue(1);
+//    MModeDetStocSL->setValue(1);
 
     // RSK hardcode to 20 years
     getYearRange(startYear,endYear);
@@ -68,6 +79,7 @@ MSSPM_GuiManagerMode::MSSPM_GuiManagerMode(
     MModeCParamDL->setValue(0);
     MModePctMSYLE->setEnabled(false);
     MModePctMSYDL->setEnabled(false);
+    MModePctMSYLBL->setEnabled(false);
 
     //Defaulting the sliders to their lowest values
 //  MModeYearsPerRunSL->setValue(1);
@@ -91,8 +103,9 @@ MSSPM_GuiManagerMode::MSSPM_GuiManagerMode(
     QVBoxLayout* vlayt = new QVBoxLayout();
     vlayt->addWidget(m_ChartView);
     MModeUpperPlotWidget->setLayout(vlayt);
-    m_ForecastLineChart = new nmfChartLine();
-    m_MSYLineChart      = new nmfChartLine();
+    m_ForecastLineChartMonteCarlo = new nmfChartLine();
+    m_ForecastLineChart           = new nmfChartLine();
+    m_MSYLineChart                = new nmfChartLine();
 
     setupConnections();
 
@@ -133,11 +146,13 @@ MSSPM_GuiManagerMode::setupConnections()
             m_MovableLineChart,     SLOT(callback_keyPressed(QKeyEvent*)));
     connect(this,                   SIGNAL(MouseMoved(QMouseEvent*)),
             m_MovableLineChart,     SLOT(callback_mouseMoved(QMouseEvent*)));
+    connect(this,                   SIGNAL(MouseReleased(QMouseEvent*)),
+            m_MovableLineChart,     SLOT(callback_mouseReleased(QMouseEvent*)));
 
     connect(MModeYearsPerRunSL,     SIGNAL(sliderMoved(int)),
-            this,                   SLOT(callback_YearsPerRun(int)));
+            this,                   SLOT(callback_YearsPerRunSL(int)));
     connect(MModeRunsPerForecastSL, SIGNAL(sliderMoved(int)),
-            this,                   SLOT(callback_RunsPerFore(int)));
+            this,                   SLOT(callback_RunsPerForecastSL(int)));
     connect(MModePctMSYDL,          SIGNAL(sliderMoved(int)),
             this,                   SLOT(callback_PctMSY(int)));
     connect(MModeRParamDL,          SIGNAL(sliderMoved(int)),
@@ -154,6 +169,17 @@ MSSPM_GuiManagerMode::setupConnections()
             this,                   SLOT(callback_EnablePctMSYCB(bool)));
     connect(MModePctMSYDL,          SIGNAL(sliderReleased()),
             this,                   SLOT(callback_PctMSYDL()));
+    connect(MModeDeterministicRB,   SIGNAL(clicked(bool)),
+            this,                   SLOT(callback_DeterministicPB(bool)));
+    connect(MModeStochasticRB,      SIGNAL(clicked(bool)),
+            this,                   SLOT(callback_StochasticPB(bool)));
+    connect(MModePlotTypeSSRB,      SIGNAL(clicked(bool)),
+            this,                   SLOT(callback_PlotTypeSSRB(bool)));
+    connect(MModePlotTypeMSRB,      SIGNAL(clicked(bool)),
+            this,                   SLOT(callback_PlotTypeMSRB(bool)));
+    connect(MModeCParamPB,          SIGNAL(clicked()),
+            this,                   SLOT(callback_MModeCParamPB()));
+
 }
 
 void
@@ -166,39 +192,40 @@ MSSPM_GuiManagerMode::setData(const QStringList& speciesList)
 }
 
 void
-MSSPM_GuiManagerMode::callback_YearsPerRun(int value)
+MSSPM_GuiManagerMode::callback_YearsPerRunSL(int value)
 {
     MModeYearsPerRunLE->setText(QString::number(value));
 }
 
 void
-MSSPM_GuiManagerMode::callback_RunsPerFore(int value)
+MSSPM_GuiManagerMode::callback_RunsPerForecastSL(int value)
 {
     MModeRunsPerForecastLE->setText(QString::number(value));
+    m_NumRunsPerForecast = value;
 }
 
 void
 MSSPM_GuiManagerMode::callback_PctMSY(int value)
 {
-    MModePctMSYLE->setText(QString::number(value / 100.0));
+    MModePctMSYLE->setText(QString::number(value));
 }
 
 void
 MSSPM_GuiManagerMode::callback_RParam(int value)
 {
-    MModeRParamLE->setText(QString::number(value / 100.0));
+    MModeRParamLE->setText(QString::number(value));
 }
 
 void
 MSSPM_GuiManagerMode::callback_KParam(int value)
 {
-    MModeKParamLE->setText(QString::number(value / 100.0));
+    MModeKParamLE->setText(QString::number(value));
 }
 
 void
 MSSPM_GuiManagerMode::callback_CParam(int value)
 {
-    MModeCParamLE->setText(QString::number(value / 100.0));
+    MModeCParamLE->setText(QString::number(value));
 }
 
 void
@@ -228,7 +255,46 @@ MSSPM_GuiManagerMode::callback_EnablePctMSYCB(bool isChecked)
 {
     MModePctMSYLE->setEnabled(isChecked);
     MModePctMSYDL->setEnabled(isChecked);
+    MModePctMSYLBL->setEnabled(isChecked);
     callback_RunPB(true);
+}
+
+
+
+void
+MSSPM_GuiManagerMode::callback_StochasticPB(bool pressed)
+{
+    MModeDeterministicRB->setChecked(! pressed);
+}
+
+void
+MSSPM_GuiManagerMode::callback_DeterministicPB(bool pressed)
+{
+    MModeStochasticRB->setChecked(! pressed);
+}
+
+void
+MSSPM_GuiManagerMode::callback_PlotTypeSSRB(bool pressed)
+{
+    MModePlotTypeMSRB->setChecked(! pressed);
+}
+
+void
+MSSPM_GuiManagerMode::callback_PlotTypeMSRB(bool pressed)
+{
+    MModePlotTypeSSRB->setChecked(! pressed);
+}
+
+void
+MSSPM_GuiManagerMode::callback_MModeCParamPB()
+{
+    if (MModeCParamPB->text() == "Catch") {
+        MModeCParamPB->setText("Effort (E)");
+    } else if (MModeCParamPB->text() == "Effort (E)") {
+        MModeCParamPB->setText("Exploitation (F)");
+    } else if (MModeCParamPB->text() == "Exploitation (F)") {
+        MModeCParamPB->setText("Catch");
+    }
 }
 
 
@@ -267,6 +333,12 @@ void
 MSSPM_GuiManagerMode::callback_mouseMoved(QMouseEvent* event)
 {
     emit MouseMoved(event);
+}
+
+void
+MSSPM_GuiManagerMode::callback_mouseReleased(QMouseEvent* event)
+{
+    emit MouseReleased(event);
 }
 
 void
@@ -313,9 +385,9 @@ MSSPM_GuiManagerMode::saveUncertaintyParameters()
     std::string Minimizer          = dataMap["Minimizer"][0];
     std::string ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
     std::string Scaling            = dataMap["Scaling"][0];
-    std::string GrowthRate         = MModeRParamLE->text().toStdString();
-    std::string CarryingCapacity   = MModeKParamLE->text().toStdString();
-    std::string Harvest            = MModeCParamLE->text().toStdString();
+    std::string GrowthRate         = std::to_string(MModeRParamLE->text().toDouble()/100.0);
+    std::string CarryingCapacity   = std::to_string(MModeKParamLE->text().toDouble()/100.0);
+    std::string Harvest            = std::to_string(MModeCParamLE->text().toDouble()/100.0);
 
     // Clear previous entry in ForecastUncertainty table
     cmd = "DELETE FROM ForecastUncertainty WHERE ForecastName = '" + ForecastName + "'";
@@ -486,6 +558,7 @@ MSSPM_GuiManagerMode::drawChart(bool MSYOnly)
     int EndYear;
     int StartForecastYear;
     int YMinSliderVal = 0;
+    int NoUncertaintyRun = 0;
     int NumYearsPerRun     = getNumYearsPerRun();
     int NumRunsPerForecast = getNumRunsPerForecast();
     std::string TableName = "Forecasts";
@@ -500,11 +573,13 @@ MSSPM_GuiManagerMode::drawChart(bool MSYOnly)
     int Theme = 0; // Replace with checkbox values
     QList<QColor> LineColors;
     std::string lineColorName = "MonteCarloSimulation";
-    boost::numeric::ublas::matrix<double> ChartLineData;
+    boost::numeric::ublas::matrix<double> ChartLine;
+    boost::numeric::ublas::matrix<double> ChartLinesMonteCarlo;
     std::string Algorithm;
     std::string Minimizer;
     std::string ObjectiveCriterion;
     std::string Scaling;
+    std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomass;
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomassMonteCarlo;
     std::vector<std::string> SpeNames;
     int NumSpecies;
@@ -517,7 +592,13 @@ MSSPM_GuiManagerMode::drawChart(bool MSYOnly)
     QList<double> MSYValues;
     QList<double> FMSYValues;
     std::string isAggProdStr = "0"; // RSK fix this later
+    int SpeciesNum  = 0;   // RSK - remove this later
+    double ScaleVal = 1.0; // RSK - remove this later
     double pct = 1.0;
+    double brightnessFactor = 0.2;
+    QColor dimmedColor = QColor(255-brightnessFactor*255,
+                                255-brightnessFactor*255,
+                                255-brightnessFactor*255);
 
     LineColors.append(QColor(nmfConstants::LineColors[0].c_str()));
 
@@ -527,8 +608,7 @@ MSSPM_GuiManagerMode::drawChart(bool MSYOnly)
     getYearRange(StartYear,EndYear);
     StartForecastYear = EndYear;
 
-    ChartLineData.resize(NumYearsPerRun+1,NumRunsPerForecast);
-    ChartLineData.clear();
+
 
     if (! m_DatabasePtr->getForecastInfo(
          TableName,m_ForecastName,NumYearsPerRun,StartForecastYear,
@@ -536,40 +616,92 @@ MSSPM_GuiManagerMode::drawChart(bool MSYOnly)
         return;
     }
 
-    if (! m_DatabasePtr->getForecastBiomassMonteCarlo(0,m_Logger,
-          m_ForecastName,NumSpecies,NumYearsPerRun,NumRunsPerForecast,
-          Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-          ForecastBiomassMonteCarlo)) {
+    if (! m_DatabasePtr->getForecastBiomassMonteCarlo(
+                0,m_Logger,m_ForecastName,
+                NumSpecies,NumYearsPerRun,NumRunsPerForecast,
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                ForecastBiomassMonteCarlo)) {
         return;
     }
 
-    // Get ChartLineData
-    int SpeciesNum  = 0;   // RSK - remove this later
-    double ScaleVal = 1.0; // RSK - remove this later
+    // Plot ForecastBiomass data
+    if (! m_DatabasePtr->getForecastBiomass(
+                0,m_Logger,m_ForecastName,
+                NumSpecies,NumYearsPerRun,
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                ForecastBiomass)) {
+        return;
+    }
+
+
+    ChartLinesMonteCarlo.resize(NumYearsPerRun+1,ForecastBiomassMonteCarlo.size());
+    ChartLinesMonteCarlo.clear();
+    ChartLine.resize(NumYearsPerRun+1,ForecastBiomass.size());
+    ChartLine.clear();
+    NoUncertaintyRun = ForecastBiomass.size();
+
+
+    // Get ChartLinesMonteCarlo Data
     for (int line=0; line<NumRunsPerForecast; ++line)
     {
         for (int species=0; species<NumSpecies; ++species) {
             if (species == SpeciesNum) {
                 for (int time=0; time<=NumYearsPerRun; ++time) {
-                    ChartLineData(time,line) = ForecastBiomassMonteCarlo[line](time,species)/ScaleVal;
+                    ChartLinesMonteCarlo(time,line) = ForecastBiomassMonteCarlo[line](time,species)/ScaleVal;
                 }
             }
         }
     }
 
+    // Get ChartLine Data (Forecast Biomass data without any stochasticity)
+    for (int species=0; species<NumSpecies; ++species) {
+        if (species == SpeciesNum) {
+            for (int time=0; time<=NumYearsPerRun; ++time) {
+                ChartLine(time,0) = ForecastBiomass[0](time,species)/ScaleVal;
+            }
+        }
+    }
+
     if (! MSYOnly) {
+        QMargins chartMargins(8, 10, 20, 10);
+        m_ChartWidget->setMargins(chartMargins);
 
         // Draw forecast line(s)
         m_ChartWidget->removeAllSeries();
+
+        // Draw stochastic forecast lines
+        m_ForecastLineChartMonteCarlo->populateChart(
+                    m_ChartWidget,
+                    ChartType,
+                    LineStyle,
+                    nmfConstantsMSSPM::ShowFirstPoint,
+                    nmfConstants::DontShowLegend,
+                    StartForecastYear,
+                    nmfConstantsMSSPM::LabelXAxisAsInts,
+                    YMinSliderVal,
+                    ChartLinesMonteCarlo,
+                    RowLabelsForBars,
+                    ColumnLabelsForLegend,
+                    MainTitle,
+                    XLabel,
+                    YLabel,
+                    GridLines,
+                    Theme,
+                    dimmedColor,
+                    "MonteCarloSimulation",
+                    1.0);
+
+        // Draw single line without any uncertainty variation
         m_ForecastLineChart->populateChart(
                     m_ChartWidget,
                     ChartType,
                     LineStyle,
                     nmfConstantsMSSPM::ShowFirstPoint,
+                    nmfConstants::DontShowLegend,
                     StartForecastYear,
                     nmfConstantsMSSPM::LabelXAxisAsInts,
                     YMinSliderVal,
-                    ChartLineData,
+                    ChartLine,
                     RowLabelsForBars,
                     ColumnLabelsForLegend,
                     MainTitle,
@@ -578,8 +710,8 @@ MSSPM_GuiManagerMode::drawChart(bool MSYOnly)
                     GridLines,
                     Theme,
                     LineColors[0],
-                lineColorName,
-                1.0);
+                    "No Uncertainty Variations",
+                    1.0);
     }
 
     if (1) {
@@ -587,8 +719,8 @@ MSSPM_GuiManagerMode::drawChart(bool MSYOnly)
         // Remove any existing MSY series
         QList<QAbstractSeries*> allSeries = m_ChartWidget->series();
         int NumSeries = allSeries.size();
-        if (NumSeries > NumRunsPerForecast) {
-            for (int i=NumRunsPerForecast; i<NumSeries;++i) {
+        if (NumSeries > NumRunsPerForecast+NoUncertaintyRun) {
+            for (int i=NumRunsPerForecast+NoUncertaintyRun; i<NumSeries;++i) {
                 m_ChartWidget->removeSeries(allSeries[i]);
             }
         }
@@ -631,7 +763,6 @@ MSSPM_GuiManagerMode::drawChart(bool MSYOnly)
                 continue;
             }
 
-            //        for (int line=0; line<NumRunsPerForecast; ++line) {
             for (int j=0; j<NumSpecies; ++j) {
                 if (TableName == "OutputMSYBiomass") {
                     BMSYValues.append(pct*std::stod(dataMap["Value"][j+line*NumSpecies]));
@@ -657,6 +788,7 @@ MSSPM_GuiManagerMode::drawChart(bool MSYOnly)
                         ChartType,
                         LineStyle,
                         nmfConstantsMSSPM::ShowFirstPoint,
+                        nmfConstants::DontShowLegend,
                         StartForecastYear,
                         nmfConstantsMSSPM::LabelXAxisAsInts,
                         YMinSliderVal,
