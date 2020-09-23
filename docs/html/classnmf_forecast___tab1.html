@@ -187,6 +187,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a0912fea0e3be291b65ff48ff798944dd"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab1.html#a0912fea0e3be291b65ff48ff798944dd">getStartForecastYear</a> ()</td></tr>
 <tr class="memdesc:a0912fea0e3be291b65ff48ff798944dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the start year associated with this Forecast.  <a href="#a0912fea0e3be291b65ff48ff798944dd">More...</a><br /></td></tr>
 <tr class="separator:a0912fea0e3be291b65ff48ff798944dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5310907b60621ee288083f20546125eb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab1.html#a5310907b60621ee288083f20546125eb">isDeterministic</a> ()</td></tr>
+<tr class="memdesc:a5310907b60621ee288083f20546125eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns boolean signifying if the deterministic box has been checked.  <a href="#a5310907b60621ee288083f20546125eb">More...</a><br /></td></tr>
+<tr class="separator:a5310907b60621ee288083f20546125eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3be5f721cba76a77ff218e9c145b98ef"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab1.html#a3be5f721cba76a77ff218e9c145b98ef">loadWidgets</a> ()</td></tr>
 <tr class="memdesc:a3be5f721cba76a77ff218e9c145b98ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads all widgets for this GUI from database tables.  <a href="#a3be5f721cba76a77ff218e9c145b98ef">More...</a><br /></td></tr>
 <tr class="separator:a3be5f721cba76a77ff218e9c145b98ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -194,6 +197,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab1.html#a4d08998802a2b56f625b9cc39be81cb0">saveSettings</a> ()</td></tr>
 <tr class="memdesc:a4d08998802a2b56f625b9cc39be81cb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Saves the GUIs settings to a Qt settings file. <br /></td></tr>
 <tr class="separator:a4d08998802a2b56f625b9cc39be81cb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38012e33c4e10eef823cad69ff353b48"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab1.html#a38012e33c4e10eef823cad69ff353b48">setDeterministic</a> (bool <a class="el" href="classnmf_forecast___tab1.html#a5310907b60621ee288083f20546125eb">isDeterministic</a>)</td></tr>
+<tr class="memdesc:a38012e33c4e10eef823cad69ff353b48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the deterministic state of the appropriate checkbox.  <a href="#a38012e33c4e10eef823cad69ff353b48">More...</a><br /></td></tr>
+<tr class="separator:a38012e33c4e10eef823cad69ff353b48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Forecast Setup. </p>
@@ -399,6 +405,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a class="anchor" id="a5310907b60621ee288083f20546125eb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool nmfForecast_Tab1::isDeterministic </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns boolean signifying if the deterministic box has been checked. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns True/False describing if deterministic box has been checked </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a3be5f721cba76a77ff218e9c145b98ef"></a>
 <div class="memitem">
 <div class="memproto">
@@ -414,6 +438,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 <p>Loads all widgets for this GUI from database tables. </p>
 <dl class="section return"><dt>Returns</dt><dd>Returns true if all data were loaded successfully </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a38012e33c4e10eef823cad69ff353b48"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfForecast_Tab1::setDeterministic </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>isDeterministic</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the deterministic state of the appropriate checkbox. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">isDeterministic</td><td>: boolean describing deterministic state </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['yaxismaxvaluechanged',['YAxisMaxValueChanged',['../class_m_s_s_p_m___gui_output_controls.html#ae97c435b36a491760e35a1c9358476ca',1,'MSSPM_GuiOutputControls']]],
-  ['yaxisminvaluechanged',['YAxisMinValueChanged',['../class_m_s_s_p_m___gui_output_controls.html#ac1e9cc27184e6218ae83479470aed640',1,'MSSPM_GuiOutputControls']]]
+  ['writecurrentloopfile',['writeCurrentLoopFile',['../class_n_lopt___estimator.html#a63d697d6cef48eed5c1d9e25b4f1d1bd',1,'NLopt_Estimator']]]
 ];

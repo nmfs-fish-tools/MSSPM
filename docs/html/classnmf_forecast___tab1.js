@@ -14,7 +14,9 @@ var classnmf_forecast___tab1 =
     [ "getForecastName", "classnmf_forecast___tab1.html#a9f6d098e92df14994f9c74691b201989", null ],
     [ "getSeed", "classnmf_forecast___tab1.html#af403c17c37d3aa6fa75ba26220b4dc57", null ],
     [ "getStartForecastYear", "classnmf_forecast___tab1.html#a0912fea0e3be291b65ff48ff798944dd", null ],
+    [ "isDeterministic", "classnmf_forecast___tab1.html#a5310907b60621ee288083f20546125eb", null ],
     [ "loadWidgets", "classnmf_forecast___tab1.html#a3be5f721cba76a77ff218e9c145b98ef", null ],
     [ "ResetOutputWidgetsForAggProd", "classnmf_forecast___tab1.html#aca5d5ea9f56ca9315273058031a2bde8", null ],
-    [ "saveSettings", "classnmf_forecast___tab1.html#a4d08998802a2b56f625b9cc39be81cb0", null ]
+    [ "saveSettings", "classnmf_forecast___tab1.html#a4d08998802a2b56f625b9cc39be81cb0", null ],
+    [ "setDeterministic", "classnmf_forecast___tab1.html#a38012e33c4e10eef823cad69ff353b48", null ]
 ];

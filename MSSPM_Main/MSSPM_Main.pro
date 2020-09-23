@@ -162,9 +162,9 @@ else:unix: LIBS += -L$$PWD/../../build-MSSPM_GuiOutput-Qt_5_12_3_gcc64-Release/ 
 INCLUDEPATH += $$PWD/../MSSPM_GuiOutput
 DEPENDPATH += $$PWD/../MSSPM_GuiOutput
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../build-MSSPM_GuiManagerMode-Qt_5_12_3_gcc64-Release/release/ -lMSSPM_GuiManagerMode
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../build-MSSPM_GuiManagerMode-Qt_5_12_3_gcc64-Release/debug/ -lMSSPM_GuiManagerMode
-else:unix: LIBS += -L$$PWD/../../build-MSSPM_GuiManagerMode-Qt_5_12_3_gcc64-Release/ -lMSSPM_GuiManagerMode
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../build-REMORA-Qt_5_12_3_gcc64-Release/release/ -lREMORA
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../build-REMORA-Qt_5_12_3_gcc64-Release/debug/ -lREMORA
+else:unix: LIBS += -L$$PWD/../../build-REMORA-Qt_5_12_3_gcc64-Release/ -lREMORA
 
-INCLUDEPATH += $$PWD/../MSSPM_GuiManagerMode
-DEPENDPATH += $$PWD/../MSSPM_GuiManagerMode
+INCLUDEPATH += $$PWD/../../REMORA/REMORA
+DEPENDPATH += $$PWD/../../REMORA/REMORA

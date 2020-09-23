@@ -57,6 +57,7 @@ var searchData=
   ['getprojectdir',['getProjectDir',['../classnmf_setup___tab2.html#ad782dcd2899acb0690ae63dcbd43ee64',1,'nmfSetup_Tab2']]],
   ['getprojectname',['getProjectName',['../classnmf_setup___tab2.html#a4bbf22a09403f73fe90ec214438d10e1',1,'nmfSetup_Tab2']]],
   ['getrunlength',['getRunLength',['../classnmf_setup___tab4.html#a18923ddc807314aac61f35c835559ead',1,'nmfSetup_Tab4']]],
+  ['getscalevaluefromplot',['getScaleValueFromPlot',['../class_r_e_m_o_r_a.html#a4e55e652d872ceb14fe569c53bf2cd58',1,'REMORA']]],
   ['getscenarioname',['getScenarioName',['../class_multi_scenario_save_dlg.html#a26e89041dd1634ff2c0959c93e70e5bd',1,'MultiScenarioSaveDlg']]],
   ['getseed',['getSeed',['../classnmf_forecast___tab1.html#af403c17c37d3aa6fa75ba26220b4dc57',1,'nmfForecast_Tab1']]],
   ['getselecteditem',['getSelectedItem',['../class_load_forecast_dlg.html#a6d9e9f553d36bf25742f9e237c7e17ae',1,'LoadForecastDlg']]],
@@ -71,5 +72,6 @@ var searchData=
   ['gettablename',['getTableName',['../classnmf_diagnostic___tab1.html#af665a9793fb7508ddac717da46b8d374',1,'nmfDiagnostic_Tab1']]],
   ['getversion',['getVersion',['../class_n_lopt___estimator.html#ad6f0af00b4ad11256bbd094f4b100a08',1,'NLopt_Estimator']]],
   ['getymaxsliderval',['getYMaxSliderVal',['../class_m_s_s_p_m___gui_output_controls.html#a80739af66096a8a4646972967cb48981',1,'MSSPM_GuiOutputControls']]],
-  ['getyminsliderval',['getYMinSliderVal',['../class_m_s_s_p_m___gui_output_controls.html#a08b8348771011aa85ad308bd49dcf0da',1,'MSSPM_GuiOutputControls']]]
+  ['getyminsliderval',['getYMinSliderVal',['../class_m_s_s_p_m___gui_output_controls.html#a08b8348771011aa85ad308bd49dcf0da',1,'MSSPM_GuiOutputControls']]],
+  ['grabimage',['grabImage',['../class_r_e_m_o_r_a.html#a74d4b822bddcd452acb97a971ad82065',1,'REMORA']]]
 ];

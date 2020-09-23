@@ -94,7 +94,8 @@
 #include <QPixmap>
 #include <QUiLoader>
 
-#include "MSSPM_GuiManagerMode.h"
+
+#include "REMORA.h"
 
 //class Gradient_Estimator;
 
@@ -212,6 +213,10 @@ private:
     nmfViewerWidget*                      m_ViewerWidget;
 //    QString                               m_outputFile;
     bool                                  m_isStartUpOK;
+    QTableView*                           m_BiomassAbsTV;
+    QTableView*                           m_BiomassRelTV;
+    QTableView*                           m_FishingMortalityTV;
+    QTableView*                           m_HarvestScaleFactorTV;
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
@@ -237,7 +242,8 @@ private:
 //    QSurface3DSeries*        SurfaceSeries;
     QWidget*                 NavigatorTreeWidget;
     QTreeWidget*             NavigatorTree;
-	QDockWidget*			 MModeDockWidget;
+    QDockWidget*			 MModeDockWidget;
+    QDockWidget*			 MModeViewerDockWidget;
 
     nmfDiagnostic_Tab1*      Diagnostic_Tab1_ptr;
     nmfDiagnostic_Tab2*      Diagnostic_Tab2_ptr;
@@ -252,7 +258,7 @@ private:
     nmfForecast_Tab3*        Forecast_Tab3_ptr;
     nmfForecast_Tab4*        Forecast_Tab4_ptr;
     MSSPM_GuiOutputControls* Output_Controls_ptr;
-    MSSPM_GuiManagerMode*    MMode_Controls_ptr;
+    REMORA*    Remora_ptr;
     nmfSetup_Tab1*           Setup_Tab1_ptr;
     nmfSetup_Tab2*           Setup_Tab2_ptr;
     nmfSetup_Tab3*           Setup_Tab3_ptr;
@@ -263,6 +269,12 @@ private:
 	QWidget*                 m_TableNamesWidget;
     QTabWidget*              m_EstimatedParametersTW;
     std::map<QString,QTableView*> m_EstimatedParametersMap;
+    nmfViewerWidget*         m_MModeViewerWidget;
+    QTabWidget*              MModeViewerTBW;
+    QTabWidget*              MModeViewerDataSubTab;
+    QWidget*                 MModeViewerImageTB;
+    QWidget*                 MModeViewerDataTB;
+    QWidget*                 MModeViewerTab1;
 
 //  Gradient_Struct             gradientStruct;
 //  int                         RunNumGenetic;
@@ -282,6 +294,13 @@ private:
                            std::string minimizer,
                            std::string objectiveCriterion,
                            std::string scaling);
+    bool clearMonteCarloParametersTable(
+            std::string& ForecastName,
+            std::string& Algorithm,
+            std::string& Minimizer,
+            std::string& ObjectiveCriterion,
+            std::string& Scaling,
+            std::string& MonteCarloParametersTable);
     double convertUnitsStringToValue(QString& ScaleStr);
     int    getNumDistinctRecords(const std::string& field,
                                  const std::string& table);
@@ -291,9 +310,11 @@ private:
     void   initPostGuiConnections();
     void   initializePreferencesDlg();
 	void   initializeTableNamesDlg();
-	void   initializeMMode();
+    void   initializeMMode();
+    void   initializeMModeMain();
+    void   initializeMModeViewer();
+    bool   runningREMORA();
     void   showDockWidgets(bool show);
-//    void   screenShot();
     QList<QString> getTableNames(bool isExponent);
 
     void adjustProgressWidget();
@@ -303,7 +324,8 @@ private:
                         std::string system,
                         std::vector<std::string> fields);
     double calculateMonteCarloValue(const double& uncertainty,
-                                    const double& value);
+                                    const double& value,
+                                    double& randomValue);
     bool calculateMSYValues(
             const bool& isAggProdStr,
             const int& NumLines,
@@ -356,7 +378,10 @@ private:
                                  std::string& scaling,
                                  std::string& competitionForm);
     QString getCurrentStyle();
-
+    bool getForecastInitialData(
+            QString& forecastName,
+            int&     numYearsPerRun,
+            int&     numRunsPerForecast);
     bool getSystemDataForChart(
             int& StartYear,
             int& RunLength,
@@ -430,13 +455,13 @@ private:
             QStringList& ForecastLabels,
             std::vector<boost::numeric::ublas::matrix<double> >& MultiScenarioBiomass);
     int getNumLines();
-    boost::numeric::ublas::matrix<double> getObservedBiomass(
+    boost::numeric::ublas::matrix<double> getObservedBiomassByGroup(
             const int& NumGuilds,
             const int& RunLength,
             const std::string& type);
 
     std::vector<boost::numeric::ublas::matrix<double> >
-    getOutputBiomass2(
+    getOutputBiomassByGroup(
             const int& NumLines,
             const int& RunLength,
             const std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassSpecies,
@@ -476,6 +501,15 @@ private:
                                   const int&         NumSpecies,
                                   const int&         RunLength,
                                   boost::numeric::ublas::matrix<double> &Catch);
+    /**
+     * @brief Gets the formatted string describing what uncertainty
+     * values were used for each Monte Carlo curve for the given species.
+     * @param Species : current species whose curve is displayed
+     * @param formattedUncertaintyData : list of qstrings describing the uncertainty values used to create each Monte Carlo curve
+     */
+    void getMonteCarloUncertaintyData(
+            const QString& Species,
+            QList<QString>& formattedUncertaintyData);
     void initConnections();
     void initGUIs();
     bool isAggProd();
@@ -555,15 +589,18 @@ private:
     void queryUserPreviousDatabase();
     void readSettings(QString name);
     void readSettings();
-    void readSettingsGuiPositionOrientationOnly();
+    void readSettingsGuiOrientation(bool alsoResetPosition);
     void runBeesAlgorithm(bool showDiagnosticsChart);
     void runNextMohnsRhoEstimation();
     void runNLoptAlgorithm(bool showDiagnosticChart);
+    void saveRemoraDataFile(QString filename);
     bool saveScreenshot(QString &outputfile, QPixmap &pm);
     void saveSettings();
     bool scaleTimeSeries(const std::vector<double>&             Uncertainty,
-                         boost::numeric::ublas::matrix<double>& HarvestMatrix);
+                         boost::numeric::ublas::matrix<double>& HarvestMatrix,
+                         std::vector<double>&                   RandomValues);
     void setCurrentOutputTab(QString outputTab);
+    void setVisibilityToolbarButtons(bool isVisible);
     void setDefaultDockWidgetsVisibility();
     void setNumLines(int numLines);
     void setup2dChart();
@@ -676,6 +713,7 @@ private:
                                    bool              useDimColor,
                                    bool              clearChart,
                                    QStringList       ColumnLabelsForLegend);
+    void showMModeViewerDockWidget();
     void updateDiagnosticSummaryStatistics();
     bool updateOutputBiomassTable(std::string& ForecastName,
                                   int&         StartYear,
@@ -742,6 +780,10 @@ private:
      */
     void updateWindowTitle();
 
+    void setDefaultDockWidgetsVisibility(
+            const QString& actionName,
+            QAction* action);
+
     //    bool isThereMohnsRhoData();
     //    bool loadGradientParameters(Gradient_Struct &gradientStruct);
     //    void simulateBiomass(double &growthRate,
@@ -797,8 +839,17 @@ protected:
     bool eventFilter(QObject *object, QEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+    /**
+     * @brief Need to prevent Remora's window from appearing in main window's so have
+     * to create custom popupMenu.
+     * @return Custom context menu
+     *
+     */
+    QMenu* createPopupMenu();
 
 public slots:
+
+    void callback_UpdateSeedValue(int isDeterministic);
     /**
      * @brief Callback invoked when user Runs an Estimation
      */
@@ -1036,9 +1087,9 @@ public slots:
     void callback_PreferencesSetStyleSheet(QString style);
     /**
      * @brief Callback invoked when user changes the chart group type
-     * @param type : type of chart grouping desired: species, guild, system
+     * @param groupType : type of chart grouping desired: species, guild, system
      */
-    void callback_ShowChartBy(QString type);
+    void callback_ShowChartBy(QString groupType);
     /**
      * @brief Callback invoked when user is modifying the Population Parameters and needs to
      * store the current value of the Output widget's species
@@ -1064,6 +1115,11 @@ public slots:
      * @brief Callback invoked to update the Model Equation in the Setup page 4 summary text box
      */
     void callback_UpdateModelEquationSummary();
+
+    void callback_openCSVFile(QPoint pos);
+    void context_Action(bool triggered);
+
+
     /**
      * @brief Raises an About MSSPM Dialog
      *
@@ -1119,6 +1175,10 @@ public slots:
      * @brief Change the Application layout to one with the Output window torn off and placed to the side
      */
     void menu_layoutOutput();
+    /**
+     * @brief Open the CSV file that's associated with the current image file displayed in the REMORA viewer
+     */
+    void menu_openCSVFile();
     /**
      * @brief Pastes the previously copied or cleared table cells
      */
@@ -1208,10 +1268,12 @@ public slots:
      */
     void menu_whatsThis();
     void menu_toggleManagerMode();
+    void menu_toggleManagerModeViewer();
 
     void callback_TableNamesOkPB();
     void callback_PreferencesMShotOkPB();
     void callback_ErrorFound(std::string errorMsg);
+    void callback_ManagerModeViewerClose(bool state);
 
 //  /**
 //   * @brief Copy TestData into OutputGrowthRate

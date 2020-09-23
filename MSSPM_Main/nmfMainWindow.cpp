@@ -63,7 +63,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_Graph3D           = nullptr;
     OutputChartMainLayt = nullptr;
     Output_Controls_ptr = nullptr;
-    MMode_Controls_ptr  = nullptr;
+    Remora_ptr  = nullptr;
     m_PreferencesDlg    = new QDialog(this);
     m_TableNamesDlg     = new QDialog(this);
     m_PreferencesWidget = nullptr;
@@ -75,6 +75,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_ChartView2d           = nullptr;
     m_EstimatedParametersTW = nullptr;
     m_EstimatedParametersMap.clear();
+    m_UI->actionToggleManagerModeViewer->setEnabled(false);
 
     m_UI->actionShowAllSavedRunsTB->setEnabled(false);
 
@@ -103,7 +104,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_DatabasePtr = new nmfDatabase();
     m_DatabasePtr->nmfSetConnectionByName(db.connectionName());
 
-    readSettingsGuiPositionOrientationOnly();
+    readSettingsGuiOrientation(nmfConstantsMSSPM::ResetPositionAlso);
     readSettings();
 
     initializePreferencesDlg();
@@ -353,8 +354,14 @@ nmfMainWindow::menu_layoutOutput()
 void
 nmfMainWindow::menu_layoutDefault()
 {
-    this->addDockWidget(Qt::LeftDockWidgetArea,  m_UI->NavigatorDockWidget);
-    this->addDockWidget(Qt::RightDockWidgetArea, m_UI->OutputDockWidget);
+    MModeDockWidget->hide();
+    MModeViewerDockWidget->hide();
+    setVisibilityToolbarButtons(true);
+
+//  this->addDockWidget(Qt::LeftDockWidgetArea,  m_UI->NavigatorDockWidget);
+//  this->addDockWidget(Qt::RightDockWidgetArea, m_UI->OutputDockWidget);
+    this->restoreDockWidget(m_UI->NavigatorDockWidget);
+    this->restoreDockWidget(m_UI->OutputDockWidget);
     m_UI->NavigatorDockWidget->show();
     m_UI->OutputDockWidget->setFloating(false);
     m_UI->OutputDockWidget->show();
@@ -362,9 +369,10 @@ nmfMainWindow::menu_layoutDefault()
     m_UI->ProgressDockWidget->show();
     m_UI->LogDockWidget->setFloating(false);
     m_UI->LogDockWidget->show();
-    this->addDockWidget(Qt::BottomDockWidgetArea, m_UI->ProgressDockWidget);
-    this->addDockWidget(Qt::BottomDockWidgetArea, m_UI->LogDockWidget);
+    centralWidget()->show();
     this->tabifyDockWidget(m_UI->LogDockWidget, m_UI->ProgressDockWidget);
+
+    readSettingsGuiOrientation(nmfConstantsMSSPM::DontResetPosition);
 
 }
 
@@ -542,9 +550,9 @@ nmfMainWindow::getTimeSeriesDataByGuild(
     // Load data
     if (ForecastName == "") {
         ModifiedTableName = TableName;;
-        fields   = {"SystemName","SpeName","Year","Value"};
-        queryStr = "SELECT SystemName,SpeName,Year,Value FROM " + ModifiedTableName +
-                   " WHERE SystemName = '" + m_ProjectSettingsConfig + "' ORDER BY SpeName,Year";
+        fields   = {"MohnsRhoLabel","SystemName","SpeName","Year","Value"};
+        queryStr = "SELECT MohnsRhoLabel,SystemName,SpeName,Year,Value FROM " + ModifiedTableName +
+                   " WHERE MohnsRhoLabel = '' AND SystemName = '" + m_ProjectSettingsConfig + "' ORDER BY SpeName,Year";
     } else {
         ModifiedTableName = "Forecast" + TableName;
         fields   = {"ForecastName","SpeName","Year","Value"};
@@ -584,75 +592,6 @@ nmfMainWindow::getTimeSeriesDataByGuild(
     return true;
 }
 
-
-bool
-nmfMainWindow::getTimeSeriesData(
-        const std::string  MohnsRhoLabel,
-        const std::string  ForecastName,
-        const std::string& TableName,
-        const int&         NumSpecies,
-        const int&         RunLength,
-        boost::numeric::ublas::matrix<double>& TableData)
-{
-    int m=0;
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::string errorMsg;
-    std::string ModifiedTableName = "";
-    QString msg;
-    QString SystemName = QString::fromStdString(m_ProjectSettingsConfig);
-
-    auto parts = SystemName.split("__");
-    SystemName = parts[0];
-
-    nmfUtils::initialize(TableData,RunLength+1,NumSpecies); // +1 because there's a 0 year
-
-    // Load data
-    if (ForecastName == "") {
-        ModifiedTableName = TableName;;
-        fields   = {"MohnsRhoLabel","SystemName","SpeName","Year","Value"};
-        queryStr = "SELECT MohnsRhoLabel,SystemName,SpeName,Year,Value FROM " + ModifiedTableName +
-                   " WHERE SystemName = '" + SystemName.toStdString() +
-                   "' AND MohnsRhoLabel = '" + MohnsRhoLabel + "' ORDER BY SpeName,Year";
-    } else {
-        ModifiedTableName = "Forecast" + TableName;;
-        fields   = {"ForecastName","SpeName","Year","Value"};
-        queryStr = "SELECT ForecastName,SpeName,Year,Value FROM " + ModifiedTableName +
-                   " WHERE ForecastName = '" + ForecastName +
-                   "' ORDER BY SpeName,Year";
-    }
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SpeName"].size();
-    if (NumRecords == 0) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] getTimeSeriesData: No records found in table "+TableName);
-        m_Logger->logMsg(nmfConstants::Error,queryStr);
-        msg = "\nMissing or unsaved data. Please populate and resave table: " + QString::fromStdString(TableName);
-        QMessageBox::critical(this, "Error", msg, QMessageBox::Ok);
-        return false;
-    }
-    if (NumRecords != NumSpecies*(RunLength+1)) {
-        errorMsg  = "[Error 2] getTimeSeriesData: Number of records found (" + std::to_string(NumRecords) + ") in ";
-        errorMsg += "table " + ModifiedTableName + " does not equal number of Species*(RunLength+1) (";
-        errorMsg += std::to_string(NumSpecies) + "*" + std::to_string((RunLength+1)) + "=";
-        errorMsg += std::to_string(NumSpecies*(RunLength+1)) + ") records";
-        errorMsg += "\n" + queryStr;
-        m_Logger->logMsg(nmfConstants::Error,errorMsg);
-        msg = "\nMissing or unsaved data.\n\nPlease populate and resave table: " + QString::fromStdString(ModifiedTableName) + "\n";
-        QMessageBox::critical(this, "Error", msg, QMessageBox::Ok);
-        return false;
-    }
-
-    // Figure out what to do here with the hardcoded 0 for time=0.....RSK
-    for (int species=0; species<NumSpecies; ++species) {
-        for (int time=0; time<=RunLength; ++time) {
-            TableData(time,species) = std::stod(dataMap["Value"][m++]);
-        }
-    }
-
-    return true;
-}
 
 bool
 nmfMainWindow::getInitialSpeciesData(int &NumSpecies,
@@ -726,7 +665,9 @@ nmfMainWindow::getFinalObservedBiomass(QList<double> &FinalBiomass)
         return false;
 
     // Get final observed biomass values
-    if (! getTimeSeriesData("","","ObservedBiomass",NumSpecies,RunLength,ObservedBiomass)) {
+    if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                           "","","ObservedBiomass",
+                                           NumSpecies,RunLength,ObservedBiomass)) {
         return false;
     }
     for (int species=0; species<NumSpecies; ++species) {
@@ -1337,7 +1278,8 @@ nmfMainWindow::updateOutputBiomassTableFromTestValues()
     if (! getModelFormData(GrowthForm,HarvestForm,CompetitionForm,PredationForm,RunLength,InitialYear))
         return;
 
-    if (! getTimeSeriesData(m_MohnsRhoLabel,"","Catch",NumSpecies,RunLength,Catch))
+    if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                           m_MohnsRhoLabel,"","Catch",NumSpecies,RunLength,Catch))
         return;
     getOutputGrowthRate(EstGrowthRate,false);
     getOutputCarryingCapacity(EstCarryingCapacity,false);
@@ -1515,67 +1457,80 @@ nmfMainWindow::menu_screenShot()
     QPixmap pm;
     QString outputFile;
 
-    QString currentTabName = nmfUtilsQt::getCurrentTabName(m_UI->MSSPMOutputTabWidget);
+    if (runningREMORA()) {
 
-    if ((currentTabName != "Chart") && (currentTabName != "Screen Shot Viewer")) {
-        // Save numeric table
-        if (currentTabName == "Estimated Parameters")
-        {
-            QString currentSubTabName = nmfUtilsQt::getCurrentTabName(m_EstimatedParametersTW);
-            nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,
-                                           currentSubTabName.toStdString(),
-                                           m_EstimatedParametersMap[currentSubTabName]);
-        } else if ((currentTabName == "Data") ||
-                   (currentTabName == "Model Fit Summary"))
-        {
-            nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,
-                                           currentTabName.toStdString(),
-                                           m_EstimatedParametersMap[currentTabName]);
+        Remora_ptr->grabImage(pm);
+
+        nmfStructsQt::ChartSaveDlg *dlg = new nmfStructsQt::ChartSaveDlg(this);
+        if (dlg->exec()) {
+            outputFile = dlg->getFilename();
         }
-        return;
+        delete dlg;
+        if (outputFile.isEmpty())
+            return;
+        saveScreenshot(outputFile,pm);
     }
-
-
-    // Need this so as to ensure each screen shot finishes
-    // before the next one starts.
-    QApplication::sync();
-
-    setCurrentOutputTab("Chart");
-
-    if (m_ChartView2d->isVisible() || m_ChartView3d->isVisible())
-    {
-        if (! m_ScreenshotOn) {
-            nmfStructsQt::ChartSaveDlg *dlg = new nmfStructsQt::ChartSaveDlg(this);
-            if (dlg->exec()) {
-                outputFile = dlg->getFilename();
+    else {
+        QString currentTabName = nmfUtilsQt::getCurrentTabName(m_UI->MSSPMOutputTabWidget);
+        if ((currentTabName != "Chart") && (currentTabName != "Screen Shot Viewer")) {
+            // Save numeric table
+            if (currentTabName == "Estimated Parameters")
+            {
+                QString currentSubTabName = nmfUtilsQt::getCurrentTabName(m_EstimatedParametersTW);
+                nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,
+                                               currentSubTabName.toStdString(),
+                                               m_EstimatedParametersMap[currentSubTabName]);
+            } else if ((currentTabName == "Data") ||
+                       (currentTabName == "Model Fit Summary"))
+            {
+                nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,
+                                               currentTabName.toStdString(),
+                                               m_EstimatedParametersMap[currentTabName]);
             }
-            delete dlg;
-            if (outputFile.isEmpty())
-                return;
+            return;
         }
 
-        // Grab the image and store in a pixmap
-        if (m_ChartView2d->isVisible()) {
-            m_ChartView2d->update();
-            m_ChartView2d->repaint();
-            pm = m_ChartView2d->grab();
 
-        } else if (m_ChartView3d->isVisible()) {
-            m_ChartView3d->update();
-            m_ChartView3d->repaint();
-            pm.convertFromImage(m_Graph3D->renderToImage());
+        // Need this so as to ensure each screen shot finishes
+        // before the next one starts.
+        QApplication::sync();
+
+        setCurrentOutputTab("Chart");
+
+        if (m_ChartView2d->isVisible() || m_ChartView3d->isVisible())
+        {
+            if (! m_ScreenshotOn) {
+                nmfStructsQt::ChartSaveDlg *dlg = new nmfStructsQt::ChartSaveDlg(this);
+                if (dlg->exec()) {
+                    outputFile = dlg->getFilename();
+                }
+                delete dlg;
+                if (outputFile.isEmpty())
+                    return;
+            }
+
+            // Grab the image and store in a pixmap
+            if (m_ChartView2d->isVisible()) {
+                m_ChartView2d->update();
+                m_ChartView2d->repaint();
+                pm = m_ChartView2d->grab();
+
+            } else if (m_ChartView3d->isVisible()) {
+                m_ChartView3d->update();
+                m_ChartView3d->repaint();
+                pm.convertFromImage(m_Graph3D->renderToImage());
+            }
+
+            // Either load pixmap into vector of pixmaps for a composite image
+            // or save the pixmap to disk
+            if (m_ScreenshotOn) {
+                m_Pixmaps.push_back(pm);
+            } else {
+                saveScreenshot(outputFile,pm);
+            }
+
         }
-
-        // Either load pixmap into vector of pixmaps for a composite image
-        // or save the pixmap to disk
-        if (m_ScreenshotOn) {
-            m_Pixmaps.push_back(pm);
-        } else {
-            saveScreenshot(outputFile,pm);
-        }
-
     }
-
     // RSK add...
     // else check for visible table
 
@@ -1685,40 +1640,219 @@ nmfMainWindow::menu_exportAllDatabases()
     }
 }
 
-void
-nmfMainWindow::menu_toggleManagerMode()
+bool
+nmfMainWindow::runningREMORA()
 {
-    bool isVisible = MModeDockWidget->isVisible();
+    return MModeDockWidget->isVisible();
+}
 
-    MModeDockWidget->setVisible(! isVisible);
-    m_UI->LogDockWidget->setVisible(isVisible);
-    m_UI->OutputDockWidget->setVisible(isVisible);
-    m_UI->NavigatorDockWidget->setVisible(isVisible);
-    m_UI->ProgressDockWidget->setVisible(isVisible);
-    m_UI->centralWidget->setVisible(isVisible);
 
-    int numSpecies;
-    QStringList speciesList;
 
-    getSpecies(numSpecies, speciesList);
-    MMode_Controls_ptr->setData(speciesList);
+void
+nmfMainWindow::menu_toggleManagerModeViewer()
+{
+    if (runningREMORA()) {
+        if (MModeViewerDockWidget->isVisible()) {
+            MModeViewerDockWidget->hide();
+            m_UI->actionToggleManagerModeViewer->setChecked(false);
+            m_UI->actionOpenCSVFile->setEnabled(false);
+        } else {
+            showMModeViewerDockWidget();
+        }
+    }
+}
+
+void
+nmfMainWindow::menu_openCSVFile()
+{
+    QString fileName;
+    QString pathData         = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputDataDirMMode));
+    QString filenameWithPath = QDir(pathData).filePath(m_MModeViewerWidget->getCurrentFilename());
+
+    nmfUtilsQt::switchFileExtensions(filenameWithPath,".csv",{".jpg",".png"});
+
+    fileName = QFileDialog::getOpenFileName(
+                this, tr("Open CSV File"),
+                filenameWithPath, tr("*.csv"));
+    if (! fileName.isEmpty()) {
+        if (nmfUtils::isOSWindows()) {
+            std::string cmd = "start " + fileName.toStdString();
+            std::system(cmd.c_str());
+        } else {
+            std::string cmd = "/usr/bin/libreoffice " + fileName.toStdString();
+            QProcess::execute(cmd.c_str());
+        }
+    }
 }
 
 bool
-nmfMainWindow::saveScreenshot(QString &outputFile, QPixmap &pm)
+nmfMainWindow::getForecastInitialData(
+        QString& forecastName,
+        int&     numYearsPerRun,
+        int&     numRunsPerForecast)
+{
+    int NumRecords;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    bool ok;
+    QStringList items;
+
+    forecastName.clear();
+    numYearsPerRun = 0;
+    numRunsPerForecast = 0;
+
+    fields     = {"ForecastName","RunLength","NumRuns"};
+    queryStr   = "SELECT ForecastName,RunLength,NumRuns FROM Forecasts";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["ForecastName"].size();
+    if (NumRecords == 0) {
+        return false;
+    } else if (NumRecords == 1) {
+        forecastName       = QString::fromStdString(dataMap["ForecastName"][0]);
+        numYearsPerRun     = std::stod(dataMap["RunLength"][0]);
+        numRunsPerForecast = std::stod(dataMap["NumRuns"][0]);
+    } else {
+        for (int i=0; i<NumRecords; ++i) {
+            items << QString::fromStdString(dataMap["ForecastName"][i]);
+        }
+        QString item = QInputDialog::getItem(this, tr("Forecast List"),
+                                             tr("Select a Forecast prior to running REMORA:"),
+                                             items, 0, false, &ok);
+        if (! ok) {
+            return false;
+        }
+        if (ok && !item.isEmpty()) {
+            int index =  items.indexOf(item);
+            forecastName       = QString::fromStdString(dataMap["ForecastName"][index]);
+            numYearsPerRun     = std::stod(dataMap["RunLength"][index]);
+            numRunsPerForecast = std::stod(dataMap["NumRuns"][index]);
+        }
+    }
+
+    // Make sure there's data for the selected forecast
+    for (QString tablename : {"ForecastBiomass","ForecastBiomassMonteCarlo"}) {
+        fields     = {"ForecastName"};
+        queryStr   = "SELECT ForecastName FROM " + tablename.toStdString() +
+                     " WHERE ForecastName = '" + forecastName.toStdString() + "'";
+        dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+        NumRecords = dataMap["ForecastName"].size();
+        if (NumRecords == 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void
+nmfMainWindow::menu_toggleManagerMode()
+{
+    bool ok;
+    int numSpecies;
+    QStringList speciesList;
+    bool showManagerMode = ! runningREMORA();
+
+    // Set state of relevant menu items
+    m_UI->actionToggleManagerModeViewer->setEnabled(showManagerMode);
+    if (! showManagerMode) {
+        m_UI->actionToggleManagerModeViewer->setChecked(false);
+    }
+
+    if (showManagerMode) {
+
+        saveSettings();
+
+        // Get desired forecast data and initialize Remora with them
+        int numYearsPerRun;
+        int numRunsPerForecast;
+        QString forecastName;
+        ok = getForecastInitialData(forecastName,numYearsPerRun,numRunsPerForecast);
+        if (! ok and forecastName.isEmpty()) {
+            return;
+        }
+        if (! ok and ! forecastName.isEmpty()) {
+            QString msg = "\nPlease make sure a forecast has been run for: "+forecastName+"\n";
+            QMessageBox::warning(this, "Warning", msg, QMessageBox::Ok);
+            return;
+        }
+        if (forecastName.isEmpty()) {
+            QString msg = "\nAt least one forecast must be created prior to using REMORA.\n";
+            QMessageBox::warning(this, "Warning", msg, QMessageBox::Ok);
+            return;
+        }
+
+        Remora_ptr->setForecastName(forecastName);
+        Remora_ptr->setForecastNumYearsPerRun(numYearsPerRun);
+        Remora_ptr->setForecastNumRunsPerForecast(numRunsPerForecast);
+
+        // Set visibility on dock widgets
+        m_UI->OutputDockWidget->setVisible(false);
+        m_UI->NavigatorDockWidget->setVisible(false);
+        m_UI->ProgressDockWidget->setVisible(false);
+        m_UI->LogDockWidget->setVisible(false);
+        m_UI->centralWidget->setVisible(false);
+        this->tabifyDockWidget(m_UI->LogDockWidget, m_UI->ProgressDockWidget);
+
+        // Load species into manager mode
+        getSpecies(numSpecies, speciesList);
+        Remora_ptr->setSpeciesList(speciesList);
+
+        // Show Manager Mode UI
+        MModeDockWidget->setVisible(true);
+
+    } else {
+        menu_layoutDefault();
+    }
+
+    // Set visibility on toolbar buttons
+    setVisibilityToolbarButtons(! showManagerMode);
+
+}
+
+void
+nmfMainWindow::setVisibilityToolbarButtons(bool isVisible)
+{
+    m_UI->actionSaveCurrentRunTB->setEnabled(isVisible);
+    m_UI->actionShowCurrentRunTB->setEnabled(isVisible);
+    m_UI->actionSaveViewTB->setEnabled(isVisible);
+    m_UI->actionBeesTB->setEnabled(isVisible);
+    m_UI->actionNLoptTB->setEnabled(isVisible);
+    m_UI->actionScreenShotAll->setEnabled(isVisible);
+    m_UI->actionMultiShot->setEnabled(isVisible);
+}
+
+bool
+nmfMainWindow::saveScreenshot(QString &outputImageFile, QPixmap &pm)
 {
     QString msg;
-    QString path = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDir));
+    QString pathImage;
+    QString pathData;
     QMessageBox::StandardButton reply;
-    QString outputFileWithPath;
+    QString outputImageFileWithPath;
+    QString outputDataFileWithPath;
+    QString outputDataFile = outputImageFile;
+
+    nmfUtilsQt::switchFileExtensions(outputDataFile,".csv",{".jpg",".png"});
+
+    if (runningREMORA()) {
+        pathImage = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDirMMode));
+        pathData  = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputDataDirMMode));
+    } else {
+        pathImage = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDir));
+        pathData  = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputDataDir));
+    }
 
     // If path doesn't exist make it
-    QDir pathDir(path);
-    if (! pathDir.exists()) {
-        pathDir.mkpath(path);
+    for (QString path : {pathImage,pathData}) {
+        QDir pathDir(path);
+        if (! pathDir.exists()) {
+            pathDir.mkpath(path);
+        }
     }
-    outputFileWithPath = QDir(path).filePath(outputFile);
-    if (QFileInfo(outputFileWithPath).exists()) {
+    outputDataFileWithPath  = QDir(pathData).filePath(outputDataFile);
+    outputImageFileWithPath = QDir(pathImage).filePath(outputImageFile);
+    if (QFileInfo(outputImageFileWithPath).exists()) {
         msg   = "\nFile exists. OK to overwrite?\n";
         reply = QMessageBox::question(this, tr("File Exists"), tr(msg.toLatin1()),
                                       QMessageBox::No|QMessageBox::Yes,
@@ -1728,11 +1862,20 @@ nmfMainWindow::saveScreenshot(QString &outputFile, QPixmap &pm)
     }
 
     // Save the image
-    pm.save(outputFileWithPath);
+    pm.save(outputImageFileWithPath);
+
+    // Save the data file
+    if (runningREMORA()) {
+        saveRemoraDataFile(outputDataFileWithPath);
+    }
 
     // Notify user image has been saved
-    msg = "\nCapture image saved to file:\n\n" + outputFileWithPath;
-    msg += "\n\nView captured image in \"Screen Shot Viewer\" tab?\n";
+    msg = "\nCapture image saved to file:\n\n" + outputImageFileWithPath;
+    if (runningREMORA()) {
+        msg += "\n\nView captured image in \"REMORA Viewer\" window?\n";
+    } else {
+        msg += "\n\nView captured image in \"Screen Shot Viewer\" tab?\n";
+    }
     reply = QMessageBox::question(this,
                                   tr("Image Saved"),
                                   tr(msg.toLatin1()),
@@ -1740,16 +1883,198 @@ nmfMainWindow::saveScreenshot(QString &outputFile, QPixmap &pm)
                                   QMessageBox::Yes);
     if (reply == QMessageBox::Yes)
     {
-        // Enable the viewer tab
-        m_ViewerWidget->updateScreenShotViewer(outputFile);
-        setCurrentOutputTab("Screen Shot Viewer");
+        if (runningREMORA()) {
+            // Enable the viewer tab
+            m_MModeViewerWidget->updateScreenShotViewer(outputImageFile);
+            showMModeViewerDockWidget();
+        } else {
+            // Enable the viewer tab
+            m_ViewerWidget->updateScreenShotViewer(outputImageFile);
+            setCurrentOutputTab("Screen Shot Viewer");
+        }
+    } else {
+        // Refresh the viewer image list so that if the user just toggles on the viewer,
+        // it will show the most recent images in its combobox and won't need to be refreshed.
+        m_MModeViewerWidget->refreshList();
     }
 
-    m_Logger->logMsg(nmfConstants::Normal,"menu_screenshot: Image saved: "+ outputFile.toStdString());
+    m_Logger->logMsg(nmfConstants::Normal,"menu_screenshot: Image saved: "+ outputImageFile.toStdString());
 
     return true;
 }
 
+void
+nmfMainWindow::saveRemoraDataFile(QString filename)
+{
+    int NumSpecies=0;
+    int RunLength;
+    int NumRuns;
+    int StartForecastYear;
+    int NumYearsPerRun;
+    int NumRunsPerForecast;
+    int Year;
+    double val,val0;
+    double numerator,denominator;
+    QString ForecastName;
+    std::string Algorithm;
+    std::string Minimizer;
+    std::string ObjectiveCriterion;
+    std::string Scaling;
+    std::string TableName = "Forecasts";
+    QStringList SpeciesList;
+    QString Header = "Year";
+    QStringList HeaderList;
+    std::vector<boost::numeric::ublas::matrix<double> > ForecastCatch;
+    std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomass;
+    QStandardItem* item;
+
+    // Get number of years in forecast and number of species
+    if (! getSpecies(NumSpecies,SpeciesList))
+        return;
+    HeaderList << "Year";
+    for (QString Species : SpeciesList) {
+        Header += ", " + Species;
+        HeaderList << Species;
+    }
+
+    getForecastInitialData(ForecastName,NumYearsPerRun,NumRunsPerForecast);
+
+    // Find Forecast info
+    if (! m_DatabasePtr->getForecastInfo(
+         TableName,ForecastName.toStdString(),RunLength,StartForecastYear,
+         Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
+            return;
+    }
+
+    // Get ForecastBiomass data
+    if (! m_DatabasePtr->getForecastBiomass(
+                this,m_Logger,ForecastName.toStdString(),NumSpecies,RunLength,
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,ForecastBiomass)) {
+        return;
+    }
+
+    // Get ForecastCatch data
+    if (! m_DatabasePtr->getForecastCatch(
+                this,m_Logger,ForecastName.toStdString(),NumSpecies,RunLength,
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,ForecastCatch)) {
+        return;
+    }
+
+    QFile file(filename);
+    if (file.open(QIODevice::ReadWrite)) {
+        QTextStream stream(&file);
+
+        stream << "Number of Species: " << NumSpecies << endl;
+        stream << "Number of Years:   " << RunLength  << endl;
+
+        QStandardItemModel* smodel1 = new QStandardItemModel(RunLength,1+NumSpecies);
+        QStandardItemModel* smodel2 = new QStandardItemModel(RunLength,1+NumSpecies);
+        QStandardItemModel* smodel3 = new QStandardItemModel(RunLength,1+NumSpecies);
+        QStandardItemModel* smodel4 = new QStandardItemModel(RunLength,1+NumSpecies);
+
+        // Write out Absolute Biomass data
+        stream << endl << "# Biomass (absolute)" << endl;
+        stream << Header << endl;
+        for (int i=0; i<=RunLength; ++i) {
+            stream << StartForecastYear+i;
+            item = new QStandardItem(QString::number(StartForecastYear+i,'d',0));
+            item->setTextAlignment(Qt::AlignCenter);
+            smodel1->setItem(i, 0, item);
+            for (int j=0; j<NumSpecies; ++j) {
+                val = ForecastBiomass[0](i,j);
+                stream << ", " << val;
+                item = new QStandardItem(QString::number(val,'f',3));
+                item->setTextAlignment(Qt::AlignCenter);
+                smodel1->setItem(i, j+1, item);
+            }
+            stream << endl;
+        }
+        smodel1->setHorizontalHeaderLabels(HeaderList);
+
+        // Write out Relative Biomass data
+        stream << endl << "# Biomass (relative)" << endl;
+        stream << Header << endl;
+        for (int i=0; i<=RunLength; ++i) {
+            stream << StartForecastYear+i;
+            item = new QStandardItem(QString::number(StartForecastYear+i,'d',0));
+            item->setTextAlignment(Qt::AlignCenter);
+            smodel2->setItem(i, 0, item);
+            for (int j=0; j<NumSpecies; ++j) {
+                val0 = (   i == 0) ? ForecastBiomass[0](0,j) : val0;
+                val  = (val0 != 0) ? ForecastBiomass[0](i,j)/val0 : 0;
+                stream << ", " << val;
+                item = new QStandardItem(QString::number(val,'f',3));
+                item->setTextAlignment(Qt::AlignCenter);
+                smodel2->setItem(i, j+1, item);
+            }
+            stream << endl;
+        }
+        smodel2->setHorizontalHeaderLabels(HeaderList);
+
+        // Write out Fishing Mortality data (C/Bc)
+        stream << endl << "# Fishing Mortality" << endl;
+        stream << Header << endl;
+        for (int i=0; i<=RunLength; ++i) {
+            stream << StartForecastYear+i;
+            item = new QStandardItem(QString::number(StartForecastYear+i,'d',0));
+            item->setTextAlignment(Qt::AlignCenter);
+            smodel3->setItem(i, 0, item);
+            for (int j=0; j<NumSpecies; ++j) {
+                numerator   = ForecastCatch[0](i,j);
+                denominator = ForecastBiomass[0](i,j);
+                val = (denominator == 0) ? 0 : numerator/denominator;
+                stream << ", " << val;
+                item = new QStandardItem(QString::number(val,'f',3));
+                item->setTextAlignment(Qt::AlignCenter);
+                smodel3->setItem(i, j+1, item);
+            }
+            stream << endl;
+        }
+        smodel3->setHorizontalHeaderLabels(HeaderList);
+
+        // Write out harvest scale factor data
+        stream << endl << "# Harvest Scale Factor" << endl;
+        stream << Header << endl;
+        for (int i=0; i<=RunLength; ++i) {
+            stream << StartForecastYear+i;
+            Year = StartForecastYear+i;
+            item = new QStandardItem(QString::number(Year,'d',0));
+            item->setTextAlignment(Qt::AlignCenter);
+            smodel4->setItem(i, 0, item);
+            for (int j=0; j<NumSpecies; ++j) {
+                val = Remora_ptr->getScaleValueFromPlot(j,i);
+                stream << ", " << val;
+                item = new QStandardItem(QString::number(val,'f',3));
+                item->setTextAlignment(Qt::AlignCenter);
+                smodel4->setItem(i, j+1, item);
+            }
+            stream << endl;
+        }
+        smodel4->setHorizontalHeaderLabels(HeaderList);
+
+        stream << endl;
+        file.close();
+
+        // Attach the models to their table views
+        m_BiomassAbsTV->setModel(smodel1);
+        m_BiomassRelTV->setModel(smodel2);
+        m_FishingMortalityTV->setModel(smodel3);
+        m_HarvestScaleFactorTV->setModel(smodel4);
+    }
+}
+
+void
+nmfMainWindow::showMModeViewerDockWidget()
+{
+    MModeViewerDockWidget->show();
+    m_UI->actionToggleManagerModeViewer->setChecked(true);
+    m_UI->actionOpenCSVFile->setEnabled(true);
+
+    QList<QDockWidget*> tabifiedWithViewer = this->tabifiedDockWidgets(MModeViewerDockWidget);
+    if (tabifiedWithViewer.size() > 0) {
+        MModeViewerDockWidget->raise();
+    }
+}
 
 void
 nmfMainWindow::menu_about()
@@ -1966,16 +2291,21 @@ nmfMainWindow::callback_ReadProgressChartDataFile(bool validPointsOnly,
     }
 }
 
-
 void
 nmfMainWindow::setupOutputViewerWidget()
 {
     // Setup viewer widget into tab
     QString imagePath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputImages");
     m_ViewerWidget = new nmfViewerWidget(this,imagePath,m_Logger);
-    m_UI->MSSPMOutputScreenShotViewerTab->setLayout(m_ViewerWidget->mainLayt);
-}
+    m_ViewerWidget->hideFrame();
+    m_ViewerWidget->hideDataTab();
 
+    QVBoxLayout* vlayt = new QVBoxLayout();
+    vlayt->setContentsMargins(0,0,0,0);
+    vlayt->addWidget(m_ViewerWidget->getMainWidget());
+    m_UI->MSSPMOutputScreenShotViewerTab->setLayout(vlayt);
+    m_UI->MSSPMOutputScreenShotViewerTab->setContentsMargins(0,0,0,0);
+}
 
 void
 nmfMainWindow::setupProgressChart()
@@ -2403,7 +2733,11 @@ nmfMainWindow::initConnections()
 			this,                                                SLOT(menu_exportAllDatabases()));
     connect(m_UI->actionToggleManagerMode,                       SIGNAL(triggered()),
             this,                                                SLOT(menu_toggleManagerMode()));
-			
+    connect(m_UI->actionToggleManagerModeViewer,                 SIGNAL(triggered()),
+            this,                                                SLOT(menu_toggleManagerModeViewer()));
+    connect(m_UI->actionOpenCSVFile,                             SIGNAL(triggered()),
+            this,                                                SLOT(menu_openCSVFile()));
+
     // Widget connections
     connect(NavigatorTree,   SIGNAL(itemSelectionChanged()),
             this,            SLOT(callback_NavigatorSelectionChanged()));
@@ -2545,10 +2879,10 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_EnableFilterButtons(bool)));
     connect(Output_Controls_ptr, SIGNAL(ShowChart(QString,QString)),
             this,                SLOT(callback_ShowChart(QString,QString)));
+
     connect(Output_Controls_ptr, SIGNAL(ShowChartBy(QString)),
             this,                SLOT(callback_ShowChartBy(QString)));
-    connect(Output_Controls_ptr, SIGNAL(ShowChartBy(QString)),
-            this,                SLOT(callback_ShowChartBy(QString)));
+
     connect(Output_Controls_ptr, SIGNAL(ShowChartMultiScenario(QStringList)),
             this,                SLOT(callback_ShowChartMultiScenario(QStringList)));
     connect(Output_Controls_ptr, SIGNAL(ShowDiagnosticsChart3d()),
@@ -2562,13 +2896,15 @@ nmfMainWindow::initConnections()
     connect(Output_Controls_ptr, SIGNAL(ShowChartMohnsRho()),
             this,                SLOT(callback_ShowChartMohnsRho()));
     connect(this,                SIGNAL(KeyPressed(QKeyEvent*)),
-            MMode_Controls_ptr,  SLOT(callback_keyPressed(QKeyEvent*)));
+            Remora_ptr,  SLOT(callback_KeyPressed(QKeyEvent*)));
     connect(this,                SIGNAL(MouseMoved(QMouseEvent*)),
-            MMode_Controls_ptr,  SLOT(callback_mouseMoved(QMouseEvent*)));
+            Remora_ptr,  SLOT(callback_MouseMoved(QMouseEvent*)));
     connect(this,                SIGNAL(MouseReleased(QMouseEvent*)),
-            MMode_Controls_ptr,  SLOT(callback_mouseReleased(QMouseEvent*)));
-    connect(MMode_Controls_ptr,  SIGNAL(SaveOutputBiomassData(std::string)),
+            Remora_ptr,  SLOT(callback_MouseReleased(QMouseEvent*)));
+    connect(Remora_ptr,  SIGNAL(SaveOutputBiomassData(std::string)),
             this,                SLOT(callback_SaveOutputBiomassData(std::string)));
+    connect(Remora_ptr,  SIGNAL(UpdateSeedValue(int)),
+            this,                SLOT(callback_UpdateSeedValue(int)));
 
     callback_Setup_Tab4_GrowthFormCMB("Null");
     callback_Setup_Tab4_HarvestFormCMB("Null");
@@ -2637,7 +2973,6 @@ nmfMainWindow::keyPressEvent(QKeyEvent *event)
 void
 nmfMainWindow::mouseMoveEvent(QMouseEvent *event)
 {
-    std::cout << "nmfMainWindow mouse moved" << std::endl;
     emit MouseMoved(event);
 }
 
@@ -2727,6 +3062,15 @@ nmfMainWindow::findTableInFocus()
         return MSYTV;
     }  else if (FMSYTV->hasFocus()) {
         return FMSYTV;
+
+    }  else if (m_BiomassAbsTV->hasFocus()) {
+        return m_BiomassAbsTV;
+    }  else if (m_BiomassRelTV->hasFocus()) {
+        return m_BiomassRelTV;
+    }  else if (m_FishingMortalityTV->hasFocus()) {
+        return m_FishingMortalityTV;
+    }  else if (m_HarvestScaleFactorTV->hasFocus()) {
+        return m_HarvestScaleFactorTV;
     }
 
     else {
@@ -3447,18 +3791,44 @@ nmfMainWindow::loadUncertaintyData(const bool&          isMonteCarlo,
 
 bool
 nmfMainWindow::scaleTimeSeries(const std::vector<double>& Uncertainty,
-                               boost::numeric::ublas::matrix<double>& HarvestMatrix)
+                               boost::numeric::ublas::matrix<double>& HarvestMatrix,
+                               std::vector<double>& RandomValues)
 {
     int NumYears   = HarvestMatrix.size1();
     int NumSpecies = HarvestMatrix.size2();
+    double RandomValue = 0;
 
+    RandomValues.clear();
     for (int i=0; i<NumSpecies; ++i) {
+        calculateMonteCarloValue(Uncertainty[i],0.0,RandomValue);
+        RandomValues.push_back(RandomValue);
         for (int j=0; j<NumYears; ++j) {
-           HarvestMatrix(j,i) = calculateMonteCarloValue(Uncertainty[i],HarvestMatrix(j,i));
+//          HarvestMatrix(j,i) = calculateMonteCarloValue(Uncertainty[i],HarvestMatrix(j,i));
+            HarvestMatrix(j,i) = (1.0 + RandomValue) * HarvestMatrix(j,i);
         }
     }
     return true;
 }
+
+double
+nmfMainWindow::calculateMonteCarloValue(const double& uncertainty,
+                                        const double& dataValue,
+                                        double& randomValue)
+{
+    double retv = dataValue;
+
+    randomValue = 0.0;
+
+    if (uncertainty != 0.0) {
+        m_SeedValue = (m_SeedValue > 0) ? ++m_SeedValue : m_SeedValue;
+        randomValue = nmfUtils::getRandomNumber(m_SeedValue,-uncertainty,uncertainty);
+        retv = (1.0 + randomValue) * dataValue;
+//      retv = nmfUtils::getRandomNumber(m_SeedValue,dataValue*(1.0-uncertainty),dataValue*(1.0+uncertainty));
+    }
+
+    return retv;
+}
+
 
 void
 nmfMainWindow::getMohnsRhoLabelsToDelete(const int& NumMohnsRhos,
@@ -3482,6 +3852,44 @@ nmfMainWindow::getMohnsRhoLabelsToDelete(const int& NumMohnsRhos,
         mohnsRhoLabelsToDelete = " AND " + mohnsRhoLabelsToDelete;
     }
 }
+
+
+bool
+nmfMainWindow::clearMonteCarloParametersTable(
+        std::string& ForecastName,
+        std::string& Algorithm,
+        std::string& Minimizer,
+        std::string& ObjectiveCriterion,
+        std::string& Scaling,
+        std::string& MonteCarloParametersTable)
+{
+    std::string cmd="";
+    std::string errorMsg;
+
+    if (! isMohnsRho() && ! ForecastName.empty()) {
+        cmd = "DELETE FROM " + MonteCarloParametersTable +
+                " WHERE ForecastName = '" + ForecastName +
+                "' AND Algorithm = '" + Algorithm +
+                "' AND Minimizer = '" + Minimizer +
+                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                "' AND Scaling   = '" + Scaling +
+                "'";
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+        if (errorMsg != " ") {
+            m_Logger->logMsg(nmfConstants::Error,"[Error 1] clearMonteCarloParametersTable: DELETE error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            QMessageBox::warning(this, "Error",
+                                 "\nError in clearMonteCarloParametersTable command:\n\n" + QString::fromStdString(errorMsg) + "\n",
+                                 QMessageBox::Ok);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+
 
 //
 // Clear OutputBiomass table with passed Algorithm, Minimizer, ObjectiveCriterion, Scaling
@@ -3539,21 +3947,6 @@ nmfMainWindow::clearOutputBiomassTable(std::string& ForecastName,
 }
 
 
-double
-nmfMainWindow::calculateMonteCarloValue(const double& uncertainty,
-                                        const double& value)
-{
-    double randomVal = value;
-
-    if (uncertainty != 0) {
-        m_SeedValue = (m_SeedValue > 0) ? ++m_SeedValue : m_SeedValue;
-        randomVal = nmfUtils::getRandomNumber(m_SeedValue,value*(1.0-uncertainty),value*(1.0+uncertainty));
-    }
-
-    return randomVal;
-}
-
-
 bool
 nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                         int&         StartYear,
@@ -3600,10 +3993,21 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     std::string queryStr;
     QStringList SpeciesList;
     QStringList GuildList;
-    std::vector<double> EstGrowthRates;
-    std::vector<double> EstCarryingCapacities;
-    std::vector<double> EstExponent;
-    std::vector<double> EstCatchabilityRates;
+    std::vector<double> EstGrowthRates                     = {};
+    std::vector<double> EstCarryingCapacities              = {};
+    std::vector<double> EstExponent                        = {};
+    std::vector<double> EstCatchabilityRates               = {};
+    std::vector<double> HarvestRandomValues                = {};
+    std::vector<double> GrowthRandomValues                 = {};
+    std::vector<double> CarryingCapacityRandomValues       = {};
+    std::vector<double> CatchabilityRandomValues           = {};
+    std::vector<double> ExponentRandomValues               = {};
+    std::vector<double> CompetitionAlphaRandomValues       = {};
+    std::vector<double> CompetitionBetaSpeciesRandomValues = {};
+    std::vector<double> CompetitionBetaGuildsRandomValues  = {};
+    std::vector<double> PredationRandomValues              = {};
+    std::vector<double> HandlingRandomValues               = {};
+
     boost::numeric::ublas::matrix<double> EstCompetitionAlpha;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaSpecies;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaGuilds;
@@ -3623,6 +4027,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     double harvestTerm;
     double competitionTerm;
     double predationTerm;
+    double randomValue = 0.0;
     std::vector<double> GrowthRateUncertainty;
     std::vector<double> CarryingCapacityUncertainty;
     std::vector<double> PredationUncertainty;
@@ -3648,6 +4053,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     GuildList.clear();
     exploitationRate.clear();
     catchabilityRate.clear();
+    HarvestRandomValues.clear();
 
     // Find Guilds and Species
     if (! getGuilds(NumGuilds,GuildList)) {
@@ -3676,6 +4082,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                  CatchabilityUncertainty,
                                  HarvestUncertainty);
     if (! loadOK) {
+        m_Logger->logMsg(nmfConstants::Error, "[Error] nmfMainWindow::updateOutputBiomassTable: " + errorMsg);
         return false;
     }
 
@@ -3711,26 +4118,34 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         if (TableNames[j] == GrowthRateTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 MonteCarloValue = calculateMonteCarloValue(GrowthRateUncertainty[i],
-                                                           std::stod(dataMap["Value"][i]));
+                                                           std::stod(dataMap["Value"][i]),
+                                                           randomValue);
                 EstGrowthRates.push_back(MonteCarloValue);
+                GrowthRandomValues.push_back(randomValue);
             }
         } else if (TableNames[j] == CarryingCapacityTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 MonteCarloValue = calculateMonteCarloValue(CarryingCapacityUncertainty[i],
-                                                           std::stod(dataMap["Value"][i]));
+                                                           std::stod(dataMap["Value"][i]),
+                                                           randomValue);
                 EstCarryingCapacities.push_back(MonteCarloValue);
+                CarryingCapacityRandomValues.push_back(randomValue);
             }
         } else if (TableNames[j] == CatchabilityTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 MonteCarloValue = calculateMonteCarloValue(CatchabilityUncertainty[i],
-                                                           std::stod(dataMap["Value"][i]));
+                                                           std::stod(dataMap["Value"][i]),
+                                                           randomValue);
                 EstCatchabilityRates.push_back(MonteCarloValue);
+                CatchabilityRandomValues.push_back(randomValue);
             }
         } else if (TableNames[j] == "OutputExponent") {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 MonteCarloValue = calculateMonteCarloValue(ExponentUncertainty[i],
-                                                           std::stod(dataMap["Value"][i]));
+                                                           std::stod(dataMap["Value"][i]),
+                                                           randomValue);
                 EstExponent.push_back(MonteCarloValue);
+                ExponentRandomValues.push_back(randomValue);
             }
         }
     }
@@ -3774,17 +4189,29 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         for (int row=0; row<NumSpeciesOrGuilds; ++row) {
             for (int col=0; col<NumSpeciesOrGuilds; ++col) {
                 if (TableNames[i] == "OutputCompetitionAlpha") {
-                    EstCompetitionAlpha(row,col) = calculateMonteCarloValue(CompetitionUncertainty[col],
-                                                                            std::stod(dataMap["Value"][m]));
+                    EstCompetitionAlpha(row,col) = calculateMonteCarloValue(
+                                CompetitionUncertainty[col],
+                                std::stod(dataMap["Value"][m]),
+                                randomValue);
+                    CompetitionAlphaRandomValues.push_back(randomValue);
                 } else if (TableNames[i] == "OutputCompetitionBetaSpecies") {
-                    EstCompetitionBetaSpecies(row,col) = calculateMonteCarloValue(BetaSpeciesUncertainty[col],
-                                                                                  std::stod(dataMap["Value"][m]));
+                    EstCompetitionBetaSpecies(row,col) = calculateMonteCarloValue(
+                                BetaSpeciesUncertainty[col],
+                                std::stod(dataMap["Value"][m]),
+                                randomValue);
+                    CompetitionBetaSpeciesRandomValues.push_back(randomValue);
                 } else if (TableNames[i] == "OutputPredation") {
-                    EstPredation(row,col) = calculateMonteCarloValue(PredationUncertainty[col],
-                                                                     std::stod(dataMap["Value"][m]));
+                    EstPredation(row,col) = calculateMonteCarloValue(
+                                PredationUncertainty[col],
+                                std::stod(dataMap["Value"][m]),
+                                randomValue);
+                    PredationRandomValues.push_back(randomValue);
                 } else if (TableNames[i] == "OutputHandling") {
-                    EstHandling(row,col) = calculateMonteCarloValue(HandlingUncertainty[col],
-                                                                    std::stod(dataMap["Value"][m]));
+                    EstHandling(row,col) = calculateMonteCarloValue(
+                                HandlingUncertainty[col],
+                                std::stod(dataMap["Value"][m]),
+                                randomValue);
+                    HandlingRandomValues.push_back(randomValue);
                 }
                 ++m;
             }
@@ -3819,8 +4246,11 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         for (int row=0; row<NumSpeciesOrGuilds; ++row) {
             for (int col=0; col<NumGuilds; ++col) {
                 if (TableNames[i] == "OutputCompetitionBetaGuilds") {
-                    EstCompetitionBetaGuilds(row,col) = calculateMonteCarloValue(BetaGuildsUncertainty[row],
-                                                                                 std::stod(dataMap["Value"][m]));
+                    EstCompetitionBetaGuilds(row,col) = calculateMonteCarloValue(
+                            BetaGuildsUncertainty[row],
+                            std::stod(dataMap["Value"][m]),
+                            randomValue);
+                   CompetitionBetaGuildsRandomValues.push_back(randomValue);
                 }
                 ++m;
             }
@@ -3831,43 +4261,67 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         if (isAggProd) {
             if (! getTimeSeriesDataByGuild(ForecastName,"Catch", NumSpeciesOrGuilds,RunLength,Catch)) {
                 QMessageBox::warning(this, "Error",
-                                     "\nError: No data found in ForecastCatch table for current Forecast.\nCheck Forecast->Harvest Parameters tab.",
+                                     "\nError: No data found in Catch table for current Forecast.\nCheck Forecast->Harvest Parameters tab.",
                                      QMessageBox::Ok);
                 return false;
             }
         } else {
-            if (! getTimeSeriesData(m_MohnsRhoLabel,ForecastName,"Catch", NumSpeciesOrGuilds,RunLength,Catch)) {
+            if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                                   m_MohnsRhoLabel,ForecastName,"Catch",
+                                                   NumSpeciesOrGuilds,RunLength,Catch)) {
                 QMessageBox::warning(this, "Error",
-                                     "\nError: No data found in ForecastCatch table for current Forecast.\nCheck Forecast->Harvest Parameters tab.",
+                                     "\nError: No data found in Catch table for current Forecast.\nCheck Forecast->Harvest Parameters tab.",
                                      QMessageBox::Ok);
                 return false;
             }
         }
         if (isMonteCarlo) {
-            scaleTimeSeries(HarvestUncertainty,Catch);
+            scaleTimeSeries(HarvestUncertainty,Catch,HarvestRandomValues);
+        } else {
+            nmfUtils::initialize(HarvestRandomValues,NumSpeciesOrGuilds);
         }
     } else if (HarvestForm == "Effort (qE)") {
         if (isAggProd) {
             if (! getTimeSeriesDataByGuild(ForecastName,"Effort",NumSpeciesOrGuilds,RunLength,Effort))
                 return false;
         } else {
-            if (! getTimeSeriesData(m_MohnsRhoLabel,ForecastName,"Effort",NumSpeciesOrGuilds,RunLength,Effort))
+            if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                                   m_MohnsRhoLabel,ForecastName,"Effort",
+                                                   NumSpeciesOrGuilds,RunLength,Effort))
                 return false;
         }
         if (isMonteCarlo) {
-            scaleTimeSeries(HarvestUncertainty,Effort);
+            scaleTimeSeries(HarvestUncertainty,Effort,HarvestRandomValues);
+        } else {
+            nmfUtils::initialize(HarvestRandomValues,NumSpeciesOrGuilds);
         }
     } else if (HarvestForm == "Exploitation (F)") {
         if (isAggProd) {
             if (! getTimeSeriesDataByGuild(ForecastName,"Exploitation",NumSpeciesOrGuilds,RunLength,Exploitation))
                 return false;
         } else {
-            if (! getTimeSeriesData(m_MohnsRhoLabel,ForecastName,"Exploitation",NumSpeciesOrGuilds,RunLength,Exploitation))
+            if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                                   m_MohnsRhoLabel,ForecastName,"Exploitation",
+                                                   NumSpeciesOrGuilds,RunLength,Exploitation))
                 return false;
         }
         if (isMonteCarlo) {
-            scaleTimeSeries(HarvestUncertainty,Exploitation);
+            scaleTimeSeries(HarvestUncertainty,Exploitation,HarvestRandomValues);
+        } else {
+            nmfUtils::initialize(HarvestRandomValues,NumSpeciesOrGuilds);
         }
+    }
+
+    // Update the Forecast Monte Carlo Parameters table
+    if (! m_DatabasePtr->updateForecastMonteCarloParameters(
+                0,m_Logger,
+                ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                SpeciesList,RunNum,
+                GrowthRandomValues,CarryingCapacityRandomValues,CatchabilityRandomValues,
+                ExponentRandomValues,CompetitionAlphaRandomValues,
+                CompetitionBetaSpeciesRandomValues,CompetitionBetaGuildsRandomValues,
+                PredationRandomValues,HandlingRandomValues,HarvestRandomValues)) {
+        return false;
     }
 
     // If not running a forecast initial biomass is the first observed biomass.
@@ -3993,7 +4447,9 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             cmd = "INSERT INTO " + BiomassTable + " (ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
             for (int species=0; species<NumSpeciesOrGuilds; ++ species) { // Species
                 for (int time=0; time<=RunLength; ++time) { // Time in years
-                    if (std::isnan(EstimatedBiomassBySpecies(time,species))) {
+                    if (std::isnan(EstimatedBiomassBySpecies(time,species)) ||
+                        std::isinf(EstimatedBiomassBySpecies(time,species)) ||
+                        EstimatedBiomassBySpecies(time,species) > nmfConstants::MaxBiomass) {
                         EstimatedBiomassBySpecies(time,species) = -1;
                     }
                     cmd += "('"   + ForecastName + "'," + std::to_string(RunNum) +
@@ -4011,7 +4467,9 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             cmd = "INSERT INTO " + BiomassTable + " (ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
             for (int species=0; species<NumSpeciesOrGuilds; ++ species) { // Species
                 for (int time=0; time<=RunLength; ++time) { // Time in years
-                    if (std::isnan(EstimatedBiomassBySpecies(time,species))) {
+                    if (std::isnan(EstimatedBiomassBySpecies(time,species)) ||
+                        std::isinf(EstimatedBiomassBySpecies(time,species)) ||
+                        EstimatedBiomassBySpecies(time,species) > nmfConstants::MaxBiomass) {
                         EstimatedBiomassBySpecies(time,species) = -1;
                     }
                     cmd += "('"   + ForecastName +
@@ -4416,7 +4874,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
             return false;
         }
     } else {
-        if (! getTimeSeriesData(m_MohnsRhoLabel,"","ObservedBiomass",NumSpeciesOrGuilds,RunLength,ObservedBiomass)) {
+        if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                               m_MohnsRhoLabel,"","ObservedBiomass",
+                                               NumSpeciesOrGuilds,RunLength,ObservedBiomass)) {
             return false;
         }
     }
@@ -4465,7 +4925,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     }
     else if (OutputType == "Harvest vs Time") {
         // Load Catch
-        if (! getTimeSeriesData(m_MohnsRhoLabel,"","Catch",NumSpeciesOrGuilds,RunLength,Catch)) {
+        if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                               m_MohnsRhoLabel,"","Catch",
+                                               NumSpeciesOrGuilds,RunLength,Catch)) {
             return false;
         }
         std::vector<boost::numeric::ublas::matrix<double> > CatchVec;
@@ -4487,7 +4949,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
     else if (OutputType == "Fishing Mortality vs Time") {
         // Load Catch
-        if (! getTimeSeriesData(m_MohnsRhoLabel,"","Catch",NumSpeciesOrGuilds,RunLength,Catch)) {
+        if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                               m_MohnsRhoLabel,"","Catch",
+                                               NumSpeciesOrGuilds,RunLength,Catch)) {
             return false;
         }
         showChartTableVsTime("Fishing Mortality (C/Bc)",
@@ -4531,16 +4995,16 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
 
 boost::numeric::ublas::matrix<double>
-nmfMainWindow::getObservedBiomass(const int& NumGuilds,
+nmfMainWindow::getObservedBiomassByGroup(const int& NumGuilds,
                                   const int& RunLength,
-                                  const std::string& type)
+                                  const std::string& group)
 {
     boost::numeric::ublas::matrix<double> tmpObservedBiomass;
     boost::numeric::ublas::matrix<double> ObservedBiomass;
 
-    if (type == "Guild") {
+    if (group == "Guild") {
         getTimeSeriesDataByGuild("","ObservedBiomass",NumGuilds,RunLength,ObservedBiomass);
-    } else if (type == "System") {
+    } else if (group == "System") {
         // Find total system observed biomass
         if (! getTimeSeriesDataByGuild("","ObservedBiomass",NumGuilds,RunLength,tmpObservedBiomass)) {
             return ObservedBiomass;
@@ -4557,11 +5021,11 @@ nmfMainWindow::getObservedBiomass(const int& NumGuilds,
 }
 
 std::vector<boost::numeric::ublas::matrix<double> >
-nmfMainWindow::getOutputBiomass2(
+nmfMainWindow::getOutputBiomassByGroup(
         const int& NumLines,
         const int& RunLength,
         const std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassSpecies,
-        const std::string& type)
+        const std::string& group)
 {
     QStringList SpeciesList;
     QStringList GuildList;
@@ -4579,7 +5043,7 @@ nmfMainWindow::getOutputBiomass2(
     if (! getSpeciesWithGuilds(NumSpecies,SpeciesList,GuildList))
         return OutputBiomassGuilds;
 
-    if (type == "Guild") {
+    if (group == "Guild") {
         NumSpecies = SpeciesList.size();
         for (unsigned i=0; i<NumSpecies; ++i) {
             guildName = GuildList[i].toStdString();
@@ -4600,7 +5064,7 @@ nmfMainWindow::getOutputBiomass2(
             }
             OutputBiomassGuilds.push_back(TmpMatrix);
         }
-    } else if (type == "System") {
+    } else if (group == "System") {
         for (int chart=0; chart<NumLines; ++chart) {
             nmfUtils::initialize(TmpMatrix,RunLength+1,1);
             for (int species=0; species<NumSpecies; ++species) {
@@ -4752,7 +5216,7 @@ nmfMainWindow::getMSYData(const int& NumLines,
 
 
 void
-nmfMainWindow::callback_ShowChartBy(QString ChartType)
+nmfMainWindow::callback_ShowChartBy(QString GroupType)
 {
     int NumGuilds;
     int NumGuildsOrSpecies;
@@ -4805,18 +5269,18 @@ nmfMainWindow::callback_ShowChartBy(QString ChartType)
     }
     NumLines = OutputBiomassSpecies.size();
 
-    // type specific code here
-    OutputBiomass   = getOutputBiomass2(NumLines,RunLength,OutputBiomassSpecies,ChartType.toStdString());
-    ObservedBiomass = getObservedBiomass(NumGuilds,RunLength,ChartType.toStdString());
-    if (ChartType == "Guild") {
+    // Group-specific code here (i.e., Species, Guild, System)
+    OutputBiomass   = getOutputBiomassByGroup(NumLines,RunLength,OutputBiomassSpecies,GroupType.toStdString());
+    ObservedBiomass = getObservedBiomassByGroup(NumGuilds,RunLength,GroupType.toStdString());
+    if (GroupType == "Guild") {
         NumGuildsOrSpecies = NumGuilds;
-    } else if (ChartType == "System") {
+    } else if (GroupType == "System") {
         NumGuildsOrSpecies  = 1;
         SpeciesNum = 0;
         OutputSpecies = "System";
     }
 
-    getMSYData(NumLines,NumGuildsOrSpecies,ChartType.toStdString(),
+    getMSYData(NumLines,NumGuildsOrSpecies,GroupType.toStdString(),
                BMSYValues,MSYValues,FMSYValues);
 
     // Draw the appropriate chart
@@ -4839,9 +5303,9 @@ nmfMainWindow::callback_ShowChartBy(QString ChartType)
         }
     }
     else if (OutputChartType == "Harvest vs Time") {
-        if (ChartType == "Guild") {
+        if (GroupType == "Guild") {
             getTimeSeriesDataByGuild("","Catch",NumGuildsOrSpecies,RunLength,Catch);
-        } else if (ChartType == "System") {
+        } else if (GroupType == "System") {
             getTimeSeriesDataByGuild("","Catch",NumGuilds,RunLength,tmpCatch);
             nmfUtils::initialize(Catch,RunLength+1,1);
             for (int guild=0; guild<NumGuilds; ++guild) {
@@ -4868,9 +5332,9 @@ nmfMainWindow::callback_ShowChartBy(QString ChartType)
     }
     else if (OutputChartType == "Fishing Mortality vs Time") {
         // Load Catch
-        if (ChartType == "Guild") {
+        if (GroupType == "Guild") {
             getTimeSeriesDataByGuild("","Catch",NumGuildsOrSpecies,RunLength,Catch);
-        } else if (ChartType == "System") {
+        } else if (GroupType == "System") {
             getTimeSeriesDataByGuild("","Catch",NumGuilds,RunLength,tmpCatch);
             nmfUtils::initialize(Catch,RunLength+1,1);
             for (int guild=0; guild<NumGuilds; ++guild) {
@@ -5410,9 +5874,6 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     std::string ObjectiveCriterion;
     std::string Scaling;
     std::string TableName = "Forecasts";
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomass;
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomassMonteCarlo;
     QStringList SpeciesOrGuildList;
@@ -5440,20 +5901,6 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     }
 
     // Find Forecast info
-//    fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
-//    queryStr  = "SELECT ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,StartYear,EndYear,NumRuns FROM Forecasts where ";
-//    queryStr += "ForecastName = '" + ForecastName + "'";
-//    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-//    if (dataMap["ForecastName"].size() != 0) {
-//        RunLength          = std::stoi(dataMap["RunLength"][0]);
-//        StartForecastYear  = std::stoi(dataMap["StartYear"][0]);
-//        // EndYear         = std::stoi(dataMap["EndYear"][0]);
-//        Algorithm          = dataMap["Algorithm"][0];
-//        Minimizer          = dataMap["Minimizer"][0];
-//        ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
-//        Scaling            = dataMap["Scaling"][0];
-//        NumRuns            = std::stoi(dataMap["NumRuns"][0]);
-    //    }
     if (! m_DatabasePtr->getForecastInfo(
          TableName,ForecastName,RunLength,StartForecastYear,
          Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
@@ -5629,7 +6076,9 @@ nmfMainWindow::calculateSummaryStatistics(QStandardItemModel* smodel,
             return;
         }
     } else {
-        if (! getTimeSeriesData(m_MohnsRhoLabel,"","ObservedBiomass",NumSpeciesOrGuilds,RunLength,ObservedBiomass)) {
+        if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                               m_MohnsRhoLabel,"","ObservedBiomass",
+                                               NumSpeciesOrGuilds,RunLength,ObservedBiomass)) {
             return;
         }
     }
@@ -5834,6 +6283,7 @@ nmfMainWindow::showChartTableVsTime(
     QColor lineColor;
     bool xAxisIsInteger = true;
     QString colorName;
+    QStringList HoverLabels;
 
     ChartMSYData.resize(RunLength+1,1); // NumSpecies);
     ChartMSYData.clear();
@@ -5975,9 +6425,11 @@ nmfMainWindow::showChartTableVsTime(
                                          StartYear,
                                          xAxisIsInteger,
                                          YMinSliderVal,
+                                         nmfConstantsMSSPM::DontLeaveGapsWhereNegative,
                                          ChartMSYData,
                                          RowLabelsForBars,
                                          ColumnLabelsForLegend,
+                                         HoverLabels,
                                          MainTitle,
                                          XLabel,
                                          YLabel,
@@ -6031,6 +6483,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    std::vector<bool> GridLines(true,true); // Replace with checkbox values
    double StartXValue = -Diagnostic_Tab1_ptr->getLastRunsPctVariation();
    double XInc        = -StartXValue/NumPoints;
+   QStringList HoverLabels;
 
    ChartType = "Line";
    XLabel += " Percent Deviation";
@@ -6076,9 +6529,11 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
                                 StartXValue,
                                 nmfConstantsMSSPM::LabelXAxisAsReals,
                                 YMinSliderVal,
+                                nmfConstantsMSSPM::DontLeaveGapsWhereNegative,
                                 ChartLineData,
                                 RowLabelsForBars,
                                 ColumnLabelsForLegend,
+                                HoverLabels,
                                 MainTitle,
                                 XLabel,
                                 YLabel,
@@ -6137,6 +6592,7 @@ nmfMainWindow::showMohnsRhoBiomassVsTime(
     int NumColors;
     std::vector<bool> GridLines(true,true); // Replace with checkbox values
     std::vector<int> StartYears;
+    QStringList HoverLabels;
 
     for (int i=0; i<NumLines; ++i) {
         NumYearsVec.push_back(Biomass[i].size1());
@@ -6207,9 +6663,11 @@ nmfMainWindow::showMohnsRhoBiomassVsTime(
                                  StartYear,
                                  nmfConstantsMSSPM::LabelXAxisAsInts,
                                  YMinSliderVal,
+                                 nmfConstantsMSSPM::DontLeaveGapsWhereNegative,
                                  ChartLineData,
                                  RowLabelsForBars,
                                  ColumnLabelsForLegend,
+                                 HoverLabels,
                                  MainTitle,
                                  XLabel,
                                  YLabel,
@@ -6218,6 +6676,67 @@ nmfMainWindow::showMohnsRhoBiomassVsTime(
                                  LineColors[0],
                                  "",
                                  1.0);
+    }
+}
+
+
+
+
+void
+nmfMainWindow::getMonteCarloUncertaintyData(
+        const QString& Species,
+        QList<QString>& formattedUncertaintyData)
+{
+    int RunLength;
+    int NumRuns;
+    int NumRecords;
+    int StartForecastYear;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string Algorithm;
+    std::string Minimizer;
+    std::string ObjectiveCriterion;
+    std::string Scaling;
+    std::string queryStr;
+    std::string TableName = "Forecasts";
+    std::string ForecastName = Forecast_Tab1_ptr->getForecastName();
+    std::string str;
+
+    if (! m_DatabasePtr->getForecastInfo(
+         TableName,ForecastName,RunLength,StartForecastYear,
+         Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
+            return;
+    }
+
+    fields    = {"ForecastName","RunNum","SpeName","Algorithm","Minimzer",
+                 "ObjectiveCriterion","Scaling","GrowthRate",
+                 "CarryingCapacity","Harvest"};
+    queryStr  = "SELECT ForecastName,RunNum,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthRate,CarryingCapacity,Harvest ";
+    queryStr += "FROM ForecastMonteCarloParameters WHERE ForecastName = '" + ForecastName +
+                "' AND SpeName = '"            + Species.toStdString() +
+                "' AND Algorithm = '"          + Algorithm +
+                "' AND Minimizer = '"          + Minimizer +
+                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                "' AND Scaling = '"            + Scaling +
+                "' ORDER BY RunNum,SpeName";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["SpeName"].size();
+    if (NumRecords < NumRuns) {
+        m_Logger->logMsg(nmfConstants::Error,"Couldn't find sufficient uncertainty records in ForecastMonteCarloParameters");
+        for (int i=0; i<NumRuns; ++i) {
+            formattedUncertaintyData << "";
+        }
+        return;
+    }
+
+    formattedUncertaintyData.clear();
+    for (int i=0; i<NumRuns; ++i) {
+        str  = "(";
+        str += std::to_string(int(100*std::stod(dataMap["GrowthRate"][i])))       + "%, " +
+               std::to_string(int(100*std::stod(dataMap["CarryingCapacity"][i]))) + "%, " +
+               std::to_string(int(100*std::stod(dataMap["Harvest"][i])))          + "%";
+        str += ")";
+        formattedUncertaintyData.push_back(QString::fromStdString(str));
     }
 }
 
@@ -6267,7 +6786,8 @@ nmfMainWindow::showForecastBiomassVsTime(
     int Theme = 0; // Replace with checkbox values
     int NumColors;
     std::vector<bool> GridLines(true,true); // Replace with checkbox values
-
+    QStringList HoverLabels;
+    QList<QString> formattedUncertaintyData;
 
     ChartType = "Line";
     MainTitle = ChartTitle + " for: " + OutputSpecies.toStdString();
@@ -6281,12 +6801,19 @@ nmfMainWindow::showForecastBiomassVsTime(
         m_ChartWidget->removeAllSeries();
     }
 
+    formattedUncertaintyData << "(0%, 0%, 0%)";
+    if (isMonteCarloSimulation) {
+        getMonteCarloUncertaintyData(OutputSpecies,formattedUncertaintyData);
+    }
+
     ChartLineData.clear();
     for (int line=0; line<NumLines; ++line)
     {
         Years.clear();
         for (int species=0; species<NumSpecies; ++species) {
             if (species == SpeciesNum) {
+//              std::cout << "Loading: " << formattedUncertaintyData[line].toStdString() << std::endl;
+//                      HoverLabels << formattedUncertaintyData[line];
                 for (int time=0; time<NumYears; ++time) {
                     legendCode = (isMonteCarloSimulation) ? "Monte Carlo Sim "+std::to_string(time+1) : "Forecast Biomass";
                     Years << QString::number(StartForecastYear+time);
@@ -6323,9 +6850,11 @@ nmfMainWindow::showForecastBiomassVsTime(
                                  StartForecastYear,
                                  nmfConstantsMSSPM::LabelXAxisAsInts,
                                  YMinSliderVal,
+                                 nmfConstantsMSSPM::DontLeaveGapsWhereNegative,
                                  ChartLineData,
                                  RowLabelsForBars,
                                  ColumnLabelsForLegend,
+                                 HoverLabels,
                                  MainTitle,
                                  XLabel,
                                  YLabel,
@@ -6335,6 +6864,7 @@ nmfMainWindow::showForecastBiomassVsTime(
                                  lineColorName,
                                  1.0);
     }
+
 
     // Load ChartData into Output table view
     SpeciesNames << OutputSpecies;
@@ -6467,6 +6997,7 @@ nmfMainWindow::showChartBiomassVsTime(
     std::vector<bool> GridLines(true,true); // Replace with checkbox values
     bool xAxisIsInteger = true;
     int NumLineColors = nmfConstants::LineColors.size();
+    QStringList HoverLabels;
 
     ChartType = "Line";
     MainTitle = "Calculated Biomass Overlayed with Observed Biomass Points for: " + OutputSpecies.toStdString();
@@ -6584,9 +7115,11 @@ nmfMainWindow::showChartBiomassVsTime(
                                          StartYear,
                                          xAxisIsInteger,
                                          YMinSliderVal,
+                                         nmfConstantsMSSPM::DontLeaveGapsWhereNegative,
                                          ChartBMSYData,
                                          RowLabelsForBars,
                                          ColumnLabelsForLegend,
+                                         HoverLabels,
                                          MainTitle,
                                          XLabel,
                                          YLabel,
@@ -6656,6 +7189,7 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
     QStandardItem *item;
     QList<QColor> LineColors;
     double YMinSliderVal = -1;
+    QStringList HoverLabels;
 
     if (NumSpecies == 0) {
         m_ChartWidget->removeAllSeries();
@@ -6697,9 +7231,11 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
                                  0,
                                  false,
                                  YMinSliderVal,
+                                 nmfConstantsMSSPM::DontLeaveGapsWhereNegative,
                                  SelectedSpeciesCalculatedBiomassData,
                                  RowLabelsForBars,
                                  ColumnLabelsForLegend,
+                                 HoverLabels,
                                  MainTitle,
                                  XLabel,
                                  YLabel,
@@ -6743,6 +7279,7 @@ nmfMainWindow::showChartBcVsTimeAllSpecies(
     std::string LineStyle = "SolidLine";
     double biomassData;
     double YMinSliderVal = -1;
+    QStringList HoverLabels;
 
     m = 0;
     double val;
@@ -6787,9 +7324,11 @@ nmfMainWindow::showChartBcVsTimeAllSpecies(
                                  0,
                                  false,
                                  YMinSliderVal,
+                                 nmfConstantsMSSPM::DontLeaveGapsWhereNegative,
                                  m_SpeciesCalculatedBiomassData,
                                  RowLabelsForBars,
                                  ColumnLabelsForLegend,
+                                 HoverLabels,
                                  MainTitle,
                                  XLabel,
                                  YLabel,
@@ -6901,7 +7440,121 @@ nmfMainWindow::showChartCatchVsBc(
 void
 nmfMainWindow::initializeMMode()
 {
+    initializeMModeMain();
+    initializeMModeViewer();
+}
+
+void
+nmfMainWindow::initializeMModeViewer()
+{
+    int NumSpecies;
+    int RunLength;
+    int StartYear;
+    QStringList SpeciesList;
+    QString imagePath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDirMMode));
+    m_MModeViewerWidget = new nmfViewerWidget(this,imagePath,m_Logger);
+
+    MModeViewerDockWidget = new QDockWidget(this);
+    MModeViewerDockWidget->setWidget(m_MModeViewerWidget->getMainWidget());
+    MModeViewerDockWidget->setObjectName("VIEWMORA");
+    MModeViewerDockWidget->setAccessibleName("Viewmora");
+    addDockWidget(Qt::RightDockWidgetArea, MModeViewerDockWidget);
+
+    // Setup viewer's initial position and size
+    MModeViewerDockWidget->setFloating(true);
+    int x = this->x() + (9.0/16.0)*this->width();
+    int y = this->y() - (1.0/16.0)*this->height();
+    MModeViewerDockWidget->setGeometry(x,y,this->width()/2,this->height());
+    //  MModeViewerDockWidget->setStyleSheet("QDockWidget#Viewmora {border: 10px solid red}");
+
+    MModeViewerDockWidget->hide();
+    MModeViewerDockWidget->setWindowTitle("Viewmora");
+    MModeViewerDockWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(MModeViewerDockWidget, SIGNAL(customContextMenuRequested(QPoint)),
+            this,                  SLOT(callback_openCSVFile(QPoint)));
+
+
+    // Set a custom title for the Remora Viewer dock widget
+    QWidget* customTitleBar = new QWidget();
+    QHBoxLayout* hlayt  = new QHBoxLayout;
+    QPushButton* quitPB = new QPushButton("X");
+    quitPB->setFlat(true);
+    quitPB->setFixedWidth(25);
+    quitPB->setToolTip("Close REMORA Viewer");
+    hlayt->addSpacerItem(new QSpacerItem(25,1,QSizePolicy::Fixed,QSizePolicy::Fixed));
+    hlayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    QLabel* title = new QLabel("<strong>VIEWMORA</strong> (REMORA Image and Data Viewer)");
+    QFont titleFont = title->font();
+    titleFont.setPointSize(titleFont.pointSize()+4);
+    title->setFont(titleFont);
+    hlayt->addWidget(title);
+    hlayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    hlayt->addWidget(quitPB);
+    customTitleBar->setLayout(hlayt);
+    MModeViewerDockWidget->setTitleBarWidget(customTitleBar);
+
+    connect(quitPB, SIGNAL(clicked(bool)),
+            this,   SLOT(callback_ManagerModeViewerClose(bool)));
+
+    m_BiomassAbsTV         = new QTableView();
+    m_BiomassRelTV         = new QTableView();
+    m_FishingMortalityTV   = new QTableView();
+    m_HarvestScaleFactorTV = new QTableView();
+
+    if (! getSpecies(NumSpecies,SpeciesList))
+        return;
+    if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear)) {
+        return;
+    }
+
+    QStandardItemModel* smodel1 = new QStandardItemModel(RunLength,NumSpecies+1 ); // +1 for Year (1st column)
+    QStandardItemModel* smodel2 = new QStandardItemModel(RunLength,NumSpecies+1 );
+    QStandardItemModel* smodel3 = new QStandardItemModel(RunLength,NumSpecies+1 );
+    QStandardItemModel* smodel4 = new QStandardItemModel(RunLength,NumSpecies+1 );
+    m_BiomassAbsTV->setModel(smodel1);
+    m_BiomassRelTV->setModel(smodel2);
+    m_FishingMortalityTV->setModel(smodel3);
+    m_HarvestScaleFactorTV->setModel(smodel4);
+
+    m_MModeViewerWidget->addDataTab("Biomass (absolute)",  m_BiomassAbsTV);
+    m_MModeViewerWidget->addDataTab("Biomass (relative)",  m_BiomassRelTV);
+    m_MModeViewerWidget->addDataTab("Fishing Mortality",   m_FishingMortalityTV);
+    m_MModeViewerWidget->addDataTab("Harvest Scale Factor",m_HarvestScaleFactorTV);
+
+}
+
+void
+nmfMainWindow::callback_openCSVFile(QPoint pos)
+{
+    QMenu contextMenu("", MModeViewerDockWidget);
+    QAction actionOpenCSVFile("Open CSV File...", this);
+    actionOpenCSVFile.setToolTip("Open CSV File associated with current image");
+    actionOpenCSVFile.setStatusTip("Open CSV File associated with current image");
+
+    connect(&actionOpenCSVFile, SIGNAL(triggered()),
+            this,               SLOT(menu_openCSVFile()));
+
+    contextMenu.addAction(&actionOpenCSVFile);
+    contextMenu.exec(MModeViewerDockWidget->mapToGlobal(pos));
+}
+
+void
+nmfMainWindow::callback_ManagerModeViewerClose(bool state)
+{
+    m_MModeViewerWidget->stopPlayback();
+    MModeDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    menu_toggleManagerModeViewer();
+}
+
+void
+nmfMainWindow::initializeMModeMain()
+{
     QUiLoader loader;
+    int NumSpecies;
+    QStringList SpeciesList;
+
+    getSpecies(NumSpecies,SpeciesList);
 
     // Initialize MModeDockWidget
     QFile file(":/forms/MMode/mModeWindow.ui");
@@ -6909,6 +7562,7 @@ nmfMainWindow::initializeMMode()
     QWidget* MModeWidget = loader.load(&file,this);
     file.close();
 
+    // Set up main REMORA dock widget
     MModeDockWidget = new QDockWidget(this);
     MModeDockWidget->setWidget(MModeWidget);
     //MModeDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
@@ -6919,8 +7573,8 @@ nmfMainWindow::initializeMMode()
     mmodeFont.setPointSize(12);
     mmodeFont.setBold(true);
 
-
     MModeDockWidget->hide();
+    MModeDockWidget->setWindowTitle("REMORA");
 
     // Set a custom title for the Remora dock widget
     QWidget* customTitleBar = new QWidget();
@@ -6935,9 +7589,61 @@ nmfMainWindow::initializeMMode()
     customTitleBar->setLayout(hlayt);
     MModeDockWidget->setTitleBarWidget(customTitleBar);
 
+    Remora_ptr = new REMORA(m_DatabasePtr,m_Logger,m_ProjectDir,
+                            m_ProjectSettingsConfig,SpeciesList,MModeWidget);
+}
 
-    MMode_Controls_ptr = new MSSPM_GuiManagerMode(
-                m_DatabasePtr, m_Logger, m_ProjectSettingsConfig, MModeWidget);
+QMenu*
+nmfMainWindow::createPopupMenu()
+{
+    QStringList actionNames = {"Navigator","Progress","Log","Output"};
+    QMenu*      popupMenu   = new QMenu();
+
+    for (QString actionName : actionNames) {
+        QAction* action = new QAction(actionName);
+        action->setCheckable(true);
+        setDefaultDockWidgetsVisibility(actionName,action);
+        popupMenu->addAction(action);
+        connect(action, SIGNAL(triggered(bool)),
+                this,   SLOT(context_Action(bool)));
+    }
+
+    return popupMenu;
+}
+
+void
+nmfMainWindow::setDefaultDockWidgetsVisibility(
+        const QString& actionName,
+        QAction*       action)
+{
+    if (actionName == "Navigator") {
+        action->setChecked(m_UI->NavigatorDockWidget->isVisible());
+    } else if (actionName == "Progress") {
+        action->setChecked(m_UI->ProgressDockWidget->isVisible());
+    } else if (actionName == "Log") {
+        action->setChecked(m_UI->LogDockWidget->isVisible());
+    } else if (actionName == "Output") {
+        action->setChecked(m_UI->OutputDockWidget->isVisible());
+    }
+    this->tabifyDockWidget(m_UI->LogDockWidget, m_UI->ProgressDockWidget);
+}
+
+void
+nmfMainWindow::context_Action(bool triggered)
+{
+    QString  actionName = qobject_cast<QAction* >(QObject::sender())->text();
+    QAction* action     = qobject_cast<QAction* >(QObject::sender());
+    if (actionName == "Navigator") {
+        m_UI->NavigatorDockWidget->setVisible(triggered);
+    } else if (actionName == "Progress") {
+        m_UI->ProgressDockWidget->setVisible(triggered);
+    } else if (actionName == "Log") {
+        m_UI->LogDockWidget->setVisible(triggered);
+    } else if (actionName == "Output") {
+        m_UI->OutputDockWidget->setVisible(triggered);
+    }
+    action->setChecked(triggered);
+    this->tabifyDockWidget(m_UI->LogDockWidget, m_UI->ProgressDockWidget);
 }
 
 void
@@ -7263,6 +7969,9 @@ nmfMainWindow::readSettings(QString Name)
     } else if (Name == "LogDockWidgetIsVisible") {
         //ui->LogDockWidget->setVisible(settings->value("LogDockWidgetIsVisible",false).toBool());
     }
+//std::cout << "resizing (h,w): " <<    settings->value("CentralWidgetSize", QSize(400, 400)).toSize().height() << ", "
+//          << settings->value("CentralWidgetSize", QSize(400, 400)).toSize().width() << std::endl;
+//    centralWidget()->resize(settings->value("CentralWidgetSize", QSize(400, 400)).toSize());
     settings->endGroup();
 
     if (Name == "Preferences") {
@@ -7276,13 +7985,15 @@ nmfMainWindow::readSettings(QString Name)
 }
 
 void
-nmfMainWindow::readSettingsGuiPositionOrientationOnly()
+nmfMainWindow::readSettingsGuiOrientation(bool alsoResetPosition)
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("MainWindow");
     resize(settings->value("size", QSize(400, 400)).toSize());
-    move(settings->value("pos", QPoint(200, 200)).toPoint());
+    if (alsoResetPosition) {
+        move(settings->value("pos", QPoint(200, 200)).toPoint());
+    }
 
     // Resize the dock widgets
     int NavDockWidth      = settings->value("NavigatorDockWidgetWidth",200).toInt();
@@ -7361,6 +8072,7 @@ nmfMainWindow::saveSettings() {
     settings->setValue("OutputDockWidgetIsFloating", m_UI->OutputDockWidget->isFloating());
     settings->setValue("OutputDockWidgetPos",        m_UI->OutputDockWidget->pos());
     settings->setValue("OutputDockWidgetSize",       m_UI->OutputDockWidget->size());
+//  settings->setValue("CentralWidgetSize",          centralWidget()->size());
     settings->endGroup();
 
     settings->beginGroup("SetupTabIsVisible");
@@ -7602,6 +8314,7 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     std::string CatchabilityTable      = "OutputCatchability";
     std::string BiomassTable           = "ForecastBiomass";
     std::string BiomassMonteCarloTable = "ForecastBiomassMonteCarlo";
+    std::string MonteCarloParametersTable = "ForecastMonteCarloParameters";
 
     // Find Forecast info
     fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
@@ -7630,6 +8343,9 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,
                             ObjectiveCriterion,Scaling,
                             isAggProdStr,BiomassMonteCarloTable);
+    clearMonteCarloParametersTable(ForecastName,Algorithm,Minimizer,
+                                   ObjectiveCriterion,Scaling,
+                                   MonteCarloParametersTable);
     for (RunNum=0; RunNum<NumRuns; ++RunNum) {
         updateOK = updateOutputBiomassTable(ForecastName,NullStartYear,RunLength,isMonteCarlo,RunNum,
                                             Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
@@ -7642,18 +8358,26 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
             return;
         }
     }
-    // Calculate Forecast Biomass without any errors and ensure it appears superimposed over
-    // Monte Carlo simulations
+    // Calculate Forecast Biomass without any uncertainty variation and
+    // ensure it appears superimposed over Monte Carlo simulations
     isMonteCarlo = false;
-    RunNum = 0;
+//  RunNum = 0;
     clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                             isAggProdStr,BiomassTable);
-    updateOK = updateOutputBiomassTable(ForecastName,NullStartYear,RunLength,isMonteCarlo,RunNum,
+    updateOK = updateOutputBiomassTable(ForecastName,NullStartYear,RunLength,isMonteCarlo,NumRuns,
                                         Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
                                         GrowthForm,HarvestForm,CompetitionForm,PredationForm,
                                         GrowthRateTable,CarryingCapacityTable,CatchabilityTable,
                                         BiomassTable);
 }
+
+void
+nmfMainWindow::callback_UpdateSeedValue(int isDeterministic)
+{
+    m_SeedValue = (isDeterministic) ? 1 : -1;
+    Forecast_Tab1_ptr->setDeterministic(isDeterministic);
+}
+
 
 void
 nmfMainWindow::callback_RunForecast(std::string ForecastName,
@@ -7689,7 +8413,11 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     QString ScaleStr = "";
     double YMinSliderValue = Output_Controls_ptr->getYMinSliderVal();
 
-    m_SeedValue = Forecast_Tab1_ptr->getSeed();
+    if (runningREMORA()) {
+        m_SeedValue = (Remora_ptr->isDeterministic()) ? 1 : -1;
+    } else {
+        m_SeedValue = Forecast_Tab1_ptr->getSeed();
+    }
 
     // Turn on wait cursor
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -9167,25 +9895,33 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
     }
 
     if (harvestForm == "Catch") {
-        if (! getTimeSeriesData(m_MohnsRhoLabel,"","Catch",NumSpecies,RunLength,dataStruct.Catch))
+        if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                               m_MohnsRhoLabel,"","Catch",
+                                               NumSpecies,RunLength,dataStruct.Catch))
             return false;
         if (verbose) {
             m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Catch");
         }
     } else if (harvestForm == "Effort (qE)") {
-        if (! getTimeSeriesData(m_MohnsRhoLabel,"","Effort",NumSpecies,RunLength,dataStruct.Effort))
+        if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                               m_MohnsRhoLabel,"","Effort",
+                                               NumSpecies,RunLength,dataStruct.Effort))
             return false;
         if (verbose) {
             m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Effort");
         }
     } else if (harvestForm == "Exploitation (F)") {
-        if (! getTimeSeriesData(m_MohnsRhoLabel,"","Exploitation",NumSpecies,RunLength,dataStruct.Exploitation))
+        if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                               m_MohnsRhoLabel,"","Exploitation",
+                                               NumSpecies,RunLength,dataStruct.Exploitation))
             return false;
         if (verbose) {
             m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Exploitation");
         }
     }
-    if (! getTimeSeriesData(m_MohnsRhoLabel,"","ObservedBiomass",NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
+    if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
+                                           m_MohnsRhoLabel,"","ObservedBiomass",
+                                           NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
         return false;
     }
 

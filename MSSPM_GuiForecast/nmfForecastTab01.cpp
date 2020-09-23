@@ -95,6 +95,18 @@ nmfForecast_Tab1::getStartForecastYear()
     return Forecast_Tab1_StartYearLE->text().toInt();
 }
 
+bool
+nmfForecast_Tab1::isDeterministic()
+{
+    return Forecast_Tab1_DeterministicCB->isChecked();
+}
+
+void
+nmfForecast_Tab1::setDeterministic(bool isDeterministic)
+{
+    Forecast_Tab1_DeterministicCB->setChecked(isDeterministic);
+}
+
 void
 nmfForecast_Tab1::callback_SetNamePB()
 {
@@ -111,7 +123,7 @@ nmfForecast_Tab1::callback_NextPB()
 int
 nmfForecast_Tab1::getSeed()
 {
-    return (Forecast_Tab1_DeterministicCB->isChecked()) ? Forecast_Tab1_DeterministicSB->value() : -1;
+    return (isDeterministic()) ? Forecast_Tab1_DeterministicSB->value() : -1;
 }
 
 void
@@ -147,7 +159,7 @@ nmfForecast_Tab1::callback_SavePB()
     std::string StartYear       = Forecast_Tab1_StartYearLE->text().toStdString();
     std::string EndYear         = Forecast_Tab1_EndYearLE->text().toStdString();
     std::string NumRuns         = std::to_string(Forecast_Tab1_NumRunsSB->value());
-    std::string IsDeterministic = std::to_string(Forecast_Tab1_DeterministicCB->isChecked());
+    std::string IsDeterministic = std::to_string(isDeterministic());
     std::string Seed            = std::to_string(Forecast_Tab1_DeterministicSB->value());
     std::string Algorithm;
     std::string Minimizer;

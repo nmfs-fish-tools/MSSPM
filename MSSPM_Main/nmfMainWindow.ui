@@ -110,6 +110,7 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionOpenCSVFile"/>
     <addaction name="separator"/>
     <addaction name="actionSaveSettings"/>
     <addaction name="actionSaveCurrentRun"/>
@@ -121,7 +122,6 @@
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -174,6 +174,7 @@
     <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="actionToggleManagerMode"/>
+    <addaction name="actionToggleManagerModeViewer"/>
    </widget>
    <widget class="QMenu" name="menuLayouts">
     <property name="title">
@@ -710,8 +711,14 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>&amp;What's This?</string>
    </property>
+   <property name="iconText">
+    <string>Point and Click Help Feature (called &quot;What's This?&quot;) </string>
+   </property>
    <property name="toolTip">
-    <string>What's This?</string>
+    <string>Point and Click Help Feature (called &quot;What's This?&quot;) </string>
+   </property>
+   <property name="statusTip">
+    <string>Point and Click Help Feature (called &quot;What's This?&quot;) </string>
    </property>
   </action>
   <action name="actionAbout">
@@ -728,7 +735,10 @@ p, li { white-space: pre-wrap; }
     <string/>
    </property>
    <property name="toolTip">
-    <string>What's This?</string>
+    <string>Point and Click Help Feature (called &quot;What's This?&quot;) </string>
+   </property>
+   <property name="statusTip">
+    <string>Point and Click Help Feature (called &quot;What's This?&quot;) </string>
    </property>
    <property name="whatsThis">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;WhatsThis? Help&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the WhatsThis? help functionality available in this application. Selecting this feature will transform the cursor into a WhatsThis? cursor. As the user hovers this transformed cursor over an object that has additional &amp;quot;WhatsThis?&amp;quot; help implemented, the cursor shape will change to a question mark with an arrow which signifies additional popup help will appear once the user clicks over the object.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -869,11 +879,45 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionToggleManagerMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Toggle REMORA Management Tool</string>
+    <string>&amp;REMORA Management Tool</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggles On/Off the REMORA Management Tool</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionToggleManagerModeViewer">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>REMORA Vie&amp;wer</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggles On/Off the REMORA Viewer</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionOpenCSVFile">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Open CSV File...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open VIEWMORA CSV File</string>
+   </property>
+   <property name="statusTip">
+    <string>Open REMORA CSV File</string>
    </property>
   </action>
  </widget>

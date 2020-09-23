@@ -109,6 +109,11 @@ public:
      */
     int         getStartForecastYear();
     /**
+     * @brief Returns boolean signifying if the deterministic box has been checked
+     * @return Returns True/False describing if deterministic box has been checked
+     */
+    bool        isDeterministic();
+    /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */
@@ -117,6 +122,11 @@ public:
      * @brief Saves the GUIs settings to a Qt settings file
      */
     void        saveSettings();
+    /**
+     * @brief Sets the deterministic state of the appropriate checkbox
+     * @param isDeterministic : boolean describing deterministic state
+     */
+    void setDeterministic(bool isDeterministic);
 
 signals:
     /**
