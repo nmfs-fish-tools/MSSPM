@@ -3905,6 +3905,7 @@ nmfMainWindow::clearOutputBiomassTable(std::string& ForecastName,
 {
     std::string cmd;
     std::string errorMsg;
+    QString msg;
 
     if (isMohnsRho()) {
         cmd = "DELETE FROM " + BiomassTable + " WHERE Algorithm = '" + Algorithm +
@@ -3938,9 +3939,10 @@ nmfMainWindow::clearOutputBiomassTable(std::string& ForecastName,
     if (errorMsg != " ") {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] ClearOutputBiomassTable: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        QMessageBox::warning(this, "Error",
-                             "\nError in ClearOutputBiomassTable command:\n\n" + QString::fromStdString(errorMsg) + "\n",
-                             QMessageBox::Ok);
+        msg = "\nError in ClearOutputBiomassTable command in table(" +
+                QString::fromStdString(BiomassTable) + "):\n\n" +
+                QString::fromStdString(errorMsg) + "\n";
+        QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
         return false;
     }
     return true;
@@ -7463,7 +7465,8 @@ nmfMainWindow::initializeMModeViewer()
     // Setup viewer's initial position and size
     MModeViewerDockWidget->setFloating(true);
     int x = this->x() + (9.0/16.0)*this->width();
-    int y = this->y() - (1.0/16.0)*this->height();
+    // int y = this->y() - (1.0/16.0)*this->height(); // this could cause viewer to appear offscreen on Windows
+    int y = this->y();
     MModeViewerDockWidget->setGeometry(x,y,this->width()/2,this->height());
     //  MModeViewerDockWidget->setStyleSheet("QDockWidget#Viewmora {border: 10px solid red}");
 
