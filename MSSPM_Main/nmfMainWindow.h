@@ -95,7 +95,7 @@
 #include <QUiLoader>
 
 
-#include "REMORA.h"
+#include "REMORA_UI.h"
 
 //class Gradient_Estimator;
 
@@ -158,7 +158,7 @@ class nmfMainWindow : public QMainWindow
 
 
 private:
-    Ui::nmfMainWindow* m_UI;
+    Ui::nmfMainWindow*                    m_UI;
 
     QChart*                               m_ChartWidget;
     QChartView*                           m_ChartView2d;
@@ -258,7 +258,7 @@ private:
     nmfForecast_Tab3*        Forecast_Tab3_ptr;
     nmfForecast_Tab4*        Forecast_Tab4_ptr;
     MSSPM_GuiOutputControls* Output_Controls_ptr;
-    REMORA*    Remora_ptr;
+    REMORA_UI*    Remora_ptr;
     nmfSetup_Tab1*           Setup_Tab1_ptr;
     nmfSetup_Tab2*           Setup_Tab2_ptr;
     nmfSetup_Tab3*           Setup_Tab3_ptr;

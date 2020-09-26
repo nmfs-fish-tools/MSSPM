@@ -7454,8 +7454,7 @@ nmfMainWindow::initializeMModeViewer()
     int StartYear;
     QStringList SpeciesList;
     QString imagePath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDirMMode));
-    m_MModeViewerWidget = new nmfViewerWidget(this,imagePath,m_Logger);
-
+    m_MModeViewerWidget   = new nmfViewerWidget(this,imagePath,m_Logger);
     MModeViewerDockWidget = new QDockWidget(this);
     MModeViewerDockWidget->setWidget(m_MModeViewerWidget->getMainWidget());
     MModeViewerDockWidget->setObjectName("VIEWMORA");
@@ -7553,21 +7552,17 @@ nmfMainWindow::callback_ManagerModeViewerClose(bool state)
 void
 nmfMainWindow::initializeMModeMain()
 {
-    QUiLoader loader;
     int NumSpecies;
     QStringList SpeciesList;
 
     getSpecies(NumSpecies,SpeciesList);
 
-    // Initialize MModeDockWidget
-    QFile file(":/forms/MMode/mModeWindow.ui");
-    file.open(QFile::ReadOnly);
-    QWidget* MModeWidget = loader.load(&file,this);
-    file.close();
+    Remora_ptr = new REMORA_UI(this,m_DatabasePtr,m_Logger,m_ProjectDir,
+                               m_ProjectSettingsConfig,SpeciesList);
 
     // Set up main REMORA dock widget
     MModeDockWidget = new QDockWidget(this);
-    MModeDockWidget->setWidget(MModeWidget);
+    MModeDockWidget->setWidget(Remora_ptr->getTopLevelWidget());
     //MModeDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, MModeDockWidget);
 
@@ -7592,8 +7587,7 @@ nmfMainWindow::initializeMModeMain()
     customTitleBar->setLayout(hlayt);
     MModeDockWidget->setTitleBarWidget(customTitleBar);
 
-    Remora_ptr = new REMORA(m_DatabasePtr,m_Logger,m_ProjectDir,
-                            m_ProjectSettingsConfig,SpeciesList,MModeWidget);
+
 }
 
 QMenu*
