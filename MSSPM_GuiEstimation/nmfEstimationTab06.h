@@ -32,6 +32,8 @@
 #include <QComboBox>
 #include <QMessageBox>
 
+#include "nmfUtilsQt.h"
+
 #ifndef NMFESTIMATIONTAB6_H
 #define NMFESTIMATIONTAB6_H
 

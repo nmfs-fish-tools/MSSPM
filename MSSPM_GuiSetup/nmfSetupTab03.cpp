@@ -308,7 +308,7 @@ nmfSetup_Tab3::removeFromTables(const QString& type,
 }
 
 /*
-if (errorMsg != " ") {
+if (nmfUtilsQt::isAnError(errorMsg)) {
     m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 removeFromTable: Delete table error: " + errorMsg);
     m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
     return;
@@ -417,8 +417,8 @@ nmfSetup_Tab3::saveGuildData()
     std::string GuildName,GuildK;
     std::string GuildKMin,GuildKMax;
     std::string GrowthRate,GrowthRateMin,GrowthRateMax,Catchability,CatchabilityMin,CatchabilityMax;
-    double GuildKVal,GuildKMinVal,GuildKMaxVal;
-    double GrowthRateVal,GrowthRateMinVal,GrowthRateMaxVal;
+    //double GuildKVal; //,GuildKMinVal,GuildKMaxVal;
+    //double GrowthRateVal; //,GrowthRateMinVal,GrowthRateMaxVal;
     std::vector<std::string> guilds;
 
     m_logger->logMsg(nmfConstants::Normal,"Saving Guild Data");
@@ -436,8 +436,8 @@ nmfSetup_Tab3::saveGuildData()
     QStringList GuildList;
     for (int i=0; i<NumGuilds; ++i) {
         GuildName        = Setup_Tab3_GuildsTW->item(i,0)->text().toStdString();
-        GrowthRateVal    = Setup_Tab3_GuildsTW->item(i,1)->text().toDouble();
-        GuildKVal        = Setup_Tab3_GuildsTW->item(i,2)->text().toDouble();
+        //GrowthRateVal    = Setup_Tab3_GuildsTW->item(i,1)->text().toDouble();
+        //GuildKVal        = Setup_Tab3_GuildsTW->item(i,2)->text().toDouble();
 
 //        GrowthRateMinVal = Setup_Tab3_GuildsTW->item(i,2)->text().toDouble();
 //        GrowthRateMaxVal = Setup_Tab3_GuildsTW->item(i,3)->text().toDouble();
@@ -479,7 +479,7 @@ nmfSetup_Tab3::saveGuildData()
     // Delete current Guilds table
     cmd = "DELETE FROM Guilds";
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::saveGuildData: DELETE error: " + errorMsg);
         m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Setup_Tabs, "Error",
@@ -506,7 +506,7 @@ nmfSetup_Tab3::saveGuildData()
 //                CatchabilityMin  + "," + CatchabilityMax + ");";
         cmd += "VALUES ('" + GuildName + "'," + GrowthRate +  "," + GuildK + ");";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (Guilds): Write table error: " + errorMsg);
             m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Setup_Tabs,"Warning",
@@ -550,9 +550,9 @@ nmfSetup_Tab3::saveSpeciesData()
     std::map<std::string,double> guildKMap;
     QString value;
 //  bool okValue;
-    double InitBiomassVal,InitBiomassMinVal,InitBiomassMaxVal;
-    double GrowthRateVal,GrowthRateMinVal,GrowthRateMaxVal;
-    double SpeciesKVal,SpeciesKMinVal,SpeciesKMaxVal;
+//    double InitBiomassVal; //,InitBiomassMinVal,InitBiomassMaxVal;
+//    double GrowthRateVal; //,GrowthRateMinVal,GrowthRateMaxVal;
+//    double SpeciesKVal; //,SpeciesKMinVal,SpeciesKMaxVal;
     std::vector<std::string> species;
 
     // Check each cell for missing fields
@@ -603,9 +603,9 @@ nmfSetup_Tab3::saveSpeciesData()
     for (int i=0; i<NumSpecies; ++i) {
         SpeciesName       = Setup_Tab3_SpeciesTW->item(i, 0)->text().toStdString();
 
-        InitBiomassVal    = Setup_Tab3_SpeciesTW->item(i, 2)->text().toDouble();
-        GrowthRateVal     = Setup_Tab3_SpeciesTW->item(i, 3)->text().toDouble();
-        SpeciesKVal       = Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
+//        InitBiomassVal    = Setup_Tab3_SpeciesTW->item(i, 2)->text().toDouble();
+//        GrowthRateVal     = Setup_Tab3_SpeciesTW->item(i, 3)->text().toDouble();
+//        SpeciesKVal       = Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
 
 //        InitBiomassMinVal = Setup_Tab3_SpeciesTW->item(i, 3)->text().toDouble();
 //        InitBiomassMaxVal = Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
@@ -672,7 +672,7 @@ nmfSetup_Tab3::saveSpeciesData()
     // Delete current Species table
 //    cmd = "truncate table Species";
 //    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-//    if (errorMsg != " ") {
+//    if (nmfUtilsQt::isAnError(errorMsg)) {
 //        m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::saveSpeciesData: DELETE error: " + errorMsg);
 //        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
 //        QMessageBox::warning(Setup_Tabs, "Error",
@@ -715,7 +715,7 @@ nmfSetup_Tab3::saveSpeciesData()
         cmd += "GrowthRate = "  + GrowthRate  + ", ";
         cmd += "SpeciesK = "    + SpeciesK    + ";";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (Species): Write table error: " + errorMsg);
             m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Setup_Tabs,"Warning",
@@ -730,7 +730,7 @@ nmfSetup_Tab3::saveSpeciesData()
         cmd += "VALUES ('" + MohnsRhoLabel + "','" + m_ProjectSettingsConfig + "','" +
                 SpeciesName + "', 0, "+ InitBiomass + ");";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (ObservedBiomass): Write table error: " + errorMsg);
             m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Setup_Tabs,"Warning",
@@ -784,7 +784,7 @@ nmfSetup_Tab3::pruneTablesForGuilds(std::vector<std::string>& Guilds)
     for (std::string tableName : GuildNameTables) {
         cmd = "DELETE FROM " + tableName + " WHERE Guild NOT IN " + list;
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::pruneTablesForGuilds(1): Delete record error: " + errorMsg);
             m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             return;
@@ -794,7 +794,7 @@ nmfSetup_Tab3::pruneTablesForGuilds(std::vector<std::string>& Guilds)
     for (std::string tableName : GuildATables) {
         cmd = "DELETE FROM " + tableName + " WHERE GuildA NOT IN " + list;
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::pruneTablesForGuilds(2): Delete record error: " + errorMsg);
             m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             return;
@@ -869,7 +869,7 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
         cmd = "DELETE FROM " + tableName + " WHERE SpeName NOT IN " + list;
 //std::cout << "cmd: " << cmd << std::endl;
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::pruneTablesForSpecies(1): Delete record error: " + errorMsg);
             m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             return;
@@ -880,7 +880,7 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
         cmd = "DELETE FROM " + tableName + " WHERE SpeciesA NOT IN " + list;
 //std::cout << "cmd: " << cmd << std::endl;
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::pruneTablesForSpecies(2): Delete record error: " + errorMsg);
             m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             return;

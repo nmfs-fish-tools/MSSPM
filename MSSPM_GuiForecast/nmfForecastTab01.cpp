@@ -214,7 +214,7 @@ nmfForecast_Tab1::callback_SavePB()
 
     cmd = "DELETE FROM Forecasts WHERE ForecastName = '" + ForecastName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Forecast_Tabs, "Error",
@@ -236,7 +236,7 @@ nmfForecast_Tab1::callback_SavePB()
             RunLength + "," +StartYear + "," + EndYear + "," +
             NumRuns + "," + IsDeterministic + "," + Seed +")";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Forecast_Tabs, "Error",

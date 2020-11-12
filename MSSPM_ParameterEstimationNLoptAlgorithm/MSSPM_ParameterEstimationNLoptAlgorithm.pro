@@ -36,12 +36,20 @@ unix {
 }
 
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../build-nmfUtilities-Qt_5_12_3_gcc64-Release/release/ -lnmfUtilities
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../build-nmfUtilities-Qt_5_12_3_gcc64-Release/debug/ -lnmfUtilities
-else:unix: LIBS += -L$$PWD/../../build-nmfUtilities-Qt_5_12_3_gcc64-Release/ -lnmfUtilities
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfUtilities-Desktop_Qt_5_15_1_GCC_64bit-Release/release/ -lnmfUtilities
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfUtilities-Desktop_Qt_5_15_1_GCC_64bit-Release/debug/ -lnmfUtilities
+else:unix: LIBS += -L$$PWD/../../../builds/build-nmfUtilities-Desktop_Qt_5_15_1_GCC_64bit-Release/ -lnmfUtilities
 
 INCLUDEPATH += $$PWD/../../nmfSharedUtilities/nmfUtilities
 DEPENDPATH += $$PWD/../../nmfSharedUtilities/nmfUtilities
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfModels-Desktop_Qt_5_15_1_GCC_64bit-Release/release/ -lnmfModels
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfModels-Desktop_Qt_5_15_1_GCC_64bit-Release/debug/ -lnmfModels
+else:unix: LIBS += -L$$PWD/../../../builds/build-nmfModels-Desktop_Qt_5_15_1_GCC_64bit-Release/ -lnmfModels
+
+INCLUDEPATH += $$PWD/../../nmfSharedUtilities/nmfModels
+DEPENDPATH += $$PWD/../../nmfSharedUtilities/nmfModels
+
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../nlopt-2.5.0/build/release/ -lnlopt
@@ -51,12 +59,8 @@ else:unix: LIBS += -L$$PWD/../../../nlopt-2.5.0/build/ -lnlopt
 INCLUDEPATH += $$PWD/../../../nlopt-2.5.0/build/src/api
 DEPENDPATH += $$PWD/../../../nlopt-2.5.0/build/src/api
 
-unix|win32: LIBS += -L/usr/local/lib -lnlopt_cxx
+unix|win32: LIBS += -L/usr/local/lib -lnlopt # -lnlopt_cxx
 INCLUDEPATH += /usr/local/lib
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../build-nmfModels-Qt_5_12_3_gcc64-Release/release/ -lnmfModels
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../build-nmfModels-Qt_5_12_3_gcc64-Release/debug/ -lnmfModels
-else:unix: LIBS += -L$$PWD/../../build-nmfModels-Qt_5_12_3_gcc64-Release/ -lnmfModels
 
-INCLUDEPATH += $$PWD/../../nmfSharedUtilities/nmfModels
-DEPENDPATH += $$PWD/../../nmfSharedUtilities/nmfModels
+

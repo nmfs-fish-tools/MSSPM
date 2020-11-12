@@ -261,7 +261,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Value        int(11) NOT NULL,";
     cmd += " PRIMARY KEY (GuildA,GuildB))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 1] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -285,7 +285,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value          int(11) NOT NULL,";
         cmd += " PRIMARY KEY (SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 1] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -311,7 +311,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value          float NOT NULL,";
         cmd += " PRIMARY KEY (SystemName,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 2] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -338,7 +338,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value          float NOT NULL,";
         cmd += " PRIMARY KEY (SystemName,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 3] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -364,7 +364,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value          float NOT NULL,";
         cmd += " PRIMARY KEY (SystemName,Guild,SpeName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 4] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -389,7 +389,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value      float NOT NULL,";
         cmd += " PRIMARY KEY (SystemName,SpeName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 5] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -420,7 +420,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value         float NOT NULL,";
         cmd += " PRIMARY KEY (MohnsRhoLabel,SystemName,SpeName,Year))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 5] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -441,7 +441,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Value      float NOT NULL,";
     cmd += " PRIMARY KEY (Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 6] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -460,7 +460,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Value       float NOT NULL,";
     cmd += " PRIMARY KEY (RunNumber))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 7] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -487,7 +487,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " CatchabilityMax float NULL,";
     cmd += " PRIMARY KEY (GuildName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 8] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -513,7 +513,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Value               float       NOT NULL,";
     cmd += " PRIMARY KEY (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 9] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -547,7 +547,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value               float NULL,";
         cmd += " PRIMARY KEY (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 11] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -576,7 +576,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value               float NULL,";
         cmd += " PRIMARY KEY (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 12] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -616,7 +616,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value               float NOT NULL,";
         cmd += " PRIMARY KEY (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 13] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -641,7 +641,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value               float NULL,";
         cmd += " PRIMARY KEY (SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 14] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -673,7 +673,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value               float NULL,";
         cmd += " PRIMARY KEY (SystemName,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 15] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -691,7 +691,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
 //    cmd += "(GrowthRate        float NOT NULL,";
 //    cmd += " CarryingCapacity  float NOT NULL)";
 //    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-//    if (errorMsg != " ") {
+//    if (nmfUtilsQt::isAnError(errorMsg)) {
 //        nmfUtils::printError("[Error 16] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
 //        okToCreateMoreTables = false;
 //    } else {
@@ -730,7 +730,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " ExploitationRate     float NULL,";
     cmd += " PRIMARY KEY (SpeName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 17] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -763,7 +763,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Seed               int(11)     NOT NULL,";
     cmd += " PRIMARY KEY (ForecastName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 18] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -794,7 +794,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Value              float       NOT NULL,";
         cmd += " PRIMARY KEY (ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 19] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -821,7 +821,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Value              float       NOT NULL,";
     cmd += " PRIMARY KEY (ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 20] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -848,7 +848,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Value        float       NOT NULL,";
     cmd += " PRIMARY KEY (ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 20] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -882,7 +882,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Harvest                float       NULL,";
     cmd += " PRIMARY KEY (ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 20.1] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -905,7 +905,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Value         float       NOT NULL,";
     cmd += " PRIMARY KEY (ScenarioName,SortOrder,ForecastLabel,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 21] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -938,7 +938,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Harvest            float       NOT NULL,";
     cmd += " PRIMARY KEY (ForecastName,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 22] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -968,7 +968,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Fitness            double      NULL,";
         cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Offset))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 23] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -997,7 +997,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Fitness            double      NULL,";
         cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,rPctVariation,KPctVariation))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 24] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -1023,7 +1023,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Value              float       NOT NULL,";
     cmd += " PRIMARY KEY (Label,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 25] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
         okToCreateMoreTables = false;
     } else {
@@ -1089,7 +1089,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " NLoptStopAfterIter          int(11)      NULL,";
         cmd += " PRIMARY KEY (SystemName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 26] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -1110,7 +1110,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += "(Name varchar(50) NOT NULL,";
         cmd += " PRIMARY KEY (Name))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 27] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
             okToCreateMoreTables = false;
         } else {
@@ -1161,7 +1161,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
     // OK to now add the database and create the necessary table definitions
     cmd = "CREATE database " + enteredName.toStdString();
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         QApplication::restoreOverrideCursor();
         if (QString::fromStdString(errorMsg).contains("database exists")) {
             QMessageBox::critical(Setup_Tabs,tr("Invalid Database Name"),
@@ -1220,7 +1220,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_DelDatabase()
         // Remove database from mysql and reload widget
         cmd = "DROP database " + databaseToDelete.toStdString();
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             Setup_Tabs->setCursor(Qt::ArrowCursor);
             nmfUtils::printError("Function: callback_Setup_Tab2_DelDatabase ",errorMsg);
             deleteOK = false;
@@ -1392,7 +1392,7 @@ nmfSetup_Tab2::initDatabase(QString database)
 
     errorMsg = m_DatabasePtr->nmfUpdateDatabase("USE "+dbName);
     m_Logger->logMsg(nmfConstants::Normal,"Initializing database: "+dbName);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         msg = "[Error 1] nmfSetup_Tab2::initDatabase: " + errorMsg;
         m_Logger->logMsg(nmfConstants::Error,msg);
     }

@@ -1,0 +1,18 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node24 [label="QDialog",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node24 -> Node0 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node0 [label="ClearOutputDialog",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_clear_output_dialog.html",tooltip="Clear Dialog."];
+  Node24 -> Node26 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node26 [label="LoadDlg",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_load_dlg.html",tooltip="Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4."];
+  Node24 -> Node27 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node27 [label="LoadForecastDlg",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_load_forecast_dlg.html",tooltip="Dialog to Load a Forecast."];
+  Node24 -> Node28 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node28 [label="MultiScenarioSaveDlg",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_multi_scenario_save_dlg.html",tooltip="Dialog to Save Multiple Forecasts."];
+  Node24 -> Node29 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node29 [label="PreferencesDialog",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_preferences_dialog.html",tooltip="Preferences Dialog."];
+}

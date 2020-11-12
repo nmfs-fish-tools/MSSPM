@@ -1,0 +1,48 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="QObject",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node1 -> Node0 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node0 [label="Bees_Estimator",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_bees___estimator.html",tooltip="This class acts as an interface class to the Bees algorithm implementation."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="MSSPM_GuiOutputControls",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_m_s_s_p_m___gui_output_controls.html",tooltip="This class contains the widgets and callback functionality for the MSSPM Output charts and controls."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="NLopt_Estimator",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_n_lopt___estimator.html",tooltip="This class acts as an interface class to the NLopt library."];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="nmfDiagnostic_Tab1",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_diagnostic___tab1.html",tooltip="Diagnostic Parameters."];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="nmfDiagnostic_Tab2",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_diagnostic___tab2.html",tooltip="Retrospective Analysis."];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="nmfEstimation_Tab1",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_estimation___tab1.html",tooltip="Estimated Parameters."];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="nmfEstimation_Tab2",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_estimation___tab2.html",tooltip="Harvest Data."];
+  Node1 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="nmfEstimation_Tab3",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_estimation___tab3.html",tooltip="Competition Data."];
+  Node1 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="nmfEstimation_Tab4",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_estimation___tab4.html",tooltip="Predation Data."];
+  Node1 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="nmfEstimation_Tab5",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_estimation___tab5.html",tooltip="Observation Data."];
+  Node1 -> Node12 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="nmfEstimation_Tab6",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_estimation___tab6.html",tooltip="The Run Estimation Settings."];
+  Node1 -> Node13 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="nmfForecast_Tab1",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_forecast___tab1.html",tooltip="Forecast Setup."];
+  Node1 -> Node14 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="nmfForecast_Tab2",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_forecast___tab2.html",tooltip="Forecast Harvest Data."];
+  Node1 -> Node15 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 [label="nmfForecast_Tab3",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_forecast___tab3.html",tooltip="Uncertainty Parameters."];
+  Node1 -> Node16 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node16 [label="nmfForecast_Tab4",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_forecast___tab4.html",tooltip="Run Information."];
+  Node1 -> Node17 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node17 [label="nmfSetup_Tab1",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_setup___tab1.html",tooltip="The Setup Tab 1 displays Setup help information for the user."];
+  Node1 -> Node18 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node18 [label="nmfSetup_Tab2",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_setup___tab2.html",tooltip="The Setup Tab 2 allows the user to enter and modify Project meta data."];
+  Node1 -> Node19 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node19 [label="nmfSetup_Tab3",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_setup___tab3.html",tooltip="The Setup Tab 3 allows the user to enter and modify Species data."];
+  Node1 -> Node20 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node20 [label="nmfSetup_Tab4",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classnmf_setup___tab4.html",tooltip="The Setup Tab 4 allows the user to enter and modify general System and Model Setup data."];
+  Node1 -> Node21 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node21 [label="REMORA",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_r_e_m_o_r_a.html",tooltip="The main GUI class that contains all of the widget definitions for the REMORA Management tool."];
+}

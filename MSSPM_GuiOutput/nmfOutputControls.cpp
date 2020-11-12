@@ -284,7 +284,7 @@ MSSPM_GuiOutputControls::setCurrentSpecies(QString species)
 void
 MSSPM_GuiOutputControls::initConnections()
 {
-    connect(OutputChartTypeCMB,          SIGNAL(currentIndexChanged(QString)),
+    connect(OutputChartTypeCMB,     SIGNAL(currentIndexChanged(QString)),
             this,                   SLOT(callback_OutputChartTypeCMB(QString)));
     connect(OutputGroupTypeCMB,     SIGNAL(currentIndexChanged(QString)),
             this,                   SLOT(callback_OutputGroupTypeCMB(QString)));

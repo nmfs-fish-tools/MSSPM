@@ -336,7 +336,7 @@ nmfEstimation_Tab3::callback_SavePB()
             ++tableInc;
             cmd = "DELETE FROM " + m_AlphaTables[tableInc] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
+            if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab3::callback_SavePB: DELETE error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
@@ -358,7 +358,7 @@ nmfEstimation_Tab3::callback_SavePB()
             }
             cmd = cmd.substr(0,cmd.size()-1);
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
+            if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab3::callback_SavePB: Write table error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
@@ -402,7 +402,7 @@ nmfEstimation_Tab3::callback_SavePB()
             ++tableInc;
             cmd = "DELETE FROM " + m_BetaSpeciesTables[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
+            if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab3::callback_SavePB: DELETE error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
@@ -424,7 +424,7 @@ nmfEstimation_Tab3::callback_SavePB()
             }
             cmd = cmd.substr(0,cmd.size()-1);
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
+            if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab3::callback_SavePB: Write table error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
@@ -452,7 +452,7 @@ nmfEstimation_Tab3::callback_SavePB()
             ++tableInc;
             cmd = "DELETE FROM " + m_BetaGuildsTables[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
+            if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"[Error 6] nmfEstimation_Tab3::callback_SavePB: DELETE error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
@@ -474,7 +474,7 @@ nmfEstimation_Tab3::callback_SavePB()
             }
             cmd = cmd.substr(0,cmd.size()-1);
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
+            if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab3::callback_SavePB: Write table error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",

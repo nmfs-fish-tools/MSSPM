@@ -171,7 +171,7 @@ LoadDlg::callback_DeleteItem()
     if (reply == QMessageBox::Yes) {
         cmd  = "DELETE FROM Systems WHERE SystemName = '" + currentItem.toStdString() + "'";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"SaveDlg callback_DeleteItem: Delete error: " + errorMsg);
             m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             return;

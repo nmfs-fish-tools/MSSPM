@@ -1,6 +1,5 @@
 var NAVTREEINDEX0 =
 {
-"User_Manual.html":[3],
 "_bees___estimator_8h.html":[5,0,7,0],
 "_bees___estimator_8h.html#a3eaeeb1057a10d2d1a3427d28051987f":[5,0,7,0,3],
 "_bees___estimator_8h.html#a4d83dbd9c02d100e83a947e2e4bd384b":[5,0,7,0,2],
@@ -16,14 +15,18 @@ var NAVTREEINDEX0 =
 "_load_forecast_dlg_8h_source.html":[5,0,2,0],
 "_m_s_s_p_m___gui_diagnostic_2mainpage_8h_source.html":[5,0,0,0],
 "_m_s_s_p_m___gui_estimation_2mainpage_8h_source.html":[5,0,1,0],
+"_m_s_s_p_m___gui_estimation_2precompiled__header_8h.html":[5,0,1,7],
 "_m_s_s_p_m___gui_estimation_2precompiled__header_8h_source.html":[5,0,1,7],
 "_m_s_s_p_m___gui_forecast_2mainpage_8h_source.html":[5,0,2,1],
+"_m_s_s_p_m___gui_forecast_2precompiled__header_8h.html":[5,0,2,7],
 "_m_s_s_p_m___gui_forecast_2precompiled__header_8h_source.html":[5,0,2,7],
 "_m_s_s_p_m___gui_manager_mode_2precompiled__header_8h_source.html":[5,0,3,0],
 "_m_s_s_p_m___gui_output_2mainpage_8h_source.html":[5,0,4,0],
 "_m_s_s_p_m___gui_setup_2mainpage_8h_source.html":[5,0,5,1],
+"_m_s_s_p_m___gui_setup_2precompiled__header_8h.html":[5,0,5,6],
 "_m_s_s_p_m___gui_setup_2precompiled__header_8h_source.html":[5,0,5,6],
 "_m_s_s_p_m___main_2mainpage_8h_source.html":[5,0,6,1],
+"_m_s_s_p_m___main_2precompiled__header_8h.html":[5,0,6,3],
 "_m_s_s_p_m___main_2precompiled__header_8h_source.html":[5,0,6,3],
 "_m_s_s_p_m___parameter_estimation_bees_algorithm_2mainpage_8h_source.html":[5,0,7,2],
 "_m_s_s_p_m___parameter_estimation_n_lopt_algorithm_2mainpage_8h_source.html":[5,0,8,0],
@@ -34,6 +37,7 @@ var NAVTREEINDEX0 =
 "_preferences_dialog_8h.html":[5,0,6,4],
 "_preferences_dialog_8h_source.html":[5,0,6,4],
 "_r_e_m_o_r_a_8h_source.html":[5,0,3,1],
+"_user__manual.html":[3],
 "annotated.html":[4,0],
 "class_bees___estimator.html":[4,0,0],
 "class_bees___estimator.html#a005f7eba7f2c83b74933e37e0e479a3c":[4,0,0,12],
@@ -245,9 +249,5 @@ var NAVTREEINDEX0 =
 "classnmf_diagnostic___tab1.html#a77d297903df04d9cbefa3222b259a062":[4,0,9,3],
 "classnmf_diagnostic___tab1.html#a7b6e8c0aa508d6a924454278e9839026":[4,0,9,13],
 "classnmf_diagnostic___tab1.html#ac6afb5827b59e0e7abb5850fbc367180":[4,0,9,8],
-"classnmf_diagnostic___tab1.html#ad39304bb5ed04752fc306fc9107d99de":[4,0,9,15],
-"classnmf_diagnostic___tab1.html#ad594095a64031ecd559e7b77fa3aaf6f":[4,0,9,12],
-"classnmf_diagnostic___tab1.html#af665a9793fb7508ddac717da46b8d374":[4,0,9,7],
-"classnmf_diagnostic___tab2.html":[4,0,10],
-"classnmf_diagnostic___tab2.html#a21e20560d27c6349a6c8fcbf63c6fb82":[4,0,10,2]
+"classnmf_diagnostic___tab1.html#ad39304bb5ed04752fc306fc9107d99de":[4,0,9,15]
 };

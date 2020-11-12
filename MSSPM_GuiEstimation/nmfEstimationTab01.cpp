@@ -115,7 +115,9 @@ nmfEstimation_Tab1::checkAndShowEmptyFieldError(bool showPopup)
         QMessageBox::warning(Estimation_Tabs, "Error",
                              "\nError: Found empty field. Please fill in all required fields for the model desired.\n",
                              QMessageBox::Ok);
+        return false;
     }
+    return true;
 }
 
 bool
@@ -132,7 +134,9 @@ nmfEstimation_Tab1::checkAndShowOutOfRangeError(QString type,
         QMessageBox::warning(Estimation_Tabs, "Error",
                              "\n" + msg + "\n",
                              QMessageBox::Ok);
+        return false;
     }
+    return true;
 }
 
 
@@ -277,7 +281,7 @@ nmfEstimation_Tab1::callback_RestorePB()
 
     int numRows = smodel->rowCount();
     int numCols = smodel->columnCount();
-    if (m_originalSpeciesValuesAll.size() != numRows*numCols) {
+    if (int(m_originalSpeciesValuesAll.size()) != numRows*numCols) {
         msg = "Number of values saved after initial load (" + std::to_string(m_originalSpeciesValuesAll.size()) +
               ") does not equal current numRows*numCols (" + std::to_string(numRows) +
               "*" + std::to_string(numCols);
@@ -560,7 +564,7 @@ nmfEstimation_Tab1::saveGuildDataSupplemental(bool showPopup)
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveGuildDataSupplemental: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
             if (showPopup) {
@@ -618,7 +622,7 @@ nmfEstimation_Tab1::saveGuildDataRange(bool showPopup)
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveGuildDataRange: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
             if (showPopup) {
@@ -666,7 +670,7 @@ nmfEstimation_Tab1::saveGuildDataSupplementalAndRange(bool showPopup)
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveGuildDataSupplementalAndRange: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
             if (showPopup) {
@@ -708,7 +712,7 @@ nmfEstimation_Tab1::saveGuildDataPrimary(bool showPopup)
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveGuildDataPrimary: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
             if (showPopup) {
@@ -788,7 +792,7 @@ nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataPrimary: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
             if (showPopup) {
@@ -836,7 +840,7 @@ nmfEstimation_Tab1::saveSpeciesDataSupplemental(bool showPopup)
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataSupplemental: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
             if (showPopup) {
@@ -903,7 +907,7 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataRange: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
             if (showPopup) {
@@ -959,7 +963,7 @@ nmfEstimation_Tab1::saveSpeciesDataSupplementalAndRange(bool showPopup)
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataSupplementalAndRange: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
             if (showPopup) {
@@ -1141,6 +1145,7 @@ nmfEstimation_Tab1::loadWidgets()
     if (okGuilds) {
         setupHelpGuilds();
     }
+    return true;
 }
 
 bool

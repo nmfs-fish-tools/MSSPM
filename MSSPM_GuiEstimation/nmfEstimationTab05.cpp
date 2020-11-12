@@ -173,7 +173,7 @@ nmfEstimation_Tab5::callback_SavePB()
            m_ProjectSettingsConfig +
            "' AND MohnsRhoLabel = ''";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab5::callback_SavePB: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
@@ -197,7 +197,7 @@ nmfEstimation_Tab5::callback_SavePB()
     }
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab5::callback_SavePB: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
@@ -214,7 +214,7 @@ nmfEstimation_Tab5::callback_SavePB()
         cmd  = "UPDATE Species SET InitBiomass = " + value.toStdString();
         cmd += " WHERE SpeName = '" + SpeNames[species] + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 3] nmfEstimation_Tab5::callback_SavePB (Species): Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Estimation_Tabs,"Warning",
@@ -228,7 +228,7 @@ nmfEstimation_Tab5::callback_SavePB()
 
     cmd = "DELETE FROM Covariate";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab5::callback_SavePB: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
@@ -252,7 +252,7 @@ nmfEstimation_Tab5::callback_SavePB()
     }
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 5] nmfEstimation_Tab5::callback_SavePB: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",

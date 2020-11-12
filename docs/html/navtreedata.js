@@ -1,3 +1,25 @@
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this file.
+
+Copyright (C) 1997-2019 by Dimitri van Heesch
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of version 2 of the GNU General Public License as published by
+the Free Software Foundation
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+@licend  The above is the entire license notice
+for the JavaScript code in this file
+*/
 var NAVTREE =
 [
   [ "MSSPM", "index.html", [
@@ -5,9 +27,9 @@ var NAVTREE =
       [ "Description", "index.html#Description", null ],
       [ "License", "index.html#License", null ]
     ] ],
-    [ "LICENSE", "md_LICENSE.html", null ],
-    [ "README", "md_README.html", null ],
-    [ "User Manual (tbd)", "User_Manual.html", null ],
+    [ "LICENSE", "md__l_i_c_e_n_s_e.html", null ],
+    [ "README", "md__r_e_a_d_m_e.html", null ],
+    [ "User Manual (tbd)", "_user__manual.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -18,8 +40,8 @@ var NAVTREE =
         [ "Variables", "functions_vars.html", null ]
       ] ]
     ] ],
-    [ "Files", null, [
-      [ "File List", "files.html", "files" ],
+    [ "Files", "files.html", [
+      [ "File List", "files.html", "files_dup" ],
       [ "File Members", "globals.html", [
         [ "All", "globals.html", null ],
         [ "Typedefs", "globals_type.html", null ]
@@ -30,10 +52,10 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"User_Manual.html",
-"classnmf_diagnostic___tab2.html#a53b879efc29ac00b7679e0f92c20853c",
-"classnmf_main_window.html#a5feca79cffa5c0ac9113805de9cc2113",
-"nmf_estimation_tab02_8h_source.html"
+"_bees___estimator_8h.html",
+"classnmf_diagnostic___tab1.html#ad594095a64031ecd559e7b77fa3aaf6f",
+"classnmf_main_window.html#a5354cf87c11a30fd650c483c94874f62",
+"nmf_diagnostic_tab02_8h_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -87,7 +87,7 @@ LoadForecastDlg::callback_DeleteSelection()
             cmd = "DELETE FROM " + ForecastTable +  " WHERE ForecastName = '" +
                    ForecastToDelete.toStdString() + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
+            if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"callback_DeleteSelection: DELETE error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 msg = "\nCouldn't delete records from table: " + QString::fromStdString(ForecastTable);

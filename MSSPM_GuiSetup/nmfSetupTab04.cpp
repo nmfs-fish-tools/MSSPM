@@ -411,7 +411,7 @@ nmfSetup_Tab4::loadSystem()
     cmd += ", Scaling = '"            + data.Scaling + "'";
     cmd += " WHERE SystemName = '"    + m_ProjectSettingsConfig + "'";
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_logger->logMsg(nmfConstants::Error,"nmfSetupTab3 callback_Setup_Tab4_LoadPB: Write table error: " + errorMsg);
         m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
@@ -526,7 +526,7 @@ nmfSetup_Tab4::deleteSystem(QString systemToDelete)
 
     cmd  = "DELETE FROM Systems WHERE SystemName = '" + systemToDelete.toStdString() + "'";
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_logger->logMsg(nmfConstants::Error,"[Error 1] deleteSystem: Delete error: " + errorMsg);
         m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
@@ -713,7 +713,7 @@ nmfSetup_Tab4::saveSettingsConfiguration(bool verbose,
     }
 
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab4::SaveSettingsConfiguration: Write table error: " + errorMsg);
         m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return false;

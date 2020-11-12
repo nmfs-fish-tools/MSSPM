@@ -169,7 +169,7 @@ REMORA::drawMultiSpeciesChart()
     int EndYear;
     int NumSpecies;
     int NumObservedYears;
-    int LastCatchYear;
+    int LastCatchYear      = 0;
     int YMinSliderVal      = 0;
     int NumYearsPerRun     = getNumYearsPerRun();
     int NumRunsPerForecast = getNumRunsPerForecast();
@@ -178,7 +178,7 @@ REMORA::drawMultiSpeciesChart()
     int Theme              = 0;
     double ScaleVal        = 1.0;
     double CatchValue;
-    double remTime0Value;
+    double remTime0Value   = 0;
     std::string ChartType = "Line";
     std::string LineStyle = "SolidLine";
     std::string msg;
@@ -398,7 +398,8 @@ REMORA::drawMSYLines()
                           RowLabelsForBars,ColumnLabelsForLegendPctMSY,HoverLabelsPct,
                           MainTitle,XLabel,YLabel,nmfConstants::DontShowLegend,getPctMSYValue());
         }
-        qobject_cast<QValueAxis*>(m_ChartWidget->axisY())->setTickCount(5);
+//      qobject_cast<QValueAxis*>(m_ChartWidget->axisY())->setTickCount(5);
+        qobject_cast<QValueAxis*>(m_ChartWidget->axes(Qt::Vertical).back())->setTickCount(5);
 
     } else if (isMultiPlot()) {
         SpeciesNum =  0;
@@ -443,7 +444,8 @@ REMORA::drawMSYLines()
                              RowLabelsForBars,ColumnLabelsForLegendPctMSY,HoverLabelsPct,
                              MainTitle,XLabel,YLabel,nmfConstants::DontShowLegend,getPctMSYValue());
             }
-            qobject_cast<QValueAxis*>(chart->axisY())->setTickCount(5);
+//          qobject_cast<QValueAxis*>(chart->axisY())->setTickCount(5);
+            qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).back())->setTickCount(5);
             ++SpeciesNum;
         }
 
@@ -582,19 +584,19 @@ REMORA::drawSingleSpeciesChart()
     int StartYear;
     int EndYear;
     int NumSpecies;
-    int StartForecastYear;
-    int YMinSliderVal      = 0;
-    int NoUncertaintyRun   = 0;
-    int NumYearsPerRun     = getNumYearsPerRun();
-    int NumRunsPerForecast = getNumRunsPerForecast();
-    int SpeciesNum         = getSpeciesNum();
-    int Theme = 0;
-    int LastCatchYear;
-    int NumObservedYears;
+    int StartForecastYear   = 0;
+    int YMinSliderVal       = 0;
+    int NoUncertaintyRun    = 0;
+    int NumYearsPerRun      = getNumYearsPerRun();
+    int NumRunsPerForecast  = getNumRunsPerForecast();
+    int SpeciesNum          = getSpeciesNum();
+    int Theme               = 0;
+    int LastCatchYear       = 0;
+    int NumObservedYears    = 0;
     double ScaleVal         = 1.0;
     double brightnessFactor = 0.2;
-    double CatchValue;
-    double remTime0Value;
+    double CatchValue       = 0;
+    double remTime0Value    = 0;
     std::string TableName = "Forecasts";
     std::string ChartType = "Line";
     std::string LineStyle = "SolidLine";
@@ -899,7 +901,7 @@ REMORA::drawSingleSpeciesChart()
                              nmfConstants::DontShowLegend,getPctMSYValue());
             }
 
-            qobject_cast<QValueAxis*>(chart->axisY())->setTickCount(5);
+            qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).back())->setTickCount(5);
             ++species;
         }
 
@@ -999,7 +1001,7 @@ REMORA::drawSingleSpeciesChart()
                          MainTitle,XLabel,YLabel,nmfConstants::DontShowLegend,getPctMSYValue());
         }
 
-        qobject_cast<QValueAxis*>(m_ChartWidget->axisY())->setTickCount(5);
+        qobject_cast<QValueAxis*>(m_ChartWidget->axes(Qt::Vertical).back())->setTickCount(5);
     }
 }
 
@@ -1168,8 +1170,8 @@ REMORA::getSpeciesNum()
 void
 REMORA::getYearRange(int& firstYear, int& lastYear)
 {
-    int StartYear;
-    int NumYears;
+    int StartYear=0;
+    int NumYears=0;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -1342,7 +1344,7 @@ REMORA::resetControls()
 void
 REMORA::resetNumYearsOnScaleFactorCharts()
 {
-    for (int i=0; i<m_MovableLineCharts.size(); ++i) {
+    for (unsigned i=0; i<m_MovableLineCharts.size(); ++i) {
         m_MovableLineCharts[i]->setRange(m_NumYearsPerRun);
     }
 }
@@ -1373,7 +1375,7 @@ REMORA::saveForecastParameters()
             ", IsDeterministic = " + std::to_string(isDeterministic()) +
             "  WHERE ForecastName = '" + m_ProjectSettingsConfig + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] MSSPM_GuiManagerMode: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
     }
@@ -1465,7 +1467,7 @@ REMORA::saveHarvestData()
     cmd = "DELETE FROM " + m_HarvestType + " WHERE ForecastName = '" +
            m_ForecastName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"MSSPM_GuiManagerMode::saveHarvestData: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(m_Widget, "Error",
@@ -1479,7 +1481,7 @@ REMORA::saveHarvestData()
     getLastYearsCatchValues(NumYears,lastYearsCatchValues);
 
     cmd = "INSERT INTO " + m_HarvestType + " (ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value) VALUES ";
-    for (int speciesNum=0; speciesNum<SpeNames.size(); ++speciesNum) { // Species
+    for (unsigned speciesNum=0; speciesNum<SpeNames.size(); ++speciesNum) { // Species
 
         for (int yearNum=0; yearNum<=NumYearsInForecast; ++yearNum) { // Time
 
@@ -1494,7 +1496,7 @@ REMORA::saveHarvestData()
     }
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"MSSPM_GuiManagerMode::saveHarvestData: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QApplication::restoreOverrideCursor();
@@ -1544,7 +1546,7 @@ REMORA::saveUncertaintyParameters()
     // Clear previous entry in ForecastUncertainty table
     cmd = "DELETE FROM ForecastUncertainty WHERE ForecastName = '" + ForecastName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"MSSPM_GuiManagerMode::callback_SavePB: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(MModeWindowWidget, "Error",
@@ -1558,7 +1560,7 @@ REMORA::saveUncertaintyParameters()
     cmd += "SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     cmd += "GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
     cmd += "BetaGuilds,Handling,Exponent,Catchability,Harvest) VALUES ";
-    for (int i = 0; i < SpeNames.size(); ++i) { // Species
+    for (unsigned i = 0; i < SpeNames.size(); ++i) { // Species
             cmd += "('" + SpeNames[i] + "','" + ForecastName + "','" + Algorithm +
                     "','" + Minimizer + "','" + ObjectiveCriterion + "','" + Scaling + "'";
             cmd += "," + GrowthRate;
@@ -1574,7 +1576,7 @@ REMORA::saveUncertaintyParameters()
     cmd = cmd.substr(0,cmd.size()-1);
 
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"MSSPM_GuiManagerMode::callback_SavePB: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(MModeWindowWidget, "Error",
@@ -1719,7 +1721,7 @@ REMORA::setNumYearsPerRun(QString numYearsStr)
 
     MModeYearsPerRunSL->setValue(numYears);
     MModeYearsPerRunLE->setText(numYearsStr);
-    for (int i=0; i<m_MovableLineCharts.size(); ++i) {
+    for (unsigned i=0; i<m_MovableLineCharts.size(); ++i) {
         m_MovableLineCharts[i]->setRange(numYears);
     }
 }
@@ -1885,11 +1887,11 @@ REMORA::resetXAxis()
     endForecastYear = endYear + m_NumYearsPerRun;
     if (isMultiSpecies() && isMultiPlot()) {
         for (QChart* chart : m_Charts) {
-            chart->axisX()->setRange(endYear,endForecastYear);
+            chart->axes(Qt::Horizontal).back()->setRange(endYear,endForecastYear);
         }
     } else {
         if (m_ChartWidget->axes().size() != 0) {
-            m_ChartWidget->axisX()->setRange(endYear,endForecastYear);
+            m_ChartWidget->axes(Qt::Horizontal).back()->setRange(endYear,endForecastYear);
         }
     }
 }
@@ -1898,7 +1900,7 @@ void
 REMORA::resetYAxis()
 {
     if (m_MaxYAxis > 0) {
-        QValueAxis* axisY = qobject_cast<QValueAxis*>(m_ChartWidget->axisY());
+        QValueAxis* axisY = qobject_cast<QValueAxis*>(m_ChartWidget->axes(Qt::Vertical).back());
         axisY->setMax(m_MaxYAxis);
         axisY->setTickCount(5);
     }
@@ -2133,7 +2135,7 @@ REMORA::callback_SavePB()
 
     if (! filename.isEmpty()) {
         // Guarantee no spaces in filenames
-        filename.simplified();
+        filename = filename.simplified();
         filename.replace(" ","_");
 
         // Make sure file has a valid extension
@@ -2238,8 +2240,8 @@ REMORA::callback_UncertaintyRParameterDL(int value)
 void
 REMORA::callback_YAxisLockedCB(bool checked)
 {
-    if (m_ChartWidget->axisY()) {
-        QValueAxis* axisY = qobject_cast<QValueAxis*>(m_ChartWidget->axisY());
+    if (m_ChartWidget->axes(Qt::Vertical).back()) {
+        QValueAxis* axisY = qobject_cast<QValueAxis*>(m_ChartWidget->axes(Qt::Vertical).back());
         if (checked) {
             m_MaxYAxis = axisY->max();
             axisY->setTickCount(3);

@@ -283,7 +283,7 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
            "   WHERE SystemName = '"     + CurrentSettingsName + "'";
 
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab6::SaveSettingsConfiguration: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return false;

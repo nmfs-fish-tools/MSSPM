@@ -122,6 +122,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
         m_isStartUpOK = false;
         return;
     }
+
     if (m_LoadLastProject) {
         loadDatabase();
     }
@@ -149,6 +150,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     if (checkIfTablesAlreadyCreated()) {
         completeApplicationInitialization();
     }
+
     m_SaveSettings = true;
     qApp->installEventFilter(this);
 
@@ -157,7 +159,6 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
         enableApplicationFeatures("SetupGroup",false);
         enableApplicationFeatures("AllOtherGroups",false);
     }
-
 
     // Turn these off for now
     m_UI->actionGeneticTB->setVisible(false);
@@ -301,7 +302,6 @@ void
 nmfMainWindow::completeApplicationInitialization()
 {
     NavigatorTree->setEnabled(true);
-
     loadGuis();
     initPostGuiConnections();
 }
@@ -1322,7 +1322,7 @@ nmfMainWindow::updateOutputBiomassTableFromTestValues()
           "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
           "' AND Scaling = '" + Scaling + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 3] UpdateOutputBiomassTableFromTest: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
@@ -1339,7 +1339,7 @@ nmfMainWindow::updateOutputBiomassTableFromTestValues()
     }
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 4] UpdateOutputBiomassTableFromTest: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
@@ -1606,6 +1606,9 @@ nmfMainWindow::menu_importDatabase()
         }
         Setup_Tab2_ptr->setProjectDatabase(dbName);
         Setup_Tab2_ptr->callback_Setup_Tab2_SaveProject();
+
+        // Need to call menu_createTables() in case some tables are missing
+        menu_createTables();
     }
 
 }
@@ -2080,7 +2083,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.6 (beta)";
+    QString version = "MSSPM v0.9.7 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2520,7 +2523,7 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
             }
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfMainWindow: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             msg = "\nError in clearOutputTables command.  Couldn't delete all records from " + tableName + " table.\n",
@@ -3082,8 +3085,15 @@ nmfMainWindow::findTableInFocus()
 
 
 void
-nmfMainWindow::menu_quit() {
-    close(); // emits closeEvent
+nmfMainWindow::menu_quit()
+{
+    if (QMessageBox::Yes == QMessageBox::question(
+                this,
+                tr("Quit"),
+                tr("\nAre you sure you want to quit?\n")))
+    {
+        close(); // emits closeEvent
+    }
 }
 
 void
@@ -3502,7 +3512,7 @@ nmfMainWindow::updateOutputTables(
                 "' AND isAggProd = " + isAggProd +
                 mohnsRhoLabelsToDelete;
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] UpdateOutputTables: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             msg = "\n[Error 2] updateOutputTables:  Couldn't delete all records from " + tableName + " table.\n";
@@ -3556,7 +3566,7 @@ nmfMainWindow::updateOutputTables(
 
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 3] UpdateOutputTables: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
@@ -3590,7 +3600,7 @@ nmfMainWindow::updateOutputTables(
                 "' AND isAggProd = " + isAggProd +
                 mohnsRhoLabelsToDelete;
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 5] UpdateOutputTables: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             msg = "\n[Error 6] updateOutputTables: Couldn't delete all records from " + tableName + " table.\n",
@@ -3626,7 +3636,7 @@ nmfMainWindow::updateOutputTables(
         }
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 7] UpdateOutputTables: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
@@ -3655,7 +3665,7 @@ nmfMainWindow::updateOutputTables(
                 "' AND isAggProd = " + isAggProd +
                 mohnsRhoLabelsToDelete;
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 9] UpdateOutputTables: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             msg = "\n[Error 10] updateOutputTables: Couldn't delete all records from " + tableName + " table.\n",
@@ -3685,7 +3695,7 @@ nmfMainWindow::updateOutputTables(
         }
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 11] UpdateOutputTables: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
@@ -3875,7 +3885,7 @@ nmfMainWindow::clearMonteCarloParametersTable(
                 "' AND Scaling   = '" + Scaling +
                 "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] clearMonteCarloParametersTable: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
@@ -3936,7 +3946,7 @@ nmfMainWindow::clearOutputBiomassTable(std::string& ForecastName,
     }
 
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] ClearOutputBiomassTable: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         msg = "\nError in ClearOutputBiomassTable command in table(" +
@@ -4490,7 +4500,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 8] UpdateOutputBiomassTable: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return false;
@@ -6527,7 +6537,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
                                 ChartType,
                                 LineStyle,
                                 nmfConstantsMSSPM::ShowFirstPoint,
-                                nmfConstants::ShowLegend,
+                                nmfConstants::DontShowLegend,
                                 StartXValue,
                                 nmfConstantsMSSPM::LabelXAxisAsReals,
                                 YMinSliderVal,
@@ -6814,8 +6824,9 @@ nmfMainWindow::showForecastBiomassVsTime(
         Years.clear();
         for (int species=0; species<NumSpecies; ++species) {
             if (species == SpeciesNum) {
-//              std::cout << "Loading: " << formattedUncertaintyData[line].toStdString() << std::endl;
-//                      HoverLabels << formattedUncertaintyData[line];
+                if (ChartTitle != "Multi-Forecast Scenario") {
+                      HoverLabels << formattedUncertaintyData[line];
+                }
                 for (int time=0; time<NumYears; ++time) {
                     legendCode = (isMonteCarloSimulation) ? "Monte Carlo Sim "+std::to_string(time+1) : "Forecast Biomass";
                     Years << QString::number(StartForecastYear+time);
@@ -6842,7 +6853,8 @@ nmfMainWindow::showForecastBiomassVsTime(
         nmfChartLine* lineChart = new nmfChartLine();
         if (ChartTitle == "Multi-Forecast Scenario") {
             lineColorName = "Multi-Forecast Scenario";
-            ShowLegend = true;
+            HoverLabels   = ColumnLabelsForLegend;
+            ShowLegend    = true;
         }
         lineChart->populateChart(m_ChartWidget,
                                  ChartType,
@@ -6856,7 +6868,7 @@ nmfMainWindow::showForecastBiomassVsTime(
                                  ChartLineData,
                                  RowLabelsForBars,
                                  ColumnLabelsForLegend,
-                                 HoverLabels,
+                                  HoverLabels, // ColumnLabelsForLegend, //  HoverLabels,
                                  MainTitle,
                                  XLabel,
                                  YLabel,
@@ -8127,7 +8139,7 @@ nmfMainWindow::UpdateOutputTables_GeneticAlgorithm(int& RunLength,
             "' AND Scaling = '" + Scaling +
             "'";
     errorMsg = databasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         logger->logMsg(nmfConstants::Error,"[Error 30] nmfMainWindow: DELETE error: " + errorMsg);
         logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(this, "Error",
@@ -8155,7 +8167,7 @@ nmfMainWindow::UpdateOutputTables_GeneticAlgorithm(int& RunLength,
     }
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = databasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         logger->logMsg(nmfConstants::Error,"[Error 31] nmfMainWindow: Write table error: " + errorMsg);
         logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(this, "Error",
@@ -8180,7 +8192,7 @@ nmfMainWindow::UpdateOutputTables_GeneticAlgorithm(int& RunLength,
         SpeciesNum = 0;
         cmd = "DELETE FROM " + Tables[ii];
         errorMsg = databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             logger->logMsg(nmfConstants::Error,"[Error 33] nmfMainWindow: DELETE error: " + errorMsg);
             logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
@@ -8208,7 +8220,7 @@ nmfMainWindow::UpdateOutputTables_GeneticAlgorithm(int& RunLength,
         }
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = databasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             logger->logMsg(nmfConstants::Error,"[Error 34] nmfMainWindow: Write table error: " + errorMsg);
             logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
@@ -9180,7 +9192,7 @@ nmfMainWindow::deleteAllOutputMohnsRho()
             "' AND isAggProd = " + isAggProd +
             "  AND MohnsRhoLabel != ''";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] deleteAllOutputMohnsRho: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return false;
@@ -9198,7 +9210,7 @@ nmfMainWindow::deleteAllMohnsRho(const std::string& TableName)
     // Delete any existing table entries that have a MohnsRhoLabel value
     cmd = "DELETE FROM " + TableName + " WHERE MohnsRhoLabel != ''";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] DeleteMohnsRho: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return false;
@@ -9286,7 +9298,7 @@ nmfMainWindow::modifyTable(
 
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 3] ModifyTable: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return false;

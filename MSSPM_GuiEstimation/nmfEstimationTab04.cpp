@@ -229,7 +229,7 @@ nmfEstimation_Tab4::callback_SavePB()
             }
             cmd = "DELETE FROM " + m_Tables1d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
+            if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
@@ -251,7 +251,7 @@ nmfEstimation_Tab4::callback_SavePB()
             }
             cmd = cmd.substr(0,cmd.size()-1);
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (errorMsg != " ") {
+            if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab4::callback_SavePB: Write table error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
@@ -278,7 +278,7 @@ nmfEstimation_Tab4::callback_SavePB()
         }
         cmd = "DELETE FROM " + m_Tables2d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Estimation_Tabs, "Error",
@@ -300,7 +300,7 @@ nmfEstimation_Tab4::callback_SavePB()
         }
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab4::callback_SavePB: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Estimation_Tabs, "Error",

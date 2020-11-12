@@ -354,8 +354,9 @@ nmfDiagnostic_Tab1::callback_RunPB()
                 try {
                     fitness = calculateFitness(i,parameterName,diagnosticParameter);
                 } catch (...) {
-                    msg = "Please run Estimation prior to running this Diagnostics.";
+                    msg = "Please run an Estimation prior to running this Diagnostic.";
                     m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
+                    QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
                     return;
                 }
 
@@ -485,7 +486,9 @@ nmfDiagnostic_Tab1::calculateFitness(int     SpeciesOrGuildNum,
         std::unique_ptr<NLopt_Estimator> nlopt_Estimator = std::make_unique<NLopt_Estimator>();
         retv = nlopt_Estimator->objectiveFunction(unused1,&parameters[0],unused2,&m_DataStruct);
         if (retv == -1) {
-            m_Logger->logMsg(nmfConstants::Warning,"Please run Estimation prior to running this Diagnostic");
+            msg = "Please run an Estimation prior to running this Diagnostic.";
+            m_Logger->logMsg(nmfConstants::Warning,msg);
+            QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),tr("\n"+QString::fromStdString(msg).toLatin1()),QMessageBox::Ok);
         }
 
     } else {
@@ -837,7 +840,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
            "' AND Scaling = '" + Scaling +
            "' AND isAggProd = " + isAggProd;
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-   if (errorMsg != " ") {
+   if (nmfUtilsQt::isAnError(errorMsg)) {
        m_Logger->logMsg(nmfConstants::Error,"[Error 1] UpdateParameterTable: DELETE error: " + errorMsg);
        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
        return;
@@ -860,7 +863,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
    }
    cmd = cmd.substr(0,cmd.size()-1);
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-   if (errorMsg != " ") {
+   if (nmfUtilsQt::isAnError(errorMsg)) {
        m_Logger->logMsg(nmfConstants::Error,"[Error 2] UpdateParameterTable: Write table error: " + errorMsg);
        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
        return;
@@ -887,7 +890,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
            "' AND Scaling = '" + Scaling +
            "' AND isAggProd = " + isAggProd;
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-   if (errorMsg != " ") {
+   if (nmfUtilsQt::isAnError(errorMsg)) {
        m_Logger->logMsg(nmfConstants::Error,"[Error 1a] UpdateParameterTable: DELETE error: " + errorMsg);
        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
        return;
@@ -909,7 +912,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
    }
    cmd = cmd.substr(0,cmd.size()-1);
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-   if (errorMsg != " ") {
+   if (nmfUtilsQt::isAnError(errorMsg)) {
        m_Logger->logMsg(nmfConstants::Error,"[Error 2a] UpdateParameterTable: Write table error: " + errorMsg);
        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
        return;

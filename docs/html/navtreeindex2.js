@@ -1,5 +1,9 @@
 var NAVTREEINDEX2 =
 {
+"classnmf_main_window.html#a5354cf87c11a30fd650c483c94874f62":[4,0,21,69],
+"classnmf_main_window.html#a5513d3a8e141f72c5a46534eecb4f783":[4,0,21,74],
+"classnmf_main_window.html#a56602b998d96bdc09048572c76b37a4f":[4,0,21,6],
+"classnmf_main_window.html#a5da3be9e59593e85e16518f30076b6ad":[4,0,21,0],
 "classnmf_main_window.html#a5feca79cffa5c0ac9113805de9cc2113":[4,0,21,7],
 "classnmf_main_window.html#a60bfeeac880c4e9671bfeb1831d27920":[4,0,21,88],
 "classnmf_main_window.html#a62974bf1e9dd5830de0d0576bbdbce1d":[4,0,21,42],
@@ -198,8 +202,8 @@ var NAVTREEINDEX2 =
 "functions_d.html":[4,3,0,3],
 "functions_e.html":[4,3,0,4],
 "functions_f.html":[4,3,0,5],
-"functions_func.html":[4,3,1],
 "functions_func.html":[4,3,1,0],
+"functions_func.html":[4,3,1],
 "functions_func_b.html":[4,3,1,1],
 "functions_func_c.html":[4,3,1,2],
 "functions_func_d.html":[4,3,1,3],
@@ -235,19 +239,15 @@ var NAVTREEINDEX2 =
 "globals.html":[5,1,0],
 "globals_type.html":[5,1,1],
 "hierarchy.html":[4,2],
-"index.html":[0],
 "index.html":[],
+"index.html":[0],
 "index.html#Description":[0,0],
 "index.html#License":[0,1],
 "mainpage_8h_source.html":[5,0,9],
-"md_LICENSE.html":[1],
-"md_README.html":[2],
+"md__l_i_c_e_n_s_e.html":[1],
+"md__r_e_a_d_m_e.html":[2],
 "nmf_diagnostic_tab01_8h.html":[5,0,0,1],
 "nmf_diagnostic_tab01_8h.html#ae666633c15e68fe4fd0e88e3adad5607":[5,0,0,1,1],
 "nmf_diagnostic_tab01_8h_source.html":[5,0,0,1],
-"nmf_diagnostic_tab02_8h.html":[5,0,0,2],
-"nmf_diagnostic_tab02_8h_source.html":[5,0,0,2],
-"nmf_estimation_tab01_8h.html":[5,0,1,1],
-"nmf_estimation_tab01_8h_source.html":[5,0,1,1],
-"nmf_estimation_tab02_8h.html":[5,0,1,2]
+"nmf_diagnostic_tab02_8h.html":[5,0,0,2]
 };

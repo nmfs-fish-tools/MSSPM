@@ -295,7 +295,7 @@ MultiScenarioSaveDlg::callback_SetOrderPB()
               "  WHERE ScenarioName = '" + getScenarioName() +
               "' AND ForecastLabel = '" + ForecastLabelLW->item(sortOrder)->text().toStdString() + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] callback_SetOrderPB: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         }
@@ -372,7 +372,7 @@ MultiScenarioSaveDlg::callback_OkPB()
        cmd += "  WHERE ScenarioName = '" + Scenario +
               "' AND ForecastLabel = '" + Forecast + "'";
        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-       if (errorMsg != " ") {
+       if (nmfUtilsQt::isAnError(errorMsg)) {
            m_Logger->logMsg(nmfConstants::Error,"[Error 1] MultiScenarioSaveDlg::callback_OkPB: DELETE error: " + errorMsg);
            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
            return;
@@ -391,7 +391,7 @@ MultiScenarioSaveDlg::callback_OkPB()
        }
        cmd = cmd.substr(0,cmd.size()-1); // Remove last comma
        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-       if (errorMsg != " ") {
+       if (nmfUtilsQt::isAnError(errorMsg)) {
            m_Logger->logMsg(nmfConstants::Error,"[Error 2] MultiScenarioSaveDlg::callback_OkPB: Write table error: " + errorMsg);
            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
            return;
@@ -490,7 +490,7 @@ MultiScenarioSaveDlg::callback_DelScenarioPB()
         cmd  = "DELETE FROM ForecastBiomassMultiScenario";
         cmd += "  WHERE ScenarioName = '" + scenario + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] MultiScenarioSaveDlg::callback_DelScenarioPB: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             return;
@@ -541,7 +541,7 @@ MultiScenarioSaveDlg::callback_DelForecastPB()
         cmd += "  WHERE ScenarioName = '" + scenario +
                 "' AND ForecastLabel = '" + forecast + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-        if (errorMsg != " ") {
+        if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] MultiScenarioSaveDlg::callback_DelForecastPB: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             return;
@@ -614,7 +614,7 @@ MultiScenarioSaveDlg::renameScenarioName(QString oldScenario,
     cmd = "UPDATE ForecastBiomassMultiScenario SET ScenarioName='" + newScenario.toStdString() +
           "' WHERE ScenarioName='" + oldScenario.toStdString() + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] renameScenarioName: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
     }
@@ -635,7 +635,7 @@ MultiScenarioSaveDlg::renameForecastLabel(QString scenario,
           "' WHERE ScenarioName='" + scenario.toStdString() +
           "' AND ForecastLabel='" + oldForecast.toStdString() + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (errorMsg != " ") {
+    if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] renameForecastLabel: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
     }
