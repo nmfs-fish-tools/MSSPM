@@ -129,7 +129,6 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
 
     initializeTableNamesDlg();
     initializeMMode();
-
     this->setMouseTracking(true);
 
     // Setup Log Widget
@@ -1229,7 +1228,7 @@ nmfMainWindow::getOutputCompetition(std::vector<double> &EstCompetition)
                  "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
                  "' AND Scaling = '" + Scaling + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["Algorithm"].size() != NumSpecies*NumSpecies) {
+    if (int(dataMap["Algorithm"].size()) != NumSpecies*NumSpecies) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] GetOutputCompetition: Incorrect number of records found in OutputCompetitionAlpha");
         return;
     }
@@ -1671,6 +1670,7 @@ nmfMainWindow::menu_openCSVFile()
     QString fileName;
     QString pathData         = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputDataDirMMode));
     QString filenameWithPath = QDir(pathData).filePath(m_MModeViewerWidget->getCurrentFilename());
+    QStringList argList = {};
 
     nmfUtilsQt::switchFileExtensions(filenameWithPath,".csv",{".jpg",".png"});
 
@@ -1682,8 +1682,9 @@ nmfMainWindow::menu_openCSVFile()
             std::string cmd = "start " + fileName.toStdString();
             std::system(cmd.c_str());
         } else {
-            std::string cmd = "/usr/bin/libreoffice " + fileName.toStdString();
-            QProcess::execute(cmd.c_str());
+            std::string cmd = "/usr/bin/libreoffice";
+            argList << fileName;
+            QProcess::execute(cmd.c_str(),argList);
         }
     }
 }
@@ -1916,7 +1917,8 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
     int NumYearsPerRun;
     int NumRunsPerForecast;
     int Year;
-    double val,val0;
+    double val  = 0;
+    double val0 = 0;
     double numerator,denominator;
     QString ForecastName;
     std::string Algorithm;
@@ -1967,8 +1969,8 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
     if (file.open(QIODevice::ReadWrite)) {
         QTextStream stream(&file);
 
-        stream << "Number of Species: " << NumSpecies << endl;
-        stream << "Number of Years:   " << RunLength  << endl;
+        stream << "Number of Species, " << NumSpecies << "\n";
+        stream << "Number of Years, "   << RunLength  << "\n";
 
         QStandardItemModel* smodel1 = new QStandardItemModel(RunLength,1+NumSpecies);
         QStandardItemModel* smodel2 = new QStandardItemModel(RunLength,1+NumSpecies);
@@ -1976,8 +1978,8 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
         QStandardItemModel* smodel4 = new QStandardItemModel(RunLength,1+NumSpecies);
 
         // Write out Absolute Biomass data
-        stream << endl << "# Biomass (absolute)" << endl;
-        stream << Header << endl;
+        stream << "\n" << "# Biomass (absolute)" << "\n";
+        stream << Header << "\n";
         for (int i=0; i<=RunLength; ++i) {
             stream << StartForecastYear+i;
             item = new QStandardItem(QString::number(StartForecastYear+i,'d',0));
@@ -1990,13 +1992,13 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel1->setItem(i, j+1, item);
             }
-            stream << endl;
+            stream << "\n";
         }
         smodel1->setHorizontalHeaderLabels(HeaderList);
 
         // Write out Relative Biomass data
-        stream << endl << "# Biomass (relative)" << endl;
-        stream << Header << endl;
+        stream << "\n" << "# Biomass (relative)" << "\n";
+        stream << Header << "\n";
         for (int i=0; i<=RunLength; ++i) {
             stream << StartForecastYear+i;
             item = new QStandardItem(QString::number(StartForecastYear+i,'d',0));
@@ -2010,13 +2012,13 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel2->setItem(i, j+1, item);
             }
-            stream << endl;
+            stream << "\n";
         }
         smodel2->setHorizontalHeaderLabels(HeaderList);
 
         // Write out Fishing Mortality data (C/Bc)
-        stream << endl << "# Fishing Mortality" << endl;
-        stream << Header << endl;
+        stream << "\n" << "# Fishing Mortality" << "\n";
+        stream << Header << "\n";
         for (int i=0; i<=RunLength; ++i) {
             stream << StartForecastYear+i;
             item = new QStandardItem(QString::number(StartForecastYear+i,'d',0));
@@ -2031,13 +2033,13 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel3->setItem(i, j+1, item);
             }
-            stream << endl;
+            stream << "\n";
         }
         smodel3->setHorizontalHeaderLabels(HeaderList);
 
         // Write out harvest scale factor data
-        stream << endl << "# Harvest Scale Factor" << endl;
-        stream << Header << endl;
+        stream << "\n" << "# Harvest Scale Factor" << "\n";
+        stream << Header << "\n";
         for (int i=0; i<=RunLength; ++i) {
             stream << StartForecastYear+i;
             Year = StartForecastYear+i;
@@ -2051,11 +2053,11 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel4->setItem(i, j+1, item);
             }
-            stream << endl;
+            stream << "\n";
         }
         smodel4->setHorizontalHeaderLabels(HeaderList);
 
-        stream << endl;
+        stream << "\n";
         file.close();
 
         // Attach the models to their table views
@@ -2083,7 +2085,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.7 (beta)";
+    QString version = "MSSPM v0.9.9 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -4607,7 +4609,6 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     bool isHandling;
     bool isAggProd;
     bool isExponent;
-    bool isGuild = (Output_Controls_ptr->getOutputGroupType() == "Guild:");
     int m;
     int ii=0;
     int SpeciesNum;
@@ -4620,7 +4621,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     double ScaleVal = 1.0;
     double val = 0.0;
     double YMinSliderVal = Output_Controls_ptr->getYMinSliderVal();
-    double YMaxSliderVal = Output_Controls_ptr->getYMaxSliderVal();
+    //double YMaxSliderVal = Output_Controls_ptr->getYMaxSliderVal();
     std::vector<std::string> fields;
     std::string queryStr;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -5057,7 +5058,7 @@ nmfMainWindow::getOutputBiomassByGroup(
 
     if (group == "Guild") {
         NumSpecies = SpeciesList.size();
-        for (unsigned i=0; i<NumSpecies; ++i) {
+        for (int i=0; i<NumSpecies; ++i) {
             guildName = GuildList[i].toStdString();
             guildOrder.push_back(guildName);
             guilds.insert(guildName);
@@ -6526,7 +6527,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    }
 
    // Set all line colors to be the first
-   for (int i=1; i<nmfConstants::LineColors.size(); ++i) {
+   for (int i=1; i<int(nmfConstants::LineColors.size()); ++i) {
        LineColors.push_back(QColor(nmfConstants::LineColors[0].c_str()));
    }
 
@@ -6796,7 +6797,7 @@ nmfMainWindow::showForecastBiomassVsTime(
     std::string XLabel;
     std::string YLabel;
     int Theme = 0; // Replace with checkbox values
-    int NumColors;
+//  int NumColors;
     std::vector<bool> GridLines(true,true); // Replace with checkbox values
     QStringList HoverLabels;
     QList<QString> formattedUncertaintyData;
@@ -6806,7 +6807,7 @@ nmfMainWindow::showForecastBiomassVsTime(
     XLabel    = "Year";
     YLabel    = ChartTitle + " (" + ScaleStr.toStdString() + "metric tons)";
 
-    NumColors = nmfConstants::LineColors.size();
+//  NumColors = nmfConstants::LineColors.size();
     LineColors.append(QColor(nmfConstants::LineColors[0].c_str()));
 
     if (clearChart) {
@@ -7465,7 +7466,9 @@ nmfMainWindow::initializeMModeViewer()
     int RunLength;
     int StartYear;
     QStringList SpeciesList;
+
     QString imagePath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDirMMode));
+std::cout << "imagePath: " << imagePath.toStdString() << std::endl;
     m_MModeViewerWidget   = new nmfViewerWidget(this,imagePath,m_Logger);
     MModeViewerDockWidget = new QDockWidget(this);
     MModeViewerDockWidget->setWidget(m_MModeViewerWidget->getMainWidget());
@@ -7480,14 +7483,12 @@ nmfMainWindow::initializeMModeViewer()
     int y = this->y();
     MModeViewerDockWidget->setGeometry(x,y,this->width()/2,this->height());
     //  MModeViewerDockWidget->setStyleSheet("QDockWidget#Viewmora {border: 10px solid red}");
-
     MModeViewerDockWidget->hide();
     MModeViewerDockWidget->setWindowTitle("Viewmora");
     MModeViewerDockWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(MModeViewerDockWidget, SIGNAL(customContextMenuRequested(QPoint)),
             this,                  SLOT(callback_openCSVFile(QPoint)));
-
 
     // Set a custom title for the Remora Viewer dock widget
     QWidget* customTitleBar = new QWidget();
@@ -7521,7 +7522,7 @@ nmfMainWindow::initializeMModeViewer()
     if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear)) {
         return;
     }
-
+std::cout << 4.6 << std::endl;
     QStandardItemModel* smodel1 = new QStandardItemModel(RunLength,NumSpecies+1 ); // +1 for Year (1st column)
     QStandardItemModel* smodel2 = new QStandardItemModel(RunLength,NumSpecies+1 );
     QStandardItemModel* smodel3 = new QStandardItemModel(RunLength,NumSpecies+1 );
@@ -7535,7 +7536,7 @@ nmfMainWindow::initializeMModeViewer()
     m_MModeViewerWidget->addDataTab("Biomass (relative)",  m_BiomassRelTV);
     m_MModeViewerWidget->addDataTab("Fishing Mortality",   m_FishingMortalityTV);
     m_MModeViewerWidget->addDataTab("Harvest Scale Factor",m_HarvestScaleFactorTV);
-
+std::cout << 4.7 << std::endl;
 }
 
 void
@@ -8287,11 +8288,6 @@ nmfMainWindow::callback_ForecastLoaded(std::string ForecastName)
 {
     Forecast_Tab2_ptr->loadWidgets();
     Forecast_Tab3_ptr->loadWidgets();
-
-
-
-
-
 }
 
 void
@@ -8304,9 +8300,9 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     int RunLength = 0;
-    int StartYear = nmfConstantsMSSPM::Start_Year;
+//  int StartYear = nmfConstantsMSSPM::Start_Year;
     int NullStartYear = 0;
-    int EndYear = StartYear;
+//  int EndYear = StartYear;
     int NumRuns = 0;
     int RunNum = 0;
     std::string Algorithm;
@@ -8332,8 +8328,8 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         RunLength          = std::stoi(dataMap["RunLength"][0]);
-        StartYear          = std::stoi(dataMap["StartYear"][0]);
-        EndYear            = std::stoi(dataMap["EndYear"][0]);
+//      StartYear          = std::stoi(dataMap["StartYear"][0]);
+//      EndYear            = std::stoi(dataMap["EndYear"][0]);
         Algorithm          = dataMap["Algorithm"][0];
         Minimizer          = dataMap["Minimizer"][0];
         ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
@@ -8393,14 +8389,11 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
                                     bool GenerateBiomass)
 {
     bool updateOK = true;
-    bool isMonteCarlo;
     bool isAggProd;
     int RunLength = 0;
     int StartYear = nmfConstantsMSSPM::Start_Year;
-    int NullStartYear = 0;
     int EndYear = StartYear;
     int NumRuns = 0;
-    int RunNum = 0;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -11176,7 +11169,7 @@ nmfMainWindow::dataAdequateForCurrentModel(QStringList estParamNames)
     std::string msg;
 
     // Log parameter names
-    for (unsigned int i=0; i<estParamNames.size(); ++i) {
+    for (int i=0; i<estParamNames.size(); ++i) {
         msg = "Checking valid ranges for parameter: " + estParamNames[i].toStdString();
         m_Logger->logMsg(nmfConstants::Normal,msg);
     }
@@ -11205,7 +11198,7 @@ nmfMainWindow::dataAdequateForCurrentModel(QStringList estParamNames)
                               "CompetitionBetaSpeciesMin","CompetitionBetaSpeciesMax",
                               "PredationLossRatesMin","PredationLossRatesMax",
                               "HandlingTimeMin","HandlingTimeMax"};
-    for (unsigned int i=0; i<paramNames.size(); ++i) {
+    for (int i=0; i<paramNames.size(); ++i) {
         // Cycle through min/max tables
         if (estParamNames.contains(paramNames[i])) {
             for (int j=0; j<2; ++j) {
@@ -11225,7 +11218,7 @@ nmfMainWindow::dataAdequateForCurrentModel(QStringList estParamNames)
     paramNames << "BetaGuilds" << "Predation Exponent";
     tableNames << "CompetitionBetaGuildsMin" << "CompetitionBetaGuildsMax"
                << "PredationLossRatesMin"    << "PredationLossRatesMax";
-    for (unsigned int i=0; i<paramNames.size(); ++i) {
+    for (int i=0; i<paramNames.size(); ++i) {
         // Cycle through min/max tables
         if (estParamNames.contains(paramNames[i])) {
             for (int j=0; j<2; ++j) {
