@@ -52,8 +52,8 @@ class nmfEstimation_Tab4: public QObject
     std::string              m_ProjectSettingsConfig;
     std::vector<QTableView*> m_TableViews1d;
     std::vector<QTableView*> m_TableViews2d;
-    std::vector<std::string> m_Tables1d;
-    std::vector<std::string> m_Tables2d;
+    std::vector<std::string> m_TableNames1d;
+    std::vector<std::string> m_TableNames2d;
     std::vector<QStandardItemModel*> m_smodels1d;
     std::vector<QStandardItemModel*> m_smodels2d;
 
@@ -77,12 +77,17 @@ class nmfEstimation_Tab4: public QObject
     QPushButton* Estimation_Tab4_NextPB;
     QPushButton* Estimation_Tab4_LoadPB;
     QPushButton* Estimation_Tab4_SavePB;
+    QPushButton* Estimation_Tab4_ImportPB;
     QCheckBox*   Estimation_Tab4_EstimateCB;
 
     void getForms(std::string& predationForm,
                   std::string& competitionForm);
     int  getNumSpecies();
     void readSettings();
+    void saveCSVFiles(std::vector<std::string>& allTableNames);
+    void loadCSVFiles(std::vector<std::string>& allTableNames);
+    std::vector<std::string> getAllTableNames();
+    std::vector<QTableView*> getAllTableViews();
 
 public:
     /**
@@ -110,6 +115,10 @@ public:
 
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when the user clicks the Import button to load a .csv file
+     */
+    void callback_ImportPB();
     /**
      * @brief Callback invoked when the user clicks the Load button
      */

@@ -55,6 +55,7 @@ private:
     std::vector<std::string>         m_AlphaTables;
     std::vector<std::string>         m_BetaSpeciesTables;
     std::vector<std::string>         m_BetaGuildsTables;
+    std::vector<std::string>         m_BetaGuildsGuildsTables;
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab3_Widget;
@@ -76,11 +77,17 @@ private:
     QPushButton* Estimation_Tab3_NextPB;
     QPushButton* Estimation_Tab3_SavePB;
     QPushButton* Estimation_Tab3_LoadPB;
+    QPushButton* Estimation_Tab3_ImportPB;
     QCheckBox*   Estimation_Tab3_EstimateCB;
 
     QStringList getSpecies();
     QStringList getGuilds();
     void        readSettings();
+    std::vector<std::string> getAllTableNames();
+    bool isNoK();
+    bool isMsProd();
+    bool isAggProd();
+
 
 public:
     /**
@@ -105,8 +112,14 @@ public:
      * @return Returns true if all data were loaded successfully
      */
     bool loadWidgets();
+    void saveCSVFiles(std::vector<std::string>& allTableNames);
+    void loadCSVFiles(std::vector<std::string>& allTableNames);
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when the user clicks the Import button to load a .csv file
+     */
+    void callback_ImportPB();
     /**
      * @brief Callback invoked when the user clicks the Load button
      */

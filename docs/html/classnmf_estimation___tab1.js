@@ -5,12 +5,14 @@ var classnmf_estimation___tab1 =
     [ "callback_CurrentTabChanged", "classnmf_estimation___tab1.html#af077e2747c2e2bb5215ecf2ad96d4c52", null ],
     [ "callback_GuildRangeCB", "classnmf_estimation___tab1.html#abf69f53953cc1ee68b12798d281a2303", null ],
     [ "callback_GuildSuppCB", "classnmf_estimation___tab1.html#a6cf7fee3d985d84bf67539078613571c", null ],
+    [ "callback_ImportPB", "classnmf_estimation___tab1.html#ad36778f2f6606f210fc9377f747029bc", null ],
     [ "callback_LoadPB", "classnmf_estimation___tab1.html#a111a517b2d9892c2762a13b512d9f3f7", null ],
     [ "callback_ModifyMovingSL", "classnmf_estimation___tab1.html#adb98afc8439e667c8f226d6d9a6663a5", null ],
     [ "callback_ModifyReleasedSL", "classnmf_estimation___tab1.html#a5df4e8f536fb5cbf6440f5da0bacb796", null ],
     [ "callback_ModifyRunPB", "classnmf_estimation___tab1.html#a3066d3c8948bd3d7801c7020107a0eb5", null ],
     [ "callback_NextPB", "classnmf_estimation___tab1.html#a2228ff0a3b9ec7b484b37a515baab971", null ],
     [ "callback_RestorePB", "classnmf_estimation___tab1.html#ac55be00194ecaff1eb450bbc2358877c", null ],
+    [ "callback_SaveCSVFile", "classnmf_estimation___tab1.html#adcb685f2ede0aea899601848a81aedb5", null ],
     [ "callback_SavePB", "classnmf_estimation___tab1.html#a9741486fd83c5ed7000ef9887e5ef947", null ],
     [ "callback_SelectionChangedTV", "classnmf_estimation___tab1.html#ad92ff002c0b38264230fb3d6f0e00316", null ],
     [ "callback_SpeciesRangeCB", "classnmf_estimation___tab1.html#a1fd3a724a2620b28f38b64a0c43bb3ec", null ],
@@ -29,5 +31,6 @@ var classnmf_estimation___tab1 =
     [ "RunEstimation", "classnmf_estimation___tab1.html#ae7f3a7ed7ffaebe6621c1b3f1941a867", null ],
     [ "setOutputSpecies", "classnmf_estimation___tab1.html#a4217b8d1c837de6a31d46743c088b8f3", null ],
     [ "ShowDiagnostics", "classnmf_estimation___tab1.html#a732806eeb8122d872621e6ed26ec6257", null ],
-    [ "StoreOutputSpecies", "classnmf_estimation___tab1.html#ab76a3c0b8003a84c34db6fa84b35e73c", null ]
+    [ "StoreOutputSpecies", "classnmf_estimation___tab1.html#ab76a3c0b8003a84c34db6fa84b35e73c", null ],
+    [ "UpdateSpeciesSetupData", "classnmf_estimation___tab1.html#ad5074b354cafaff9c54407b0571fcf6f", null ]
 ];

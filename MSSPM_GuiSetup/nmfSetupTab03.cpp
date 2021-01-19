@@ -18,8 +18,6 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     m_databasePtr            = databasePtr;
     m_logger                 = logger;
     m_ProjectDir             = projectDir;
-    m_smodelSpecies          = nullptr;
-    m_smodelOtherPredSpecies = nullptr;
     m_colLabelsSpecies.clear();
     m_colLabelsGuilds.clear();
 
@@ -45,6 +43,7 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     Setup_Tab3_AddSpeciesPB       = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_AddSpeciesPB");
     Setup_Tab3_DelSpeciesPB       = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_DelSpeciesPB");
     Setup_Tab3_ReloadSpeciesPB    = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_ReloadSpeciesPB");
+    Setup_Tab3_ImportPB           = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_ImportPB");
     Setup_Tab3_LoadPB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_LoadPB");
     Setup_Tab3_SavePB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_SavePB");
     Setup_Tab3_PrevPB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_PrevPB");
@@ -52,33 +51,37 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     Setup_Tab3_GuildsSpeciesTabW  = Setup_Tabs->findChild<QTabWidget   *>("Setup_Tab3_GuildsSpeciesTabW");
 
     connect(Setup_Tab3_NumGuildsSB,     SIGNAL(valueChanged(int)),
-            this,                       SLOT(callback_Setup_Tab3_NumGuilds(int)));
+            this,                       SLOT(callback_NumGuildsSB(int)));
     connect(Setup_Tab3_AddGuildPB,      SIGNAL(clicked()),
-            this,                       SLOT(callback_Setup_Tab3_AddGuildPB()));
+            this,                       SLOT(callback_AddGuildPB()));
     connect(Setup_Tab3_DelGuildPB,      SIGNAL(clicked()),
-            this,                       SLOT(callback_Setup_Tab3_DelGuildPB()));
+            this,                       SLOT(callback_DelGuildPB()));
     connect(Setup_Tab3_ReloadGuildsPB,  SIGNAL(clicked()),
-            this,                       SLOT(callback_Setup_Tab3_ReloadGuildsPB()));
+            this,                       SLOT(callback_ReloadGuildsPB()));
     connect(Setup_Tab3_NumSpeciesSB,    SIGNAL(valueChanged(int)),
-            this,                       SLOT(callback_Setup_Tab3_NumSpecies(int)));
+            this,                       SLOT(callback_NumSpeciesSB(int)));
     connect(Setup_Tab3_AddSpeciesPB,    SIGNAL(clicked()),
-            this,                       SLOT(callback_Setup_Tab3_AddSpeciesPB()));
+            this,                       SLOT(callback_AddSpeciesPB()));
     connect(Setup_Tab3_DelSpeciesPB,    SIGNAL(clicked()),
-            this,                       SLOT(callback_Setup_Tab3_DelSpeciesPB()));
+            this,                       SLOT(callback_DelSpeciesPB()));
     connect(Setup_Tab3_ReloadSpeciesPB, SIGNAL(clicked()),
-            this,                       SLOT(callback_Setup_Tab3_ReloadSpeciesPB()));
+            this,                       SLOT(callback_ReloadSpeciesPB()));
+    connect(Setup_Tab3_ImportPB,        SIGNAL(clicked()),
+            this,                       SLOT(callback_ImportPB()));
+    connect(Setup_Tab3_LoadPB,          SIGNAL(clicked()),
+            this,                       SLOT(callback_LoadPB()));
     connect(Setup_Tab3_SavePB,          SIGNAL(clicked()),
-            this,                       SLOT(callback_Setup_Tab3_SavePB()));
+            this,                       SLOT(callback_SavePB()));
     connect(Setup_Tab3_PrevPB,          SIGNAL(clicked()),
-            this,                       SLOT(callback_Setup_Tab3_PrevPB()));
+            this,                       SLOT(callback_PrevPB()));
     connect(Setup_Tab3_SpeciesTW,       SIGNAL(cellClicked(int,int)),
-            this,                       SLOT(callback_Setup_Tab3_SpeciesTableChanged(int,int)));
+            this,                       SLOT(callback_SpeciesTableChanged(int,int)));
     connect(Setup_Tab3_GuildsTW,        SIGNAL(cellClicked(int,int)),
-            this,                       SLOT(callback_Setup_Tab3_GuildsTableChanged(int,int)));
+            this,                       SLOT(callback_GuildsTableChanged(int,int)));
     connect(Setup_Tab3_UpdateSpeciesPB, SIGNAL(clicked()),
-            this,                       SLOT(callback_Setup_Tab3_UpdateSpeciesPB()));
+            this,                       SLOT(callback_UpdateSpeciesPB()));
 
-    Setup_Tab3_LoadPB->hide();
+//    Setup_Tab3_LoadPB->hide();
 
     Setup_Tab3_PrevPB->setText("\u25C1--");
     Setup_Tab3_SavePB->setEnabled(true);
@@ -104,14 +107,20 @@ nmfSetup_Tab3::~nmfSetup_Tab3()
 {
 }
 
-void
-nmfSetup_Tab3::callback_Setup_Tab3_ReloadGuildsPB()
+bool
+nmfSetup_Tab3::onGuildPage()
 {
-    callback_Setup_Tab3_ReloadGuildsPB(nmfConstantsMSSPM::ShowPopupError);
+    return (Setup_Tab3_GuildsSpeciesTabW->currentIndex() == 0);
 }
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_ReloadGuildsPB(bool showPopup)
+nmfSetup_Tab3::callback_ReloadGuildsPB()
+{
+    callback_ReloadGuildsPB(nmfConstantsMSSPM::ShowPopupError);
+}
+
+void
+nmfSetup_Tab3::callback_ReloadGuildsPB(bool showPopup)
 {
     loadGuilds();
 
@@ -123,13 +132,23 @@ nmfSetup_Tab3::callback_Setup_Tab3_ReloadGuildsPB(bool showPopup)
 }
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_ReloadSpeciesPB()
+nmfSetup_Tab3::callback_LoadPB()
 {
-    callback_Setup_Tab3_ReloadSpeciesPB(nmfConstantsMSSPM::ShowPopupError);
+    if (onGuildPage()) {
+        callback_ReloadGuildsPB();
+    } else {
+        callback_ReloadSpeciesPB();
+    }
 }
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_ReloadSpeciesPB(bool showPopup)
+nmfSetup_Tab3::callback_ReloadSpeciesPB()
+{
+    callback_ReloadSpeciesPB(nmfConstantsMSSPM::ShowPopupError);
+}
+
+void
+nmfSetup_Tab3::callback_ReloadSpeciesPB(bool showPopup)
 {
     loadSpecies();
 
@@ -169,7 +188,7 @@ nmfSetup_Tab3::callback_Setup_Tab3_ReloadSpeciesPB(bool showPopup)
 //}
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_DelGuildPB()
+nmfSetup_Tab3::callback_DelGuildPB()
 {
     std::string msg;
     QMessageBox::StandardButton reply;
@@ -219,7 +238,7 @@ nmfSetup_Tab3::callback_Setup_Tab3_DelGuildPB()
 
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_DelSpeciesPB()
+nmfSetup_Tab3::callback_DelSpeciesPB()
 {
     std::string msg;
     QMessageBox::StandardButton reply;
@@ -325,7 +344,7 @@ nmfSetup_Tab3::executeDelete(std::string cmd)
 }
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_AddGuildPB()
+nmfSetup_Tab3::callback_AddGuildPB()
 {
     int numRows = Setup_Tab3_GuildsTW->rowCount();
     int numCols = numColumnsGuilds();
@@ -343,7 +362,7 @@ nmfSetup_Tab3::callback_Setup_Tab3_AddGuildPB()
 
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_AddSpeciesPB()
+nmfSetup_Tab3::callback_AddSpeciesPB()
 {
     int numRows = Setup_Tab3_SpeciesTW->rowCount();
     int numCols = numColumnsSpecies();
@@ -362,7 +381,7 @@ nmfSetup_Tab3::callback_Setup_Tab3_AddSpeciesPB()
 
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_PrevPB()
+nmfSetup_Tab3::callback_PrevPB()
 {
     int prevPage = Setup_Tabs->currentIndex()-1;
     Setup_Tabs->setCurrentIndex(prevPage);
@@ -386,13 +405,71 @@ nmfSetup_Tab3::guildDataIsSaved()
 }
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_SavePB()
+nmfSetup_Tab3::callback_ImportPB()
 {
-    bool onGuildPage = (Setup_Tab3_GuildsSpeciesTabW->currentIndex() == 0);
+    QStringList GuildValues = {};
 
+    for (int row=0; row<Setup_Tab3_GuildsTW->rowCount(); ++row) {
+        GuildValues << Setup_Tab3_GuildsTW->item(row,0)->text();
+    }
+
+    if (onGuildPage()) {
+        loadCSVFile(Setup_Tab3_GuildsTW,{});
+    } else {
+//      loadCSVFile(Setup_Tab3_SpeciesTW,GuildValues);
+std::cout << "emitting" << std::endl;
+        emit LoadSpeciesSupplemental();
+    }
+}
+
+void
+nmfSetup_Tab3::callback_UpdateTable(QList<QString> SpeNames,
+                                    QList<QString> InitBiomass,
+                                    QList<QString> GrowthRate,
+                                    QList<QString> SpeciesK)
+{
+    int col;
+    int index = 0;
+    QTableWidgetItem *item;
+
+    callback_ReloadSpeciesPB(nmfConstantsMSSPM::DontShowPopupError);
+
+    QList<int> columns = {nmfConstantsMSSPM::Column_Species_SpeName,
+                          nmfConstantsMSSPM::Column_Species_InitBiomass,
+                          nmfConstantsMSSPM::Column_Species_GrowthRate,
+                          nmfConstantsMSSPM::Column_Species_SpeciesK};
+    for (QList<QString> list : {SpeNames,InitBiomass,GrowthRate,SpeciesK}) {
+        col = columns[index++];
+        for (int row=0; row<SpeNames.size(); ++row) {
+            item = new QTableWidgetItem();
+            item->setText(list[row]);
+            item->setTextAlignment(Qt::AlignCenter);
+            Setup_Tab3_SpeciesTW->setItem(row,col,item);
+        }
+    }
+}
+
+void
+nmfSetup_Tab3::loadCSVFile(QTableWidget* tableWidget,
+                           const QStringList& guildValues)
+{
+    QString errorMsg;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+
+    bool loadOK = nmfUtilsQt::loadTableWidgetData(
+                Setup_Tabs, tableWidget, inputDataPath,
+                guildValues, errorMsg);
+    if (! loadOK) {
+        m_logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+    }
+}
+
+void
+nmfSetup_Tab3::callback_SavePB()
+{
     Setup_Tabs->setCursor(Qt::WaitCursor);
 
-    if (onGuildPage) {
+    if (onGuildPage()) {
         saveGuildData();
     } else {
         if (guildDataIsSaved()) {
@@ -527,6 +604,10 @@ nmfSetup_Tab3::saveGuildData()
 
     QMessageBox::information(Setup_Tabs, "Save",
                              tr("\nGuild data saved.\n"));
+
+    // Save Guild csv file
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    nmfUtilsQt::saveTableWidgetData(Setup_Tabs,Setup_Tab3_GuildsTW,inputDataPath,"");
 
 }
 
@@ -753,6 +834,8 @@ nmfSetup_Tab3::saveSpeciesData()
     QMessageBox::information(Setup_Tabs, "Save",
                              tr("\nSpecies data saved.\n"));
 
+    // Save Species csv file
+    emit SaveSpeciesSupplemental();
 }
 
 
@@ -944,7 +1027,7 @@ nmfSetup_Tab3::populateARowSpecies(int row, int ncols)
 
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_NumGuilds(int numGuilds)
+nmfSetup_Tab3::callback_NumGuildsSB(int numGuilds)
 {
     int ncols;
     int nrows;
@@ -968,7 +1051,7 @@ nmfSetup_Tab3::callback_Setup_Tab3_NumGuilds(int numGuilds)
 
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_NumSpecies(int numSpecies)
+nmfSetup_Tab3::callback_NumSpeciesSB(int numSpecies)
 {
     int ncols;
     int nrows;
@@ -1070,7 +1153,7 @@ nmfSetup_Tab3::loadGuilds()
         return;
     }
 
-    callback_Setup_Tab3_NumGuilds(NumGuilds);
+    callback_NumGuildsSB(NumGuilds);
 
     if (NumGuilds > 0) {
         Setup_Tab3_NumGuildsSB->setValue(NumGuilds);
@@ -1111,7 +1194,7 @@ nmfSetup_Tab3::loadSpecies()
         return;
     }
 
-    callback_Setup_Tab3_NumSpecies(NumSpecies);
+    callback_NumSpeciesSB(NumSpecies);
 
     // Load up all of the Species widgets with data from the database.
     if (NumSpecies > 0) {
@@ -1183,14 +1266,14 @@ nmfSetup_Tab3::numColumnsGuilds()
 
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_SpeciesTableChanged(int row, int col)
+nmfSetup_Tab3::callback_SpeciesTableChanged(int row, int col)
 {
     Setup_Tab3_NumSpeciesSB->setEnabled(false);
 }
 
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_GuildsTableChanged(int row, int col)
+nmfSetup_Tab3::callback_GuildsTableChanged(int row, int col)
 {
     Setup_Tab3_NumGuildsSB->setEnabled(false);
 }
@@ -1198,7 +1281,7 @@ nmfSetup_Tab3::callback_Setup_Tab3_GuildsTableChanged(int row, int col)
 
 
 void
-nmfSetup_Tab3::callback_Setup_Tab3_UpdateSpeciesPB()
+nmfSetup_Tab3::callback_UpdateSpeciesPB()
 {
     QComboBox* guildCMB;
     QString guildName;

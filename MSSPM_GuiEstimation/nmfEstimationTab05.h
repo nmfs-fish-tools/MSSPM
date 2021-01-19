@@ -58,9 +58,12 @@ class nmfEstimation_Tab5: public QObject
     QPushButton* Estimation_Tab5_NextPB;
     QPushButton* Estimation_Tab5_LoadPB;
     QPushButton* Estimation_Tab5_SavePB;
+    QPushButton* Estimation_Tab5_ImportPB;
     QGroupBox*   Estimation_Tab5_CovariatesGB;
 
+    void loadCSVFile(std::string& tableName);
     void readSettings();
+    void saveCSVFile(std::string& tableName);
 
 public:
     /**
@@ -118,9 +121,14 @@ public Q_SLOTS:
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when the user clicks the Load button
+     * @brief Callback invoked when the user clicks the Load button to load the corresponding
+     * database table
      */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when the user clicks the Import button to load a .csv file
+     */
+    void callback_ImportPB();
     /**
      * @brief Callback invoked when the user clicks the Save button
      */

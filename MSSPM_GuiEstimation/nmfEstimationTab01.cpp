@@ -41,6 +41,7 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     Estimation_Tab1_NextPB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_NextPB");
     Estimation_Tab1_PopulationGB        = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab1_PopulationGB");
     Estimation_Tab1_LoadPB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_LoadPB");
+    Estimation_Tab1_ImportPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_ImportPB");
     Estimation_Tab1_RestorePB           = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_RestorePB");
     Estimation_Tab1_SavePB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_SavePB");
     Estimation_Tab1_ModifySL            = Estimation_Tabs->findChild<QSlider     *>("Estimation_Tab1_ModifySL");
@@ -65,6 +66,8 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
             this,                           SLOT(callback_NextPB()));
     connect(Estimation_Tab1_LoadPB,         SIGNAL(clicked()),
             this,                           SLOT(callback_LoadPB()));
+    connect(Estimation_Tab1_ImportPB,       SIGNAL(clicked()),
+            this,                           SLOT(callback_ImportPB()));
     connect(Estimation_Tab1_RestorePB,      SIGNAL(clicked()),
             this,                           SLOT(callback_RestorePB()));
     connect(Estimation_Tab1_SavePB,         SIGNAL(clicked()),
@@ -200,7 +203,7 @@ nmfEstimation_Tab1::callback_ModifyReleasedSL()
     resetModifySlider();
 
     // Save population parameters
-    if (Estimation_Tab1_PopulationTabW->currentIndex() == 0) { // if on Guilds tab
+    if (onGuildTab()) {
         ok = savePopulationParametersGuilds(nmfConstantsMSSPM::DontShowPopupError);
     } else { // if on Species tab
         ok = savePopulationParametersSpecies(nmfConstantsMSSPM::DontShowPopupError);
@@ -315,15 +318,51 @@ nmfEstimation_Tab1::resetVisibleColumns()
     callback_SpeciesRangeCB(isChecked(Estimation_Tab1_SpeciesRangeCB));
 }
 
+bool
+nmfEstimation_Tab1::onGuildTab()
+{
+    return (Estimation_Tab1_PopulationTabW->currentIndex() == 0);
+}
+
+void
+nmfEstimation_Tab1::callback_ImportPB()
+{
+    QString errorMsg;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QTableView* tableView = (onGuildTab()) ? Estimation_Tab1_GuildPopulationTV :
+                                             Estimation_Tab1_SpeciesPopulationTV;
+
+    bool loadOK = nmfUtilsQt::loadTimeSeries(
+                Estimation_Tabs, tableView, inputDataPath, "",
+                nmfConstantsMSSPM::FirstLineNotReadOnly,errorMsg);
+    if (! loadOK) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+    }
+
+    // Load signal with data to send to Species Setup tab
+    QList<QString> SpeNames;
+    QList<QString> InitBiomass;
+    QList<QString> GrowthRate;
+    QList<QString> SpeciesK;
+    for (int row=0; row<m_SpeciesModel->rowCount(); ++row) {
+        SpeNames.push_back(   m_SpeciesModel->item(row,nmfConstantsMSSPM::Column_Supp_SpeName)->text());
+        InitBiomass.push_back(m_SpeciesModel->item(row,nmfConstantsMSSPM::Column_Supp_InitBiomass)->text());
+        GrowthRate.push_back( m_SpeciesModel->item(row,nmfConstantsMSSPM::Column_Supp_GrowthRate)->text());
+        SpeciesK.push_back(   m_SpeciesModel->item(row,nmfConstantsMSSPM::Column_Supp_SpeciesK)->text());
+    }
+    emit UpdateSpeciesSetupData(SpeNames,InitBiomass,GrowthRate,SpeciesK);
+}
+
 void
 nmfEstimation_Tab1::callback_SavePB()
 {
     bool ok = true;
     std::string msg = "\n";
+    std::string type = (onGuildTab()) ? "Guilds" : "Species";
 
     // Show warning
     QMessageBox::StandardButton reply;
-    msg += "Are you sure you want to overwrite current Species settings\n";
+    msg += "Are you sure you want to overwrite current "+type+" settings\n";
     msg += "with current Population Parameters? This cannot be undone.\n";
     reply = QMessageBox::question(Estimation_Tabs, tr("Overwrite Species"), tr(msg.c_str()),
                                   QMessageBox::No|QMessageBox::Yes,
@@ -333,7 +372,7 @@ nmfEstimation_Tab1::callback_SavePB()
     }
 
 
-    if (Estimation_Tab1_PopulationTabW->currentIndex() == 0) { // if on Guilds tab
+    if (onGuildTab()) {
         ok = savePopulationParametersGuilds(nmfConstantsMSSPM::ShowPopupError);
     } else { // if on Species tab
         ok = savePopulationParametersSpecies(nmfConstantsMSSPM::ShowPopupError);
@@ -342,6 +381,9 @@ nmfEstimation_Tab1::callback_SavePB()
         loadWidgets();
     }
     resetSelection();
+
+    saveCSVFile();
+
 }
 
 void
@@ -1010,7 +1052,58 @@ nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
                                  "\nSpecies table has been successfully updated.\n",
                                  QMessageBox::Ok);
     }
+
     return true;
+}
+
+void
+nmfEstimation_Tab1::callback_SaveCSVFile()
+{
+    saveCSVFile();
+}
+
+void
+nmfEstimation_Tab1::saveCSVFile()
+{
+    QString msg;
+
+    // Save time series data to a .csv file
+    std::string tableName = "Species";
+    msg = "\nOK to use default file name for Species .csv file and overwrite any previous file?";
+    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Species CSV File"),
+                                                              tr(msg.toLatin1()),
+                                                              QMessageBox::No|QMessageBox::Yes,
+                                                              QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        saveCSVFile(tableName);
+    } else {
+        bool ok;
+        QString tag = QInputDialog::getText(Estimation_Tabs, tr("Species Files"),
+                                            tr("Enter Species CSV filename version tag (omit any '_'): "),
+                                            QLineEdit::Normal, "", &ok);
+        if (ok && !tag.isEmpty()) {
+            tableName += "_"+tag.toStdString();
+            saveCSVFile(tableName);
+        }
+    }
+}
+
+void
+nmfEstimation_Tab1::saveCSVFile(std::string tableName)
+{
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QString tableNameStr = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
+    QStandardItemModel* smodel = (onGuildTab()) ? m_GuildModel : m_SpeciesModel;
+
+    nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameStr);
+
+    QFileInfo fileInfo(tableNameStr);
+    if (fileInfo.suffix().toLower() != "csv") {
+        tableNameStr += ".csv";
+    }
+    QMessageBox::information(Estimation_Tabs, "File Saved",
+                             "\nSpecies CSV file has been successfully saved:\n\n"+tableNameStr+"\n",
+                             QMessageBox::Ok);
 }
 
 void

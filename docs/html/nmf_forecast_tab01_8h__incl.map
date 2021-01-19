@@ -1,3 +1,4 @@
 <map id="MSSPM_GuiForecast/nmfForecastTab01.h" name="MSSPM_GuiForecast/nmfForecastTab01.h">
-<area shape="rect" id="node2" href="$_load_forecast_dlg_8h.html" title="GUI definition for the LoadForecastDlg widget class. " alt="" coords="53,95,185,121"/>
+<area shape="rect" id="node1" title="GUI definition for the nmfForecast_Tab1 Forecast Setup Data class." alt="" coords="5,5,244,47"/>
+<area shape="rect" id="node2" href="$_load_forecast_dlg_8h.html" title="GUI definition for the LoadForecastDlg widget class." alt="" coords="53,95,196,121"/>
 </map>

@@ -49,6 +49,7 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     Estimation_Tab4_NextPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_NextPB");
     Estimation_Tab4_LoadPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_LoadPB");
     Estimation_Tab4_SavePB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_SavePB");
+    Estimation_Tab4_ImportPB        = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_ImportPB");
     Estimation_Tab4_EstimateCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab4_EstimateCB");
 
     Estimation_Tab4_PredationMinTV->setToolTip("Minimum Value for Predation Effect of Column Predator on Row Prey");
@@ -66,6 +67,8 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
             this,                           SLOT(callback_LoadPB()));
     connect(Estimation_Tab4_SavePB,         SIGNAL(clicked()),
             this,                           SLOT(callback_SavePB()));
+    connect(Estimation_Tab4_ImportPB,       SIGNAL(clicked()),
+            this,                           SLOT(callback_ImportPB()));
     connect(Estimation_Tab4_PredationMinSP, SIGNAL(splitterMoved(int,int)),
             this,                           SLOT(callback_MinSplitterMoved(int,int)));
     connect(Estimation_Tab4_PredationMaxSP, SIGNAL(splitterMoved(int,int)),
@@ -168,6 +171,70 @@ nmfEstimation_Tab4::callback_LoadPB()
 }
 
 void
+nmfEstimation_Tab4::callback_ImportPB()
+{
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::vector<std::string> allTableNames = getAllTableNames();
+    int numTables = allTableNames.size();
+
+    // Load default CSV files
+    std::string msg = "\nLoad default Predation .csv files?";
+    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Predation CSV Files"),
+                                                              tr(msg.c_str()),
+                                                              QMessageBox::No|QMessageBox::Yes,
+                                                              QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        loadCSVFiles(allTableNames);
+    } else {
+        // if no, raise browser and have user select "PredationLossRatesMin*.csv" file.
+        QString filename = QFileDialog::getOpenFileName(
+                    Estimation_Tabs,
+                    QObject::tr("Select PredationLossRatesMin*.csv file"), inputDataPath,
+                    QObject::tr("Data Files (*.csv)"));
+        QFileInfo fi(filename);
+        QString base = fi.baseName(); // PredationLossRatesMin*
+        QStringList parts = base.split("PredationLossRatesMin");
+        if (parts.size() == 2) {
+            QString tag = parts[1];
+            for (int i=0; i<numTables; ++i) {
+                allTableNames[i] += tag.toStdString();
+            }
+            loadCSVFiles(allTableNames);
+        } else {
+            QMessageBox::information(Estimation_Tabs, "Predation CSV Import",
+                                     "\nPlease make sure to select the filename that begins with: PredationLossRatesMin\n",
+                                     QMessageBox::Ok);
+        }
+    }
+}
+
+void
+nmfEstimation_Tab4::loadCSVFiles(std::vector<std::string>& allTableNames)
+{
+    bool loadOK;
+    int tableNum=0;
+    QString errorMsg;
+    QString tableName;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::vector<QTableView*> allTableViews = getAllTableViews();
+
+    if (allTableViews.size() == allTableNames.size()) {
+        for (QTableView* tv : allTableViews) {
+            tableName = QDir(inputDataPath).filePath(QString::fromStdString(allTableNames[tableNum]+".csv"));
+            loadOK = nmfUtilsQt::loadTimeSeries(
+                   Estimation_Tabs, tv, inputDataPath, tableName,
+                   nmfConstantsMSSPM::FirstLineNotReadOnly, errorMsg);
+            if (! loadOK) {
+                m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+            }
+            ++tableNum;
+        }
+    } else {
+        m_Logger->logMsg(nmfConstants::Error,"callback_ImportPB: number of visible tables don't match number of active table names");
+    }
+}
+
+void
 nmfEstimation_Tab4::callback_SavePB()
 {
     bool systemFound = false;
@@ -205,18 +272,18 @@ nmfEstimation_Tab4::callback_SavePB()
     }
 
     // Initialize
-    for (unsigned i=0; i<m_Tables2d.size(); ++i) {
+    for (unsigned i=0; i<m_TableNames2d.size(); ++i) {
         nmfUtils::initialize(MinMax2d[i], SpeNames.size(), SpeNames.size());
     }
 
     // Save 1d tables
     if (m_PredationForm == "Type III")
     {
-        for (unsigned i=0; i<m_Tables1d.size(); ++i) {
+        for (unsigned i=0; i<m_TableNames1d.size(); ++i) {
             nmfUtils::initialize(MinMax1d[i], SpeNames.size(), 1);
         }
 
-        for (unsigned int k=0; k<m_Tables1d.size(); ++k) {
+        for (unsigned int k=0; k<m_TableNames1d.size(); ++k) {
             if (k%2 == 0) { // if it's an even number (there can be 2 or 4 of these types of tables)
                 if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_smodels1d[k],m_smodels1d[k+1])) {
                     m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab4::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
@@ -227,20 +294,20 @@ nmfEstimation_Tab4::callback_SavePB()
                     return;
                 }
             }
-            cmd = "DELETE FROM " + m_Tables1d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+            cmd = "DELETE FROM " + m_TableNames1d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs, "Error",
                                      "\nError in Save command.  Couldn't delete all records from " +
-                                     QString::fromStdString(m_Tables1d[k]) + " table.\n",
+                                     QString::fromStdString(m_TableNames1d[k]) + " table.\n",
                                      QMessageBox::Ok);
                 Estimation_Tabs->setCursor(Qt::ArrowCursor);
                 return;
             }
 
-            cmd = "INSERT INTO " + m_Tables1d[k] + " (SystemName,SpeName,Value) VALUES ";
+            cmd = "INSERT INTO " + m_TableNames1d[k] + " (SystemName,SpeName,Value) VALUES ";
             for (int i=0; i<m_smodels1d[k]->rowCount(); ++i) {
                 for (int j=0; j<m_smodels1d[k]->columnCount(); ++ j) {
                     index = m_smodels1d[k]->index(i,j);
@@ -264,7 +331,7 @@ nmfEstimation_Tab4::callback_SavePB()
     }
 
     // Save 2d tables
-    for (unsigned int k=0; k<m_Tables2d.size(); ++k)
+    for (unsigned int k=0; k<m_TableNames2d.size(); ++k)
     {
         if (k%2 == 0) { // if it's an even number (there can be 2 or 4 of these types of tables)
             if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_smodels2d[k],m_smodels2d[k+1])) {
@@ -276,20 +343,20 @@ nmfEstimation_Tab4::callback_SavePB()
                 return;
             }
         }
-        cmd = "DELETE FROM " + m_Tables2d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+        cmd = "DELETE FROM " + m_TableNames2d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Estimation_Tabs, "Error",
                                  "\nError in Save command.  Couldn't delete all records from " +
-                                 QString::fromStdString(m_Tables2d[k]) + " table.\n",
+                                 QString::fromStdString(m_TableNames2d[k]) + " table.\n",
                                  QMessageBox::Ok);
             Estimation_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
 
-        cmd = "INSERT INTO " + m_Tables2d[k] + " (SystemName,SpeciesA,SpeciesB,Value) VALUES ";
+        cmd = "INSERT INTO " + m_TableNames2d[k] + " (SystemName,SpeciesA,SpeciesB,Value) VALUES ";
         for (int i=0; i<m_smodels2d[k]->rowCount(); ++i) {
             for (int j=0; j<m_smodels2d[k]->columnCount(); ++ j) {
                 index = m_smodels2d[k]->index(i,j);
@@ -335,8 +402,90 @@ nmfEstimation_Tab4::callback_SavePB()
     loadWidgets();
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
+
+    // Save time series data to a .csv file
+    QString tableNameWithPath;
+    std::vector<std::string> allTableNames = getAllTableNames();
+    std::vector<QTableView*> allTableViews = getAllTableViews();
+    int numTableNames = int(allTableNames.size());
+    int numTableViews = int(allTableViews.size());
+    if (numTableNames == numTableViews) {
+        std::string msg = "\nOK to use default file names for Predation .csv files and overwrite any previous files?";
+        QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Predation CSV Files"),
+                                                                  tr(msg.c_str()),
+                                                                  QMessageBox::No|QMessageBox::Yes,
+                                                                  QMessageBox::Yes);
+        if (reply == QMessageBox::Yes) {
+            saveCSVFiles(allTableNames);
+        } else {
+            bool ok;
+            QString tag = QInputDialog::getText(Estimation_Tabs, tr("Predation Files"),
+                                                 tr("Enter Predation CSV filename version tag (omit any '_'): "), QLineEdit::Normal,
+                                                 "", &ok);
+            if (ok && !tag.isEmpty()) {
+                 for (int i=0; i<numTableNames; ++i) {
+                     allTableNames[i] += "_"+tag.toStdString();
+                 }
+                 saveCSVFiles(allTableNames);
+            }
+        }
+    } else {
+        std::string msg = "Error: numTableNames(" + std::to_string(numTableNames) +
+                ") different size than numTableViews(" + std::to_string(numTableViews) + ")";
+        m_Logger->logMsg(nmfConstants::Error,msg);
+    }
+
 }
 
+std::vector<std::string>
+nmfEstimation_Tab4::getAllTableNames()
+{
+    std::vector<std::string> allTableNames;
+
+    for (std::vector<std::string> tables : {m_TableNames1d, m_TableNames2d}) {
+        for (std::string tableName : tables) {
+            allTableNames.push_back(tableName);
+        }
+    }
+
+    return allTableNames;
+}
+
+std::vector<QTableView*>
+nmfEstimation_Tab4::getAllTableViews()
+{
+    std::vector<QTableView*> allTableViews;
+
+    for (std::vector<QTableView*> tables : {m_TableViews1d, m_TableViews2d}) {
+        for (QTableView* tableView : tables) {
+            if (tableView->width() > 0) { // ignore hidden tables
+                allTableViews.push_back(tableView);
+            }
+        }
+    }
+
+    return allTableViews;
+}
+
+void
+nmfEstimation_Tab4::saveCSVFiles(
+        std::vector<std::string>& allTableNames)
+{
+    int tableNum = 0;
+    QString tableNameWithPath;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::vector<QTableView* > allTableViews = getAllTableViews();
+
+    for (QTableView* tv : allTableViews) {
+        tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(allTableNames[tableNum]));
+        QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(tv->model());
+        nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameWithPath);
+        ++tableNum;
+    }
+    QMessageBox::information(Estimation_Tabs, "Predation Files Saved",
+                             "\nPredation CSV files have been successfully saved.\n",
+                             QMessageBox::Ok);
+}
 
 void
 nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
@@ -408,17 +557,17 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
     }
 
     // Load table names
-    m_Tables1d.clear();
+    m_TableNames1d.clear();
     if (m_PredationForm == "Type III") {
-        m_Tables1d.push_back("PredationExponentMin");
-        m_Tables1d.push_back("PredationExponentMax");
+        m_TableNames1d.push_back("PredationExponentMin");
+        m_TableNames1d.push_back("PredationExponentMax");
     }
-    m_Tables2d.clear();
-    m_Tables2d.push_back("PredationLossRatesMin");
-    m_Tables2d.push_back("PredationLossRatesMax");
+    m_TableNames2d.clear();
+    m_TableNames2d.push_back("PredationLossRatesMin");
+    m_TableNames2d.push_back("PredationLossRatesMax");
     if ((m_PredationForm == "Type II") || (m_PredationForm == "Type III")) {
-        m_Tables2d.push_back("HandlingTimeMin");
-        m_Tables2d.push_back("HandlingTimeMax");
+        m_TableNames2d.push_back("HandlingTimeMin");
+        m_TableNames2d.push_back("HandlingTimeMax");
     }
 }
 
@@ -530,14 +679,14 @@ nmfEstimation_Tab4::loadWidgets()
     int NumSpeciesOrGuilds = (isAggProd) ? NumGuilds : NumSpecies;
 
     // Load the 1d tables
-    for (unsigned int k=0; k<m_Tables1d.size(); ++k) {
+    for (unsigned int k=0; k<m_TableNames1d.size(); ++k) {
         if (isAggProd) {
             smodel = new QStandardItemModel(NumGuilds, 1);
             m_smodels1d[k] = smodel;
             m_TableViews1d[k]->setModel(smodel);
         }
         fields    = {"SystemName","SpeName","Value"};
-        queryStr  = "SELECT SystemName,SpeName,Value FROM " + m_Tables1d[k] +
+        queryStr  = "SELECT SystemName,SpeName,Value FROM " + m_TableNames1d[k] +
                     " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
         dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
@@ -562,14 +711,14 @@ nmfEstimation_Tab4::loadWidgets()
     }
 
     // Load the 2d tables
-    for (unsigned int k=0; k<m_Tables2d.size(); ++k) {
+    for (unsigned int k=0; k<m_TableNames2d.size(); ++k) {
         if (isAggProd) {
             smodel = new QStandardItemModel(NumGuilds, NumGuilds);
             m_smodels2d[k] = smodel;
             m_TableViews2d[k]->setModel(smodel);
         }
         fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
-        queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_Tables2d[k] +
+        queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_TableNames2d[k] +
                     " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
         dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeciesA"].size();

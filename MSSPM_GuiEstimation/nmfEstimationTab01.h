@@ -67,6 +67,7 @@ class nmfEstimation_Tab1: public QObject
     QPushButton*  Estimation_Tab1_NextPB;
     QGroupBox*    Estimation_Tab1_PopulationGB;
     QPushButton*  Estimation_Tab1_LoadPB;
+    QPushButton*  Estimation_Tab1_ImportPB;
     QPushButton*  Estimation_Tab1_RestorePB;
     QPushButton*  Estimation_Tab1_SavePB;
     QSlider*      Estimation_Tab1_ModifySL;
@@ -90,6 +91,7 @@ class nmfEstimation_Tab1: public QObject
     bool isChecked(QCheckBox* cb);
     bool loadGuilds();
     bool loadSpecies();
+    bool onGuildTab();
     void reselectVisibleCells(QModelIndexList indexes);
     void resetModifySlider();
     void resetSelection();
@@ -99,6 +101,8 @@ class nmfEstimation_Tab1: public QObject
     void showPrimaryColumns(QTableView* tv);
     void showSuppColumns(QTableView* tv,bool show);
     void showRangeColumns(QTableView* tv,bool show);
+    void saveCSVFile();
+    void saveCSVFile(std::string tableName);
     bool savePopulationParametersGuilds(bool showPopup);
     bool saveGuildDataPrimary(bool showPopup);
     bool saveGuildDataSupplemental(bool showPopup);
@@ -118,6 +122,14 @@ signals:
      */
     void CheckAllEstimationTablesAndRun();
     /**
+     * @brief Signal sent so the Species Setup tab will be updated with the appropriate Species fields
+     */
+    void UpdateSpeciesSetupData(
+            QList<QString> SpeNames,
+            QList<QString> InitBiomass,
+            QList<QString> GrowthRate,
+            QList<QString> SpeciesK);
+    /**
      * @brief Signal notifying other widgets to reload guilds data
      * @param showPopup : boolean signifying whether the application should pop up a successful reload acknowledgement
      */
@@ -127,6 +139,10 @@ signals:
      * @param showPopup : boolean signifying whether the application should pop up a successful reload acknowledgement
      */
     void ReloadSpecies(bool showPopup);
+    /**
+     * @brief Signal causes the recently saved Output Species names to be written back into the appropriate Output Controls widget
+     */
+    void RestoreOutputSpecies();
     /**
      * @brief Signal notifying that a new Diagnostics parameter run should be made
      */
@@ -140,8 +156,10 @@ signals:
      * @brief Signal notifying that the Diagnostics parameter output 3d display should be shown
      */
     void ShowDiagnostics();
+    /**
+     * @brief Signal causes the Species names in the Output Species widget to be temporarily saved
+     */
     void StoreOutputSpecies();
-    void RestoreOutputSpecies();
 
 public:
     /**
@@ -190,13 +208,13 @@ public Q_SLOTS:
      */
     void callback_CurrentTabChanged(int subtab);
     /**
+     * @brief Callback invoked when the user clicks the Import button to load data from a .csv file
+     */
+    void callback_ImportPB();
+    /**
      * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
-    /**
-     * @brief Callback invoked when the user clicks the Save button
-     */
-    void callback_SavePB();
     /**
      * @brief Callback invoked when the user presses the Run Modify button which
      * performs an Estimation Run and Diagnostics Run as if the user had clicked on
@@ -221,6 +239,15 @@ public Q_SLOTS:
      * reload the table data with the data prior to the user modifying the data with the slider.
      */
     void callback_RestorePB();
+    /**
+     * @brief Callback invoked when the user clicks the Save button
+     */
+    void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user saves the Species from
+     * the Species Setup tab
+     */
+    void callback_SaveCSVFile();
     /**
      * @brief Callback invoked when the user makes a selection in the tableview
      * @param selection : the selection just made

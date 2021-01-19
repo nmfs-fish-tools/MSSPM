@@ -1,2 +1,4 @@
 <map id="LoadDlg" name="LoadDlg">
+<area shape="rect" id="node1" title="Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4." alt="" coords="5,80,80,107"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,5,80,32"/>
 </map>

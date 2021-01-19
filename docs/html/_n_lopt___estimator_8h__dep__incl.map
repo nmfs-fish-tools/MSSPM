@@ -1,4 +1,5 @@
 <map id="MSSPM_ParameterEstimationNLoptAlgorithm/NLopt_Estimator.h" name="MSSPM_ParameterEstimationNLoptAlgorithm/NLopt_Estimator.h">
-<area shape="rect" id="node2" href="$nmf_diagnostic_tab01_8h.html" title="GUI definition for the nmfDiagnostic_Tab1 Parameter Profiles Diagnostics Data class. " alt="" coords="5,95,165,136"/>
-<area shape="rect" id="node3" href="$nmf_main_window_8h.html" title="GUI definition for the main nmfMainWindow MSSPM Application class. " alt="" coords="35,184,253,211"/>
+<area shape="rect" id="node1" title="Class definition for the NLopt_Estimator API." alt="" coords="29,5,275,47"/>
+<area shape="rect" id="node2" href="$nmf_diagnostic_tab01_8h.html" title="GUI definition for the nmfDiagnostic_Tab1 Parameter Profiles Diagnostics Data class." alt="" coords="5,95,176,136"/>
+<area shape="rect" id="node3" href="$nmf_main_window_8h.html" title="GUI definition for the main nmfMainWindow MSSPM Application class." alt="" coords="35,184,269,211"/>
 </map>

@@ -1,3 +1,4 @@
 <map id="MSSPM_GuiDiagnostic/nmfDiagnosticTab01.h" name="MSSPM_GuiDiagnostic/nmfDiagnosticTab01.h">
-<area shape="rect" id="node2" href="$nmf_main_window_8h.html" title="GUI definition for the main nmfMainWindow MSSPM Application class. " alt="" coords="5,95,224,121"/>
+<area shape="rect" id="node1" title="GUI definition for the nmfDiagnostic_Tab1 Parameter Profiles Diagnostics Data class." alt="" coords="37,5,208,47"/>
+<area shape="rect" id="node2" href="$nmf_main_window_8h.html" title="GUI definition for the main nmfMainWindow MSSPM Application class." alt="" coords="5,95,240,121"/>
 </map>

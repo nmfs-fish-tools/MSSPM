@@ -34,21 +34,24 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     // Add the loaded widget as the new tabbed page
     Estimation_Tabs->addTab(Estimation_Tab2_Widget, tr("2. Harvest Parameters"));
 
-    Estimation_Tab2_CatchTV = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_CatchTV");
-    Estimation_Tab2_CatchGB = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab2_CatchGB");
-    Estimation_Tab2_PrevPB  = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_PrevPB");
-    Estimation_Tab2_NextPB  = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_NextPB");
-    Estimation_Tab2_LoadPB  = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_LoadPB");
-    Estimation_Tab2_SavePB  = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_SavePB");
+    Estimation_Tab2_CatchTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_CatchTV");
+    Estimation_Tab2_CatchGB  = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab2_CatchGB");
+    Estimation_Tab2_PrevPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_PrevPB");
+    Estimation_Tab2_NextPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_NextPB");
+    Estimation_Tab2_LoadPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_LoadPB");
+    Estimation_Tab2_SavePB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_SavePB");
+    Estimation_Tab2_ImportPB = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ImportPB");
 
-    connect(Estimation_Tab2_PrevPB, SIGNAL(clicked(bool)),
-            this,                   SLOT(callback_PrevPB()));
-    connect(Estimation_Tab2_NextPB, SIGNAL(clicked(bool)),
-            this,                   SLOT(callback_NextPB()));
-    connect(Estimation_Tab2_LoadPB, SIGNAL(clicked(bool)),
-            this,                   SLOT(callback_LoadPB()));
-    connect(Estimation_Tab2_SavePB, SIGNAL(clicked(bool)),
-            this,                   SLOT(callback_SavePB()));
+    connect(Estimation_Tab2_PrevPB,   SIGNAL(clicked(bool)),
+            this,                     SLOT(callback_PrevPB()));
+    connect(Estimation_Tab2_NextPB,   SIGNAL(clicked(bool)),
+            this,                     SLOT(callback_NextPB()));
+    connect(Estimation_Tab2_LoadPB,   SIGNAL(clicked(bool)),
+            this,                     SLOT(callback_LoadPB()));
+    connect(Estimation_Tab2_SavePB,   SIGNAL(clicked(bool)),
+            this,                     SLOT(callback_SavePB()));
+    connect(Estimation_Tab2_ImportPB, SIGNAL(clicked()),
+            this,                     SLOT(callback_ImportPB()));
 
     Estimation_Tab2_PrevPB->setText("\u25C1--");
     Estimation_Tab2_NextPB->setText("--\u25B7");
@@ -84,6 +87,64 @@ void
 nmfEstimation_Tab2::callback_LoadPB()
 {
     loadWidgets();
+}
+
+void
+nmfEstimation_Tab2::callback_ImportPB()
+{
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+
+    // Load default CSV files
+    std::string msg = "\nLoad default Harvest .csv file?";
+    std::string tableName = m_HarvestType;
+    QMessageBox::StandardButton reply = QMessageBox::question(
+                Estimation_Tabs, tr("Default Harvest CSV File"),
+                tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes, QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        loadCSVFile(tableName);
+    } else {
+        // if no, raise browser and have user select the Harvest file.
+        QString filename = QFileDialog::getOpenFileName(
+                    Estimation_Tabs,
+                    QObject::tr("Select Harvest file"), inputDataPath,
+                    QObject::tr("Data Files (*.csv)"));
+        if (filename.contains("_")) {
+            QFileInfo fi(filename);
+            QString base = fi.baseName();
+            QStringList parts = base.split("_");
+            if (parts.size() == 2) {
+                QString tag = parts[1];
+                tableName += "_"+tag.toStdString();
+                loadCSVFile(tableName);
+            } else {
+                QMessageBox::information(Estimation_Tabs, "Harvest CSV Import",
+                                         "\nPlease make sure to select the Harvest file containing the desired tag\n",
+                                         QMessageBox::Ok);
+            }
+        } else {
+            QMessageBox::critical(Estimation_Tabs, "Harvest CSV Import",
+                                  "\nError: No tag found in filename\n",
+                                  QMessageBox::Ok);
+        }
+    }
+}
+
+void
+nmfEstimation_Tab2::loadCSVFile(std::string& tableName)
+{
+    bool loadOK;
+    QString errorMsg;
+    QString tableNameStr;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+
+        tableNameStr = QString::fromStdString(tableName);
+        tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
+        loadOK = nmfUtilsQt::loadTimeSeries(
+                    Estimation_Tabs, Estimation_Tab2_CatchTV, inputDataPath, tableNameStr,
+                    nmfConstantsMSSPM::FirstLineNotReadOnly,errorMsg);
+        if (! loadOK) {
+            m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+        }
 }
 
 void
@@ -167,7 +228,45 @@ nmfEstimation_Tab2::callback_SavePB()
                              QMessageBox::Ok);
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
+
+
+    // Save time series data to a .csv file
+    std::string tableName = m_HarvestType;
+    msg = "\nOK to use default file name for Harvest .csv file and overwrite any previous file?";
+    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Harvest CSV File"),
+                                                              tr(msg.toLatin1()),
+                                                              QMessageBox::No|QMessageBox::Yes,
+                                                              QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        saveCSVFile(tableName);
+    } else {
+        bool ok;
+        QString tag = QInputDialog::getText(Estimation_Tabs, tr("Competition Files"),
+                                            tr("Enter Competition CSV filename version tag (omit any '_'): "), QLineEdit::Normal,
+                                            "", &ok);
+        if (ok && !tag.isEmpty()) {
+            tableName += "_"+tag.toStdString();
+            saveCSVFile(tableName);
+        }
+    }
+
 }
+
+void
+nmfEstimation_Tab2::saveCSVFile(std::string& tableName)
+{
+    QString tableNameWithPath;
+
+    // Save time series data to a .csv file
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
+    nmfUtilsQt::saveTimeSeries(Estimation_Tabs,m_SModel,inputDataPath,tableNameWithPath);
+
+    QMessageBox::information(Estimation_Tabs, "Harvest File Saved",
+                             "\nHarvest CSV file has been successfully saved.\n",
+                             QMessageBox::Ok);
+}
+
 
 void
 nmfEstimation_Tab2::readSettings()

@@ -54,8 +54,8 @@ var NAVTREEINDEX =
 [
 "_bees___estimator_8h.html",
 "classnmf_diagnostic___tab1.html#ad594095a64031ecd559e7b77fa3aaf6f",
-"classnmf_main_window.html#a5354cf87c11a30fd650c483c94874f62",
-"nmf_diagnostic_tab02_8h_source.html"
+"classnmf_main_window.html#a45d558e3943d644e43f02c6c1daaa96e",
+"globals.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

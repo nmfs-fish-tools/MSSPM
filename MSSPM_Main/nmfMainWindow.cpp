@@ -2085,7 +2085,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.9 (beta)";
+    QString version = "MSSPM v0.9.10 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2764,6 +2764,8 @@ nmfMainWindow::initConnections()
             this,            SLOT(callback_AddedNewDatabase()));
     connect(Setup_Tab3_ptr,  SIGNAL(ReloadWidgets()),
             this,            SLOT(callback_ReloadWidgets()));
+    connect(Setup_Tab3_ptr,      SIGNAL(SaveSpeciesSupplemental()),
+            Estimation_Tab1_ptr, SLOT(callback_SaveCSVFile()));
     connect(Setup_Tab4_ptr,  SIGNAL(SaveMainSettings()),
             this,            SLOT(callback_SaveMainSettings()));
 
@@ -2802,11 +2804,16 @@ nmfMainWindow::initConnections()
             Estimation_Tab5_ptr, SLOT(callback_UpdateInitialObservedBiomass()));
     connect(Setup_Tab4_ptr,      SIGNAL(UpdateInitialForecastYear()),
             Forecast_Tab1_ptr,   SLOT(callback_UpdateForecastYears()));
-
     connect(Estimation_Tab1_ptr, SIGNAL(StoreOutputSpecies()),
             this,                SLOT(callback_StoreOutputSpecies()));
     connect(Estimation_Tab1_ptr, SIGNAL(RestoreOutputSpecies()),
             this,                SLOT(callback_RestoreOutputSpecies()));
+
+
+    connect(Estimation_Tab1_ptr, SIGNAL(UpdateSpeciesSetupData(QList<QString>, QList<QString>, QList<QString>, QList<QString>)),
+            Setup_Tab3_ptr,      SLOT(callback_UpdateTable(QList<QString>, QList<QString>, QList<QString>, QList<QString>)));
+    connect(Setup_Tab3_ptr,      SIGNAL(LoadSpeciesSupplemental()),
+            Estimation_Tab1_ptr, SLOT(callback_ImportPB()));
 
     connect(Estimation_Tab1_ptr, SIGNAL(RunEstimation(bool)),
             this,                SLOT(callback_RunEstimation(bool)));
@@ -2817,13 +2824,11 @@ nmfMainWindow::initConnections()
 //    connect(Estimation_Tab6_ptr, SIGNAL(RunEstimation(bool)),
 //            this,                SLOT(callback_RunEstimation(bool)));
     connect(Estimation_Tab5_ptr, SIGNAL(ReloadSpecies(bool)),
-            Setup_Tab3_ptr,      SLOT(callback_Setup_Tab3_ReloadSpeciesPB(bool)));
+            Setup_Tab3_ptr,      SLOT(callback_ReloadSpeciesPB(bool)));
     connect(Estimation_Tab1_ptr, SIGNAL(ReloadSpecies(bool)),
-            Setup_Tab3_ptr,      SLOT(callback_Setup_Tab3_ReloadSpeciesPB(bool)));
-
+            Setup_Tab3_ptr,      SLOT(callback_ReloadSpeciesPB(bool)));
     connect(Estimation_Tab1_ptr, SIGNAL(ReloadGuilds(bool)),
-            Setup_Tab3_ptr,      SLOT(callback_Setup_Tab3_ReloadGuildsPB(bool)));
-
+            Setup_Tab3_ptr,      SLOT(callback_ReloadGuildsPB(bool)));
     connect(Estimation_Tab6_ptr, SIGNAL(ShowRunMessage(QString)),
             this,                SLOT(callback_ShowRunMessage(QString)));
     connect(Estimation_Tab6_ptr, SIGNAL(UpdateForecastYears()),

@@ -1,9 +1,0 @@
-digraph "MSSPM_GuiForecast/nmfForecastTab01.h"
-{
- // LATEX_PDF_SIZE
-  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
-  node [fontname="Helvetica",fontsize="10",shape=record];
-  Node1 [label="MSSPM_GuiForecast/nmfForecast\lTab01.h",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="GUI definition for the nmfForecast_Tab1 Forecast Setup Data class."];
-  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
-  Node2 [label="LoadForecastDlg.h",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$_load_forecast_dlg_8h.html",tooltip="GUI definition for the LoadForecastDlg widget class."];
-}

@@ -58,8 +58,11 @@ class nmfEstimation_Tab2: public QObject
     QPushButton* Estimation_Tab2_NextPB;
     QPushButton* Estimation_Tab2_LoadPB;
     QPushButton* Estimation_Tab2_SavePB;
+    QPushButton* Estimation_Tab2_ImportPB;
 
+    void loadCSVFile(std::string& tableName);
     void readSettings();
+    void saveCSVFile(std::string& tableName);
 
 public:
     /**
@@ -103,6 +106,10 @@ public:
     void setHarvestType(std::string harvestType);
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when the user clicks the Import button to load a .csv file
+     */
+    void callback_ImportPB();
     /**
      * @brief Callback invoked when the user clicks the Load button
      */

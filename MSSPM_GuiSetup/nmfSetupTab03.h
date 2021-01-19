@@ -49,8 +49,6 @@ class nmfSetup_Tab3: public QObject
     nmfDatabase*        m_databasePtr;
     std::string         m_ProjectDir;
     std::string         m_ProjectSettingsConfig;
-    QStandardItemModel* m_smodelSpecies;
-    QStandardItemModel* m_smodelOtherPredSpecies;
     QStringList         m_colLabelsSpecies;
     QStringList         m_colLabelsGuilds;
     std::vector<std::string> m_ModelPresetNames;
@@ -84,6 +82,7 @@ class nmfSetup_Tab3: public QObject
     QPushButton*  Setup_Tab3_DelGuildPB;
     QPushButton*  Setup_Tab3_UpdateSpeciesPB;
     QPushButton*  Setup_Tab3_SavePB;
+    QPushButton*  Setup_Tab3_ImportPB;
     QPushButton*  Setup_Tab3_LoadPB;
     QPushButton*  Setup_Tab3_PrevPB;
     QPushButton*  Setup_Tab3_ReloadSpeciesPB;
@@ -91,11 +90,15 @@ class nmfSetup_Tab3: public QObject
 
     void clearSpeciesWidgets();
     void clearGuildWidgets();
+    void executeDelete(std::string cmd);
     bool guildDataIsSaved();
+    void loadCSVFile(QTableWidget* tableWidget,
+                     const QStringList& guildValues);
     void loadGuilds();
     void loadSpecies();
     int  numColumnsSpecies();
     int  numColumnsGuilds();
+    bool onGuildPage();
     void populateARowGuilds(int row, int ncols);
     void populateARowSpecies(int row, int ncols);
     void pruneTablesForGuilds(std::vector<std::string>& Guilds);
@@ -108,7 +111,6 @@ class nmfSetup_Tab3: public QObject
     void saveSettings();
     void saveSpeciesData();
     void setupHelp();
-    void executeDelete(std::string cmd);
 
 public:
     /**
@@ -131,81 +133,114 @@ public:
 
 signals:
     /**
+     * @brief Signal emitted when user wants to import a .csv file.
+     * This signal is sent to the Estimation_Tab1_ptr where its import
+     * method is called.
+     */
+    void LoadSpeciesSupplemental();
+    /**
      * @brief Signal emitted after user saves Species. This is
      * necessary since the input Estimation tables may need to
      * be modified with new Species.
      */
     void ReloadWidgets();
+    /**
+     * @brief Signal emitted after user saves Species. This will
+     * allow the user to save the current Species data into a .csv
+     * file.
+     */
+    void SaveSpeciesSupplemental();
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when user modifies the Number of Species Spin Box widget
-     * @param value : current value of Spin Box widget
+     * @brief Callback invoked when user clicks the Add Guilds button
      */
-    void callback_Setup_Tab3_NumSpecies(int value);
+    void callback_AddGuildPB();
+    /**
+     * @brief Callback invoked when user clicks the Add Species button
+     */
+    void callback_AddSpeciesPB();
+    /**
+     * @brief Callback invoked when user clicks the Delete Guilds button
+     */
+    void callback_DelGuildPB();
+    /**
+     * @brief Callback invoked when user clicks the Delete Species button
+     */
+    void callback_DelSpeciesPB();
+    /**
+     * @brief Callback invoked when user modifies the Guilds table
+     */
+    void callback_GuildsTableChanged(int,int);
+    /**
+     * @brief Callback invoked when user imports table data from a CSV file
+     */
+    void callback_ImportPB();
+    /**
+     * @brief Loads either the previously saved Species or Guild data depending upon the visible tab
+     */
+    void callback_LoadPB();
     /**
      * @brief Callback invoked when user modifies the Number of Guilds Spin Box widget
      * @param value : current value of Spin Box widget
      */
-    void callback_Setup_Tab3_NumGuilds(int numGuilds);
+    void callback_NumGuildsSB(int numGuilds);
     /**
-     * @brief Callback invoked when user clicks the Add Species button
+     * @brief Callback invoked when user modifies the Number of Species Spin Box widget
+     * @param value : current value of Spin Box widget
      */
-    void callback_Setup_Tab3_AddSpeciesPB();
+    void callback_NumSpeciesSB(int value);
     /**
-     * @brief Callback invoked when user clicks the Delete Species button
+     * @brief Callback invoked when user clicks the Previous Page button
      */
-    void callback_Setup_Tab3_DelSpeciesPB();
+    void callback_PrevPB();
     /**
      * @brief Callback invoked when user clicks the Reload Guilds button
      */
-    void callback_Setup_Tab3_ReloadGuildsPB();
+    void callback_ReloadGuildsPB();
     /**
      * @brief Callback invoked when user emits a signal to Reload the Guilds
      * @param showPopup : boolean specifying whether or not a popup should be
      * shown to the user acknowledging a successful Guilds reload
      */
-    void callback_Setup_Tab3_ReloadGuildsPB(bool showPopup);
+    void callback_ReloadGuildsPB(bool showPopup);
     /**
      * @brief Callback invoked when user clicks the Reload Species button
      */
-    void callback_Setup_Tab3_ReloadSpeciesPB();
+    void callback_ReloadSpeciesPB();
     /**
      * @brief Callback invoked when user emits a signal to Reload the Species
      * @param showPopup : boolean specifying whether or not a popup should be
      * shown to the user acknowledging a successful Species reload
      */
-    void callback_Setup_Tab3_ReloadSpeciesPB(bool showPopup);
+    void callback_ReloadSpeciesPB(bool showPopup);
     /**
      * @brief Callback invoked when user clicks the Save Species button
      */
-    void callback_Setup_Tab3_SavePB();
-    /**
-     * @brief Callback invoked when user clicks the Previous Page button
-     */
-    void callback_Setup_Tab3_PrevPB();
-    /**
-     * @brief Callback invoked when user clicks the Add Guilds button
-     */
-    void callback_Setup_Tab3_AddGuildPB();
-    /**
-     * @brief Callback invoked when user clicks the Delete Guilds button
-     */
-    void callback_Setup_Tab3_DelGuildPB();
+    void callback_SavePB();
     /**
      * @brief Callback invoked when user modifies the Species table
      */
-    void callback_Setup_Tab3_SpeciesTableChanged(int,int);
-    /**
-     * @brief Callback invoked when user modifies the Guilds table
-     */
-    void callback_Setup_Tab3_GuildsTableChanged(int,int);
+    void callback_SpeciesTableChanged(int,int);
+
     /**
      * @brief Callback invoked when user clicks the Guilds page button to refresh
      * the Species page. This is necessary as Guilds are listed in the Guild column
      * on the Species page.
      */
-    void callback_Setup_Tab3_UpdateSpeciesPB();
+    void callback_UpdateSpeciesPB();
+    /**
+     * @brief Callback invoked when the user updates the Species Supplemental data and the
+     * Species Setup data must also be updated
+     * @param SpeNames : names of Species
+     * @param InitBiomass : values of all initial biomasses
+     * @param GrowthRate : values of all growth rates
+     * @param SpeciesK : values of all species carrying capacities
+     */
+    void callback_UpdateTable(QList<QString> SpeNames,
+                              QList<QString> InitBiomass,
+                              QList<QString> GrowthRate,
+                              QList<QString> SpeciesK);
 
 };
 

@@ -1,4 +1,5 @@
 <map id="MSSPM_ParameterEstimationBeesAlgorithm/BeesStats.h" name="MSSPM_ParameterEstimationBeesAlgorithm/BeesStats.h">
-<area shape="rect" id="node2" href="$_bees___estimator_8h.html" title="Class definition for the Bees_Estimator API. " alt="" coords="7,95,222,136"/>
-<area shape="rect" id="node3" href="$nmf_main_window_8h.html" title="GUI definition for the main nmfMainWindow MSSPM Application class. " alt="" coords="5,184,224,211"/>
+<area shape="rect" id="node1" title="Class definition for the BeesStats structure." alt="" coords="15,5,230,47"/>
+<area shape="rect" id="node2" href="$_bees___estimator_8h.html" title="Class definition for the Bees_Estimator API." alt="" coords="5,95,240,136"/>
+<area shape="rect" id="node3" href="$nmf_main_window_8h.html" title="GUI definition for the main nmfMainWindow MSSPM Application class." alt="" coords="5,184,240,211"/>
 </map>

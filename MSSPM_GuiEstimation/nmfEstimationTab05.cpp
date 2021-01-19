@@ -40,15 +40,18 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
     Estimation_Tab5_NextPB       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_NextPB");
     Estimation_Tab5_LoadPB       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_LoadPB");
     Estimation_Tab5_SavePB       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_SavePB");
+    Estimation_Tab5_ImportPB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_ImportPB");
 
-    connect(Estimation_Tab5_PrevPB, SIGNAL(clicked()),
-            this,                   SLOT(callback_PrevPB()));
-    connect(Estimation_Tab5_NextPB, SIGNAL(clicked()),
-            this,                   SLOT(callback_NextPB()));
-    connect(Estimation_Tab5_LoadPB, SIGNAL(clicked()),
-            this,                   SLOT(callback_LoadPB()));
-    connect(Estimation_Tab5_SavePB, SIGNAL(clicked()),
-            this,                   SLOT(callback_SavePB()));
+    connect(Estimation_Tab5_PrevPB,   SIGNAL(clicked()),
+            this,                     SLOT(callback_PrevPB()));
+    connect(Estimation_Tab5_NextPB,   SIGNAL(clicked()),
+            this,                     SLOT(callback_NextPB()));
+    connect(Estimation_Tab5_LoadPB,   SIGNAL(clicked()),
+            this,                     SLOT(callback_LoadPB()));
+    connect(Estimation_Tab5_SavePB,   SIGNAL(clicked()),
+            this,                     SLOT(callback_SavePB()));
+    connect(Estimation_Tab5_ImportPB, SIGNAL(clicked()),
+            this,                     SLOT(callback_ImportPB()));
 
     Estimation_Tab5_PrevPB->setText("\u25C1--");
     Estimation_Tab5_NextPB->setText("--\u25B7");
@@ -96,6 +99,64 @@ void
 nmfEstimation_Tab5::callback_LoadPB()
 {
     loadWidgets();
+}
+
+void
+nmfEstimation_Tab5::callback_ImportPB()
+{
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+
+    // Load default CSV files
+    std::string msg = "\nLoad default Observed Biomass .csv file?";
+    std::string tableName = "ObservedBiomass";
+    QMessageBox::StandardButton reply = QMessageBox::question(
+                Estimation_Tabs, tr("Default Observed Biomass CSV File"),
+                tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes, QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        loadCSVFile(tableName);
+    } else {
+        // if no, raise browser and have user select the appropriate Observed Biomass file.
+        QString filename = QFileDialog::getOpenFileName(
+                    Estimation_Tabs,
+                    QObject::tr("Select Observed Biomass file"), inputDataPath,
+                    QObject::tr("Data Files (*.csv)"));
+        if (filename.contains("_")) {
+            QFileInfo fi(filename);
+            QString base = fi.baseName();
+            QStringList parts = base.split("_");
+            if (parts.size() == 2) {
+                QString tag = parts[1];
+                tableName += "_"+tag.toStdString();
+                loadCSVFile(tableName);
+            } else {
+                QMessageBox::information(Estimation_Tabs, "Observed Biomass CSV Import",
+                                         "\nPlease make sure to select the Observed Biomass filename that contains the appropriate tag\n",
+                                         QMessageBox::Ok);
+            }
+        } else {
+            QMessageBox::critical(Estimation_Tabs, "Observed Biomass CSV Import",
+                                  "\nError: No tag found in filename\n",
+                                  QMessageBox::Ok);
+        }
+    }
+}
+
+void
+nmfEstimation_Tab5::loadCSVFile(std::string& tableName)
+{
+    bool loadOK;
+    QString errorMsg;
+    QString tableNameStr;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+
+    tableNameStr = QString::fromStdString(tableName);
+    tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
+    loadOK = nmfUtilsQt::loadTimeSeries(
+                Estimation_Tabs, Estimation_Tab5_BiomassTV, inputDataPath, tableNameStr,
+                nmfConstantsMSSPM::FirstLineNotReadOnly,errorMsg);
+    if (! loadOK) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+    }
 }
 
 void
@@ -271,6 +332,40 @@ nmfEstimation_Tab5::callback_SavePB()
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
 
+    // Save time series data to a .csv file
+    std::string tableName = "ObservedBiomass";
+    msg = "\nOK to use default file name for Observed Biomass .csv file and overwrite any previous file?";
+    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Observed Biomass CSV File"),
+                                                              tr(msg.toLatin1()),
+                                                              QMessageBox::No|QMessageBox::Yes,
+                                                              QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        saveCSVFile(tableName);
+    } else {
+        bool ok;
+        QString tag = QInputDialog::getText(Estimation_Tabs, tr("Observed Biomass Files"),
+                                            tr("Enter Observed Biomass CSV filename version tag (omit any '_'): "),
+                                            QLineEdit::Normal, "", &ok);
+        if (ok && !tag.isEmpty()) {
+            tableName += "_"+tag.toStdString();
+            saveCSVFile(tableName);
+        }
+    }
+}
+
+void
+nmfEstimation_Tab5::saveCSVFile(std::string& tableName)
+{
+    QString tableNameWithPath;
+
+    // Save time series data to a .csv file
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
+    nmfUtilsQt::saveTimeSeries(Estimation_Tabs,m_SModelBiomass,inputDataPath,tableNameWithPath);
+
+    QMessageBox::information(Estimation_Tabs, "Observed Biomass File Saved",
+                             "\nObserved Biomass CSV file has been successfully saved.\n",
+                             QMessageBox::Ok);
 }
 
 void
