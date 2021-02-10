@@ -556,6 +556,7 @@ nmfSetup_Tab4::getEstimatedParameterNames()
 void
 nmfSetup_Tab4::setEstimatedParameterNames()
 {
+    std::vector<std::string> EstimateRunBoxes;
     QString growthForm      = getGrowthFormCMB()->currentText();
     QString harvestForm     = getHarvestFormCMB()->currentText();
     QString competitionForm = getCompetitionFormCMB()->currentText();
@@ -563,40 +564,61 @@ nmfSetup_Tab4::setEstimatedParameterNames()
 
     m_EstimatedParameters.clear();
 
+    // Set Initial Biomass
+    m_EstimatedParameters.push_back("Initial Biomass");
+    EstimateRunBoxes.push_back("InitBiomass");
+
     // Load Growth estimated parameters
     if (growthForm == "Linear") {
         m_EstimatedParameters.push_back("Growth Rate");
+        EstimateRunBoxes.push_back("GrowthRate");
     } else if (growthForm == "Logistic") {
         m_EstimatedParameters.push_back("Growth Rate");
         m_EstimatedParameters.push_back("Carrying Capacity");
+        EstimateRunBoxes.push_back("GrowthRate");
+        EstimateRunBoxes.push_back("CarryingCapacity");
     }
 
     // Load Harvest estimated parameters
     if (harvestForm == "Effort (qE)") {
         m_EstimatedParameters.push_back("Catchability");
+        EstimateRunBoxes.push_back("Catchability");
     }
 
     // Load Competition estimated parameters
     if (competitionForm == "NO_K") {
         m_EstimatedParameters.push_back("Alpha");
+        EstimateRunBoxes.push_back("CompetitionAlpha");
     } else if (competitionForm == "MS-PROD") {
         m_EstimatedParameters.push_back("Beta SpeciesSpecies");
         m_EstimatedParameters.push_back("Beta GuildSpecies");
+        EstimateRunBoxes.push_back("CompetitionSpeciesSpecies");
+        EstimateRunBoxes.push_back("CompetitionGuildSpecies");
     } else if (competitionForm == "AGG-PROD") {
         m_EstimatedParameters.push_back("Beta GuildGuild");
+        EstimateRunBoxes.push_back("CompetitionGuildGuild");
     }
 
     // Load Predation estimated parameters
     if (predationForm == "Type I") {
         m_EstimatedParameters.push_back("Predation Effect");
+        EstimateRunBoxes.push_back("PredationRho");
     } else if (predationForm == "Type II") {
         m_EstimatedParameters.push_back("Predation Effect");
         m_EstimatedParameters.push_back("Handling Time");
+        EstimateRunBoxes.push_back("PredationRho");
+        EstimateRunBoxes.push_back("Handling");
     } else if (predationForm == "Type III") {
         m_EstimatedParameters.push_back("Predation Effect");
         m_EstimatedParameters.push_back("Handling Time");
         m_EstimatedParameters.push_back("Predation Exponent");
+        EstimateRunBoxes.push_back("PredationRho");
+        EstimateRunBoxes.push_back("Handling");
+        EstimateRunBoxes.push_back("PredationExponent");
     }
+
+    emit SetEstimateRunCheckboxes(EstimateRunBoxes);
+
 }
 
 void

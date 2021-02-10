@@ -67,6 +67,7 @@ private:
     boost::numeric::ublas::matrix<double>  m_EstBetaSpecies;
     boost::numeric::ublas::matrix<double>  m_EstBetaGuilds;
     std::vector<double>                    m_EstCarryingCapacities;
+    std::vector<double>                    m_EstInitBiomass;
     std::vector<double>                    m_EstGrowthRates;
     std::vector<double>                    m_EstInitialBiomass;
     boost::numeric::ublas::matrix<double>  m_EstPredation;
@@ -94,6 +95,10 @@ private:
                                            double fitness,
                                            Data_Struct NLoptDataStruct);
 //    double  dnorm4(double x, double mu, double sigma, int give_log);
+
+    void loadInitBiomassParameterRanges(
+            std::vector<std::pair<double,double> >& parameterRanges,
+            const Data_Struct& dataStruct);
 
 signals:
     /**
@@ -143,6 +148,7 @@ public:
      * @brief Extracts the estimated parameters from the NLopt Optimizer run
      * @param NLoptDataStruct : input parameters to the NLopt Optimizer
      * @param EstParameters : output estimated parameters from the NLopt Optimizer
+     * @param InitBiomass : estimated initial biomass parameters
      * @param GrowthRate : estimated growth rate parameters
      * @param CarryingCapacity : estimated carrying capacity parameters
      * @param CatchabilityRate : estimated catchability parameters
@@ -156,6 +162,7 @@ public:
     static void extractParameters(
             const Data_Struct&                     NLoptDataStruct,
             const double*                          EstParameters,
+            std::vector<double>&                   InitBiomass,
             std::vector<double>&                   GrowthRate,
             std::vector<double>&                   CarryingCapacity,
             std::vector<double>&                   CatchabilityRate,
@@ -213,6 +220,12 @@ public:
      */
     void getEstHandling(
             boost::numeric::ublas::matrix<double>& EstHandling);
+    /**
+     * @brief Get the estimated initial biomass values
+     * @param InitBiomass : the estimated initial biomass values to return
+     */
+    void getEstInitBiomass(
+            std::vector<double>& InitBiomass);
     /**
      * @brief Get the estimated predation values
      * @param EstPredation : the estimated predation values to return

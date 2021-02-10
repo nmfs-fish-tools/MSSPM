@@ -12,6 +12,7 @@ var class_bees___estimator =
     [ "getEstimatedExponent", "class_bees___estimator.html#a3bcea4cfdced0b19c36ca73c34924485", null ],
     [ "getEstimatedGrowthRates", "class_bees___estimator.html#a56969db5ce54f14f3de3220136ee4bcc", null ],
     [ "getEstimatedHandling", "class_bees___estimator.html#a5ef971b00d5e43579ebb41df6a4300ed", null ],
+    [ "getEstimatedInitBiomass", "class_bees___estimator.html#ae719441bf9b3d40fffb8f66015cf9d6d", null ],
     [ "getEstimatedPredation", "class_bees___estimator.html#a005f7eba7f2c83b74933e37e0e479a3c", null ],
     [ "RunCompleted", "class_bees___estimator.html#ab9d93dad3c2ebf6bb3ca935aa8618f48", null ],
     [ "SubRunCompleted", "class_bees___estimator.html#a27cc0ac3811f5a54557c99629131d77b", null ]

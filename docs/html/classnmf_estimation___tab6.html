@@ -147,6 +147,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ac3fe029078a97ff19be0ed8d4dc7a6e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#ac3fe029078a97ff19be0ed8d4dc7a6e9">callback_ObjectiveCriterionCMB</a> (QString objectiveCriterion)</td></tr>
 <tr class="memdesc:ac3fe029078a97ff19be0ed8d4dc7a6e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes the Objective Criterion.  <a href="classnmf_estimation___tab6.html#ac3fe029078a97ff19be0ed8d4dc7a6e9">More...</a><br /></td></tr>
 <tr class="separator:ac3fe029078a97ff19be0ed8d4dc7a6e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb5a54800d5d46cf4bf2c4b20a066b54"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#acb5a54800d5d46cf4bf2c4b20a066b54">callback_RefreshEstimateRunBoxes</a> (int unused)</td></tr>
+<tr class="memdesc:acb5a54800d5d46cf4bf2c4b20a066b54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user needs to query the states of all the Estimate run check boxes.  <a href="classnmf_estimation___tab6.html#acb5a54800d5d46cf4bf2c4b20a066b54">More...</a><br /></td></tr>
+<tr class="separator:acb5a54800d5d46cf4bf2c4b20a066b54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeee2c7be131477d6efda0226dad88ab6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#aeee2c7be131477d6efda0226dad88ab6">callback_StopValCB</a> (int isChecked)</td></tr>
 <tr class="memdesc:aeee2c7be131477d6efda0226dad88ab6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user checks the Stop When Reach Value checkbox.  <a href="classnmf_estimation___tab6.html#aeee2c7be131477d6efda0226dad88ab6">More...</a><br /></td></tr>
 <tr class="separator:aeee2c7be131477d6efda0226dad88ab6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -160,6 +163,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#a9397e07d0e936c72472ef817b9772155">callback_SaveSettings</a> ()</td></tr>
 <tr class="memdesc:a9397e07d0e936c72472ef817b9772155"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user saves the model on the Setup -&gt; Model Setup GUI. <br /></td></tr>
 <tr class="separator:a9397e07d0e936c72472ef817b9772155"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36d8f269ce497cea27b978a467ce7eff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#a36d8f269ce497cea27b978a467ce7eff">callback_SetEstimateRunCheckboxes</a> (std::vector&lt; std::string &gt; EstimateRunBoxes)</td></tr>
+<tr class="memdesc:a36d8f269ce497cea27b978a467ce7eff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when main routine needs to update Estimate checkboxes.  <a href="classnmf_estimation___tab6.html#a36d8f269ce497cea27b978a467ce7eff">More...</a><br /></td></tr>
+<tr class="separator:a36d8f269ce497cea27b978a467ce7eff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
@@ -199,6 +205,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ac75d359d6f19639d57d49fe09891d920"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#ac75d359d6f19639d57d49fe09891d920">getCurrentObjectiveCriterion</a> ()</td></tr>
 <tr class="memdesc:ac75d359d6f19639d57d49fe09891d920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current Objective Criterion function from the GUI.  <a href="classnmf_estimation___tab6.html#ac75d359d6f19639d57d49fe09891d920">More...</a><br /></td></tr>
 <tr class="separator:ac75d359d6f19639d57d49fe09891d920"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a906b86acd98a558d4ace0abe7b1b8058"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#a906b86acd98a558d4ace0abe7b1b8058">getEstimateRunBoxes</a> ()</td></tr>
+<tr class="memdesc:a906b86acd98a558d4ace0abe7b1b8058"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the list of checked and enabled Estimate run boxes.  <a href="classnmf_estimation___tab6.html#a906b86acd98a558d4ace0abe7b1b8058">More...</a><br /></td></tr>
+<tr class="separator:a906b86acd98a558d4ace0abe7b1b8058"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa491ce6e38d28a78bd96ec8d10df4f13"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#aa491ce6e38d28a78bd96ec8d10df4f13">loadWidgets</a> ()</td></tr>
 <tr class="memdesc:aa491ce6e38d28a78bd96ec8d10df4f13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads all widgets for this GUI from database tables.  <a href="classnmf_estimation___tab6.html#aa491ce6e38d28a78bd96ec8d10df4f13">More...</a><br /></td></tr>
 <tr class="separator:aa491ce6e38d28a78bd96ec8d10df4f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -471,6 +480,74 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a id="acb5a54800d5d46cf4bf2c4b20a066b54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb5a54800d5d46cf4bf2c4b20a066b54">&#9670;&nbsp;</a></span>callback_RefreshEstimateRunBoxes</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfEstimation_Tab6::callback_RefreshEstimateRunBoxes </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>unused</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when user needs to query the states of all the Estimate run check boxes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">unused</td><td>: unused </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a36d8f269ce497cea27b978a467ce7eff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36d8f269ce497cea27b978a467ce7eff">&#9670;&nbsp;</a></span>callback_SetEstimateRunCheckboxes</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfEstimation_Tab6::callback_SetEstimateRunCheckboxes </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; std::string &gt;&#160;</td>
+          <td class="paramname"><em>EstimateRunBoxes</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when main routine needs to update Estimate checkboxes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">EstimateRunBoxes</td><td>: Names of Estimate checkboxes to update </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ac6abc74e89aae1d73cd1d7c11cd89ace"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac6abc74e89aae1d73cd1d7c11cd89ace">&#9670;&nbsp;</a></span>callback_StopAfterIterCB</h2>
 
@@ -630,6 +707,26 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 <p>Gets the current Objective Criterion function from the GUI. </p>
 <dl class="section return"><dt>Returns</dt><dd>Returns the objective criterion function (as a string) </dd></dl>
+
+</div>
+</div>
+<a id="a906b86acd98a558d4ace0abe7b1b8058"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a906b86acd98a558d4ace0abe7b1b8058">&#9670;&nbsp;</a></span>getEstimateRunBoxes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::string &gt; nmfEstimation_Tab6::getEstimateRunBoxes </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the list of checked and enabled Estimate run boxes. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns list of the Estimate run boxes from Estimation Tab6 </dd></dl>
 
 </div>
 </div>

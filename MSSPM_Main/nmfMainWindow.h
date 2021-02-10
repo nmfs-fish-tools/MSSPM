@@ -220,6 +220,7 @@ private:
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
+    QTableView*              InitBiomassTV;
     QTableView*              GrowthRateTV;
     QTableView*              CompetitionAlphaTV;
     QTableView*              CompetitionBetaSTV;
@@ -362,6 +363,7 @@ private:
     void clearOutputTables();
     void closeEvent(QCloseEvent *event);
     void completeApplicationInitialization();
+    bool createSimulatedBiomass(QString filename);
     std::pair<bool,QString> dataAdequateForCurrentModel(QStringList estParamNames);
     bool deleteAllMohnsRho(const std::string& TableName);
     bool deleteAllOutputMohnsRho();
@@ -423,9 +425,13 @@ private:
                       std::vector<int>                      &GuildNum,
                       boost::numeric::ublas::matrix<double> &ObservedBiomassByGuilds);
     bool getGuilds(int &NumGuilds, QStringList &GuildList);
+    bool getHarvestData(const int& NumSpecies,
+                        const int& RunLength,
+                        const std::string& HarvestType,
+                        boost::numeric::ublas::matrix<double>& Harvest);
     bool getInitialObservedBiomass(QList<double> &InitBiomass);
-    bool getInitialSpeciesData(int &NumSpecies,
-                            InitSpeciesDataStruct &InitSpeciesData);
+    //    bool getInitialSpeciesData(int &NumSpecies,
+//                            InitSpeciesDataStruct &InitSpeciesData);
 
     void getInitialYear(int& InitialYear,
                         int& MaxNumYears);
@@ -459,7 +465,8 @@ private:
             const int& NumGuilds,
             const int& RunLength,
             const std::string& type);
-
+    bool getOutputInitialBiomass(
+            QList<double> &OutputInitBiomass);
     std::vector<boost::numeric::ublas::matrix<double> >
     getOutputBiomassByGroup(
             const int& NumLines,
@@ -480,7 +487,12 @@ private:
     bool getRunLength(int &RunLength);
     bool getSpecies(int &NumSpecies, QStringList &SpeciesList);
     void getSpeciesGuildMap(std::map<std::string,std::string>& SpeciesGuildMap);
-    bool getSpeciesWithGuilds(int&         NumSpecies,
+    bool getSpeciesInitialData(int& NumSpecies,
+                               QStringList& SpeciesList,
+                               QList<double>& InitBiomass,
+                               QList<double>& GrowthRate,
+                               QList<double>& SpeciesK);
+    bool getSpeciesWithGuilds(int& NumSpecies,
                               QStringList& SpeciesList,
                               QStringList& GuildList);
     int  getStartYearOffset();
@@ -570,6 +582,7 @@ private:
                              const std::string&   Minimizer,
                              const std::string&   ObjectiveCriterion,
                              const std::string&   Scaling,
+                             std::vector<double>& InitBiomassUncertainty,
                              std::vector<double>& GrowthRateUncertainty,
                              std::vector<double>& CarryingCapacityUncertainty,
                              std::vector<double>& PredationUncertainty,
@@ -714,6 +727,23 @@ private:
                                    bool              clearChart,
                                    QStringList       ColumnLabelsForLegend);
     void showMModeViewerDockWidget();
+    bool simulateCompetition(const std::string& CompetitionForm,
+                             double& competitionValue);
+    bool simulateGrowth(const int& Year,
+                        const int& Species,
+                        const QStringList& SpeciesList,
+                        const std::string& GrowthForm,
+                        const QList<double>& GrowthRate,
+                        const QList<double>& SpeciesK,
+                        const boost::numeric::ublas::matrix<double>& SimulatedBiomass,
+                        double& growthValue);
+    bool simulateHarvest(const int& Year,
+                         const int& Species,
+                         const std::string& HarvestForm,
+                         const boost::numeric::ublas::matrix<double>& HarvestData,
+                         double& harvestValue);
+    bool simulatePredation(const std::string& PredationForm,
+                           double& competitionValue);
     void updateDiagnosticSummaryStatistics();
     bool updateOutputBiomassTable(std::string& ForecastName,
                                   int&         StartYear,
@@ -729,23 +759,24 @@ private:
                                   std::string& HarvestForm,
                                   std::string& CompetitionForm,
                                   std::string& PredationForm,
+                                  std::string& InitBiomassTable,
                                   std::string& GrowthRateTable,
                                   std::string& CarryingCapacityTable,
                                   std::string& CatchabilityTable,
                                   std::string& BiomassTable);
     void updateOutputBiomassTableFromTestValues();
     void updateProgressChartAnnotation(double xMin, double xMax, double xInc);
-    void updateOutputTables(
-        std::string                    &Algorithm,
-        std::string                    &Minimizer,
-        std::string                    &ObjectiveCriterion,
-        std::string                    &Scaling,
-        const int                      &isCompAggProd,
-        const QStringList              &SpeciesList,
-        const QStringList              &GuildList,
-        const QList<double>            &GrowthRateList,
-        const QList<double>            &SpeciesKList,
-        const QList<double>            &CatchabilityList);
+//    void updateOutputTables(
+//        std::string                    &Algorithm,
+//        std::string                    &Minimizer,
+//        std::string                    &ObjectiveCriterion,
+//        std::string                    &Scaling,
+//        const int                      &isCompAggProd,
+//        const QStringList              &SpeciesList,
+//        const QStringList              &GuildList,
+//        const QList<double>            &GrowthRateList,
+//        const QList<double>            &SpeciesKList,
+//        const QList<double>            &CatchabilityList);
     void updateOutputTables(
         std::string                                 &Algorithm,
         std::string                                 &Minimizer,
@@ -754,6 +785,7 @@ private:
         const int                                   &isCompAggProd,
         const QStringList                           &SpeciesList,
         const QStringList                           &GuildList,
+        const std::vector<double>                   &EstInitBiomass,
         const std::vector<double>                   &EstGrowthRates,
         const std::vector<double>                   &EstCarryingCapacities,
         const std::vector<double>                   &EstCatchability,
@@ -764,9 +796,9 @@ private:
         const boost::numeric::ublas::matrix<double> &EstHandling,
         const std::vector<double>                   &EstExponent);
     void updateModelEquationSummary();
-
     void updateScreenShotViewer(QString filename);
-
+    bool checkAndUpdateMatrixWithOutputInitBiomass(
+            boost::numeric::ublas::matrix<double>& TmpMatrix);
     void getSurfaceData(
             boost::numeric::ublas::matrix<double>& rowValues,
             boost::numeric::ublas::matrix<double>& columnValues,
@@ -907,6 +939,11 @@ public slots:
      * @brief Callback invoked to set the proper state of the GUI after a new Project has been loaded
      */
     void callback_LoadProject();
+    /**
+     * @brief Callback invoked when user wants to give the Estimation Tab1 class Species Guild
+     * information from Setup Tab3.
+     */
+    void callback_LoadSpeciesGuild();
     /**
      * @brief Callback invoked when user selects an item from the Navigator list
      */
@@ -1147,6 +1184,10 @@ public slots:
      * @brief Copies the selected table cells
      */
     void menu_copy();
+    /**
+     * @brief Creates a simulated Biomass time series with the current model settings
+     */
+    void menu_createSimulatedBiomass();
     /**
      * @brief Creates all necessary MySQL tables
      */

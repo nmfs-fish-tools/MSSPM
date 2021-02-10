@@ -12,6 +12,7 @@ var class_n_lopt___estimator =
     [ "getEstExponent", "class_n_lopt___estimator.html#ae19793b130acaeb771d7189b266f68a5", null ],
     [ "getEstGrowthRates", "class_n_lopt___estimator.html#a6db5a32728fe3a1f2b4778260eb038af", null ],
     [ "getEstHandling", "class_n_lopt___estimator.html#ae6c41ebf75609e7451decbff5cffe80e", null ],
+    [ "getEstInitBiomass", "class_n_lopt___estimator.html#aa98f4ba3b74efb23c14293733cdf3e83", null ],
     [ "getEstPredation", "class_n_lopt___estimator.html#af9e5da056f99b4075cdee7a770e4fcbe", null ],
     [ "getVersion", "class_n_lopt___estimator.html#ad6f0af00b4ad11256bbd094f4b100a08", null ],
     [ "RunCompleted", "class_n_lopt___estimator.html#a54b477f2635a5a97cdc78801118948b5", null ]

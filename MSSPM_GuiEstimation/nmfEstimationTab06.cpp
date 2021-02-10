@@ -63,6 +63,17 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_NL_StopAfterValueLE     = Estimation_Tabs->findChild<QLineEdit   *>("Estimation_Tab6_NL_StopAfterValueLE");
     Estimation_Tab6_NL_StopAfterTimeSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_NL_StopAfterTimeSB");
     Estimation_Tab6_NL_StopAfterIterSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_NL_StopAfterIterSB");
+    Estimation_Tab6_EstimateInitBiomassCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateInitBiomassCB");
+    Estimation_Tab6_EstimateGrowthRateCB    = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateGrowthRateCB");
+    Estimation_Tab6_EstimateCarryingCapacityCB = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateCarryingCapacityCB");
+    Estimation_Tab6_EstimateCatchabilityCB     = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateCatchabilityCB");
+    Estimation_Tab6_EstimateHandlingCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateHandlingCB");
+    Estimation_Tab6_EstimateCompetitionAlphaCB = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateCompetitionAlphaCB");
+    Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB");
+    Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB");
+    Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB     = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB");
+    Estimation_Tab6_EstimatePredationRhoCB                  = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimatePredationRhoCB");
+    Estimation_Tab6_EstimatePredationExponentCB             = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimatePredationExponentCB");
 
     // Update tool tip
     BeesMsg  = "Stochastic search algorithm based on the behavior of honey bees.";
@@ -100,6 +111,12 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
             this,                                   SLOT(callback_StopAfterIterCB(int)));
     connect(Estimation_Tab6_MinimizerTypeCMB,       SIGNAL(currentTextChanged(QString)),
             this,                                   SLOT(callback_MinimizerTypeCMB(QString)));
+    // Wire up signals/slots for the Estimate Run checkboxes
+    QList<QString> unused;
+    for (QCheckBox* cbox : getAllEstimateCheckboxes(unused)) {
+        connect(cbox, SIGNAL(stateChanged(int)),
+                this, SLOT(callback_RefreshEstimateRunBoxes(int)));
+    }
 
     readSettings();
 
@@ -206,10 +223,33 @@ nmfEstimation_Tab6::callback_RunPB()
     QApplication::restoreOverrideCursor();
 }
 
+std::vector<std::string>
+nmfEstimation_Tab6::getEstimateRunBoxes()
+{
+    int i=0;
+    QList<QString> names;
+
+    m_EstimateRunBoxes.clear();
+
+    QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes(names);
+    for (QCheckBox* cbox : allEstimateRunBoxes) {
+        if (cbox->isChecked()) {
+            m_EstimateRunBoxes.push_back(names[i].toStdString());
+        }
+        ++i;
+    }
+
+    return m_EstimateRunBoxes;
+}
+
 void
 nmfEstimation_Tab6::callback_LoadPB()
 {
-    loadWidgets();
+    if (loadWidgets()) {
+        QMessageBox::information(Estimation_Tabs, "Run Settings Load",
+                                 "\nRun Settings successfully loaded.\n",
+                                 QMessageBox::Ok);
+    }
 }
 
 void
@@ -480,6 +520,7 @@ nmfEstimation_Tab6::callback_EstimationAlgorithmCMB(QString algorithm)
     Estimation_Tab6_NL_ParametersGB->hide();
     Estimation_Tab6_MinimizerAlgorithmCMB->setEnabled(enableMinimizer);
     Estimation_Tab6_MinimizerAlgorithmLBL->setEnabled(enableMinimizer);
+    Estimation_Tab6_MinimizerTypeCMB->setEnabled(enableMinimizer);
 
     // Enable all ObjectiveCriterion
     for (int i=0; i<Estimation_Tab6_ObjectiveCriterionCMB->count(); ++i)
@@ -547,6 +588,100 @@ void
 nmfEstimation_Tab6::callback_StopAfterIterCB(int isChecked)
 {
     Estimation_Tab6_NL_StopAfterIterSB->setEnabled(isChecked == Qt::Checked);
+}
+
+void
+nmfEstimation_Tab6::activateCheckBox(QCheckBox* cbox, bool state)
+{
+    cbox->setEnabled(state);
+    cbox->setChecked(state);
+}
+
+void
+nmfEstimation_Tab6::callback_RefreshEstimateRunBoxes(int unused)
+{
+    QList<QString> names;
+
+    m_EstimateRunBoxes.clear();
+    QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes(names);
+    int i=0;
+    for (QCheckBox* cbox : allEstimateRunBoxes) {
+        if (cbox->isChecked()) {
+            m_EstimateRunBoxes.push_back(names[i].toStdString());
+        }
+        ++i;
+    }
+}
+
+QList<QCheckBox* >
+nmfEstimation_Tab6::getAllEstimateCheckboxes(QList<QString>& names)
+{
+    QList<QCheckBox*> AllCheckboxes = {
+        Estimation_Tab6_EstimateInitBiomassCB,
+        Estimation_Tab6_EstimateGrowthRateCB,
+        Estimation_Tab6_EstimateCarryingCapacityCB,
+        Estimation_Tab6_EstimateCatchabilityCB,
+        Estimation_Tab6_EstimateHandlingCB,
+        Estimation_Tab6_EstimateCompetitionAlphaCB,
+        Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB,
+        Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB,
+        Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB,
+        Estimation_Tab6_EstimatePredationRhoCB,
+        Estimation_Tab6_EstimatePredationExponentCB
+    };
+
+    names.clear();
+    names.push_back("InitBiomass");
+    names.push_back("GrowthRate");
+    names.push_back("CarryingCapacity");
+    names.push_back("Catchability");
+    names.push_back("Handling");
+    names.push_back("CompetitionAlpha");
+    names.push_back("CompetitionBetaSpeciesSpecies");
+    names.push_back("CompetitionBetaGuildSpecies");
+    names.push_back("CompetitionBetaGuildGuild");
+    names.push_back("PredationRho");
+    names.push_back("PredationExponent");
+
+    return AllCheckboxes;
+}
+
+void
+nmfEstimation_Tab6::callback_SetEstimateRunCheckboxes(std::vector<std::string> EstimateRunBoxes)
+{
+    QList<QString> names;
+    m_EstimateRunBoxes = EstimateRunBoxes;
+
+    QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes(names);
+    for (QCheckBox* cbox : allEstimateRunBoxes) {
+        activateCheckBox(cbox,false);
+    }
+
+    for (std::string cbox : EstimateRunBoxes) {
+        if (cbox == "InitBiomass") {
+            activateCheckBox(Estimation_Tab6_EstimateInitBiomassCB,true);
+        } else if (cbox == "GrowthRate") {
+            activateCheckBox(Estimation_Tab6_EstimateGrowthRateCB,true);
+        } else if (cbox == "CarryingCapacity") {
+            activateCheckBox(Estimation_Tab6_EstimateCarryingCapacityCB,true);
+        } else if (cbox == "Catchability") {
+            activateCheckBox(Estimation_Tab6_EstimateCatchabilityCB,true);
+        } else if (cbox == "CompetitionAlpha") {
+            activateCheckBox(Estimation_Tab6_EstimateCompetitionAlphaCB,true);
+        } else if (cbox == "CompetitionBetaSpeciesSpecies") {
+            activateCheckBox(Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB,true);
+        } else if (cbox == "CompetitionBetaGuildSpecies") {
+            activateCheckBox(Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB,true);
+        } else if (cbox == "CompetitionBetaGuildGuild") {
+            activateCheckBox(Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB,true);
+        } else if (cbox == "Estimation_Tab6_EstimatePredationRhoCB") {
+            activateCheckBox(Estimation_Tab6_EstimatePredationRhoCB,true);
+        } else if (cbox == "Estimation_Tab6_EstimatePredationExponentCB") {
+            activateCheckBox(Estimation_Tab6_EstimatePredationExponentCB,true);
+        } else if (cbox == "Estimation_Tab6_EstimateHandlingCB") {
+            activateCheckBox(Estimation_Tab6_EstimateHandlingCB,true);
+        }
+    }
 }
 
 void
@@ -621,7 +756,7 @@ nmfEstimation_Tab6::loadWidgets()
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SystemName"].size();
     if (NumRecords == 0) {
-        std::cout << "Error: No records found in Systems" << std::endl;
+        m_Logger->logMsg(nmfConstants::Warning,"No records found in Systems");
         return false;
     }
 

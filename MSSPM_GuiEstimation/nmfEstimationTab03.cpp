@@ -67,6 +67,7 @@ nmfEstimation_Tab3::nmfEstimation_Tab3(QTabWidget*  tabs,
     Estimation_Tab3_LoadPB                       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_LoadPB");
     Estimation_Tab3_SavePB                       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_SavePB");
     Estimation_Tab3_ImportPB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_ImportPB");
+    Estimation_Tab3_ExportPB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_ExportPB");
     Estimation_Tab3_EstimateCB                   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab3_EstimateCB");
 
     Estimation_Tab3_CompetitionAlphaMinTV->setToolTip("Minimum Value for Alpha Coeff of Column Species on Row Species");
@@ -86,6 +87,8 @@ nmfEstimation_Tab3::nmfEstimation_Tab3(QTabWidget*  tabs,
             this,                     SLOT(callback_SavePB()));
     connect(Estimation_Tab3_ImportPB, SIGNAL(clicked()),
             this,                     SLOT(callback_ImportPB()));
+    connect(Estimation_Tab3_ExportPB, SIGNAL(clicked()),
+            this,                     SLOT(callback_ExportPB()));
     connect(Estimation_Tab3_CompetitionMinSP, SIGNAL(splitterMoved(int,int)),
             this,                             SLOT(callback_MinSplitterMoved(int,int)));
     connect(Estimation_Tab3_CompetitionMaxSP, SIGNAL(splitterMoved(int,int)),
@@ -201,7 +204,11 @@ nmfEstimation_Tab3::callback_NextPB()
 void
 nmfEstimation_Tab3::callback_LoadPB()
 {
-    loadWidgets();
+    if (loadWidgets()) {
+        QMessageBox::information(Estimation_Tabs, "Competition Load",
+                                 "\nCompetition table(s) successfully loaded.\n",
+                                 QMessageBox::Ok);
+    }
 }
 
 void
@@ -291,9 +298,11 @@ nmfEstimation_Tab3::callback_ImportPB()
     std::string msg = "\nLoad default Competition .csv files?";
     QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Competition CSV Files"),
                                                               tr(msg.c_str()),
-                                                              QMessageBox::No|QMessageBox::Yes,
+                                                              QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
                                                               QMessageBox::Yes);
-    if (reply == QMessageBox::Yes) {
+    if (reply == QMessageBox::Cancel) {
+        return;
+    } else if (reply == QMessageBox::Yes) {
         loadCSVFiles(allTableNames);
     } else {
         QString filePrefix = (isNoK()) ? "CompetitionAlphaMin" :
@@ -337,7 +346,8 @@ nmfEstimation_Tab3::loadCSVFiles(std::vector<std::string>& allTableNames)
         tableName = QDir(inputDataPath).filePath(tableName+".csv");
         loadOK = nmfUtilsQt::loadTimeSeries(
                     Estimation_Tabs, tv, inputDataPath, tableName,
-                    nmfConstantsMSSPM::FirstLineNotReadOnly,errorMsg);
+                    nmfConstantsMSSPM::FirstLineNotReadOnly,
+                    errorMsg);
         if (! loadOK) {
             m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         }
@@ -609,15 +619,24 @@ nmfEstimation_Tab3::callback_SavePB()
     loadWidgets();
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
+}
+
+void
+nmfEstimation_Tab3::callback_ExportPB()
+{
+    std::vector<std::string> allTableNames = getAllTableNames();
+    int numTables = allTableNames.size();
 
     // Save time series data to a .csv file
     if (int(allTableNames.size()) == numTables) {
         std::string msg = "\nOK to use default file names for Competition .csv files and overwrite any previous files?";
         QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Competition CSV Files"),
                                                                   tr(msg.c_str()),
-                                                                  QMessageBox::No|QMessageBox::Yes,
+                                                                  QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
                                                                   QMessageBox::Yes);
-        if (reply == QMessageBox::Yes) {
+        if (reply == QMessageBox::Cancel) {
+            return;
+        } else if (reply == QMessageBox::Yes) {
             saveCSVFiles(allTableNames);
         } else {
             bool ok;
@@ -629,31 +648,48 @@ nmfEstimation_Tab3::callback_SavePB()
                      allTableNames[i] += "_"+tag.toStdString();
                  }
                  saveCSVFiles(allTableNames);
+            } else if (tag.isEmpty()) {
+                QMessageBox::warning(Estimation_Tabs, "Tag Error",
+                                     "\nError: Please enter a valid (i.e., non-blank) tag.\n",
+                                     QMessageBox::Ok);
             }
         }
     } else {
         m_Logger->logMsg(nmfConstants::Error,"Error: allTablesNames different size than m_TableViews");
     }
-
 }
 
 void
 nmfEstimation_Tab3::saveCSVFiles(
         std::vector<std::string>& allTableNames)
 {
+    bool okSave;
+    bool atLeastOneError = false;
     int tableNum = 0;
     QString tableNameWithPath;
+    QString savedFilenames;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
 
     for (QTableView* tv : m_TableViews) {
         tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(allTableNames[tableNum]));
         QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(tv->model());
-        nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameWithPath);
+        okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameWithPath);
+        savedFilenames += tableNameWithPath+"\n";
+        if (!okSave) {
+            atLeastOneError = true;
+        }
         ++tableNum;
     }
-    QMessageBox::information(Estimation_Tabs, "Competition Files Saved",
-                             "\nCompetition CSV files have been successfully saved.\n",
-                             QMessageBox::Ok);
+    if (atLeastOneError) {
+        QMessageBox::information(Estimation_Tabs, "Competition Files Saved",
+                                 "\nAll Competition CSV files have not been saved. Please check for valid filenames.\n",
+                                 QMessageBox::Ok);
+    } else {
+        QMessageBox::information(Estimation_Tabs, "Competition Files Saved",
+                                 "\nCompetition CSV files have been successfully saved as:\n\n"+savedFilenames,
+                                 QMessageBox::Ok);
+    }
+
 }
 
 

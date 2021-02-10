@@ -6,32 +6,155 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>971</width>
-    <height>506</height>
+    <width>702</width>
+    <height>317</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QGroupBox" name="Estimation_Tab5_ObservedDataGB">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="title">
-       <string>Biomass</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+     <widget class="QWidget" name="Estimation_Tab5_ObservedDataW" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTableView" name="Estimation_Tab5_BiomassTV">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QRadioButton" name="Estimation_Tab5_AbsoluteBiomassRB">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Set large table below for Absolute Biomass</string>
+           </property>
+           <property name="statusTip">
+            <string>Set large table below for Absolute Biomass</string>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Absolute Biomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When set, the values in the below biomass table represent Absolute Biomass values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Absolute Biomass</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="Estimation_Tab5_RelativeBiomassRB">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Set large table below for Relative Biomass</string>
+           </property>
+           <property name="statusTip">
+            <string>Set large table below for Relative Biomass</string>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Relative Biomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When set, the values in the below biomass table represent Relative Biomass values. The smaller table above that table contain scalar values used to convert Relative Biomass values to Absolute Biomass values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Relative Biomass</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Estimation_Tab5_CalcBiomassPB">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Calculate Absolute Biomass from Relative Biomass</string>
+           </property>
+           <property name="statusTip">
+            <string>Calculate Absolute Biomass from Relative Biomass</string>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Calc&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button calculates Absolute Biomass from the given Relative Biomass table below. In order to do this, the per-Species values in the smaller, scalar table below are multiplied by the Relative Biomass table values and placed into the Absolute Biomass table. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>calc</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTableView" name="Estimation_Tab5_Rel2AbsScalarTV">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>65</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>65</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="statusTip">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableView" name="Estimation_Tab5_RelativeBiomassTV"/>
+       </item>
+       <item>
+        <widget class="QTableView" name="Estimation_Tab5_AbsoluteBiomassTV">
          <property name="font">
           <font>
            <weight>50</weight>
@@ -131,10 +254,10 @@
         <bool>true</bool>
        </property>
        <property name="toolTip">
-        <string>Load table data</string>
+        <string>Load table data from database</string>
        </property>
        <property name="statusTip">
-        <string>Load table data</string>
+        <string>Load table data from database</string>
        </property>
        <property name="text">
         <string>Load</string>
@@ -147,13 +270,13 @@
         <bool>true</bool>
        </property>
        <property name="toolTip">
-        <string>Save above table data</string>
+        <string>Save table data into database</string>
        </property>
        <property name="statusTip">
-        <string>Save above table data</string>
+        <string>Save table data into database</string>
        </property>
        <property name="whatsThis">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Save&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This saves the above data to the appropriate database table(s). In addition, it also saves the data to a .csv file for easy transfer between applications.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Save&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This saves the above data to the appropriate database table(s).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Save</string>
@@ -161,12 +284,28 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab5_ImportPB">
+      <widget class="QPushButton" name="Estimation_Tab5_ExportPB">
        <property name="toolTip">
-        <string>Import data from a CSV file</string>
+        <string>Export table data to a CSV file</string>
        </property>
        <property name="statusTip">
-        <string>Import data from a CSV file</string>
+        <string>Export table data to a CSV file</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Export&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Saves the above data to a .csv file for easy transfer between applications. The user may choose the default .csv file name or enter a tag for a customized file name.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Export...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Estimation_Tab5_ImportPB">
+       <property name="toolTip">
+        <string>Import table data from a CSV file</string>
+       </property>
+       <property name="statusTip">
+        <string>Import table data from a CSV file</string>
        </property>
        <property name="whatsThis">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Import&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This feature allows the user to import data from a .csv file into the above table(s). The user must then explicitly save the data if they want it saved to the database.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

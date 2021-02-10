@@ -48,15 +48,16 @@ class nmfEstimation_Tab6: public QObject
 {
     Q_OBJECT
 
-    nmfDatabase* m_DatabasePtr;
-    int          m_FontSize;
-    int          m_IsMonospaced;
-    nmfLogger*   m_Logger;
-    std::string  m_ProjectDir;
-    std::string  m_ProjectSettingsConfig;
-    std::string  m_EstimationDataFile;
-    std::string  m_EstimationID;
-    std::string  m_EstimationOutputFile;
+    nmfDatabase*   m_DatabasePtr;
+    int            m_FontSize;
+    int            m_IsMonospaced;
+    nmfLogger*     m_Logger;
+    std::string    m_ProjectDir;
+    std::string    m_ProjectSettingsConfig;
+    std::string    m_EstimationDataFile;
+    std::string    m_EstimationID;
+    std::string    m_EstimationOutputFile;
+    std::vector<std::string> m_EstimateRunBoxes;
 
     QGroupBox*   Estimation_Tab6_Bees_ParametersGB;
     QGroupBox*   Estimation_Tab6_NL_ParametersGB;
@@ -90,12 +91,26 @@ class nmfEstimation_Tab6: public QObject
     QLineEdit*   Estimation_Tab6_NL_StopAfterValueLE;
     QSpinBox*    Estimation_Tab6_NL_StopAfterTimeSB;
     QSpinBox*    Estimation_Tab6_NL_StopAfterIterSB;
+    QCheckBox*   Estimation_Tab6_EstimateInitBiomassCB;
+    QCheckBox*   Estimation_Tab6_EstimateGrowthRateCB;
+    QCheckBox*   Estimation_Tab6_EstimateCarryingCapacityCB;
+    QCheckBox*   Estimation_Tab6_EstimateCatchabilityCB;
+    QCheckBox*   Estimation_Tab6_EstimateHandlingCB;
+    QCheckBox*   Estimation_Tab6_EstimateCompetitionAlphaCB;
+    QCheckBox*   Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB;
+    QCheckBox*   Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB;
+    QCheckBox*   Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB;
+    QCheckBox*   Estimation_Tab6_EstimatePredationRhoCB;
+    QCheckBox*   Estimation_Tab6_EstimatePredationExponentCB;
 
     void readSettings();
     bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
     bool isStopAfterValue();
     bool isStopAfterTime();
     bool isStopAfterNumEvals();
+    void activateCheckBox(QCheckBox* cbox,
+                          bool state);
+    QList<QCheckBox* > getAllEstimateCheckboxes(QList<QString>& names);
 
 public:
     /**
@@ -135,6 +150,11 @@ public:
      * @return Returns the objective criterion function (as a string)
      */
     std::string getCurrentObjectiveCriterion();
+    /**
+     * @brief Gets the list of checked and enabled Estimate run boxes
+     * @return Returns list of the Estimate run boxes from Estimation Tab6
+     */
+    std::vector<std::string> getEstimateRunBoxes();
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
@@ -236,6 +256,11 @@ public Q_SLOTS:
      */
     void callback_ObjectiveCriterionCMB(QString objectiveCriterion);
     /**
+     * @brief Callback invoked when user needs to query the states of all the Estimate run check boxes
+     * @param unused : unused
+     */
+    void callback_RefreshEstimateRunBoxes(int unused);
+    /**
      * @brief Callback invoked when the user checks the Stop When Reach Value checkbox
      * @param isChecked : boolean signiying the check state
      */
@@ -254,6 +279,11 @@ public Q_SLOTS:
      * @brief Callback invoked when the user saves the model on the Setup -> Model Setup GUI
      */
     void callback_SaveSettings();
+    /**
+     * @brief Callback invoked when main routine needs to update Estimate checkboxes
+     * @param EstimateRunBoxes : Names of Estimate checkboxes to update
+     */
+    void callback_SetEstimateRunCheckboxes(std::vector<std::string> EstimateRunBoxes);
 };
 
 #endif // NMFESTIMATIONTAB6_H

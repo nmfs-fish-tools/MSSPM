@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>527</width>
-    <height>358</height>
+    <width>582</width>
+    <height>452</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -423,10 +423,10 @@
         <bool>true</bool>
        </property>
        <property name="toolTip">
-        <string>Load table data</string>
+        <string>Load table data from database</string>
        </property>
        <property name="statusTip">
-        <string>Load table data</string>
+        <string>Load table data from database</string>
        </property>
        <property name="text">
         <string>Load</string>
@@ -439,13 +439,13 @@
         <bool>true</bool>
        </property>
        <property name="toolTip">
-        <string>Save above table data</string>
+        <string>Save table data into the database</string>
        </property>
        <property name="statusTip">
-        <string>Save above table data</string>
+        <string>Save table data into the database</string>
        </property>
        <property name="whatsThis">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Save&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This saves the above data to the appropriate database table(s). In addition, it also saves the data to a .csv file for easy transfer between applications.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Save&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This saves the above data to the appropriate database table(s).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Save</string>
@@ -453,12 +453,28 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab3_ImportPB">
+      <widget class="QPushButton" name="Estimation_Tab3_ExportPB">
        <property name="toolTip">
-        <string>Import data from a CSV file</string>
+        <string>Export table data to a CSV file</string>
        </property>
        <property name="statusTip">
-        <string>Import data from a CSV file</string>
+        <string>Export table data to a CSV file</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Export&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Saves the above data to a .csv file for easy transfer between applications. The user may choose the default .csv file name or enter a tag for a customized file name.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Export...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Estimation_Tab3_ImportPB">
+       <property name="toolTip">
+        <string>Import table data from a CSV file</string>
+       </property>
+       <property name="statusTip">
+        <string>Import table data from a CSV file</string>
        </property>
        <property name="whatsThis">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Import&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This feature allows the user to import data from a .csv file into the above table(s). The user must then explicitly save the data if they want it saved to the database.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

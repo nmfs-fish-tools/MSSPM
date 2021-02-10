@@ -59,6 +59,7 @@ class nmfEstimation_Tab2: public QObject
     QPushButton* Estimation_Tab2_LoadPB;
     QPushButton* Estimation_Tab2_SavePB;
     QPushButton* Estimation_Tab2_ImportPB;
+    QPushButton* Estimation_Tab2_ExportPB;
 
     void loadCSVFile(std::string& tableName);
     void readSettings();
@@ -107,6 +108,10 @@ public:
 
 public Q_SLOTS:
     /**
+     * @brief Callback invoked when the user clicks the Export button to save a .csv file
+     */
+    void callback_ExportPB();
+    /**
      * @brief Callback invoked when the user clicks the Import button to load a .csv file
      */
     void callback_ImportPB();
@@ -114,6 +119,10 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when the user wants to reload widgets from the main routine without a popup acknowledgement
+     */
+    void callback_LoadWidgets();
     /**
      * @brief Callback invoked when the user clicks the Save button
      */

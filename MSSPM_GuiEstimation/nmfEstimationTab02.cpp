@@ -41,6 +41,7 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     Estimation_Tab2_LoadPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_LoadPB");
     Estimation_Tab2_SavePB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_SavePB");
     Estimation_Tab2_ImportPB = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ImportPB");
+    Estimation_Tab2_ExportPB = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ExportPB");
 
     connect(Estimation_Tab2_PrevPB,   SIGNAL(clicked(bool)),
             this,                     SLOT(callback_PrevPB()));
@@ -52,6 +53,8 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
             this,                     SLOT(callback_SavePB()));
     connect(Estimation_Tab2_ImportPB, SIGNAL(clicked()),
             this,                     SLOT(callback_ImportPB()));
+    connect(Estimation_Tab2_ExportPB, SIGNAL(clicked()),
+            this,                     SLOT(callback_ExportPB()));
 
     Estimation_Tab2_PrevPB->setText("\u25C1--");
     Estimation_Tab2_NextPB->setText("--\u25B7");
@@ -84,9 +87,19 @@ nmfEstimation_Tab2::callback_NextPB()
 }
 
 void
-nmfEstimation_Tab2::callback_LoadPB()
+nmfEstimation_Tab2::callback_LoadWidgets()
 {
     loadWidgets();
+}
+
+void
+nmfEstimation_Tab2::callback_LoadPB()
+{
+    if (loadWidgets()) {
+        QMessageBox::information(Estimation_Tabs, "Harvest Load",
+                                 "\nHarvest table(s) successfully loaded.\n",
+                                 QMessageBox::Ok);
+    }
 }
 
 void
@@ -99,8 +112,10 @@ nmfEstimation_Tab2::callback_ImportPB()
     std::string tableName = m_HarvestType;
     QMessageBox::StandardButton reply = QMessageBox::question(
                 Estimation_Tabs, tr("Default Harvest CSV File"),
-                tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes, QMessageBox::Yes);
-    if (reply == QMessageBox::Yes) {
+                tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel, QMessageBox::Yes);
+    if (reply == QMessageBox::Cancel) {
+        return;
+    } else if (reply == QMessageBox::Yes) {
         loadCSVFile(tableName);
     } else {
         // if no, raise browser and have user select the Harvest file.
@@ -141,7 +156,8 @@ nmfEstimation_Tab2::loadCSVFile(std::string& tableName)
         tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
         loadOK = nmfUtilsQt::loadTimeSeries(
                     Estimation_Tabs, Estimation_Tab2_CatchTV, inputDataPath, tableNameStr,
-                    nmfConstantsMSSPM::FirstLineNotReadOnly,errorMsg);
+                    nmfConstantsMSSPM::FirstLineNotReadOnly,
+                    errorMsg);
         if (! loadOK) {
             m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         }
@@ -200,11 +216,12 @@ nmfEstimation_Tab2::callback_SavePB()
     for (int j=0; j<m_SModel->columnCount(); ++j) { // Species
         for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
             index = m_SModel->index(i,j);
-            value = index.data().toString();
+//          value = index.data().toString();
             cmd += "('" + MohnsRhoLabel +
                    "','" + m_ProjectSettingsConfig +
                    "','" + SpeNames[j] + "'," + std::to_string(i) +
-                   ", " + value.toStdString() + "),";
+                    ", " + std::to_string(index.data().toDouble()) + "),";
+//                  ", " + value.toStdString() + "),";
         }
     }
 
@@ -228,16 +245,22 @@ nmfEstimation_Tab2::callback_SavePB()
                              QMessageBox::Ok);
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
+}
 
 
+void
+nmfEstimation_Tab2::callback_ExportPB()
+{
     // Save time series data to a .csv file
     std::string tableName = m_HarvestType;
-    msg = "\nOK to use default file name for Harvest .csv file and overwrite any previous file?";
+    QString msg = "\nOK to use default file name for Harvest .csv file and overwrite any previous file?";
     QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Harvest CSV File"),
                                                               tr(msg.toLatin1()),
-                                                              QMessageBox::No|QMessageBox::Yes,
+                                                              QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
                                                               QMessageBox::Yes);
-    if (reply == QMessageBox::Yes) {
+    if (reply == QMessageBox::Cancel) {
+        return;
+    } else if (reply == QMessageBox::Yes) {
         saveCSVFile(tableName);
     } else {
         bool ok;
@@ -247,24 +270,34 @@ nmfEstimation_Tab2::callback_SavePB()
         if (ok && !tag.isEmpty()) {
             tableName += "_"+tag.toStdString();
             saveCSVFile(tableName);
+        } else if (tag.isEmpty()) {
+            QMessageBox::warning(Estimation_Tabs, "Tag Error",
+                                 "\nError: Please enter a valid (i.e., non-blank) tag.\n",
+                                 QMessageBox::Ok);
         }
     }
-
 }
 
 void
 nmfEstimation_Tab2::saveCSVFile(std::string& tableName)
 {
+    bool okSave;
     QString tableNameWithPath;
 
     // Save time series data to a .csv file
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
     tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
-    nmfUtilsQt::saveTimeSeries(Estimation_Tabs,m_SModel,inputDataPath,tableNameWithPath);
+    okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,m_SModel,inputDataPath,tableNameWithPath);
 
-    QMessageBox::information(Estimation_Tabs, "Harvest File Saved",
-                             "\nHarvest CSV file has been successfully saved.\n",
-                             QMessageBox::Ok);
+    if (okSave) {
+        QMessageBox::information(Estimation_Tabs, "Harvest File Saved",
+                                 "\nHarvest CSV file has been successfully saved as:\n\n"+tableNameWithPath+"\n",
+                                 QMessageBox::Ok);
+    } else {
+        QMessageBox::information(Estimation_Tabs, "Harvest File Saved",
+                                 "\nError: Harvest CSV file has not been saved. Please enter a valid (i.e., non-blank) filename.\n",
+                                 QMessageBox::Ok);
+    }
 }
 
 
@@ -332,7 +365,7 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
     queryStr = "SELECT RunLength,StartYear FROM Systems where SystemName = '" + SystemName.toStdString() + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["RunLength"].size() == 0)  {
-        std::cout << "Error: No records found in Systems table." << std::endl;
+        m_Logger->logMsg(nmfConstants::Warning,"No records found in Systems table.");
         return false;
     }
     RunLength = std::stoi(dataMap["RunLength"][0]);

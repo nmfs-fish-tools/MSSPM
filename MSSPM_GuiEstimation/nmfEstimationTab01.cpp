@@ -21,6 +21,7 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     m_StartPosSL   = 50;
     m_runFromModifySlider = false;
     m_OutputSpecies.clear();
+    m_SpeciesGuild.clear();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::nmfEstimation_Tab1");
 
@@ -42,6 +43,7 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     Estimation_Tab1_PopulationGB        = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab1_PopulationGB");
     Estimation_Tab1_LoadPB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_LoadPB");
     Estimation_Tab1_ImportPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_ImportPB");
+    Estimation_Tab1_ExportPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_ExportPB");
     Estimation_Tab1_RestorePB           = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_RestorePB");
     Estimation_Tab1_SavePB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_SavePB");
     Estimation_Tab1_ModifySL            = Estimation_Tabs->findChild<QSlider     *>("Estimation_Tab1_ModifySL");
@@ -68,6 +70,8 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
             this,                           SLOT(callback_LoadPB()));
     connect(Estimation_Tab1_ImportPB,       SIGNAL(clicked()),
             this,                           SLOT(callback_ImportPB()));
+    connect(Estimation_Tab1_ExportPB,       SIGNAL(clicked()),
+            this,                           SLOT(callback_ExportPB()));
     connect(Estimation_Tab1_RestorePB,      SIGNAL(clicked()),
             this,                           SLOT(callback_RestorePB()));
     connect(Estimation_Tab1_SavePB,         SIGNAL(clicked()),
@@ -110,13 +114,14 @@ nmfEstimation_Tab1::~nmfEstimation_Tab1()
 }
 
 bool
-nmfEstimation_Tab1::checkAndShowEmptyFieldError(bool showPopup)
+nmfEstimation_Tab1::checkAndShowEmptyFieldError(bool showPopup,
+                                                const std::string& location)
 {
     m_Logger->logMsg(nmfConstants::Error,"Found empty field.");
     if (showPopup) {
         QApplication::restoreOverrideCursor();
         QMessageBox::warning(Estimation_Tabs, "Error",
-                             "\nError: Found empty field. Please fill in all required fields for the model desired.\n",
+                             "\nError: Found empty field in " + QString::fromStdString(location) + ". Please fill in all required fields for the model desired.\n",
                              QMessageBox::Ok);
         return false;
     }
@@ -271,6 +276,13 @@ nmfEstimation_Tab1::callback_NextPB()
 void
 nmfEstimation_Tab1::callback_LoadPB()
 {
+    callback_LoadPBNoEmit();
+    emit LoadSetup();
+}
+
+void
+nmfEstimation_Tab1::callback_LoadPBNoEmit()
+{
     loadWidgets();
 }
 
@@ -327,30 +339,86 @@ nmfEstimation_Tab1::onGuildTab()
 void
 nmfEstimation_Tab1::callback_ImportPB()
 {
-    QString errorMsg;
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    QTableView* tableView = (onGuildTab()) ? Estimation_Tab1_GuildPopulationTV :
-                                             Estimation_Tab1_SpeciesPopulationTV;
+    if (onGuildTab()) {
+        importGuildData("",nmfConstantsMSSPM::UpdateSetup);
+    } else {
+        importSpeciesData("",nmfConstantsMSSPM::UpdateSetup);
+    }
+}
 
-    bool loadOK = nmfUtilsQt::loadTimeSeries(
-                Estimation_Tabs, tableView, inputDataPath, "",
-                nmfConstantsMSSPM::FirstLineNotReadOnly,errorMsg);
+void
+nmfEstimation_Tab1::importGuildData(const QString& tableName,
+                                    bool updateSetup)
+{
+    QString errorMsg;
+    QList<QString> SpeciesGuilds;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::vector<int> ColumnNumbers = {
+        nmfConstantsMSSPM::Column_Supp_Guild_Name,
+        nmfConstantsMSSPM::Column_Supp_Guild_GrowthRate,
+        nmfConstantsMSSPM::Column_Supp_Guild_CarryingCapacity
+    };
+
+    bool loadOK = nmfUtilsQt::loadGuildsSpeciesTableview(
+                Estimation_Tabs, Estimation_Tab1_GuildPopulationTV,
+                "Guild",inputDataPath, tableName, SpeciesGuilds, errorMsg);
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+        return;
     }
 
-    // Load signal with data to send to Species Setup tab
-    QList<QString> SpeNames;
-    QList<QString> InitBiomass;
-    QList<QString> GrowthRate;
-    QList<QString> SpeciesK;
-    for (int row=0; row<m_SpeciesModel->rowCount(); ++row) {
-        SpeNames.push_back(   m_SpeciesModel->item(row,nmfConstantsMSSPM::Column_Supp_SpeName)->text());
-        InitBiomass.push_back(m_SpeciesModel->item(row,nmfConstantsMSSPM::Column_Supp_InitBiomass)->text());
-        GrowthRate.push_back( m_SpeciesModel->item(row,nmfConstantsMSSPM::Column_Supp_GrowthRate)->text());
-        SpeciesK.push_back(   m_SpeciesModel->item(row,nmfConstantsMSSPM::Column_Supp_SpeciesK)->text());
+    if (updateSetup) {
+        // Load signal with data to send to Species Setup tab
+        QList<QString> GuildNames;
+        QList<QString> GrowthRate;
+        QList<QString> GuildK;
+        for (int row=0; row<m_GuildModel->rowCount(); ++row) {
+            GuildNames.push_back( m_GuildModel->item(row,ColumnNumbers[0])->text());
+            GrowthRate.push_back( m_GuildModel->item(row,ColumnNumbers[1])->text());
+            GuildK.push_back(     m_GuildModel->item(row,ColumnNumbers[2])->text());
+        }
+        emit UpdateGuildSetupData(GuildNames,GrowthRate,GuildK);
     }
-    emit UpdateSpeciesSetupData(SpeNames,InitBiomass,GrowthRate,SpeciesK);
+}
+
+void
+nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
+                                      bool updateSetup)
+{
+    QString errorMsg;
+    QList<QString> SpeciesGuilds;
+
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::vector<int> ColumnNumbers = {
+        nmfConstantsMSSPM::Column_Supp_Species_Name,
+        nmfConstantsMSSPM::Column_Supp_Species_InitBiomass,
+        nmfConstantsMSSPM::Column_Supp_Species_GrowthRate,
+        nmfConstantsMSSPM::Column_Supp_Species_CarryingCapacity
+    };
+
+    bool loadOK = nmfUtilsQt::loadGuildsSpeciesTableview(
+                Estimation_Tabs, Estimation_Tab1_SpeciesPopulationTV,
+                "Species", inputDataPath, tableName, SpeciesGuilds, errorMsg);
+    if (! loadOK) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+        return;
+    }
+
+    if (updateSetup) {
+        // Load signal with data to send to Species Setup tab
+        QList<QString> SpeciesNames;
+        QList<QString> SpeciesInitBiomass;
+        QList<QString> SpeciesGrowthRate;
+        QList<QString> SpeciesK;
+        for (int row=0; row<m_SpeciesModel->rowCount(); ++row) {
+            SpeciesNames.push_back(      m_SpeciesModel->item(row,ColumnNumbers[0])->text());
+            SpeciesInitBiomass.push_back(m_SpeciesModel->item(row,ColumnNumbers[1])->text());
+            SpeciesGrowthRate.push_back( m_SpeciesModel->item(row,ColumnNumbers[2])->text());
+            SpeciesK.push_back(          m_SpeciesModel->item(row,ColumnNumbers[3])->text());
+        }
+        emit UpdateSpeciesSetupData(SpeciesNames,SpeciesGuilds,SpeciesInitBiomass,
+                                    SpeciesGrowthRate,SpeciesK);
+    }
 }
 
 void
@@ -381,8 +449,6 @@ nmfEstimation_Tab1::callback_SavePB()
         loadWidgets();
     }
     resetSelection();
-
-    saveCSVFile();
 
 }
 
@@ -602,7 +668,7 @@ nmfEstimation_Tab1::saveGuildDataSupplemental(bool showPopup)
         cmd += "Catchability=" + Catchability;
         cmd += " WHERE GuildName = '" + GuildName + "'";
         if (nmfUtilsQt::emptyField({GuildName,Catchability})) {
-            checkAndShowEmptyFieldError(showPopup);
+            checkAndShowEmptyFieldError(showPopup,"saveGuildDataSupplemental");
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
@@ -655,7 +721,7 @@ nmfEstimation_Tab1::saveGuildDataRange(bool showPopup)
         cmd += "GuildKMax=" + GuildKMax;
         cmd += " WHERE GuildName = '" + GuildName + "'";
         if (nmfUtilsQt::emptyField({GuildName,GrowthRateMin,GrowthRateMax,GuildKMin,GuildKMax})) {
-            checkAndShowEmptyFieldError(showPopup);
+            checkAndShowEmptyFieldError(showPopup,"saveGuildDataRange");
             return false;
         }
         if (nmfUtilsQt::outOfRange({"GrowthRate",GrowthRate,GrowthRateMin,GrowthRateMax,
@@ -704,7 +770,7 @@ nmfEstimation_Tab1::saveGuildDataSupplementalAndRange(bool showPopup)
         cmd += "CatchabilityMax=" + CatchabilityMax;
         cmd += " WHERE GuildName = '" + GuildName + "'";
         if (nmfUtilsQt::emptyField({GuildName,CatchabilityMin,CatchabilityMax})) {
-            checkAndShowEmptyFieldError(showPopup);
+            checkAndShowEmptyFieldError(showPopup,"saveGuildDataSupplementalAndRange");
             return false;
         }
         if (nmfUtilsQt::outOfRange({"Catchability",Catchability,CatchabilityMin,CatchabilityMax},BadParameter)) {
@@ -750,7 +816,7 @@ nmfEstimation_Tab1::saveGuildDataPrimary(bool showPopup)
         cmd += "GuildK=" + GuildK;
         cmd += " WHERE GuildName = '" + GuildName + "'";
         if (nmfUtilsQt::emptyField({GuildName,GrowthRate,GuildK})) {
-            checkAndShowEmptyFieldError(showPopup);
+            checkAndShowEmptyFieldError(showPopup,"saveGuildDataPrimary");
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
@@ -830,7 +896,7 @@ nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
         cmd += "SpeciesK=" + SpeciesK;
         cmd += " WHERE SpeName = '" + SpeName + "'";
         if (nmfUtilsQt::emptyField({SpeName,InitBiomass,GrowthRate,SpeciesK})) {
-            checkAndShowEmptyFieldError(showPopup);
+            checkAndShowEmptyFieldError(showPopup,"saveSpeciesDataPrimary");
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
@@ -878,7 +944,7 @@ nmfEstimation_Tab1::saveSpeciesDataSupplemental(bool showPopup)
         cmd += "Catchability=" + Catchability;
         cmd += " WHERE SpeName = '" + SpeName + "'";
         if (nmfUtilsQt::emptyField({SpeName,GrowthRateCovarCoeff,SpeciesKCovarCoeff,SurveyQ,Catchability})) {
-            checkAndShowEmptyFieldError(showPopup);
+            checkAndShowEmptyFieldError(showPopup,"saveSpeciesDataSupplemental");
             return false;
         }
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
@@ -915,10 +981,10 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
         InitBiomass = index.data().toString();
         index = m_SpeciesModel->index(i,2);
         InitBiomassMin = index.data().toString();
-        cmd += "InitBiomassMin=" + InitBiomassMin + ",";
+        cmd += "InitBiomassMin=" + QString::number(index.data().toDouble(),'f',6) + ",";
         index = m_SpeciesModel->index(i,3);
         InitBiomassMax = index.data().toString();
-        cmd += "InitBiomassMax=" + InitBiomassMax + ",";
+        cmd += "InitBiomassMax=" + QString::number(index.data().toDouble(),'f',6) + ",";
         index = m_SpeciesModel->index(i,4);
         GrowthRate = index.data().toString();
         index = m_SpeciesModel->index(i,5);
@@ -931,15 +997,15 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
         SpeciesK = index.data().toString();
         index = m_SpeciesModel->index(i,9);
         SpeciesKMin = index.data().toString();
-        cmd += "SpeciesKMin=" + SpeciesKMin + ",";
+        cmd += "SpeciesKMin=" + QString::number(index.data().toDouble(),'f',6) + ",";
         index = m_SpeciesModel->index(i,10);
         SpeciesKMax = index.data().toString();
-        cmd += "SpeciesKMax=" + SpeciesKMax;
+        cmd += "SpeciesKMax=" + QString::number(index.data().toDouble(),'f',6);
         cmd += " WHERE SpeName = '" + SpeName + "'";
         if (nmfUtilsQt::emptyField({SpeName,InitBiomassMin,InitBiomassMax,
                                     GrowthRateMin,GrowthRateMax,
                                     SpeciesKMin,SpeciesKMax})) {
-            checkAndShowEmptyFieldError(showPopup);
+            checkAndShowEmptyFieldError(showPopup,"saveSpeciesDataRange");
             return false;
         }
         if (nmfUtilsQt::outOfRange({"InitBiomass",InitBiomass,InitBiomassMin,InitBiomassMax,
@@ -996,7 +1062,7 @@ nmfEstimation_Tab1::saveSpeciesDataSupplementalAndRange(bool showPopup)
         cmd += "CatchabilityMax=" + CatchabilityMax;
         cmd += " WHERE SpeName = '" + SpeName + "'";
         if (nmfUtilsQt::emptyField({SpeName,SurveyQMin,SurveyQMax,CatchabilityMin,CatchabilityMax})) {
-            checkAndShowEmptyFieldError(showPopup);
+            checkAndShowEmptyFieldError(showPopup,"saveSpeciesDataSupplementalAndRange");
             return false;
         }
         if (nmfUtilsQt::outOfRange({"SurveyQ",SurveyQ,SurveyQMin,SurveyQMax,
@@ -1057,53 +1123,198 @@ nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
 }
 
 void
-nmfEstimation_Tab1::callback_SaveCSVFile()
+nmfEstimation_Tab1::callback_ExportPB()
 {
-    saveCSVFile();
-}
+    bool isValidFilename;
+    bool isGuildVisible = onGuildTab();
+    QString tableName = (isGuildVisible) ? "Guilds" : "Species";
+    QList<QString> GuildName;
+    QList<QString> GuildGrowthRate;
+    QList<QString> GuildK;
+    QList<QString> SpeciesName;
+    QList<QString> SpeciesGuild;
+    QList<QString> SpeciesInitialBiomass;
+    QList<QString> SpeciesGrowthRate;
+    QList<QString> SpeciesK;
 
-void
-nmfEstimation_Tab1::saveCSVFile()
-{
-    QString msg;
-
-    // Save time series data to a .csv file
-    std::string tableName = "Species";
-    msg = "\nOK to use default file name for Species .csv file and overwrite any previous file?";
-    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Species CSV File"),
-                                                              tr(msg.toLatin1()),
-                                                              QMessageBox::No|QMessageBox::Yes,
-                                                              QMessageBox::Yes);
-    if (reply == QMessageBox::Yes) {
-        saveCSVFile(tableName);
-    } else {
-        bool ok;
-        QString tag = QInputDialog::getText(Estimation_Tabs, tr("Species Files"),
-                                            tr("Enter Species CSV filename version tag (omit any '_'): "),
-                                            QLineEdit::Normal, "", &ok);
-        if (ok && !tag.isEmpty()) {
-            tableName += "_"+tag.toStdString();
-            saveCSVFile(tableName);
+    isValidFilename = getCSVFileName(tableName);
+    if (isValidFilename) {
+        if (isGuildVisible) {
+            saveGuildsCSVFile(tableName,GuildName,GuildGrowthRate,GuildK);
+        } else {
+            emit LoadSpeciesGuild();
+            saveSpeciesCSVFile(tableName,SpeciesName,m_SpeciesGuild,
+                               SpeciesInitialBiomass,SpeciesGrowthRate,SpeciesK);
         }
     }
 }
 
 void
-nmfEstimation_Tab1::saveCSVFile(std::string tableName)
+nmfEstimation_Tab1::setSpeciesGuild(QList<QString> SpeciesGuildList)
 {
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    QString tableNameStr = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
-    QStandardItemModel* smodel = (onGuildTab()) ? m_GuildModel : m_SpeciesModel;
+    m_SpeciesGuild = SpeciesGuildList;
+}
 
-    nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameStr);
+void
+nmfEstimation_Tab1::callback_SaveSpeciesCSVFile(
+        QList<QString> SpeciesName,
+        QList<QString> SpeciesGuild,
+        QList<QString> SpeciesInitialBiomass,
+        QList<QString> SpeciesGrowthRate,
+        QList<QString> SpeciesK)
+{
+    QString tableName = "Species";
+    bool isValidFilename = getCSVFileName(tableName);
+
+    if (isValidFilename) {
+        saveSpeciesCSVFile(tableName,SpeciesName,SpeciesGuild,SpeciesInitialBiomass,
+                           SpeciesGrowthRate,SpeciesK);
+    }
+}
+
+void
+nmfEstimation_Tab1::callback_SaveGuildsCSVFile(
+        QList<QString> GuildName,
+        QList<QString> GrowthRate,
+        QList<QString> GuildK)
+{
+    QString tableName = "Guilds";
+    bool isValidFilename = getCSVFileName(tableName);
+
+    if (isValidFilename) {
+        saveGuildsCSVFile(tableName,GuildName,GrowthRate,GuildK);
+    }
+}
+
+bool
+nmfEstimation_Tab1::getCSVFileName(QString& tableName)
+{
+    bool retv = true;
+    // Save time series data to a .csv file
+    QString msg = "\nOK to use default file name for " + tableName + " .csv file and overwrite any previous file?";
+    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default "+tableName.toLatin1()+" CSV File"),
+                                                              tr(msg.toLatin1()),
+                                                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
+                                                              QMessageBox::Yes);
+    if (reply == QMessageBox::Cancel) {
+        retv = false;
+    } else if (reply == QMessageBox::No) {
+        bool ok;
+        QString tag = QInputDialog::getText(Estimation_Tabs, tr(tableName.toLatin1()+" Files"),
+                                            tr("Enter "+tableName.toLatin1()+" CSV filename version tag (omit any '_'): "),
+                                            QLineEdit::Normal, "", &ok);
+        if (ok && !tag.isEmpty()) {
+            tableName += "_"+tag;
+            retv = true;
+        } else if (tag.isEmpty()) {
+            QMessageBox::warning(Estimation_Tabs, "Tag Error",
+                                 "\nError: Please enter a valid (i.e., non-blank) tag.\n",
+                                 QMessageBox::Ok);
+            retv = false;
+        }
+    }
+
+    return retv;
+}
+
+void
+nmfEstimation_Tab1::saveSpeciesCSVFile(QString& tableName,
+                                       QList<QString>& SpeciesName,
+                                       QList<QString>& SpeciesGuild,
+                                       QList<QString>& SpeciesInitialBiomass,
+                                       QList<QString>& SpeciesGrowthRate,
+                                       QList<QString>& SpeciesK)
+{
+    bool okSave;
+    bool isExportFromSetup = (SpeciesName.size() > 0);
+    QString type = "Species";
+    QStandardItemModel* smodel = m_SpeciesModel;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QString tableNameStr  = QDir(inputDataPath).filePath(tableName);
+
+    okSave = nmfUtilsQt::saveSpeciesTableView(
+                Estimation_Tabs,smodel,inputDataPath,tableNameStr,
+                SpeciesName,SpeciesGuild,SpeciesInitialBiomass,
+                SpeciesGrowthRate,SpeciesK);
 
     QFileInfo fileInfo(tableNameStr);
     if (fileInfo.suffix().toLower() != "csv") {
         tableNameStr += ".csv";
     }
-    QMessageBox::information(Estimation_Tabs, "File Saved",
-                             "\nSpecies CSV file has been successfully saved:\n\n"+tableNameStr+"\n",
-                             QMessageBox::Ok);
+
+    if (okSave) {
+        QMessageBox::information(Estimation_Tabs, "File Saved",
+                                 "\n"+type+" CSV file has been successfully saved as:\n\n"+tableNameStr+"\n",
+                                 QMessageBox::Ok);
+    } else {
+        QMessageBox::information(Estimation_Tabs, "File Save Error",
+                                 "\n"+type+" CSV file has not been saved. Please check for valid filename (i.e., non-blank).\n",
+                                 QMessageBox::Ok);
+    }
+
+    if (isExportFromSetup) {
+        importSpeciesData(tableNameStr,nmfConstantsMSSPM::DontUpdateSetup);
+    } else {
+        importSpeciesData(tableNameStr,nmfConstantsMSSPM::UpdateSetup);
+    }
+
+}
+
+void
+nmfEstimation_Tab1::saveGuildsCSVFile(QString& tableName,
+                                      QList<QString>& GuildName,
+                                      QList<QString>& GrowthRate,
+                                      QList<QString>& GuildK)
+{
+    bool okSave;
+    bool isExportFromSetup = (GuildName.size() > 0);
+    QString type;
+    QStandardItemModel* smodel;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QString tableNameStr  = QDir(inputDataPath).filePath(tableName);
+
+//    if (onGuildTab()) {
+        type = "Guilds";
+        smodel = m_GuildModel;
+//    }
+//    else {
+//        type = "Species";
+//        smodel = m_SpeciesModel;
+//    }
+
+    okSave = nmfUtilsQt::saveGuildsTableView(
+                Estimation_Tabs,smodel,inputDataPath,tableNameStr,
+                GuildName,GrowthRate,GuildK);
+
+    QFileInfo fileInfo(tableNameStr);
+    if (fileInfo.suffix().toLower() != "csv") {
+        tableNameStr += ".csv";
+    }
+
+    if (okSave) {
+        QMessageBox::information(Estimation_Tabs, "File Saved",
+                                 "\n"+type+" CSV file has been successfully saved as:\n\n"+tableNameStr+"\n",
+                                 QMessageBox::Ok);
+    } else {
+        QMessageBox::information(Estimation_Tabs, "File Save Error",
+                                 "\n"+type+" CSV file has not been saved. Please check for valid filename (i.e., non-blank).\n",
+                                 QMessageBox::Ok);
+    }
+
+//    if (onGuildTab()) {
+        if (isExportFromSetup) {
+            importGuildData(tableNameStr,nmfConstantsMSSPM::DontUpdateSetup);
+        } else {
+            importGuildData(tableNameStr,nmfConstantsMSSPM::UpdateSetup);
+        }
+//    }
+//    else {
+//        if (isExportFromSetup) {
+//            importSpeciesData(tableNameStr,nmfConstantsMSSPM::DontUpdateSetup);
+//        } else {
+//            importSpeciesData(tableNameStr,nmfConstantsMSSPM::UpdateSetup);
+//        }
+//    }
 }
 
 void
@@ -1412,7 +1623,7 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
     // are selected, for all parameters that have min/max values.
     int col;
     int row;
-    double pctVal = pct/100.0;
+    double pctVal = double(pct)/100.0;
     double parameterValue;
     QModelIndex index,minIndex,maxIndex;
     std::set<int> selectedParameters;
@@ -1432,9 +1643,9 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                 minIndex = m_SpeciesModel->index(row,col+1);
                 maxIndex = m_SpeciesModel->index(row,col+2);
                 parameterValue = index.data().toDouble();
-                minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal)));
+                minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal),'f',6));
                 minItem->setTextAlignment(Qt::AlignCenter);
-                maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal)));
+                maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal),'f',6));
                 maxItem->setTextAlignment(Qt::AlignCenter);
                 m_SpeciesModel->setItem(row,col+1,minItem);
                 m_SpeciesModel->setItem(row,col+2,maxItem);
@@ -1452,7 +1663,7 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                     index    = m_SpeciesModel->index(row,col-1);
                     minIndex = m_SpeciesModel->index(row,col);
                     parameterValue = index.data().toDouble();
-                    minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal)));
+                    minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal),'f',6));
                     minItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col,minItem);
                     break;
@@ -1462,7 +1673,7 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                     index    = m_SpeciesModel->index(row,col-2);
                     maxIndex = m_SpeciesModel->index(row,col);
                     parameterValue = index.data().toDouble();
-                    maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal)));
+                    maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal),'f',6));
                     maxItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col,maxItem);
                     break;

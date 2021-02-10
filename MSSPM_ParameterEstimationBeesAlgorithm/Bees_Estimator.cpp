@@ -52,6 +52,7 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
 
     m_InitialCarryingCapacities.clear();
     m_EstSystemCarryingCapacity = 0;
+    m_EstInitBiomass.clear();
     m_EstGrowthRates.clear();
     m_EstCarryingCapacities.clear();
     m_EstAlpha.clear();
@@ -78,12 +79,12 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
     std::unique_ptr<BeesStats>     beesStats;
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-        m_InitialCarryingCapacities.push_back(beeStruct.CarryingCapacityInitial[i]);
+        m_InitialCarryingCapacities.push_back(beeStruct.CarryingCapacity[i]);
     }
 
     for (int subRunNum=1; subRunNum<=NumSubRuns; ++subRunNum)
     {
-//std::cout << "subRunNum: " << subRunNum << std::endl;
+std::cout << "subRunNum: " << subRunNum << std::endl;
         // Initialize main class ptr
         beesAlg   = std::make_unique<BeesAlgorithm>(beeStruct,nmfConstantsMSSPM::VerboseOn);
         beesStats = std::make_unique<BeesStats>(
@@ -93,6 +94,7 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
         ok = beesAlg->estimateParameters(
                     bestFitness,EstParameters,
                     RunNum,subRunNum,errorMsg);
+std::cout << "  ok = " << ok << std::endl;
         if (! errorMsg.empty()) {
             ok = false;
             emit ErrorFound(errorMsg);
@@ -129,6 +131,8 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
         beesStats->getStdDev(fitnessStdDev,totStdDev,stdDevParameters);
 
         // Extract the parameters and place them into their respective data structures.
+        beesAlg->extractInitBiomass(EstParameters,startPos,
+                                    m_EstInitBiomass);
         beesAlg->extractGrowthParameters(EstParameters,startPos,
                                          m_EstGrowthRates,
                                          m_EstCarryingCapacities,
@@ -197,44 +201,45 @@ Bees_Estimator::createOutputStr(const int&         numTotalParameters,
 
     if (growthForm == "Logistic") {
         bestFitnessStr += "<br><br>Initial Parameters:";
-        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity",m_InitialCarryingCapacities,true);
+        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:",m_InitialCarryingCapacities,true);
     }
-    bestFitnessStr += "<br><br>Estimated Parameters:";
-    bestFitnessStr += convertValues1DToOutputStr("Growth Rate",m_EstGrowthRates,false);
+    bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong>";
+    bestFitnessStr += convertValues1DToOutputStr("Initial Biomass:    ",m_EstInitBiomass,false);
+    bestFitnessStr += convertValues1DToOutputStr("Growth Rate:        ",m_EstGrowthRates,false);
     if (growthForm == "Logistic") {
-        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity",m_EstCarryingCapacities,true);
+        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:  ",m_EstCarryingCapacities,true);
     }
 
     if (harvestForm == "Effort (qE)") {
-        bestFitnessStr += convertValues1DToOutputStr("Catchability",m_EstCatchability,false);
+        bestFitnessStr += convertValues1DToOutputStr("Catchability:       ",m_EstCatchability,false);
     }
 
     if (competitionForm == "NO_K") {
-        bestFitnessStr += convertValues2DToOutputStr("Competition (alpha)",m_EstAlpha);
+        bestFitnessStr += convertValues2DToOutputStr("Competition (alpha):",m_EstAlpha);
     } else if ((competitionForm == "MS-PROD") ||
                (competitionForm == "AGG-PROD"))
     {
         if (competitionForm == "MS-PROD") {
-            bestFitnessStr += convertValues2DToOutputStr("Competition (beta::species)",m_EstBetaSpecies);
+            bestFitnessStr += convertValues2DToOutputStr("Competition (beta::species):",m_EstBetaSpecies);
         }
-        bestFitnessStr += convertValues2DToOutputStr("Competition (beta::guilds)",m_EstBetaSpecies);
+        bestFitnessStr += convertValues2DToOutputStr("Competition (beta::guilds): ",m_EstBetaSpecies);
     }
 
     if ((predationForm == "Type I")  ||
-        (predationForm == "Type II") ||
-        (predationForm == "Type III"))
+            (predationForm == "Type II") ||
+            (predationForm == "Type III"))
     {
-        bestFitnessStr += convertValues2DToOutputStr("Predation (rho)",m_EstPredation);
+        bestFitnessStr += convertValues2DToOutputStr("Predation (rho):",m_EstPredation);
     }
     if ((predationForm == "Type II") ||
-        (predationForm == "Type III"))
+            (predationForm == "Type III"))
     {
-        bestFitnessStr += convertValues2DToOutputStr("Handling",m_EstHandling);
+        bestFitnessStr += convertValues2DToOutputStr("Handling:       ",m_EstHandling);
     }
     if (predationForm == "Type III")
     {
         bestFitnessStr += "<br>&nbsp;&nbsp;";
-        bestFitnessStr += convertValues1DToOutputStr("Predation Exponent",m_EstExponent,false);
+        bestFitnessStr += convertValues1DToOutputStr("Predation Exponent:",m_EstExponent,false);
 //        for (unsigned i=0; i<m_EstExponent.size(); ++i) {
 //            if (i == 0) {
 //                bestFitnessStr += "&nbsp;&nbsp;Predation Exponent: ";
@@ -253,14 +258,14 @@ Bees_Estimator::convertValues1DToOutputStr(const std::string& label,
     double totalVal = 0;
     std::string bestFitnessStr = "";
 
-    bestFitnessStr += "<br>&nbsp;&nbsp;" + label + ":&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+    bestFitnessStr += "<br>&nbsp;&nbsp;" + label + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
     for (unsigned i=0; i<values.size(); ++i) {
         val = values[i];
         bestFitnessStr += nmfUtils::convertToScientificNotation(val) + "&nbsp;&nbsp;";
         totalVal += val;
     }
     if (includeTotal) {
-        bestFitnessStr += "<br>&nbsp;&nbsp;Total " + label + ":&nbsp;&nbsp;" +
+        bestFitnessStr += "<br>&nbsp;&nbsp;Total " + label + "&nbsp;&nbsp;" +
                 nmfUtils::convertToScientificNotation(totalVal);
     }
 
@@ -278,7 +283,7 @@ Bees_Estimator::convertValues2DToOutputStr(const std::string& label,
         bestFitnessStr += "<br>&nbsp;&nbsp;";
         for (unsigned j=0; j<matrix.size2(); ++j) {
             if ((i == 0) && (j == 0)) {
-                bestFitnessStr += "&nbsp;&nbsp;" + label + ":<br>&nbsp;&nbsp;";
+                bestFitnessStr += "&nbsp;&nbsp;" + label + "<br>&nbsp;&nbsp;";
             }
             bestFitnessStr += "&nbsp;&nbsp;&nbsp;" + nmfUtils::convertToScientificNotation(matrix(i,j));
         }
@@ -297,6 +302,12 @@ Bees_Estimator::stopRun(const std::string &elapsedTimeStr,
     outputFile << elapsedTimeStr << std::endl; // elapsed time
     outputFile << fitnessStr << std::endl;
     outputFile.close();
+}
+
+void
+Bees_Estimator::getEstimatedInitBiomass(std::vector<double> &estInitBiomass)
+{
+    estInitBiomass = m_EstInitBiomass;
 }
 
 void

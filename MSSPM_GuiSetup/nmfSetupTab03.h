@@ -82,6 +82,7 @@ class nmfSetup_Tab3: public QObject
     QPushButton*  Setup_Tab3_DelGuildPB;
     QPushButton*  Setup_Tab3_UpdateSpeciesPB;
     QPushButton*  Setup_Tab3_SavePB;
+    QPushButton*  Setup_Tab3_ExportPB;
     QPushButton*  Setup_Tab3_ImportPB;
     QPushButton*  Setup_Tab3_LoadPB;
     QPushButton*  Setup_Tab3_PrevPB;
@@ -127,11 +128,28 @@ public:
     virtual ~nmfSetup_Tab3();
 
     /**
+     * @brief Gets the list representing the current values of all of the comboboxes for the
+     * Species Guild fields
+     * @return Returns the list of Species Guild values
+     */
+    QList<QString> getSpeciesGuild();
+    /**
      * @brief Loads all of the widgets for this Setup page
      */
     void loadWidgets();
 
 signals:
+    /**
+     * @brief Signal emitted so that the Guild/Species table on
+     * Estimation Tab1 will reload.
+     */
+    void LoadEstimation();
+    /**
+     * @brief Signal emitted when user wants to import a .csv file.
+     * This signal is sent to the Estimation_Tab1_ptr where its import
+     * method is called.
+     */
+    void LoadGuildSupplemental();
     /**
      * @brief Signal emitted when user wants to import a .csv file.
      * This signal is sent to the Estimation_Tab1_ptr where its import
@@ -145,11 +163,26 @@ signals:
      */
     void ReloadWidgets();
     /**
+     * @brief Signal emitted after user saves Guilds. This will
+     * allow the user to save the current Guild data into a .csv
+     * file.
+     * @param GuildName : list of guild names
+     * @param GrowthRate : list of guild growth rates
+     * @param GuildK : list of guild carrying capacities
+     */
+    void SaveGuildSupplemental(QList<QString> GuildName,
+                               QList<QString> GuildGrowthRate,
+                               QList<QString> GuildK);
+    /**
      * @brief Signal emitted after user saves Species. This will
      * allow the user to save the current Species data into a .csv
      * file.
      */
-    void SaveSpeciesSupplemental();
+    void SaveSpeciesSupplemental(QList<QString> SpeciesName,
+                                 QList<QString> SpeciesGuild,
+                                 QList<QString> SpeciesInitialBiomass,
+                                 QList<QString> SpeciesGrowthRate,
+                                 QList<QString> SpeciesK);
 
 public Q_SLOTS:
     /**
@@ -169,6 +202,10 @@ public Q_SLOTS:
      */
     void callback_DelSpeciesPB();
     /**
+     * @brief Callback invoked when user exports table data to a CSV file
+     */
+    void callback_ExportPB();
+    /**
      * @brief Callback invoked when user modifies the Guilds table
      */
     void callback_GuildsTableChanged(int,int);
@@ -180,6 +217,11 @@ public Q_SLOTS:
      * @brief Loads either the previously saved Species or Guild data depending upon the visible tab
      */
     void callback_LoadPB();
+    /**
+     * @brief Loads either the previously saved Species or Guild data depending
+     * upon the visible tab without sending the load signal to the Estimation Tab1.
+     */
+    void callback_LoadPBNoEmit();
     /**
      * @brief Callback invoked when user modifies the Number of Guilds Spin Box widget
      * @param value : current value of Spin Box widget
@@ -222,7 +264,16 @@ public Q_SLOTS:
      * @brief Callback invoked when user modifies the Species table
      */
     void callback_SpeciesTableChanged(int,int);
-
+    /**
+     * @brief Callback invoked when the user updates the Guild Supplemental data and the
+     * Guild Setup data must also be updated
+     * @param GuildNames : names of Guilds
+     * @param GrowthRate : values of all Guild growth rates
+     * @param GuildK : values of all Guild carrying capacities
+     */
+    void callback_UpdateGuildTable(QList<QString> GuildNames,
+                                   QList<QString> GrowthRate,
+                                   QList<QString> GuildK);
     /**
      * @brief Callback invoked when user clicks the Guilds page button to refresh
      * the Species page. This is necessary as Guilds are listed in the Guild column
@@ -232,15 +283,17 @@ public Q_SLOTS:
     /**
      * @brief Callback invoked when the user updates the Species Supplemental data and the
      * Species Setup data must also be updated
-     * @param SpeNames : names of Species
-     * @param InitBiomass : values of all initial biomasses
-     * @param GrowthRate : values of all growth rates
-     * @param SpeciesK : values of all species carrying capacities
+     * @param SpeciesNames : names of Species
+     * @param SpeciesGuild : list of Species Guild groups
+     * @param SpeciesInitBiomass : values of all Species initial biomasses
+     * @param SpeciesGrowthRate : values of all Species growth rates
+     * @param SpeciesK : values of all Species carrying capacities
      */
-    void callback_UpdateTable(QList<QString> SpeNames,
-                              QList<QString> InitBiomass,
-                              QList<QString> GrowthRate,
-                              QList<QString> SpeciesK);
+    void callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
+                                     QList<QString> SpeciesGuild,
+                                     QList<QString> SpeciesInitBiomass,
+                                     QList<QString> SpeciesGrowthRate,
+                                     QList<QString> SpeciesK);
 
 };
 

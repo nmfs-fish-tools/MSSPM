@@ -78,6 +78,7 @@ private:
     QPushButton* Estimation_Tab3_SavePB;
     QPushButton* Estimation_Tab3_LoadPB;
     QPushButton* Estimation_Tab3_ImportPB;
+    QPushButton* Estimation_Tab3_ExportPB;
     QCheckBox*   Estimation_Tab3_EstimateCB;
 
     QStringList getSpecies();
@@ -116,6 +117,10 @@ public:
     void loadCSVFiles(std::vector<std::string>& allTableNames);
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when the user clicks the Export button to save a .csv file
+     */
+    void callback_ExportPB();
     /**
      * @brief Callback invoked when the user clicks the Import button to load a .csv file
      */

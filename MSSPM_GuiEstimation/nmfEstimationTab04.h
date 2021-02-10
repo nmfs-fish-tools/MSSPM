@@ -78,6 +78,7 @@ class nmfEstimation_Tab4: public QObject
     QPushButton* Estimation_Tab4_LoadPB;
     QPushButton* Estimation_Tab4_SavePB;
     QPushButton* Estimation_Tab4_ImportPB;
+    QPushButton* Estimation_Tab4_ExportPB;
     QCheckBox*   Estimation_Tab4_EstimateCB;
 
     void getForms(std::string& predationForm,
@@ -115,6 +116,10 @@ public:
 
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when the user clicks the Export button to save a .csv file
+     */
+    void callback_ExportPB();
     /**
      * @brief Callback invoked when the user clicks the Import button to load a .csv file
      */

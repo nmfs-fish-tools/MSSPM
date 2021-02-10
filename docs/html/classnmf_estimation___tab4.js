@@ -3,6 +3,7 @@ var classnmf_estimation___tab4 =
     [ "nmfEstimation_Tab4", "classnmf_estimation___tab4.html#aeb1d5dc876d4a5f4d8c032734a40c72a", null ],
     [ "~nmfEstimation_Tab4", "classnmf_estimation___tab4.html#a70de884b5e9a5028b7df1dd221807b75", null ],
     [ "callback_EstimateChecked", "classnmf_estimation___tab4.html#aa7c4ad0d53b389d0bc19e3f7534dd989", null ],
+    [ "callback_ExportPB", "classnmf_estimation___tab4.html#a25d6e6f21f84d0ddf9d43e2e022d1ef1", null ],
     [ "callback_ImportPB", "classnmf_estimation___tab4.html#a7bdf7c236905db673d0be7c869305be9", null ],
     [ "callback_LoadPB", "classnmf_estimation___tab4.html#a3cb2313c012b009e89ec0dee8ae2ff2c", null ],
     [ "callback_MaxSplitterMoved", "classnmf_estimation___tab4.html#aa7c5fdc8baf7d8ebdee7613249339aa2", null ],

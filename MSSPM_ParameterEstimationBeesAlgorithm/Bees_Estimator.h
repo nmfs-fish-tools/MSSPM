@@ -67,6 +67,7 @@ class Bees_Estimator : public QObject
 private:
     std::vector<double>                   m_InitialCarryingCapacities;
     double                                m_EstSystemCarryingCapacity;
+    std::vector<double>                   m_EstInitBiomass;
     std::vector<double>                   m_EstGrowthRates;
     std::vector<double>                   m_EstCarryingCapacities;
 //  std::vector<double>                   m_EstExploitationRates;
@@ -173,6 +174,11 @@ public:
      * @param EstHandling : vector of handling values per species
      */
     void getEstimatedHandling(boost::numeric::ublas::matrix<double> &EstHandling);
+    /**
+     * @brief Gets the estimated initial biomass values per species
+     * @param EstInitBiomass : vector of initial biomass values per species
+     */
+    void getEstimatedInitBiomass(std::vector<double> &EstInitBiomass);
     /**
      * @brief Gets the estimated predation values per species
      * @param EstPredation : vector of predation values per species

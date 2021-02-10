@@ -53,10 +53,11 @@ class nmfEstimation_Tab1: public QObject
     QStandardItemModel*  m_SpeciesModel;
     std::string          m_ProjectDir;
     QModelIndexList      m_selIndexes;
-    std::vector<QString> m_originalSpeciesValuesAll;
+    QList<QString> m_originalSpeciesValuesAll;
     std::vector<double>  m_originalValuesSelected;
     int                  m_StartPosSL;
     QString              m_OutputSpecies;
+    QList<QString>       m_SpeciesGuild;
 
     QTabWidget*   Estimation_Tabs;
     QTabWidget*   Estimation_Tab1_PopulationTabW;
@@ -68,6 +69,7 @@ class nmfEstimation_Tab1: public QObject
     QGroupBox*    Estimation_Tab1_PopulationGB;
     QPushButton*  Estimation_Tab1_LoadPB;
     QPushButton*  Estimation_Tab1_ImportPB;
+    QPushButton*  Estimation_Tab1_ExportPB;
     QPushButton*  Estimation_Tab1_RestorePB;
     QPushButton*  Estimation_Tab1_SavePB;
     QSlider*      Estimation_Tab1_ModifySL;
@@ -81,13 +83,18 @@ class nmfEstimation_Tab1: public QObject
     QCheckBox*    Estimation_Tab1_ModifyRunCB;
 
     bool arePopulationParametersWithinLimits();
-    bool checkAndShowEmptyFieldError(bool showPopup);
+    bool checkAndShowEmptyFieldError(bool showPopup,
+                                     const std::string& location);
     bool checkAndShowOutOfRangeError(QString type,
                                      QString name,
                                      QString badParameter,
                                      bool showPopup);
     QModelIndexList getSelectedVisibleCells();
     void getSelectedIndexes();
+    void importGuildData(const QString& tableName,
+                         bool updateSetup);
+    void importSpeciesData(const QString& tableName,
+                           bool updateSetup);
     bool isChecked(QCheckBox* cb);
     bool loadGuilds();
     bool loadSpecies();
@@ -101,8 +108,17 @@ class nmfEstimation_Tab1: public QObject
     void showPrimaryColumns(QTableView* tv);
     void showSuppColumns(QTableView* tv,bool show);
     void showRangeColumns(QTableView* tv,bool show);
-    void saveCSVFile();
-    void saveCSVFile(std::string tableName);
+    bool getCSVFileName(QString& tableName);
+    void saveGuildsCSVFile(QString& tableName,
+                           QList<QString>& GuildName,
+                           QList<QString>& GrowthRate,
+                           QList<QString>& GuildK);
+    void saveSpeciesCSVFile(QString& tableName,
+                            QList<QString>& SpeciesName,
+                            QList<QString>& SpeciesGuild,
+                            QList<QString>& SpeciesInitialBiomass,
+                            QList<QString>& SpeciesGrowthRate,
+                            QList<QString>& SpeciesK);
     bool savePopulationParametersGuilds(bool showPopup);
     bool saveGuildDataPrimary(bool showPopup);
     bool saveGuildDataSupplemental(bool showPopup);
@@ -122,12 +138,36 @@ signals:
      */
     void CheckAllEstimationTablesAndRun();
     /**
+     * @brief Signal sent to notify Setup Tab3 to load its Guild/Species table
+     */
+    void LoadSetup();
+    /**
+     * @brief Queries main program to load local list with Species Guild names
+     */
+    void LoadSpeciesGuild();
+    /**
+     * @brief Signal sent so the Guild Setup tab will be updated with the appropriate Guild fields
+     * @param GuildNames : list of guilds names
+     * @param GuildGrowthRate : list of guild growth rates
+     * @param GuildK : list of guild carrying capacities
+     */
+    void UpdateGuildSetupData(
+            QList<QString> GuildNames,
+            QList<QString> GuildGrowthRate,
+            QList<QString> GuildK);
+    /**
      * @brief Signal sent so the Species Setup tab will be updated with the appropriate Species fields
+     * @param SpeciesNames : list of species names
+     * @param SpeciesGuilds : list of guilds that each species is in
+     * @param SpeciesInitBiomass : list of species initial biomass values
+     * @param SpeciesGrowthRate : list of species growth rates
+     * @param SpeciesK : list of species carrying capacities
      */
     void UpdateSpeciesSetupData(
-            QList<QString> SpeNames,
-            QList<QString> InitBiomass,
-            QList<QString> GrowthRate,
+            QList<QString> SpeciesNames,
+            QList<QString> SpeciesGuilds,
+            QList<QString> SpeciesInitBiomass,
+            QList<QString> SpeciesGrowthRate,
             QList<QString> SpeciesK);
     /**
      * @brief Signal notifying other widgets to reload guilds data
@@ -200,6 +240,11 @@ public:
      * @param species : the species set in the output widget
      */
     void setOutputSpecies(QString species);
+    /**
+     * @brief Sets the SpeciesGuild list with the current combobox values from the Species Setup widget
+     * @param SpeciesGuildList : list of Species Guild values
+     */
+    void setSpeciesGuild(QList<QString> SpeciesGuildList);
 
 public Q_SLOTS:
     /**
@@ -208,6 +253,10 @@ public Q_SLOTS:
      */
     void callback_CurrentTabChanged(int subtab);
     /**
+     * @brief Callback invoked when the user clicks the Export button to save data to a .csv file
+     */
+    void callback_ExportPB();
+    /**
      * @brief Callback invoked when the user clicks the Import button to load data from a .csv file
      */
     void callback_ImportPB();
@@ -215,6 +264,11 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked when the user clicks the Load button and they don't want
+     * the Estimation Tab1 Guild/Species table to reload
+     */
+    void callback_LoadPBNoEmit();
     /**
      * @brief Callback invoked when the user presses the Run Modify button which
      * performs an Estimation Run and Diagnostics Run as if the user had clicked on
@@ -244,10 +298,29 @@ public Q_SLOTS:
      */
     void callback_SavePB();
     /**
+     * @brief Callback invoked when the user saves the Guilds from
+     * the Guilds Setup tab
+     * @param GuildName : list of guild names
+     * @param GrowthRate : list of guild growth rates
+     * @param GuildK : list of guild carrying capacities
+     */
+    void callback_SaveGuildsCSVFile(QList<QString> GuildName,
+                                    QList<QString> GrowthRate,
+                                    QList<QString> GuildK);
+    /**
      * @brief Callback invoked when the user saves the Species from
      * the Species Setup tab
+     * @param SpeciesName : list of species names
+     * @param SpeciesGuild : list of guilds that each species is a member of
+     * @param SpeciesInitialBiomass : list of initial biomass per species
+     * @param SpeciesGrowthRate : list of growth rate per species
+     * @param SpeciesK : list of carrying capacities per species
      */
-    void callback_SaveCSVFile();
+    void callback_SaveSpeciesCSVFile(QList<QString> SpeciesName,
+                                     QList<QString> SpeciesGuild,
+                                     QList<QString> SpeciesInitialBiomass,
+                                     QList<QString> SpeciesGrowthRate,
+                                     QList<QString> SpeciesK);
     /**
      * @brief Callback invoked when the user makes a selection in the tableview
      * @param selection : the selection just made

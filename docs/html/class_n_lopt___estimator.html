@@ -162,6 +162,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae6c41ebf75609e7451decbff5cffe80e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ae6c41ebf75609e7451decbff5cffe80e">getEstHandling</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;EstHandling)</td></tr>
 <tr class="memdesc:ae6c41ebf75609e7451decbff5cffe80e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated handling values.  <a href="class_n_lopt___estimator.html#ae6c41ebf75609e7451decbff5cffe80e">More...</a><br /></td></tr>
 <tr class="separator:ae6c41ebf75609e7451decbff5cffe80e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa98f4ba3b74efb23c14293733cdf3e83"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aa98f4ba3b74efb23c14293733cdf3e83">getEstInitBiomass</a> (std::vector&lt; double &gt; &amp;InitBiomass)</td></tr>
+<tr class="memdesc:aa98f4ba3b74efb23c14293733cdf3e83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated initial biomass values.  <a href="class_n_lopt___estimator.html#aa98f4ba3b74efb23c14293733cdf3e83">More...</a><br /></td></tr>
+<tr class="separator:aa98f4ba3b74efb23c14293733cdf3e83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9e5da056f99b4075cdee7a770e4fcbe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#af9e5da056f99b4075cdee7a770e4fcbe">getEstPredation</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;EstPredation)</td></tr>
 <tr class="memdesc:af9e5da056f99b4075cdee7a770e4fcbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated predation values.  <a href="class_n_lopt___estimator.html#af9e5da056f99b4075cdee7a770e4fcbe">More...</a><br /></td></tr>
 <tr class="separator:af9e5da056f99b4075cdee7a770e4fcbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -171,9 +174,9 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ab902dd65e88af23cd057a8506450e3ba"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ab902dd65e88af23cd057a8506450e3ba">extractParameters</a> (const Data_Struct &amp;NLoptDataStruct, const double *EstParameters, std::vector&lt; double &gt; &amp;GrowthRate, std::vector&lt; double &gt; &amp;CarryingCapacity, std::vector&lt; double &gt; &amp;CatchabilityRate, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionAlpha, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaSpecies, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;Predation, boost::numeric::ublas::matrix&lt; double &gt; &amp;Handling, std::vector&lt; double &gt; &amp;Exponent)</td></tr>
-<tr class="memdesc:ab902dd65e88af23cd057a8506450e3ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the estimated parameters from the NLopt Optimizer run.  <a href="class_n_lopt___estimator.html#ab902dd65e88af23cd057a8506450e3ba">More...</a><br /></td></tr>
-<tr class="separator:ab902dd65e88af23cd057a8506450e3ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f7ac24d31824123bd5943d49662b401"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a0f7ac24d31824123bd5943d49662b401">extractParameters</a> (const Data_Struct &amp;NLoptDataStruct, const double *EstParameters, std::vector&lt; double &gt; &amp;InitBiomass, std::vector&lt; double &gt; &amp;GrowthRate, std::vector&lt; double &gt; &amp;CarryingCapacity, std::vector&lt; double &gt; &amp;CatchabilityRate, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionAlpha, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaSpecies, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;Predation, boost::numeric::ublas::matrix&lt; double &gt; &amp;Handling, std::vector&lt; double &gt; &amp;Exponent)</td></tr>
+<tr class="memdesc:a0f7ac24d31824123bd5943d49662b401"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the estimated parameters from the NLopt Optimizer run.  <a href="class_n_lopt___estimator.html#a0f7ac24d31824123bd5943d49662b401">More...</a><br /></td></tr>
+<tr class="separator:a0f7ac24d31824123bd5943d49662b401"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">objectiveFunction</a> (unsigned n, const double *EstParameters, double *Gradient, void *FunctionData)</td></tr>
 <tr class="memdesc:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the objective function fitness value.  <a href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">More...</a><br /></td></tr>
 <tr class="separator:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -242,8 +245,8 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 </div>
 </div>
-<a id="ab902dd65e88af23cd057a8506450e3ba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab902dd65e88af23cd057a8506450e3ba">&#9670;&nbsp;</a></span>extractParameters()</h2>
+<a id="a0f7ac24d31824123bd5943d49662b401"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f7ac24d31824123bd5943d49662b401">&#9670;&nbsp;</a></span>extractParameters()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -262,6 +265,12 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
           <td></td>
           <td class="paramtype">const double *&#160;</td>
           <td class="paramname"><em>EstParameters</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>InitBiomass</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -335,6 +344,7 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
   <table class="params">
     <tr><td class="paramname">NLoptDataStruct</td><td>: input parameters to the NLopt Optimizer </td></tr>
     <tr><td class="paramname">EstParameters</td><td>: output estimated parameters from the NLopt Optimizer </td></tr>
+    <tr><td class="paramname">InitBiomass</td><td>: estimated initial biomass parameters </td></tr>
     <tr><td class="paramname">GrowthRate</td><td>: estimated growth rate parameters </td></tr>
     <tr><td class="paramname">CarryingCapacity</td><td>: estimated carrying capacity parameters </td></tr>
     <tr><td class="paramname">CatchabilityRate</td><td>: estimated catchability parameters </td></tr>
@@ -552,6 +562,32 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">EstHandling</td><td>: the estimated handling values to return </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa98f4ba3b74efb23c14293733cdf3e83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa98f4ba3b74efb23c14293733cdf3e83">&#9670;&nbsp;</a></span>getEstInitBiomass()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::getEstInitBiomass </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>InitBiomass</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the estimated initial biomass values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">InitBiomass</td><td>: the estimated initial biomass values to return </td></tr>
   </table>
   </dd>
 </dl>

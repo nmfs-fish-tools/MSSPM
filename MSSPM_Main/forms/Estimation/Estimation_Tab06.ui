@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>542</width>
-    <height>652</height>
+    <width>719</width>
+    <height>786</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,8 +46,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>500</width>
-            <height>552</height>
+            <width>677</width>
+            <height>686</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -516,13 +516,7 @@
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
               <widget class="QGroupBox" name="Estimation_Tab6_Bees_ParametersGB">
                <property name="sizePolicy">
@@ -1638,14 +1632,219 @@ with the non-assigned bees being assigned to random positions.</string>
             </widget>
            </item>
            <item>
-            <spacer name="verticalSpacer_2">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QGroupBox" name="groupBox">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="title">
+                <string>Parameters to be Estimated:</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_2">
+                <item row="0" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateInitBiomassCB">
+                  <property name="toolTip">
+                   <string>If checked, the Initial Biomass parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Initial Biomass parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Init Biomass (B₀)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionAlphaCB">
+                  <property name="toolTip">
+                   <string>If checked, the Competition alpha parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Competition alpha parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Competition (α)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimatePredationRhoCB">
+                  <property name="toolTip">
+                   <string>If checked, the Predation rho parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Predation rho parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Predation (ρ)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateGrowthRateCB">
+                  <property name="toolTip">
+                   <string>If checked, the Growth Rate parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Growth Rate parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Growth Rate (r)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB">
+                  <property name="toolTip">
+                   <string>If checked, the Competition beta Species by Species parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Competition beta Species by Species parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Competition (β Species by Species)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB">
+                  <property name="toolTip">
+                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Competition (β Guild by Guild)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB">
+                  <property name="toolTip">
+                   <string>If checked, the Competition beta Guild by Species parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Competition beta Guild by Species parameter will be estimated</string>
+                  </property>
+                  <property name="text">
+                   <string>Competition (β Guild by Species)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCarryingCapacityCB">
+                  <property name="toolTip">
+                   <string>If checked, the Carrying Capacity parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Carrying Capacity parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Carrying Capacity (K)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCatchabilityCB">
+                  <property name="toolTip">
+                   <string>If checked, the Catchability parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Catchability parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Catchability (q)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateHandlingCB">
+                  <property name="toolTip">
+                   <string>If checked, the Handling parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Handling parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Handling (h)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimatePredationExponentCB">
+                  <property name="toolTip">
+                   <string>If checked, the Predation Exponent (b) parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Predation Exponent (b) parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Predation Exponent (b)</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>40</height>
+               <height>16</height>
               </size>
              </property>
             </spacer>
@@ -1889,10 +2088,10 @@ with the non-assigned bees being assigned to random positions.</string>
      <item>
       <widget class="QPushButton" name="Estimation_Tab6_SavePB">
        <property name="toolTip">
-        <string>Save current Model settings</string>
+        <string>Save current Model settings to database</string>
        </property>
        <property name="statusTip">
-        <string>Save current Model settings</string>
+        <string>Save current Model settings to database</string>
        </property>
        <property name="text">
         <string>Save...</string>

@@ -44,6 +44,7 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     Setup_Tab3_DelSpeciesPB       = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_DelSpeciesPB");
     Setup_Tab3_ReloadSpeciesPB    = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_ReloadSpeciesPB");
     Setup_Tab3_ImportPB           = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_ImportPB");
+    Setup_Tab3_ExportPB           = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_ExportPB");
     Setup_Tab3_LoadPB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_LoadPB");
     Setup_Tab3_SavePB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_SavePB");
     Setup_Tab3_PrevPB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_PrevPB");
@@ -68,6 +69,8 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
             this,                       SLOT(callback_ReloadSpeciesPB()));
     connect(Setup_Tab3_ImportPB,        SIGNAL(clicked()),
             this,                       SLOT(callback_ImportPB()));
+    connect(Setup_Tab3_ExportPB,        SIGNAL(clicked()),
+            this,                       SLOT(callback_ExportPB()));
     connect(Setup_Tab3_LoadPB,          SIGNAL(clicked()),
             this,                       SLOT(callback_LoadPB()));
     connect(Setup_Tab3_SavePB,          SIGNAL(clicked()),
@@ -95,7 +98,7 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
 //                       << "CatchabilityMin" << "CatchabilityMax" << "Dependence";
 
     m_colLabelsSpecies << "Name" << "Guild" << "Initial Biomass" << "Growth Rate" << "Species K" ;
-    m_colLabelsGuilds << "Guild Name" << "Growth Rate" << "Carrying Capacity";
+    m_colLabelsGuilds << "GuildName" << "GrowthRate" << "GuildK";
 
 //    m_colLabelsGuilds << "Guild Name" << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max"
 //                      << "Carrying Capacity" << "Carrying Capacity Min" << "Carrying Capacity Max"
@@ -133,6 +136,13 @@ nmfSetup_Tab3::callback_ReloadGuildsPB(bool showPopup)
 
 void
 nmfSetup_Tab3::callback_LoadPB()
+{
+    callback_LoadPBNoEmit();
+    emit LoadEstimation();
+}
+
+void
+nmfSetup_Tab3::callback_LoadPBNoEmit()
 {
     if (onGuildPage()) {
         callback_ReloadGuildsPB();
@@ -404,29 +414,22 @@ nmfSetup_Tab3::guildDataIsSaved()
     return (NumGuilds != 0);
 }
 
+
+
 void
 nmfSetup_Tab3::callback_ImportPB()
 {
-    QStringList GuildValues = {};
-
-    for (int row=0; row<Setup_Tab3_GuildsTW->rowCount(); ++row) {
-        GuildValues << Setup_Tab3_GuildsTW->item(row,0)->text();
-    }
-
     if (onGuildPage()) {
-        loadCSVFile(Setup_Tab3_GuildsTW,{});
+        emit LoadGuildSupplemental();
     } else {
-//      loadCSVFile(Setup_Tab3_SpeciesTW,GuildValues);
-std::cout << "emitting" << std::endl;
         emit LoadSpeciesSupplemental();
     }
 }
 
 void
-nmfSetup_Tab3::callback_UpdateTable(QList<QString> SpeNames,
-                                    QList<QString> InitBiomass,
-                                    QList<QString> GrowthRate,
-                                    QList<QString> SpeciesK)
+nmfSetup_Tab3::callback_UpdateGuildTable(QList<QString> GuildNames,
+                                         QList<QString> GrowthRate,
+                                         QList<QString> GuildK)
 {
     int col;
     int index = 0;
@@ -434,17 +437,51 @@ nmfSetup_Tab3::callback_UpdateTable(QList<QString> SpeNames,
 
     callback_ReloadSpeciesPB(nmfConstantsMSSPM::DontShowPopupError);
 
-    QList<int> columns = {nmfConstantsMSSPM::Column_Species_SpeName,
-                          nmfConstantsMSSPM::Column_Species_InitBiomass,
-                          nmfConstantsMSSPM::Column_Species_GrowthRate,
-                          nmfConstantsMSSPM::Column_Species_SpeciesK};
-    for (QList<QString> list : {SpeNames,InitBiomass,GrowthRate,SpeciesK}) {
+    QList<int> columns = {nmfConstantsMSSPM::Column_Guild_Name,
+                          nmfConstantsMSSPM::Column_Guild_GrowthRate,
+                          nmfConstantsMSSPM::Column_Guild_GuildK};
+    for (QList<QString> list : {GuildNames,GrowthRate,GuildK}) {
         col = columns[index++];
-        for (int row=0; row<SpeNames.size(); ++row) {
+        for (int row=0; row<GuildNames.size(); ++row) {
             item = new QTableWidgetItem();
             item->setText(list[row]);
             item->setTextAlignment(Qt::AlignCenter);
-            Setup_Tab3_SpeciesTW->setItem(row,col,item);
+            Setup_Tab3_GuildsTW->setItem(row,col,item);
+        }
+    }
+}
+
+void
+nmfSetup_Tab3::callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
+                                           QList<QString> SpeciesGuild,
+                                           QList<QString> SpeciesInitBiomass,
+                                           QList<QString> SpeciesGrowthRate,
+                                           QList<QString> SpeciesK)
+{
+    int col;
+    int index = 0;
+    QTableWidgetItem *item;
+    QComboBox* cbox;
+
+    callback_ReloadSpeciesPB(nmfConstantsMSSPM::DontShowPopupError);
+
+    QList<int> columns = {nmfConstantsMSSPM::Column_Species_SpeName,
+                          nmfConstantsMSSPM::Column_Species_Guild,
+                          nmfConstantsMSSPM::Column_Species_InitBiomass,
+                          nmfConstantsMSSPM::Column_Species_GrowthRate,
+                          nmfConstantsMSSPM::Column_Species_SpeciesK};
+    for (QList<QString> list : {SpeciesNames,SpeciesGuild,SpeciesInitBiomass,SpeciesGrowthRate,SpeciesK}) {
+        col = columns[index++];
+        for (int row=0; row<SpeciesNames.size(); ++row) {
+            if (col == nmfConstantsMSSPM::Column_Species_Guild) {
+                cbox = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(row,col));
+                cbox->setCurrentText(list[row]);
+            } else {
+                item = new QTableWidgetItem();
+                item->setText(list[row]);
+                item->setTextAlignment(Qt::AlignCenter);
+                Setup_Tab3_SpeciesTW->setItem(row,col,item);
+            }
         }
     }
 }
@@ -604,11 +641,6 @@ nmfSetup_Tab3::saveGuildData()
 
     QMessageBox::information(Setup_Tabs, "Save",
                              tr("\nGuild data saved.\n"));
-
-    // Save Guild csv file
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    nmfUtilsQt::saveTableWidgetData(Setup_Tabs,Setup_Tab3_GuildsTW,inputDataPath,"");
-
 }
 
 
@@ -805,17 +837,17 @@ nmfSetup_Tab3::saveSpeciesData()
             return;
         }
 
-        // Need to also update the ObservedBiomass table with the initial Biomass values
-        cmd  = "REPLACE INTO ObservedBiomass (";
+        // Need to also update the BiomassAbsolute table with the initial Biomass values
+        cmd  = "REPLACE INTO BiomassAbsolute (";
         cmd += "MohnsRhoLabel,SystemName,SpeName,Year,Value) ";
         cmd += "VALUES ('" + MohnsRhoLabel + "','" + m_ProjectSettingsConfig + "','" +
                 SpeciesName + "', 0, "+ InitBiomass + ");";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (ObservedBiomass): Write table error: " + errorMsg);
+            m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (BiomassAbsolute): Write table error: " + errorMsg);
             m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Setup_Tabs,"Warning",
-                                 "\nCouldn't REPLACE INTO ObservedBiomass table.\n",
+                                 "\nCouldn't REPLACE INTO BiomassAbsolute table.\n",
                                  QMessageBox::Ok);
             return;
         }
@@ -830,15 +862,75 @@ nmfSetup_Tab3::saveSpeciesData()
     // Remove data from all tables with species different than what's in species
     pruneTablesForSpecies(species);
 
-
     QMessageBox::information(Setup_Tabs, "Save",
                              tr("\nSpecies data saved.\n"));
 
-    // Save Species csv file
-    emit SaveSpeciesSupplemental();
 }
 
+void
+nmfSetup_Tab3::callback_ExportPB()
+{
+    QList<QString> GuildName;
+    QList<QString> GuildGrowthRate;
+    QList<QString> GuildK;
+    QList<QString> SpeciesName;
+    QList<QString> SpeciesGuild;
+    QList<QString> SpeciesInitialBiomass;
+    QList<QString> SpeciesGrowthRate;
+    QList<QString> SpeciesK;
 
+    // Need to sync Estimation Tab1 tableview with Setup Tab3 table widget
+std::cout << "onGuildPage: " << onGuildPage() << std::endl;
+    if (onGuildPage()) {
+        for (int col=0; col<Setup_Tab3_GuildsTW->columnCount(); ++col) {
+            for (int row=0; row<Setup_Tab3_GuildsTW->rowCount(); ++row) {
+                if (col == nmfConstantsMSSPM::Column_Guild_Name) {
+                    GuildName.push_back(Setup_Tab3_GuildsTW->item(row,col)->text());
+                } else if (col == nmfConstantsMSSPM::Column_Guild_GrowthRate) {
+                    GuildGrowthRate.push_back(Setup_Tab3_GuildsTW->item(row,col)->text());
+                } else if (col == nmfConstantsMSSPM::Column_Guild_GuildK) {
+                    GuildK.push_back(Setup_Tab3_GuildsTW->item(row,col)->text());
+                }
+            }
+        }
+        emit SaveGuildSupplemental(GuildName,GuildGrowthRate,GuildK);
+    } else {
+        QComboBox* cbox;
+        for (int col=0; col<Setup_Tab3_SpeciesTW->columnCount(); ++col) {
+            for (int row=0; row<Setup_Tab3_SpeciesTW->rowCount(); ++row) {
+                if (col == nmfConstantsMSSPM::Column_Species_SpeName) {
+                    SpeciesName.push_back(Setup_Tab3_SpeciesTW->item(row,col)->text());
+                } else if (col == nmfConstantsMSSPM::Column_Species_Guild) {
+                    cbox = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(row,col));
+                    SpeciesGuild.push_back(cbox->currentText());
+                } else if (col == nmfConstantsMSSPM::Column_Species_InitBiomass) {
+                    SpeciesInitialBiomass.push_back(Setup_Tab3_SpeciesTW->item(row,col)->text());
+                } else if (col == nmfConstantsMSSPM::Column_Species_GrowthRate) {
+                    SpeciesGrowthRate.push_back(Setup_Tab3_SpeciesTW->item(row,col)->text());
+                } else if (col == nmfConstantsMSSPM::Column_Species_SpeciesK) {
+                    SpeciesK.push_back(Setup_Tab3_SpeciesTW->item(row,col)->text());
+                }
+            }
+        }
+        emit SaveSpeciesSupplemental(SpeciesName,SpeciesGuild,SpeciesInitialBiomass,
+                                     SpeciesGrowthRate,SpeciesK);
+    }
+}
+
+QList<QString>
+nmfSetup_Tab3::getSpeciesGuild()
+{
+    QComboBox* cbox;
+    QList<QString> SpeciesGuild;
+
+    int col = nmfConstantsMSSPM::Column_Species_Guild;
+    for (int row=0; row<Setup_Tab3_SpeciesTW->rowCount(); ++row) {
+        cbox = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(row,col));
+        SpeciesGuild.push_back(cbox->currentText());
+    }
+
+    return SpeciesGuild;
+}
 
 void
 nmfSetup_Tab3::pruneTablesForGuilds(std::vector<std::string>& Guilds)
@@ -928,7 +1020,9 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
         "ForecastEffort",
         "ForecastExploitation",
         "ForecastUncertainty",
-        "ObservedBiomass",
+        "BiomassAbsolute",
+        "BiomassRelative",
+        "BiomassRelativeScalars",
         "OutputBiomass",
         "OutputCarryingCapacity",
         "OutputCatchability",
@@ -1142,7 +1236,7 @@ nmfSetup_Tab3::loadGuilds()
 //    GuildColumns << "Guild Name" << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max" <<
 //                    "Carrying Capacity" << "Carrying Capacity Min" << "Carrying Capacity Max" <<
 //                    "Catchability Min" << "Catchability Max";
-    GuildColumns << "Guild Name" << "Growth Rate" << "Carrying Capacity";
+    GuildColumns << "GuildName" << "GrowthRate" << "GuildK";
     // Get Guild data from database
     fields = {"GuildName","GrowthRate","GuildK"};
     queryStr   = "SELECT GuildName,GrowthRate,GuildK FROM Guilds";

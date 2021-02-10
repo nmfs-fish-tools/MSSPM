@@ -272,7 +272,6 @@ signals:
      * @brief Signal emitted when the user needs to reload the current widgets
      */
     void ReloadWidgets();
-
     /**
      * @brief Signal emitted when the user needs to save the Estimation Run settings
      */
@@ -281,6 +280,11 @@ signals:
      * @brief Signal emitted when the user needs to save the Main Application settings
      */
     void SaveMainSettings();
+    /**
+     * @brief Signal emitted so that the Estimate checkboxes in the Estimation Tab6 will be updated
+     * @param EstimateRunBoxes : list of Estimate checkboxes to update
+     */
+    void SetEstimateRunCheckboxes(std::vector<std::string> EstimateRunBoxes);
     /**
      * @brief Signal emitted after the user deletes an existing System from the database
      */

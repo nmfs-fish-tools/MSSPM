@@ -74,6 +74,7 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_FormMap["Type III"] = {m_Rho.toStdString(),"Handling (h)","Exponent (b)"};
 
     m_ParameterNames.clear();
+    m_ParameterNames << "Initial Biomass (B₀)";
     m_ParameterNames << "Growth Rate (r)";
     m_ParameterNames << "Carrying Capacity (K)";
     m_ParameterNames << m_Rho;
@@ -217,7 +218,7 @@ nmfForecast_Tab3::callback_SavePB()
     // Update ForecastUncertainty table
     cmd  = "INSERT INTO ForecastUncertainty (" ;
     cmd += "SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-    cmd += "GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
+    cmd += "InitBiomass,GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
     cmd += "BetaGuilds,Handling,Exponent,Catchability,Harvest) VALUES ";
     for (int i=0; i<m_SModel->rowCount(); ++i) { // Species
             cmd += "('" + SpeNames[i] + "','" + ForecastName + "','" + Algorithm +
@@ -341,10 +342,10 @@ nmfForecast_Tab3::loadWidgets()
     if (ForecastNameExists) {
         // Find Forecast info
         fields     = {"SpeName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
-                      "GrowthRate","CarryingCapacity","Predation","Competition","BetaSpecies",
+                      "InitBiomass","GrowthRate","CarryingCapacity","Predation","Competition","BetaSpecies",
                       "BetaGuilds","Handling","Exponent","Catchability","Harvest"};
         queryStr   = "SELECT SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-        queryStr  += "GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
+        queryStr  += "InitBiomass,GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
         queryStr  += "BetaGuilds,Handling,Exponent,Catchability,Harvest FROM ForecastUncertainty where ";
         queryStr  += "ForecastName = '" + ForecastName + "'";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -356,6 +357,7 @@ nmfForecast_Tab3::loadWidgets()
         m = 0;
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
             param.clear();
+            param.emplace_back(QString::fromStdString(dataMap["InitBiomass"][m]));
             param.emplace_back(QString::fromStdString(dataMap["GrowthRate"][m]));
             param.emplace_back(QString::fromStdString(dataMap["CarryingCapacity"][m]));
             param.emplace_back(QString::fromStdString(dataMap["Predation"][m]));
