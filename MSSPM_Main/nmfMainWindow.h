@@ -30,11 +30,10 @@
 #ifndef NMFMAINWINDOW_H
 #define NMFMAINWINDOW_H
 
-//#include <nlopt.hpp>
-
 #include "nmfDatabase.h"
 #include "nmfLogWidget.h"
 #include "nmfUtilsStatistics.h"
+#include "nmfUtilsStatisticsAveraging.h"
 #include "nmfStructsQt.h"
 #include "nmfUtilsQt.h"
 
@@ -50,6 +49,7 @@
 #include "nmfDatabaseConnectDialog.h"
 #include "nmfOutputChart3DBarModifier.h"
 #include "nmfOutputChart3D.h"
+#include "nmfSimulatedData.h"
 
 //#include "LogisticMultiSpeciesDialog.h"
 //#include "Parameters.h"
@@ -217,6 +217,11 @@ private:
     QTableView*                           m_BiomassRelTV;
     QTableView*                           m_FishingMortalityTV;
     QTableView*                           m_HarvestScaleFactorTV;
+    bool                                  m_isRunning;
+    QStringList                           m_finalList;
+    QStringList                           m_orderedFinalList;
+    boost::numeric::ublas::matrix<double> m_biomassMatrix;
+    boost::numeric::ublas::matrix<double> m_parameterMatrix;
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
@@ -291,6 +296,8 @@ private:
 //  nmfSimulation_Tab6*         Simulation_Tab6_ptr;
 //  LogisticMultiSpeciesDialog* LogisticMultiSpeciesDlg;
     int getTabIndex(QTabWidget* tabWidget, QString tabName);
+    void calculateAverageBiomassAndDisplay(int& NumSpecies,
+                                           int& RunLength);
     void   clearOutputData(std::string algorithm,
                            std::string minimizer,
                            std::string objectiveCriterion,
@@ -305,6 +312,7 @@ private:
     double convertUnitsStringToValue(QString& ScaleStr);
     int    getNumDistinctRecords(const std::string& field,
                                  const std::string& table);
+    void   updateOutputAverageBiomassTable(boost::numeric::ublas::matrix<double>& AveragedBiomass);
     void   setupLogWidget();
     void   initializeNavigatorTree();
     void   initLogo();
@@ -324,6 +332,17 @@ private:
     bool areFieldsValid(std::string table,
                         std::string system,
                         std::vector<std::string> fields);
+    bool calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
+                          std::vector<double>& EstGrowthRates,
+                          std::vector<double>& EstCarryingCapacities,
+                          std::vector<double>& EstCatchability,
+                          boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
+                          boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
+                          boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
+                          boost::numeric::ublas::matrix<double>& EstPredation,
+                          boost::numeric::ublas::matrix<double>& EstHandling,
+                          std::vector<double>& EstExponent,
+                          boost::numeric::ublas::matrix<double>& calculatedBiomass);
     double calculateMonteCarloValue(const double& uncertainty,
                                     const double& value,
                                     double& randomValue);
@@ -339,15 +358,27 @@ private:
             QList<double>& BMSYValues,
             QList<double>& MSYValues,
             QList<double>& FMSYValues);
-    void calculateSummaryStatistics(QStandardItemModel *smodel,
-                                    const bool        &isAggProd,
-                                    const std::string &Algorithm,
-                                    const std::string &Minimizer,
-                                    const std::string &ObjectiveCriterion,
-                                    const std::string &Scaling,
-                                    const int         &RunLength,
-                                    const int         &NumSpecies,
-                                    const bool        &isMohnsRho);
+    void calculateSummaryStatistics(QStandardItemModel* smodel,
+                                    const bool&         isAggProd,
+                                    const std::string&  Algorithm,
+                                    const std::string&  Minimizer,
+                                    const std::string&  ObjectiveCriterion,
+                                    const std::string&  Scaling,
+                                    const int&          RunLength,
+                                    const int&          NumSpecies,
+                                    const bool&         isMohnsRho);
+    void calculateSummaryStatisticsStruct(
+            const bool&         isAggProd,
+            const std::string&  Algorithm,
+            const std::string&  Minimizer,
+            const std::string&  ObjectiveCriterion,
+            const std::string&  Scaling,
+            const int&          RunLength,
+            const int&          NumSpeciesOrGuilds,
+            const bool&         isMohnsRhoBool,
+            const bool&         isAMultiRun,
+            boost::numeric::ublas::matrix<double>& EstimatedBiomass,
+            StatStruct&         statStruct);
     bool calculateSummaryStatisticsMohnsRhoBiomass(std::vector<double>& mohnsRhoEstimatedBiomass);
     bool checkFields(std::string& table,
                      std::map<std::string, std::vector<std::string> >& dataMap,
@@ -363,7 +394,6 @@ private:
     void clearOutputTables();
     void closeEvent(QCloseEvent *event);
     void completeApplicationInitialization();
-    bool createSimulatedBiomass(QString filename);
     std::pair<bool,QString> dataAdequateForCurrentModel(QStringList estParamNames);
     bool deleteAllMohnsRho(const std::string& TableName);
     bool deleteAllOutputMohnsRho();
@@ -435,7 +465,8 @@ private:
 
     void getInitialYear(int& InitialYear,
                         int& MaxNumYears);
-    std::string getLegendCode(std::string &Algorithm,
+    std::string getLegendCode(bool isAveraged,
+                              std::string &Algorithm,
                               std::string &Minimizer,
                               std::string &ObjectiveCriterion,
                               std::string &Scaling);
@@ -473,7 +504,9 @@ private:
             const int& RunLength,
             const std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassSpecies,
             const std::string& type);
-    bool getOutputBiomass(const int &m_NumLines, const int &NumSpecies, const int &RunLength,
+    bool getOutputBiomass(const int &m_NumLines,
+                          const int &NumSpecies,
+                          const int &RunLength,
                           std::vector<std::string> &Algorithms,
                           std::vector<std::string> &Minimizers,
                           std::vector<std::string> &ObjectiveCriteria,
@@ -496,7 +529,8 @@ private:
                               QStringList& SpeciesList,
                               QStringList& GuildList);
     int  getStartYearOffset();
-    bool getMSYData(const int&     NumLines,
+    bool getMSYData(bool isAveraged,
+                    const int&     NumLines,
                     const int&     NumGroups,
                     const std::string& Group,
                     QList<double>& BMSYValues,
@@ -568,6 +602,11 @@ private:
                                int &NumInteractionParameters);
     bool loadParameters(Data_Struct &m_DataStruct,
                         const bool& verbose);
+    void loadSummaryStatisticsModel(
+            const int& NumSpeciesOrGuilds,
+            QStandardItemModel* smodel,
+            bool isMohnsRhoBool,
+            StatStruct& statStruct);
     void loadVisibleTables(const bool& isAlpha,
                            const bool& isMsProd,
                            const bool& isAggProd,
@@ -603,9 +642,13 @@ private:
     void readSettings(QString name);
     void readSettings();
     void readSettingsGuiOrientation(bool alsoResetPosition);
-    void runBeesAlgorithm(bool showDiagnosticsChart);
+    void runBeesAlgorithm(bool showDiagnosticsChart,
+                          std::vector<QString>& MultiRunLines,
+                          int& TotalIndividualRuns);
     void runNextMohnsRhoEstimation();
-    void runNLoptAlgorithm(bool showDiagnosticChart);
+    void runNLoptAlgorithm(bool showDiagnosticChart,
+                           std::vector<QString>& MultiRunLines,
+                           int& TotalIndividualRuns);
     void saveRemoraDataFile(QString filename);
     bool saveScreenshot(QString &outputfile, QPixmap &pm);
     void saveSettings();
@@ -645,24 +688,24 @@ private:
             double &YMin);
     void showChartBcVsTimeSelectedSpecies(QList<int> &RowList,
                                           QList<QString> &RowNameList);
-    void showChartBcVsTimeAllSpecies(
-            std::string type,
-            const int &NumSpecies,
-            const QList<int> &Rows,
-            const int &RunLength,
-            std::map<std::string, std::vector<std::string> > &dataMapSpecies,
-            std::map<std::string, std::vector<std::string> > &dataMapCalculatedBiomass,
-            QString &ScaleStr,
-            double &ScaleVal);
-    void showChartCatchVsBc(
-            const int &NumSpecies,
-            const QString &OutputSpecies,
-            const int &SpeciesNum,
-            const int &RunLength,
-            std::map<std::string, std::vector<std::string> > &dataMapCalculatedBiomass,
-            std::map<std::string, std::vector<std::string> > &dataMapCatch,
-            QString &ScaleStr,
-            double &ScaleVal);
+//    void showChartBcVsTimeAllSpecies(
+//            std::string type,
+//            const int &NumSpecies,
+//            const QList<int> &Rows,
+//            const int &RunLength,
+//            std::map<std::string, std::vector<std::string> > &dataMapSpecies,
+//            std::map<std::string, std::vector<std::string> > &dataMapCalculatedBiomass,
+//            QString &ScaleStr,
+//            double &ScaleVal);
+//    void showChartCatchVsBc(
+//            const int &NumSpecies,
+//            const QString &OutputSpecies,
+//            const int &SpeciesNum,
+//            const int &RunLength,
+//            std::map<std::string, std::vector<std::string> > &dataMapCalculatedBiomass,
+//            std::map<std::string, std::vector<std::string> > &dataMapCatch,
+//            QString &ScaleStr,
+//            double &ScaleVal);
     void showChartTableVsTime(
             const std::string &label,
             const int &NumSpecies,
@@ -764,7 +807,7 @@ private:
                                   std::string& CarryingCapacityTable,
                                   std::string& CatchabilityTable,
                                   std::string& BiomassTable);
-    void updateOutputBiomassTableFromTestValues();
+    void updateOutputAverageBiomassTable();
     void updateProgressChartAnnotation(double xMin, double xMax, double xInc);
 //    void updateOutputTables(
 //        std::string                    &Algorithm,
@@ -797,8 +840,6 @@ private:
         const std::vector<double>                   &EstExponent);
     void updateModelEquationSummary();
     void updateScreenShotViewer(QString filename);
-    bool checkAndUpdateMatrixWithOutputInitBiomass(
-            boost::numeric::ublas::matrix<double>& TmpMatrix);
     void getSurfaceData(
             boost::numeric::ublas::matrix<double>& rowValues,
             boost::numeric::ublas::matrix<double>& columnValues,
@@ -811,10 +852,17 @@ private:
      * the application name, project name, and settings file name
      */
     void updateWindowTitle();
-
+    bool setFirstRowEstimatedBiomass(
+            const int& NumSpeciesOrGuilds,
+            const QList<double>& InitialBiomass,
+            boost::numeric::ublas::matrix<double>& EstimatedBiomassBySpecies);
     void setDefaultDockWidgetsVisibility(
             const QString& actionName,
             QAction* action);
+    void QueryUserForMultiRunFilenames(
+            QString& multiRunSpeciesFilename,
+            QString& multiRunModelFilename);
+    void averageBiomassAndDisplay(QString& fullSpeciesPath);
 
     //    bool isThereMohnsRhoData();
     //    bool loadGradientParameters(Gradient_Struct &gradientStruct);
@@ -880,7 +928,13 @@ protected:
     QMenu* createPopupMenu();
 
 public slots:
-
+    /**
+     * @brief Callback invoked when main receives an AllSubRunsCompleted signal from NLopt_Estimator
+     * @param multiRunSpeciesFilename : name of Multi-Run Species File
+     * @param multiRunModelFilename : name of Multi-Run Model File
+     */
+    void callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
+                                      std::string multiRunModelFilename);
     void callback_UpdateSeedValue(int isDeterministic);
     /**
      * @brief Callback invoked when user Runs an Estimation
@@ -926,6 +980,14 @@ public slots:
      */
     void callback_ForecastTabChanged(int tab);
 //  void callback_Hovered(bool status, int index, QBarSet *barset);
+    /**
+     * @brief Initializes class variables for the start of a multi-run run
+     * @param multiRunModelFilename : name of Multi-Run Model file
+     * @param totalIndividualRuns : total number of runs
+     */
+    void callback_InitializeSubRuns(
+            std::string multiRunModelFilename,
+            int totalIndividualRuns);
     /**
      * @brief Callback invoked when user loads a new database
      * @param databaseName : name of database to load
@@ -1000,7 +1062,17 @@ public slots:
      * @param outputMsg : output message for Estimation run completion
      * @param showDiagnosticChart :
      */
-    void callback_RunCompleted(std::string outputMsg, bool showDiagnosticChart);
+    void callback_RunCompleted(std::string outputMsg,
+                               bool showDiagnosticChart);
+
+    void callback_SubRunCompleted(int run,
+                                  int numRuns,
+                                  std::string EstimationAlgorithm,
+                                  std::string MinimizerAlgorithm,
+                                  std::string ObjectiveCriterion,
+                                  std::string ScalingAlgorithm,
+                                  std::string multiRunModelFilename,
+                                  double fitness);
     /**
      * @brief Callback invoked when user runs Estimations as part of a Retrospective Analysis Diagnostics run
      * @param ranges : year ranges for current run
@@ -1078,7 +1150,8 @@ public slots:
      * @param outputSpecies : Species whose data to show in the chart
      * @return Boolean describing a successful display (True) or error getting supporting data (False)
      */
-    bool callback_ShowChart(QString outputType,QString outputSpecies);
+    bool callback_ShowChart(QString outputType,
+                            QString outputSpecies);
     /**
      * @brief Callback invoked when user selects a Retrospective Analysis chart to view
      * @return Boolean describing a successful display (True) or error getting supporting data (False)
@@ -1125,8 +1198,10 @@ public slots:
     /**
      * @brief Callback invoked when user changes the chart group type
      * @param groupType : type of chart grouping desired: species, guild, system
+     * @param isAveraged : true if viewing averaged data, false otherwise
      */
-    void callback_ShowChartBy(QString groupType);
+    void callback_ShowChartBy(QString groupType,
+                              bool isAveraged);
     /**
      * @brief Callback invoked when user is modifying the Population Parameters and needs to
      * store the current value of the Output widget's species
@@ -1134,11 +1209,18 @@ public slots:
     void callback_StoreOutputSpecies();
     /**
      * @brief Callback invoked when a Bees Estimation Algorithm sub run has completed
-     * @param RunNum : number of run
+     * @param RunNumber : number of run
      * @param SubRunNum : number of sub run
      * @param NumSubRuns : total number of sub runs
      */
-    void callback_SubRunCompleted(int RunNum,int SubRunNum,int NumSubRuns);
+    void callback_RepetitionRunCompleted(
+            int RunNumber,
+            int SubRunNum,
+            int NumSubRuns);
+    /**
+     * @brief Callback invoked to stop the progress widget's elapsed run timer
+     */
+    void callback_StopTheTimer();
     /**
      * @brief Callback invoked when user loads a System from the Setup Page 4 GUI
      */
@@ -1152,7 +1234,6 @@ public slots:
      * @brief Callback invoked to update the Model Equation in the Setup page 4 summary text box
      */
     void callback_UpdateModelEquationSummary();
-
     void callback_openCSVFile(QPoint pos);
     void context_Action(bool triggered);
 

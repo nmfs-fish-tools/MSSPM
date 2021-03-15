@@ -16,6 +16,7 @@ MSSPM_GuiOutputControls::MSSPM_GuiOutputControls(
     m_SpeciesOrGuildModel = new QStringListModel(this);
     m_ProjectSettingsConfig.clear();
     m_SortedForecastLabelsMap.clear();
+    m_IsAveraged          = nmfConstantsMSSPM::IsNotAveraged;
 
     OutputLineBrightnessSL = nullptr;
     OutputParametersCB     = nullptr;
@@ -31,6 +32,18 @@ MSSPM_GuiOutputControls::MSSPM_GuiOutputControls(
 MSSPM_GuiOutputControls::~MSSPM_GuiOutputControls()
 {
 
+}
+
+bool
+MSSPM_GuiOutputControls::isAveraged()
+{
+    return m_IsAveraged;
+}
+
+void
+MSSPM_GuiOutputControls::setAveraged(bool isAveraged)
+{
+    m_IsAveraged = isAveraged;
 }
 
 void
@@ -640,7 +653,7 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
     if (isDiagnostic) {
         if (isParameterProfiles) {
             callback_ResetOutputWidgetsForAggProd();
-            emit ShowChart("","");
+            emit ShowChart("",""); //,m_IsAveraged);
             if (OutputParametersCB->isChecked()) {
                 emit SetChartView2d(false);
             }
@@ -650,7 +663,7 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
     } else if (isForecast) {
         callback_ResetOutputWidgetsForAggProd();
         emit SetChartView2d(true);
-        emit ShowChart("","");
+        emit ShowChart("",""); //,m_IsAveraged);
     } else if (isMultiScenario) {
         callback_ResetOutputWidgetsForAggProd();
         emit SetChartView2d(true);
@@ -679,13 +692,13 @@ MSSPM_GuiOutputControls::callback_OutputGroupTypeCMB(QString outputGroupType)
 {
     if (outputGroupType == "Species:" ) {
         loadSpeciesControlWidget();
-        emit ShowChart("","");
+        emit ShowChart("",""); //,m_IsAveraged);
     } else if (outputGroupType == "Guild:") {
         loadSpeciesControlWidget();
-        emit ShowChartBy("Guild");
+        emit ShowChartBy("Guild",m_IsAveraged);
     } else if (outputGroupType == "System") {
         OutputSpeciesCMB->clear();
-        emit ShowChartBy("System");
+        emit ShowChartBy("System",m_IsAveraged);
     }
 }
 
@@ -736,13 +749,7 @@ MSSPM_GuiOutputControls::callback_OutputSpeciesCMB(QString outputSpecies)
     } else if ((chartType == "Diagnostics") && (method == "Retrospective Analysis")) {
         emit ShowChartMohnsRho();
     } else {
-//        if (OutputGroupTypeCMB->currentText() == "Guild:") {
-//            emit ShowChartBy("Guild");
-//        } else if (OutputGroupTypeCMB->currentText() == "Species:") {
-//            emit ShowChart("",outputSpecies);
-//        }
         updateChart();
-
     }
 
 }
@@ -758,7 +765,7 @@ MSSPM_GuiOutputControls::callback_OutputMethodsCMB(QString method)
 
     if (method == "Parameter Profiles") {
         callback_ResetOutputWidgetsForAggProd();
-        emit ShowChart("","");
+        emit ShowChart("",""); //,m_IsAveraged);
         if (OutputParametersCB->isChecked()) {
             emit SetChartView2d(false);
         }
@@ -799,7 +806,7 @@ MSSPM_GuiOutputControls::displayMohnsRho()
 void
 MSSPM_GuiOutputControls::callback_OutputParametersCMB(QString unused)
 {
-    emit ShowChart("","");
+    emit ShowChart("",""); //,m_IsAveraged);
 }
 
 void
@@ -852,7 +859,7 @@ MSSPM_GuiOutputControls::callback_OutputParametersCB(int state)
 void
 MSSPM_GuiOutputControls::callback_OutputShowShadowCB(int dummy)
 {
-    emit ShowChart("","");
+    emit ShowChart("",""); //,m_IsAveraged);
 }
 
 void
@@ -868,11 +875,11 @@ MSSPM_GuiOutputControls::updateChart()
     QString outputGroupType = getOutputGroupType();
 
     if (outputGroupType == "Species:") {
-        emit ShowChart("","");
+        emit ShowChart("",""); //,m_IsAveraged);
     } else if (outputGroupType == "Guild:") {
-        emit ShowChartBy("Guild");
+        emit ShowChartBy("Guild",m_IsAveraged);
     } else if (outputGroupType == "System") {
-        emit ShowChartBy("System");
+        emit ShowChartBy("System",m_IsAveraged);
     }
 }
 

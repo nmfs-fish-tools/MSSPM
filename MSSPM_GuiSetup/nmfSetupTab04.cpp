@@ -703,6 +703,9 @@ nmfSetup_Tab4::saveSettingsConfiguration(bool verbose,
     else if (PredationForm == "Type III")
         NumberOfParameters += 3;
 
+    // For now, assume initial biomass is always estimated (adjust this assumption in Estimation Tab6)
+    NumberOfParameters += 1;
+
     // Check if system exists, if so Update else REPLACE
     fields   = {"SystemName"};
     queryStr = "SELECT SystemName from Systems where SystemName = '" + CurrentSettingsName + "'";

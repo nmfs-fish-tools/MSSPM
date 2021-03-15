@@ -32,6 +32,7 @@
 #pragma once
 
 #include "nmfUtils.h"
+#include "nmfUtilsQt.h"
 #include "nmfUtilsStatistics.h"
 #include "nmfConstantsMSSPM.h"
 #include "nmfGrowthForm.h"
@@ -99,17 +100,63 @@ private:
     void loadInitBiomassParameterRanges(
             std::vector<std::pair<double,double> >& parameterRanges,
             const Data_Struct& dataStruct);
+    void setStoppingCriteria(Data_Struct&  NLoptStruct);
+    void setObjectiveFunction(Data_Struct& NLoptStruct,
+                              std::string& MaxOrMin);
+    void setParameterBounds(Data_Struct& NLoptStruct,
+                            std::vector<std::pair<double,double> >& ParameterRanges,
+                            const int& NumEstParameters);
+    void reloadNLoptStruct(
+            Data_Struct& NLoptStruct,
+            const QString& MultiRunLine);
 
 signals:
+    /**
+     * @brief Signal emitted at the end of a multi-run set of runs
+     * @param multiRunSpeciesFilename : name of Multi-Run Species File
+     * @param multiRunModelFilename : name of Multi-Run Model File
+     */
+    void AllSubRunsCompleted(std::string multiRunSpeciesFilename,
+                             std::string multiRunModelFilename);
+    /**
+     * @brief Signal emitted at the start of a multi-run set of runs
+     * @param multiRunModelFilename : name of Multi-Run Model File
+     * @param totalIndividualRuns : total number of runs
+     */
+    void InitializeSubRuns(std::string multiRunModelFilename,
+                           int totalIndividualRuns);
+    /**
+     * @brief Signal emitted to query user for the Multi Run Species and Model file names
+     */
+    void QueryUserForMultiRunFilenames();
     /**
      * @brief Signal emitted with NLopt Estimation run has complete
      * @param bestFitness : string representing the best fitness value
      * @param showDiagnosticsChart : boolean signfying whether the
      * diagnostic 3d chart should be displayed after the run completes
      */
-    void RunCompleted(std::string bestFitness, bool showDiagnosticsChart);
+    void RunCompleted(std::string bestFitness,
+                      bool showDiagnosticsChart);
+    /**
+     * @brief Signal emitted when NLopt Estimation sub run of a multi run has completed
+     * @param run : current run
+     * @param numRuns : total number of runs in multi run
+     * @param EstimationAlgorithm : name of estimation algorithm
+     * @param MinimizerAlgorithm : name of the minimizer algorithm
+     * @param ObjectiveCriterion : name of the objective criterion
+     * @param ScalingAlgorithm : name of the scaling algorithm
+     * @param multiRunModelFilename : name of file that will contain the model data from all of the multi runs
+     * @param fitness : fitness value of current run
+     */
+    void SubRunCompleted(int run,
+                         int numRuns,
+                         std::string EstimationAlgorithm,
+                         std::string MinimizerAlgorithm,
+                         std::string ObjectiveCriterion,
+                         std::string ScalingAlgorithm,
+                         std::string multiRunModelFilename,
+                         double fitness);
 
-//  void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
 
 public:
     /**
@@ -140,10 +187,14 @@ public:
      * @brief The main routine that runs the NLopt Optimizer
      * @param NLoptDataStruct : structure containing all of the parameters needed by NLopt
      * @param RunNum : the number of the run
+     * @param MultiRunLines : the contents of the multi-run run file
+     * @param TotalIndividualRuns : total of all of the multi-run runs
      */
     void estimateParameters(
             Data_Struct& NLoptDataStruct,
-            int          RunNum);
+            int&          RunNumber,
+            std::vector<QString>& MultiRunLines,
+            int& TotalIndividualRuns);
     /**
      * @brief Extracts the estimated parameters from the NLopt Optimizer run
      * @param NLoptDataStruct : input parameters to the NLopt Optimizer

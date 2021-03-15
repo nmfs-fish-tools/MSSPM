@@ -677,8 +677,9 @@ REMORA::drawSingleSpeciesChart()
         return;
     }
 
+    std::string species = getCurrentSpecies();
     if (! m_DatabasePtr->getForecastMonteCarloParameters(
-                m_Widget,m_Logger,m_ForecastName,
+                m_Widget,m_Logger,species,m_ForecastName,
                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                 HoverData)) {
         return;
@@ -1831,6 +1832,12 @@ REMORA::setupConnections()
             this,                     SLOT(callback_ForecastPlotTypeCMB(QString)));
     connect(MModeYAxisLockCB,         SIGNAL(toggled(bool)),
             this,                     SLOT(callback_YAxisLockedCB(bool)));
+}
+
+std::string
+REMORA::getCurrentSpecies()
+{
+    return MModeSpeciesCMB->currentText().toStdString();
 }
 
 void

@@ -26,7 +26,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -247,6 +247,34 @@
               </property>
               <property name="text">
                <string>Reload</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="Setup_Tab3_CalcGuildsPB">
+              <property name="minimumSize">
+               <size>
+                <width>35</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>35</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Calculates the Guild Carrying Capacity (K) values from the Species K values</string>
+              </property>
+              <property name="statusTip">
+               <string>Calculates the Guild Carrying Capacity (K) values from the Species K values</string>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Calc&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This calculates the Guild Carrying Capacity (K) values by summing the Species K values per Guild. This means that the Species K values must be entered prior to pressing this button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Calc</string>
               </property>
              </widget>
             </item>

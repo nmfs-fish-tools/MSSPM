@@ -363,7 +363,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     } // end time
 
     // Scale the data
-    std::string m_Scaling = NLoptDataStruct.Scaling;
+    std::string m_Scaling = NLoptDataStruct.ScalingAlgorithm;
     if (m_Scaling == "Min Max") {
         rescaleMinMax(EstBiomassSpecies, EstBiomassRescaled);
         rescaleMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
@@ -418,54 +418,12 @@ NLopt_Estimator::incrementObjectiveFunctionCounter(std::string MSSPMName,
 //std::cout << "x,y: " << m_NumObjFcnCalls << "," << fitness << std::endl;
     if (m_NumObjFcnCalls%1000 == 0) {
 
-    writeCurrentLoopFile(MSSPMName,
-                         m_NumObjFcnCalls,
-                         fitness,
-                         NLoptDataStruct.ObjectiveCriterion,
-                         unused);
-}
-//    if (m_NLoptFcnEvals == 0) {
-//        if (m_NumObjFcnCalls%10 == 0) {
-//            if (NLoptDataStruct.NLoptUseStopAfterIter) {
-//                if (m_NumObjFcnCalls <= m_Optimizer.get_maxeval())
-//                {
-//                    writeCurrentLoopFile(MSSPMName,
-//                                         m_NumObjFcnCalls,
-//                                         fitness,
-//                                         NLoptDataStruct.ObjectiveCriterion,
-//                                         unused);
-//                }
-//            } else {
-//                writeCurrentLoopFile(MSSPMName,
-//                                     m_NumObjFcnCalls,
-//                                     fitness,
-//                                     NLoptDataStruct.ObjectiveCriterion,
-//                                     unused);
-//            }
-//        }
-//    }
-//    else {
-//        if (m_NLoptFcnEvals%10 == 0) {
-//            if (NLoptDataStruct.NLoptUseStopAfterIter) {
-//                if (m_NLoptFcnEvals <= m_Optimizer.get_maxeval())
-//                {
-//                    writeCurrentLoopFile(MSSPMName,
-//                                         m_NLoptFcnEvals,
-//                                         fitness,
-//                                         NLoptDataStruct.ObjectiveCriterion,
-//                                         unused);
-//                }
-//            } else {
-//                writeCurrentLoopFile(MSSPMName,
-//                                     m_NLoptFcnEvals,
-//                                     fitness,
-//                                     NLoptDataStruct.ObjectiveCriterion,
-//                                     unused);
-//            }
-//        }
-//    }
-
-
+        writeCurrentLoopFile(MSSPMName,
+                             m_NumObjFcnCalls,
+                             fitness,
+                             NLoptDataStruct.ObjectiveCriterion,
+                             unused);
+    }
 
 }
 
@@ -523,11 +481,80 @@ std::cout << "==> isCheckedInitBiomass: " << isCheckedInitBiomass << std::endl;
 }
 
 void
-NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
+NLopt_Estimator::setStoppingCriteria(Data_Struct &NLoptStruct)
+{
+    if (NLoptStruct.NLoptUseStopVal) {
+        std::cout << "Setting stop fitness value: " << NLoptStruct.NLoptStopVal << std::endl;
+        m_Optimizer.set_stopval(NLoptStruct.NLoptStopVal);
+    }
+    if (NLoptStruct.NLoptUseStopAfterTime) {
+        std::cout << "Setting max run time: " << NLoptStruct.NLoptStopAfterTime << std::endl;
+        m_Optimizer.set_maxtime(NLoptStruct.NLoptStopAfterTime);
+    }
+    if (NLoptStruct.NLoptUseStopAfterIter) {
+        std::cout << "Setting max num function evaluations: " << NLoptStruct.NLoptStopAfterIter << std::endl;
+        m_Optimizer.set_maxeval(NLoptStruct.NLoptStopAfterIter);
+    }
+}
+
+
+void
+NLopt_Estimator::setObjectiveFunction(Data_Struct& NLoptStruct,
+                                      std::string& MaxOrMin)
+{
+    if (NLoptStruct.ObjectiveCriterion == "Least Squares") {
+        MaxOrMin = "minimum";
+        m_Optimizer.set_min_objective(objectiveFunction, &NLoptStruct);
+    } else if (NLoptStruct.ObjectiveCriterion == "Maximum Likelihood") {
+        MaxOrMin = "minimum";
+        m_Optimizer.set_min_objective(objectiveFunction, &NLoptStruct);
+    } else if (NLoptStruct.ObjectiveCriterion == "Model Efficiency") {
+        MaxOrMin = "maximum";
+        m_Optimizer.set_max_objective(objectiveFunction, &NLoptStruct);
+    }
+}
+
+void
+NLopt_Estimator::setParameterBounds(Data_Struct& NLoptStruct,
+                                    std::vector<std::pair<double,double> >& ParameterRanges,
+                                    const int& NumEstParameters)
+{
+    std::vector<double> lowerBounds(NumEstParameters);
+    std::vector<double> upperBounds(NumEstParameters);
+
+    // Set parameter bounds for all parameters
+    for (int i=0; i<NumEstParameters; ++i) {
+        lowerBounds[i] = ParameterRanges[i].first;
+        upperBounds[i] = ParameterRanges[i].second;
+    }
+    m_Optimizer.set_lower_bounds(lowerBounds);
+    m_Optimizer.set_upper_bounds(upperBounds);
+
+    // Set starting points for all parameters
+    m_Parameters.clear();
+    for (int i=0; i<NumEstParameters; ++i) {
+        if (lowerBounds[i] == upperBounds[i]) {
+            m_Parameters.push_back(lowerBounds[i]);
+        } else {
+            m_Parameters.push_back(lowerBounds[i] + (upperBounds[i]-lowerBounds[i])/2.0);
+        }
+    }
+    NLoptStruct.Parameters = m_Parameters;
+}
+
+
+
+void
+NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
+                                    int& RunNumber,
+                                    std::vector<QString>& MultiRunLines,
+                                    int& TotalIndividualRuns)
 {
     int NumEstParameters;
-    int NumSubRuns = NLoptStruct.BeesNumRepetitions;
+    int NumMultiRuns = 1;
+    int NumSubRuns = 0;
     double fitnessStdDev   = 0;
+    bool isAMultiRun = (MultiRunLines.size() > 1);
     std::chrono::_V2::system_clock::time_point startTime = nmfUtils::startTimer();
     std::chrono::_V2::system_clock::time_point startTimeSpecies;
     std::string bestFitnessStr = "TBD";
@@ -536,12 +563,12 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
 
     startTimeSpecies = nmfUtils::startTimer();
 
-//  m_NLoptIters    = 0;
-    m_NLoptFcnEvals = 0;
+    m_NLoptFcnEvals  = 0;
     m_NumObjFcnCalls = 0;
-//  m_Counter       = 0;
-    m_Quit          = false;
-    m_RunNum       += 1;
+    m_Quit           = false;
+    m_RunNum        += 1;
+
+    NumSubRuns  =  NLoptStruct.BeesNumRepetitions; // RSK fix this
 
     // Define forms
     NLoptGrowthForm      = std::make_unique<nmfGrowthForm>(     NLoptStruct.GrowthForm);
@@ -557,115 +584,99 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct, int RunNum)
     NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
 
     NumEstParameters = ParameterRanges.size();
-    std::vector<double> lowerBounds(NumEstParameters);
-    std::vector<double> upperBounds(NumEstParameters);
+//std::cout << "NumEstParam: " << NumEstParameters << std::endl;
 
-    // Initialize the optimizer with the appropriate algorithm
-//std::cout << "minimizer: " << NLoptStruct.Minimizer << std::endl;
-//std::cout << "m_MinimizerToEnum: " << m_MinimizerToEnum[NLoptStruct.Minimizer] << std::endl;
-std::cout << "NumEstParam: " << NumEstParameters << std::endl;
-    m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.Minimizer],NumEstParameters);
-//  nlopt::opt opt(m_MinimizerToEnum[NLoptStruct.Minimizer],NumEstParameters);
-
-    // Set parameter bounds for all parameters
-    for (int i=0; i<NumEstParameters; ++i) {
-        lowerBounds[i] = ParameterRanges[i].first;
-        upperBounds[i] = ParameterRanges[i].second;
-//std::cout << "Bounds: " << lowerBounds[i] << "," << upperBounds[i] << std::endl;
+    if (isAMultiRun) {
+        NumMultiRuns = MultiRunLines.size();
     }
-    m_Optimizer.set_lower_bounds(lowerBounds);
-    m_Optimizer.set_upper_bounds(upperBounds);
 
-    // Set starting points for all parameters
-    m_Parameters.clear();
-    for (int i=0; i<NumEstParameters; ++i) {
-        if (lowerBounds[i] == upperBounds[i]) {
-            m_Parameters.push_back(lowerBounds[i]);
-        } else {
-            m_Parameters.push_back(lowerBounds[i] + (upperBounds[i]-lowerBounds[i])/2.0);
+    for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
+
+        NumSubRuns = 1;
+        if (isAMultiRun) {
+            nmfUtilsQt::reloadDataStruct(NLoptStruct,MultiRunLines[multiRun]);
+            NumSubRuns = NLoptStruct.NLoptNumberOfRuns;
         }
-    }
-    NLoptStruct.Parameters = m_Parameters;
-
-    // Call the appropriate Objective Function
-    if (NLoptStruct.ObjectiveCriterion == "Least Squares") {
-        MaxOrMin = "minimum";
-        m_Optimizer.set_min_objective(objectiveFunction, &NLoptStruct);
-    } else if (NLoptStruct.ObjectiveCriterion == "Maximum Likelihood") {
-        MaxOrMin = "minimum";
-        m_Optimizer.set_min_objective(objectiveFunction, &NLoptStruct);
-    } else if (NLoptStruct.ObjectiveCriterion == "Model Efficiency") {
-        MaxOrMin = "maximum";
-        m_Optimizer.set_max_objective(objectiveFunction, &NLoptStruct);
-    }
-
-    // Set Stopping Criteria
-    if (NLoptStruct.NLoptUseStopVal) {
-        std::cout << "Setting stop fitness value: " << NLoptStruct.NLoptStopVal << std::endl;
-        m_Optimizer.set_stopval(NLoptStruct.NLoptStopVal);
-    }
-    if (NLoptStruct.NLoptUseStopAfterTime) {
-        std::cout << "Setting max run time: " << NLoptStruct.NLoptStopAfterTime << std::endl;
-        m_Optimizer.set_maxtime(NLoptStruct.NLoptStopAfterTime);
-    }
-    if (NLoptStruct.NLoptUseStopAfterIter) {
-        std::cout << "Setting max num function evaluations: " << NLoptStruct.NLoptStopAfterIter << std::endl;
-        m_Optimizer.set_maxeval(NLoptStruct.NLoptStopAfterIter);
-    }
-
-    //
-    // Run the Optimizer using the previously defined objective function
-    //
-    nlopt::result result;
-    try {
-        double minf=0;
-        try {
-
-            //------------------------------------------------
-
-            result = m_Optimizer.optimize(m_Parameters, minf);
-
-            //------------------------------------------------
-
-            std::cout << "\nOptimizer return code: " << returnCode(result) << std::endl;
-        } catch (const std::exception& e) {
-            std::cout << "Exception thrown: " << e.what() << std::endl;
-        } catch (...) {
-            std::cout << "Error: Unknown error from NLopt_Estimator::estimateParameters m_Optimizer.optimize()" << std::endl;
+std::cout << "multiRun: " << multiRun << ", EstimationAlgorithm: " << NLoptStruct.EstimationAlgorithm << std::endl;
+        if (NLoptStruct.EstimationAlgorithm != "NLopt Algorithm") { // This must follow the reloadNLoptStruct call
+std::cout << "Skipping: " <<  MultiRunLines[multiRun].toStdString() << std::endl;
+            continue; // skip over rest of for statement and continue with next increment
         }
 
-std::cout << "Found " + MaxOrMin + " fitness of: " << minf << std::endl;
-//for (unsigned i=0; i<m_Parameters.size(); ++i) {
-//    std::cout << "  Est Param[" << i << "]: " << m_Parameters[i] << std::endl;
-//}
+        for (int run=0; run<NumSubRuns; ++run) {
 
-        extractParameters(NLoptStruct, &m_Parameters[0], m_EstInitBiomass,
-                          m_EstGrowthRates, m_EstCarryingCapacities,
-                          m_EstCatchability, m_EstAlpha,
-                          m_EstBetaSpecies, m_EstBetaGuilds,
-                          m_EstPredation, m_EstHandling, m_EstExponent);
+            // Initialize the optimizer with the appropriate algorithm
+            m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
 
-        createOutputStr(NLoptStruct.TotalNumberParameters,
-                        m_Parameters.size(),NumSubRuns,
-                        minf,fitnessStdDev,NLoptStruct,bestFitnessStr);
+            // Set Parameter Bounds, Objective Function, and Stopping Criteria
+            setParameterBounds(NLoptStruct,ParameterRanges,NumEstParameters);
+            setObjectiveFunction(NLoptStruct,MaxOrMin);
+            setStoppingCriteria(NLoptStruct);
 
-        emit RunCompleted(bestFitnessStr,NLoptStruct.showDiagnosticChart);
+            // Run the Optimizer using the previously defined objective function
+            nlopt::result result;
+            try {
+                double fitness=0;
+                try {
+                    std::cout << "====> Running Optimizer <====" << std::endl;
+                    result = m_Optimizer.optimize(m_Parameters, fitness);
+                    std::cout << "Optimizer return code: " << returnCode(result) << std::endl;
+                } catch (const std::exception& e) {
+                    std::cout << "Exception thrown: " << e.what() << std::endl;
+                } catch (...) {
+                    std::cout << "Error: Unknown error from NLopt_Estimator::estimateParameters m_Optimizer.optimize()" << std::endl;
+                }
+
+std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
+                //for (unsigned i=0; i<m_Parameters.size(); ++i) {
+                //    std::cout << "  Est Param[" << i << "]: " << m_Parameters[i] << std::endl;
+                //}
+
+                extractParameters(NLoptStruct, &m_Parameters[0], m_EstInitBiomass,
+                        m_EstGrowthRates, m_EstCarryingCapacities,
+                        m_EstCatchability, m_EstAlpha,
+                        m_EstBetaSpecies, m_EstBetaGuilds,
+                        m_EstPredation, m_EstHandling, m_EstExponent);
+
+                createOutputStr(NLoptStruct.TotalNumberParameters,
+                                m_Parameters.size(),NumSubRuns,
+                                fitness,fitnessStdDev,NLoptStruct,bestFitnessStr);
+
+                if (isAMultiRun) {
+                    emit SubRunCompleted(RunNumber++,
+                                         TotalIndividualRuns,
+                                         NLoptStruct.EstimationAlgorithm,
+                                         NLoptStruct.MinimizerAlgorithm,
+                                         NLoptStruct.ObjectiveCriterion,
+                                         NLoptStruct.ScalingAlgorithm,
+                                         NLoptStruct.MultiRunModelFilename,
+                                         fitness);
+                } else {
+                    emit RunCompleted(bestFitnessStr,NLoptStruct.showDiagnosticChart);
+                }
+
+            }
+            catch (nlopt::forced_stop &e) {
+                std::cout << "User terminated application: " << e.what() << std::endl;
+            }
+            catch (std::exception &e) {
+                std::cout << "nlopt failed: " << e.what() << std::endl;
+            }
+
+        } // end of sub run loop
 
     }
-    catch (nlopt::forced_stop &e) {
-        std::cout << "User terminated application: " << e.what() << std::endl;
-    }
-    catch (std::exception &e) {
-        std::cout << "nlopt failed: " << e.what() << std::endl;
+
+    if (isAMultiRun) {
+        emit AllSubRunsCompleted(NLoptStruct.MultiRunSpeciesFilename,
+                                 NLoptStruct.MultiRunModelFilename);
     }
 
     std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtils::elapsedTime(startTime);
-    std::cout << elapsedTimeStr << std::endl;
+std::cout << elapsedTimeStr << std::endl;
 
     stopRun(elapsedTimeStr,bestFitnessStr);
 
-//std::cout << "throwing nlopt::forced_stop()" << std::endl;
-//    throw nlopt::forced_stop();
 
 }
 

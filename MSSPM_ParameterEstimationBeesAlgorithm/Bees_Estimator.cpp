@@ -28,18 +28,25 @@ Bees_Estimator::printBee(std::string          msg,
 }
 
 void
-Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
+Bees_Estimator::estimateParameters(Data_Struct &beeStruct,
+                                   int& RunNumber,
+                                   std::vector<QString>& MultiRunLines,
+                                   int& TotalIndividualRuns)
 {
     bool ok=false;
-    bool isAggProd = (beeStruct.CompetitionForm == "AGG-PROD");
+    bool isAggProd   = (beeStruct.CompetitionForm == "AGG-PROD");
+    bool isAMultiRun = (beeStruct.NLoptNumberOfRuns > 1);
     int startPos = 0;
     int NumSpecies = beeStruct.NumSpecies;
     int NumGuilds  = beeStruct.NumGuilds;
     int NumSpeciesOrGuilds = (isAggProd) ? NumGuilds : NumSpecies;
-    int NumSubRuns = beeStruct.BeesNumRepetitions;
+    int NumRepetitions = beeStruct.BeesNumRepetitions;
+    int NumMultiRuns = 1;
     int numTotalParameters;
     int numEstParameters; // The parameters that don't have their min range equal to their max range.
     int usecDelay = 300000;
+    int NumSubRuns;
+//  int TotalIndividualRuns = 0;
     double totStdDev;
     double bestFitness;
     double fitnessStdDev   = 0;
@@ -49,6 +56,14 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
     std::string errorMsg;
     std::string bestFitnessStr;
     std::vector<double> lastBestParameters;
+    std::chrono::_V2::system_clock::time_point startTime = nmfUtils::startTimer();
+    std::chrono::_V2::system_clock::time_point startTimeSpecies;
+    std::vector<double> EstParameters;
+    std::vector<double> MeanEstParameters;
+    std::vector<double> stdDevParameters;
+    std::unique_ptr<BeesAlgorithm> beesAlg;
+    std::unique_ptr<BeesStats>     beesStats;
+//  std::vector<QString> MultiRunLines;
 
     m_InitialCarryingCapacities.clear();
     m_EstSystemCarryingCapacity = 0;
@@ -67,92 +82,129 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct, int RunNum)
     nmfUtils::initialize(m_EstHandling,   NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(m_EstBetaSpecies,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(m_EstBetaGuilds, NumSpeciesOrGuilds,NumGuilds);
-    std::chrono::_V2::system_clock::time_point startTime = nmfUtils::startTimer();
-    std::chrono::_V2::system_clock::time_point startTimeSpecies;
-    std::vector<double> EstParameters;
-    std::vector<double> MeanEstParameters;
-    std::vector<double> stdDevParameters;
 
     startTimeSpecies = nmfUtils::startTimer();
 
-    std::unique_ptr<BeesAlgorithm> beesAlg;
-    std::unique_ptr<BeesStats>     beesStats;
+std::cout << "Bees: isAMultiRun: " << isAMultiRun << std::endl;
+
+    if (isAMultiRun) {
+        NumMultiRuns = int(MultiRunLines.size());
+    }
+
+//    emit InitializeSubRuns(beeStruct.MultiRunModelFilename,TotalIndividualRuns);
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         m_InitialCarryingCapacities.push_back(beeStruct.CarryingCapacity[i]);
     }
 
-    for (int subRunNum=1; subRunNum<=NumSubRuns; ++subRunNum)
-    {
+
+    for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
+
+        NumSubRuns = 1;
+        if (isAMultiRun) {
+            nmfUtilsQt::reloadDataStruct(beeStruct,MultiRunLines[multiRun]);
+            NumSubRuns = beeStruct.NLoptNumberOfRuns;
+        }
+
+std::cout << "multiRun: " << multiRun << ", EstimationAlgorithm: " << beeStruct.EstimationAlgorithm << std::endl;
+        if (beeStruct.EstimationAlgorithm != "Bees Algorithm") { // This must follow the reloadNLoptStruct call
+std::cout << "Skipping: " <<  MultiRunLines[multiRun].toStdString() << std::endl;
+            continue; // skip over rest of for statement and continue with next increment
+        }
+
+        for (int run=0; run<NumSubRuns; ++run) {
+
+            for (int subRunNum=1; subRunNum<=NumRepetitions; ++subRunNum)
+            {
 std::cout << "subRunNum: " << subRunNum << std::endl;
-        // Initialize main class ptr
-        beesAlg   = std::make_unique<BeesAlgorithm>(beeStruct,nmfConstantsMSSPM::VerboseOn);
-        beesStats = std::make_unique<BeesStats>(
-                    beeStruct.TotalNumberParameters,NumSubRuns);
-        beesAlg->initializeParameterRangesAndPatchSizes();
-        errorMsg.clear();
-        ok = beesAlg->estimateParameters(
-                    bestFitness,EstParameters,
-                    RunNum,subRunNum,errorMsg);
+                // Initialize main class ptr
+                beesAlg   = std::make_unique<BeesAlgorithm>(beeStruct,nmfConstantsMSSPM::VerboseOn);
+                beesStats = std::make_unique<BeesStats>(beeStruct.TotalNumberParameters,NumRepetitions);
+                beesAlg->initializeParameterRangesAndPatchSizes();
+                errorMsg.clear();
+                ok = beesAlg->estimateParameters(
+                            bestFitness,EstParameters,
+                            RunNumber,subRunNum,errorMsg);
 std::cout << "  ok = " << ok << std::endl;
-        if (! errorMsg.empty()) {
-            ok = false;
-            emit ErrorFound(errorMsg);
-            break;
-        }
-        if (ok) {
-            msg = "Run " + std::to_string(subRunNum);
-            printBee(msg,bestFitness,EstParameters);
-            beesStats->addData(bestFitness,EstParameters);
-            if (bestFitness < lastBestFitness) {
-                lastBestFitness = bestFitness;
-                lastBestParameters = EstParameters;
+                if (! errorMsg.empty()) {
+                    ok = false;
+                    emit ErrorFound(errorMsg);
+                    break;
+                }
+                if (ok) {
+                    msg = "Run " + std::to_string(subRunNum);
+                    printBee(msg,bestFitness,EstParameters);
+                    beesStats->addData(bestFitness,EstParameters);
+                    if (bestFitness < lastBestFitness) {
+                        lastBestFitness = bestFitness;
+                        lastBestParameters = EstParameters;
+                    }
+                    emit RepetitionRunCompleted(RunNumber,subRunNum,NumRepetitions);
+                }
+                // Added a delay to give Qt enough time to finish drawing this run's curve.
+                std::this_thread::sleep_for(std::chrono::microseconds(usecDelay));
+
+                // Break out if user has stopped the run
+                if (wasStoppedByUser()) {
+                    std::cout << "Bees_Estimator StoppedByUser" << std::endl;
+                    ok = false;
+                    break;
+                }
             }
-            emit SubRunCompleted(RunNum,subRunNum,NumSubRuns);
-        }
-        // Added a delay to give Qt enough time to finish drawing this run's curve.
-//      usleep(300000);
-        std::this_thread::sleep_for(std::chrono::microseconds(usecDelay));
 
-        // Break out if user has stopped the run
-        if (wasStoppedByUser()) {
-            std::cout << "Bees_Estimator StoppedByUser" << std::endl;
-            ok = false;
-            break;
+            if (ok) {
+                // Use the last best data and get some statistics
+                bestFitness   = lastBestFitness;
+                EstParameters = lastBestParameters;
+                beesStats->getMean(MeanFitness,MeanEstParameters);
+                beesStats->getStdDev(fitnessStdDev,totStdDev,stdDevParameters);
+
+                // Extract the parameters and place them into their respective data structures.
+                beesAlg->extractInitBiomass(EstParameters,startPos,
+                                            m_EstInitBiomass);
+                beesAlg->extractGrowthParameters(EstParameters,startPos,
+                                                 m_EstGrowthRates,
+                                                 m_EstCarryingCapacities,
+                                                 m_EstSystemCarryingCapacity);
+                beesAlg->extractHarvestParameters(EstParameters,startPos,m_EstCatchability);
+                beesAlg->extractCompetitionParameters(EstParameters,startPos,
+                                                      m_EstAlpha,
+                                                      m_EstBetaSpecies,
+                                                      m_EstBetaGuilds);
+
+                beesAlg->extractPredationParameters(EstParameters,startPos,m_EstPredation);
+                beesAlg->extractHandlingParameters(EstParameters,startPos,m_EstHandling);
+                beesAlg->extractExponentParameters(EstParameters,startPos,m_EstExponent);
+                numEstParameters = beesAlg->calculateActualNumEstParameters();
+                numTotalParameters = EstParameters.size();
+                createOutputStr(numTotalParameters,numEstParameters,NumRepetitions,
+                                bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
+                emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
+
+            }
+
+        } // end for run
+
+        if (isAMultiRun) {
+            emit SubRunCompleted(RunNumber++,
+                                 TotalIndividualRuns,
+                                 beeStruct.EstimationAlgorithm,
+                                 beeStruct.MinimizerAlgorithm,
+                                 beeStruct.ObjectiveCriterion,
+                                 beeStruct.ScalingAlgorithm,
+                                 beeStruct.MultiRunModelFilename,
+                                 bestFitness);
+        } else {
+            emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
         }
 
+    } // end for multiRun
+
+    if (isAMultiRun) {
+        emit AllSubRunsCompleted(beeStruct.MultiRunSpeciesFilename,
+                                 beeStruct.MultiRunModelFilename);
     }
 
-    if (ok) {
-        // Use the last best data and get some statistics
-        bestFitness   = lastBestFitness;
-        EstParameters = lastBestParameters;
-        beesStats->getMean(MeanFitness,MeanEstParameters);
-        beesStats->getStdDev(fitnessStdDev,totStdDev,stdDevParameters);
-
-        // Extract the parameters and place them into their respective data structures.
-        beesAlg->extractInitBiomass(EstParameters,startPos,
-                                    m_EstInitBiomass);
-        beesAlg->extractGrowthParameters(EstParameters,startPos,
-                                         m_EstGrowthRates,
-                                         m_EstCarryingCapacities,
-                                         m_EstSystemCarryingCapacity);
-        beesAlg->extractHarvestParameters(EstParameters,startPos,m_EstCatchability);
-        beesAlg->extractCompetitionParameters(EstParameters,startPos,
-                                              m_EstAlpha,
-                                              m_EstBetaSpecies,
-                                              m_EstBetaGuilds);
-
-        beesAlg->extractPredationParameters(EstParameters,startPos,m_EstPredation);
-        beesAlg->extractHandlingParameters(EstParameters,startPos,m_EstHandling);
-        beesAlg->extractExponentParameters(EstParameters,startPos,m_EstExponent);
-        numEstParameters = beesAlg->calculateActualNumEstParameters();
-        numTotalParameters = EstParameters.size();
-        createOutputStr(numTotalParameters,numEstParameters,NumSubRuns,
-                        bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
-        emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
-
-    }
     std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtils::elapsedTime(startTime);
     std::cout << elapsedTimeStr << std::endl;
 

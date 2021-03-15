@@ -231,6 +231,7 @@ private:
      */
     void resetYAxis();
     void updateYearlyScaleFactorPoints();
+    std::string getCurrentSpecies();
 
 signals:
     /**

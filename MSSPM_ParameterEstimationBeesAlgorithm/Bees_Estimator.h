@@ -40,6 +40,7 @@
 #include "time.h"
 #include "nmfConstantsMSSPM.h"
 #include "nmfUtils.h"
+#include "nmfUtilsQt.h"
 //#include "nmfRandom.h"
 
 #include "BeesAlgorithm.h"
@@ -101,24 +102,58 @@ private:
 
 signals:
     /**
+     * @brief Signal emitted at the end of a multi-run set of runs
+     * @param multiRunSpeciesFilename : name of Multi-Run Species File
+     * @param multiRunModelFilename : name of Multi-Run Model File
+     */
+    void AllSubRunsCompleted(std::string multiRunSpeciesFilename,
+                             std::string multiRunModelFilename);
+    /**
      * @brief Signal emitted to update the calling program of an error in the Bees algorithm
      * @param errorMsg : string value the error message from the Bees algorithm
      */
     void ErrorFound(std::string errorMsg);
+    /**
+     * @brief Signal emitted at the start of a multi-run set of runs
+     * @param multiRunModelFilename : name of Multi-Run Model File
+     * @param totalIndividualRuns : total number of runs
+     */
+    void InitializeSubRuns(std::string multiRunModelFilename,
+                           int totalIndividualRuns);
     /**
      * @brief Signal emitted with the Run has completed
      * @param bestFitness : string value representing the best fitness value
      * @param showDiagnosticsChart : boolean signfying whether the
      * diagnostic 3d chart should be displayed after the run completes
      */
-    void RunCompleted(std::string bestFitness, bool showDiagnosticsChart);
+    void RunCompleted(std::string bestFitness,
+                      bool showDiagnosticsChart);
     /**
-     * @brief Signal emitted when a sub run is completed
+     * @brief Signal emitted when NLopt Estimation sub run of a multi run has completed
+     * @param run : current run
+     * @param numRuns : total number of runs in multi run
+     * @param EstimationAlgorithm : name of estimation algorithm
+     * @param MinimizerAlgorithm : name of the minimizer algorithm
+     * @param ObjectiveCriterion : name of the objective criterion
+     * @param ScalingAlgorithm : name of the scaling algorithm
+     * @param multiRunModelFilename : name of file that will contain the model data from all of the multi runs
+     * @param fitness : fitness value of current run
+     */
+    void SubRunCompleted(int run,
+                         int numRuns,
+                         std::string EstimationAlgorithm,
+                         std::string MinimizerAlgorithm,
+                         std::string ObjectiveCriterion,
+                         std::string ScalingAlgorithm,
+                         std::string multiRunModelFilename,
+                         double fitness);
+    /**
+     * @brief Signal emitted when a repetition run is completed
      * @param RunNum : the number of the parent run
      * @param SubRun : the number of the child sub run
      * @param NumSubRuns : number of sub runs in the parent run
      */
-    void SubRunCompleted(int RunNum, int SubRun, int NumSubRuns);
+    void RepetitionRunCompleted(int RunNum, int SubRun, int NumSubRuns);
 //  void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
 
 public:
@@ -131,9 +166,14 @@ public:
     /**
      * @brief The main routine that runs the Bees Estimation algorithm
      * @param BeeStruct : data structure containing parameters needed for the Bees algorithm
-     * @param RunNum : the run number
+     * @param RunNumber : the run number
+     * @param MultiRunLines : contents of multi-run run file
+     * @param TotalIndividualRuns : total of all multi-run runs
      */
-    void estimateParameters(Data_Struct &BeeStruct,int RunNum);
+    void estimateParameters(Data_Struct &BeeStruct,
+                            int& RunNumber,
+                            std::vector<QString>& MultiRunLines,
+                            int& TotalIndividualRuns);
     /**
      * @brief Gets the estimated carrying capacity values per species
      * @param EstCarryingCapacity : vector of carrying capacities per species

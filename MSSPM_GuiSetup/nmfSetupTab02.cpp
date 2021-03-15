@@ -847,7 +847,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Scaling            varchar(50) NOT NULL,";
         cmd += " SpeName            varchar(50) NOT NULL,";
         cmd += " Year               int(11)     NOT NULL,";
-        cmd += " Value              float       NOT NULL,";
+        cmd += " Value              double      NOT NULL,";
         cmd += " PRIMARY KEY (ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -1138,6 +1138,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " BeesNeighborhoodSize        float        NULL,";
         cmd += " GradMaxIterations           int(11)      NULL,";
         cmd += " GradMaxLineSearches         int(11)      NULL,";
+        cmd += " NLoptNumberOfRuns           int(11)      NULL,";
         cmd += " NLoptUseStopVal             int(11)      NULL,";
         cmd += " NLoptUseStopAfterTime       int(11)      NULL,";
         cmd += " NLoptUseStopAfterIter       int(11)      NULL,";

@@ -50,6 +50,7 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     Setup_Tab3_PrevPB             = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_PrevPB");
     Setup_Tab3_UpdateSpeciesPB    = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_UpdateSpeciesPB");
     Setup_Tab3_GuildsSpeciesTabW  = Setup_Tabs->findChild<QTabWidget   *>("Setup_Tab3_GuildsSpeciesTabW");
+    Setup_Tab3_CalcGuildsPB       = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab3_CalcGuildsPB");
 
     connect(Setup_Tab3_NumGuildsSB,     SIGNAL(valueChanged(int)),
             this,                       SLOT(callback_NumGuildsSB(int)));
@@ -83,6 +84,10 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
             this,                       SLOT(callback_GuildsTableChanged(int,int)));
     connect(Setup_Tab3_UpdateSpeciesPB, SIGNAL(clicked()),
             this,                       SLOT(callback_UpdateSpeciesPB()));
+    connect(Setup_Tab3_CalcGuildsPB,    SIGNAL(clicked()),
+            this,                       SLOT(callback_CalcGuildsPB()));
+
+
 
 //    Setup_Tab3_LoadPB->hide();
 
@@ -1372,7 +1377,28 @@ nmfSetup_Tab3::callback_GuildsTableChanged(int row, int col)
     Setup_Tab3_NumGuildsSB->setEnabled(false);
 }
 
+void
+nmfSetup_Tab3::callback_CalcGuildsPB()
+{
+    QString guildName;
+    QComboBox* guildCMB;
+    std::map<QString,double> guildMap;
 
+    // Load up the guild map with carrying capacity totals per guild
+    int numSpecies = Setup_Tab3_SpeciesTW->rowCount();
+    for (int i=0; i<numSpecies; ++i) {
+        guildCMB = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(i,1));
+        guildMap[guildCMB->currentText()] += Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
+    }
+
+    // Transfer data from the guild map to the guild table
+    int numGuilds  = Setup_Tab3_GuildsTW->rowCount();
+    for (int i=0; i<numGuilds; ++i) {
+        guildName = Setup_Tab3_GuildsTW->item(i,0)->text();
+        Setup_Tab3_GuildsTW->item(i,2)->setText(QString::number(guildMap[guildName],'f',6));
+    }
+    Setup_Tab3_GuildsTW->resizeColumnsToContents();
+}
 
 void
 nmfSetup_Tab3::callback_UpdateSpeciesPB()

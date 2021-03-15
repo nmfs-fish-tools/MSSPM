@@ -261,6 +261,14 @@ public Q_SLOTS:
      */
     void callback_ImportPB();
     /**
+     * @brief Callback invoked when the user clicked the Import button from the Setup GUIs - Species tab
+     */
+    void callback_ImportSpecies();
+    /**
+     * @brief Callback invoked when the user clicked the Import button from the Setup GUIs - Guild tab
+     */
+    void callback_ImportGuild();
+    /**
      * @brief Callback invoked when the user clicks the Load button
      */
     void callback_LoadPB();

@@ -152,15 +152,17 @@ nmfEstimation_Tab2::loadCSVFile(std::string& tableName)
     QString tableNameStr;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
 
-        tableNameStr = QString::fromStdString(tableName);
-        tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
-        loadOK = nmfUtilsQt::loadTimeSeries(
-                    Estimation_Tabs, Estimation_Tab2_CatchTV, inputDataPath, tableNameStr,
-                    nmfConstantsMSSPM::FirstLineNotReadOnly,
-                    errorMsg);
-        if (! loadOK) {
-            m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
-        }
+    tableNameStr = QString::fromStdString(tableName);
+    tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
+std::cout << "input: " << tableNameStr.toStdString() << std::endl;
+
+    loadOK = nmfUtilsQt::loadTimeSeries(
+                Estimation_Tabs, Estimation_Tab2_CatchTV, inputDataPath, tableNameStr,
+                nmfConstantsMSSPM::FirstLineNotReadOnly,
+                errorMsg);
+    if (! loadOK) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+    }
 }
 
 void

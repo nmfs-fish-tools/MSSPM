@@ -340,10 +340,22 @@ void
 nmfEstimation_Tab1::callback_ImportPB()
 {
     if (onGuildTab()) {
-        importGuildData("",nmfConstantsMSSPM::UpdateSetup);
+        callback_ImportGuild();
     } else {
-        importSpeciesData("",nmfConstantsMSSPM::UpdateSetup);
+        callback_ImportSpecies();
     }
+}
+
+void
+nmfEstimation_Tab1::callback_ImportSpecies()
+{
+    importSpeciesData("",nmfConstantsMSSPM::UpdateSetup);
+}
+
+void
+nmfEstimation_Tab1::callback_ImportGuild()
+{
+    importGuildData("",nmfConstantsMSSPM::UpdateSetup);
 }
 
 void

@@ -4,7 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
+QT      -= gui
+QT      += widgets charts
 
 TARGET = MSSPM_ParameterEstimationNLoptAlgorithm
 TEMPLATE = lib

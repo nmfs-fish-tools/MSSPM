@@ -63,7 +63,7 @@
             <string>Set large table below for Relative Biomass</string>
            </property>
            <property name="whatsThis">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Relative Biomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When set, the values in the below biomass table represent Relative Biomass values. The smaller table above that table contain scalar values used to convert Relative Biomass values to Absolute Biomass values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Relative Biomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When set, the values in the below biomass table represent Relative Biomass values. The smaller table above that table contains scalar values used to convert Relative Biomass values to Absolute Biomass values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Relative Biomass</string>

@@ -88,6 +88,7 @@ class nmfSetup_Tab3: public QObject
     QPushButton*  Setup_Tab3_PrevPB;
     QPushButton*  Setup_Tab3_ReloadSpeciesPB;
     QPushButton*  Setup_Tab3_ReloadGuildsPB;
+    QPushButton*  Setup_Tab3_CalcGuildsPB;
 
     void clearSpeciesWidgets();
     void clearGuildWidgets();
@@ -193,6 +194,10 @@ public Q_SLOTS:
      * @brief Callback invoked when user clicks the Add Species button
      */
     void callback_AddSpeciesPB();
+    /**
+     * @brief Callback invoked when user clicks the Calculate Guilds K button
+     */
+    void callback_CalcGuildsPB();
     /**
      * @brief Callback invoked when user clicks the Delete Guilds button
      */

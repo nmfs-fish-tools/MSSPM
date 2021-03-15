@@ -19,6 +19,12 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     m_IsMonospaced = false;
     m_ProjectDir   = projectDir;
     m_ProjectSettingsConfig.clear();
+    m_GrowthForm      = "";
+    m_HarvestForm     = "";
+    m_CompetitionForm = "";
+    m_PredationForm   = "";
+    m_EnsembleDialog  = new EnsembleDialog(tabs,m_ProjectDir);
+    m_EnsembleDialog->hide();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::nmfEstimation_Tab6");
 
@@ -39,6 +45,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_ObjectiveCriterionCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_ObjectiveCriterionCMB");
     Estimation_Tab6_MinimizerAlgorithmCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinimizerAlgorithmCMB");
     Estimation_Tab6_MinimizerAlgorithmLBL   = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_MinimizerAlgorithmLBL");
+    Estimation_Tab6_MinimizerDetStoTypeLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_MinimizerDetStoTypeLBL");
     Estimation_Tab6_MinimizerTypeCMB        = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinimizerTypeCMB");
     Estimation_Tab6_RunTE                   = Estimation_Tabs->findChild<QTextEdit   *>("Estimation_Tab6_RunTE");
     Estimation_Tab6_RunPB                   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_RunPB");
@@ -47,8 +54,9 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_PrevPB                  = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_PrevPB");
     Estimation_Tab6_FontSizeCMB             = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_FontSizeCMB");
     Estimation_Tab6_MonoCB                  = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_MonoCB");
-    Estimation_Tab6_NumberOfRunsSB          = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_NumberOfRunsSB");
+    Estimation_Tab6_Bees_NumberOfRunsSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumberOfRunsSB");
     Estimation_Tab6_Bees_NumBeesSB          = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumBeesSB");
+    Estimation_Tab6_Bees_NumOtherBeesSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumOtherBeesSB");
     Estimation_Tab6_Bees_NumEliteSitesSB    = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumEliteSitesSB");
     Estimation_Tab6_Bees_NumBestSitesSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumBestSitesSB");
     Estimation_Tab6_Bees_NumEliteBeesSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumEliteBeesSB");
@@ -74,6 +82,20 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB     = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB");
     Estimation_Tab6_EstimatePredationRhoCB                  = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimatePredationRhoCB");
     Estimation_Tab6_EstimatePredationExponentCB             = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimatePredationExponentCB");
+    Estimation_Tab6_EnsembleTotalRunsSB           = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_EnsembleTotalRunsSB");
+    Estimation_Tab6_EnsembleAveragingAlgorithmLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_EnsembleAveragingAlgorithmLBL");
+    Estimation_Tab6_EnsembleAveragingAlgorithmCMB = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_EnsembleAveragingAlgorithmCMB");
+    Estimation_Tab6_EnsembleControlsGB            = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_EnsembleControlsGB");
+    Estimation_Tab6_EnsembleRunsSetLE             = Estimation_Tabs->findChild<QLineEdit   *>("Estimation_Tab6_EnsembleRunsSetLE");
+    Estimation_Tab6_EnsembleAddPB                 = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleAddPB");
+    Estimation_Tab6_EnsembleRunsSB                = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_EnsembleRunsSB");
+    Estimation_Tab6_EnsembleClearPB               = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleClearPB");
+    Estimation_Tab6_EnsembleEditPB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleEditPB");
+    Estimation_Tab6_EnsembleRunsWithSettingsLBL   = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_EnsembleRunsWithSettingsLBL");
+    Estimation_Tab6_EnsembleRunsSetLBL            = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_EnsembleRunsSetLBL");
+    Estimation_Tab6_EnsembleSetAllPB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleSetAllPB");
+    Estimation_Tab6_NL_StopAfterTimeUnitsCMB      = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_NL_StopAfterTimeUnitsCMB");
+    Estimation_Tab6_EnsembleLoadPB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleLoadPB");
 
     // Update tool tip
     BeesMsg  = "Stochastic search algorithm based on the behavior of honey bees.";
@@ -109,11 +131,41 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
             this,                                   SLOT(callback_StopAfterTimeCB(int)));
     connect(Estimation_Tab6_NL_StopAfterIterCB,     SIGNAL(stateChanged(int)),
             this,                                   SLOT(callback_StopAfterIterCB(int)));
+    connect(Estimation_Tab6_MinimizerAlgorithmCMB,  SIGNAL(currentTextChanged(QString)),
+            this,                                   SLOT(callback_MinimizerAlgorithmCMB(QString)));
     connect(Estimation_Tab6_MinimizerTypeCMB,       SIGNAL(currentTextChanged(QString)),
             this,                                   SLOT(callback_MinimizerTypeCMB(QString)));
+    connect(Estimation_Tab6_EnsembleTotalRunsSB,    SIGNAL(valueChanged(int)),
+            this,                                   SLOT(callback_EnsembleTotalRunsSB(int)));
+    connect(Estimation_Tab6_EnsembleRunsSB,         SIGNAL(valueChanged(int)),
+            this,                                   SLOT(callback_EnsembleRunsSB(int)));
+    connect(Estimation_Tab6_EnsembleAddPB,          SIGNAL(clicked()),
+            this,                                   SLOT(callback_EnsembleAddPB()));
+    connect(Estimation_Tab6_EnsembleClearPB,        SIGNAL(clicked()),
+            this,                                   SLOT(callback_EnsembleClearPB()));
+    connect(Estimation_Tab6_EnsembleEditPB,         SIGNAL(clicked()),
+            this,                                   SLOT(callback_EnsembleEditPB()));
+    connect(Estimation_Tab6_NL_StopAfterTimeSB,     SIGNAL(valueChanged(int)),
+            this,                                   SLOT(callback_StopAfterTimeSB(int)));
+    connect(Estimation_Tab6_NL_StopAfterIterSB,     SIGNAL(valueChanged(int)),
+            this,                                   SLOT(callback_StopAfterIterSB(int)));
+    connect(Estimation_Tab6_NL_StopAfterValueLE,    SIGNAL(textChanged(QString)),
+            this,                                   SLOT(callback_StopAfterValueLE(QString)));
+    connect(Estimation_Tab6_EnsembleAveragingAlgorithmCMB, SIGNAL(currentTextChanged(QString)),
+            this,                                     SLOT(callback_AveragingAlgorithmCMB(QString)));
+    connect(Estimation_Tab6_ScalingCMB,               SIGNAL(currentTextChanged(QString)),
+            this,                                     SLOT(callback_ScalingCMB(QString)));
+    connect(Estimation_Tab6_EnsembleControlsGB,       SIGNAL(toggled(bool)),
+            this,                                     SLOT(callback_EnsembleControlsGB(bool)));
+    connect(Estimation_Tab6_EnsembleSetAllPB,         SIGNAL(clicked()),
+            this,                                     SLOT(callback_EnsembleSetAllPB()));
+    connect(Estimation_Tab6_EnsembleLoadPB,           SIGNAL(clicked()),
+            this,                                     SLOT(callback_EnsembleLoadPB()));
+    connect(Estimation_Tab6_NL_StopAfterTimeUnitsCMB, SIGNAL(currentTextChanged(QString)),
+            this,                                     SLOT(callback_StopAfterTimeUnitsCMB(QString)));
+
     // Wire up signals/slots for the Estimate Run checkboxes
-    QList<QString> unused;
-    for (QCheckBox* cbox : getAllEstimateCheckboxes(unused)) {
+    for (QCheckBox* cbox : getAllEstimateCheckboxes()) {
         connect(cbox, SIGNAL(stateChanged(int)),
                 this, SLOT(callback_RefreshEstimateRunBoxes(int)));
     }
@@ -128,10 +180,15 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     QFont defaultFont(fontName,11,QFont::Medium,false);
     setFont(defaultFont);
 
+    // Initialize minimize function label map
+    initializeDetStoMap();
+
     callback_EstimationAlgorithmCMB("Bees Algorithm");
-    Estimation_Tab6_RunPB->setEnabled(true);
+    enableRunButton(true);
 
     callback_MinimizerTypeCMB(Estimation_Tab6_MinimizerTypeCMB->currentText());
+    callback_MinimizerAlgorithmCMB(Estimation_Tab6_MinimizerAlgorithmCMB->currentText());
+
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfMSPRODTab6::nmfMSPRODTab6 Complete");
 }
@@ -139,6 +196,32 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
 
 nmfEstimation_Tab6::~nmfEstimation_Tab6()
 {
+}
+
+void
+nmfEstimation_Tab6::initializeDetStoMap()
+{
+    // Global optimizations
+    m_DetStoTypeMap["GN_ORIG_DIRECT_L"] = "(d)";
+    m_DetStoTypeMap["GN_DIRECT_L"]      = "(d)";
+    m_DetStoTypeMap["GN_DIRECT_L_RAND"] = "(s)";
+    m_DetStoTypeMap["GN_CRS2_LM"]       = "(s)";
+    m_DetStoTypeMap["GD_StoGO"]         = "(d)";
+
+    // Local optimizations
+    m_DetStoTypeMap["LN_COBYLA"]        = "(d)";
+    m_DetStoTypeMap["LN_NELDERMEAD"]    = "(d)";
+    m_DetStoTypeMap["LN_SBPLX"]         = "(d)";
+    m_DetStoTypeMap["LD_LBFGS"]         = "(d)";
+    m_DetStoTypeMap["LD_MMA"]           = "(s)";
+}
+
+bool
+nmfEstimation_Tab6::isAMultiRun()
+{
+    return (Estimation_Tab6_EnsembleControlsGB->isEnabled() &&
+            Estimation_Tab6_EnsembleControlsGB->isChecked() &&
+            Estimation_Tab6_EnsembleTotalRunsSB->value() > 1);
 }
 
 bool
@@ -154,7 +237,7 @@ nmfEstimation_Tab6::isStopAfterTime()
 }
 
 bool
-nmfEstimation_Tab6::isStopAfterNumEvals()
+nmfEstimation_Tab6::isStopAfterIter()
 {
     return Estimation_Tab6_NL_StopAfterIterCB->isChecked();
 }
@@ -200,13 +283,102 @@ nmfEstimation_Tab6::callback_PrevPB()
 }
 
 void
+nmfEstimation_Tab6::adjustNumberOfParameters()
+{
+    int numberOfParameters = 0;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string cmd;
+    std::string errorMsg;
+
+    if (Estimation_Tab6_EstimateInitBiomassCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateInitBiomassCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimateGrowthRateCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateGrowthRateCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimateCarryingCapacityCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateCarryingCapacityCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimateCatchabilityCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateCatchabilityCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimateHandlingCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateHandlingCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimateCompetitionAlphaCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateCompetitionAlphaCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimatePredationRhoCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimatePredationRhoCB->isChecked()) ? 1 : 0;
+    }
+    if (Estimation_Tab6_EstimatePredationExponentCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimatePredationExponentCB->isChecked()) ? 1 : 0;
+    }
+
+    // Update current System in Systems table
+    fields   = {"SystemName"};
+    queryStr = "SELECT SystemName from Systems where SystemName = '" + m_ProjectSettingsConfig + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    if (dataMap["SystemName"].size() != 0) { // This means the system name exists so do an update
+        cmd  = "UPDATE Systems SET";
+        cmd += "   SystemName = '"                 + m_ProjectSettingsConfig +
+               "', NumberOfParameters = "          + std::to_string(numberOfParameters) +
+               " WHERE SystemName = '"             + m_ProjectSettingsConfig + "'";
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+        if (nmfUtilsQt::isAnError(errorMsg)) {
+            m_Logger->logMsg(nmfConstants::Error,"nmfSetup_Tab4::SaveSettingsConfiguration: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            return;
+        }
+    }
+
+}
+
+void
 nmfEstimation_Tab6::callback_RunPB()
+{
+    if (Estimation_Tab6_EnsembleControlsGB->isEnabled() &&
+        Estimation_Tab6_EnsembleControlsGB->isChecked() &&
+        Estimation_Tab6_EnsembleTotalRunsSB->value() > 1) {
+        runEnsemble();
+    } else {
+        runEstimation();
+    }
+}
+
+void
+nmfEstimation_Tab6::runEnsemble()
+{
+    std::string msg = "\nOK to run the current MultiRun/Ensemble?\n";
+    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Run Ensemble"),
+                                                              tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        runEstimation();
+    } else {
+        return;
+    }
+}
+
+void
+nmfEstimation_Tab6::runEstimation()
 {
     QString msg;
 
-    if (isStopAfterValue() ||
-        isStopAfterTime()  ||
-        isStopAfterNumEvals())
+    // Adjust the NumberOfParameters in case user has unchecked any
+    adjustNumberOfParameters();
+
+    if (isStopAfterValue() || isStopAfterTime() || isStopAfterIter())
     {
         QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -223,18 +395,23 @@ nmfEstimation_Tab6::callback_RunPB()
     QApplication::restoreOverrideCursor();
 }
 
+QString
+nmfEstimation_Tab6::getAveragingAlgorithm()
+{
+    return Estimation_Tab6_EnsembleAveragingAlgorithmCMB->currentText();
+}
+
 std::vector<std::string>
 nmfEstimation_Tab6::getEstimateRunBoxes()
 {
     int i=0;
-    QList<QString> names;
 
     m_EstimateRunBoxes.clear();
 
-    QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes(names);
+    QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes();
     for (QCheckBox* cbox : allEstimateRunBoxes) {
         if (cbox->isChecked()) {
-            m_EstimateRunBoxes.push_back(names[i].toStdString());
+            m_EstimateRunBoxes.push_back(nmfConstantsMSSPM::EstimateCheckboxNames[i]);
         }
         ++i;
     }
@@ -256,7 +433,7 @@ void
 nmfEstimation_Tab6::callback_SavePB()
 {
     saveSystem(true);
-    Estimation_Tab6_RunPB->setEnabled(true);
+    enableRunButton(true);
 }
 
 void
@@ -299,28 +476,29 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
     std::string cmd;
     std::string errorMsg;
 
-    cmd  = "UPDATE Systems SET";
-    cmd += "   NumberOfRuns = "          + std::to_string(Estimation_Tab6_NumberOfRunsSB->value()) +
-           ",  TimeStep = 1"             + // std::to_string(Estimation_Tab6_TimeStepSB->value()) +
-           ",  Algorithm = '"            + Estimation_Tab6_EstimationAlgorithmCMB->currentText().toStdString() +
-           "', Minimizer = '"            + Estimation_Tab6_MinimizerAlgorithmCMB->currentText().toStdString() +
-           "', ObjectiveCriterion = '"   + Estimation_Tab6_ObjectiveCriterionCMB->currentText().toStdString() +
-           "', Scaling = '"              + Estimation_Tab6_ScalingCMB->currentText().toStdString() +
-           "', BeesNumTotal = "          + std::to_string(Estimation_Tab6_Bees_NumBeesSB->value()) +
-           ",  BeesNumElite = "          + std::to_string(Estimation_Tab6_Bees_NumEliteSitesSB->value()) +
-           ",  BeesNumOther = "          + std::to_string(Estimation_Tab6_Bees_NumBestSitesSB->value()) +
-           ",  BeesNumEliteSites = "     + std::to_string(Estimation_Tab6_Bees_NumEliteBeesSB->value())  +
-           ",  BeesNumBestSites = "      + std::to_string(Estimation_Tab6_Bees_NumBestBeesSB->value()) +
-           ",  BeesNumRepetitions = "    + std::to_string(Estimation_Tab6_NumberOfRunsSB->value()) +
-           ",  BeesMaxGenerations = "    + std::to_string(Estimation_Tab6_Bees_MaxGenerationsSB->value()) +
-           ",  BeesNeighborhoodSize = "  + std::to_string(Estimation_Tab6_Bees_NeighborhoodSizeSB->value()) +
-           ",  NLoptUseStopVal = "       + std::to_string(Estimation_Tab6_NL_StopAfterValueCB->isChecked() ? 1 : 0) +
-           ",  NLoptUseStopAfterTime = " + std::to_string(Estimation_Tab6_NL_StopAfterTimeCB->isChecked() ? 1 : 0) +
-           ",  NLoptUseStopAfterIter = " + std::to_string(Estimation_Tab6_NL_StopAfterIterCB->isChecked() ? 1 : 0) +
-           ",  NLoptStopVal = "          + Estimation_Tab6_NL_StopAfterValueLE->text().toStdString() +
-           ",  NLoptStopAfterTime = "    + std::to_string(Estimation_Tab6_NL_StopAfterTimeSB->value()) +
-           ",  NLoptStopAfterIter = "    + std::to_string(Estimation_Tab6_NL_StopAfterIterSB->value()) +
-           "   WHERE SystemName = '"     + CurrentSettingsName + "'";
+    cmd  =  "UPDATE Systems SET";
+    cmd +=  "   NumberOfRuns = "          + getBeesNumberOfRuns() +
+            ",  TimeStep = 1"             + // std::to_string(Estimation_Tab6_TimeStepSB->value()) +
+            ",  Algorithm = '"            + getCurrentAlgorithm() +
+            "', Minimizer = '"            + getCurrentMinimizer() +
+            "', ObjectiveCriterion = '"   + getCurrentObjectiveCriterion() +
+            "', Scaling = '"              + getCurrentScaling() +
+            ",  BeesMaxGenerations = "    + getBeesMaxGenerations() +
+            "', BeesNumTotal = "          + getBeesNumBees() +
+            ",  BeesNumBestSites = "      + getBeesNumBestSites() +
+            ",  BeesNumEliteSites = "     + getBeesNumEliteSites()  +
+            ",  BeesNumElite = "          + getBeesNumEliteBees() +
+            ",  BeesNumOther = "          + getBeesNumOtherBees() +
+            ",  BeesNeighborhoodSize = "  + getBeesNeighborhoodSize() +
+            ",  BeesNumRepetitions = "    + getBeesNumberOfRuns() +
+            ",  NLoptUseStopVal = "       + std::to_string(isStopAfterValue() ? 1 : 0) +
+            ",  NLoptUseStopAfterTime = " + std::to_string(isStopAfterTime()  ? 1 : 0) +
+            ",  NLoptUseStopAfterIter = " + std::to_string(isStopAfterIter()  ? 1 : 0) +
+            ",  NLoptStopVal = "          + std::to_string(getCurrentStopAfterValue()) +
+            ",  NLoptStopAfterTime = "    + std::to_string(getCurrentStopAfterTime()) +
+            ",  NLoptStopAfterIter = "    + std::to_string(getCurrentStopAfterIter()) +
+            ",  NLoptNumberOfRuns = "     + std::to_string(Estimation_Tab6_EnsembleTotalRunsSB->value()) +
+            "   WHERE SystemName = '"     + CurrentSettingsName + "'";
 
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -336,6 +514,20 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
     saveSettings();
 
     return true;
+}
+
+void
+nmfEstimation_Tab6::enableRunButton(bool enableRun)
+{
+    Estimation_Tab6_RunPB->setEnabled(enableRun);
+}
+
+
+void
+nmfEstimation_Tab6::callback_MinimizerAlgorithmCMB(QString algorithm)
+{
+    Estimation_Tab6_MinimizerDetStoTypeLBL->setText(m_DetStoTypeMap[algorithm]);
+    enableRunButton(false);
 }
 
 void
@@ -499,7 +691,7 @@ term to make the approximations \"conservative\" (upper bounds for the exact fun
     }
     Estimation_Tab6_MinimizerAlgorithmCMB->setWhatsThis(msg);
     Estimation_Tab6_MinimizerAlgorithmLBL->setWhatsThis(msg);
-
+    enableRunButton(false);
 }
 
 void
@@ -519,7 +711,8 @@ nmfEstimation_Tab6::callback_EstimationAlgorithmCMB(QString algorithm)
     Estimation_Tab6_Bees_ParametersGB->hide();
     Estimation_Tab6_NL_ParametersGB->hide();
     Estimation_Tab6_MinimizerAlgorithmCMB->setEnabled(enableMinimizer);
-    Estimation_Tab6_MinimizerAlgorithmLBL->setEnabled(enableMinimizer);
+    Estimation_Tab6_MinimizerAlgorithmLBL->setEnabled(enableMinimizer);    
+    Estimation_Tab6_MinimizerDetStoTypeLBL->setEnabled(enableMinimizer);
     Estimation_Tab6_MinimizerTypeCMB->setEnabled(enableMinimizer);
 
     // Enable all ObjectiveCriterion
@@ -534,8 +727,7 @@ nmfEstimation_Tab6::callback_EstimationAlgorithmCMB(QString algorithm)
 //      Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText("Least Squares"); // override what was in the table
     }
 
-    // Disable Run button until user Saves new model
-    Estimation_Tab6_RunPB->setEnabled(false);
+    enableRunButton(false);
 
     emit SetAlgorithm(algorithm);
 }
@@ -552,6 +744,67 @@ nmfEstimation_Tab6::callback_ObjectiveCriterionCMB(QString objCrit)
         Estimation_Tab6_ScalingCMB->addItem("Mean");
         Estimation_Tab6_ScalingCMB->addItem("Min Max");
     }
+    enableRunButton(false);
+}
+
+void
+nmfEstimation_Tab6::callback_ScalingCMB(QString scalingAlgorithm)
+{
+    enableRunButton(false);
+}
+
+void
+nmfEstimation_Tab6::callback_AveragingAlgorithmCMB(QString averagingAlgorithm)
+{
+    enableRunButton(false);
+}
+
+std::string
+nmfEstimation_Tab6::getBeesMaxGenerations()
+{
+    return std::to_string(Estimation_Tab6_Bees_MaxGenerationsSB->value());
+}
+
+std::string
+nmfEstimation_Tab6::getBeesNumBees()
+{
+    return std::to_string(Estimation_Tab6_Bees_NumBeesSB->value());
+}
+
+std::string
+nmfEstimation_Tab6::getBeesNumBestSites()
+{
+    return std::to_string(Estimation_Tab6_Bees_NumBestSitesSB->value());
+}
+
+std::string
+nmfEstimation_Tab6::getBeesNumEliteSites()
+{
+    return std::to_string(Estimation_Tab6_Bees_NumEliteSitesSB->value());
+}
+
+std::string
+nmfEstimation_Tab6::getBeesNumEliteBees()
+{
+    return std::to_string(Estimation_Tab6_Bees_NumEliteBeesSB->value());
+}
+
+std::string
+nmfEstimation_Tab6::getBeesNumOtherBees()
+{
+    return std::to_string(Estimation_Tab6_Bees_NumOtherBeesSB->value());
+}
+
+std::string
+nmfEstimation_Tab6::getBeesNeighborhoodSize()
+{
+    return std::to_string(Estimation_Tab6_Bees_NeighborhoodSizeSB->value());
+}
+
+std::string
+nmfEstimation_Tab6::getBeesNumberOfRuns()
+{
+    return std::to_string(Estimation_Tab6_Bees_NumberOfRunsSB->value());
 }
 
 std::string
@@ -563,7 +816,11 @@ nmfEstimation_Tab6::getCurrentAlgorithm()
 std::string
 nmfEstimation_Tab6::getCurrentMinimizer()
 {
-    return Estimation_Tab6_MinimizerAlgorithmCMB->currentText().toStdString();
+    if (Estimation_Tab6_MinimizerAlgorithmCMB->isEnabled()) {
+        return Estimation_Tab6_MinimizerAlgorithmCMB->currentText().toStdString();
+    } else {
+        return "";
+    }
 }
 
 std::string
@@ -572,22 +829,308 @@ nmfEstimation_Tab6::getCurrentObjectiveCriterion()
     return Estimation_Tab6_ObjectiveCriterionCMB->currentText().toStdString();
 }
 
+std::string
+nmfEstimation_Tab6::getCurrentScaling()
+{
+    if (Estimation_Tab6_ScalingCMB->isEnabled()) {
+        return Estimation_Tab6_ScalingCMB->currentText().toStdString();
+    } else {
+        return "";
+    }
+}
+
+double
+nmfEstimation_Tab6::getCurrentStopAfterValue()
+{
+    return Estimation_Tab6_NL_StopAfterValueLE->text().toDouble();
+}
+
+
+void
+nmfEstimation_Tab6::setCurrentTimeUnits(QString units)
+{
+    Estimation_Tab6_NL_StopAfterTimeUnitsCMB->setCurrentText(units);
+}
+
+
+QString
+nmfEstimation_Tab6::getCurrentTimeUnits()
+{
+    return Estimation_Tab6_NL_StopAfterTimeUnitsCMB->currentText();
+}
+
+int
+nmfEstimation_Tab6::convertToAppropriateUnits(int seconds)
+{
+    int retv = seconds;
+
+    if (seconds % 3600 == 0) {
+        retv = seconds/3600;
+        setCurrentTimeUnits("hour");
+    } else if (seconds % 60 == 0) {
+        retv = seconds/60;
+        setCurrentTimeUnits("min");
+    }
+    return retv;
+}
+
+
+int
+nmfEstimation_Tab6::getCurrentStopAfterTime()
+{
+    int timeInSeconds = Estimation_Tab6_NL_StopAfterTimeSB->value();
+    QString timeUnits = getCurrentTimeUnits();
+
+    if (timeUnits == "min") {
+        timeInSeconds *= 60;
+    } else if (timeUnits == "hour") {
+        timeInSeconds *= 3600;
+    }
+
+    return timeInSeconds;
+}
+
+int
+nmfEstimation_Tab6::getCurrentStopAfterIter()
+{
+    return Estimation_Tab6_NL_StopAfterIterSB->value();
+}
+
+void
+nmfEstimation_Tab6::callback_EnsembleTotalRunsSB(int value)
+{
+    if (! Estimation_Tab6_EnsembleControlsGB->isChecked()) {
+        return;
+    }
+
+    bool isMultiRun = (value > 1);
+
+    Estimation_Tab6_EnsembleAveragingAlgorithmLBL->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleAveragingAlgorithmCMB->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleRunsSetLE->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleRunsSB->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleAddPB->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleEditPB->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleClearPB->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleRunsWithSettingsLBL->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleRunsSetLBL->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleSetAllPB->setEnabled(isMultiRun);
+//  Estimation_Tab6_EnsembleLoadPB->setEnabled(isMultiRun);
+    if (! isMultiRun) {
+        Estimation_Tab6_EnsembleRunsSetLE->setText("0");
+        Estimation_Tab6_EnsembleRunsSB->setValue(1);
+    }
+
+    enableRunButton(false);
+}
+
+
+void
+nmfEstimation_Tab6::callback_EnsembleRunsSB(int value)
+{
+    enableRunButton(false);
+}
+
+bool
+nmfEstimation_Tab6::addToMultiRunFile(const int& numRunsToAdd,
+                                      const int& currentNumberOfRuns,
+                                      const int& totalNumberOfRunsDesired,
+                                      QString& fullPath)
+{
+    QString msg;
+    QString multiRunFile = "MultiRunParameter.csv"; // RSK hard code for now...eventually could be a table
+    fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    fullPath = QDir(fullPath).filePath(multiRunFile);
+    QFile file(fullPath);
+
+    if (numRunsToAdd+currentNumberOfRuns > totalNumberOfRunsDesired) {
+        QMessageBox::warning(Estimation_Tabs, "Multi-Run/Ensemble Complete",
+                             "\nMulti-Run/Ensemble runs have already been set. Click Clear if you want to clear the current runs in order to restart the Ensemble run building.\n",
+                             QMessageBox::Ok);
+        return false;
+    }
+
+    QList<QCheckBox* > EstimateCheckBoxes;
+    EstimateCheckBoxes = getAllEstimateCheckboxes();
+    int NumEstimatedCheckboxes = EstimateCheckBoxes.size();
+
+//    if ((currentNumberOfRuns == 0) && (file.exists())) {
+//        if (! queryUserIfOkToClearMultiRunFile()) {
+//            Estimation_Tab6_EnsembleRunsSetLE->setText("0");
+//            return;
+//        }
+//        Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(numRunsToAdd));
+//    }
+
+    if (! file.exists()) {
+        if (file.open(QIODevice::WriteOnly)) {
+            QTextStream stream(&file);
+            stream << "Num Runs,Algorithm,Minimizer,Objective Criterion,Scaling";
+            stream << ",Bees Max Generations,Bees Total Num,Bees Num Best Sites,Bees Num Elite Sites";
+            stream << ",Bees Num Elite,Bees Num Other,Bees Neighborhood Size(%),Bees Num of SubRuns";
+            stream << ",NL Stop Condition,NL Checked,Value";
+            stream << ",NL Stop Condition,NL Checked,NL Num Seconds";
+            stream << ",NL Stop Condition,NL Checked,NL Num Evals";
+            for (int i=0; i<NumEstimatedCheckboxes; ++i) {
+                stream << ",Est Parameter,Enabled,Checked";
+            }
+            stream << "\n";
+            file.close();
+        }
+    }
+
+    if (file.open(QIODevice::Append)) {
+        QTextStream stream(&file);
+
+        stream << numRunsToAdd;
+        stream << "," << QString::fromStdString(getCurrentAlgorithm());
+        stream << "," << QString::fromStdString(getCurrentMinimizer());
+        stream << "," << QString::fromStdString(getCurrentObjectiveCriterion());
+        stream << "," << QString::fromStdString(getCurrentScaling());
+        stream << "," << QString::fromStdString(getBeesMaxGenerations());
+        stream << "," << QString::fromStdString(getBeesNumBees());
+        stream << "," << QString::fromStdString(getBeesNumBestSites());
+        stream << "," << QString::fromStdString(getBeesNumEliteSites());
+        stream << "," << QString::fromStdString(getBeesNumEliteBees());
+        stream << "," << QString::fromStdString(getBeesNumOtherBees());
+        stream << "," << QString::fromStdString(getBeesNeighborhoodSize());
+        stream << "," << QString::fromStdString(getBeesNumberOfRuns());
+        stream << ",StopAfterValue," << isStopAfterValue() << "," << getCurrentStopAfterValue();
+        stream << ",StopAfterTime,"  << isStopAfterTime()  << "," << getCurrentStopAfterTime();
+        stream << ",StopAfterIter,"  << isStopAfterIter()  << "," << getCurrentStopAfterIter();
+        for (int i=0; i<NumEstimatedCheckboxes; ++i) {
+            stream << "," << QString::fromStdString(nmfConstantsMSSPM::EstimateCheckboxNames[i])
+                   << "," << EstimateCheckBoxes[i]->isEnabled()
+                   << "," << EstimateCheckBoxes[i]->isChecked();
+        }
+
+        stream << "\n";
+
+        file.close();
+    }
+
+//    if (numRunsToAdd+currentNumberOfRuns == totalNumberOfRunsDesired) {
+//        msg = "\nSaved Mult-Run Parameter File to:\n\n" + fullPath + "\n";
+//        QMessageBox::information(Estimation_Tabs, "MultiRun Parameter File Save",
+//                                 msg,QMessageBox::Ok);
+//    }
+
+    return true;
+
+}
+
+void
+nmfEstimation_Tab6::callback_EnsembleAddPB()
+{
+    int numRunsToAdd             = Estimation_Tab6_EnsembleRunsSB->value();
+    int currentNumberOfRuns      = Estimation_Tab6_EnsembleRunsSetLE->text().toInt();
+    int totalNumberOfRunsDesired = Estimation_Tab6_EnsembleTotalRunsSB->value();
+    int tmpSum                   = numRunsToAdd+currentNumberOfRuns;
+    QString fullPath;
+
+    enableRunButton(false);
+
+    if (tmpSum <= totalNumberOfRunsDesired) {
+        Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(tmpSum));
+        addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,totalNumberOfRunsDesired,fullPath);
+        m_EnsembleDialog->callback_refreshPB();
+    } else {
+        QMessageBox::warning(Estimation_Tabs, "Multi-Run/Ensemble Complete",
+                             "\nAttempting to add too many runs into the Multi-Run/Ensemble file.\n",
+                             QMessageBox::Ok);
+    }
+    if (tmpSum == totalNumberOfRunsDesired) {
+        QMessageBox::information(Estimation_Tabs, "Multi-Run/Ensemble Setup Complete",
+                                 "\nAll runs in current Multi-Run/Ensemble have now been set up.\n",
+                                 QMessageBox::Ok);
+        enableRunButton(true);
+    }
+}
+
+void
+nmfEstimation_Tab6::callback_EnsembleClearPB()
+{
+    if (queryUserIfOkToClearMultiRunFile()) {
+        m_EnsembleDialog->clear();
+    }
+    enableRunButton(false);
+}
+
+
+void
+nmfEstimation_Tab6::callback_EnsembleEditPB()
+{
+    if (m_EnsembleDialog->loadWidgets()) {
+        m_EnsembleDialog->show();
+    }
+}
+
+bool
+nmfEstimation_Tab6::queryUserIfOkToClearMultiRunFile()
+{
+    QMessageBox::StandardButton reply;
+
+    QString msg   = "\nOK to clear existing Multi Run Parameter file?\n";
+    reply = QMessageBox::question(Estimation_Tabs, tr("Clear"), tr(msg.toLatin1()),
+                                  QMessageBox::No|QMessageBox::Yes,
+                                  QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        Estimation_Tab6_EnsembleRunsSetLE->setText("0");
+
+        QString multiRunFile = "MultiRunParameter.csv"; // RSK hard code for now...eventually could be a table
+        QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+        fullPath = QDir(fullPath).filePath(multiRunFile);
+
+        QFile file(fullPath);
+        file.remove();
+    }
+    return (reply == QMessageBox::Yes);
+}
+
+
 void
 nmfEstimation_Tab6::callback_StopValCB(int isChecked)
 {
     Estimation_Tab6_NL_StopAfterValueLE->setEnabled(isChecked == Qt::Checked);
+    enableRunButton(false);
 }
 
 void
 nmfEstimation_Tab6::callback_StopAfterTimeCB(int isChecked)
 {
     Estimation_Tab6_NL_StopAfterTimeSB->setEnabled(isChecked == Qt::Checked);
+    enableRunButton(false);
 }
 
 void
 nmfEstimation_Tab6::callback_StopAfterIterCB(int isChecked)
 {
     Estimation_Tab6_NL_StopAfterIterSB->setEnabled(isChecked == Qt::Checked);
+    enableRunButton(false);
+}
+
+void
+nmfEstimation_Tab6::callback_StopAfterTimeUnitsCMB(QString units)
+{
+    enableRunButton(false);
+}
+
+void
+nmfEstimation_Tab6::callback_StopAfterTimeSB(int value)
+{
+    enableRunButton(false);
+}
+
+void
+nmfEstimation_Tab6::callback_StopAfterIterSB(int value)
+{
+    enableRunButton(false);
+}
+
+void
+nmfEstimation_Tab6::callback_StopAfterValueLE(QString value)
+{
+    enableRunButton(false);
 }
 
 void
@@ -600,21 +1143,19 @@ nmfEstimation_Tab6::activateCheckBox(QCheckBox* cbox, bool state)
 void
 nmfEstimation_Tab6::callback_RefreshEstimateRunBoxes(int unused)
 {
-    QList<QString> names;
-
     m_EstimateRunBoxes.clear();
-    QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes(names);
+    QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes();
     int i=0;
     for (QCheckBox* cbox : allEstimateRunBoxes) {
         if (cbox->isChecked()) {
-            m_EstimateRunBoxes.push_back(names[i].toStdString());
+            m_EstimateRunBoxes.push_back(nmfConstantsMSSPM::EstimateCheckboxNames[i]);
         }
         ++i;
     }
 }
 
 QList<QCheckBox* >
-nmfEstimation_Tab6::getAllEstimateCheckboxes(QList<QString>& names)
+nmfEstimation_Tab6::getAllEstimateCheckboxes()
 {
     QList<QCheckBox*> AllCheckboxes = {
         Estimation_Tab6_EstimateInitBiomassCB,
@@ -630,29 +1171,15 @@ nmfEstimation_Tab6::getAllEstimateCheckboxes(QList<QString>& names)
         Estimation_Tab6_EstimatePredationExponentCB
     };
 
-    names.clear();
-    names.push_back("InitBiomass");
-    names.push_back("GrowthRate");
-    names.push_back("CarryingCapacity");
-    names.push_back("Catchability");
-    names.push_back("Handling");
-    names.push_back("CompetitionAlpha");
-    names.push_back("CompetitionBetaSpeciesSpecies");
-    names.push_back("CompetitionBetaGuildSpecies");
-    names.push_back("CompetitionBetaGuildGuild");
-    names.push_back("PredationRho");
-    names.push_back("PredationExponent");
-
     return AllCheckboxes;
 }
 
 void
 nmfEstimation_Tab6::callback_SetEstimateRunCheckboxes(std::vector<std::string> EstimateRunBoxes)
 {
-    QList<QString> names;
     m_EstimateRunBoxes = EstimateRunBoxes;
 
-    QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes(names);
+    QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes();
     for (QCheckBox* cbox : allEstimateRunBoxes) {
         activateCheckBox(cbox,false);
     }
@@ -705,6 +1232,74 @@ nmfEstimation_Tab6::callback_Estimation_Tab6_FontSizeCMB(QString theFontSize)
     Estimation_Tab6_RunTE->setTextCursor( cursor );
 }
 
+void
+nmfEstimation_Tab6::callback_EnsembleControlsGB(bool isChecked)
+{
+    callback_EnsembleTotalRunsSB(Estimation_Tab6_EnsembleTotalRunsSB->value());
+    enableRunButton(isChecked);
+}
+
+
+void
+nmfEstimation_Tab6::callback_EnsembleLoadPB()
+{
+    int TotalNumRuns = 0;
+    QString msg;
+    QString multiRunFile = "MultiRunParameter.csv"; // RSK hard code for now...eventually could be a table
+    QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    fullPath = QDir(fullPath).filePath(multiRunFile);
+    QFile file(fullPath);
+
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream inStream(&file);
+        while(!inStream.atEnd()) {
+            QString line = inStream.readLine();
+            QStringList fields = line.split(",");
+            TotalNumRuns += fields[0].toInt();
+        }
+        file.close();
+        setEnsembleRuns(TotalNumRuns);
+        setEnsembleRunsSet(TotalNumRuns);
+        saveSystem(false);
+        enableRunButton(true);
+    } else {
+        QMessageBox::warning(Estimation_Tabs, "Warning",
+                             "\nNo previous Multi-Run/Ensemble file found to load.\n",
+                             QMessageBox::Ok);
+    }
+}
+
+void
+nmfEstimation_Tab6::setEnsembleRuns(int value)
+{
+   Estimation_Tab6_EnsembleTotalRunsSB->setValue(value);
+}
+
+void
+nmfEstimation_Tab6::setEnsembleRunsSet(int value)
+{
+   Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(value));
+}
+
+void
+nmfEstimation_Tab6::callback_EnsembleSetAllPB()
+{
+    int numRunsToAdd             = Estimation_Tab6_EnsembleTotalRunsSB->value();
+    int currentNumberOfRuns      = Estimation_Tab6_EnsembleRunsSetLE->text().toInt();
+    int totalNumberOfRunsDesired = numRunsToAdd;
+    QString fullPath;
+
+    Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(Estimation_Tab6_EnsembleTotalRunsSB->value()));
+    if (addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,totalNumberOfRunsDesired,fullPath)) {
+        m_EnsembleDialog->callback_refreshPB();
+        if (numRunsToAdd+currentNumberOfRuns == totalNumberOfRunsDesired) {
+            QString msg = "\nSaved Mult-Run Parameter File to:\n\n" + fullPath + "\n";
+            QMessageBox::information(Estimation_Tabs, "MultiRun Parameter File Save",
+                                     msg,QMessageBox::Ok);
+        }
+    }
+}
+
 bool
 nmfEstimation_Tab6::loadWidgets()
 {
@@ -742,17 +1337,16 @@ nmfEstimation_Tab6::loadWidgets()
                   "BeesNumEliteSites","BeesNumBestSites","BeesNumRepetitions",
                   "BeesMaxGenerations","BeesNeighborhoodSize",
                   "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter",
-                  "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter"};
+                  "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptNumberOfRuns"};
     queryStr   = "SELECT SystemName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,";
     queryStr  += "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     queryStr  += "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence,";
     queryStr  += "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions,";
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
-    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter ";
+    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptNumberOfRuns ";
     queryStr  += "FROM Systems where SystemName = '";
     queryStr  += m_ProjectSettingsConfig + "'";
-
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SystemName"].size();
     if (NumRecords == 0) {
@@ -760,15 +1354,20 @@ nmfEstimation_Tab6::loadWidgets()
         return false;
     }
 
+    m_GrowthForm      = dataMap["GrowthForm"][0];
+    m_HarvestForm     = dataMap["HarvestForm"][0];
+    m_CompetitionForm = dataMap["WithinGuildCompetitionForm"][0];
+    m_PredationForm   = dataMap["PredationForm"][0];
+
     objectiveCriterion = QString::fromStdString(dataMap["ObjectiveCriterion"][0]);
-    Estimation_Tab6_NumberOfRunsSB->setValue(std::stoi(dataMap["NumberOfRuns"][0]));
+    Estimation_Tab6_Bees_NumberOfRunsSB->setValue(std::stoi(dataMap["NumberOfRuns"][0]));
     Estimation_Tab6_EstimationAlgorithmCMB->setCurrentText(QString::fromStdString(dataMap["Algorithm"][0]));
     Estimation_Tab6_Bees_NumBeesSB->setValue(std::stoi(dataMap["BeesNumTotal"][0]));
     Estimation_Tab6_Bees_NumEliteSitesSB->setValue(std::stoi(dataMap["BeesNumEliteSites"][0]));
     Estimation_Tab6_Bees_NumBestSitesSB->setValue(std::stoi(dataMap["BeesNumBestSites"][0]));
     Estimation_Tab6_Bees_NumEliteBeesSB->setValue(std::stoi(dataMap["BeesNumElite"][0]));
     Estimation_Tab6_Bees_NumBestBeesSB->setValue(std::stoi(dataMap["BeesNumOther"][0]));
-    Estimation_Tab6_NumberOfRunsSB->setValue(std::stoi(dataMap["BeesNumRepetitions"][0]));
+    Estimation_Tab6_Bees_NumberOfRunsSB->setValue(std::stoi(dataMap["BeesNumRepetitions"][0]));
     Estimation_Tab6_Bees_MaxGenerationsSB->setValue(std::stoi(dataMap["BeesMaxGenerations"][0]));
     Estimation_Tab6_Bees_NeighborhoodSizeSB->setValue(std::stof(dataMap["BeesNeighborhoodSize"][0]));
     Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(objectiveCriterion);
@@ -777,18 +1376,21 @@ nmfEstimation_Tab6::loadWidgets()
     Estimation_Tab6_NL_StopAfterTimeCB->setChecked(dataMap["NLoptUseStopAfterTime"][0] == "1");
     Estimation_Tab6_NL_StopAfterIterCB->setChecked(dataMap["NLoptUseStopAfterIter"][0] == "1");
     Estimation_Tab6_NL_StopAfterValueLE->setText(QString::fromStdString(dataMap["NLoptStopVal"][0]));
-    Estimation_Tab6_NL_StopAfterTimeSB->setValue(std::stoi(dataMap["NLoptStopAfterTime"][0]));
+    Estimation_Tab6_NL_StopAfterTimeSB->setValue(convertToAppropriateUnits(std::stoi(dataMap["NLoptStopAfterTime"][0])));
     Estimation_Tab6_NL_StopAfterIterSB->setValue(std::stoi(dataMap["NLoptStopAfterIter"][0]));
+//  Estimation_Tab6_EnsembleTotalRunsSB->setValue(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
 
+    callback_EnsembleTotalRunsSB(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
     callback_EstimationAlgorithmCMB(QString::fromStdString(dataMap["Algorithm"][0]));
+
     Estimation_Tab6_MinimizerAlgorithmCMB->setCurrentText(QString::fromStdString(dataMap["Minimizer"][0]));
+
     callback_ObjectiveCriterionCMB(objectiveCriterion);
 
     // RSK Hack to set the CMB correctly. Remove after implementing all of the disabled items in the 3 algorithm CMB's.
     Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(QString::fromStdString(dataMap["ObjectiveCriterion"][0]));
 
-    // Enable Run button
-    Estimation_Tab6_RunPB->setEnabled(true);
+    enableRunButton(true);
 
     return true;
 }

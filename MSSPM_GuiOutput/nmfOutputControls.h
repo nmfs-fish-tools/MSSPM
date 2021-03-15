@@ -56,6 +56,7 @@ class MSSPM_GuiOutputControls: public QObject
     std::map<QString,QStringList> m_SortedForecastLabelsMap;
     QHash<QString,int> m_SpeciesHash;
     QStringListModel*  m_SpeciesOrGuildModel;
+    bool               m_IsAveraged;
 
     QLabel*      OutputChartTypeLBL;
     QComboBox*   OutputGroupTypeCMB;
@@ -153,6 +154,8 @@ public:
 
     int             getNumberSpecies();
     void            setSpeciesNum(int speciesNum);
+    void            setAveraged(bool isAveraged);
+    bool            isAveraged();
     /**
      * @brief Get the brightness factor set by the Forecast Run Brightness slider widget
      * @return The brightness value desired for the stochastic Forecast plots
@@ -364,12 +367,15 @@ signals:
      * @param OutputType : the type of Chart to show
      * @param OutputSpecies : the Species on which to base the Chart to be shown
      */
-    void ShowChart(QString OutputType, QString OutputSpecies);
+    void ShowChart(QString OutputType,
+                   QString OutputSpecies);
     /**
      * @brief Signal emitted when a Chart is to be redrawn after te group type has been changed
      * @param type : the type of group for the current chart (i.e., Species, Guild, System)
+     * @param isAveraged : true if viewing averaged data, false otherwise
      */
-    void ShowChartBy(QString type);
+    void ShowChartBy(QString type,
+                     bool isAveraged);
     /**
      * @brief Signal emitted when the user wants to show a MultiScenario chart
      * @param sortedForecastLabels : list of Forecast names to show in the MultiScenario chart

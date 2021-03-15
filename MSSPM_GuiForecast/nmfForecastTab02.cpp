@@ -67,6 +67,7 @@ nmfForecast_Tab2::nmfForecast_Tab2(QTabWidget*  tabs,
 
     Forecast_Tab2_MultiplierDSB->setDecimals(2);
     Forecast_Tab2_MultiplierDSB->setSingleStep(0.01);
+    Forecast_Tab2_HarvestTV->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
 } // end constructor
 
@@ -124,11 +125,16 @@ nmfForecast_Tab2::callback_MultiplierChangedCMB(QString type)
 void
 nmfForecast_Tab2::callback_MultiplierChangedDSB(double multiplier)
 {
-    // Get selected cells.
+    // Get selected cells
     QModelIndexList indexList = Forecast_Tab2_HarvestTV->selectionModel()->selectedIndexes();
     if (indexList.size() == 0) {
         return;
     }
+    // Prevents a crash if user is holding down the Ctrl key
+    if (QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+        return;
+    }
+
     int listSize    = indexList.size();
     int lastIndex   = listSize-1;
     int colMin      = indexList[0].column();
@@ -144,7 +150,7 @@ nmfForecast_Tab2::callback_MultiplierChangedDSB(double multiplier)
                 colStartValues.push_back(indexList[index].data().toDouble());
             } else {
                 newValue = colStartValues[index%cellsPerRow] * multiplier;
-                m_SModel->setData(indexList[index],newValue);
+                m_SModel->setData(indexList[index],QString::number(newValue,'f',6));
             }
         }
     } else if (Forecast_Tab2_MultiplierCMB->currentText() == "Variable") {
@@ -153,7 +159,7 @@ nmfForecast_Tab2::callback_MultiplierChangedDSB(double multiplier)
                 colStartValues.push_back(indexList[index].data().toDouble());
             } else {
                 newValue = colStartValues[index%cellsPerRow] * multiplier;
-                m_SModel->setData(indexList[index],newValue);
+                m_SModel->setData(indexList[index],QString::number(newValue,'f',6));
                 colStartValues[index%cellsPerRow] = newValue;
             }
         }
@@ -166,19 +172,20 @@ void
 nmfForecast_Tab2::callback_MultiplierCB(bool checked)
 {
     double value;
+    QModelIndex tmpIndex;
 
     Forecast_Tab2_MultiplierCMB->setEnabled(checked);
     Forecast_Tab2_MultiplierDSB->setEnabled(checked);
 
-    if (checked) {
+    if (checked) {        
         value = Forecast_Tab2_MultiplierDSB->value();
         callback_MultiplierChangedDSB(value);
     } else {
         QModelIndexList indexList = Forecast_Tab2_HarvestTV->selectionModel()->selectedIndexes();
-        loadWidgets();
-
-        for (QModelIndex index : indexList) {
-            Forecast_Tab2_HarvestTV->selectionModel()->select(index,QItemSelectionModel::Select);
+        loadWidgets(); // loses the previous selection
+        for (QModelIndex index : indexList) { // need to reselect the previous selection
+            tmpIndex = Forecast_Tab2_HarvestTV->model()->index(index.row(),index.column());
+            Forecast_Tab2_HarvestTV->selectionModel()->select(tmpIndex,QItemSelectionModel::Select);
         }
     }
 }
@@ -479,7 +486,7 @@ nmfForecast_Tab2::loadWidgets()
             if ((NumRecords == 0) || RunLengthHasChanged)
                 item = new QStandardItem(QString(""));
             else
-                item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
+                item = new QStandardItem(QString::number(std::stod(dataMap["Value"][m++]),'f',6));
             item->setTextAlignment(Qt::AlignCenter);
             m_SModel->setItem(i, j, item);
         }

@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       -= gui
+QT      += widgets charts
 
 TARGET = MSSPM_ParameterEstimationBeesAlgorithm
 TEMPLATE = lib

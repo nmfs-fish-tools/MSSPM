@@ -27,6 +27,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    EnsembleDialog.cpp \
     nmfEstimationTab01.cpp \
     nmfEstimationTab02.cpp \
     nmfEstimationTab03.cpp \
@@ -35,6 +36,7 @@ SOURCES += \
     nmfEstimationTab06.cpp
 
 HEADERS += \
+    EnsembleDialog.h \
     mainpage.h \
     nmfEstimationTab01.h \
     nmfEstimationTab02.h \
