@@ -483,8 +483,8 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
             "', Minimizer = '"            + getCurrentMinimizer() +
             "', ObjectiveCriterion = '"   + getCurrentObjectiveCriterion() +
             "', Scaling = '"              + getCurrentScaling() +
-            ",  BeesMaxGenerations = "    + getBeesMaxGenerations() +
-            "', BeesNumTotal = "          + getBeesNumBees() +
+            "', BeesMaxGenerations = "    + getBeesMaxGenerations() +
+            ",  BeesNumTotal = "          + getBeesNumBees() +
             ",  BeesNumBestSites = "      + getBeesNumBestSites() +
             ",  BeesNumEliteSites = "     + getBeesNumEliteSites()  +
             ",  BeesNumElite = "          + getBeesNumEliteBees() +
@@ -1201,11 +1201,11 @@ nmfEstimation_Tab6::callback_SetEstimateRunCheckboxes(std::vector<std::string> E
             activateCheckBox(Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB,true);
         } else if (cbox == "CompetitionBetaGuildGuild") {
             activateCheckBox(Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB,true);
-        } else if (cbox == "Estimation_Tab6_EstimatePredationRhoCB") {
+        } else if (cbox == "PredationRho") {
             activateCheckBox(Estimation_Tab6_EstimatePredationRhoCB,true);
-        } else if (cbox == "Estimation_Tab6_EstimatePredationExponentCB") {
+        } else if (cbox == "PredationExponent") {
             activateCheckBox(Estimation_Tab6_EstimatePredationExponentCB,true);
-        } else if (cbox == "Estimation_Tab6_EstimateHandlingCB") {
+        } else if (cbox == "Handling") {
             activateCheckBox(Estimation_Tab6_EstimateHandlingCB,true);
         }
     }

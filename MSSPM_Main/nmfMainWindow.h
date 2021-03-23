@@ -339,6 +339,7 @@ private:
                           boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
                           boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
                           boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
+                          boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
                           boost::numeric::ublas::matrix<double>& EstPredation,
                           boost::numeric::ublas::matrix<double>& EstHandling,
                           std::vector<double>& EstExponent,
@@ -380,6 +381,9 @@ private:
             boost::numeric::ublas::matrix<double>& EstimatedBiomass,
             StatStruct&         statStruct);
     bool calculateSummaryStatisticsMohnsRhoBiomass(std::vector<double>& mohnsRhoEstimatedBiomass);
+    void checkGuildRanges(
+            const int& NumGuilds,
+            const Data_Struct& dataStruct);
     bool checkFields(std::string& table,
                      std::map<std::string, std::vector<std::string> >& dataMap,
                      std::vector<std::string>& fields);
@@ -600,6 +604,15 @@ private:
                                std::vector<std::vector<double> > &MinData,
                                std::vector<std::vector<double> > &MaxData,
                                int &NumInteractionParameters);
+    bool loadInteractionGuildsGuilds(int &NumSpecies,
+                                     int &NumGuilds,
+                                     std::string InteractionType,
+                                     std::map<std::string,std::string> &GuildSpeciesMap,
+                                     std::string MinTable,
+                                     std::string MaxTable,
+                                     std::vector<std::vector<double> > &MinData,
+                                     std::vector<std::vector<double> > &MaxData,
+                                     int &NumInteractionParameters);
     bool loadParameters(Data_Struct &m_DataStruct,
                         const bool& verbose);
     void loadSummaryStatisticsModel(
@@ -628,6 +641,7 @@ private:
                              std::vector<double>& CompetitionUncertainty,
                              std::vector<double>& BetaSpeciesUncertainty,
                              std::vector<double>& BetaGuildsUncertainty,
+                             std::vector<double>& BetaGuildsGuildsUncertainty,
                              std::vector<double>& HandlingUncertainty,
                              std::vector<double>& ExponentUncertainty,
                              std::vector<double>& CatchabilityUncertainty,
@@ -809,17 +823,6 @@ private:
                                   std::string& BiomassTable);
     void updateOutputAverageBiomassTable();
     void updateProgressChartAnnotation(double xMin, double xMax, double xInc);
-//    void updateOutputTables(
-//        std::string                    &Algorithm,
-//        std::string                    &Minimizer,
-//        std::string                    &ObjectiveCriterion,
-//        std::string                    &Scaling,
-//        const int                      &isCompAggProd,
-//        const QStringList              &SpeciesList,
-//        const QStringList              &GuildList,
-//        const QList<double>            &GrowthRateList,
-//        const QList<double>            &SpeciesKList,
-//        const QList<double>            &CatchabilityList);
     void updateOutputTables(
         std::string                                 &Algorithm,
         std::string                                 &Minimizer,
@@ -835,6 +838,7 @@ private:
         const boost::numeric::ublas::matrix<double> &EstCompetitionAlpha,
         const boost::numeric::ublas::matrix<double> &EstCompetitionBetaSpecies,
         const boost::numeric::ublas::matrix<double> &EstCompetitionBetaGuilds,
+        const boost::numeric::ublas::matrix<double> &EstCompetitionBetaGuildsGuilds,
         const boost::numeric::ublas::matrix<double> &EstPredation,
         const boost::numeric::ublas::matrix<double> &EstHandling,
         const std::vector<double>                   &EstExponent);

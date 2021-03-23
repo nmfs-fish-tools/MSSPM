@@ -44,7 +44,8 @@ class nmfForecast_Tab3: public QObject
 private:
     QString             m_Alpha;
     QString             m_BetaS;
-    QString             m_BetaG;
+    QString             m_BetaSG;
+    QString             m_BetaGG;
     std::string         m_CompetitionForm;
     nmfDatabase*        m_DatabasePtr;
     std::map<std::string,std::vector<std::string> > m_FormMap;

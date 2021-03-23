@@ -77,6 +77,7 @@ private:
     boost::numeric::ublas::matrix<double> m_EstAlpha;
     boost::numeric::ublas::matrix<double> m_EstBetaSpecies;
     boost::numeric::ublas::matrix<double> m_EstBetaGuilds;
+    boost::numeric::ublas::matrix<double> m_EstBetaGuildsGuilds;
     boost::numeric::ublas::matrix<double> m_EstPredation;
     boost::numeric::ublas::matrix<double> m_EstHandling;
 
@@ -190,10 +191,15 @@ public:
      */
     void getEstimatedCompetitionAlpha(boost::numeric::ublas::matrix<double> &EstInteraction);
     /**
-     * @brief Gets the estimated beta competition values per guild
-     * @param EstCompGuilds : vector of beta competition values per guild
+     * @brief Gets the estimated beta competition values per species-guild
+     * @param EstCompGuilds : vector of beta competition values per species-guild
      */
     void getEstimatedCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &EstCompGuilds);
+    /**
+     * @brief Gets the estimated beta competition values per guild-guild
+     * @param EstCompGuildsGuilds : vector of beta competition values per guild-guild
+     */
+    void getEstimatedCompetitionBetaGuildsGuilds(boost::numeric::ublas::matrix<double> &EstCompGuildsGuilds);
     /**
      * @brief Gets the estimated beta competition values per species
      * @param EstCompSpecies : vector of beta competition values per species

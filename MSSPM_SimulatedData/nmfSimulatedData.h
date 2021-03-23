@@ -35,7 +35,7 @@ class nmfSimulatedData
             const std::vector<int>& GuildNum,
             std::map<int,std::vector<int> >& GuildSpecies,
             double& GuildCarryingCapacity);
-
+/*
     bool simulateCompetition(const std::string& CompetitionType,
                              const int& Species,
                              const int& Year,
@@ -73,7 +73,7 @@ class nmfSimulatedData
                            const std::vector<double>& Exponent,
                            const boost::numeric::ublas::matrix<double>& SimulatedBiomass,
                            double& predationValue);
-
+*/
 public:
     nmfSimulatedData(std::string  projectSettingsConfig,
                      nmfDatabase* database,

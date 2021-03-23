@@ -592,11 +592,11 @@ nmfSetup_Tab4::setEstimatedParameterNames()
     } else if (competitionForm == "MS-PROD") {
         m_EstimatedParameters.push_back("Beta SpeciesSpecies");
         m_EstimatedParameters.push_back("Beta GuildSpecies");
-        EstimateRunBoxes.push_back("CompetitionSpeciesSpecies");
-        EstimateRunBoxes.push_back("CompetitionGuildSpecies");
+        EstimateRunBoxes.push_back("CompetitionBetaSpeciesSpecies");
+        EstimateRunBoxes.push_back("CompetitionBetaGuildSpecies");
     } else if (competitionForm == "AGG-PROD") {
         m_EstimatedParameters.push_back("Beta GuildGuild");
-        EstimateRunBoxes.push_back("CompetitionGuildGuild");
+        EstimateRunBoxes.push_back("CompetitionBetaGuildGuild");
     }
 
     // Load Predation estimated parameters

@@ -3179,6 +3179,7 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
     boost::numeric::ublas::matrix<double> EstCompetitionAlpha;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaSpecies;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaGuilds;
+    boost::numeric::ublas::matrix<double> EstCompetitionBetaGuildsGuilds;
     boost::numeric::ublas::matrix<double> EstPredation;
     boost::numeric::ublas::matrix<double> EstHandling;
     std::string GrowthForm;
@@ -3233,11 +3234,12 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
     }
 
     // Initialize EstCompetition, EstPredation, EstHandling
-    nmfUtils::initialize(EstCompetitionAlpha,      NumSpecies,NumSpecies);
-    nmfUtils::initialize(EstCompetitionBetaSpecies,NumSpecies,NumSpecies);
-    nmfUtils::initialize(EstCompetitionBetaGuilds, NumSpecies,NumGuilds);
-    nmfUtils::initialize(EstPredation,             NumSpecies,NumSpecies);
-    nmfUtils::initialize(EstHandling,              NumSpecies,NumSpecies);
+    nmfUtils::initialize(EstCompetitionAlpha,            NumSpecies,NumSpecies);
+    nmfUtils::initialize(EstCompetitionBetaSpecies,      NumSpecies,NumSpecies);
+    nmfUtils::initialize(EstCompetitionBetaGuilds,       NumSpecies,NumGuilds);
+    nmfUtils::initialize(EstCompetitionBetaGuildsGuilds, NumGuilds, NumGuilds);
+    nmfUtils::initialize(EstPredation,                   NumSpecies,NumSpecies);
+    nmfUtils::initialize(EstHandling,                    NumSpecies,NumSpecies);
 
     if ((Algorithm == "NLopt Algorithm") && m_Estimator_NLopt) {
         m_Estimator_NLopt->getEstInitBiomass(EstInitBiomass);
@@ -3247,6 +3249,7 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
         m_Estimator_NLopt->getEstCompetitionAlpha(EstCompetitionAlpha);
         m_Estimator_NLopt->getEstCompetitionBetaSpecies(EstCompetitionBetaSpecies);
         m_Estimator_NLopt->getEstCompetitionBetaGuilds(EstCompetitionBetaGuilds);
+        m_Estimator_NLopt->getEstCompetitionBetaGuildsGuilds(EstCompetitionBetaGuildsGuilds);
         m_Estimator_NLopt->getEstPredation(EstPredation);
         m_Estimator_NLopt->getEstHandling(EstHandling);
         m_Estimator_NLopt->getEstExponent(EstExponent);
@@ -3260,12 +3263,14 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
                            EstCompetitionAlpha,
                            EstCompetitionBetaSpecies,
                            EstCompetitionBetaGuilds,
+                           EstCompetitionBetaGuildsGuilds,
                            EstPredation,
                            EstHandling,
                            EstExponent);
         clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,
                                 ObjectiveCriterion,Scaling,
                                 isAggProd,BiomassTable);
+
         updateOutputBiomassTable(ForecastName,StartYear,RunLength,isMonteCarlo,RunNum,
                                  Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,
                                  GrowthForm,HarvestForm,CompetitionForm,PredationForm,
@@ -3285,7 +3290,7 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
             m_Estimator_Bees->getEstimatedCompetitionBetaSpecies(EstCompetitionBetaSpecies);
             m_Estimator_Bees->getEstimatedCompetitionBetaGuilds(EstCompetitionBetaGuilds);
         } else if (isCompetitionAGGPROD) {
-            m_Estimator_Bees->getEstimatedCompetitionBetaGuilds(EstCompetitionBetaGuilds);
+            m_Estimator_Bees->getEstimatedCompetitionBetaGuilds(EstCompetitionBetaGuildsGuilds);
         }
         if (isPredation) {
             m_Estimator_Bees->getEstimatedPredation(EstPredation);
@@ -3308,6 +3313,7 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
                            EstCompetitionAlpha,
                            EstCompetitionBetaSpecies,
                            EstCompetitionBetaGuilds,
+                           EstCompetitionBetaGuildsGuilds,
                            EstPredation,
                            EstHandling,
                            EstExponent);
@@ -3494,6 +3500,7 @@ nmfMainWindow::updateOutputTables(
         const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
         const boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
         const boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
+        const boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
         const boost::numeric::ublas::matrix<double>& EstPredation,
         const boost::numeric::ublas::matrix<double>& EstHandling,
         const std::vector<double>&                   EstExponent)
@@ -3731,6 +3738,67 @@ nmfMainWindow::updateOutputTables(
         }
     }
 
+
+
+    //
+    // Load the output OutputCompetitionBetaGuildsGuilds table
+    //
+    QList<QString> TableNames4 = {"OutputCompetitionBetaGuildsGuilds"};
+    Skip.clear();
+    Skip.push_back(EstCompetitionBetaGuildsGuilds.size1() == 0);
+    i = 0;
+    for (QString tableName : TableNames4)
+    {
+        if (Skip[i++])
+            continue;
+        cmd = "DELETE FROM " + tableName.toStdString() +
+                "  WHERE Algorithm='" + Algorithm +
+                "' AND Minimizer = '" + Minimizer +
+                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                "' AND Scaling = '" + Scaling +
+                "' AND isAggProd = " + isAggProd +
+                mohnsRhoLabelsToDelete;
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+        if (nmfUtilsQt::isAnError(errorMsg)) {
+            m_Logger->logMsg(nmfConstants::Error,"[Error 10] UpdateOutputTables: DELETE error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            msg = "\n[Error 10] updateOutputTables: Couldn't delete all records from " + tableName + " table.\n",
+                    QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
+            return;
+        }
+        cmd = "REPLACE INTO " + tableName.toStdString() + " (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB,Value) VALUES ";
+        for (int row=0; row<GuildList.size(); ++row) {
+            for (int col=0; col<GuildList.size(); ++col) {
+                value = EstCompetitionBetaGuildsGuilds(row,col);
+                if (std::isnan(std::fabs(value))) {
+                    value = 0;
+                }
+                std::ostringstream val;
+                val << value;
+                cmd += "('"  + m_MohnsRhoLabel +
+                       "','" + Algorithm +
+                       "','" + Minimizer +
+                       "','" + ObjectiveCriterion +
+                       "','" + Scaling +
+                       "',"  + isAggProd +
+                       ",'"  + GuildList[row].toStdString() +
+                       "','" + GuildList[col].toStdString() +
+                       "',"  + val.str() + "),";
+            }
+        }
+        cmd = cmd.substr(0,cmd.size()-1);
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+        if (nmfUtilsQt::isAnError(errorMsg)) {
+            m_Logger->logMsg(nmfConstants::Error,"[Error 12] UpdateOutputTables: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            QMessageBox::warning(this, "Error",
+                                 "\n[Error 13] in updateOutputTables command.  Check that all cells are populated.\n",
+                                 QMessageBox::Ok);
+            return;
+        }
+    }
+
+
 }
 
 bool
@@ -3748,6 +3816,7 @@ nmfMainWindow::loadUncertaintyData(const bool&          isMonteCarlo,
                                    std::vector<double>& CompetitionUncertainty,
                                    std::vector<double>& BetaSpeciesUncertainty,
                                    std::vector<double>& BetaGuildsUncertainty,
+                                   std::vector<double>& BetaGuildsGuildsUncertainty,
                                    std::vector<double>& HandlingUncertainty,
                                    std::vector<double>& ExponentUncertainty,
                                    std::vector<double>& CatchabilityUncertainty,
@@ -3767,6 +3836,7 @@ nmfMainWindow::loadUncertaintyData(const bool&          isMonteCarlo,
     CompetitionUncertainty.clear();
     BetaSpeciesUncertainty.clear();
     BetaGuildsUncertainty.clear();
+    BetaGuildsGuildsUncertainty.clear();
     HandlingUncertainty.clear();
     ExponentUncertainty.clear();
     CatchabilityUncertainty.clear();
@@ -3775,10 +3845,10 @@ nmfMainWindow::loadUncertaintyData(const bool&          isMonteCarlo,
     if (isMonteCarlo) {
         fields     = {"ForecastName","SpeName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
                       "InitBiomass","GrowthRate","CarryingCapacity","Predation","Competition",
-                      "BetaSpecies","BetaGuilds","Handling","Exponent","Catchability","Harvest"};
+                      "BetaSpecies","BetaGuilds","BetaGuildsGuilds","Handling","Exponent","Catchability","Harvest"};
         queryStr   = "SELECT ForecastName,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
         queryStr  += "InitBiomass,GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
-        queryStr  += "BetaGuilds,Handling,Exponent,Catchability,Harvest FROM ForecastUncertainty ";
+        queryStr  += "BetaGuilds,BetaGuildsGuilds,Handling,Exponent,Catchability,Harvest FROM ForecastUncertainty ";
         queryStr  += " WHERE ForecastName = '" + ForecastName +
                     "' AND Algorithm = '" + Algorithm +
                     "' AND Minimizer = '" + Minimizer +
@@ -3804,6 +3874,7 @@ nmfMainWindow::loadUncertaintyData(const bool&          isMonteCarlo,
             CompetitionUncertainty.emplace_back(std::stod(dataMap["Competition"][i]));
             BetaSpeciesUncertainty.emplace_back(std::stod(dataMap["BetaSpecies"][i]));
             BetaGuildsUncertainty.emplace_back(std::stod(dataMap["BetaGuilds"][i]));
+            BetaGuildsGuildsUncertainty.emplace_back(std::stod(dataMap["BetaGuildsGuilds"][i]));
             HandlingUncertainty.emplace_back(std::stod(dataMap["Handling"][i]));
             ExponentUncertainty.emplace_back(std::stod(dataMap["Exponent"][i]));
             CatchabilityUncertainty.emplace_back(std::stod(dataMap["Catchability"][i]));
@@ -3819,6 +3890,7 @@ nmfMainWindow::loadUncertaintyData(const bool&          isMonteCarlo,
             CompetitionUncertainty.emplace_back(0);
             BetaSpeciesUncertainty.emplace_back(0);
             BetaGuildsUncertainty.emplace_back(0);
+            BetaGuildsGuildsUncertainty.emplace_back(0);
             HandlingUncertainty.emplace_back(0);
             ExponentUncertainty.emplace_back(0);
             CatchabilityUncertainty.emplace_back(0);
@@ -4046,14 +4118,18 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                         std::string& BiomassTable)
 {
     bool   loadOK;
-    bool   isCatchability = (HarvestForm     == "Effort (qE)");
-    bool   isAggProd      = (CompetitionForm == "AGG-PROD");
-    bool   isAlpha        = (CompetitionForm == "NO_K");
-    bool   isBetaSpecies  = (CompetitionForm == "MS-PROD");
-    bool   isBetaGuilds   = (CompetitionForm == "AGG-PROD") || (CompetitionForm == "MS-PROD");
-    bool   isPredation    = (PredationForm   == "Type I");
-    bool   isHandling     = (PredationForm   == "Type II")  || (PredationForm   == "Type III");
-    bool   isExponent     = (PredationForm   == "Type III");
+    bool   isCatchability     = (HarvestForm     == "Effort (qE)");
+    bool   isAggProd          = (CompetitionForm == "AGG-PROD");
+    bool   isAlpha            = (CompetitionForm == "NO_K");
+    bool   isBetaSpecies      = (CompetitionForm == "MS-PROD");
+    bool   isBetaGuilds       = (CompetitionForm == "MS-PROD");
+    bool   isBetaGuildsGuilds = (CompetitionForm == "AGG-PROD");
+    bool   isPredation        = (PredationForm   == "Type I")  ||
+                                (PredationForm   == "Type II") ||
+                                (PredationForm   == "Type III");
+    bool   isHandling         = (PredationForm   == "Type II") ||
+                                (PredationForm   == "Type III");
+    bool   isExponent         = (PredationForm   == "Type III");
     int    m;
     int    NumSpeciesOrGuilds;
     int    NumGuilds;
@@ -4085,12 +4161,14 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     std::vector<double> CompetitionAlphaRandomValues       = {};
     std::vector<double> CompetitionBetaSpeciesRandomValues = {};
     std::vector<double> CompetitionBetaGuildsRandomValues  = {};
+    std::vector<double> CompetitionBetaGuildsGuildsRandomValues = {};
     std::vector<double> PredationRandomValues              = {};
     std::vector<double> HandlingRandomValues               = {};
 
     boost::numeric::ublas::matrix<double> EstCompetitionAlpha;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaSpecies;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaGuilds;
+    boost::numeric::ublas::matrix<double> EstCompetitionBetaGuildsGuilds;
     boost::numeric::ublas::matrix<double> EstPredation;
     boost::numeric::ublas::matrix<double> EstHandling;
     boost::numeric::ublas::matrix<double> Catch;
@@ -4099,7 +4177,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     boost::numeric::ublas::matrix<double> EstimatedBiomassBySpecies;
     boost::numeric::ublas::matrix<double> EstimatedBiomassByGuilds;
     QList<QList<double> > BiomassData; // A Vector of row vectors
-    //QList<double> BiomassRow;
     QList<double> InitialBiomass;
     std::vector<double> exploitationRate;
     std::vector<double> catchabilityRate;
@@ -4115,6 +4192,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     std::vector<double> CompetitionUncertainty;
     std::vector<double> BetaSpeciesUncertainty;
     std::vector<double> BetaGuildsUncertainty;
+    std::vector<double> BetaGuildsGuildsUncertainty;
     std::vector<double> HandlingUncertainty;
     std::vector<double> ExponentUncertainty;
     std::vector<double> CatchabilityUncertainty;
@@ -4163,6 +4241,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                  CompetitionUncertainty,
                                  BetaSpeciesUncertainty,
                                  BetaGuildsUncertainty,
+                                 BetaGuildsGuildsUncertainty,
                                  HandlingUncertainty,
                                  ExponentUncertainty,
                                  CatchabilityUncertainty,
@@ -4249,19 +4328,25 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     // Load data from OutputCompetitionAlpha, OutputCompetitionBetaSpecies,
     // OutputPredation, and OutputHandling
     TableNames.clear();
-    if (isAlpha)
+    if (isAlpha) {
         TableNames.push_back("OutputCompetitionAlpha");
-    if (isBetaSpecies)
+    }
+    if (isBetaSpecies) {
         TableNames.push_back("OutputCompetitionBetaSpecies");
-    if (isPredation)
+    }
+    if (isPredation) {
         TableNames.push_back("OutputPredation");
-    if (isHandling)
+    }
+    if (isHandling) {
         TableNames.push_back("OutputHandling");
+    }
+
     nmfUtils::initialize(EstCompetitionAlpha,      NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(EstCompetitionBetaSpecies,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(EstPredation,             NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(EstHandling,              NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     for (unsigned i=0; i<TableNames.size(); ++i) {
+
         fields    = {"MohnsRhoLabel","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
         queryStr  = "SELECT MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + TableNames[i];
         queryStr += " WHERE MohnsRhoLabel = '" + m_MohnsRhoLabel +
@@ -4271,6 +4356,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 "' AND Scaling = '" + Scaling +
                 "' AND isAggProd = " + isAggProdStr +
                 "  ORDER BY SpeciesA,SpeciesB";
+
         dataMap = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeciesA"].size();
         if (NumRecords != NumSpeciesOrGuilds*NumSpeciesOrGuilds) {
@@ -4315,9 +4401,10 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     }
 
     TableNames.clear();
-    if (isBetaGuilds)
+    if (isBetaGuilds) {
         TableNames.push_back("OutputCompetitionBetaGuilds");
-    nmfUtils::initialize(EstCompetitionBetaGuilds, NumSpeciesOrGuilds,NumGuilds);
+    }
+    nmfUtils::initialize(EstCompetitionBetaGuilds,       NumSpeciesOrGuilds,NumGuilds);
     for (unsigned i=0; i<TableNames.size(); ++i) {
         fields    = {"MohnsRhoLabel","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Guild","Value"};
         queryStr  = "SELECT MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " + TableNames[i];
@@ -4352,6 +4439,49 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             }
         }
     }
+
+
+    TableNames.clear();
+    if (isBetaGuildsGuilds) {
+        TableNames.push_back("OutputCompetitionBetaGuildsGuilds");
+    }
+    nmfUtils::initialize(EstCompetitionBetaGuildsGuilds,NumGuilds,NumGuilds);
+    for (unsigned i=0; i<TableNames.size(); ++i) {
+        fields    = {"MohnsRhoLabel","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","GuildA","GuildB","Value"};
+        queryStr  = "SELECT MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB,Value FROM " + TableNames[i];
+        queryStr += " WHERE MohnsRhoLabel = '" + m_MohnsRhoLabel +
+                    "' AND Algorithm = '" + Algorithm +
+                    "' AND Minimizer = '" + Minimizer +
+                    "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                    "' AND Scaling = '" + Scaling +
+                    "' AND isAggProd = " + isAggProdStr +
+                    " ORDER BY GuildA,GuildB";
+        dataMap = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+        NumRecords = dataMap["GuildA"].size();
+        if (NumRecords != NumGuilds*NumGuilds) {
+            m_Logger->logMsg(nmfConstants::Error,
+                           "[Error 6.1] UpdateOutputBiomassTable: Incorrect number of records found in " + TableNames[i] + ". Found " +
+                           std::to_string(NumRecords) + " expecting " + std::to_string(NumGuilds*NumGuilds) + ".");
+            m_Logger->logMsg(nmfConstants::Error, queryStr);
+            return false;
+        }
+        // In row major order
+        m = 0;
+        for (int row=0; row<NumGuilds; ++row) {
+            for (int col=0; col<NumGuilds; ++col) {
+                if (TableNames[i] == "OutputCompetitionBetaGuilds") {
+                    EstCompetitionBetaGuildsGuilds(row,col) = calculateMonteCarloValue(
+                            BetaGuildsGuildsUncertainty[row],
+                            std::stod(dataMap["Value"][m]),
+                            randomValue);
+                   CompetitionBetaGuildsGuildsRandomValues.push_back(randomValue);
+                }
+                ++m;
+            }
+        }
+    }
+
+
 
     // Get Harvest data
     if (HarvestForm == "Catch") {
@@ -4444,7 +4574,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     // Get guild map
     nmfUtils::initialize(EstimatedBiomassByGuilds, RunLength+1,NumGuilds);
-    if (! m_DatabasePtr->getGuildData(NumGuilds,RunLength,GuildList,GuildSpecies,GuildNum,ObservedBiomassByGuilds)) {
+    if (! m_DatabasePtr->getGuildData(m_Logger,NumGuilds,RunLength,GuildList,GuildSpecies,
+                                      GuildNum,ObservedBiomassByGuilds)) {
         return false;
     }
     EstimatedBiomassByGuilds = ObservedBiomassByGuilds;
@@ -4492,6 +4623,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                         EstCompetitionAlpha,
                                                         EstCompetitionBetaSpecies,
                                                         EstCompetitionBetaGuilds,
+                                                        EstCompetitionBetaGuildsGuilds,
                                                         EstimatedBiomassBySpecies,
                                                         EstimatedBiomassByGuilds);
             predationTerm   = predationForm->evaluate(timeMinus1,species,
@@ -4504,6 +4636,10 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 EstimatedBiomassTimeMinus1 = 0;
             }
             EstimatedBiomassBySpecies(time,species) = EstimatedBiomassTimeMinus1;
+//std::cout << "final2 year: " << time << ", val = " << EstimatedBiomassBySpecies(timeMinus1,species) << " + "
+//          << growthTerm << " - " << harvestTerm << " - "
+//          << competitionTerm << " - " << predationTerm << std::endl;
+
             // update estBiomassGuilds for next time step
             if (isAggProd) {
                 for (int i=0; i<NumGuilds; ++i) {
@@ -8859,9 +8995,8 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     QString multiRunSpeciesFilename;
     QString multiRunModelFilename;
 
-//    bool isAMultiRun = (m_DataStruct.NLoptNumberOfRuns > 1);
     bool isAMultiRun = Estimation_Tab6_ptr->isAMultiRun();
-std::cout << "@@@@@@@@@ runNLoptAlgorithm isAMultiRun: " << isAMultiRun << std::endl;
+
     Output_Controls_ptr->setAveraged(isAMultiRun);
     m_DataStruct.showDiagnosticChart = showDiagnosticChart;
 
@@ -9102,6 +9237,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                       boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
                                       boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
                                       boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
+                                      boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
                                       boost::numeric::ublas::matrix<double>& EstPredation,
                                       boost::numeric::ublas::matrix<double>& EstHandling,
                                       std::vector<double>& EstExponent,
@@ -9129,14 +9265,14 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
     nmfHarvestForm*     harvestForm;
     nmfCompetitionForm* competitionForm;
     nmfPredationForm*   predationForm;
-    bool   isCatchability = (HarvestForm     == "Effort (qE)");
-    bool   isAggProd      = (CompetitionForm == "AGG-PROD");
-    bool   isAlpha        = (CompetitionForm == "NO_K");
-    bool   isBetaSpecies  = (CompetitionForm == "MS-PROD");
-    bool   isBetaGuilds   = (CompetitionForm == "AGG-PROD") || (CompetitionForm == "MS-PROD");
-    bool   isPredation    = (PredationForm   == "Type I");
-    bool   isHandling     = (PredationForm   == "Type II")  || (PredationForm   == "Type III");
-    bool   isExponent     = (PredationForm   == "Type III");
+    bool isCatchability = (HarvestForm     == "Effort (qE)");
+    bool isAggProd      = (CompetitionForm == "AGG-PROD");
+    bool isAlpha        = (CompetitionForm == "NO_K");
+    bool isBetaSpecies  = (CompetitionForm == "MS-PROD");
+    bool isBetaGuilds   = (CompetitionForm == "AGG-PROD") || (CompetitionForm == "MS-PROD");
+    bool isPredation    = (PredationForm   == "Type I");
+    bool isHandling     = (PredationForm   == "Type II")  || (PredationForm   == "Type III");
+    bool isExponent     = (PredationForm   == "Type III");
     QStringList SpeciesList;
     QStringList GuildList;
     std::vector<int>                GuildNum;
@@ -9201,7 +9337,7 @@ std::cout << "Warning: Assuming user has estimated biomass" << std::endl;
 
     // Get guild map
     nmfUtils::initialize(EstimatedBiomassByGuilds, RunLength+1,NumGuilds);
-    if (! m_DatabasePtr->getGuildData(NumGuilds,RunLength,GuildList,GuildSpecies,GuildNum,ObservedBiomassByGuilds)) {
+    if (! m_DatabasePtr->getGuildData(m_Logger,NumGuilds,RunLength,GuildList,GuildSpecies,GuildNum,ObservedBiomassByGuilds)) {
         return false;
     }
     EstimatedBiomassByGuilds = ObservedBiomassByGuilds;
@@ -9310,6 +9446,7 @@ std::cout << "Warning: Assuming user has estimated biomass" << std::endl;
                                                         EstCompetitionAlpha,
                                                         EstCompetitionBetaSpecies,
                                                         EstCompetitionBetaGuilds,
+                                                        EstCompetitionBetaGuildsGuilds,
                                                         EstimatedBiomassBySpecies,
                                                         EstimatedBiomassByGuilds);
             predationTerm   = predationForm->evaluate(timeMinus1,species,
@@ -9323,6 +9460,7 @@ std::cout << "Warning: Assuming user has estimated biomass" << std::endl;
                 EstimatedBiomassTimeMinus1 = 0;
             }
             EstimatedBiomassBySpecies(time,species) = EstimatedBiomassTimeMinus1;
+std::cout << "final1 val(" << time << "," << species << "): " << EstimatedBiomassBySpecies(time,species) << std::endl;
 
             // update estBiomassGuilds for next time step
             if (isAggProd) {
@@ -9426,6 +9564,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     boost::numeric::ublas::matrix<double> EstCompetitionAlpha;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaSpecies;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaGuilds;
+    boost::numeric::ublas::matrix<double> EstCompetitionBetaGuildsGuilds;
     boost::numeric::ublas::matrix<double> EstPredation;
     boost::numeric::ublas::matrix<double> EstHandling;
     boost::numeric::ublas::matrix<double> CalculatedBiomass;
@@ -9458,13 +9597,14 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     m_Estimator_NLopt->getEstCompetitionAlpha(EstCompetitionAlpha);
     m_Estimator_NLopt->getEstCompetitionBetaSpecies(EstCompetitionBetaSpecies);
     m_Estimator_NLopt->getEstCompetitionBetaGuilds(EstCompetitionBetaGuilds);
+    m_Estimator_NLopt->getEstCompetitionBetaGuildsGuilds(EstCompetitionBetaGuildsGuilds);
     m_Estimator_NLopt->getEstPredation(EstPredation);
     m_Estimator_NLopt->getEstHandling(EstHandling);
     m_Estimator_NLopt->getEstExponent(EstExponent);
 
     if (! calculateSubRunBiomass(EstInitBiomass,EstGrowthRates,
                                  EstCarryingCapacities,EstCatchability,EstCompetitionAlpha,
-                                 EstCompetitionBetaSpecies,EstCompetitionBetaGuilds,
+                                 EstCompetitionBetaSpecies,EstCompetitionBetaGuilds,EstCompetitionBetaGuildsGuilds,
                                  EstPredation,EstHandling,EstExponent,CalculatedBiomass)) {
         return;
     }
@@ -9616,6 +9756,7 @@ nmfMainWindow::calculateAverageBiomassAndDisplay(int& NumSpecies,
     boost::numeric::ublas::matrix<double> EstCompetitionAlpha;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaSpecies;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaGuilds;
+    boost::numeric::ublas::matrix<double> EstCompetitionBetaGuildsGuilds;
     boost::numeric::ublas::matrix<double> EstPredation;
     boost::numeric::ublas::matrix<double> EstHandling;
     std::string GrowthForm;
@@ -9697,6 +9838,7 @@ std::cout << "Warning: Only updating 3 estimated parameters" << std::endl;
                        EstCompetitionAlpha,
                        EstCompetitionBetaSpecies,
                        EstCompetitionBetaGuilds,
+                       EstCompetitionBetaGuildsGuilds,
                        EstPredation,
                        EstHandling,
                        EstExponent);
@@ -10513,12 +10655,16 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
     std::string competitionForm;
     std::string predationForm;
     std::map<std::string,double> initialGuildBiomass;
+    std::map<std::string,double> initialGuildBiomassMin;
+    std::map<std::string,double> initialGuildBiomassMax;
     std::vector<std::string> Guild;
     std::map<std::string,int> GuildMap;
     std::map<std::string,std::string> GuildSpeciesMap;
     std::string guildName;
 
     initialGuildBiomass.clear();
+    initialGuildBiomassMin.clear();
+    initialGuildBiomassMax.clear();
     dataStruct.GuildSpecies.clear();
     dataStruct.GuildNum.clear();
     dataStruct.ObservedBiomassBySpecies.clear();
@@ -10607,10 +10753,10 @@ std::cout << "  " << parameterName << std::endl;
     dataStruct.BeesNumRepetitions    = std::stoi(dataMap["BeesNumRepetitions"][0]);
     dataStruct.BeesMaxGenerations    = std::stoi(dataMap["BeesMaxGenerations"][0]);
     dataStruct.BeesNeighborhoodSize  = std::stof(dataMap["BeesNeighborhoodSize"][0]);
-    dataStruct.ScalingAlgorithm               = dataMap["Scaling"][0];
+    dataStruct.ScalingAlgorithm      = dataMap["Scaling"][0];
     dataStruct.GAGenerations         = std::stoi(dataMap["GAGenerations"][0]);
     dataStruct.GAConvergence         = std::stoi(dataMap["GAConvergence"][0]);
-    dataStruct.MinimizerAlgorithm             = dataMap["Minimizer"][0];
+    dataStruct.MinimizerAlgorithm    = dataMap["Minimizer"][0];
     dataStruct.ObjectiveCriterion    = dataMap["ObjectiveCriterion"][0];
     dataStruct.NLoptUseStopVal       = std::stoi(dataMap["NLoptUseStopVal"][0]);
     dataStruct.NLoptUseStopAfterTime = std::stoi(dataMap["NLoptUseStopAfterTime"][0]);
@@ -10660,8 +10806,8 @@ std::cout << "  " << parameterName << std::endl;
         dataStruct.CompetitionBetaGuildsMin.clear();
         dataStruct.CompetitionBetaGuildsMax.clear();
     } else if (isAGGPROD) {
-        dataStruct.CompetitionBetaGuildsMin.clear();
-        dataStruct.CompetitionBetaGuildsMax.clear();
+        dataStruct.CompetitionBetaGuildsGuildsMin.clear();
+        dataStruct.CompetitionBetaGuildsGuildsMax.clear();
     }
 
     // Get Guild information
@@ -10681,15 +10827,24 @@ std::cout << "  " << parameterName << std::endl;
                       "GuildKMax","CatchabilityMin","CatchabilityMax"};
         queryStr   = "SELECT GuildName,GrowthRateMin,GrowthRateMax,GuildK,GuildKMin,";
         queryStr  += "GuildKMax,CatchabilityMin,CatchabilityMax from Guilds ORDER BY GuildName";
+std::cout << "qQ2: " << queryStr << std::endl;
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumGuilds  = dataMap["GuildName"].size();
+std::cout << "NumGuilds: " << NumGuilds << std::endl;
+        nmfUtils::initialize(dataStruct.InitBiomass,        NumGuilds);
+std::cout << 11 << std::endl;
+        nmfUtils::initialize(dataStruct.InitBiomassMin,     NumGuilds);
+        nmfUtils::initialize(dataStruct.InitBiomassMax,     NumGuilds);
         nmfUtils::initialize(dataStruct.GrowthRateMin,      NumGuilds);
         nmfUtils::initialize(dataStruct.GrowthRateMax,      NumGuilds);
+std::cout << 55 << std::endl;
         nmfUtils::initialize(dataStruct.CarryingCapacity,   NumGuilds);
         nmfUtils::initialize(dataStruct.CarryingCapacityMin,NumGuilds);
         nmfUtils::initialize(dataStruct.CarryingCapacityMax,NumGuilds);
+std::cout << 99 << std::endl;
         nmfUtils::initialize(dataStruct.CatchabilityMin,    NumGuilds);
         nmfUtils::initialize(dataStruct.CatchabilityMax,    NumGuilds);
+std::cout << 3 << " " << NumGuilds << std::endl;
         for (int guild=0; guild<NumGuilds; ++guild) {
             dataStruct.GrowthRateMin(guild)       = std::stod(dataMap["GrowthRateMin"][guild]);
             dataStruct.GrowthRateMax(guild)       = std::stod(dataMap["GrowthRateMax"][guild]);
@@ -10703,23 +10858,28 @@ std::cout << "  " << parameterName << std::endl;
             dataStruct.GuildSpecies[GuildNum].push_back(guild);
             dataStruct.GuildNum.push_back(GuildNum);
         }
-
-        fields     = {"SpeName","GuildName","InitBiomass"};
-        queryStr   = "SELECT SpeName,GuildName,InitBiomass from Species ORDER BY SpeName";
+std::cout << 4 << std::endl;
+        fields     = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax"};
+        queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax from Species ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumSpecies = dataMap["SpeName"].size();
         for (int species=0; species<NumSpecies; ++species) {
             guildName = dataMap["GuildName"][species];
             GuildSpeciesMap[dataMap["SpeName"][species]] = guildName;
-            initialGuildBiomass[guildName] += std::stod(dataMap["InitBiomass"][species]);
+            initialGuildBiomass[guildName]    += std::stod(dataMap["InitBiomass"][species]);
+            initialGuildBiomassMin[guildName] += std::stod(dataMap["InitBiomassMin"][species]);
+            initialGuildBiomassMax[guildName] += std::stod(dataMap["InitBiomassMax"][species]);
         }
         dataStruct.NumSpecies = NumSpecies;
-
+        checkGuildRanges(NumGuilds,dataStruct);
+std::cout << 5 << std::endl;
     } else {
+std::cout << 6 << std::endl;
         fields     = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax","GrowthRate","GrowthRateMin","GrowthRateMax",
                       "SpeciesK","SpeciesKMin","SpeciesKMax","CatchabilityMin","CatchabilityMax"};
         queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax,GrowthRate,GrowthRateMin,GrowthRateMax,";
         queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,CatchabilityMin,CatchabilityMax from Species ORDER BY SpeName";
+std::cout << "qqq: " << queryStr << std::endl;
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumSpecies = dataMap["SpeName"].size();
         dataStruct.NumSpecies = NumSpecies;
@@ -10729,7 +10889,7 @@ std::cout << "  " << parameterName << std::endl;
         nmfUtils::initialize(dataStruct.GrowthRate,         NumSpecies);
         nmfUtils::initialize(dataStruct.GrowthRateMin,      NumSpecies);
         nmfUtils::initialize(dataStruct.GrowthRateMax,      NumSpecies);
-        nmfUtils::initialize(dataStruct.CarryingCapacity,NumSpecies);
+        nmfUtils::initialize(dataStruct.CarryingCapacity,   NumSpecies);
         nmfUtils::initialize(dataStruct.CarryingCapacityMin,NumSpecies);
         nmfUtils::initialize(dataStruct.CarryingCapacityMax,NumSpecies);
         nmfUtils::initialize(dataStruct.CatchabilityMin,    NumSpecies);
@@ -10748,19 +10908,22 @@ std::cout << "  " << parameterName << std::endl;
             dataStruct.CatchabilityMax(species)     = std::stod(dataMap["CatchabilityMax"][species]);
             guildName = dataMap["GuildName"][species];
             GuildNum  = GuildMap[guildName];
-            initialGuildBiomass[guildName] += std::stod(dataMap["InitBiomass"][species]);
+            initialGuildBiomass[guildName]    += std::stod(dataMap["InitBiomass"][species]);
+            initialGuildBiomassMin[guildName] += std::stod(dataMap["InitBiomassMin"][species]);
+            initialGuildBiomassMax[guildName] += std::stod(dataMap["InitBiomassMax"][species]);
             dataStruct.GuildSpecies[GuildNum].push_back(species);
             dataStruct.GuildNum.push_back(GuildNum);
         }
+std::cout << 7 << std::endl;
     }
-
+std::cout << 8 << std::endl;
     if (verbose) {
         m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Growth Rate Min/Max");
         m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Carrying Capacity Min/Max");
     }
 
     NumSpeciesOrGuilds = (isAGGPROD) ? NumGuilds : NumSpecies;
-
+std::cout << 9 << std::endl;
     // Load Interaction coefficients
     if (isAlpha) {
         loadOK = loadInteraction(NumSpeciesOrGuilds, "Competition",
@@ -10807,18 +10970,18 @@ std::cout << "  " << parameterName << std::endl;
                                        NumBetaGuildsParameters);
         if (! loadOK) return false;
     } else if (isAGGPROD) {
-        loadOK = loadInteractionGuilds(NumSpecies, NumGuilds, "Competition-AGGPROD",
-                                       GuildSpeciesMap,
-                                      "CompetitionBetaGuildsMin", "CompetitionBetaGuildsMax",
-                                       dataStruct.CompetitionBetaGuildsMin,
-                                       dataStruct.CompetitionBetaGuildsMax,
-                                       NumBetaSpeciesParameters);
+        loadOK = loadInteractionGuildsGuilds(NumGuilds, NumGuilds, "Competition-AGGPROD",
+                                             GuildSpeciesMap,
+                                             "CompetitionBetaGuildsGuildsMin", "CompetitionBetaGuildsGuildsMax",
+                                             dataStruct.CompetitionBetaGuildsGuildsMin,
+                                             dataStruct.CompetitionBetaGuildsGuildsMax,
+                                             NumBetaGuildsParameters);
         if (! loadOK) return false;
     }
 
     // Calculate total number of parameters
     dataStruct.TotalNumberParameters = 0;
-
+std::cout << 10 << std::endl;
     if (growthForm == "Linear") {
         dataStruct.TotalNumberParameters += NumSpecies; // Just r for each Species
     } else if (growthForm == "Logistic") {
@@ -10884,17 +11047,53 @@ std::cout << "  " << parameterName << std::endl;
                                            NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
         return false;
     }
+std::cout << 11 << std::endl;
 
     // Load time series by guild observed biomass just load the first year's
     nmfUtils::initialize(dataStruct.ObservedBiomassByGuilds,RunLength+1,NumGuilds);
     for (int i=0; i<NumGuilds; ++i) {
        dataStruct.ObservedBiomassByGuilds(0,i) = initialGuildBiomass[Guild[i]];
+       if (isAGGPROD) {
+           dataStruct.InitBiomassMin[i] = initialGuildBiomassMin[Guild[i]];
+           dataStruct.InitBiomassMax[i] = initialGuildBiomassMax[Guild[i]];
+       }
     }
+
+
     if (verbose) {
         m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Biomass");
     }
-
+std::cout << 12 << std::endl;
     return true;
+}
+
+void
+nmfMainWindow::checkGuildRanges(const int &NumGuilds,
+                                const Data_Struct& dataStruct)
+{
+    bool isMissingGrowthData = true;
+    bool isMissingKData = true;
+    QString msg;
+
+    for (int i=0; i<NumGuilds; ++i) {
+        if ((dataStruct.GrowthRateMin[i] != 0) || (dataStruct.GrowthRateMax[i] != 0)) {
+            isMissingGrowthData = false;
+        }
+        if ((dataStruct.CarryingCapacityMin[i] != 0) || (dataStruct.CarryingCapacityMax[i] != 0)) {
+            isMissingKData = false;
+        }
+    }
+
+    if (isMissingGrowthData || isMissingKData) {
+        msg = "\nThe following data are missing from the Guilds Population Parameters page:\n\n";
+        if (isMissingGrowthData) {
+            msg += "  Guild Growth Rate range data\n";
+        }
+        if (isMissingKData) {
+            msg += "  Guild Carrying Capacity range data\n";
+        }
+        QMessageBox::warning(this, "Warning",msg+"\n", QMessageBox::Ok);
+    }
 }
 
 bool
@@ -11083,6 +11282,77 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
 
     m = 0;
     for (int row=0; row<NumSpeciesOrGuilds; ++row) {
+        MinRow.clear();
+        MaxRow.clear();
+        for (int col=0; col<NumGuilds; ++col) {
+            valMin = std::stod(dataMapMin["Value"][m]);
+            valMax = std::stod(dataMapMax["Value"][m]);
+            MinRow.push_back(valMin);
+            MaxRow.push_back(valMax);
+            ++NumInteractionParameters;
+            ++m;
+        }
+        MinData.push_back(MinRow);
+        MaxData.push_back(MaxRow);
+    }
+    return true;
+}
+
+bool
+nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
+                                           int &NumGuilds,
+                                           std::string InteractionType,
+                                           std::map<std::string,std::string> &GuildSpeciesMap,
+                                           std::string MinTable,
+                                           std::string MaxTable,
+                                           std::vector<std::vector<double> > &MinData,
+                                           std::vector<std::vector<double> > &MaxData,
+                                           int &NumInteractionParameters)
+{
+    int m;
+    int NumRecords;
+    double valMin;
+    double valMax;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMapMin,dataMapMax;
+    std::string queryStr;
+    QString msg;
+    std::vector<double> MinRow;
+    std::vector<double> MaxRow;
+
+    NumInteractionParameters = 0;
+
+    fields      = {"SystemName","GuildA","GuildB","Value"};
+    queryStr    = "SELECT SystemName,GuildA,GuildB,Value FROM " + MinTable;
+    queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+    dataMapMin  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords  = dataMapMin["Value"].size();
+    if (NumRecords != NumGuilds*NumGuilds) {
+        msg = "[Error 1] LoadInteractionGuildsGuilds: Incorrect number of records found in table: " +
+                QString::fromStdString(MinTable) + ". Found " +
+                QString::number(NumRecords) + " expecting " +
+                QString::number(NumGuilds*NumGuilds) + ".";
+        m_Logger->logMsg(nmfConstants::Error, msg.toStdString());
+        QMessageBox::warning(this, "Error", "\n"+msg+"\n\nCheck min/max values in " +
+                             QString::fromStdString(InteractionType) + " Parameters tab.",
+                             QMessageBox::Ok);
+        return false;
+    }
+
+    queryStr    = "SELECT SystemName,GuildA,GuildB,Value FROM " + MaxTable;
+    queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+    dataMapMax  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords  = dataMapMax["Value"].size();
+    if (NumRecords != NumGuilds*NumGuilds) {
+        m_Logger->logMsg(nmfConstants::Error,
+                       "[Error 2] LoadInteractionGuildsGuilds: Incorrect number of records found in table: " +
+                       MaxTable + ". Found " + std::to_string(NumRecords) + " expecting " +
+                       std::to_string(NumGuilds*NumGuilds) + ".");
+        return false;
+    }
+
+    m = 0;
+    for (int row=0; row<NumGuilds; ++row) {
         MinRow.clear();
         MaxRow.clear();
         for (int col=0; col<NumGuilds; ++col) {
@@ -12188,7 +12458,7 @@ nmfMainWindow::dataAdequateForCurrentModel(QStringList estParamNames)
     tableNames.clear();
     paramNames << "BetaGuilds" << "Predation Exponent";
     tableNames << "CompetitionBetaGuildsMin" << "CompetitionBetaGuildsMax"
-               << "PredationLossRatesMin"    << "PredationLossRatesMax";
+               << "PredationExponentMin"    << "PredationExponentMax";
     for (int i=0; i<paramNames.size(); ++i) {
         // Cycle through min/max tables
         if (estParamNames.contains(paramNames[i])) {

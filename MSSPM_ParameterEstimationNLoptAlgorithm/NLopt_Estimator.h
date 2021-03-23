@@ -67,6 +67,7 @@ private:
     boost::numeric::ublas::matrix<double>  m_EstAlpha;
     boost::numeric::ublas::matrix<double>  m_EstBetaSpecies;
     boost::numeric::ublas::matrix<double>  m_EstBetaGuilds;
+    boost::numeric::ublas::matrix<double>  m_EstBetaGuildsGuilds;
     std::vector<double>                    m_EstCarryingCapacities;
     std::vector<double>                    m_EstInitBiomass;
     std::vector<double>                    m_EstGrowthRates;
@@ -205,7 +206,8 @@ public:
      * @param CatchabilityRate : estimated catchability parameters
      * @param CompetitionAlpha : estimated competition alpha parameters
      * @param CompetitionBetaSpecies : estimated food competition beta parameters per Species
-     * @param CompetitionBetaGuilds : estimated food competition beta parameters per Guild
+     * @param CompetitionBetaGuilds : estimated food competition beta parameters per Species-Guild
+     * @param CompetitionBetaGuildsGuilds : estimated food competition beta parameters per Guild-Guild
      * @param Predation : estimated predation parameters
      * @param Handling : estimated handling parameters
      * @param Exponent : estimated handling parameters
@@ -220,6 +222,7 @@ public:
             boost::numeric::ublas::matrix<double>& CompetitionAlpha,
             boost::numeric::ublas::matrix<double>& CompetitionBetaSpecies,
             boost::numeric::ublas::matrix<double>& CompetitionBetaGuilds,
+            boost::numeric::ublas::matrix<double>& CompetitionBetaGuildsGuilds,
             boost::numeric::ublas::matrix<double>& Predation,
             boost::numeric::ublas::matrix<double>& Handling,
             std::vector<double>&                   Exponent);
@@ -242,11 +245,17 @@ public:
     void getEstCompetitionAlpha(
             boost::numeric::ublas::matrix<double>& EstInteraction);
     /**
-     * @brief Get the estimated food competition beta values per Guild
-     * @param EstCompGuilds : the estimated food competition beta values per Guild to return
+     * @brief Get the estimated food competition beta values per Species-Guild
+     * @param EstCompGuilds : the estimated food competition beta values per Species-Guild to return
      */
     void getEstCompetitionBetaGuilds(
             boost::numeric::ublas::matrix<double>& EstCompGuilds);
+    /**
+     * @brief Get the estimated food competition beta values per Guild-Guild
+     * @param EstCompGuilds : the estimated food competition beta values per Guild-Guild to return
+     */
+    void getEstCompetitionBetaGuildsGuilds(
+            boost::numeric::ublas::matrix<double>& EstCompGuildsGuilds);
     /**
      * @brief Get the estimated food competition beta values per Species
      * @param EstCompSpecies : the estimated food competition beta values per Species to return

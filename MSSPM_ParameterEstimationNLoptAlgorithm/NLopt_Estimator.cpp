@@ -73,6 +73,7 @@ NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
                                    boost::numeric::ublas::matrix<double>& competitionAlpha,
                                    boost::numeric::ublas::matrix<double>& competitionBetaSpecies,
                                    boost::numeric::ublas::matrix<double>& competitionBetaGuilds,
+                                   boost::numeric::ublas::matrix<double>& competitionBetaGuildsGuilds,
                                    boost::numeric::ublas::matrix<double>& predation,
                                    boost::numeric::ublas::matrix<double>& handling,
                                    std::vector<double>& exponent)
@@ -102,26 +103,34 @@ NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
     competitionAlpha.clear();
     competitionBetaSpecies.clear();
     competitionBetaGuilds.clear();
+    competitionBetaGuildsGuilds.clear();
     predation.clear();
     handling.clear();
     exponent.clear();
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+std::cout << "initBiomass EstParameters: " << EstParameters[offset+i] << std::endl;
         initBiomass.emplace_back(EstParameters[offset+i]);
     }
     offset += NumSpeciesOrGuilds;
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+std::cout << "r EstParameters: " << EstParameters[offset+i] << std::endl;
         growthRate.emplace_back(EstParameters[offset+i]);
     }
     offset += NumSpeciesOrGuilds;
-
-    if (isLogistic) {
-        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+std::cout << "isAggProd: " << isAGGPROD << std::endl;
+std::cout << "offset: " << offset << std::endl;
+    // Load the carrying capacity vector
+    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+        if (isLogistic) {
+std::cout << "K EstParameters: " << EstParameters[offset+i] << std::endl;
             carryingCapacity.emplace_back(EstParameters[offset+i]);
+        } else {
+            carryingCapacity.emplace_back(0);
         }
-        offset += NumSpeciesOrGuilds;
     }
+    offset += NumSpeciesOrGuilds;
 
     if (isCatchability) {
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -162,13 +171,13 @@ NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
 
     if (isAGGPROD) {
         m = 0;
-        nmfUtils::initialize(competitionBetaGuilds, NumSpeciesOrGuilds,NumGuilds);
-        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+        nmfUtils::initialize(competitionBetaGuildsGuilds, NumGuilds,NumGuilds);
+        for (int i=0; i<NumGuilds; ++i) {
             for (int j=0; j<NumGuilds; ++j) {
-                competitionBetaGuilds(i,j) = EstParameters[offset + (m++)];
+                competitionBetaGuildsGuilds(i,j) = EstParameters[offset + (m++)];
             }
         }
-        offset += NumSpeciesOrGuilds*NumGuilds;
+        offset += NumGuilds*NumGuilds;
     }
 
     if (isRho) {
@@ -239,7 +248,8 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     boost::numeric::ublas::matrix<double> competitionAlpha;
     boost::numeric::ublas::matrix<double> competitionBetaSpecies;
     boost::numeric::ublas::matrix<double> competitionBetaGuilds;
-    boost::numeric::ublas::matrix<double> predation;
+    boost::numeric::ublas::matrix<double> competitionBetaGuildsGuilds;
+    boost::numeric::ublas::matrix<double> predationRho;
     boost::numeric::ublas::matrix<double> handling;
     boost::numeric::ublas::matrix<double> ObsBiomassBySpeciesOrGuilds;
     boost::numeric::ublas::matrix<double> Catch        = NLoptDataStruct.Catch;
@@ -266,13 +276,15 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     nmfUtils::initialize(competitionAlpha,                    NumSpeciesOrGuilds, NumSpeciesOrGuilds);
     nmfUtils::initialize(competitionBetaSpecies,              NumSpecies,         NumSpecies);
     nmfUtils::initialize(competitionBetaGuilds,               NumSpeciesOrGuilds, NumGuilds);
-    nmfUtils::initialize(predation,                           NumSpeciesOrGuilds, NumSpeciesOrGuilds);
+    nmfUtils::initialize(competitionBetaGuildsGuilds,         NumGuilds,          NumGuilds);
+    nmfUtils::initialize(predationRho,                        NumSpeciesOrGuilds, NumSpeciesOrGuilds);
     nmfUtils::initialize(handling,                            NumSpeciesOrGuilds, NumSpeciesOrGuilds);
 
     extractParameters(NLoptDataStruct, EstParameters, initBiomass,
                       growthRate,carryingCapacity,catchabilityRate,
-                      competitionAlpha,competitionBetaSpecies,competitionBetaGuilds,
-                      predation,handling,exponent);
+                      competitionAlpha,competitionBetaSpecies,
+                      competitionBetaGuilds,competitionBetaGuildsGuilds,
+                      predationRho,handling,exponent);
 
     // Calculate carrying capacity for all guilds
     systemCarryingCapacity = 0;
@@ -280,29 +292,32 @@ NLopt_Estimator::objectiveFunction(unsigned n,
         guildK = 0;
         for (unsigned j=0; j<GuildSpecies[i].size(); ++j) {
             guildK += carryingCapacity[GuildSpecies[i][j]];
+
             systemCarryingCapacity += guildK;
+std::cout << "sysCap: " << systemCarryingCapacity << std::endl;
         }
+std::cout << "guildK: " << guildK << std::endl;
         guildCarryingCapacity.push_back(guildK);
     }
-
-    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+std::cout << "final sysCap: " << systemCarryingCapacity << std::endl;
+     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i);
     }
-    for (int i=0; i<NumGuilds; ++i) {
+     for (int i=0; i<NumGuilds; ++i) {
         EstBiomassGuilds(0,i)  = NLoptDataStruct.ObservedBiomassByGuilds(0,i); // Remember there's only initial guild biomass data.
     }
-
-    if (NLoptGrowthForm == nullptr) {
+     if (NLoptGrowthForm == nullptr) {
         incrementObjectiveFunctionCounter(MSSPMName,-1.0,NLoptDataStruct);
         return -1;
     }
 
+//nmfUtils::printMatrix("Competition Alpha",competitionAlpha,8,4);
+//nmfUtils::printMatrix("Predation Rho",predationRho,8,4);
+
     bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(NLoptDataStruct,"InitBiomass");
-//for (int i=0; i<growthRate.size(); ++i) {
-//    std::cout << "obj func: growth rate: " << growthRate[i] << std::endl;
-//}
+
     for (int time=1; time<NumYears; ++time) {
-//std::cout << "time: " << time << std::endl;
+
         timeMinus1 = time - 1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species) {
 
@@ -317,10 +332,10 @@ NLopt_Estimator::objectiveFunction(unsigned n,
             }
 
             GrowthTerm      = NLoptGrowthForm->evaluate(species,EstBiomassVal,
-                                                     growthRate,carryingCapacity);
+                                                        growthRate,carryingCapacity);
             HarvestTerm     = NLoptHarvestForm->evaluate(timeMinus1,species,
-                                                      Catch,Effort,Exploitation,
-                                                      EstBiomassVal,catchabilityRate);
+                                                         Catch,Effort,Exploitation,
+                                                         EstBiomassVal,catchabilityRate);
             CompetitionTerm = NLoptCompetitionForm->evaluate(
                                    timeMinus1,species,EstBiomassVal,
                                    systemCarryingCapacity,
@@ -329,13 +344,15 @@ NLopt_Estimator::objectiveFunction(unsigned n,
                                    competitionAlpha,
                                    competitionBetaSpecies,
                                    competitionBetaGuilds,
+                                   competitionBetaGuildsGuilds,
                                    EstBiomassSpecies,
                                    EstBiomassGuilds);
             PredationTerm   = NLoptPredationForm->evaluate(
                                    timeMinus1,species,
-                                   predation,handling,exponent,
+                                   predationRho,handling,exponent,
                                    EstBiomassSpecies,EstBiomassVal);
-
+std::cout << "nlo year: " << time << ", val = " << EstBiomassSpecies(timeMinus1,species) << " + " << GrowthTerm << " - " << HarvestTerm << " - "
+                      << CompetitionTerm << " - " << PredationTerm << std::endl;
             EstBiomassVal  += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
 
 //std::cout << "EstBiomassVal: " << EstBiomassVal <<
@@ -343,16 +360,16 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //             ", h: " << HarvestTerm <<
 //             ", c: " << CompetitionTerm <<
 //             ", p: " << PredationTerm << std::endl;
-//if (EstBiomassVal < 0) { // test code only
-//    EstBiomassVal = 0;
-//}
+if (EstBiomassVal < 0) { // test code only
+    EstBiomassVal = 0;
+}
             if ((EstBiomassVal < 0) || (std::isnan(std::fabs(EstBiomassVal)))) {
                 incrementObjectiveFunctionCounter(MSSPMName,(double)DefaultFitness,NLoptDataStruct);
                 return DefaultFitness;
             }
 
             EstBiomassSpecies(time,species) = EstBiomassVal;
-
+//std::cout << "nlopt val(" << time << "," << species << "): " << EstBiomassVal << std::endl;
             // update EstBiomassGuilds for next time step
             for (int i=0; i<NumGuilds; ++i) {
                 for (unsigned j=0; j<GuildSpecies[i].size(); ++j) {
@@ -465,9 +482,11 @@ NLopt_Estimator::loadInitBiomassParameterRanges(
 {
     bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(dataStruct,"InitBiomass");
     std::pair<double,double> aPair;
-std::cout << "==> isCheckedInitBiomass: " << isCheckedInitBiomass << std::endl;
+std::cout << "=2=> isCheckedInitBiomass: " << isCheckedInitBiomass << std::endl;
+std::cout << 1 << std::endl;
+std::cout << "size init biomass min: " << dataStruct.InitBiomassMin.size() << std::endl;
 
-    // Always load initial biomass values
+// Always load initial biomass values
     for (unsigned species=0; species<dataStruct.InitBiomassMin.size(); ++species) {
         if (isCheckedInitBiomass) {
             aPair = std::make_pair(dataStruct.InitBiomassMin[species],
@@ -584,7 +603,10 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
     NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
 
     NumEstParameters = ParameterRanges.size();
-//std::cout << "NumEstParam: " << NumEstParameters << std::endl;
+std::cout << "NumEstParam: " << NumEstParameters << std::endl;
+for (int i=0; i< NumEstParameters; ++i) {
+ std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
+}
 
     if (isAMultiRun) {
         NumMultiRuns = MultiRunLines.size();
@@ -633,10 +655,10 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                 //}
 
                 extractParameters(NLoptStruct, &m_Parameters[0], m_EstInitBiomass,
-                        m_EstGrowthRates, m_EstCarryingCapacities,
+                        m_EstGrowthRates,  m_EstCarryingCapacities,
                         m_EstCatchability, m_EstAlpha,
-                        m_EstBetaSpecies, m_EstBetaGuilds,
-                        m_EstPredation, m_EstHandling, m_EstExponent);
+                        m_EstBetaSpecies,  m_EstBetaGuilds, m_EstBetaGuildsGuilds,
+                        m_EstPredation,    m_EstHandling,   m_EstExponent);
 
                 createOutputStr(NLoptStruct.TotalNumberParameters,
                                 m_Parameters.size(),NumSubRuns,
@@ -856,6 +878,12 @@ void
 NLopt_Estimator::getEstCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &estCompGuilds)
 {
     estCompGuilds = m_EstBetaGuilds;
+}
+
+void
+NLopt_Estimator::getEstCompetitionBetaGuildsGuilds(boost::numeric::ublas::matrix<double> &estCompGuildsGuilds)
+{
+    estCompGuildsGuilds = m_EstBetaGuildsGuilds;
 }
 
 void

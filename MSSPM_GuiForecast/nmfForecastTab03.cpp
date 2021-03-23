@@ -57,18 +57,19 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     Forecast_Tab3_NextPB->setText("--\u25B7");
 
     // Set up mapping from form name to parameters in that form
-    m_Alpha = QString("Competition (") + QChar(0x03B1) + QString(")");
-    m_BetaS = QString("Competition (") + QChar(0x03B2) + QString("(i))");
-    m_BetaG = QString("Competition (") + QChar(0x03B2) + QString("(G))");
-    m_Rho   = QString("Predation (")   + QChar(0x03C1) + QString(")");
+    m_Alpha  = QString("Competition (") + QChar(0x03B1) + QString(")");    // alpha
+    m_BetaS  = QString("Competition (") + QChar(0x03B2) + QString("(i))");
+    m_BetaSG = QString("Competition (") + QChar(0x03B2) + QString("(SG))");
+    m_BetaGG = QString("Competition (") + QChar(0x03B2) + QString("(GG))");
+    m_Rho    = QString("Predation (")   + QChar(0x03C1) + QString(")");
     m_FormMap["Linear"]   = {"Growth Rate (r)"};
     m_FormMap["Logistic"] = {"Growth Rate (r)","Carrying Capacity (K)"};
     m_FormMap["Exploitation (F)"] = {"Exploitation"};
     m_FormMap["Effort (qE)"]      = {"Catchability (q)","Effort"};
     m_FormMap["Catch"]    = {"Catch"};
     m_FormMap["NO_K"]     = {m_Alpha.toStdString()};
-    m_FormMap["MS-PROD"]  = {m_BetaS.toStdString(),m_BetaG.toStdString()};
-    m_FormMap["AGG-PROD"] = {m_Alpha.toStdString(),m_BetaG.toStdString()};
+    m_FormMap["MS-PROD"]  = {m_BetaS.toStdString(),m_BetaSG.toStdString()};
+    m_FormMap["AGG-PROD"] = {m_BetaGG.toStdString()};
     m_FormMap["Type I"]   = {m_Rho.toStdString()};
     m_FormMap["Type II"]  = {m_Rho.toStdString(),"Handling (h)"};
     m_FormMap["Type III"] = {m_Rho.toStdString(),"Handling (h)","Exponent (b)"};
@@ -80,7 +81,8 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_ParameterNames << m_Rho;
     m_ParameterNames << m_Alpha;
     m_ParameterNames << m_BetaS;
-    m_ParameterNames << m_BetaG;
+    m_ParameterNames << m_BetaSG;
+    m_ParameterNames << m_BetaGG;
     m_ParameterNames << "Handling (h)";
     m_ParameterNames << "Exponent (b)";
     m_ParameterNames << "Catchability (q)";
@@ -219,7 +221,7 @@ nmfForecast_Tab3::callback_SavePB()
     cmd  = "INSERT INTO ForecastUncertainty (" ;
     cmd += "SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     cmd += "InitBiomass,GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
-    cmd += "BetaGuilds,Handling,Exponent,Catchability,Harvest) VALUES ";
+    cmd += "BetaGuilds,BetaGuildsGuilds,Handling,Exponent,Catchability,Harvest) VALUES ";
     for (int i=0; i<m_SModel->rowCount(); ++i) { // Species
             cmd += "('" + SpeNames[i] + "','" + ForecastName + "','" + Algorithm +
                     "','" + Minimizer + "','" + ObjectiveCriterion + "','" + Scaling + "'";
@@ -343,10 +345,10 @@ nmfForecast_Tab3::loadWidgets()
         // Find Forecast info
         fields     = {"SpeName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
                       "InitBiomass","GrowthRate","CarryingCapacity","Predation","Competition","BetaSpecies",
-                      "BetaGuilds","Handling","Exponent","Catchability","Harvest"};
+                      "BetaGuilds","BetaGuildsGuilds","Handling","Exponent","Catchability","Harvest"};
         queryStr   = "SELECT SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
         queryStr  += "InitBiomass,GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
-        queryStr  += "BetaGuilds,Handling,Exponent,Catchability,Harvest FROM ForecastUncertainty where ";
+        queryStr  += "BetaGuilds,BetaGuildsGuilds,Handling,Exponent,Catchability,Harvest FROM ForecastUncertainty where ";
         queryStr  += "ForecastName = '" + ForecastName + "'";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["ForecastName"].size();
@@ -364,6 +366,7 @@ nmfForecast_Tab3::loadWidgets()
             param.emplace_back(QString::fromStdString(dataMap["Competition"][m]));
             param.emplace_back(QString::fromStdString(dataMap["BetaSpecies"][m]));
             param.emplace_back(QString::fromStdString(dataMap["BetaGuilds"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["BetaGuildsGuilds"][m]));
             param.emplace_back(QString::fromStdString(dataMap["Handling"][m]));
             param.emplace_back(QString::fromStdString(dataMap["Exponent"][m]));
             param.emplace_back(QString::fromStdString(dataMap["Catchability"][m]));

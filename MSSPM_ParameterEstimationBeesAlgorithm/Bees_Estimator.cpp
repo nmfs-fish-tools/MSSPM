@@ -77,11 +77,13 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct,
     m_EstExponent.clear();
     m_EstBetaSpecies.clear();
     m_EstBetaGuilds.clear();
+    m_EstBetaGuildsGuilds.clear();
     nmfUtils::initialize(m_EstAlpha,      NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(m_EstPredation,  NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(m_EstHandling,   NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(m_EstBetaSpecies,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(m_EstBetaGuilds, NumSpeciesOrGuilds,NumGuilds);
+    nmfUtils::initialize(m_EstBetaGuildsGuilds, NumGuilds,   NumGuilds);
 
     startTimeSpecies = nmfUtils::startTimer();
 
@@ -170,7 +172,8 @@ std::cout << "  ok = " << ok << std::endl;
                 beesAlg->extractCompetitionParameters(EstParameters,startPos,
                                                       m_EstAlpha,
                                                       m_EstBetaSpecies,
-                                                      m_EstBetaGuilds);
+                                                      m_EstBetaGuilds,
+                                                      m_EstBetaGuildsGuilds);
 
                 beesAlg->extractPredationParameters(EstParameters,startPos,m_EstPredation);
                 beesAlg->extractHandlingParameters(EstParameters,startPos,m_EstHandling);
@@ -396,6 +399,12 @@ void
 Bees_Estimator::getEstimatedCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &estCompGuilds)
 {
     estCompGuilds = m_EstBetaGuilds;
+}
+
+void
+Bees_Estimator::getEstimatedCompetitionBetaGuildsGuilds(boost::numeric::ublas::matrix<double> &estCompGuildsGuilds)
+{
+    estCompGuildsGuilds = m_EstBetaGuildsGuilds;
 }
 
 void
