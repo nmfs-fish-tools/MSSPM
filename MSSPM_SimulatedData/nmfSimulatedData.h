@@ -22,6 +22,7 @@ class nmfSimulatedData
     nmfDatabase* m_Database;
     nmfLogger*   m_Logger;
 
+    bool addError(double& value, const int& errorPct);
     bool getCompetitionSystemCarryingCapacity(
             const bool isAggProd,
             const int& NumGuilds,
@@ -83,7 +84,8 @@ public:
     /**
      * @brief Creates a simulated Biomass time series with the current model settings
      */
-    bool createSimulatedBiomass(QString filename);
+    bool createSimulatedBiomass(QString filename,
+                                const int& errorPct);
 };
 
 #endif // nmfSimulatedData_H

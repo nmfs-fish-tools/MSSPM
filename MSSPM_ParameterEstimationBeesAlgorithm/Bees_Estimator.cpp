@@ -33,6 +33,7 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct,
                                    std::vector<QString>& MultiRunLines,
                                    int& TotalIndividualRuns)
 {
+    bool foundOneBeesRun = false;
     bool ok=false;
     bool isAggProd   = (beeStruct.CompetitionForm == "AGG-PROD");
     bool isAMultiRun = (beeStruct.NLoptNumberOfRuns > 1);
@@ -86,7 +87,7 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct,
     nmfUtils::initialize(m_EstBetaGuildsGuilds, NumGuilds,   NumGuilds);
 
     startTimeSpecies = nmfUtils::startTimer();
-
+std::cout << "Bees num estimate boxes: " << beeStruct.EstimateRunBoxes.size() << std::endl;
 std::cout << "Bees: isAMultiRun: " << isAMultiRun << std::endl;
 
     if (isAMultiRun) {
@@ -114,6 +115,7 @@ std::cout << "Skipping: " <<  MultiRunLines[multiRun].toStdString() << std::endl
             continue; // skip over rest of for statement and continue with next increment
         }
 
+        foundOneBeesRun = true;
         for (int run=0; run<NumSubRuns; ++run) {
 
             for (int subRunNum=1; subRunNum<=NumRepetitions; ++subRunNum)
@@ -122,12 +124,11 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 // Initialize main class ptr
                 beesAlg   = std::make_unique<BeesAlgorithm>(beeStruct,nmfConstantsMSSPM::VerboseOn);
                 beesStats = std::make_unique<BeesStats>(beeStruct.TotalNumberParameters,NumRepetitions);
-                beesAlg->initializeParameterRangesAndPatchSizes();
+                beesAlg->initializeParameterRangesAndPatchSizes(beeStruct);
                 errorMsg.clear();
                 ok = beesAlg->estimateParameters(
                             bestFitness,EstParameters,
                             RunNumber,subRunNum,errorMsg);
-std::cout << "  ok = " << ok << std::endl;
                 if (! errorMsg.empty()) {
                     ok = false;
                     emit ErrorFound(errorMsg);
@@ -203,7 +204,7 @@ std::cout << "  ok = " << ok << std::endl;
 
     } // end for multiRun
 
-    if (isAMultiRun) {
+    if (isAMultiRun && foundOneBeesRun) {
         emit AllSubRunsCompleted(beeStruct.MultiRunSpeciesFilename,
                                  beeStruct.MultiRunModelFilename);
     }

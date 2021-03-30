@@ -50,6 +50,7 @@
 #include "nmfOutputChart3DBarModifier.h"
 #include "nmfOutputChart3D.h"
 #include "nmfSimulatedData.h"
+#include "SimulatedBiomassDialog.h"
 
 //#include "LogisticMultiSpeciesDialog.h"
 //#include "Parameters.h"
@@ -368,7 +369,7 @@ private:
                                     const int&          RunLength,
                                     const int&          NumSpecies,
                                     const bool&         isMohnsRho);
-    void calculateSummaryStatisticsStruct(
+    bool calculateSummaryStatisticsStruct(
             const bool&         isAggProd,
             const std::string&  Algorithm,
             const std::string&  Minimizer,

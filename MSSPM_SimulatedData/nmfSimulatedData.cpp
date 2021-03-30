@@ -13,7 +13,8 @@ nmfSimulatedData::nmfSimulatedData(
 }
 
 bool
-nmfSimulatedData::createSimulatedBiomass(QString filename)
+nmfSimulatedData::createSimulatedBiomass(QString filename,
+                                         const int& errorPct)
 {
     bool retv = true;
     int RunLength=0;
@@ -176,20 +177,16 @@ nmfSimulatedData::createSimulatedBiomass(QString filename)
                                    PredationRho,PredationHandling,PredationExponent,
                                    SimulatedBiomass,lastYearBiomass);
 
+            val = lastYearBiomass + simGrowthValue - simHarvestValue - simCompetitionValue - simPredationValue;
 
 std::cout << "sim year: " << time << ", val = " << lastYearBiomass << " + " << simGrowthValue << " - " << simHarvestValue << " - "
-          << simCompetitionValue << " - " << simPredationValue << std::endl;
+          << simCompetitionValue << " - " << simPredationValue <<  " = " << val << std::endl;
 
-            val = lastYearBiomass + simGrowthValue - simHarvestValue - simCompetitionValue - simPredationValue;
+            addError(val,errorPct);
             SimulatedBiomass(time,species) = (val < 0) ? 0 : val;
 //std::cout << "sim val(" << time << "," << species << "): " << SimulatedBiomass(time,species) << std::endl;
         }
     }
-
-
-
-
-
 
     // Write out Biomass data to .csv file
     // Assure that file has a .csv extension
@@ -221,6 +218,18 @@ std::cout << "sim year: " << time << ", val = " << lastYearBiomass << " + " << s
 
 std::cout << "Model: " << formCheck.toStdString() << std::endl;
     return retv;
+}
+
+bool
+nmfSimulatedData::addError(double& value, const int& errorPct)
+{
+    double factor = nmfUtils::getRandomNumber(0,-1,1);
+    double error = value * (errorPct/100.0);
+
+    value += factor*error;
+    value = (value < 0) ? 0 : value;
+
+    return true;
 }
 
 bool

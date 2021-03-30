@@ -109,28 +109,25 @@ NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
     exponent.clear();
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-std::cout << "initBiomass EstParameters: " << EstParameters[offset+i] << std::endl;
         initBiomass.emplace_back(EstParameters[offset+i]);
     }
     offset += NumSpeciesOrGuilds;
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-std::cout << "r EstParameters: " << EstParameters[offset+i] << std::endl;
         growthRate.emplace_back(EstParameters[offset+i]);
     }
     offset += NumSpeciesOrGuilds;
-std::cout << "isAggProd: " << isAGGPROD << std::endl;
-std::cout << "offset: " << offset << std::endl;
     // Load the carrying capacity vector
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         if (isLogistic) {
-std::cout << "K EstParameters: " << EstParameters[offset+i] << std::endl;
             carryingCapacity.emplace_back(EstParameters[offset+i]);
         } else {
             carryingCapacity.emplace_back(0);
         }
     }
-    offset += NumSpeciesOrGuilds;
+    if (isLogistic) {
+        offset += NumSpeciesOrGuilds;
+    }
 
     if (isCatchability) {
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -210,7 +207,24 @@ std::cout << "K EstParameters: " << EstParameters[offset+i] << std::endl;
     }
 }
 
-
+double
+NLopt_Estimator::myNaturalLog(double value)
+{
+    if (value == 0) {
+        return 0;
+    } else {
+        return std::log(value);
+    }
+}
+double
+NLopt_Estimator::myExp(double value)
+{
+    if (value == 0) {
+        return 0;
+    } else {
+        return std::exp(value);
+    }
+}
 
 double
 NLopt_Estimator::objectiveFunction(unsigned n,
@@ -269,6 +283,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
         NumSpeciesOrGuilds = NumSpecies;
         ObsBiomassBySpeciesOrGuilds = NLoptDataStruct.ObservedBiomassBySpecies;
     }
+//std::cout << "\n\nSetting size of competitionAlpha: " <<  NumSpeciesOrGuilds << "x" <<  NumSpeciesOrGuilds << std::endl;
     nmfUtils::initialize(EstBiomassSpecies,                   NumYears,           NumSpeciesOrGuilds);
     nmfUtils::initialize(EstBiomassGuilds,                    NumYears,           NumGuilds);
     nmfUtils::initialize(EstBiomassRescaled,                  NumYears,           NumSpeciesOrGuilds);
@@ -286,6 +301,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
                       competitionBetaGuilds,competitionBetaGuildsGuilds,
                       predationRho,handling,exponent);
 
+
     // Calculate carrying capacity for all guilds
     systemCarryingCapacity = 0;
     for (int i=0; i<NumGuilds; ++i) {
@@ -294,12 +310,12 @@ NLopt_Estimator::objectiveFunction(unsigned n,
             guildK += carryingCapacity[GuildSpecies[i][j]];
 
             systemCarryingCapacity += guildK;
-std::cout << "sysCap: " << systemCarryingCapacity << std::endl;
+//std::cout << "sysCap: " << systemCarryingCapacity << std::endl;
         }
-std::cout << "guildK: " << guildK << std::endl;
+//std::cout << "guildK: " << guildK << std::endl;
         guildCarryingCapacity.push_back(guildK);
     }
-std::cout << "final sysCap: " << systemCarryingCapacity << std::endl;
+//std::cout << "final sysCap: " << systemCarryingCapacity << std::endl;
      for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i);
     }
@@ -311,10 +327,23 @@ std::cout << "final sysCap: " << systemCarryingCapacity << std::endl;
         return -1;
     }
 
-//nmfUtils::printMatrix("Competition Alpha",competitionAlpha,8,4);
-//nmfUtils::printMatrix("Predation Rho",predationRho,8,4);
+//nmfUtils::printMatrix("Competition Alpha",competitionAlpha,16,10);
+//nmfUtils::printMatrix("Predation Rho",predationRho,16,10);
 
     bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(NLoptDataStruct,"InitBiomass");
+
+
+// RSK take this out possible logstuff
+//for (int ii=0;ii<int(EstBiomassSpecies.size1()); ++ii) {
+//    for (int jj=0;jj<int(EstBiomassSpecies.size2()); ++jj) {
+//        EstBiomassSpecies(ii,jj) = myNaturalLog(EstBiomassSpecies(ii,jj));
+//    }
+//}
+//for (int ii=0;ii<int(Catch.size1()); ++ii) {
+//    for (int jj=0;jj<int(Catch.size2()); ++jj) {
+//        Catch(ii,jj) = std::log(Catch(ii,jj));
+//    }
+//}
 
     for (int time=1; time<NumYears; ++time) {
 
@@ -330,6 +359,8 @@ std::cout << "final sysCap: " << systemCarryingCapacity << std::endl;
             } else {
                 EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
             }
+
+
 
             GrowthTerm      = NLoptGrowthForm->evaluate(species,EstBiomassVal,
                                                         growthRate,carryingCapacity);
@@ -351,18 +382,28 @@ std::cout << "final sysCap: " << systemCarryingCapacity << std::endl;
                                    timeMinus1,species,
                                    predationRho,handling,exponent,
                                    EstBiomassSpecies,EstBiomassVal);
-std::cout << "nlo year: " << time << ", val = " << EstBiomassSpecies(timeMinus1,species) << " + " << GrowthTerm << " - " << HarvestTerm << " - "
-                      << CompetitionTerm << " - " << PredationTerm << std::endl;
+
             EstBiomassVal  += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
 
-//std::cout << "EstBiomassVal: " << EstBiomassVal <<
-//             ", g: " << GrowthTerm <<
-//             ", h: " << HarvestTerm <<
-//             ", c: " << CompetitionTerm <<
-//             ", p: " << PredationTerm << std::endl;
+//if (time == 1) {
+//std::cout << "EstBiomassVal: " << EstBiomassVal << std::endl;
+//}
+
+//if (time == 1) {
+
+//std::cout << "nlo year: " << time << ", val = "
+//          << EstBiomassSpecies(timeMinus1,species) << " + "
+//          << GrowthTerm << " - "
+//          << HarvestTerm << " - "
+//          << CompetitionTerm << " - "
+//          << PredationTerm << " = "
+//          << EstBiomassVal << std::endl;
+//}
+
 if (EstBiomassVal < 0) { // test code only
     EstBiomassVal = 0;
 }
+
             if ((EstBiomassVal < 0) || (std::isnan(std::fabs(EstBiomassVal)))) {
                 incrementObjectiveFunctionCounter(MSSPMName,(double)DefaultFitness,NLoptDataStruct);
                 return DefaultFitness;
@@ -392,6 +433,13 @@ if (EstBiomassVal < 0) { // test code only
         rescaleMinMax(EstBiomassSpecies, EstBiomassRescaled);
         rescaleMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     }
+
+// temp test RSK - take this logstuff out possibly
+//for (int ii=0; ii<int(ObsBiomassBySpeciesOrGuildsRescaled.size1()); ++ii) {
+//    for (int jj=0; jj<int(ObsBiomassBySpeciesOrGuildsRescaled.size2()); ++jj) {
+//        ObsBiomassBySpeciesOrGuildsRescaled(ii,jj) = myNaturalLog(ObsBiomassBySpeciesOrGuildsRescaled(ii,jj));
+//    }
+//}
 
     // Calculate fitness using the appropriate objective criterion
     if (NLoptDataStruct.ObjectiveCriterion == "Least Squares") {
@@ -432,7 +480,7 @@ NLopt_Estimator::incrementObjectiveFunctionCounter(std::string MSSPMName,
 //    m_NLoptFcnEvals = m_Optimizer.get_numevals();
 
     ++m_NumObjFcnCalls;
-//std::cout << "x,y: " << m_NumObjFcnCalls << "," << fitness << std::endl;
+//std::cout << "m_NumObjFcnCalls,fitness: " << m_NumObjFcnCalls << "," << fitness << std::endl;
     if (m_NumObjFcnCalls%1000 == 0) {
 
         writeCurrentLoopFile(MSSPMName,
@@ -514,6 +562,7 @@ NLopt_Estimator::setStoppingCriteria(Data_Struct &NLoptStruct)
         std::cout << "Setting max num function evaluations: " << NLoptStruct.NLoptStopAfterIter << std::endl;
         m_Optimizer.set_maxeval(NLoptStruct.NLoptStopAfterIter);
     }
+
 }
 
 
@@ -538,13 +587,33 @@ NLopt_Estimator::setParameterBounds(Data_Struct& NLoptStruct,
                                     std::vector<std::pair<double,double> >& ParameterRanges,
                                     const int& NumEstParameters)
 {
+    // If all lower bounds = their respective upper bounds, nlopt exits with SUCCESS but the estimated
+    // points are not exactly equal to the input parameter points. This may be a bug with NLopt or perhaps
+    // there's a tolerance or stop condition that I'm not specifying.  As a work-around, I've found that if I
+    // tweak every parameter range by the following eps value, NLopt estimates correctly. RSK 03-24-2021
+    double eps = 1e-10;
+    double lowerVal;
+    double upperVal;
     std::vector<double> lowerBounds(NumEstParameters);
     std::vector<double> upperBounds(NumEstParameters);
 
     // Set parameter bounds for all parameters
     for (int i=0; i<NumEstParameters; ++i) {
-        lowerBounds[i] = ParameterRanges[i].first;
-        upperBounds[i] = ParameterRanges[i].second;
+        lowerVal = ParameterRanges[i].first;
+        upperVal = ParameterRanges[i].second;
+        // Tweak bounds if they're equal and they're both not 0
+//        if ((lowerVal == upperVal)) { // && (lowerVal*upperVal != 0)) {
+//            lowerVal -= eps;
+//            upperVal += eps;
+//        }
+
+//        // RSK logstuff take this out possibly
+//        lowerVal = myNaturalLog(lowerVal);
+//        upperVal = myNaturalLog(upperVal);
+
+
+        lowerBounds[i] = lowerVal;
+        upperBounds[i] = upperVal;
     }
     m_Optimizer.set_lower_bounds(lowerBounds);
     m_Optimizer.set_upper_bounds(upperBounds);
@@ -569,6 +638,7 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
                                     std::vector<QString>& MultiRunLines,
                                     int& TotalIndividualRuns)
 {
+    bool foundOneNLoptRun = false;
     int NumEstParameters;
     int NumMultiRuns = 1;
     int NumSubRuns = 0;
@@ -603,29 +673,33 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
     NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
 
     NumEstParameters = ParameterRanges.size();
-std::cout << "NumEstParam: " << NumEstParameters << std::endl;
-for (int i=0; i< NumEstParameters; ++i) {
- std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
-}
+//std::cout << "NumEstParam: " << NumEstParameters << std::endl;
+//for (int i=0; i< NumEstParameters; ++i) {
+// std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
+//}
+
+std::cout << "isAMultiRun: " << isAMultiRun << std::endl;
 
     if (isAMultiRun) {
         NumMultiRuns = MultiRunLines.size();
     }
+std::cout << "NLopt NumMultiRuns: " << NumMultiRuns << std::endl;
 
     for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
-
         NumSubRuns = 1;
         if (isAMultiRun) {
             nmfUtilsQt::reloadDataStruct(NLoptStruct,MultiRunLines[multiRun]);
             NumSubRuns = NLoptStruct.NLoptNumberOfRuns;
         }
-std::cout << "multiRun: " << multiRun << ", EstimationAlgorithm: " << NLoptStruct.EstimationAlgorithm << std::endl;
+std::cout << "NLopt multiRun: " << multiRun << ", EstimationAlgorithm: " << NLoptStruct.EstimationAlgorithm << std::endl;
         if (NLoptStruct.EstimationAlgorithm != "NLopt Algorithm") { // This must follow the reloadNLoptStruct call
-std::cout << "Skipping: " <<  MultiRunLines[multiRun].toStdString() << std::endl;
+std::cout << "NLopt Skipping: " <<  MultiRunLines[multiRun].toStdString() << std::endl;
             continue; // skip over rest of for statement and continue with next increment
         }
 
+        foundOneNLoptRun = true;
         for (int run=0; run<NumSubRuns; ++run) {
+std::cout << "NLopt subRunNum: " << run << std::endl;
 
             // Initialize the optimizer with the appropriate algorithm
             m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
@@ -660,6 +734,11 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                         m_EstBetaSpecies,  m_EstBetaGuilds, m_EstBetaGuildsGuilds,
                         m_EstPredation,    m_EstHandling,   m_EstExponent);
 
+// logstuff RSK - remove this possible
+//for (int ii=0; ii<m_EstInitBiomass.size(); ++ii) {
+//    m_EstInitBiomass[ii] = myExp(m_EstInitBiomass[ii]);
+//}
+
                 createOutputStr(NLoptStruct.TotalNumberParameters,
                                 m_Parameters.size(),NumSubRuns,
                                 fitness,fitnessStdDev,NLoptStruct,bestFitnessStr);
@@ -682,14 +761,14 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                 std::cout << "User terminated application: " << e.what() << std::endl;
             }
             catch (std::exception &e) {
-                std::cout << "nlopt failed: " << e.what() << std::endl;
+                std::cout << "NLopt_Estimator::estimateParameters nlopt failed: " << e.what() << std::endl;
             }
 
         } // end of sub run loop
 
     }
 
-    if (isAMultiRun) {
+    if (isAMultiRun && foundOneNLoptRun) {
         emit AllSubRunsCompleted(NLoptStruct.MultiRunSpeciesFilename,
                                  NLoptStruct.MultiRunModelFilename);
     }

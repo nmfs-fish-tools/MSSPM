@@ -35,12 +35,14 @@ CONFIG += c++14
 LIBS += -lboost_system -lboost_filesystem
 
 SOURCES += \
+    SimulatedBiomassDialog.cpp \
     main.cpp \
     nmfMainWindow.cpp \
     ClearOutputDialog.cpp \
     PreferencesDialog.cpp
 
 HEADERS  += \
+    SimulatedBiomassDialog.h \
     mainpage.h \
     nmfMainWindow.h \
     ClearOutputDialog.h \

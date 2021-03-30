@@ -476,6 +476,8 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
     std::string cmd;
     std::string errorMsg;
 
+std::cout << "------- ---- current algorithm: " << getCurrentAlgorithm() << std::endl;
+
     cmd  =  "UPDATE Systems SET";
     cmd +=  "   NumberOfRuns = "          + getBeesNumberOfRuns() +
             ",  TimeStep = 1"             + // std::to_string(Estimation_Tab6_TimeStepSB->value()) +

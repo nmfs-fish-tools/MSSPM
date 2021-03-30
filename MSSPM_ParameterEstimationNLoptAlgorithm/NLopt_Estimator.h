@@ -111,6 +111,10 @@ private:
             Data_Struct& NLoptStruct,
             const QString& MultiRunLine);
 
+
+    static double myNaturalLog(double value);
+    static double myExp(double value);
+
 signals:
     /**
      * @brief Signal emitted at the end of a multi-run set of runs
