@@ -81,13 +81,14 @@ private:
     std::string returnCode(int result);
     void stopRun(const std::string &elapsedTimeStr,
                  const std::string &fitnessStr);
-    void createOutputStr(const int&         numTotalParameters,
-                         const int&         numEstParameters,
-                         const int&         numSubRuns,
-                         const double&      bestFitness,
-                         const double&      fitnessStdDev,
-                         const Data_Struct& beeStruct,
-                         std::string&       bestFitnessStr);
+    void createOutputStr(
+            const int&         numEstParameters,
+            const int&         numTotalParameters,
+            const int&         numSubRuns,
+            const double&      bestFitness,
+            const double&      fitnessStdDev,
+            const Data_Struct& beeStruct,
+            std::string&       bestFitnessStr);
     std::string convertValues1DToOutputStr(const std::string& label,
                                     const std::vector<double> &Values,
                                     const bool& includeTotal);

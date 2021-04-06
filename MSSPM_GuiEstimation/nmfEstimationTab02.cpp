@@ -105,6 +105,7 @@ nmfEstimation_Tab2::callback_LoadPB()
 void
 nmfEstimation_Tab2::callback_ImportPB()
 {
+    QString tag="";
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
 
     // Load default CSV files
@@ -125,10 +126,7 @@ nmfEstimation_Tab2::callback_ImportPB()
                     QObject::tr("Data Files (*.csv)"));
         if (filename.contains("_")) {
             QFileInfo fi(filename);
-            QString base = fi.baseName();
-            QStringList parts = base.split("_");
-            if (parts.size() == 2) {
-                QString tag = parts[1];
+            if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
                 tableName += "_"+tag.toStdString();
                 loadCSVFile(tableName);
             } else {
@@ -151,6 +149,7 @@ nmfEstimation_Tab2::loadCSVFile(std::string& tableName)
     QString errorMsg;
     QString tableNameStr;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::pair<int,int> nonZeroCell;
 
     tableNameStr = QString::fromStdString(tableName);
     tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
@@ -159,7 +158,8 @@ std::cout << "input: " << tableNameStr.toStdString() << std::endl;
     loadOK = nmfUtilsQt::loadTimeSeries(
                 Estimation_Tabs, Estimation_Tab2_CatchTV, inputDataPath, tableNameStr,
                 nmfConstantsMSSPM::FirstLineNotReadOnly,
-                errorMsg);
+                nmfConstantsMSSPM::FixedNotation,
+                nonZeroCell,errorMsg);
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
     }
@@ -266,8 +266,8 @@ nmfEstimation_Tab2::callback_ExportPB()
         saveCSVFile(tableName);
     } else {
         bool ok;
-        QString tag = QInputDialog::getText(Estimation_Tabs, tr("Competition Files"),
-                                            tr("Enter Competition CSV filename version tag (omit any '_'): "), QLineEdit::Normal,
+        QString tag = QInputDialog::getText(Estimation_Tabs, tr("Harvest Files"),
+                                            tr("Enter Harvest CSV filename version tag: "), QLineEdit::Normal,
                                             "", &ok);
         if (ok && !tag.isEmpty()) {
             tableName += "_"+tag.toStdString();

@@ -81,8 +81,8 @@ private:
     boost::numeric::ublas::matrix<double> m_EstPredation;
     boost::numeric::ublas::matrix<double> m_EstHandling;
 
-    void createOutputStr(const int&         numTotalParameters,
-                         const int&         numEstParameters,
+    void createOutputStr(const int&         numEstParameters,
+                         const int&         numTotalParameters,
                          const int&         numSubRuns,
                          const double&      bestFitness,
                          const double&      fitnessStdDev,

@@ -179,9 +179,9 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 beesAlg->extractPredationParameters(EstParameters,startPos,m_EstPredation);
                 beesAlg->extractHandlingParameters(EstParameters,startPos,m_EstHandling);
                 beesAlg->extractExponentParameters(EstParameters,startPos,m_EstExponent);
-                numEstParameters = beesAlg->calculateActualNumEstParameters();
+                numEstParameters   = beesAlg->calculateActualNumEstParameters();
                 numTotalParameters = EstParameters.size();
-                createOutputStr(numTotalParameters,numEstParameters,NumRepetitions,
+                createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,
                                 bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
                 emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
 
@@ -230,13 +230,14 @@ Bees_Estimator::wasStoppedByUser()
 }
 
 void
-Bees_Estimator::createOutputStr(const int&         numTotalParameters,
-                                const int&         numEstParameters,
-                                const int&         numSubRuns,
-                                const double&      bestFitness,
-                                const double&      fitnessStdDev,
-                                const Data_Struct& beeStruct,
-                                std::string&       bestFitnessStr)
+Bees_Estimator::createOutputStr(
+        const int&         numEstParameters,
+        const int&         numTotalParameters,
+        const int&         numSubRuns,
+        const double&      bestFitness,
+        const double&      fitnessStdDev,
+        const Data_Struct& beeStruct,
+        std::string&       bestFitnessStr)
 {
     std::string growthForm      = beeStruct.GrowthForm;
     std::string harvestForm     = beeStruct.HarvestForm;

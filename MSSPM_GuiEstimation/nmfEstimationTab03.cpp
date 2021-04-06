@@ -28,12 +28,16 @@ nmfEstimation_Tab3::nmfEstimation_Tab3(QTabWidget*  tabs,
 
     Estimation_Tabs = tabs;
 
+    m_AlphaTables.push_back("CompetitionAlpha");
     m_AlphaTables.push_back("CompetitionAlphaMin");
     m_AlphaTables.push_back("CompetitionAlphaMax");
+    m_BetaSpeciesTables.push_back("CompetitionBetaSpecies");
     m_BetaSpeciesTables.push_back("CompetitionBetaSpeciesMin");
     m_BetaSpeciesTables.push_back("CompetitionBetaSpeciesMax");
+    m_BetaGuildsTables.push_back("CompetitionBetaGuilds");
     m_BetaGuildsTables.push_back("CompetitionBetaGuildsMin");
     m_BetaGuildsTables.push_back("CompetitionBetaGuildsMax");
+    m_BetaGuildsGuildsTables.push_back("CompetitionBetaGuildsGuilds");
     m_BetaGuildsGuildsTables.push_back("CompetitionBetaGuildsGuildsMin");
     m_BetaGuildsGuildsTables.push_back("CompetitionBetaGuildsGuildsMax");
 
@@ -48,34 +52,56 @@ nmfEstimation_Tab3::nmfEstimation_Tab3(QTabWidget*  tabs,
     // Add the loaded widget as the new tabbed page
     Estimation_Tabs->addTab(Estimation_Tab3_Widget, tr("3. Competition Parameters"));
 
+    Estimation_Tab3_CompetitionAlphaTV           = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionAlphaTV");
     Estimation_Tab3_CompetitionAlphaMinTV        = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionAlphaMinTV");
     Estimation_Tab3_CompetitionAlphaMaxTV        = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionAlphaMaxTV");
+    Estimation_Tab3_CompetitionBetaSpeciesTV     = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionBetaSpeciesTV");
     Estimation_Tab3_CompetitionBetaSpeciesMinTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionBetaSpeciesMinTV");
     Estimation_Tab3_CompetitionBetaSpeciesMaxTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionBetaSpeciesMaxTV");
+    Estimation_Tab3_CompetitionBetaGuildsTV      = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionBetaGuildsTV");
     Estimation_Tab3_CompetitionBetaGuildsMinTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionBetaGuildsMinTV");
     Estimation_Tab3_CompetitionBetaGuildsMaxTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionBetaGuildsMaxTV");
+    Estimation_Tab3_CompetitionBetaGuildsGuildsTV    = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionBetaGuildsGuildsTV");
+    Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV");
+    Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV");
+    Estimation_Tab3_CompetitionAlphaLBL          = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionAlphaLBL");
     Estimation_Tab3_CompetitionAlphaMinLBL       = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionAlphaMinLBL");
     Estimation_Tab3_CompetitionAlphaMaxLBL       = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionAlphaMaxLBL");
+    Estimation_Tab3_CompetitionBetaSpeciesLBL    = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionBetaSpeciesLBL");
     Estimation_Tab3_CompetitionBetaSpeciesMinLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionBetaSpeciesMinLBL");
     Estimation_Tab3_CompetitionBetaSpeciesMaxLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionBetaSpeciesMaxLBL");
+    Estimation_Tab3_CompetitionBetaGuildsLBL     = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionBetaGuildsLBL");
     Estimation_Tab3_CompetitionBetaGuildsMinLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionBetaGuildsMinLBL");
     Estimation_Tab3_CompetitionBetaGuildsMaxLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionBetaGuildsMaxLBL");
-    Estimation_Tab3_CompetitionMinSP             = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab3_CompetitionMinSP");
-    Estimation_Tab3_CompetitionMaxSP             = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab3_CompetitionMaxSP");
+    Estimation_Tab3_CompetitionBetaGuildsGuildsLBL    = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionBetaGuildsGuildsLBL");
+    Estimation_Tab3_CompetitionBetaGuildsGuildsMinLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionBetaGuildsGuildsMinLBL");
+    Estimation_Tab3_CompetitionBetaGuildsGuildsMaxLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab3_CompetitionBetaGuildsGuildsMaxLBL");
+    Estimation_Tab3_CompetitionMinSP             = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab3_MinSP");
+    Estimation_Tab3_CompetitionMaxSP             = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab3_MaxSP");
+    Estimation_Tab3_CompetitionMainSP            = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab3_MainSP");
     Estimation_Tab3_PrevPB                       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_PrevPB");
     Estimation_Tab3_NextPB                       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_NextPB");
     Estimation_Tab3_LoadPB                       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_LoadPB");
     Estimation_Tab3_SavePB                       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_SavePB");
     Estimation_Tab3_ImportPB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_ImportPB");
     Estimation_Tab3_ExportPB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_ExportPB");
-    Estimation_Tab3_EstimateCB                   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab3_EstimateCB");
+    Estimation_Tab3_TransposePB                  = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_TransposePB");
+    Estimation_Tab3_TransposePB2                 = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab3_TransposePB2");
+    Estimation_Tab3_CompetitionSB                = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab3_CompetitionSB");
+    Estimation_Tab3_CompetitionSB2               = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab3_CompetitionSB2");
 
+    Estimation_Tab3_CompetitionAlphaTV->setToolTip("Initial Value for Alpha Coeff of Column Species on Row Species");
     Estimation_Tab3_CompetitionAlphaMinTV->setToolTip("Minimum Value for Alpha Coeff of Column Species on Row Species");
     Estimation_Tab3_CompetitionAlphaMaxTV->setToolTip("Maximum Value for Alpha Coeff of Column Species on Row Species");
+    Estimation_Tab3_CompetitionBetaSpeciesTV->setToolTip("Initial Value for Beta (Species) Coeff of Column Species on Row Species");
     Estimation_Tab3_CompetitionBetaSpeciesMinTV->setToolTip("Minimum Value for Beta (Species) Coeff of Column Species on Row Species");
     Estimation_Tab3_CompetitionBetaSpeciesMaxTV->setToolTip("Maximum Value for Beta (Species) Coeff of Column Species on Row Species");
+    Estimation_Tab3_CompetitionBetaGuildsTV->setToolTip("Initial Value for Beta (Guilds) Coeff of Column Guilds on Row Species");
     Estimation_Tab3_CompetitionBetaGuildsMinTV->setToolTip("Minimum Value for Beta (Guilds) Coeff of Column Guilds on Row Species");
     Estimation_Tab3_CompetitionBetaGuildsMaxTV->setToolTip("Maximum Value for Beta (Guilds) Coeff of Column Guilds on Row Species");
+    Estimation_Tab3_CompetitionBetaGuildsGuildsTV->setToolTip("Initial Value for Beta (Guilds) Coeff of Column Guilds on Row Guilds");
+    Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV->setToolTip("Minimum Value for Beta (Guilds) Coeff of Column Guilds on Row Guilds");
+    Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV->setToolTip("Maximum Value for Beta (Guilds) Coeff of Column Guilds on Row Guilds");
 
     connect(Estimation_Tab3_PrevPB,   SIGNAL(clicked()),
             this,                     SLOT(callback_PrevPB()));
@@ -89,24 +115,52 @@ nmfEstimation_Tab3::nmfEstimation_Tab3(QTabWidget*  tabs,
             this,                     SLOT(callback_ImportPB()));
     connect(Estimation_Tab3_ExportPB, SIGNAL(clicked()),
             this,                     SLOT(callback_ExportPB()));
+    connect(Estimation_Tab3_TransposePB,      SIGNAL(clicked()),
+            this,                             SLOT(callback_TransposePB()));
+    connect(Estimation_Tab3_TransposePB2,     SIGNAL(clicked()),
+            this,                             SLOT(callback_TransposePB()));
     connect(Estimation_Tab3_CompetitionMinSP, SIGNAL(splitterMoved(int,int)),
             this,                             SLOT(callback_MinSplitterMoved(int,int)));
     connect(Estimation_Tab3_CompetitionMaxSP, SIGNAL(splitterMoved(int,int)),
             this,                             SLOT(callback_MaxSplitterMoved(int,int)));
-    connect(Estimation_Tab3_EstimateCB,       SIGNAL(stateChanged(int)),
-            this,                             SLOT(callback_EstimateChecked(int)));
+    connect(Estimation_Tab3_CompetitionSB,    SIGNAL(valueChanged(int)),
+            this,                             SLOT(callback_PctRangeSB(int)));
+    connect(Estimation_Tab3_CompetitionSB2,   SIGNAL(valueChanged(int)),
+            this,                             SLOT(callback_PctRangeSB(int)));
 
     Estimation_Tab3_PrevPB->setText("\u25C1--");
     Estimation_Tab3_NextPB->setText("--\u25B7");
 
+    m_TableViewsNoK.clear();
+    m_TableViewsNoK.push_back(Estimation_Tab3_CompetitionAlphaTV);
+    m_TableViewsNoK.push_back(Estimation_Tab3_CompetitionAlphaMinTV);
+    m_TableViewsNoK.push_back(Estimation_Tab3_CompetitionAlphaMaxTV);
+    m_TableViewsMsProd.clear();
+    m_TableViewsMsProd.push_back(Estimation_Tab3_CompetitionBetaSpeciesTV);
+    m_TableViewsMsProd.push_back(Estimation_Tab3_CompetitionBetaSpeciesMinTV);
+    m_TableViewsMsProd.push_back(Estimation_Tab3_CompetitionBetaSpeciesMaxTV);
+    m_TableViewsMsProd.push_back(Estimation_Tab3_CompetitionBetaGuildsTV);
+    m_TableViewsMsProd.push_back(Estimation_Tab3_CompetitionBetaGuildsMinTV);
+    m_TableViewsMsProd.push_back(Estimation_Tab3_CompetitionBetaGuildsMaxTV);
+    m_TableViewsAggProd.clear();
+    m_TableViewsAggProd.push_back(Estimation_Tab3_CompetitionBetaGuildsGuildsTV);
+    m_TableViewsAggProd.push_back(Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV);
+    m_TableViewsAggProd.push_back(Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV);
+
     m_TableViews.clear();
+    m_TableViews.push_back(Estimation_Tab3_CompetitionAlphaTV);
     m_TableViews.push_back(Estimation_Tab3_CompetitionAlphaMinTV);
     m_TableViews.push_back(Estimation_Tab3_CompetitionAlphaMaxTV);
+    m_TableViews.push_back(Estimation_Tab3_CompetitionBetaSpeciesTV);
     m_TableViews.push_back(Estimation_Tab3_CompetitionBetaSpeciesMinTV);
     m_TableViews.push_back(Estimation_Tab3_CompetitionBetaSpeciesMaxTV);
     NumSpeciesTableViews = m_TableViews.size();
+    m_TableViews.push_back(Estimation_Tab3_CompetitionBetaGuildsTV);
     m_TableViews.push_back(Estimation_Tab3_CompetitionBetaGuildsMinTV);
     m_TableViews.push_back(Estimation_Tab3_CompetitionBetaGuildsMaxTV);
+    m_TableViews.push_back(Estimation_Tab3_CompetitionBetaGuildsGuildsTV);
+    m_TableViews.push_back(Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV);
+    m_TableViews.push_back(Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV);
     NumGuildTableViews   = m_TableViews.size() - NumSpeciesTableViews;
 
     NumSpecies = getSpecies().size();
@@ -135,12 +189,18 @@ void
 nmfEstimation_Tab3::clearWidgets()
 {
     nmfUtilsQt::clearTableView(
-        {Estimation_Tab3_CompetitionAlphaMinTV,
+        {Estimation_Tab3_CompetitionAlphaTV,
+         Estimation_Tab3_CompetitionAlphaMinTV,
          Estimation_Tab3_CompetitionAlphaMaxTV,
+         Estimation_Tab3_CompetitionBetaSpeciesTV,
          Estimation_Tab3_CompetitionBetaSpeciesMinTV,
          Estimation_Tab3_CompetitionBetaSpeciesMaxTV,
+         Estimation_Tab3_CompetitionBetaGuildsTV,
          Estimation_Tab3_CompetitionBetaGuildsMinTV,
-         Estimation_Tab3_CompetitionBetaGuildsMaxTV});
+         Estimation_Tab3_CompetitionBetaGuildsMaxTV,
+         Estimation_Tab3_CompetitionBetaGuildsGuildsTV,
+         Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV,
+         Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV});
 }
 
 QStringList
@@ -229,7 +289,7 @@ nmfEstimation_Tab3::callback_CompetitionFormChanged(QString competitionForm)
     QList<int> minSizeList;
     QList<int> maxSizeList;
     int numSections  = Estimation_Tab3_CompetitionMinSP->sizes().size();
-    int defaultWidth = Estimation_Tab3_CompetitionMinSP->width()/3;
+    int defaultWidth = Estimation_Tab3_CompetitionMinSP->width()/numSections;
 
     m_CompetitionForm = competitionForm;
     for (int i=0; i<numSections; ++i) {
@@ -238,57 +298,81 @@ nmfEstimation_Tab3::callback_CompetitionFormChanged(QString competitionForm)
     }
     Estimation_Tab3_CompetitionMinSP->setSizes(minSizeList);
     Estimation_Tab3_CompetitionMaxSP->setSizes(maxSizeList);
+    Estimation_Tab3_CompetitionMainSP->setSizes(maxSizeList);
 
+    Estimation_Tab3_CompetitionAlphaTV->setEnabled(false);
     Estimation_Tab3_CompetitionAlphaMinTV->setEnabled(false);
     Estimation_Tab3_CompetitionAlphaMaxTV->setEnabled(false);
+    Estimation_Tab3_CompetitionBetaSpeciesTV->setEnabled(false);
     Estimation_Tab3_CompetitionBetaSpeciesMinTV->setEnabled(false);
     Estimation_Tab3_CompetitionBetaSpeciesMaxTV->setEnabled(false);
+    Estimation_Tab3_CompetitionBetaGuildsTV->setEnabled(false);
     Estimation_Tab3_CompetitionBetaGuildsMinTV->setEnabled(false);
     Estimation_Tab3_CompetitionBetaGuildsMaxTV->setEnabled(false);
+    Estimation_Tab3_CompetitionAlphaLBL->setEnabled(false);
     Estimation_Tab3_CompetitionAlphaMinLBL->setEnabled(false);
     Estimation_Tab3_CompetitionAlphaMaxLBL->setEnabled(false);
+    Estimation_Tab3_CompetitionBetaSpeciesLBL->setEnabled(false);
     Estimation_Tab3_CompetitionBetaSpeciesMinLBL->setEnabled(false);
     Estimation_Tab3_CompetitionBetaSpeciesMaxLBL->setEnabled(false);
+    Estimation_Tab3_CompetitionBetaGuildsLBL->setEnabled(false);
     Estimation_Tab3_CompetitionBetaGuildsMinLBL->setEnabled(false);
     Estimation_Tab3_CompetitionBetaGuildsMaxLBL->setEnabled(false);
+    Estimation_Tab3_CompetitionBetaGuildsGuildsLBL->setEnabled(false);
+    Estimation_Tab3_CompetitionBetaGuildsGuildsMinLBL->setEnabled(false);
+    Estimation_Tab3_CompetitionBetaGuildsGuildsMaxLBL->setEnabled(false);
 
-    if (m_CompetitionForm == "NO_K") {
+    if (isNoK()) {
+        Estimation_Tab3_CompetitionAlphaTV->setEnabled(true);
         Estimation_Tab3_CompetitionAlphaMinTV->setEnabled(true);
         Estimation_Tab3_CompetitionAlphaMaxTV->setEnabled(true);
+        Estimation_Tab3_CompetitionAlphaLBL->setEnabled(true);
         Estimation_Tab3_CompetitionAlphaMinLBL->setEnabled(true);
         Estimation_Tab3_CompetitionAlphaMaxLBL->setEnabled(true);
         for (int i=1; i<numSections; ++i) {
             minSizeList[i] = 0;
             maxSizeList[i] = 0;
         }
-    } else if (m_CompetitionForm == "AGG-PROD") {
-        Estimation_Tab3_CompetitionBetaGuildsMinTV->setEnabled(true);
-        Estimation_Tab3_CompetitionBetaGuildsMaxTV->setEnabled(true);
-        Estimation_Tab3_CompetitionBetaGuildsMinLBL->setEnabled(true);
-        Estimation_Tab3_CompetitionBetaGuildsMaxLBL->setEnabled(true);
-        for (int i=0; i<numSections-1; ++i) {
-            minSizeList[i] = 0;
-            maxSizeList[i] = 0;
-        }
-    } else if (m_CompetitionForm == "MS-PROD") {
+    } else if (isMsProd()) {
+        Estimation_Tab3_CompetitionBetaSpeciesTV->setEnabled(true);
         Estimation_Tab3_CompetitionBetaSpeciesMinTV->setEnabled(true);
         Estimation_Tab3_CompetitionBetaSpeciesMaxTV->setEnabled(true);
+        Estimation_Tab3_CompetitionBetaSpeciesLBL->setEnabled(true);
         Estimation_Tab3_CompetitionBetaSpeciesMinLBL->setEnabled(true);
         Estimation_Tab3_CompetitionBetaSpeciesMaxLBL->setEnabled(true);
+        Estimation_Tab3_CompetitionBetaGuildsTV->setEnabled(true);
         Estimation_Tab3_CompetitionBetaGuildsMinTV->setEnabled(true);
         Estimation_Tab3_CompetitionBetaGuildsMaxTV->setEnabled(true);
+        Estimation_Tab3_CompetitionBetaGuildsLBL->setEnabled(true);
         Estimation_Tab3_CompetitionBetaGuildsMinLBL->setEnabled(true);
         Estimation_Tab3_CompetitionBetaGuildsMaxLBL->setEnabled(true);
         minSizeList[0] = 0;
         maxSizeList[0] = 0;
+        minSizeList[numSections-1] = 0;
+        maxSizeList[numSections-1] = 0;
+    } else if (isAggProd()) {
+        Estimation_Tab3_CompetitionBetaGuildsGuildsTV->setEnabled(true);
+        Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV->setEnabled(true);
+        Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV->setEnabled(true);
+        Estimation_Tab3_CompetitionBetaGuildsGuildsLBL->setEnabled(true);
+        Estimation_Tab3_CompetitionBetaGuildsGuildsMinLBL->setEnabled(true);
+        Estimation_Tab3_CompetitionBetaGuildsGuildsMaxLBL->setEnabled(true);
+        for (int i=0; i<numSections-1; ++i) {
+            minSizeList[i] = 0;
+            maxSizeList[i] = 0;
+        }
     }
     Estimation_Tab3_CompetitionMinSP->setSizes(minSizeList);
     Estimation_Tab3_CompetitionMaxSP->setSizes(maxSizeList);
+    Estimation_Tab3_CompetitionMainSP->setSizes(maxSizeList);
 }
+
+
 
 void
 nmfEstimation_Tab3::callback_ImportPB()
 {
+    QString tag="";
     QString selectMsg;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
     std::vector<std::string> allTableNames = getAllTableNames();
@@ -305,9 +389,9 @@ nmfEstimation_Tab3::callback_ImportPB()
     } else if (reply == QMessageBox::Yes) {
         loadCSVFiles(allTableNames);
     } else {
-        QString filePrefix = (isNoK()) ? "CompetitionAlphaMin" :
-                                         (isMsProd()) ? "CompetitionBetaSpeciesMin" :
-                                                        "CompetitionBetaGuildsGuildsMin";
+        QString filePrefix = (isNoK()) ? "CompetitionAlpha" :
+                                         (isMsProd()) ? "CompetitionBetaSpecies" :
+                                                        "CompetitionBetaGuildsGuilds";
         // if no, raise browser and have user select appropriate file.
         selectMsg = "Select "+filePrefix+"*.csv file";
         QString filename = QFileDialog::getOpenFileName(
@@ -315,16 +399,12 @@ nmfEstimation_Tab3::callback_ImportPB()
                     QObject::tr(selectMsg.toLatin1()), inputDataPath,
                     QObject::tr("Data Files (*.csv)"));
         QFileInfo fi(filename);
-        QString base = fi.baseName();
-        QStringList parts = base.split(filePrefix);
-        if (parts.size() == 2) {
-            QString tag = parts[1];
+        if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
             for (int i=0; i<numTables; ++i) {
-                allTableNames[i] += tag.toStdString();
+                allTableNames[i] += "_"+tag.toStdString();
             }
-            loadCSVFiles(allTableNames);            
+            loadCSVFiles(allTableNames);
         } else {
-
             QMessageBox::information(Estimation_Tabs, "Competition CSV Import",
                                      "\nPlease make sure to select the filename that begins with:\n" + filePrefix + "\n",
                                      QMessageBox::Ok);
@@ -339,20 +419,23 @@ nmfEstimation_Tab3::loadCSVFiles(std::vector<std::string>& allTableNames)
     QString errorMsg;
     QString tableName;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::pair<int,int> nonZeroCell;
+    std::vector<QTableView* > tableViews = getTableViews();
 
-    int tableNum = 0;
-    for (QTableView* tv : m_TableViews) {
-        tableName = QString::fromStdString(allTableNames[tableNum]);
+    for (int i=0; i<int(allTableNames.size()); ++i) {
+        tableName = QString::fromStdString(allTableNames[i]);
         tableName = QDir(inputDataPath).filePath(tableName+".csv");
         loadOK = nmfUtilsQt::loadTimeSeries(
-                    Estimation_Tabs, tv, inputDataPath, tableName,
+                    Estimation_Tabs, tableViews[i], inputDataPath, tableName,
                     nmfConstantsMSSPM::FirstLineNotReadOnly,
+                    nmfConstantsMSSPM::ScientificNotation,
+                    nonZeroCell,
                     errorMsg);
         if (! loadOK) {
             m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         }
-        ++tableNum;
     }
+    resetSpinBox(nonZeroCell);
 }
 
 std::vector<std::string>
@@ -361,10 +444,12 @@ nmfEstimation_Tab3::getAllTableNames()
     std::vector<std::string> allTableNames;
     std::vector<std::vector<std::string> > tableList;
 
-    if (m_CompetitionForm == "MS-PROD") {
-        tableList = {m_AlphaTables,m_BetaSpeciesTables,m_BetaGuildsTables};
-    } else {
-        tableList = {m_AlphaTables,m_BetaSpeciesTables,m_BetaGuildsGuildsTables};
+    if (isNoK()) {
+        tableList = {m_AlphaTables};
+    } else if (isMsProd()) {
+        tableList = {m_BetaSpeciesTables,m_BetaGuildsTables};
+    } else if (isAggProd()) {
+        tableList = {m_BetaGuildsGuildsTables};
     }
     for (std::vector<std::string> tableVec : tableList)
     {
@@ -393,7 +478,7 @@ nmfEstimation_Tab3::callback_SavePB()
     std::string Scaling,CompetitionForm;
     QString msg;
     QModelIndex index;
-    boost::numeric::ublas::matrix<double> MinMax[numTables];
+    boost::numeric::ublas::matrix<double> CompetitionMatrix[numTables];
     std::vector<std::string> GuildTables;
     std::string VariableNames;
     std::string speciesName;
@@ -417,25 +502,11 @@ nmfEstimation_Tab3::callback_SavePB()
 
     Estimation_Tabs->setCursor(Qt::WaitCursor);
 
-    for (unsigned i=0; i<m_AlphaTables.size(); ++i) {
-        nmfUtils::initialize(MinMax[++inc], numSpecies, numSpecies);
-    }
-    for (unsigned i=0; i<m_BetaSpeciesTables.size(); ++i) {
-        nmfUtils::initialize(MinMax[++inc], numSpecies, numSpecies);
-    }
-    if (m_CompetitionForm == "MS-PROD") {
-        for (unsigned i=0; i<m_BetaGuildsTables.size(); ++i) {
-            nmfUtils::initialize(MinMax[++inc], numSpecies, numGuilds);
-        }
-    } else {
-        for (unsigned i=0; i<m_BetaGuildsGuildsTables.size(); ++i) {
-            nmfUtils::initialize(MinMax[++inc], numGuilds,  numGuilds);
-        }
-    }
 
-    // Alpha
-    if (m_CompetitionForm == "NO_K") {
-        if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_SModels[tableInc+1],m_SModels[tableInc+2])) {
+     // Alpha
+    if (isNoK()) {
+
+        if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_SModels[tableInc+2],m_SModels[tableInc+3])) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab3::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
             QMessageBox::critical(Estimation_Tabs, "Error",
                                  "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
@@ -443,6 +514,7 @@ nmfEstimation_Tab3::callback_SavePB()
             Estimation_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
+
         for (unsigned int k=0; k<m_AlphaTables.size(); ++k) {
             ++tableInc;
             cmd = "DELETE FROM " + m_AlphaTables[tableInc] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
@@ -462,7 +534,6 @@ nmfEstimation_Tab3::callback_SavePB()
                 for (int j=0; j<m_SModels[tableInc]->columnCount(); ++ j) {
                     index = m_SModels[tableInc]->index(i,j);
                     value = index.data().toString().toStdString();
-                    MinMax[tableInc](i,j) = index.data().toDouble();
                     cmd += "('" + m_ProjectSettingsConfig + "','" + m_SpeciesNames[i].toStdString() + "','" +
                             m_SpeciesNames[j].toStdString() + "', " + value + "),";
                 }
@@ -479,29 +550,13 @@ nmfEstimation_Tab3::callback_SavePB()
                 return;
             }
         }
-
-        // Check if user is running a Genetic Algorithm that if there's a value in MinMax[1], there's a
-        // non-zero value in MinMax[0].
-        for (int i=0; i<m_SModels[0]->rowCount(); ++i) {
-            for (int j=0; j<m_SModels[0]->columnCount(); ++j) {
-                if ((Algorithm == "Genetic Algorithm") &&
-                        (MinMax[1](i,j) > 0) && (MinMax[0](i,j) <= 0)) {
-                    msg  = "\nWarning: All non-zero Max values must have a non-zero Min value.\n\n";
-                    msg += "Please modify current table as needed.\n";
-                    QMessageBox::warning(Estimation_Tabs, "Warning Min/Max Data",msg,
-                                         QMessageBox::Ok);
-                    Estimation_Tabs->setCursor(Qt::ArrowCursor);
-                    return;
-                }
-            }
-        }
-    } else {
-        tableInc += m_AlphaTables.size();
     }
 
+
     // Beta Species
-    if (m_CompetitionForm == "MS-PROD") {
-        if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_SModels[tableInc+1],m_SModels[tableInc+2])) {
+    if (isMsProd()) {
+        tableInc = 2;
+        if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_SModels[tableInc+2],m_SModels[tableInc+3])) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 3] nmfEstimation_Tab3::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
             QMessageBox::critical(Estimation_Tabs, "Error",
                                  "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
@@ -509,6 +564,7 @@ nmfEstimation_Tab3::callback_SavePB()
             Estimation_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
+
         for (unsigned int k=0; k<m_BetaSpeciesTables.size(); ++k) {
             ++tableInc;
             cmd = "DELETE FROM " + m_BetaSpeciesTables[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
@@ -528,7 +584,6 @@ nmfEstimation_Tab3::callback_SavePB()
                 for (int j=0; j<m_SModels[tableInc]->columnCount(); ++ j) {
                     index = m_SModels[tableInc]->index(i,j);
                     value = index.data().toString().toStdString();
-                    MinMax[tableInc](i,j) = index.data().toDouble();
                     cmd += "('" + m_ProjectSettingsConfig + "','" + m_SpeciesNames[i].toStdString() + "','" +
                             m_SpeciesNames[j].toStdString() + "', " + value + "),";
                 }
@@ -545,13 +600,15 @@ nmfEstimation_Tab3::callback_SavePB()
                 return;
             }
         }
-    } else {
-        tableInc += m_BetaSpeciesTables.size();
     }
 
     // Beta Guilds
-    if ((m_CompetitionForm == "MS-PROD") || (m_CompetitionForm == "AGG-PROD")) {
-        if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_SModels[tableInc+1],m_SModels[tableInc+2])) {
+    if (isMsProd() || isAggProd()) {
+        std::vector<QTableView* > tableViews = getTableViews();
+        QStandardItemModel* smodel;
+        QStandardItemModel* smodel2 = qobject_cast<QStandardItemModel*>(tableViews[1]->model());
+        QStandardItemModel* smodel3 = qobject_cast<QStandardItemModel*>(tableViews[2]->model());
+        if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(smodel2,smodel3)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 5] nmfEstimation_Tab3::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
             QMessageBox::critical(Estimation_Tabs, "Error",
                                  "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
@@ -559,7 +616,7 @@ nmfEstimation_Tab3::callback_SavePB()
             Estimation_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
-        if (m_CompetitionForm == "MS-PROD") {
+        if (isMsProd()) {
             GuildTables   = m_BetaGuildsTables;
             VariableNames = "Guild,SpeName";
         } else {
@@ -567,7 +624,7 @@ nmfEstimation_Tab3::callback_SavePB()
             VariableNames = "GuildA,GuildB";
         }
         for (unsigned int k=0; k<GuildTables.size(); ++k) {
-            ++tableInc;
+            smodel = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
             cmd = "DELETE FROM " + GuildTables[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -581,12 +638,12 @@ nmfEstimation_Tab3::callback_SavePB()
             }
 
             cmd = "INSERT INTO " + GuildTables[k] + " (SystemName,"+VariableNames+",Value) VALUES ";
-            for (int i=0; i<m_SModels[tableInc]->rowCount(); ++i) {
-                for (int j=0; j<m_SModels[tableInc]->columnCount(); ++ j) {
-                    index = m_SModels[tableInc]->index(i,j);
+
+            for (int i=0; i<smodel->rowCount(); ++i) {
+                for (int j=0; j<smodel->columnCount(); ++ j) {
+                    index = smodel->index(i,j);
                     value = index.data().toString().toStdString();
-                    MinMax[tableInc](i,j) = index.data().toDouble();
-                    if (m_CompetitionForm == "MS-PROD") {
+                    if (isMsProd()) {
                         cmd += "('" + m_ProjectSettingsConfig   + "','" +
                                 m_SpeciesNames[i].toStdString() + "','" +
                                 m_GuildNames[j].toStdString()   + "', " + value + "),";
@@ -611,8 +668,12 @@ nmfEstimation_Tab3::callback_SavePB()
         }
     }
 
-    QMessageBox::information(Estimation_Tabs, "Competition Min/Max Updated",
-                             "\nCompetition Min/Max tables have been successfully updated.\n",
+
+
+
+
+    QMessageBox::information(Estimation_Tabs, "Competition Updated",
+                             "\nCompetition tables have been successfully updated.\n",
                              QMessageBox::Ok);
 
     // Reload widgets so column sizing will re-adjust
@@ -641,7 +702,7 @@ nmfEstimation_Tab3::callback_ExportPB()
         } else {
             bool ok;
             QString tag = QInputDialog::getText(Estimation_Tabs, tr("Competition Files"),
-                                                 tr("Enter Competition CSV filename version tag (omit any '_'): "), QLineEdit::Normal,
+                                                 tr("Enter Competition CSV filename version tag: "), QLineEdit::Normal,
                                                  "", &ok);
             if (ok && !tag.isEmpty()) {
                  for (int i=0; i<numTables; ++i) {
@@ -659,26 +720,55 @@ nmfEstimation_Tab3::callback_ExportPB()
     }
 }
 
+std::vector<QTableView* >
+nmfEstimation_Tab3::getTableViews()
+{
+    std::vector<QTableView* > tableViews = {};
+
+    tableViews = m_TableViewsNoK;
+    if (isMsProd()) {
+        tableViews = m_TableViewsMsProd;
+    } else if (isAggProd()) {
+        tableViews = m_TableViewsAggProd;
+    }
+    return tableViews;
+}
+
+void
+nmfEstimation_Tab3::callback_TransposePB()
+{
+    std::vector<QTableView*> tableViews = getTableViews();
+
+    for (QTableView* tv : tableViews) {
+        nmfUtilsQt::transposeModel(tv);
+    }
+
+    // Reset model vector
+    for (int i=0; i<int(m_TableViews.size()); ++i) {
+        m_SModels[i] = qobject_cast<QStandardItemModel*>(m_TableViews[i]->model());
+    }
+}
+
 void
 nmfEstimation_Tab3::saveCSVFiles(
         std::vector<std::string>& allTableNames)
 {
     bool okSave;
     bool atLeastOneError = false;
-    int tableNum = 0;
     QString tableNameWithPath;
     QString savedFilenames;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::vector<QTableView* > tableViews = getTableViews();
+    QStandardItemModel* smodel;
 
-    for (QTableView* tv : m_TableViews) {
-        tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(allTableNames[tableNum]));
-        QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(tv->model());
+    for (int i=0; i<int(allTableNames.size()); ++i) {
+        tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(allTableNames[i]));
+        smodel = qobject_cast<QStandardItemModel*>(tableViews[i]->model());
         okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameWithPath);
         savedFilenames += tableNameWithPath+"\n";
         if (!okSave) {
             atLeastOneError = true;
         }
-        ++tableNum;
     }
     if (atLeastOneError) {
         QMessageBox::information(Estimation_Tabs, "Competition Files Saved",
@@ -692,33 +782,30 @@ nmfEstimation_Tab3::saveCSVFiles(
 
 }
 
-
 void
-nmfEstimation_Tab3::callback_EstimateChecked(int state)
+nmfEstimation_Tab3::callback_PctRangeSB(int pctValue)
 {
-    int numRows;
-    int numCols;
-    QModelIndex indexMin;
-    QModelIndex indexMax;
-    QStandardItemModel* smodelMin;
-    QStandardItemModel* smodelMax;
+    double pct = pctValue/100.0;
 
-    if (state != Qt::Checked) {
-        for (unsigned k=0; k<m_TableViews.size(); k += 2) {
-            smodelMin = qobject_cast<QStandardItemModel*>(m_TableViews[k]->model());
-            smodelMax = qobject_cast<QStandardItemModel*>(m_TableViews[k+1]->model());
-            numRows   = m_TableViews[k]->model()->rowCount();
-            numCols   = m_TableViews[k]->model()->columnCount();
-            for (int i=0; i<numRows; ++i) {
-                for (int j=0; j<numCols;++j) {
-                    indexMin = smodelMin->index(i,j);
-                    indexMax = smodelMax->index(i,j);
-                    smodelMax->setData(indexMax,smodelMin->data(indexMin));
-                }
-            }
-        }
+    // The sender can be 1 of 2 spin boxes...this just keeps them in sync.
+    QString senderName = qobject_cast<QSpinBox* >(QObject::sender())->objectName();
+    if (senderName == "Estimation_Tab3_CompetitionSB") {
+        Estimation_Tab3_CompetitionSB2->blockSignals(true);
+        Estimation_Tab3_CompetitionSB2->setValue(pctValue);
+        Estimation_Tab3_CompetitionSB2->blockSignals(false);
     } else {
-        loadWidgets();
+        Estimation_Tab3_CompetitionSB->blockSignals(true);
+        Estimation_Tab3_CompetitionSB->setValue(pctValue);
+        Estimation_Tab3_CompetitionSB->blockSignals(false);
+    }
+
+    if (isNoK()) {
+        nmfUtilsQt::setMinMax(pct,m_TableViewsNoK[0],m_TableViewsNoK[1],m_TableViewsNoK[2]);
+    } else if (isMsProd()) {
+        nmfUtilsQt::setMinMax(pct,m_TableViewsMsProd[0],m_TableViewsMsProd[1],m_TableViewsMsProd[2]);
+        nmfUtilsQt::setMinMax(pct,m_TableViewsMsProd[3],m_TableViewsMsProd[4],m_TableViewsMsProd[5]);
+    } else if (isAggProd()) {
+        nmfUtilsQt::setMinMax(pct,m_TableViewsAggProd[0],m_TableViewsAggProd[1],m_TableViewsAggProd[2]);
     }
 }
 
@@ -741,6 +828,12 @@ nmfEstimation_Tab3::isMsProd()
 }
 
 bool
+nmfEstimation_Tab3::isNull()
+{
+    return (m_CompetitionForm == "Null");
+}
+
+bool
 nmfEstimation_Tab3::loadWidgets()
 {
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab3::loadWidgets()");
@@ -748,7 +841,7 @@ nmfEstimation_Tab3::loadWidgets()
     int m;
     int NumSpecies;
     int NumGuilds;
-    int NumCoeffs;
+    int NumRecords;
     int tableInc = -1;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -760,6 +853,10 @@ nmfEstimation_Tab3::loadWidgets()
     std::string VariableNames;
     std::string speciesName;
     std::string guildName;
+    std::string dataMapStr;
+    std::pair<int,int> nonZeroCell;
+    QStringList vListSpecies;
+    QStringList vListGuilds;
 
     m_SpeciesNames.clear();
     m_GuildNames.clear();
@@ -772,121 +869,166 @@ nmfEstimation_Tab3::loadWidgets()
 
     clearWidgets();
 
+    if (isNull()) {
+        return true;
+    }
+
     // Get Species and Guild names
     m_SpeciesNames = getSpecies();
     m_GuildNames   = getGuilds();
     NumSpecies     = m_SpeciesNames.size();
     NumGuilds      = m_GuildNames.size();
-
-    // Get competitionForm
-    fields    = {"WithinGuildCompetitionForm"};
-    queryStr  = "SELECT WithinGuildCompetitionForm FROM Systems WHERE ";
-    queryStr += " SystemName = '" + m_ProjectSettingsConfig + "'";
-    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["WithinGuildCompetitionForm"].size() > 0) {
-        competitionForm = dataMap["WithinGuildCompetitionForm"][0];
+    for (QString species : m_SpeciesNames) {
+        vListSpecies << " " + species + " "; // for aesthetics (and because vertical header looks better when displaying years)
+    }
+    for (QString guild : m_GuildNames) {
+        vListGuilds << " " + guild + " "; // for aesthetics (and because vertical header looks better when displaying years)
     }
 
-    for (unsigned int k=0; k<m_AlphaTables.size(); ++k) {
-        ++tableInc;
-        fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
-        queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_AlphaTables[k] +
-                    " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
-        dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-        NumCoeffs = dataMap["SpeciesA"].size();
-        m = 0;
-        for (int i=0; i<NumSpecies; ++i) {
-            for (int j=0; j<NumSpecies; ++j) {
-                if ((NumCoeffs > 0) && (m < NumCoeffs))
-                    item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
-                else
-                    item = new QStandardItem("");
-                item->setTextAlignment(Qt::AlignCenter);
-                m_SModels[tableInc]->setItem(i, j, item);
-            }
-        }
-        m_SModels[tableInc]->setVerticalHeaderLabels(m_SpeciesNames);
-        m_SModels[tableInc]->setHorizontalHeaderLabels(m_SpeciesNames);
-        m_TableViews[tableInc]->resizeColumnsToContents();
-    }
-
-    for (unsigned int k=0; k<m_BetaSpeciesTables.size(); ++k) {
-        ++tableInc;
-        NumCoeffs = 0;
-        if (! m_ProjectSettingsConfig.empty()) {
+    if (isNoK()) {
+        for (unsigned int k=0; k<m_AlphaTables.size(); ++k) {
+            ++tableInc;
             fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
-            queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_BetaSpeciesTables[k] +
+            queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_AlphaTables[k] +
                         " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
             dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-            NumCoeffs = dataMap["SpeciesA"].size();
-        }
-        m = 0;
-        for (int i=0; i<NumSpecies; ++i) {
-            for (int j=0; j<NumSpecies; ++j) {
-                if ((NumCoeffs > 0) && (m < NumCoeffs))
-                    item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
-                else
-                    item = new QStandardItem("");
-                item->setTextAlignment(Qt::AlignCenter);
-                m_SModels[tableInc]->setItem(i, j, item);
+            NumRecords = dataMap["SpeciesA"].size();
+            m = 0;
+            for (int i=0; i<NumSpecies; ++i) {
+                for (int j=0; j<NumSpecies; ++j) {
+                    if ((NumRecords > 0) && (m < NumRecords)) {
+                        dataMapStr = dataMap["Value"][m++];
+                        if (std::stod(dataMapStr) != 0) {
+                            nonZeroCell = std::make_pair(i,j);
+                        }
+                        item = new QStandardItem(QString::fromStdString(dataMapStr));
+                    } else {
+                        item = new QStandardItem("");
+                    }
+                    item->setTextAlignment(Qt::AlignCenter);
+                    m_SModels[tableInc]->setItem(i, j, item);
+                }
             }
+            m_SModels[tableInc]->setVerticalHeaderLabels(vListSpecies);
+            m_SModels[tableInc]->setHorizontalHeaderLabels(m_SpeciesNames);
+            m_TableViews[tableInc]->resizeColumnsToContents();
         }
-        m_SModels[tableInc]->setVerticalHeaderLabels(m_SpeciesNames);
-        m_SModels[tableInc]->setHorizontalHeaderLabels(m_SpeciesNames);
-        m_TableViews[tableInc]->resizeColumnsToContents();
+        resetSpinBox(nonZeroCell);
+        return true;
     }
+
+    if (isMsProd()) {
+        for (unsigned int k=0; k<m_BetaSpeciesTables.size(); ++k) {
+            QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(m_TableViewsMsProd[k]->model());
+            tableInc = 3;
+            NumRecords = 0;
+            if (! m_ProjectSettingsConfig.empty()) {
+                fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
+                queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_BetaSpeciesTables[k] +
+                        " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+                dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+                NumRecords = dataMap["SpeciesA"].size();
+            }
+            m = 0;
+            for (int i=0; i<NumSpecies; ++i) {
+                for (int j=0; j<NumSpecies; ++j) {
+                    if ((NumRecords > 0) && (m < NumRecords)) {
+                        dataMapStr = dataMap["Value"][m++];
+                        if (std::stod(dataMapStr) != 0) {
+                            nonZeroCell = std::make_pair(i,j);
+                        }
+                        item = new QStandardItem(QString::fromStdString(dataMapStr));
+                    } else {
+                        item = new QStandardItem("");
+                    }
+                    item->setTextAlignment(Qt::AlignCenter);
+                    smodel->setItem(i, j, item);
+                }
+            }
+            smodel->setVerticalHeaderLabels(vListSpecies);
+            smodel->setHorizontalHeaderLabels(m_SpeciesNames);
+            m_TableViewsMsProd[k]->resizeColumnsToContents();
+
+        }
+        resetSpinBox(nonZeroCell);
+    }
+
     int NumSpeciesOrGuilds = (isAggProd()) ? NumGuilds : NumSpecies;
 
     if (isMsProd()) {
         GuildTables   = m_BetaGuildsTables;
         VariableNames = "Guild,SpeName";
+        tableInc = 6;
     } else if (isAggProd()) {
         GuildTables   = m_BetaGuildsGuildsTables;
         VariableNames = "GuildA,GuildB";
+        tableInc = 9;
     }
 
     for (unsigned int k=0; k<GuildTables.size(); ++k) {
-        ++tableInc;
         if (isMsProd()) {
            smodel = new QStandardItemModel(NumSpecies, NumGuilds);
-           m_SModels[tableInc] = smodel;
-           m_TableViews[tableInc]->setModel(smodel);
+           m_TableViewsMsProd[k+3]->setModel(smodel);
         } else if (isAggProd()) {
             smodel = new QStandardItemModel(NumGuilds, NumGuilds);
-            m_SModels[tableInc] = smodel;
-            m_TableViews[tableInc]->setModel(smodel);
+            m_TableViewsAggProd[k]->setModel(smodel);
         }
-        NumCoeffs = 0;
+        NumRecords = 0;
         if (! m_ProjectSettingsConfig.empty()) {
             fields    = {"SystemName","SpeName","Guild","Value"};
             queryStr  = "SELECT SystemName,"+VariableNames+",Value FROM " + GuildTables[k] +
                         " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
             dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-            NumCoeffs = dataMap["SpeName"].size();
+            NumRecords = dataMap["SpeName"].size();
         }
         m = 0;
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
             for (int j=0; j<NumGuilds; ++j) {
-                if ((NumCoeffs > 0) && (m < NumCoeffs))
-                    item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
-                else
+                if ((NumRecords > 0) && (m < NumRecords)) {
+                    dataMapStr = dataMap["Value"][m++];
+                    if (std::stod(dataMapStr) != 0) {
+                        nonZeroCell = std::make_pair(i,j);
+                    }
+                    item = new QStandardItem(QString::fromStdString(dataMapStr));
+                } else {
                     item = new QStandardItem("");
+                }
                 item->setTextAlignment(Qt::AlignCenter);
-                m_SModels[tableInc]->setItem(i, j, item);
+                smodel->setItem(i, j, item);
             }
         }
-        if (isAggProd()) {
-            m_SModels[tableInc]->setVerticalHeaderLabels(m_GuildNames);
-        } else if (isMsProd()) {
-            m_SModels[tableInc]->setVerticalHeaderLabels(m_SpeciesNames);
+        smodel->setHorizontalHeaderLabels(m_GuildNames);
+        if (isMsProd()) {
+            smodel->setVerticalHeaderLabels(vListSpecies);
+            m_TableViewsMsProd[k+3]->resizeColumnsToContents();
+        } else if (isAggProd()) {
+            smodel->setVerticalHeaderLabels(vListGuilds);
+            m_TableViewsAggProd[k]->resizeColumnsToContents();
         }
-        m_SModels[tableInc]->setHorizontalHeaderLabels(m_GuildNames);
-        m_TableViews[tableInc]->resizeColumnsToContents();
     }
-
-    // Set enable-ness on widgets
-    callback_CompetitionFormChanged(QString::fromStdString(competitionForm));
+    resetSpinBox(nonZeroCell);
 
     return true;
 }
 
+
+void
+nmfEstimation_Tab3::resetSpinBox(const std::pair<int,int>& nonZeroCell)
+{
+    int index = 0;
+    int nonZeroRow = nonZeroCell.first;
+    int nonZeroCol = nonZeroCell.second;
+
+    if (isMsProd()) {
+        index = 3;
+    } else if (isAggProd()) {
+        index = 9;
+    }
+    QModelIndex initValueIndex = m_SModels[index  ]->index(nonZeroRow,nonZeroCol);
+    QModelIndex minValueIndex  = m_SModels[index+1]->index(nonZeroRow,nonZeroCol);
+    double initValue = initValueIndex.data().toDouble();
+    double minValue  = minValueIndex.data().toDouble();
+    int    pctValue  = int(nmfUtils::round(100.0*(initValue-minValue)/initValue,0));
+
+    Estimation_Tab3_CompetitionSB->setValue(pctValue);
+}

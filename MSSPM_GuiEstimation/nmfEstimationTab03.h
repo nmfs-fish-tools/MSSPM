@@ -52,6 +52,9 @@ private:
     QStringList                      m_GuildNames;
     std::vector<QStandardItemModel*> m_SModels;
     std::vector<QTableView*>         m_TableViews;
+    std::vector<QTableView*>         m_TableViewsNoK;
+    std::vector<QTableView*>         m_TableViewsMsProd;
+    std::vector<QTableView*>         m_TableViewsAggProd;
     std::vector<std::string>         m_AlphaTables;
     std::vector<std::string>         m_BetaSpeciesTables;
     std::vector<std::string>         m_BetaGuildsTables;
@@ -59,36 +62,53 @@ private:
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab3_Widget;
+    QTableView*  Estimation_Tab3_CompetitionAlphaTV;
     QTableView*  Estimation_Tab3_CompetitionAlphaMinTV;
     QTableView*  Estimation_Tab3_CompetitionAlphaMaxTV;
+    QTableView*  Estimation_Tab3_CompetitionBetaSpeciesTV;
     QTableView*  Estimation_Tab3_CompetitionBetaSpeciesMinTV;
     QTableView*  Estimation_Tab3_CompetitionBetaSpeciesMaxTV;
+    QTableView*  Estimation_Tab3_CompetitionBetaGuildsTV;
     QTableView*  Estimation_Tab3_CompetitionBetaGuildsMinTV;
     QTableView*  Estimation_Tab3_CompetitionBetaGuildsMaxTV;
+    QTableView*  Estimation_Tab3_CompetitionBetaGuildsGuildsTV;
+    QTableView*  Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV;
+    QTableView*  Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV;
+    QLabel*      Estimation_Tab3_CompetitionAlphaLBL;
     QLabel*      Estimation_Tab3_CompetitionAlphaMinLBL;
     QLabel*      Estimation_Tab3_CompetitionAlphaMaxLBL;
+    QLabel*      Estimation_Tab3_CompetitionBetaSpeciesLBL;
     QLabel*      Estimation_Tab3_CompetitionBetaSpeciesMinLBL;
     QLabel*      Estimation_Tab3_CompetitionBetaSpeciesMaxLBL;
+    QLabel*      Estimation_Tab3_CompetitionBetaGuildsLBL;
     QLabel*      Estimation_Tab3_CompetitionBetaGuildsMinLBL;
     QLabel*      Estimation_Tab3_CompetitionBetaGuildsMaxLBL;
+    QLabel*      Estimation_Tab3_CompetitionBetaGuildsGuildsLBL;
+    QLabel*      Estimation_Tab3_CompetitionBetaGuildsGuildsMinLBL;
+    QLabel*      Estimation_Tab3_CompetitionBetaGuildsGuildsMaxLBL;
     QSplitter*   Estimation_Tab3_CompetitionMinSP;
     QSplitter*   Estimation_Tab3_CompetitionMaxSP;
+    QSplitter*   Estimation_Tab3_CompetitionMainSP;
     QPushButton* Estimation_Tab3_PrevPB;
     QPushButton* Estimation_Tab3_NextPB;
     QPushButton* Estimation_Tab3_SavePB;
     QPushButton* Estimation_Tab3_LoadPB;
     QPushButton* Estimation_Tab3_ImportPB;
     QPushButton* Estimation_Tab3_ExportPB;
-    QCheckBox*   Estimation_Tab3_EstimateCB;
+    QSpinBox*    Estimation_Tab3_CompetitionSB;
+    QSpinBox*    Estimation_Tab3_CompetitionSB2;
+    QPushButton* Estimation_Tab3_TransposePB;
+    QPushButton* Estimation_Tab3_TransposePB2;
 
     QStringList getSpecies();
     QStringList getGuilds();
     void        readSettings();
     std::vector<std::string> getAllTableNames();
+    bool isNull();
     bool isNoK();
     bool isMsProd();
     bool isAggProd();
-
+    std::vector<QTableView* > getTableViews();
 
 public:
     /**
@@ -115,6 +135,7 @@ public:
     bool loadWidgets();
     void saveCSVFiles(std::vector<std::string>& allTableNames);
     void loadCSVFiles(std::vector<std::string>& allTableNames);
+    void resetSpinBox(const std::pair<int,int>& nonZeroCell);
 
 public Q_SLOTS:
     /**
@@ -159,10 +180,14 @@ public Q_SLOTS:
      */
     void callback_CompetitionFormChanged(QString competitionForm);
     /**
-     * @brief Callback invoked when the user toggles the Estimate checkbox
-     * @param state : when set to Checked means that the minimum and maxumum estimated value limits are the same (effectively defining the parameter(s))
+     * @brief Callback invoked when user sets the Competition min/max range percent spin box
+     * @param value : integer percent value to make the min/max range difference (i.e., 2 => min is 2% less than the initial values and max is 2% greater than the initial values)
      */
-    void callback_EstimateChecked(int state);
+    void callback_PctRangeSB(int value);
+    /**
+     * @brief Callback invoked when the user clicks the T button. This will cause the data in every Competition matrix to be transposed.
+     */
+    void callback_TransposePB();
 };
 
 #endif // NMFESTIMATIONTAB3_H

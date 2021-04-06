@@ -50,27 +50,38 @@ class nmfEstimation_Tab4: public QObject
     std::string              m_PredationForm;
     std::string              m_ProjectDir;
     std::string              m_ProjectSettingsConfig;
-    std::vector<QTableView*> m_TableViews1d;
     std::vector<QTableView*> m_TableViews2d;
+    std::vector<QTableView*> m_TableViewsTypeI;
+    std::vector<QTableView*> m_TableViewsTypeII;
+    std::vector<QTableView*> m_TableViewsTypeIII;
+    std::vector<std::string> m_TableNamesTypeI;
+    std::vector<std::string> m_TableNamesTypeII;
+    std::vector<std::string> m_TableNamesTypeIII;
     std::vector<std::string> m_TableNames1d;
     std::vector<std::string> m_TableNames2d;
-    std::vector<QStandardItemModel*> m_smodels1d;
     std::vector<QStandardItemModel*> m_smodels2d;
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab4_Widget;
+    QTableView*  Estimation_Tab4_PredationTV;
     QTableView*  Estimation_Tab4_PredationMinTV;
     QTableView*  Estimation_Tab4_PredationMaxTV;
+    QTableView*  Estimation_Tab4_HandlingTV;
     QTableView*  Estimation_Tab4_HandlingMinTV;
     QTableView*  Estimation_Tab4_HandlingMaxTV;
+    QTableView*  Estimation_Tab4_ExponentTV;
     QTableView*  Estimation_Tab4_ExponentMinTV;
     QTableView*  Estimation_Tab4_ExponentMaxTV;
-    QSplitter*   Estimation_Tab4_PredationMinSP;
-    QSplitter*   Estimation_Tab4_PredationMaxSP;
+    QSplitter*   Estimation_Tab4_MainSP;
+    QSplitter*   Estimation_Tab4_MinSP;
+    QSplitter*   Estimation_Tab4_MaxSP;
+    QLabel*      Estimation_Tab4_PredationLBL;
     QLabel*      Estimation_Tab4_PredationMinLBL;
     QLabel*      Estimation_Tab4_PredationMaxLBL;
+    QLabel*      Estimation_Tab4_HandlingLBL;
     QLabel*      Estimation_Tab4_HandlingMinLBL;
     QLabel*      Estimation_Tab4_HandlingMaxLBL;
+    QLabel*      Estimation_Tab4_ExponentLBL;
     QLabel*      Estimation_Tab4_ExponentMinLBL;
     QLabel*      Estimation_Tab4_ExponentMaxLBL;
     QPushButton* Estimation_Tab4_PrevPB;
@@ -79,17 +90,31 @@ class nmfEstimation_Tab4: public QObject
     QPushButton* Estimation_Tab4_SavePB;
     QPushButton* Estimation_Tab4_ImportPB;
     QPushButton* Estimation_Tab4_ExportPB;
-    QCheckBox*   Estimation_Tab4_EstimateCB;
+    QPushButton* Estimation_Tab4_TransposePB;
+    QPushButton* Estimation_Tab4_TransposePB2;
+    QSpinBox*    Estimation_Tab4_PredationSB;
+    QSpinBox*    Estimation_Tab4_PredationSB2;
 
     void getForms(std::string& predationForm,
                   std::string& competitionForm);
     int  getNumSpecies();
+    std::vector<std::vector<QTableView *> > getGroupsOfTableViews();
+    bool isNull();
+    bool isTypeI();
+    bool isTypeII();
+    bool isTypeIII();
     void readSettings();
     void saveCSVFiles(std::vector<std::string>& allTableNames);
     void loadCSVFiles(std::vector<std::string>& allTableNames);
     std::vector<std::string> getAllTableNames();
     std::vector<QTableView*> getAllTableViews();
-
+    void resetSpinBox(const std::pair<int,int>& nonZeroCell,
+                      const QStandardItemModel* smodel,
+                      const QStandardItemModel* smodel1);
+    void saveTables(const bool& isTypeIII,
+                    const std::vector<std::string>& SpeNames,
+                    const std::vector<QTableView*>& tableViews,
+                    const std::vector<std::string>& tableNames);
 public:
     /**
      * @brief nmfEstimation_Tab4 : class constructor for the Predation Parameters GUI page
@@ -158,10 +183,14 @@ public Q_SLOTS:
      */
     void callback_MaxSplitterMoved(int pos, int index);
     /**
-     * @brief Callback invoked when the user toggles the Estimate checkbox
-     * @param state : when set to Checked means that the minimum and maxumum estimated value limits are the same (effectively defining the parameter(s))
+     * @brief Callback invoked when user sets the Competition min/max range percent spin box
+     * @param value : integer percent value to make the min/max range difference (i.e., 2 => min is 2% less than the initial values and max is 2% greater than the initial values)
      */
-    void callback_EstimateChecked(int state);
+    void callback_PctRangeSB(int value);
+    /**
+     * @brief Callback invoked when the user clicks the T button. This will cause the data in every Competition matrix to be transposed.
+     */
+    void callback_TransposePB();
 };
 
 #endif // NMFESTIMATIONTAB4_H

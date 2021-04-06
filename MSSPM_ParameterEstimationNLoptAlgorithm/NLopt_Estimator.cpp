@@ -108,15 +108,18 @@ NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
     handling.clear();
     exponent.clear();
 
+    // Always extract init biomass
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         initBiomass.emplace_back(EstParameters[offset+i]);
     }
     offset += NumSpeciesOrGuilds;
 
+    // Always extract growth rate
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         growthRate.emplace_back(EstParameters[offset+i]);
     }
     offset += NumSpeciesOrGuilds;
+
     // Load the carrying capacity vector
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         if (isLogistic) {
@@ -530,17 +533,14 @@ NLopt_Estimator::loadInitBiomassParameterRanges(
 {
     bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(dataStruct,"InitBiomass");
     std::pair<double,double> aPair;
-std::cout << "=2=> isCheckedInitBiomass: " << isCheckedInitBiomass << std::endl;
-std::cout << 1 << std::endl;
-std::cout << "size init biomass min: " << dataStruct.InitBiomassMin.size() << std::endl;
 
-// Always load initial biomass values
+    // Always load initial biomass values
     for (unsigned species=0; species<dataStruct.InitBiomassMin.size(); ++species) {
         if (isCheckedInitBiomass) {
             aPair = std::make_pair(dataStruct.InitBiomassMin[species],
                                    dataStruct.InitBiomassMax[species]);
         } else {
-            aPair = std::make_pair(dataStruct.InitBiomass[species], //-nmfConstantsMSSPM::epsilon,
+            aPair = std::make_pair(dataStruct.InitBiomass[species],  //-nmfConstantsMSSPM::epsilon,
                                    dataStruct.InitBiomass[species]); //+nmfConstantsMSSPM::epsilon);
         }
         parameterRanges.emplace_back(aPair);
@@ -606,11 +606,9 @@ NLopt_Estimator::setParameterBounds(Data_Struct& NLoptStruct,
 //            lowerVal -= eps;
 //            upperVal += eps;
 //        }
-
 //        // RSK logstuff take this out possibly
 //        lowerVal = myNaturalLog(lowerVal);
 //        upperVal = myNaturalLog(upperVal);
-
 
         lowerBounds[i] = lowerVal;
         upperBounds[i] = upperVal;
@@ -673,10 +671,10 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
     NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
 
     NumEstParameters = ParameterRanges.size();
-//std::cout << "NumEstParam: " << NumEstParameters << std::endl;
-//for (int i=0; i< NumEstParameters; ++i) {
-// std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
-//}
+std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
+for (int i=0; i< NumEstParameters; ++i) {
+ std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
+}
 
 std::cout << "isAMultiRun: " << isAMultiRun << std::endl;
 
@@ -728,6 +726,10 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                 //    std::cout << "  Est Param[" << i << "]: " << m_Parameters[i] << std::endl;
                 //}
 
+// Always extract Init Biomass
+// Always extract Growth Rate
+
+
                 extractParameters(NLoptStruct, &m_Parameters[0], m_EstInitBiomass,
                         m_EstGrowthRates,  m_EstCarryingCapacities,
                         m_EstCatchability, m_EstAlpha,
@@ -735,12 +737,14 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                         m_EstPredation,    m_EstHandling,   m_EstExponent);
 
 // logstuff RSK - remove this possible
-//for (int ii=0; ii<m_EstInitBiomass.size(); ++ii) {
-//    m_EstInitBiomass[ii] = myExp(m_EstInitBiomass[ii]);
-//}
+std::cout << "Catchability q:" << std::endl;
+for (int ii=0; ii<m_EstCatchability.size(); ++ii) {
+std::cout << m_EstCatchability[ii] << std::endl;
+}
 
-                createOutputStr(NLoptStruct.TotalNumberParameters,
-                                m_Parameters.size(),NumSubRuns,
+                createOutputStr(m_Parameters.size(),
+                                NLoptStruct.TotalNumberParameters,
+                                NumSubRuns,
                                 fitness,fitnessStdDev,NLoptStruct,bestFitnessStr);
 
                 if (isAMultiRun) {
@@ -788,13 +792,14 @@ NLopt_Estimator::callback_StopTheOptimizer()
 }
 
 void
-NLopt_Estimator::createOutputStr(const int&         numTotalParameters,
-                                 const int&         numEstParameters,
-                                 const int&         numSubRuns,
-                                 const double&      bestFitness,
-                                 const double&      fitnessStdDev,
-                                 const Data_Struct& NLoptStruct,
-                                 std::string&       bestFitnessStr)
+NLopt_Estimator::createOutputStr(
+        const int&         numEstParameters,
+        const int&         numTotalParameters,
+        const int&         numSubRuns,
+        const double&      bestFitness,
+        const double&      fitnessStdDev,
+        const Data_Struct& NLoptStruct,
+        std::string&       bestFitnessStr)
 {
     std::string growthForm      = NLoptStruct.GrowthForm;
     std::string harvestForm     = NLoptStruct.HarvestForm;

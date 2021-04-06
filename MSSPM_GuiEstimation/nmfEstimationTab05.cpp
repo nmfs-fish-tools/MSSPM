@@ -186,24 +186,6 @@ nmfEstimation_Tab5::importTableData(const bool& firstLineReadOnly,
         QFileInfo fi(filename);
         QString filenameNoPath = fi.baseName();
         loadCSVFile(firstLineReadOnly,filenameNoPath.toStdString(),tableView);
-//        if (filename.contains("_")) {
-//            QFileInfo fi(filename);
-//            QString base = fi.baseName();
-//            QStringList parts = base.split("_");
-//            if (parts.size() == 2) {
-//                QString tag = parts[1];
-//                tableNameNew = tableName+"_"+tag.toStdString();
-//                loadCSVFile(firstLineReadOnly,tableNameNew,tableView);
-//            } else {
-//                QMessageBox::information(Estimation_Tabs, type+" CSV Import",
-//                                         "\nPlease make sure to select the "+type+" filename that contains the appropriate tag\n",
-//                                         QMessageBox::Ok);
-//            }
-//        } else {
-//            QMessageBox::critical(Estimation_Tabs, type+" CSV Import",
-//                                  "\nError: No tag found in filename\n",
-//                                  QMessageBox::Ok);
-//        }
     }
 }
 
@@ -216,6 +198,7 @@ nmfEstimation_Tab5::loadCSVFile(const bool& firstLineReadOnly,
     QString errorMsg;
     QString tableNameStr;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::pair<int,int> nonZeroCell;
 
     tableNameStr = QString::fromStdString(tableName);
     tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
@@ -223,7 +206,9 @@ std::cout << "tableNameStr: " << tableNameStr.toStdString() << std::endl;
 
     loadOK = nmfUtilsQt::loadTimeSeries(
                 Estimation_Tabs, tableView, inputDataPath, tableNameStr,
-                firstLineReadOnly, errorMsg);
+                firstLineReadOnly,
+                nmfConstantsMSSPM::FixedNotation,
+                nonZeroCell,errorMsg);
 
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());

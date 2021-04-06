@@ -31,18 +31,25 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
 
     // Add the loaded widget as the new tabbed page
     Estimation_Tabs->addTab(Estimation_Tab4_Widget, tr("4. Predation Parameters"));
+    Estimation_Tab4_PredationTV     = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_PredationTV");
     Estimation_Tab4_PredationMinTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_PredationMinTV");
     Estimation_Tab4_PredationMaxTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_PredationMaxTV");
-    Estimation_Tab4_PredationMinSP  = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_PredationMinSP");
-    Estimation_Tab4_PredationMaxSP  = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_PredationMaxSP");
+    Estimation_Tab4_MainSP          = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_MainSP");
+    Estimation_Tab4_MinSP           = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_MinSP");
+    Estimation_Tab4_MaxSP           = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_MaxSP");
+    Estimation_Tab4_HandlingTV      = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_HandlingTV");
     Estimation_Tab4_HandlingMinTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_HandlingMinTV");
     Estimation_Tab4_HandlingMaxTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_HandlingMaxTV");
+    Estimation_Tab4_ExponentTV      = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_ExponentTV");
     Estimation_Tab4_ExponentMinTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_ExponentMinTV");
     Estimation_Tab4_ExponentMaxTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_ExponentMaxTV");
+    Estimation_Tab4_PredationLBL    = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_PredationLBL");
     Estimation_Tab4_PredationMinLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_PredationMinLBL");
     Estimation_Tab4_PredationMaxLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_PredationMaxLBL");
+    Estimation_Tab4_HandlingLBL     = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_HandlingLBL");
     Estimation_Tab4_HandlingMinLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_HandlingMinLBL");
     Estimation_Tab4_HandlingMaxLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_HandlingMaxLBL");
+    Estimation_Tab4_ExponentLBL     = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_ExponentLBL");
     Estimation_Tab4_ExponentMinLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_ExponentMinLBL");
     Estimation_Tab4_ExponentMaxLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_ExponentMaxLBL");
     Estimation_Tab4_PrevPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_PrevPB");
@@ -51,54 +58,119 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     Estimation_Tab4_SavePB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_SavePB");
     Estimation_Tab4_ImportPB        = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_ImportPB");
     Estimation_Tab4_ExportPB        = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_ExportPB");
-    Estimation_Tab4_EstimateCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab4_EstimateCB");
+    Estimation_Tab4_TransposePB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_TransposePB");
+    Estimation_Tab4_TransposePB2    = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_TransposePB2");
+    Estimation_Tab4_PredationSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab4_PredationSB");
+    Estimation_Tab4_PredationSB2    = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab4_PredationSB2");
 
-    Estimation_Tab4_PredationMinTV->setToolTip("Minimum Value for Predation Effect of Column Predator on Row Prey");
-    Estimation_Tab4_PredationMaxTV->setToolTip("Maximum Value for Predation Effect of Column Predator on Row Prey");
-    Estimation_Tab4_HandlingMinTV->setToolTip("Minimum Value for Handling Time of Column Predator on Row Prey");
-    Estimation_Tab4_HandlingMaxTV->setToolTip("Maximum Value for Handling Time of Column Predator on Row Prey");
-    Estimation_Tab4_ExponentMinTV->setToolTip("Minimum Value for Predator Exponent Coefficient");
-    Estimation_Tab4_ExponentMaxTV->setToolTip("Maximum Value for Predator Exponent Coefficient");
+    Estimation_Tab4_PredationTV->setToolTip("Initial Values for Predation Effect of Column Predator on Row Prey");
+    Estimation_Tab4_PredationMinTV->setToolTip("Minimum Values for Predation Effect of Column Predator on Row Prey");
+    Estimation_Tab4_PredationMaxTV->setToolTip("Maximum Values for Predation Effect of Column Predator on Row Prey");
+    Estimation_Tab4_HandlingTV->setToolTip("Initial Values for Handling Time of Column Predator on Row Prey");
+    Estimation_Tab4_HandlingMinTV->setToolTip("Minimum Values for Handling Time of Column Predator on Row Prey");
+    Estimation_Tab4_HandlingMaxTV->setToolTip("Maximum Values for Handling Time of Column Predator on Row Prey");
+    Estimation_Tab4_ExponentTV->setToolTip("Initial Values for Predator Exponent Coefficient");
+    Estimation_Tab4_ExponentMinTV->setToolTip("Minimum Values for Predator Exponent Coefficient");
+    Estimation_Tab4_ExponentMaxTV->setToolTip("Maximum Values for Predator Exponent Coefficient");
 
-    connect(Estimation_Tab4_PrevPB,         SIGNAL(clicked(bool)),
-            this,                           SLOT(callback_PrevPB()));
-    connect(Estimation_Tab4_NextPB,         SIGNAL(clicked(bool)),
-            this,                           SLOT(callback_NextPB()));
-    connect(Estimation_Tab4_LoadPB,         SIGNAL(clicked(bool)),
-            this,                           SLOT(callback_LoadPB()));
-    connect(Estimation_Tab4_SavePB,         SIGNAL(clicked()),
-            this,                           SLOT(callback_SavePB()));
-    connect(Estimation_Tab4_ImportPB,       SIGNAL(clicked()),
-            this,                           SLOT(callback_ImportPB()));
-    connect(Estimation_Tab4_ExportPB,       SIGNAL(clicked()),
-            this,                           SLOT(callback_ExportPB()));
-    connect(Estimation_Tab4_PredationMinSP, SIGNAL(splitterMoved(int,int)),
-            this,                           SLOT(callback_MinSplitterMoved(int,int)));
-    connect(Estimation_Tab4_PredationMaxSP, SIGNAL(splitterMoved(int,int)),
-            this,                           SLOT(callback_MaxSplitterMoved(int,int)));
-    connect(Estimation_Tab4_EstimateCB,     SIGNAL(stateChanged(int)),
-            this,                           SLOT(callback_EstimateChecked(int)));
+    connect(Estimation_Tab4_PrevPB,       SIGNAL(clicked(bool)),
+            this,                         SLOT(callback_PrevPB()));
+    connect(Estimation_Tab4_NextPB,       SIGNAL(clicked(bool)),
+            this,                         SLOT(callback_NextPB()));
+    connect(Estimation_Tab4_LoadPB,       SIGNAL(clicked(bool)),
+            this,                         SLOT(callback_LoadPB()));
+    connect(Estimation_Tab4_SavePB,       SIGNAL(clicked()),
+            this,                         SLOT(callback_SavePB()));
+    connect(Estimation_Tab4_ImportPB,     SIGNAL(clicked()),
+            this,                         SLOT(callback_ImportPB()));
+    connect(Estimation_Tab4_ExportPB,     SIGNAL(clicked()),
+            this,                         SLOT(callback_ExportPB()));
+    connect(Estimation_Tab4_TransposePB,  SIGNAL(clicked()),
+            this,                         SLOT(callback_TransposePB()));
+    connect(Estimation_Tab4_TransposePB2, SIGNAL(clicked()),
+            this,                         SLOT(callback_TransposePB()));
+    connect(Estimation_Tab4_MinSP,        SIGNAL(splitterMoved(int,int)),
+            this,                         SLOT(callback_MinSplitterMoved(int,int)));
+    connect(Estimation_Tab4_MaxSP,        SIGNAL(splitterMoved(int,int)),
+            this,                         SLOT(callback_MaxSplitterMoved(int,int)));
+    connect(Estimation_Tab4_PredationSB,  SIGNAL(valueChanged(int)),
+            this,                         SLOT(callback_PctRangeSB(int)));
+    connect(Estimation_Tab4_PredationSB2, SIGNAL(valueChanged(int)),
+            this,                         SLOT(callback_PctRangeSB(int)));
 
     Estimation_Tab4_PrevPB->setText("\u25C1--");
     Estimation_Tab4_NextPB->setText("--\u25B7");
 
     m_TableViews1d.clear();
+    m_TableViews1d.push_back(Estimation_Tab4_ExponentTV);
     m_TableViews1d.push_back(Estimation_Tab4_ExponentMinTV);
     m_TableViews1d.push_back(Estimation_Tab4_ExponentMaxTV);
+
     m_TableViews2d.clear();
+    m_TableViews2d.push_back(Estimation_Tab4_PredationTV);
     m_TableViews2d.push_back(Estimation_Tab4_PredationMinTV);
     m_TableViews2d.push_back(Estimation_Tab4_PredationMaxTV);
+    m_TableViews2d.push_back(Estimation_Tab4_HandlingTV);
     m_TableViews2d.push_back(Estimation_Tab4_HandlingMinTV);
     m_TableViews2d.push_back(Estimation_Tab4_HandlingMaxTV);
+
+    m_TableViewsTypeI.clear();
+    m_TableViewsTypeI.push_back(Estimation_Tab4_PredationTV);
+    m_TableViewsTypeI.push_back(Estimation_Tab4_PredationMinTV);
+    m_TableViewsTypeI.push_back(Estimation_Tab4_PredationMaxTV);
+
+    m_TableViewsTypeII.clear();
+//    m_TableViewsTypeII.push_back(Estimation_Tab4_PredationTV);
+//    m_TableViewsTypeII.push_back(Estimation_Tab4_PredationMinTV);
+//    m_TableViewsTypeII.push_back(Estimation_Tab4_PredationMaxTV);
+    m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingTV);
+    m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMinTV);
+    m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMaxTV);
+
+    m_TableViewsTypeIII.clear();
+//    m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationTV);
+//    m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationMinTV);
+//    m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationMaxTV);
+//    m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingTV);
+//    m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingMinTV);
+//    m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingMaxTV);
+    m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentTV);
+    m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMinTV);
+    m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMaxTV);
+
+    m_TableNamesTypeI.clear();
+    m_TableNamesTypeI.push_back("PredationLossRates");
+    m_TableNamesTypeI.push_back("PredationLossRatesMin");
+    m_TableNamesTypeI.push_back("PredationLossRatesMax");
+
+    m_TableNamesTypeII.clear();
+//    m_TableNamesTypeII.push_back("PredationLossRates");
+//    m_TableNamesTypeII.push_back("PredationLossRatesMin");
+//    m_TableNamesTypeII.push_back("PredationLossRatesMax");
+    m_TableNamesTypeII.push_back("HandlingTime");
+    m_TableNamesTypeII.push_back("HandlingTimeMin");
+    m_TableNamesTypeII.push_back("HandlingTimeMax");
+
+    m_TableNamesTypeIII.clear();
+//    m_TableNamesTypeIII.push_back("PredationLossRates");
+//    m_TableNamesTypeIII.push_back("PredationLossRatesMin");
+//    m_TableNamesTypeIII.push_back("PredationLossRatesMax");
+//    m_TableNamesTypeIII.push_back("HandlingTime");
+//    m_TableNamesTypeIII.push_back("HandlingTimeMin");
+//    m_TableNamesTypeIII.push_back("HandlingTimeMax");
+    m_TableNamesTypeIII.push_back("PredationExponent");
+    m_TableNamesTypeIII.push_back("PredationExponentMin");
+    m_TableNamesTypeIII.push_back("PredationExponentMax");
+
+
+
+
+    //  RSK remove this!!!!!
+
 
     // Create models and attach to view
     int NumSpecies = getNumSpecies();
     QStandardItemModel* smodel;
-    for (unsigned i=0; i<m_TableViews1d.size(); ++i) {
-        smodel = new QStandardItemModel(NumSpecies, 1);
-        m_smodels1d.push_back(smodel);
-        m_TableViews1d[i]->setModel(smodel);
-    }
     for (unsigned i=0; i<m_TableViews2d.size(); ++i) {
         smodel = new QStandardItemModel(NumSpecies, NumSpecies);
         m_smodels2d.push_back(smodel);
@@ -117,10 +189,13 @@ void
 nmfEstimation_Tab4::clearWidgets()
 {
         nmfUtilsQt::clearTableView(
-            {Estimation_Tab4_PredationMinTV,
+            {Estimation_Tab4_PredationTV,
+             Estimation_Tab4_PredationMinTV,
              Estimation_Tab4_PredationMaxTV,
+             Estimation_Tab4_HandlingTV,
              Estimation_Tab4_HandlingMinTV,
              Estimation_Tab4_HandlingMaxTV,
+             Estimation_Tab4_ExponentTV,
              Estimation_Tab4_ExponentMinTV,
              Estimation_Tab4_ExponentMaxTV});
 }
@@ -128,13 +203,13 @@ nmfEstimation_Tab4::clearWidgets()
 void
 nmfEstimation_Tab4::callback_MinSplitterMoved(int pos, int index)
 {
-   Estimation_Tab4_PredationMaxSP->setSizes(Estimation_Tab4_PredationMinSP->sizes());
+   Estimation_Tab4_MaxSP->setSizes(Estimation_Tab4_MinSP->sizes());
 }
 
 void
 nmfEstimation_Tab4::callback_MaxSplitterMoved(int pos, int index)
 {
-   Estimation_Tab4_PredationMinSP->setSizes(Estimation_Tab4_PredationMaxSP->sizes());
+   Estimation_Tab4_MinSP->setSizes(Estimation_Tab4_MaxSP->sizes());
 }
 
 void
@@ -180,6 +255,7 @@ nmfEstimation_Tab4::callback_LoadPB()
 void
 nmfEstimation_Tab4::callback_ImportPB()
 {
+    QString tag="";
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
     std::vector<std::string> allTableNames = getAllTableNames();
     int numTables = allTableNames.size();
@@ -195,23 +271,20 @@ nmfEstimation_Tab4::callback_ImportPB()
     } else if (reply == QMessageBox::Yes) {
         loadCSVFiles(allTableNames);
     } else {
-        // if no, raise browser and have user select "PredationLossRatesMin*.csv" file.
+        // if no, raise browser and have user select "PredationLossRates*.csv" file.
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
-                    QObject::tr("Select PredationLossRatesMin*.csv file"), inputDataPath,
+                    QObject::tr("Select PredationLossRates*.csv file"), inputDataPath,
                     QObject::tr("Data Files (*.csv)"));
         QFileInfo fi(filename);
-        QString base = fi.baseName(); // PredationLossRatesMin*
-        QStringList parts = base.split("PredationLossRatesMin");
-        if (parts.size() == 2) {
-            QString tag = parts[1];
+        if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
             for (int i=0; i<numTables; ++i) {
-                allTableNames[i] += tag.toStdString();
+                allTableNames[i] += "_"+tag.toStdString();
             }
             loadCSVFiles(allTableNames);
         } else {
             QMessageBox::information(Estimation_Tabs, "Predation CSV Import",
-                                     "\nPlease make sure to select the filename that begins with: PredationLossRatesMin\n",
+                                     "\nPlease make sure to select the filename that begins with: PredationLossRates\n",
                                      QMessageBox::Ok);
         }
     }
@@ -226,28 +299,57 @@ nmfEstimation_Tab4::loadCSVFiles(std::vector<std::string>& allTableNames)
     QString tableName;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
     std::vector<QTableView*> allTableViews = getAllTableViews();
+    std::pair<int,int> nonZeroCell      = std::make_pair(0,0);
+    std::pair<int,int> nonZeroCellSaved = std::make_pair(0,0);
 
     if (allTableViews.size() == allTableNames.size()) {
+        QStandardItemModel* smodel  = qobject_cast<QStandardItemModel*>(allTableViews[0]->model());
+        QStandardItemModel* smodel1 = qobject_cast<QStandardItemModel*>(allTableViews[1]->model());
         for (QTableView* tv : allTableViews) {
             tableName = QDir(inputDataPath).filePath(QString::fromStdString(allTableNames[tableNum]+".csv"));
             loadOK = nmfUtilsQt::loadTimeSeries(
                         Estimation_Tabs, tv, inputDataPath, tableName,
                         nmfConstantsMSSPM::FirstLineNotReadOnly,
-                        errorMsg);
+                        nmfConstantsMSSPM::ScientificNotation,
+                        nonZeroCell,errorMsg);
             if (! loadOK) {
                 m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
             }
             ++tableNum;
+            if (tableNum == 1) {
+                nonZeroCellSaved = nonZeroCell;
+            }
         }
+        resetSpinBox(nonZeroCellSaved,smodel,smodel1);
     } else {
         m_Logger->logMsg(nmfConstants::Error,"callback_ImportPB: number of visible tables don't match number of active table names");
     }
 }
 
 void
+nmfEstimation_Tab4::resetSpinBox(const std::pair<int,int>& nonZeroCell,
+                                 const QStandardItemModel* smodel,
+                                 const QStandardItemModel* smodel1)
+{
+    int nonZeroRow = nonZeroCell.first;
+    int nonZeroCol = nonZeroCell.second;
+
+    QModelIndex initValueIndex = smodel->index(nonZeroRow,nonZeroCol);
+    QModelIndex minValueIndex  = smodel1->index(nonZeroRow,nonZeroCol);
+    double initValue = initValueIndex.data().toDouble();
+    double minValue  = minValueIndex.data().toDouble();
+    int pctValue  = int(nmfUtils::round(100.0*(initValue-minValue)/initValue,0));
+
+    Estimation_Tab4_PredationSB->setValue(pctValue);
+}
+
+
+void
 nmfEstimation_Tab4::callback_SavePB()
 {
     bool systemFound = false;
+    bool isTypeIIITable = true;
+    bool isNotTypeIIITable = false;
     QModelIndex index;
     std::string cmd;
     std::string errorMsg;
@@ -255,8 +357,6 @@ nmfEstimation_Tab4::callback_SavePB()
     std::string Algorithm,Minimizer,ObjectiveCriterion;
     std::string Scaling,CompetitionForm;
     std::vector<std::string> SpeNames;
-    boost::numeric::ublas::matrix<double> MinMax1d[m_smodels1d.size()];
-    boost::numeric::ublas::matrix<double> MinMax2d[m_smodels2d.size()];
     QString msg;
 
     readSettings();
@@ -281,98 +381,85 @@ nmfEstimation_Tab4::callback_SavePB()
         SpeNames.push_back(m_smodels2d[0]->horizontalHeaderItem(j)->text().toStdString());
     }
 
-    // Initialize
-    for (unsigned i=0; i<m_TableNames2d.size(); ++i) {
-        nmfUtils::initialize(MinMax2d[i], SpeNames.size(), SpeNames.size());
+    if (isTypeI() || isTypeII() || isTypeIII()) { // save rho
+        saveTables(isNotTypeIIITable, SpeNames,m_TableViewsTypeI,  m_TableNamesTypeI);
     }
 
-    // Save 1d tables
-    if (m_PredationForm == "Type III")
-    {
-        for (unsigned i=0; i<m_TableNames1d.size(); ++i) {
-            nmfUtils::initialize(MinMax1d[i], SpeNames.size(), 1);
-        }
-
-        for (unsigned int k=0; k<m_TableNames1d.size(); ++k) {
-            if (k%2 == 0) { // if it's an even number (there can be 2 or 4 of these types of tables)
-                if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_smodels1d[k],m_smodels1d[k+1])) {
-                    m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab4::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
-                    QMessageBox::critical(Estimation_Tabs, "Error",
-                                          "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
-                                          QMessageBox::Ok);
-                    Estimation_Tabs->setCursor(Qt::ArrowCursor);
-                    return;
-                }
-            }
-            cmd = "DELETE FROM " + m_TableNames1d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
-            errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (nmfUtilsQt::isAnError(errorMsg)) {
-                m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
-                m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-                QMessageBox::warning(Estimation_Tabs, "Error",
-                                     "\nError in Save command.  Couldn't delete all records from " +
-                                     QString::fromStdString(m_TableNames1d[k]) + " table.\n",
-                                     QMessageBox::Ok);
-                Estimation_Tabs->setCursor(Qt::ArrowCursor);
-                return;
-            }
-
-            cmd = "INSERT INTO " + m_TableNames1d[k] + " (SystemName,SpeName,Value) VALUES ";
-            for (int i=0; i<m_smodels1d[k]->rowCount(); ++i) {
-                for (int j=0; j<m_smodels1d[k]->columnCount(); ++ j) {
-                    index = m_smodels1d[k]->index(i,j);
-                    value = index.data().toString().toStdString();
-                    MinMax1d[k](i,j) = index.data().toDouble();
-                    cmd += "('" + m_ProjectSettingsConfig + "','" + SpeNames[i] + "'," + value + "),";
-                }
-            }
-            cmd = cmd.substr(0,cmd.size()-1);
-            errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-            if (nmfUtilsQt::isAnError(errorMsg)) {
-                m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab4::callback_SavePB: Write table error: " + errorMsg);
-                m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-                QMessageBox::warning(Estimation_Tabs, "Error",
-                                     "\nError in Save command.  Check that all cells are populated.\n",
-                                     QMessageBox::Ok);
-                Estimation_Tabs->setCursor(Qt::ArrowCursor);
-                return;
-            }
-        }
+    if (isTypeII() || isTypeIII()) { // save h
+        saveTables(isNotTypeIIITable, SpeNames,m_TableViewsTypeII, m_TableNamesTypeII);
     }
 
-    // Save 2d tables
-    for (unsigned int k=0; k<m_TableNames2d.size(); ++k)
-    {
-        if (k%2 == 0) { // if it's an even number (there can be 2 or 4 of these types of tables)
-            if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_smodels2d[k],m_smodels2d[k+1])) {
-                m_Logger->logMsg(nmfConstants::Error,"[Error 3] nmfEstimation_Tab4::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
+    if (isTypeIII()) { // save b
+        saveTables(isTypeIIITable,    SpeNames,m_TableViewsTypeIII,m_TableNamesTypeIII);
+    }
+
+    QMessageBox::information(Estimation_Tabs, "Predation Updated",
+                             "\nPredation tables have been successfully updated.\n",
+                             QMessageBox::Ok);
+
+    // Reload so that columns resize appropriately
+    loadWidgets();
+
+    Estimation_Tabs->setCursor(Qt::ArrowCursor);
+}
+
+
+
+void
+nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
+                               const std::vector<std::string>& SpeNames,
+                               const std::vector<QTableView*>& tableViews,
+                               const std::vector<std::string>& tableNames)
+{
+    std::string cmd;
+    std::string errorMsg;
+    std::string value;
+    QModelIndex index;
+    QStandardItemModel* smodel1 = qobject_cast<QStandardItemModel*>(tableViews[1]->model());
+    QStandardItemModel* smodel2 = qobject_cast<QStandardItemModel*>(tableViews[2]->model());
+    for (unsigned int k=0; k<tableViews.size(); ++k) {
+        QStandardItemModel* smodel  = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
+        if (k == 0) {
+            if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(smodel1,smodel2)) {
+                m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab4::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
                 QMessageBox::critical(Estimation_Tabs, "Error",
-                                     "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
-                                     QMessageBox::Ok);
+                                      "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
+                                      QMessageBox::Ok);
                 Estimation_Tabs->setCursor(Qt::ArrowCursor);
                 return;
             }
         }
-        cmd = "DELETE FROM " + m_TableNames2d[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+        cmd = "DELETE FROM " + tableNames[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(Estimation_Tabs, "Error",
                                  "\nError in Save command.  Couldn't delete all records from " +
-                                 QString::fromStdString(m_TableNames2d[k]) + " table.\n",
+                                 QString::fromStdString(tableNames[k]) + " table.\n",
                                  QMessageBox::Ok);
             Estimation_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
 
-        cmd = "INSERT INTO " + m_TableNames2d[k] + " (SystemName,SpeciesA,SpeciesB,Value) VALUES ";
-        for (int i=0; i<m_smodels2d[k]->rowCount(); ++i) {
-            for (int j=0; j<m_smodels2d[k]->columnCount(); ++ j) {
-                index = m_smodels2d[k]->index(i,j);
-                value = index.data().toString().toStdString();
-                MinMax2d[k](i,j) = index.data().toDouble();
-                cmd += "('" + m_ProjectSettingsConfig + "','" + SpeNames[i] + "','" + SpeNames[j] + "', " + value + "),";
+        if (! isTypeIII) {
+            cmd = "INSERT INTO " + tableNames[k] + " (SystemName,SpeciesA,SpeciesB,Value) VALUES ";
+            smodel = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
+            for (int i=0; i<smodel->rowCount(); ++i) {
+                for (int j=0; j<smodel->columnCount(); ++ j) {
+                    index = smodel->index(i,j);
+                    value = index.data().toString().toStdString();
+                    cmd += "('" + m_ProjectSettingsConfig + "','" + SpeNames[i] + "','" + SpeNames[j] + "', " + value + "),";
+                }
+            }
+        } else {
+            cmd = "INSERT INTO " + tableNames[k] + " (SystemName,SpeName,Value) VALUES ";
+            for (int i=0; i<smodel->rowCount(); ++i) {
+                for (int j=0; j<smodel->columnCount(); ++ j) {
+                    index = smodel->index(i,j);
+                    value = index.data().toString().toStdString();
+                    cmd += "('" + m_ProjectSettingsConfig + "','" + SpeNames[i] + "'," + value + "),";
+                }
             }
         }
         cmd = cmd.substr(0,cmd.size()-1);
@@ -387,32 +474,8 @@ nmfEstimation_Tab4::callback_SavePB()
             return;
         }
     }
-
-    // Check if user is running a Genetic Algorithm that if there's a value in MinMax[1], there's a
-    // non-zero value in MinMax[0].
-    for (int i=0; i<m_smodels2d[0]->rowCount(); ++i) {
-        for (int j=0; j<m_smodels2d[0]->columnCount(); ++j) {
-            if ((Algorithm == "Genetic Algorithm") &&
-                    (MinMax2d[1](i,j) > 0) && (MinMax2d[0](i,j) <= 0)) {
-                msg  = "\nWarning: All non-zero Max values must have a non-zero Min value.\n\n";
-                msg += "Please modify current table as needed.\n";
-                QMessageBox::warning(Estimation_Tabs, "Warning Min/Max Data",msg,
-                                     QMessageBox::Ok);
-                Estimation_Tabs->setCursor(Qt::ArrowCursor);
-                return;
-            }
-        }
-    }
-
-    QMessageBox::information(Estimation_Tabs, "Predation Min/Max Updated",
-                             "\nPredation Min/Max tables have been successfully updated.\n",
-                             QMessageBox::Ok);
-
-    // So columns resize appropriately
-    loadWidgets();
-
-    Estimation_Tabs->setCursor(Qt::ArrowCursor);
 }
+
 
 void
 nmfEstimation_Tab4::callback_ExportPB()
@@ -436,7 +499,7 @@ nmfEstimation_Tab4::callback_ExportPB()
         } else {
             bool ok;
             QString tag = QInputDialog::getText(Estimation_Tabs, tr("Predation Files"),
-                                                 tr("Enter Predation CSV filename version tag (omit any '_'): "), QLineEdit::Normal,
+                                                 tr("Enter Predation CSV filename version tag: "), QLineEdit::Normal,
                                                  "", &ok);
             if (ok && !tag.isEmpty()) {
                  for (int i=0; i<numTableNames; ++i) {
@@ -524,8 +587,8 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
 {
     QList<int> minSizeList;
     QList<int> maxSizeList;
-    int numSections  = Estimation_Tab4_PredationMinSP->sizes().size();
-    int defaultWidth = Estimation_Tab4_PredationMinSP->width()/3;
+    int numSections  = Estimation_Tab4_MinSP->sizes().size();
+    int defaultWidth = Estimation_Tab4_MinSP->width()/3;
 
     m_PredationForm = predationForm.toStdString();
 
@@ -533,106 +596,122 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
         minSizeList.push_back(defaultWidth);
         maxSizeList.push_back(defaultWidth);
     }
-    Estimation_Tab4_PredationMinSP->setSizes(minSizeList);
-    Estimation_Tab4_PredationMaxSP->setSizes(maxSizeList);
+    Estimation_Tab4_MainSP->setSizes(minSizeList);
+    Estimation_Tab4_MinSP->setSizes(minSizeList);
+    Estimation_Tab4_MaxSP->setSizes(maxSizeList);
 
+    Estimation_Tab4_PredationTV->setEnabled(false);
     Estimation_Tab4_PredationMinTV->setEnabled(false);
     Estimation_Tab4_PredationMaxTV->setEnabled(false);
+    Estimation_Tab4_HandlingTV->setEnabled(false);
     Estimation_Tab4_HandlingMinTV->setEnabled(false);
     Estimation_Tab4_HandlingMaxTV->setEnabled(false);
+    Estimation_Tab4_ExponentTV->setEnabled(false);
     Estimation_Tab4_ExponentMinTV->setEnabled(false);
     Estimation_Tab4_ExponentMaxTV->setEnabled(false);
+    Estimation_Tab4_PredationLBL->setEnabled(false);
     Estimation_Tab4_PredationMinLBL->setEnabled(false);
     Estimation_Tab4_PredationMaxLBL->setEnabled(false);
+    Estimation_Tab4_HandlingLBL->setEnabled(false);
     Estimation_Tab4_HandlingMinLBL->setEnabled(false);
     Estimation_Tab4_HandlingMaxLBL->setEnabled(false);
+    Estimation_Tab4_ExponentLBL->setEnabled(false);
     Estimation_Tab4_ExponentMinLBL->setEnabled(false);
     Estimation_Tab4_ExponentMaxLBL->setEnabled(false);
 
-    if (m_PredationForm == "Type I") {
+    if (isTypeI()) {
+        Estimation_Tab4_PredationTV->setEnabled(true);
         Estimation_Tab4_PredationMinTV->setEnabled(true);
         Estimation_Tab4_PredationMaxTV->setEnabled(true);
+        Estimation_Tab4_PredationLBL->setEnabled(true);
         Estimation_Tab4_PredationMinLBL->setEnabled(true);
         Estimation_Tab4_PredationMaxLBL->setEnabled(true);
         for (int i=1; i<numSections; ++i) {
             minSizeList[i] = 0;
             maxSizeList[i] = 0;
         }
-        Estimation_Tab4_PredationMinSP->setSizes(minSizeList);
-        Estimation_Tab4_PredationMaxSP->setSizes(maxSizeList);
-    } else if (m_PredationForm == "Type II") {
+        Estimation_Tab4_MainSP->setSizes(minSizeList);
+        Estimation_Tab4_MinSP->setSizes(minSizeList);
+        Estimation_Tab4_MaxSP->setSizes(maxSizeList);
+    } else if (isTypeII()) {
+        Estimation_Tab4_PredationTV->setEnabled(true);
         Estimation_Tab4_PredationMinTV->setEnabled(true);
         Estimation_Tab4_PredationMaxTV->setEnabled(true);
+        Estimation_Tab4_PredationLBL->setEnabled(true);
         Estimation_Tab4_PredationMinLBL->setEnabled(true);
         Estimation_Tab4_PredationMaxLBL->setEnabled(true);
+        Estimation_Tab4_HandlingTV->setEnabled(true);
         Estimation_Tab4_HandlingMinTV->setEnabled(true);
         Estimation_Tab4_HandlingMaxTV->setEnabled(true);
+        Estimation_Tab4_HandlingLBL->setEnabled(true);
         Estimation_Tab4_HandlingMinLBL->setEnabled(true);
         Estimation_Tab4_HandlingMaxLBL->setEnabled(true);
         minSizeList[numSections-1] = 0;
         maxSizeList[numSections-1] = 0;
-        Estimation_Tab4_PredationMinSP->setSizes(minSizeList);
-        Estimation_Tab4_PredationMaxSP->setSizes(maxSizeList);
-    } else if (m_PredationForm == "Type III") {
+        Estimation_Tab4_MainSP->setSizes(minSizeList);
+        Estimation_Tab4_MinSP->setSizes(minSizeList);
+        Estimation_Tab4_MaxSP->setSizes(maxSizeList);
+    } else if (isTypeIII()) {
+        Estimation_Tab4_PredationTV->setEnabled(true);
         Estimation_Tab4_PredationMinTV->setEnabled(true);
         Estimation_Tab4_PredationMaxTV->setEnabled(true);
+        Estimation_Tab4_PredationLBL->setEnabled(true);
         Estimation_Tab4_PredationMinLBL->setEnabled(true);
         Estimation_Tab4_PredationMaxLBL->setEnabled(true);
+        Estimation_Tab4_HandlingTV->setEnabled(true);
         Estimation_Tab4_HandlingMinTV->setEnabled(true);
         Estimation_Tab4_HandlingMaxTV->setEnabled(true);
+        Estimation_Tab4_HandlingLBL->setEnabled(true);
         Estimation_Tab4_HandlingMinLBL->setEnabled(true);
         Estimation_Tab4_HandlingMaxLBL->setEnabled(true);
+        Estimation_Tab4_ExponentTV->setEnabled(true);
         Estimation_Tab4_ExponentMinTV->setEnabled(true);
         Estimation_Tab4_ExponentMaxTV->setEnabled(true);
+        Estimation_Tab4_ExponentLBL->setEnabled(true);
         Estimation_Tab4_ExponentMinLBL->setEnabled(true);
         Estimation_Tab4_ExponentMaxLBL->setEnabled(true);
     }
 
     // Load table names
     m_TableNames1d.clear();
-    if (m_PredationForm == "Type III") {
+    if (isTypeIII()) {
+        m_TableNames1d.push_back("PredationExponent");
         m_TableNames1d.push_back("PredationExponentMin");
         m_TableNames1d.push_back("PredationExponentMax");
     }
     m_TableNames2d.clear();
+    m_TableNames2d.push_back("PredationLossRates");
     m_TableNames2d.push_back("PredationLossRatesMin");
     m_TableNames2d.push_back("PredationLossRatesMax");
-    if ((m_PredationForm == "Type II") || (m_PredationForm == "Type III")) {
+    if (isTypeII() || isTypeIII()) {
+        m_TableNames2d.push_back("HandlingTime");
         m_TableNames2d.push_back("HandlingTimeMin");
         m_TableNames2d.push_back("HandlingTimeMax");
     }
 }
 
-void
-nmfEstimation_Tab4::callback_EstimateChecked(int state)
+bool
+nmfEstimation_Tab4::isNull()
 {
-    int numRows;
-    int numCols;
-    QModelIndex indexMin;
-    QModelIndex indexMax;
-    QStandardItemModel* smodelMin;
-    QStandardItemModel* smodelMax;
-    std::vector<QTableView*>  tableViews;
+    return (m_PredationForm == "Null");
+}
 
-    tableViews.insert(tableViews.end(),m_TableViews1d.begin(),m_TableViews1d.end());
-    tableViews.insert(tableViews.end(),m_TableViews2d.begin(),m_TableViews2d.end());
-    if (state != Qt::Checked) {
-        for (unsigned k=0; k<tableViews.size(); k += 2) {
-            smodelMin = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
-            smodelMax = qobject_cast<QStandardItemModel*>(tableViews[k+1]->model());
-            numRows   = tableViews[k]->model()->rowCount();
-            numCols   = tableViews[k]->model()->columnCount();
-            for (int i=0; i<numRows; ++i) {
-                for (int j=0; j<numCols;++j) {
-                    indexMin = smodelMin->index(i,j);
-                    indexMax = smodelMax->index(i,j);
-                    smodelMax->setData(indexMax,smodelMin->data(indexMin));
-                }
-            }
-        }
-    } else {
-        loadWidgets();
-    }
+bool
+nmfEstimation_Tab4::isTypeI()
+{
+    return (m_PredationForm == "Type I");
+}
+
+bool
+nmfEstimation_Tab4::isTypeII()
+{
+    return (m_PredationForm == "Type II");
+}
+
+bool
+nmfEstimation_Tab4::isTypeIII()
+{
+    return (m_PredationForm == "Type III");
 }
 
 void
@@ -679,11 +758,13 @@ nmfEstimation_Tab4::loadWidgets()
     std::string queryStr;
     std::string predationForm   = "";
     std::string competitionForm = "";
+    std::string dataMapStr;
     QStandardItem *item;
     QStringList SpeciesNames;
     QStringList GuildNames;
     QStringList exponentColName;
     QStandardItemModel* smodel;
+    std::pair<int,int> nonZeroCell;
 
     readSettings();
 
@@ -710,75 +791,144 @@ nmfEstimation_Tab4::loadWidgets()
     exponentColName << QString("b");
     int NumSpeciesOrGuilds = (isAggProd) ? NumGuilds : NumSpecies;
 
-    // Load the 1d tables
-    for (unsigned int k=0; k<m_TableNames1d.size(); ++k) {
-        if (isAggProd) {
-            smodel = new QStandardItemModel(NumGuilds, 1);
-            m_smodels1d[k] = smodel;
-            m_TableViews1d[k]->setModel(smodel);
-        }
-        fields    = {"SystemName","SpeName","Value"};
-        queryStr  = "SELECT SystemName,SpeName,Value FROM " + m_TableNames1d[k] +
-                    " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
-        dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-        NumRecords = dataMap["SpeName"].size();
 
-        // Load Predation tables
-        m = 0;
-        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-            if (m < NumRecords)
-                item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
-            else
-                item = new QStandardItem("");
-            item->setTextAlignment(Qt::AlignCenter);
-            m_smodels1d[k]->setItem(i, 0, item);
+    if (isTypeI() || isTypeII() || isTypeIII()) {
+        for (unsigned int k=0; k<m_TableNames2d.size(); ++k) {
+            if (isAggProd) {
+                smodel = new QStandardItemModel(NumGuilds, NumGuilds);
+                m_smodels2d[k] = smodel;
+                m_TableViews2d[k]->setModel(smodel);
+            }
+            fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
+            queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_TableNames2d[k] +
+                    " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+            dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+            NumRecords = dataMap["SpeciesA"].size();
+
+            // Load Predation tables
+            m = 0;
+            for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+                for (int j=0; j<NumSpeciesOrGuilds; ++j) {
+                    if (m < NumRecords) {
+                        dataMapStr = dataMap["Value"][m++];
+                        if ((std::stod(dataMapStr) != 0) && (k<3)) {
+                            nonZeroCell = std::make_pair(i,j);
+                        }
+                        item = new QStandardItem(QString::fromStdString(dataMapStr));
+                    } else {
+                        item = new QStandardItem("");
+                    }
+                    item->setTextAlignment(Qt::AlignCenter);
+                    m_smodels2d[k]->setItem(i, j, item);
+                }
+            }
+            if (isAggProd) {
+                m_smodels2d[k]->setVerticalHeaderLabels(GuildNames);
+                m_smodels2d[k]->setHorizontalHeaderLabels(GuildNames);
+            } else {
+                m_smodels2d[k]->setVerticalHeaderLabels(SpeciesNames);
+                m_smodels2d[k]->setHorizontalHeaderLabels(SpeciesNames);
+            }
+            m_TableViews2d[k]->resizeColumnsToContents();
         }
-        if (isAggProd) {
-            m_smodels1d[k]->setVerticalHeaderLabels(GuildNames);
-        } else {
-            m_smodels1d[k]->setVerticalHeaderLabels(SpeciesNames);
-        }
-        m_smodels1d[k]->setHorizontalHeaderLabels(exponentColName);
-        m_TableViews1d[k]->resizeColumnsToContents();
+        resetSpinBox(nonZeroCell,m_smodels2d[0],m_smodels2d[1]);
     }
-
-    // Load the 2d tables
-    for (unsigned int k=0; k<m_TableNames2d.size(); ++k) {
-        if (isAggProd) {
-            smodel = new QStandardItemModel(NumGuilds, NumGuilds);
-            m_smodels2d[k] = smodel;
-            m_TableViews2d[k]->setModel(smodel);
-        }
-        fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
-        queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_TableNames2d[k] +
+    if (isTypeIII()) {
+        QStandardItemModel* smodel;
+        for (unsigned int k=0; k<m_TableNamesTypeIII.size(); ++k) {
+            smodel = qobject_cast<QStandardItemModel*>(m_TableViewsTypeIII[k]->model());
+            if (isAggProd) {
+                smodel = new QStandardItemModel(NumGuilds, 1);
+                m_TableViewsTypeIII[k]->setModel(smodel);
+            }
+            fields    = {"SystemName","SpeName","Value"};
+            queryStr  = "SELECT SystemName,SpeName,Value FROM " + m_TableNamesTypeIII[k] +
                     " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
-        dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-        NumRecords = dataMap["SpeciesA"].size();
+            dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+            NumRecords = dataMap["SpeName"].size();
 
-        // Load Predation tables
-        m = 0;
-        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-            for (int j=0; j<NumSpeciesOrGuilds; ++j) {
+            // Load Predation tables
+            m = 0;
+            for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 if (m < NumRecords)
                     item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
                 else
                     item = new QStandardItem("");
                 item->setTextAlignment(Qt::AlignCenter);
-                m_smodels2d[k]->setItem(i, j, item);
+                smodel->setItem(i, 0, item);
             }
+            if (isAggProd) {
+                smodel->setVerticalHeaderLabels(GuildNames);
+            } else {
+                smodel->setVerticalHeaderLabels(SpeciesNames);
+            }
+            smodel->setHorizontalHeaderLabels(exponentColName);
+            m_TableViewsTypeIII[k]->resizeColumnsToContents();
         }
-        if (isAggProd) {
-            m_smodels2d[k]->setVerticalHeaderLabels(GuildNames);
-            m_smodels2d[k]->setHorizontalHeaderLabels(GuildNames);
-        } else {
-            m_smodels2d[k]->setVerticalHeaderLabels(SpeciesNames);
-            m_smodels2d[k]->setHorizontalHeaderLabels(SpeciesNames);
-        }
-        m_TableViews2d[k]->resizeColumnsToContents();
     }
 
     // Set enable-ness on widgets
     callback_PredationFormChanged(QString::fromStdString(predationForm));
 
     return true;
+}
+
+
+std::vector<std::vector<QTableView* > >
+nmfEstimation_Tab4::getGroupsOfTableViews()
+{
+    std::vector<std::vector<QTableView* > > tableViews = {};
+
+    if (isTypeI()) {
+        tableViews = {m_TableViewsTypeI};
+    } else if (isTypeII()) {
+        tableViews = {m_TableViewsTypeI,m_TableViewsTypeII};
+    } else if (isTypeIII()) {
+        tableViews = {m_TableViewsTypeI,m_TableViewsTypeII,m_TableViewsTypeIII};
+    }
+
+    return tableViews;
+}
+
+void
+nmfEstimation_Tab4::callback_TransposePB()
+{
+    std::vector<std::vector<QTableView* > > groupsOfTableViews = getGroupsOfTableViews();
+
+    for (int group=0; group<int(groupsOfTableViews.size()); ++group) {
+        for (QTableView* tv : groupsOfTableViews[group]) {
+            nmfUtilsQt::transposeModel(tv);
+            tv->resizeColumnsToContents();
+        }
+    }
+}
+
+void
+nmfEstimation_Tab4::callback_PctRangeSB(int pctValue)
+{
+    double pct = pctValue/100.0;
+
+    // The sender can be 1 of 2 spin boxes...this just keeps them in sync.
+    QString senderName = qobject_cast<QSpinBox* >(QObject::sender())->objectName();
+    if (senderName == "Estimation_Tab4_PredationSB") {
+        Estimation_Tab4_PredationSB2->blockSignals(true);
+        Estimation_Tab4_PredationSB2->setValue(pctValue);
+        Estimation_Tab4_PredationSB2->blockSignals(false);
+    } else {
+        Estimation_Tab4_PredationSB->blockSignals(true);
+        Estimation_Tab4_PredationSB->setValue(pctValue);
+        Estimation_Tab4_PredationSB->blockSignals(false);
+    }
+
+    // Set ranges in min max tables
+    if (isTypeI()) {
+        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeI[0],m_TableViewsTypeI[1],m_TableViewsTypeI[2]);
+    } else if (isTypeII()) {
+        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeI[0], m_TableViewsTypeI[1], m_TableViewsTypeI[2]);
+        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeII[0],m_TableViewsTypeII[1],m_TableViewsTypeII[2]);
+    } else if (isTypeIII()) {
+        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeI[0],   m_TableViewsTypeI[1],   m_TableViewsTypeI[2]);
+        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeII[0],  m_TableViewsTypeII[1],  m_TableViewsTypeII[2]);
+        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeIII[0], m_TableViewsTypeIII[1], m_TableViewsTypeIII[2]);
+    }
 }

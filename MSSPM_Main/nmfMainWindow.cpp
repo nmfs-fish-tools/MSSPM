@@ -2969,26 +2969,44 @@ nmfMainWindow::findTableInFocus()
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_SpeciesPopulationTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaMinTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaMinTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaMaxTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaMaxTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaSpeciesTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaSpeciesTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaSpeciesMinTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaSpeciesMinTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaSpeciesMaxTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaSpeciesMaxTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsMinTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsMinTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsMaxTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsMaxTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsGuildsTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsGuildsTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_PredationTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_PredationTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_PredationMinTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_PredationMinTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_PredationMaxTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_PredationMaxTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_HandlingTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_HandlingTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_HandlingMinTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_HandlingMinTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_HandlingMaxTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_HandlingMaxTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_ExponentTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_ExponentTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_ExponentMinTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_ExponentMinTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_ExponentMaxTV")->hasFocus()) {
@@ -10660,6 +10678,7 @@ nmfMainWindow::loadParameters(Data_Struct &dataStruct, const bool& verbose)
     dataStruct.CarryingCapacityMin.clear();
     dataStruct.ExploitationRateMax.clear();
     dataStruct.ExploitationRateMin.clear();
+    dataStruct.Catchability.clear();
     dataStruct.CatchabilityMax.clear();
     dataStruct.CatchabilityMin.clear();
     dataStruct.CompetitionMin.clear();
@@ -10851,9 +10870,9 @@ std::cout << 4 << std::endl;
 std::cout << 5 << std::endl;
     } else {
         fields     = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax","GrowthRate","GrowthRateMin","GrowthRateMax",
-                      "SpeciesK","SpeciesKMin","SpeciesKMax","CatchabilityMin","CatchabilityMax"};
+                      "SpeciesK","SpeciesKMin","SpeciesKMax","Catchability","CatchabilityMin","CatchabilityMax"};
         queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax,GrowthRate,GrowthRateMin,GrowthRateMax,";
-        queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,CatchabilityMin,CatchabilityMax from Species ORDER BY SpeName";
+        queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax from Species ORDER BY SpeName";
 //std::cout << "qqq: " << queryStr << std::endl;
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumSpecies = dataMap["SpeName"].size();
@@ -10867,6 +10886,7 @@ std::cout << 5 << std::endl;
         nmfUtils::initialize(dataStruct.CarryingCapacity,   NumSpecies);
         nmfUtils::initialize(dataStruct.CarryingCapacityMin,NumSpecies);
         nmfUtils::initialize(dataStruct.CarryingCapacityMax,NumSpecies);
+        nmfUtils::initialize(dataStruct.Catchability,       NumSpecies);
         nmfUtils::initialize(dataStruct.CatchabilityMin,    NumSpecies);
         nmfUtils::initialize(dataStruct.CatchabilityMax,    NumSpecies);
         for (int species=0; species<NumSpecies; ++species) {
@@ -10879,6 +10899,7 @@ std::cout << 5 << std::endl;
             dataStruct.CarryingCapacity(species)    = std::stod(dataMap["SpeciesK"][species]);
             dataStruct.CarryingCapacityMin(species) = std::stod(dataMap["SpeciesKMin"][species]);
             dataStruct.CarryingCapacityMax(species) = std::stod(dataMap["SpeciesKMax"][species]);
+            dataStruct.Catchability(species)        = std::stod(dataMap["Catchability"][species]);
             dataStruct.CatchabilityMin(species)     = std::stod(dataMap["CatchabilityMin"][species]);
             dataStruct.CatchabilityMax(species)     = std::stod(dataMap["CatchabilityMax"][species]);
             guildName = dataMap["GuildName"][species];
