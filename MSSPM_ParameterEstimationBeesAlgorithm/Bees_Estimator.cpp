@@ -125,6 +125,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 beesAlg   = std::make_unique<BeesAlgorithm>(beeStruct,nmfConstantsMSSPM::VerboseOn);
                 beesStats = std::make_unique<BeesStats>(beeStruct.TotalNumberParameters,NumRepetitions);
                 beesAlg->initializeParameterRangesAndPatchSizes(beeStruct);
+
                 errorMsg.clear();
                 ok = beesAlg->estimateParameters(
                             bestFitness,EstParameters,

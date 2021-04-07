@@ -8671,7 +8671,7 @@ std::cout << "====================== isAMultiRun: " << isAMultiRun << std::endl;
     if (isAMultiRun) {
 
 // RSK fix this. Can't yet put Bees in MultiRun list...tbd
-      runBeesAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);  // Run through all runs and do Bees,  skipping over non-Bees
+//      runBeesAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);  // Run through all runs and do Bees,  skipping over non-Bees
         runNLoptAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns); // Run through all runs and do NLopt, skipping over non-NLopt
     } else {
         if (Algorithm == "Bees Algorithm") {

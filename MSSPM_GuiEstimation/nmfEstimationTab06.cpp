@@ -97,6 +97,11 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_NL_StopAfterTimeUnitsCMB      = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_NL_StopAfterTimeUnitsCMB");
     Estimation_Tab6_EnsembleLoadPB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleLoadPB");
 
+
+    // RSK - Temporarily disable...there's a bug where if you set, for example,
+    // 5 of the same subruns, the clock doesn't function correctly in the progress widget
+    Estimation_Tab6_EnsembleSetAllPB->setEnabled(false);
+
     // Update tool tip
     BeesMsg  = "Stochastic search algorithm based on the behavior of honey bees.";
     NLoptMsg = "Open-Source NonLinear Optimization package";
@@ -916,8 +921,7 @@ nmfEstimation_Tab6::callback_EnsembleTotalRunsSB(int value)
     Estimation_Tab6_EnsembleClearPB->setEnabled(isMultiRun);
     Estimation_Tab6_EnsembleRunsWithSettingsLBL->setEnabled(isMultiRun);
     Estimation_Tab6_EnsembleRunsSetLBL->setEnabled(isMultiRun);
-    Estimation_Tab6_EnsembleSetAllPB->setEnabled(isMultiRun);
-//  Estimation_Tab6_EnsembleLoadPB->setEnabled(isMultiRun);
+//  Estimation_Tab6_EnsembleSetAllPB->setEnabled(isMultiRun); // RSK uncomment this when you fix the bug
     if (! isMultiRun) {
         Estimation_Tab6_EnsembleRunsSetLE->setText("0");
         Estimation_Tab6_EnsembleRunsSB->setValue(1);

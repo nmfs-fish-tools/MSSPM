@@ -344,7 +344,9 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //}
 //for (int ii=0;ii<int(Catch.size1()); ++ii) {
 //    for (int jj=0;jj<int(Catch.size2()); ++jj) {
-//        Catch(ii,jj) = std::log(Catch(ii,jj));
+//        if (ii<2 and jj<2) {
+//            std::cout << "Catch (" << ii << "," << jj << "): " << Catch(ii,jj) << std::endl;
+//        }
 //    }
 //}
 
@@ -392,8 +394,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //std::cout << "EstBiomassVal: " << EstBiomassVal << std::endl;
 //}
 
-//if (time == 1) {
-
+//if (time < 2) {
 //std::cout << "nlo year: " << time << ", val = "
 //          << EstBiomassSpecies(timeMinus1,species) << " + "
 //          << GrowthTerm << " - "
@@ -401,7 +402,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //          << CompetitionTerm << " - "
 //          << PredationTerm << " = "
 //          << EstBiomassVal << std::endl;
-//}
+//
 
 if (EstBiomassVal < 0) { // test code only
     EstBiomassVal = 0;
