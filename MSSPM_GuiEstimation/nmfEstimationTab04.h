@@ -95,6 +95,8 @@ class nmfEstimation_Tab4: public QObject
     QPushButton* Estimation_Tab4_TransposePB2;
     QSpinBox*    Estimation_Tab4_PredationSB;
     QSpinBox*    Estimation_Tab4_PredationSB2;
+    QComboBox*   Estimation_Tab4_MinMaxCMB;
+    QComboBox*   Estimation_Tab4_MinMaxCMB2;
 
     void getForms(std::string& predationForm,
                   std::string& competitionForm);
@@ -111,11 +113,18 @@ class nmfEstimation_Tab4: public QObject
     std::vector<QTableView*> getAllTableViews();
     void resetSpinBox(const std::pair<int,int>& nonZeroCell,
                       const QStandardItemModel* smodel,
-                      const QStandardItemModel* smodel1);
+                      const QStandardItemModel* smodel1,
+                      const QStandardItemModel* smodel2);
     void saveTables(const bool& isTypeIII,
                     const std::vector<std::string>& SpeNames,
                     const std::vector<QTableView*>& tableViews,
                     const std::vector<std::string>& tableNames);
+    void assignTableViewsBasedOnRangeType(const QString& rangeType,
+                                          QTableView* possibleTableView1,
+                                          QTableView* possibleTableView2,
+                                          QTableView*& tableView1,
+                                          QTableView*& tableView2);
+
 public:
     /**
      * @brief nmfEstimation_Tab4 : class constructor for the Predation Parameters GUI page
@@ -184,6 +193,11 @@ public Q_SLOTS:
      */
     void callback_MaxSplitterMoved(int pos, int index);
     /**
+     * @brief Callback invoked when the user changes one of the two range type combo boxes (it just updates the other one)
+     * @param rangeType : range type changed to (min/max, min only, or max only)
+     */
+    void callback_MinMaxCMB(QString rangeType);
+    /**
      * @brief Callback invoked when user sets the Competition min/max range percent spin box
      * @param value : integer percent value to make the min/max range difference (i.e., 2 => min is 2% less than the initial values and max is 2% greater than the initial values)
      */
@@ -192,6 +206,7 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the T button. This will cause the data in every Competition matrix to be transposed.
      */
     void callback_TransposePB();
+
 };
 
 #endif // NMFESTIMATIONTAB4_H

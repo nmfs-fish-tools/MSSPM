@@ -727,21 +727,18 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                 //    std::cout << "  Est Param[" << i << "]: " << m_Parameters[i] << std::endl;
                 //}
 
-// Always extract Init Biomass
-// Always extract Growth Rate
 
-
-                extractParameters(NLoptStruct, &m_Parameters[0], m_EstInitBiomass,
+                extractParameters(NLoptStruct, &m_Parameters[0],
+                        m_EstInitBiomass,
                         m_EstGrowthRates,  m_EstCarryingCapacities,
                         m_EstCatchability, m_EstAlpha,
                         m_EstBetaSpecies,  m_EstBetaGuilds, m_EstBetaGuildsGuilds,
                         m_EstPredation,    m_EstHandling,   m_EstExponent);
 
-// logstuff RSK - remove this possible
-std::cout << "Catchability q:" << std::endl;
-for (int ii=0; ii<m_EstCatchability.size(); ++ii) {
-std::cout << m_EstCatchability[ii] << std::endl;
-}
+//std::cout << "m_EstGrowthRates:" << std::endl;
+//for (int ii=0; ii<int(m_EstGrowthRates.size()); ++ii) {
+//std::cout << m_EstGrowthRates[ii] << std::endl;
+//}
 
                 createOutputStr(m_Parameters.size(),
                                 NLoptStruct.TotalNumberParameters,

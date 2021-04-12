@@ -1111,6 +1111,12 @@ MSSPM_GuiOutputControls::setOutputType(QString type)
 }
 
 void
+MSSPM_GuiOutputControls::setOutputGroupType(QString groupType)
+{
+    OutputGroupTypeCMB->setCurrentText(groupType);
+}
+
+void
 MSSPM_GuiOutputControls::setOutputDiagnostics(QString method)
 {
     // This forces an update if the user needs to

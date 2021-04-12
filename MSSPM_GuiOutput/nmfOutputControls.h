@@ -283,6 +283,11 @@ public:
      */
     void setCurrentSpecies(QString species);
     /**
+     * @brief Sets the Group type to one of: System, Guild:, or Species:
+     * @param grouptType : the group type desired
+     */
+    void setOutputGroupType(QString grouptType);
+    /**
      * @brief Sets the current species of the Species combobox widget to the passed species
      * @param species : the species to set the output species combo box to
      */

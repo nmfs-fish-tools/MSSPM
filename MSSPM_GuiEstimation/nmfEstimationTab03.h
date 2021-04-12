@@ -99,6 +99,8 @@ private:
     QSpinBox*    Estimation_Tab3_CompetitionSB2;
     QPushButton* Estimation_Tab3_TransposePB;
     QPushButton* Estimation_Tab3_TransposePB2;
+    QComboBox*   Estimation_Tab3_MinMaxCMB;
+    QComboBox*   Estimation_Tab3_MinMaxCMB2;
 
     QStringList getSpecies();
     QStringList getGuilds();
@@ -109,6 +111,12 @@ private:
     bool isMsProd();
     bool isAggProd();
     std::vector<QTableView* > getTableViews();
+    void assignTableViewsBasedOnRangeType(const QString& rangeType,
+                                          QTableView* possibleTableView1,
+                                          QTableView* possibleTableView2,
+                                          QTableView*& tableView1,
+                                          QTableView*& tableView2);
+
 
 public:
     /**
@@ -180,6 +188,11 @@ public Q_SLOTS:
      */
     void callback_CompetitionFormChanged(QString competitionForm);
     /**
+     * @brief Callback invoked when the user changes one of the two range type combo boxes (it just updates the other one)
+     * @param rangeType : range type changed to (min/max, min only, or max only)
+     */
+    void callback_MinMaxCMB(QString rangeType);
+    /**
      * @brief Callback invoked when user sets the Competition min/max range percent spin box
      * @param value : integer percent value to make the min/max range difference (i.e., 2 => min is 2% less than the initial values and max is 2% greater than the initial values)
      */
@@ -188,6 +201,7 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the T button. This will cause the data in every Competition matrix to be transposed.
      */
     void callback_TransposePB();
+
 };
 
 #endif // NMFESTIMATIONTAB3_H

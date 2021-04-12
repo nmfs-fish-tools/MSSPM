@@ -233,6 +233,19 @@ public:
      * @return The time (in number of seconds) after which to stop the model
      */
     int getCurrentStopAfterTime();
+
+    /**
+     * @brief Check to see if user has checked or unchecked the estimated parameter checkboxes on the Run page
+     * @return True if user wants to estimate competition, else false
+     */
+    bool isEstimatedCompetition();
+    bool isEstimatedExponent();
+    bool isEstimatedPredation();
+    bool isEstimatedHandling();
+    bool isEstimatedCompetitionBetaSpecies();
+    bool isEstimatedCompetitionBetaGuilds();
+    bool isEstimatedCompetitionBetaGuildsGuilds();
+
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully

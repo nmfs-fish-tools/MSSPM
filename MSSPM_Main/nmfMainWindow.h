@@ -584,6 +584,7 @@ private:
     void loadDatabase();
     bool loadInteraction(int &NumSpecies,
                          std::string InteractionType,
+                         std::string InitTable,
                          std::string MinTable,
                          std::string MaxTable,
                          std::vector<double> &MinData,
@@ -591,6 +592,7 @@ private:
                          int &NumInteractionParameters);
     bool loadInteraction(int &NumSpecies,
                          std::string InteractionType,
+                         std::string InitTable,
                          std::string MinTable,
                          std::string MaxTable,
                          std::vector<std::vector<double> > &MinData,
@@ -600,6 +602,7 @@ private:
                                int &NumGuilds,
                                std::string InteractionType,
                                std::map<std::string,std::string> &GuildSpeciesMap,
+                               std::string InitTable,
                                std::string MinTable,
                                std::string MaxTable,
                                std::vector<std::vector<double> > &MinData,
@@ -609,6 +612,7 @@ private:
                                      int &NumGuilds,
                                      std::string InteractionType,
                                      std::map<std::string,std::string> &GuildSpeciesMap,
+                                     std::string InitTable,
                                      std::string MinTable,
                                      std::string MaxTable,
                                      std::vector<std::vector<double> > &MinData,

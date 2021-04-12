@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>703</width>
-    <height>355</height>
+    <width>765</width>
+    <height>349</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -264,6 +264,31 @@
              <property name="whatsThis">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Range Percentage&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This value represents the percentage of a parameter the min/max values will be set to. For example, if SpeciesK is 100 and this value is set to 10, SpeciesKMin will be set to 90 and SpeciesKMax will be set to 110.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Estimation_Tab1_MinMaxCMB">
+             <property name="toolTip">
+              <string>Selects the type of values the percentage values should be set for</string>
+             </property>
+             <property name="statusTip">
+              <string>Selects the type of values the percentage values should be set for</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>min/max</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>min only</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>max only</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item>

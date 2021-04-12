@@ -667,10 +667,6 @@ nmfSetup_Tab3::saveSpeciesData()
     std::string GrowthRateMax,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SpeDependence;
     std::map<std::string,double> guildKMap;
     QString value;
-//  bool okValue;
-//    double InitBiomassVal; //,InitBiomassMinVal,InitBiomassMaxVal;
-//    double GrowthRateVal; //,GrowthRateMinVal,GrowthRateMaxVal;
-//    double SpeciesKVal; //,SpeciesKMinVal,SpeciesKMaxVal;
     std::vector<std::string> species;
 
     // Check each cell for missing fields
@@ -720,22 +716,6 @@ nmfSetup_Tab3::saveSpeciesData()
     QStringList SpeciesList;
     for (int i=0; i<NumSpecies; ++i) {
         SpeciesName       = Setup_Tab3_SpeciesTW->item(i, 0)->text().toStdString();
-
-//        InitBiomassVal    = Setup_Tab3_SpeciesTW->item(i, 2)->text().toDouble();
-//        GrowthRateVal     = Setup_Tab3_SpeciesTW->item(i, 3)->text().toDouble();
-//        SpeciesKVal       = Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
-
-//        InitBiomassMinVal = Setup_Tab3_SpeciesTW->item(i, 3)->text().toDouble();
-//        InitBiomassMaxVal = Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
-//        GrowthRateMinVal  = Setup_Tab3_SpeciesTW->item(i, 6)->text().toDouble();
-//        GrowthRateMaxVal  = Setup_Tab3_SpeciesTW->item(i, 7)->text().toDouble();
-//        SpeciesKMinVal    = Setup_Tab3_SpeciesTW->item(i,10)->text().toDouble();
-//        SpeciesKMaxVal    = Setup_Tab3_SpeciesTW->item(i,11)->text().toDouble();
-        /*
-        InitBiomassVal    = Setup_Tab3_SpeciesTW->item(i, 2)->text().toDouble();
-        GrowthRateVal     = Setup_Tab3_SpeciesTW->item(i, 5)->text().toDouble();
-        SpeciesKVal       = Setup_Tab3_SpeciesTW->item(i, 9)->text().toDouble();
-        */
         if (SpeciesList.contains(QString::fromStdString(SpeciesName))) {
             errorMsg = "\nFound duplicate Species name: " + SpeciesName;
             errorMsg += "\n\nEach Species name must be unique.\n";
@@ -745,59 +725,7 @@ nmfSetup_Tab3::saveSpeciesData()
         } else {
             SpeciesList << QString::fromStdString(SpeciesName);
         }
-//        if (InitBiomassVal > SpeciesKMinVal) {
-//            errorMsg = "\nFound: SpeciesKMin < InitBiomass for Species: " + SpeciesName;
-//            errorMsg += "\n\nSpeciesKMin must be greater than InitBiomass.\n";
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        }
-//        if (InitBiomassMinVal > InitBiomassMaxVal) {
-//            errorMsg = "\nFound: InitBiomassMin > InitBiomassMax for Species: " + SpeciesName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        } else if ((InitBiomassVal < InitBiomassMinVal) || (InitBiomassVal > InitBiomassMaxVal)) {
-//            errorMsg = "\nFound: InitBiomass value outside of its Min,Max range for Species: " + SpeciesName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        }
-//        if (GrowthRateMinVal > GrowthRateMaxVal) {
-//            errorMsg = "\nFound: GrowthRateMinVal > GrowthRateMaxVal for Species: " + SpeciesName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        } else if ((GrowthRateVal < GrowthRateMinVal) || (GrowthRateVal > GrowthRateMaxVal)) {
-//            errorMsg = "\nFound: GrowthRate value outside of its Min,Max range for Species: " + SpeciesName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        }
-//        if (SpeciesKMinVal > SpeciesKMaxVal) {
-//            errorMsg = "\nFound: SpeciesKMinVal > SpeciesKMaxVal for Species: " + SpeciesName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        } else if ((SpeciesKVal < SpeciesKMinVal) || (SpeciesKVal > SpeciesKMaxVal)) {
-//            errorMsg = "\nFound: SpeciesKVal value outside of its Min,Max range for Species: " + SpeciesName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        }
     }
-
-    // Delete current Species table
-//    cmd = "truncate table Species";
-//    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-//    if (nmfUtilsQt::isAnError(errorMsg)) {
-//        m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::saveSpeciesData: DELETE error: " + errorMsg);
-//        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-//        QMessageBox::warning(Setup_Tabs, "Error",
-//                             "\nError in Save command. Couldn't delete all records from Species table.\n",
-//                             QMessageBox::Ok);
-//        return;
-//    }
 
     // Save Species table from table widget
     for (int i=0; i<NumSpecies; ++i) {
@@ -807,20 +735,6 @@ nmfSetup_Tab3::saveSpeciesData()
         GrowthRate           = Setup_Tab3_SpeciesTW->item(i, 3)->text().toStdString();
         SpeciesK             = Setup_Tab3_SpeciesTW->item(i, 4)->text().toStdString();
 
-//        InitBiomassMin       = Setup_Tab3_SpeciesTW->item(i, 3)->text().toStdString();
-//        InitBiomassMax       = Setup_Tab3_SpeciesTW->item(i, 4)->text().toStdString();
-//        GrowthRateMin        = Setup_Tab3_SpeciesTW->item(i, 6)->text().toStdString();
-//        GrowthRateMax        = Setup_Tab3_SpeciesTW->item(i, 7)->text().toStdString();
-//        GrowthRateCovarCoeff = Setup_Tab3_SpeciesTW->item(i, 8)->text().toStdString();
-//        SpeciesKMin          = Setup_Tab3_SpeciesTW->item(i,10)->text().toStdString();
-//        SpeciesKMax          = Setup_Tab3_SpeciesTW->item(i,11)->text().toStdString();
-//        SpeciesKCovarCoeff   = Setup_Tab3_SpeciesTW->item(i,12)->text().toStdString();
-//        SurveyQ              = Setup_Tab3_SpeciesTW->item(i,13)->text().toStdString();
-//        SurveyQMin           = Setup_Tab3_SpeciesTW->item(i,14)->text().toStdString();
-//        SurveyQMax           = Setup_Tab3_SpeciesTW->item(i,15)->text().toStdString();
-//        CatchabilityMin      = Setup_Tab3_SpeciesTW->item(i,16)->text().toStdString();
-//        CatchabilityMax      = Setup_Tab3_SpeciesTW->item(i,17)->text().toStdString();
-//        SpeDependence        = Setup_Tab3_SpeciesTW->item(i,18)->text().toStdString();
         guildKMap[GuildName] += std::stod(SpeciesK);
         systemK += std::stod(SpeciesK);
         cmd  = "INSERT INTO Species (";

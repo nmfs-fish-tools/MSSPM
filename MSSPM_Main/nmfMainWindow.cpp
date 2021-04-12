@@ -2015,7 +2015,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.13 (beta)";
+    QString version = "MSSPM v0.9.14 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2720,6 +2720,8 @@ nmfMainWindow::initConnections()
             this,            SLOT(callback_AddedNewDatabase()));
     connect(Setup_Tab3_ptr,  SIGNAL(ReloadWidgets()),
             this,            SLOT(callback_ReloadWidgets()));
+    connect(Estimation_Tab1_ptr, SIGNAL(ReloadWidgets()),
+            this,                SLOT(callback_ReloadWidgets()));
     connect(Setup_Tab3_ptr,      SIGNAL(SaveSpeciesSupplemental(QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>)),
             Estimation_Tab1_ptr, SLOT(callback_SaveSpeciesCSVFile(QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>)));
     connect(Setup_Tab3_ptr,      SIGNAL(SaveGuildSupplemental(QList<QString>,QList<QString>,QList<QString>)),
@@ -3400,9 +3402,17 @@ nmfMainWindow::menu_showCurrentRun()
 std::cout << "Showing current run..." << std::endl;
     callback_ResetFilterButtons();
     setNumLines(1);
-    if (! callback_ShowChart("","")) { // },nmfConstantsMSSPM::IsNotAveraged)) {
-        return;
-    }
+
+    // This takes into account the user may not be selecting the Species group in the
+    // Output controls, but may have selected System or Guild group type
+    QString outputGroupType      = Output_Controls_ptr->getOutputGroupType();
+    QString outputSpeciesOrGuild = Output_Controls_ptr->getOutputSpecies();
+    Output_Controls_ptr->callback_OutputGroupTypeCMB(outputGroupType);
+    Output_Controls_ptr->setOutputSpecies(outputSpeciesOrGuild);
+
+//    if (! callback_ShowChart("","")) {
+//        return;
+//    }
 }
 
 void
@@ -5147,7 +5157,6 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
     // Calculate ScaleStr and Scaleval
     ScaleVal = convertUnitsStringToValue(ScaleStr);
-
     if (OutputType == "Biomass vs Time") {
         showChartBiomassVsTime(NumSpeciesOrGuilds,OutputSpecies,
                                SpeciesNum,RunLength,StartYear,
@@ -7826,7 +7835,7 @@ nmfMainWindow::initializeMModeViewer()
     QStringList SpeciesList;
 
     QString imagePath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDirMMode));
-std::cout << "imagePath: " << imagePath.toStdString() << std::endl;
+
     m_MModeViewerWidget   = new nmfViewerWidget(this,imagePath,m_Logger);
     MModeViewerDockWidget = new QDockWidget(this);
     MModeViewerDockWidget->setWidget(m_MModeViewerWidget->getMainWidget());
@@ -7880,7 +7889,7 @@ std::cout << "imagePath: " << imagePath.toStdString() << std::endl;
     if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear)) {
         return;
     }
-std::cout << 4.6 << std::endl;
+
     QStandardItemModel* smodel1 = new QStandardItemModel(RunLength,NumSpecies+1 ); // +1 for Year (1st column)
     QStandardItemModel* smodel2 = new QStandardItemModel(RunLength,NumSpecies+1 );
     QStandardItemModel* smodel3 = new QStandardItemModel(RunLength,NumSpecies+1 );
@@ -7894,7 +7903,6 @@ std::cout << 4.6 << std::endl;
     m_MModeViewerWidget->addDataTab("Biomass (relative)",  m_BiomassRelTV);
     m_MModeViewerWidget->addDataTab("Fishing Mortality",   m_FishingMortalityTV);
     m_MModeViewerWidget->addDataTab("Harvest Scale Factor",m_HarvestScaleFactorTV);
-std::cout << 4.7 << std::endl;
 }
 
 void
@@ -10822,24 +10830,18 @@ std::cout << "  " << parameterName << std::endl;
                       "GuildKMax","CatchabilityMin","CatchabilityMax"};
         queryStr   = "SELECT GuildName,GrowthRateMin,GrowthRateMax,GuildK,GuildKMin,";
         queryStr  += "GuildKMax,CatchabilityMin,CatchabilityMax from Guilds ORDER BY GuildName";
-std::cout << "qQ2: " << queryStr << std::endl;
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumGuilds  = dataMap["GuildName"].size();
-std::cout << "NumGuilds: " << NumGuilds << std::endl;
         nmfUtils::initialize(dataStruct.InitBiomass,        NumGuilds);
-std::cout << 11 << std::endl;
         nmfUtils::initialize(dataStruct.InitBiomassMin,     NumGuilds);
         nmfUtils::initialize(dataStruct.InitBiomassMax,     NumGuilds);
         nmfUtils::initialize(dataStruct.GrowthRateMin,      NumGuilds);
         nmfUtils::initialize(dataStruct.GrowthRateMax,      NumGuilds);
-std::cout << 55 << std::endl;
         nmfUtils::initialize(dataStruct.CarryingCapacity,   NumGuilds);
         nmfUtils::initialize(dataStruct.CarryingCapacityMin,NumGuilds);
         nmfUtils::initialize(dataStruct.CarryingCapacityMax,NumGuilds);
-std::cout << 99 << std::endl;
         nmfUtils::initialize(dataStruct.CatchabilityMin,    NumGuilds);
         nmfUtils::initialize(dataStruct.CatchabilityMax,    NumGuilds);
-std::cout << 3 << " " << NumGuilds << std::endl;
         for (int guild=0; guild<NumGuilds; ++guild) {
             dataStruct.GrowthRateMin(guild)       = std::stod(dataMap["GrowthRateMin"][guild]);
             dataStruct.GrowthRateMax(guild)       = std::stod(dataMap["GrowthRateMax"][guild]);
@@ -10853,7 +10855,6 @@ std::cout << 3 << " " << NumGuilds << std::endl;
             dataStruct.GuildSpecies[GuildNum].push_back(guild);
             dataStruct.GuildNum.push_back(GuildNum);
         }
-std::cout << 4 << std::endl;
         fields     = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax"};
         queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax from Species ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -10867,7 +10868,6 @@ std::cout << 4 << std::endl;
         }
         dataStruct.NumSpecies = NumSpecies;
         checkGuildRanges(NumGuilds,dataStruct);
-std::cout << 5 << std::endl;
     } else {
         fields     = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax","GrowthRate","GrowthRateMin","GrowthRateMax",
                       "SpeciesK","SpeciesKMin","SpeciesKMax","Catchability","CatchabilityMin","CatchabilityMax"};
@@ -10920,28 +10920,28 @@ std::cout << 5 << std::endl;
 
     // Load Interaction coefficients
     if (isAlpha) {
-        loadOK = loadInteraction(NumSpeciesOrGuilds, "Competition",
+        loadOK = loadInteraction(NumSpeciesOrGuilds, "Competition","CompetitionAlpha",
                                  "CompetitionAlphaMin","CompetitionAlphaMax",
                                  dataStruct.CompetitionMin, dataStruct.CompetitionMax,
                                  NumCompetitionParameters);
         if (! loadOK) return false;
     }
     if (isRho) {
-        loadOK = loadInteraction(NumSpeciesOrGuilds, "Predation",
+        loadOK = loadInteraction(NumSpeciesOrGuilds, "Predation","PredationLossRates",
                                  "PredationLossRatesMin", "PredationLossRatesMax",
                                  dataStruct.PredationMin, dataStruct.PredationMax,
                                  NumPredationParameters);
         if (! loadOK) return false;
     }
     if (isHandling) {
-        loadOK = loadInteraction(NumSpeciesOrGuilds, "Handling",
+        loadOK = loadInteraction(NumSpeciesOrGuilds, "Handling","HandlingTime",
                                  "HandlingTimeMin", "HandlingTimeMax",
                                  dataStruct.HandlingMin, dataStruct.HandlingMax,
                                  NumHandlingParameters);
         if (! loadOK) return false;
     }
     if (isExponent) {
-        loadOK = loadInteraction(NumSpeciesOrGuilds, "Exponent",
+        loadOK = loadInteraction(NumSpeciesOrGuilds, "Exponent","PredationExponent",
                                  "PredationExponentMin", "PredationExponentMax",
                                  dataStruct.ExponentMin, dataStruct.ExponentMax,
                                  NumExponentParameters);
@@ -10950,6 +10950,7 @@ std::cout << 5 << std::endl;
 
     if (isMSPROD) {
         loadOK = loadInteraction(NumSpecies, "MSPROD-Species",
+                                 "CompetitionBetaSpecies",
                                  "CompetitionBetaSpeciesMin",
                                  "CompetitionBetaSpeciesMax",
                                  dataStruct.CompetitionBetaSpeciesMin,
@@ -10958,7 +10959,9 @@ std::cout << 5 << std::endl;
         if (! loadOK) return false;
         loadOK = loadInteractionGuilds(NumSpecies, NumGuilds, "Competition-MSPROD",
                                        GuildSpeciesMap,
-                                      "CompetitionBetaGuildsMin","CompetitionBetaGuildsMax",
+                                       "CompetitionBetaGuilds",
+                                       "CompetitionBetaGuildsMin",
+                                       "CompetitionBetaGuildsMax",
                                        dataStruct.CompetitionBetaGuildsMin,
                                        dataStruct.CompetitionBetaGuildsMax,
                                        NumBetaGuildsParameters);
@@ -10966,7 +10969,9 @@ std::cout << 5 << std::endl;
     } else if (isAGGPROD) {
         loadOK = loadInteractionGuildsGuilds(NumGuilds, NumGuilds, "Competition-AGGPROD",
                                              GuildSpeciesMap,
-                                             "CompetitionBetaGuildsGuildsMin", "CompetitionBetaGuildsGuildsMax",
+                                             "CompetitionBetaGuildsGuilds",
+                                             "CompetitionBetaGuildsGuildsMin",
+                                             "CompetitionBetaGuildsGuildsMax",
                                              dataStruct.CompetitionBetaGuildsGuildsMin,
                                              dataStruct.CompetitionBetaGuildsGuildsMax,
                                              NumBetaGuildsParameters);
@@ -11092,6 +11097,7 @@ nmfMainWindow::checkGuildRanges(const int &NumGuilds,
 bool
 nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
                                std::string InteractionType,
+                               std::string InitTable,
                                std::string MinTable,
                                std::string MaxTable,
                                std::vector<double> &MinData,
@@ -11100,18 +11106,33 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
 {
     int m;
     int NumRecords;
-    double valMin;
-    double valMax;
+    double initVal;
+    double minVal;
+    double maxVal;
     std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMapMin,dataMapMax;
+    std::map<std::string, std::vector<std::string> > dataMapInit,dataMapMin,dataMapMax;
     std::string queryStr;
     QString msg;
     std::vector<double> MinRow;
     std::vector<double> MaxRow;
 
     NumInteractionParameters = 0;
-
     fields      = {"SystemName","SpeName","Value"};
+
+    // Get Init data
+    queryStr    = "SELECT SystemName,SpeName,Value FROM " + InitTable;
+    queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+    dataMapInit = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords  = dataMapInit["Value"].size();
+    if (NumRecords != NumSpeciesOrGuilds) {
+        msg = "[Error 1] LoadInteraction1d: Incorrect number of records found in table: " + QString::fromStdString(InitTable) + ". Found " +
+                QString::number(NumRecords) + " expecting " + QString::number(NumSpeciesOrGuilds) + ".";
+        m_Logger->logMsg(nmfConstants::Error, msg.toStdString());
+        QMessageBox::warning(this, "Error", "\n"+msg+"\n\nCheck min/max values in " + QString::fromStdString(InteractionType) + " Parameters tab.", QMessageBox::Ok);
+        return false;
+    }
+
+    // Get Min data
     queryStr    = "SELECT SystemName,SpeName,Value FROM " + MinTable;
     queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
     dataMapMin  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -11123,6 +11144,8 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
         QMessageBox::warning(this, "Error", "\n"+msg+"\n\nCheck min/max values in " + QString::fromStdString(InteractionType) + " Parameters tab.", QMessageBox::Ok);
         return false;
     }
+
+    // Get Max data
     queryStr    = "SELECT SystemName,SpeName,Value FROM " + MaxTable;
     queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
     dataMapMax  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -11135,11 +11158,20 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
     }
     m = 0;
     for (int row=0; row<NumSpeciesOrGuilds; ++row) {
-        valMin = std::stod(dataMapMin["Value"][m]);
-        valMax = std::stod(dataMapMax["Value"][m]);
+        initVal = std::stod(dataMapInit["Value"][m]);
+        minVal  = std::stod(dataMapMin["Value"][m]);
+        maxVal  = std::stod(dataMapMax["Value"][m]);
         ++NumInteractionParameters;
-        MinData.push_back(valMin);
-        MaxData.push_back(valMax);
+        if ((InteractionType == "Exponent") && Estimation_Tab6_ptr->isEstimatedExponent()) {
+            MinData.push_back(minVal);
+            MaxData.push_back(maxVal);
+        } else {
+            if (InteractionType != "Exponent") {
+                m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (1) of: "+InteractionType);
+            }
+            MinData.push_back(initVal);
+            MaxData.push_back(initVal);
+        }
         ++m;
     }
     return true;
@@ -11148,6 +11180,7 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
 bool
 nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
                                std::string InteractionType,
+                               std::string InitTable,
                                std::string MinTable,
                                std::string MaxTable,
                                std::vector<std::vector<double> > &MinData,
@@ -11156,18 +11189,34 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
 {
     int m;
     int NumRecords;
-    double valMin;
-    double valMax;
+    double InitVal;
+    double MinVal;
+    double MaxVal;
     std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMapMin,dataMapMax;
+    std::map<std::string, std::vector<std::string> > dataMapInit,dataMapMin,dataMapMax;
     std::string queryStr;
     QString msg;
+    std::vector<double> InitRow;
     std::vector<double> MinRow;
     std::vector<double> MaxRow;
 
     NumInteractionParameters = 0;
-
     fields      = {"SystemName","SpeciesA","SpeciesB","Value"};
+
+    // Get data from the init table
+    queryStr    = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + InitTable;
+    queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+    dataMapInit = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords  = dataMapInit["Value"].size();
+    if (NumRecords != NumSpeciesOrGuilds*NumSpeciesOrGuilds) {
+        m_Logger->logMsg(nmfConstants::Error,
+                       "[Error 1] loadInteraction: Incorrect number of records found in table: " +
+                       InitTable + ". Found " + std::to_string(NumRecords) + " expecting " +
+                       std::to_string(NumSpeciesOrGuilds*NumSpeciesOrGuilds) + ".");
+        return false;
+    }
+
+    // Get data from the min table
     queryStr    = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + MinTable;
     queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
     dataMapMin  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -11177,7 +11226,7 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
             msg = "\nMissing data. Please populate table: " + QString::fromStdString(MinTable);
             QMessageBox::critical(this, "Error", msg, QMessageBox::Ok);
         } else {
-            msg = "[Error 1] LoadInteraction2d: Incorrect number of records found in table: " +
+            msg = "[Error 2] loadInteraction: Incorrect number of records found in table: " +
                     QString::fromStdString(MinTable) + ". Found " +
                     QString::number(NumRecords) + " expecting " +
                     QString::number(NumSpeciesOrGuilds*NumSpeciesOrGuilds) + ".";
@@ -11189,31 +11238,50 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
         }
         return false;
     }
+
+    // Get data from the max table
     queryStr    = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + MaxTable;
     queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
     dataMapMax  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapMax["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds*NumSpeciesOrGuilds) {
         m_Logger->logMsg(nmfConstants::Error,
-                       "[Error 2] LoadInteraction2d: Incorrect number of records found in table: " +
+                       "[Error 3] loadInteraction: Incorrect number of records found in table: " +
                        MaxTable + ". Found " + std::to_string(NumRecords) + " expecting " +
                        std::to_string(NumSpeciesOrGuilds*NumSpeciesOrGuilds) + ".");
         return false;
     }
+
     m = 0;
     for (int row=0; row<NumSpeciesOrGuilds; ++row) {
+        InitRow.clear();
         MinRow.clear();
         MaxRow.clear();
         for (int col=0; col<NumSpeciesOrGuilds; ++col) {
-            valMin = std::stod(dataMapMin["Value"][m]);
-            valMax = std::stod(dataMapMax["Value"][m]);
-            MinRow.push_back(valMin);
-            MaxRow.push_back(valMax);
+            InitVal = std::stod(dataMapInit["Value"][m]);
+            MinVal  = std::stod(dataMapMin["Value"][m]);
+            MaxVal  = std::stod(dataMapMax["Value"][m]);
+            InitRow.push_back(InitVal);
+            MinRow.push_back(MinVal);
+            MaxRow.push_back(MaxVal);
             ++NumInteractionParameters;
             ++m;
         }
-        MinData.push_back(MinRow);
-        MaxData.push_back(MaxRow);
+        if (((InteractionType == "Competition")    && Estimation_Tab6_ptr->isEstimatedCompetition()) ||
+            ((InteractionType == "Predation")      && Estimation_Tab6_ptr->isEstimatedPredation())   ||
+            ((InteractionType == "Handling")       && Estimation_Tab6_ptr->isEstimatedHandling())    ||
+            ((InteractionType == "MSPROD-Species") && Estimation_Tab6_ptr->isEstimatedCompetitionBetaSpecies()))
+        {
+            MinData.push_back(MinRow);
+            MaxData.push_back(MaxRow);
+        } else {
+            if ((InteractionType != "Competition") && (InteractionType != "Predation") &&
+                (InteractionType != "Handling")    && (InteractionType != "MSPROD-Species")) {
+                m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (2) of: "+InteractionType);
+            }
+            MinData.push_back(InitRow);
+            MaxData.push_back(InitRow);
+        }
     }
     return true;
 }
@@ -11224,6 +11292,7 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
                                      int &NumGuilds,
                                      std::string InteractionType,
                                      std::map<std::string,std::string> &GuildSpeciesMap,
+                                     std::string InitTable,
                                      std::string MinTable,
                                      std::string MaxTable,
                                      std::vector<std::vector<double> > &MinData,
@@ -11232,19 +11301,39 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
 {
     int m;
     int NumRecords;
+    double valInit;
     double valMin;
     double valMax;
     std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMapMin,dataMapMax;
+    std::map<std::string, std::vector<std::string> > dataMapInit,dataMapMin,dataMapMax;
     std::string queryStr;
     QString msg;
+    std::vector<double> InitRow;
     std::vector<double> MinRow;
     std::vector<double> MaxRow;
     int NumSpeciesOrGuilds = (InteractionType == "Competition-AGGPROD") ? NumGuilds : NumSpecies;
 
     NumInteractionParameters = 0;
-
     fields      = {"SystemName","SpeName","Guild","Value"};
+
+    // Load Init data
+    queryStr    = "SELECT SystemName,SpeName,Guild,Value FROM " + InitTable;
+    queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+    dataMapInit = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords  = dataMapInit["Value"].size();
+    if (NumRecords != NumSpeciesOrGuilds*NumGuilds) {
+        msg = "[Error 0] LoadInteractionGuilds: Incorrect number of records found in table: " +
+                QString::fromStdString(InitTable) + ". Found " +
+                QString::number(NumRecords) + " expecting " +
+                QString::number(NumSpeciesOrGuilds*NumGuilds) + ".";
+        m_Logger->logMsg(nmfConstants::Error, msg.toStdString());
+        QMessageBox::warning(this, "Error", "\n"+msg+"\n\nCheck min/max values in " +
+                             QString::fromStdString(InteractionType) + " Parameters tab.",
+                             QMessageBox::Ok);
+        return false;
+    }
+
+    // Load Min data
     queryStr    = "SELECT SystemName,SpeName,Guild,Value FROM " + MinTable;
     queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
     dataMapMin  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -11261,6 +11350,7 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
         return false;
     }
 
+    // Load Max data
     queryStr    = "SELECT SystemName,SpeName,Guild,Value FROM " + MaxTable;
     queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
     dataMapMax  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -11275,18 +11365,30 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
 
     m = 0;
     for (int row=0; row<NumSpeciesOrGuilds; ++row) {
+        InitRow.clear();
         MinRow.clear();
         MaxRow.clear();
         for (int col=0; col<NumGuilds; ++col) {
-            valMin = std::stod(dataMapMin["Value"][m]);
-            valMax = std::stod(dataMapMax["Value"][m]);
+            valInit = std::stod(dataMapInit["Value"][m]);
+            valMin  = std::stod(dataMapMin["Value"][m]);
+            valMax  = std::stod(dataMapMax["Value"][m]);
+            InitRow.push_back(valInit);
             MinRow.push_back(valMin);
             MaxRow.push_back(valMax);
             ++NumInteractionParameters;
             ++m;
         }
-        MinData.push_back(MinRow);
-        MaxData.push_back(MaxRow);
+
+        if ((InteractionType == "Competition-MSPROD") && Estimation_Tab6_ptr->isEstimatedCompetitionBetaGuilds()) {
+            MinData.push_back(MinRow);
+            MaxData.push_back(MaxRow);
+        } else {
+            if (InteractionType != "Competition-MSPROD") {
+                m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (3) of: "+InteractionType);
+            }
+            MinData.push_back(InitRow);
+            MaxData.push_back(InitRow);
+        }
     }
     return true;
 }
@@ -11296,6 +11398,7 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
                                            int &NumGuilds,
                                            std::string InteractionType,
                                            std::map<std::string,std::string> &GuildSpeciesMap,
+                                           std::string InitTable,
                                            std::string MinTable,
                                            std::string MaxTable,
                                            std::vector<std::vector<double> > &MinData,
@@ -11304,18 +11407,39 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
 {
     int m;
     int NumRecords;
+    double valInit;
     double valMin;
     double valMax;
     std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMapMin,dataMapMax;
+    std::map<std::string, std::vector<std::string> > dataMapInit,dataMapMin,dataMapMax;
     std::string queryStr;
     QString msg;
+    std::vector<double> InitRow;
     std::vector<double> MinRow;
     std::vector<double> MaxRow;
 
     NumInteractionParameters = 0;
 
     fields      = {"SystemName","GuildA","GuildB","Value"};
+
+    // Get Init data
+    queryStr    = "SELECT SystemName,GuildA,GuildB,Value FROM " + InitTable;
+    queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+    dataMapInit = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords  = dataMapInit["Value"].size();
+    if (NumRecords != NumGuilds*NumGuilds) {
+        msg = "[Error 0] LoadInteractionGuildsGuilds: Incorrect number of records found in table: " +
+                QString::fromStdString(InitTable) + ". Found " +
+                QString::number(NumRecords) + " expecting " +
+                QString::number(NumGuilds*NumGuilds) + ".";
+        m_Logger->logMsg(nmfConstants::Error, msg.toStdString());
+        QMessageBox::warning(this, "Error", "\n"+msg+"\n\nCheck min/max values in " +
+                             QString::fromStdString(InteractionType) + " Parameters tab.",
+                             QMessageBox::Ok);
+        return false;
+    }
+
+    // Get Min data
     queryStr    = "SELECT SystemName,GuildA,GuildB,Value FROM " + MinTable;
     queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
     dataMapMin  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -11332,6 +11456,7 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
         return false;
     }
 
+    // Get Max data
     queryStr    = "SELECT SystemName,GuildA,GuildB,Value FROM " + MaxTable;
     queryStr   += " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
     dataMapMax  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -11346,18 +11471,29 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
 
     m = 0;
     for (int row=0; row<NumGuilds; ++row) {
+        InitRow.clear();
         MinRow.clear();
         MaxRow.clear();
         for (int col=0; col<NumGuilds; ++col) {
-            valMin = std::stod(dataMapMin["Value"][m]);
-            valMax = std::stod(dataMapMax["Value"][m]);
+            valInit = std::stod(dataMapInit["Value"][m]);
+            valMin  = std::stod(dataMapMin["Value"][m]);
+            valMax  = std::stod(dataMapMax["Value"][m]);
+            InitRow.push_back(valInit);
             MinRow.push_back(valMin);
             MaxRow.push_back(valMax);
             ++NumInteractionParameters;
             ++m;
         }
-        MinData.push_back(MinRow);
-        MaxData.push_back(MaxRow);
+        if ((InteractionType == "Competition-AGGPROD") && Estimation_Tab6_ptr->isEstimatedCompetitionBetaGuildsGuilds()) {
+            MinData.push_back(MinRow);
+            MaxData.push_back(MaxRow);
+        } else {
+            if (InteractionType != "Competition-AGGPROD") {
+                m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (4) of: "+InteractionType);
+            }
+            MinData.push_back(InitRow);
+            MaxData.push_back(InitRow);
+        }
     }
     return true;
 }

@@ -287,6 +287,55 @@ nmfEstimation_Tab6::callback_PrevPB()
     Estimation_Tabs->setCurrentIndex(prevPage);
 }
 
+bool
+nmfEstimation_Tab6::isEstimatedCompetition()
+{
+    return (Estimation_Tab6_EstimateCompetitionAlphaCB->isEnabled() &&
+            Estimation_Tab6_EstimateCompetitionAlphaCB->isChecked());
+}
+
+bool
+nmfEstimation_Tab6::isEstimatedExponent()
+{
+    return (Estimation_Tab6_EstimatePredationExponentCB->isEnabled() &&
+            Estimation_Tab6_EstimatePredationExponentCB->isChecked());
+}
+
+bool
+nmfEstimation_Tab6::isEstimatedPredation()
+{
+    return (Estimation_Tab6_EstimatePredationRhoCB->isEnabled() &&
+            Estimation_Tab6_EstimatePredationRhoCB->isChecked());
+}
+
+bool
+nmfEstimation_Tab6::isEstimatedHandling()
+{
+    return (Estimation_Tab6_EstimateHandlingCB->isEnabled() &&
+            Estimation_Tab6_EstimateHandlingCB->isChecked());
+}
+
+bool
+nmfEstimation_Tab6::isEstimatedCompetitionBetaSpecies()
+{
+    return (Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB->isEnabled() &&
+            Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB->isChecked());
+}
+
+bool
+nmfEstimation_Tab6::isEstimatedCompetitionBetaGuilds()
+{
+    return (Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB->isEnabled() &&
+            Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB->isChecked());
+}
+
+bool
+nmfEstimation_Tab6::isEstimatedCompetitionBetaGuildsGuilds()
+{
+    return (Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB->isEnabled() &&
+            Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB->isChecked());
+}
+
 void
 nmfEstimation_Tab6::adjustNumberOfParameters()
 {
@@ -381,7 +430,7 @@ nmfEstimation_Tab6::runEstimation()
     QString msg;
 
     // Adjust the NumberOfParameters in case user has unchecked any
-    adjustNumberOfParameters();
+//    adjustNumberOfParameters();
 
     if (isStopAfterValue() || isStopAfterTime() || isStopAfterIter())
     {

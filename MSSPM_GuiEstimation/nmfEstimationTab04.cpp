@@ -62,6 +62,8 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     Estimation_Tab4_TransposePB2    = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_TransposePB2");
     Estimation_Tab4_PredationSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab4_PredationSB");
     Estimation_Tab4_PredationSB2    = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab4_PredationSB2");
+    Estimation_Tab4_MinMaxCMB       = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab4_MinMaxCMB");
+    Estimation_Tab4_MinMaxCMB2      = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab4_MinMaxCMB2");
 
     Estimation_Tab4_PredationTV->setToolTip("Initial Values for Predation Effect of Column Predator on Row Prey");
     Estimation_Tab4_PredationMinTV->setToolTip("Minimum Values for Predation Effect of Column Predator on Row Prey");
@@ -97,6 +99,10 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
             this,                         SLOT(callback_PctRangeSB(int)));
     connect(Estimation_Tab4_PredationSB2, SIGNAL(valueChanged(int)),
             this,                         SLOT(callback_PctRangeSB(int)));
+    connect(Estimation_Tab4_MinMaxCMB,    SIGNAL(currentTextChanged(QString)),
+            this,                         SLOT(callback_MinMaxCMB(QString)));
+    connect(Estimation_Tab4_MinMaxCMB2,   SIGNAL(currentTextChanged(QString)),
+            this,                         SLOT(callback_MinMaxCMB(QString)));
 
     Estimation_Tab4_PrevPB->setText("\u25C1--");
     Estimation_Tab4_NextPB->setText("--\u25B7");
@@ -305,6 +311,7 @@ nmfEstimation_Tab4::loadCSVFiles(std::vector<std::string>& allTableNames)
     if (allTableViews.size() == allTableNames.size()) {
         QStandardItemModel* smodel  = qobject_cast<QStandardItemModel*>(allTableViews[0]->model());
         QStandardItemModel* smodel1 = qobject_cast<QStandardItemModel*>(allTableViews[1]->model());
+        QStandardItemModel* smodel2 = qobject_cast<QStandardItemModel*>(allTableViews[2]->model());
         for (QTableView* tv : allTableViews) {
             tableName = QDir(inputDataPath).filePath(QString::fromStdString(allTableNames[tableNum]+".csv"));
             loadOK = nmfUtilsQt::loadTimeSeries(
@@ -320,7 +327,7 @@ nmfEstimation_Tab4::loadCSVFiles(std::vector<std::string>& allTableNames)
                 nonZeroCellSaved = nonZeroCell;
             }
         }
-        resetSpinBox(nonZeroCellSaved,smodel,smodel1);
+        resetSpinBox(nonZeroCellSaved,smodel,smodel1,smodel2);
     } else {
         m_Logger->logMsg(nmfConstants::Error,"callback_ImportPB: number of visible tables don't match number of active table names");
     }
@@ -329,18 +336,28 @@ nmfEstimation_Tab4::loadCSVFiles(std::vector<std::string>& allTableNames)
 void
 nmfEstimation_Tab4::resetSpinBox(const std::pair<int,int>& nonZeroCell,
                                  const QStandardItemModel* smodel,
-                                 const QStandardItemModel* smodel1)
+                                 const QStandardItemModel* smodel1,
+                                 const QStandardItemModel* smodel2)
 {
     int nonZeroRow = nonZeroCell.first;
     int nonZeroCol = nonZeroCell.second;
 
     QModelIndex initValueIndex = smodel->index(nonZeroRow,nonZeroCol);
     QModelIndex minValueIndex  = smodel1->index(nonZeroRow,nonZeroCol);
+    QModelIndex maxValueIndex  = smodel2->index(nonZeroRow,nonZeroCol);
     double initValue = initValueIndex.data().toDouble();
     double minValue  = minValueIndex.data().toDouble();
-    int pctValue  = int(nmfUtils::round(100.0*(initValue-minValue)/initValue,0));
+    double maxValue  = maxValueIndex.data().toDouble();
+    int minPctValue  = int(nmfUtils::round(100.0*(initValue-minValue)/initValue,0));
+    int maxPctValue  = int(nmfUtils::round(100.0*(maxValue-initValue)/initValue,0));
 
-    Estimation_Tab4_PredationSB->setValue(pctValue);
+    if (minPctValue == maxPctValue) {
+        Estimation_Tab4_PredationSB->setValue(minPctValue);
+    } else {
+        Estimation_Tab4_PredationSB->blockSignals(true);
+        Estimation_Tab4_PredationSB->setValue(0);
+        Estimation_Tab4_PredationSB->blockSignals(false);
+    }
 }
 
 
@@ -350,7 +367,6 @@ nmfEstimation_Tab4::callback_SavePB()
     bool systemFound = false;
     bool isTypeIIITable = true;
     bool isNotTypeIIITable = false;
-    QModelIndex index;
     std::string cmd;
     std::string errorMsg;
     std::string value;
@@ -831,14 +847,17 @@ nmfEstimation_Tab4::loadWidgets()
             }
             m_TableViews2d[k]->resizeColumnsToContents();
         }
-        resetSpinBox(nonZeroCell,m_smodels2d[0],m_smodels2d[1]);
+        resetSpinBox(nonZeroCell,m_smodels2d[0],m_smodels2d[1],m_smodels2d[2]);
     }
     if (isTypeIII()) {
+
         QStandardItemModel* smodel;
         for (unsigned int k=0; k<m_TableNamesTypeIII.size(); ++k) {
-            smodel = qobject_cast<QStandardItemModel*>(m_TableViewsTypeIII[k]->model());
             if (isAggProd) {
                 smodel = new QStandardItemModel(NumGuilds, 1);
+                m_TableViewsTypeIII[k]->setModel(smodel);
+            } else {
+                smodel = new QStandardItemModel(NumSpeciesOrGuilds, 1);
                 m_TableViewsTypeIII[k]->setModel(smodel);
             }
             fields    = {"SystemName","SpeName","Value"};
@@ -906,15 +925,24 @@ nmfEstimation_Tab4::callback_TransposePB()
 void
 nmfEstimation_Tab4::callback_PctRangeSB(int pctValue)
 {
-    double pct = pctValue/100.0;
+    double pct = pctValue/100.0;    
+    QString rangeType = "";
+    QTableView* tableView1 = nullptr;
+    QTableView* tableView2 = nullptr;
+    QTableView* tableView3 = nullptr;
+    QTableView* tableView4 = nullptr;
+    QTableView* tableView5 = nullptr;
+    QTableView* tableView6 = nullptr;
 
     // The sender can be 1 of 2 spin boxes...this just keeps them in sync.
     QString senderName = qobject_cast<QSpinBox* >(QObject::sender())->objectName();
     if (senderName == "Estimation_Tab4_PredationSB") {
+        rangeType = Estimation_Tab4_MinMaxCMB->currentText();
         Estimation_Tab4_PredationSB2->blockSignals(true);
         Estimation_Tab4_PredationSB2->setValue(pctValue);
         Estimation_Tab4_PredationSB2->blockSignals(false);
     } else {
+        rangeType = Estimation_Tab4_MinMaxCMB2->currentText();
         Estimation_Tab4_PredationSB->blockSignals(true);
         Estimation_Tab4_PredationSB->setValue(pctValue);
         Estimation_Tab4_PredationSB->blockSignals(false);
@@ -922,13 +950,85 @@ nmfEstimation_Tab4::callback_PctRangeSB(int pctValue)
 
     // Set ranges in min max tables
     if (isTypeI()) {
-        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeI[0],m_TableViewsTypeI[1],m_TableViewsTypeI[2]);
+        assignTableViewsBasedOnRangeType(rangeType,m_TableViewsTypeI[1],m_TableViewsTypeI[2],tableView1,tableView2);
+        if (nmfUtilsQt::thereAreSelections(tableView1,tableView2)) {
+            nmfUtilsQt::setMinMaxOnSelections(pct,m_TableViewsTypeI[0],tableView1,tableView2);
+        } else {
+            nmfUtilsQt::setMinMax(pct,m_TableViewsTypeI[0],tableView1,tableView2);
+        }
     } else if (isTypeII()) {
-        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeI[0], m_TableViewsTypeI[1], m_TableViewsTypeI[2]);
-        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeII[0],m_TableViewsTypeII[1],m_TableViewsTypeII[2]);
+        assignTableViewsBasedOnRangeType(rangeType,m_TableViewsTypeI[1], m_TableViewsTypeI[2], tableView1,tableView2);
+        assignTableViewsBasedOnRangeType(rangeType,m_TableViewsTypeII[1],m_TableViewsTypeII[2],tableView3,tableView4);
+        bool thereAreSelectionsTypeI  = nmfUtilsQt::thereAreSelections(tableView1,tableView2);
+        bool thereAreSelectionsTypeII = nmfUtilsQt::thereAreSelections(tableView3,tableView4);
+
+        if (thereAreSelectionsTypeI || thereAreSelectionsTypeII) {
+            nmfUtilsQt::setMinMaxOnSelections(pct,m_TableViewsTypeI[0],tableView1,tableView2);
+        } else {
+            nmfUtilsQt::setMinMax(pct,m_TableViewsTypeI[0],tableView1,tableView2);
+        }
+        if (thereAreSelectionsTypeI || thereAreSelectionsTypeII) {
+            nmfUtilsQt::setMinMaxOnSelections(pct,m_TableViewsTypeII[0],tableView3,tableView4);
+        } else {
+            nmfUtilsQt::setMinMax(pct,m_TableViewsTypeII[0],tableView3,tableView4);
+        }
     } else if (isTypeIII()) {
-        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeI[0],   m_TableViewsTypeI[1],   m_TableViewsTypeI[2]);
-        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeII[0],  m_TableViewsTypeII[1],  m_TableViewsTypeII[2]);
-        nmfUtilsQt::setMinMax(pct,m_TableViewsTypeIII[0], m_TableViewsTypeIII[1], m_TableViewsTypeIII[2]);
+        assignTableViewsBasedOnRangeType(rangeType,m_TableViewsTypeI[1],  m_TableViewsTypeI[2],  tableView1,tableView2);
+        assignTableViewsBasedOnRangeType(rangeType,m_TableViewsTypeII[1], m_TableViewsTypeII[2], tableView3,tableView4);
+        assignTableViewsBasedOnRangeType(rangeType,m_TableViewsTypeIII[1],m_TableViewsTypeIII[2],tableView5,tableView6);
+        bool thereAreSelectionsTypeI   = nmfUtilsQt::thereAreSelections(tableView1,tableView2);
+        bool thereAreSelectionsTypeII  = nmfUtilsQt::thereAreSelections(tableView3,tableView4);
+        bool thereAreSelectionsTypeIII = nmfUtilsQt::thereAreSelections(tableView5,tableView6);
+
+        if (thereAreSelectionsTypeI || thereAreSelectionsTypeII || thereAreSelectionsTypeIII) {
+            if (thereAreSelectionsTypeI) {
+                nmfUtilsQt::setMinMaxOnSelections(pct,m_TableViewsTypeI[0],  tableView1,tableView2);
+            }
+            if (thereAreSelectionsTypeII) {
+                nmfUtilsQt::setMinMaxOnSelections(pct,m_TableViewsTypeII[0], tableView3,tableView4);
+            }
+            if (thereAreSelectionsTypeIII) {
+                nmfUtilsQt::setMinMaxOnSelections(pct,m_TableViewsTypeIII[0],tableView5,tableView6);
+            }
+        } else {
+            nmfUtilsQt::setMinMax(pct,m_TableViewsTypeI[0],  tableView1,tableView2);
+            nmfUtilsQt::setMinMax(pct,m_TableViewsTypeII[0], tableView3,tableView4);
+            nmfUtilsQt::setMinMax(pct,m_TableViewsTypeIII[0],tableView5,tableView6);
+        }
+    }
+}
+
+
+void
+nmfEstimation_Tab4::assignTableViewsBasedOnRangeType(const QString& rangeType,
+                                                     QTableView* possibleTableView1,
+                                                     QTableView* possibleTableView2,
+                                                     QTableView*& tableView1,
+                                                     QTableView*& tableView2)
+{
+    tableView1 = nullptr;
+    tableView2 = nullptr;
+    if (rangeType == "min/max") {
+        tableView1 = possibleTableView1;
+        tableView2 = possibleTableView2;
+    } else if (rangeType == "min only") {
+        tableView1 = possibleTableView1;
+    } else if (rangeType == "max only") {
+        tableView2 = possibleTableView2;
+    }
+}
+
+void
+nmfEstimation_Tab4::callback_MinMaxCMB(QString rangeType)
+{
+    QString senderName = qobject_cast<QComboBox* >(QObject::sender())->objectName();
+    if (senderName == "Estimation_Tab4_MinMaxCMB") {
+        Estimation_Tab4_MinMaxCMB2->blockSignals(true);
+        Estimation_Tab4_MinMaxCMB2->setCurrentText(rangeType);
+        Estimation_Tab4_MinMaxCMB2->blockSignals(false);
+    } else if (senderName == "Estimation_Tab3_MinMaxCMB2") {
+        Estimation_Tab4_MinMaxCMB->blockSignals(true);
+        Estimation_Tab4_MinMaxCMB->setCurrentText(rangeType);
+        Estimation_Tab4_MinMaxCMB->blockSignals(false);
     }
 }

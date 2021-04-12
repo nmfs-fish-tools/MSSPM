@@ -72,6 +72,31 @@
           <widget class="QSpinBox" name="Estimation_Tab4_PredationSB"/>
          </item>
          <item>
+          <widget class="QComboBox" name="Estimation_Tab4_MinMaxCMB">
+           <property name="toolTip">
+            <string>Selects the type of values the percentage values should be set for</string>
+           </property>
+           <property name="statusTip">
+            <string>Selects the type of values the percentage values should be set for</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>min/max</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min only</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>max only</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="Estimation_Tab4_TransposePB">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -299,6 +324,31 @@
          </item>
          <item>
           <widget class="QSpinBox" name="Estimation_Tab4_PredationSB2"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="Estimation_Tab4_MinMaxCMB2">
+           <property name="toolTip">
+            <string>Selects the type of values the percentage values should be set for</string>
+           </property>
+           <property name="statusTip">
+            <string>Selects the type of values the percentage values should be set for</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>min/max</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min only</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>max only</string>
+            </property>
+           </item>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="Estimation_Tab4_TransposePB2">

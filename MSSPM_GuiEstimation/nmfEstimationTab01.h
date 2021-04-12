@@ -52,6 +52,7 @@ class nmfEstimation_Tab1: public QObject
     QStandardItemModel*  m_GuildModel;
     QStandardItemModel*  m_SpeciesModel;
     std::string          m_ProjectDir;
+    std::string          m_ProjectSettingsConfig;
     QModelIndexList      m_selIndexes;
     QList<QString> m_originalSpeciesValuesAll;
     std::vector<double>  m_originalValuesSelected;
@@ -81,6 +82,7 @@ class nmfEstimation_Tab1: public QObject
     QComboBox*    Estimation_Tab1_SpeciesRangeCMB;
     QSpinBox*     Estimation_Tab1_SpeciesRangeSB;
     QCheckBox*    Estimation_Tab1_ModifyRunCB;
+    QComboBox*    Estimation_Tab1_MinMaxCMB;
 
     bool arePopulationParametersWithinLimits();
     bool checkAndShowEmptyFieldError(bool showPopup,
@@ -99,6 +101,7 @@ class nmfEstimation_Tab1: public QObject
     bool loadGuilds();
     bool loadSpecies();
     bool onGuildTab();
+    void readSettings();
     void reselectVisibleCells(QModelIndexList indexes);
     void resetModifySlider();
     void resetSelection();
@@ -131,6 +134,7 @@ class nmfEstimation_Tab1: public QObject
     bool saveSpeciesDataSupplementalAndRange(bool showPopup);
     void setupHelpSpecies();
     void setupHelpGuilds();
+    void updateBiomassAbsoluteTable();
 
 signals:
     /**
@@ -179,6 +183,7 @@ signals:
      * @param showPopup : boolean signifying whether the application should pop up a successful reload acknowledgement
      */
     void ReloadSpecies(bool showPopup);
+    void ReloadWidgets();
     /**
      * @brief Signal causes the recently saved Output Species names to be written back into the appropriate Output Controls widget
      */

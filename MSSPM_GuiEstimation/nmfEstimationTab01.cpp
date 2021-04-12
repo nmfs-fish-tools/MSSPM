@@ -22,6 +22,7 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     m_runFromModifySlider = false;
     m_OutputSpecies.clear();
     m_SpeciesGuild.clear();
+    m_ProjectSettingsConfig = "";
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::nmfEstimation_Tab1");
 
@@ -55,6 +56,7 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     Estimation_Tab1_SpeciesRangeCMB     = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab1_SpeciesRangeCMB");
     Estimation_Tab1_SpeciesRangeSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab1_SpeciesRangeSB");
     Estimation_Tab1_GuildRangeCB        = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab1_GuildRangeCB");
+    Estimation_Tab1_MinMaxCMB           = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab1_MinMaxCMB");
     Estimation_Tab1_ModifySL->setValue(m_StartPosSL); // Set midpoint position to start
 
     //nmfTableView* Estimation_Tab1_PopulationTV = new nmfTableView();
@@ -104,6 +106,8 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
 
     Estimation_Tab1_SpeciesRangeCMB->setEnabled(false);
     Estimation_Tab1_SpeciesRangeSB->setEnabled(false);
+
+    readSettings();
 
 } // end constructor
 
@@ -439,6 +443,8 @@ nmfEstimation_Tab1::callback_SavePB()
     bool ok = true;
     std::string msg = "\n";
     std::string type = (onGuildTab()) ? "Guilds" : "Species";
+
+    readSettings();
 
     // Show warning
     QMessageBox::StandardButton reply;
@@ -1123,6 +1129,9 @@ nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
         return false;
     }
 
+    // update BiomassAbsolute table with the initial Biomass values
+    updateBiomassAbsoluteTable();
+
     emit ReloadSpecies(showPopup);
 
     if (showPopup) {
@@ -1132,6 +1141,41 @@ nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
     }
 
     return true;
+}
+
+void
+nmfEstimation_Tab1::updateBiomassAbsoluteTable()
+{
+    std::string cmd;
+    std::string errorMsg;
+    std::string MohnsRhoLabel = "";
+    QModelIndex index;
+    std::string initBiomass;
+    std::string species;
+
+    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
+        index = m_SpeciesModel->index(i,0);
+        species = index.data().toString().toStdString();
+        index = m_SpeciesModel->index(i,1);
+        initBiomass = index.data().toString().toStdString();
+
+        // Need to also update the BiomassAbsolute table with the initial Biomass values
+        cmd  = "REPLACE INTO BiomassAbsolute (";
+        cmd += "MohnsRhoLabel,SystemName,SpeName,Year,Value) ";
+        cmd += "VALUES ('" + MohnsRhoLabel + "','" + m_ProjectSettingsConfig + "','" +
+                species + "', 0, "+ initBiomass + ");";
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+        if (nmfUtilsQt::isAnError(errorMsg)) {
+            m_Logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (BiomassAbsolute): Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            QMessageBox::warning(Estimation_Tabs,"Warning",
+                                 "\nCouldn't REPLACE INTO BiomassAbsolute table.\n",
+                                 QMessageBox::Ok);
+            return;
+        }
+    }
+
+    emit ReloadWidgets();
 }
 
 void
@@ -1637,10 +1681,11 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
     int row;
     double pctVal = double(pct)/100.0;
     double parameterValue;
-    QModelIndex index,minIndex,maxIndex;
+    QModelIndex index;
     std::set<int> selectedParameters;
     QStandardItem* minItem;
     QStandardItem* maxItem;
+    QString rangeType = Estimation_Tab1_MinMaxCMB->currentText();
     // Column number of parameters that have min/max values associated with them
     // Update this as necessary when implementing supplemental parameters.
     std::vector<int> parameters = {1,4,8};  // Probably shouldn't be hard-coded.
@@ -1652,15 +1697,17 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
         for (int row=0; row<numRows; ++row) {
             for (int col : parameters) {
                 index    = m_SpeciesModel->index(row,col);
-                minIndex = m_SpeciesModel->index(row,col+1);
-                maxIndex = m_SpeciesModel->index(row,col+2);
                 parameterValue = index.data().toDouble();
-                minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal),'f',6));
-                minItem->setTextAlignment(Qt::AlignCenter);
-                maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal),'f',6));
-                maxItem->setTextAlignment(Qt::AlignCenter);
-                m_SpeciesModel->setItem(row,col+1,minItem);
-                m_SpeciesModel->setItem(row,col+2,maxItem);
+                if ((rangeType == "min/max") || (rangeType == "min only")) {
+                    minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal),'f',6));
+                    minItem->setTextAlignment(Qt::AlignCenter);
+                    m_SpeciesModel->setItem(row,col+1,minItem);
+                }
+                if ((rangeType == "min/max") || (rangeType == "max only")) {
+                    maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal),'f',6));
+                    maxItem->setTextAlignment(Qt::AlignCenter);
+                    m_SpeciesModel->setItem(row,col+2,maxItem);
+                }
             }
         }
     } else {
@@ -1673,7 +1720,6 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                 case 5:
                 case 9:
                     index    = m_SpeciesModel->index(row,col-1);
-                    minIndex = m_SpeciesModel->index(row,col);
                     parameterValue = index.data().toDouble();
                     minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal),'f',6));
                     minItem->setTextAlignment(Qt::AlignCenter);
@@ -1683,7 +1729,6 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                 case 6:
                 case 10:
                     index    = m_SpeciesModel->index(row,col-2);
-                    maxIndex = m_SpeciesModel->index(row,col);
                     parameterValue = index.data().toDouble();
                     maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal),'f',6));
                     maxItem->setTextAlignment(Qt::AlignCenter);
@@ -1696,3 +1741,16 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
         reselectVisibleCells(indexes);
     }
 }
+
+void
+nmfEstimation_Tab1::readSettings()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    settings->beginGroup("Settings");
+    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    delete settings;
+}
+
