@@ -51,6 +51,7 @@ MSSPM_GuiOutputControls::initWidgets()
 {
     QModelIndex index;
     QVariant vNull(0);
+    QString msg;
 
     QVBoxLayout* controlLayt = new QVBoxLayout();
     QHBoxLayout* BMSYLayt    = new QHBoxLayout();
@@ -150,12 +151,26 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputGroupTypeCMB->setStatusTip("Type of Entity to plot (Species, Guild, or entire System)");
     OutputShowBMSYCB->setToolTip("Biomass Maximum Sustained Yield (K/2)");
     OutputShowBMSYCB->setStatusTip("Biomass Maximum Sustained Yield (K/2)");
+    msg ="<html>\
+<strong><center>B MSY</center></strong><br>\
+If K=0 (which will happen if the growth rate selected is Linear), \
+the equation used for K becomes K(i) = r(i)/alpha(i,i).\
+</html>";
+    OutputShowBMSYCB->setWhatsThis(msg);
     OutputShowBMSYLE->setToolTip("Biomass Maximum Sustained Yield (K/2)");
     OutputShowBMSYLE->setStatusTip("Biomass Maximum Sustained Yield (K/2)");
+    OutputShowBMSYLE->setWhatsThis(msg);
+    msg ="<html>\
+<strong><center>MSY</center></strong><br>\
+If K=0 (which will happen if the growth rate selected is Linear), \
+the equation used for K becomes K(i) = r(i)/alpha(i,i).\
+</html>";
     OutputShowMSYCB->setToolTip("Maximum Sustained Yield (rK/4)");
     OutputShowMSYCB->setStatusTip("Maximum Sustained Yield (rK/4)");
+    OutputShowMSYCB->setWhatsThis(msg);
     OutputShowMSYLE->setToolTip("Maximum Sustained Yield (rK/4)");
     OutputShowMSYLE->setStatusTip("Maximum Sustained Yield (rK/4)");
+    OutputShowMSYLE->setWhatsThis(msg);
     OutputShowFMSYCB->setToolTip("Fishing Mortality Maximum Sustained Yield (r/2)");
     OutputShowFMSYCB->setStatusTip("Fishing Mortality Maximum Sustained Yield (r/2)");
     OutputShowFMSYLE->setToolTip("Fishing Mortality Maximum Sustained Yield (r/2)");

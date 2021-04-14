@@ -3483,6 +3483,28 @@ nmfMainWindow::updateOutputTables(
 }
 */
 
+
+double
+nmfMainWindow::calculateCarryingCapacityForMSY(
+        const int& SpeciesNum,
+        const std::vector<double>& EstCarryingCapacities,
+        const std::vector<double>& EstGrowthRates,
+        const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
+        const boost::numeric::ublas::matrix<double>& EstPredationRho)
+{
+
+    double carryingCapacity = EstCarryingCapacities[SpeciesNum];
+    // if K=0, then we use K=r/alpha
+    if (carryingCapacity == 0) {
+        if (EstCompetitionAlpha(SpeciesNum,SpeciesNum) != 0) {
+            carryingCapacity = EstGrowthRates[SpeciesNum]/EstCompetitionAlpha(SpeciesNum,SpeciesNum);
+        } else if (EstPredationRho(SpeciesNum,SpeciesNum) != 0) {
+            carryingCapacity = EstGrowthRates[SpeciesNum]/EstPredationRho(SpeciesNum,SpeciesNum);
+        }
+    }
+    return carryingCapacity;
+}
+
 void
 nmfMainWindow::updateOutputTables(
         std::string&                                 Algorithm,
@@ -3500,12 +3522,13 @@ nmfMainWindow::updateOutputTables(
         const boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
         const boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
         const boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
-        const boost::numeric::ublas::matrix<double>& EstPredation,
-        const boost::numeric::ublas::matrix<double>& EstHandling,
-        const std::vector<double>&                   EstExponent)
+        const boost::numeric::ublas::matrix<double>& EstPredationRho,
+        const boost::numeric::ublas::matrix<double>& EstPredationHandling,
+        const std::vector<double>&                   EstPredationExponent)
 {
     int SpeciesNum;
     double value=0;
+    double carryingCapacity;
     std::string cmd;
     std::string errorMsg;
     QString msg;
@@ -3566,8 +3589,8 @@ nmfMainWindow::updateOutputTables(
                     value = EstCarryingCapacities[SpeciesNum++];
                 }
             } else if (tableName == "OutputExponent") {
-                if (! EstExponent.empty()) {
-                    value = EstExponent[SpeciesNum++];
+                if (! EstPredationExponent.empty()) {
+                    value = EstPredationExponent[SpeciesNum++];
                 }
             } else if (tableName == "OutputCatchability") {
                 if (! EstCatchability.empty()) {
@@ -3575,12 +3598,20 @@ nmfMainWindow::updateOutputTables(
                 }
             } else if (tableName == "OutputMSYBiomass") {
                 if (! EstCarryingCapacities.empty()) {
-                    value = EstCarryingCapacities[SpeciesNum++]/2.0;
+                    carryingCapacity = calculateCarryingCapacityForMSY(
+                         SpeciesNum,EstCarryingCapacities,EstGrowthRates,
+                         EstCompetitionAlpha,EstPredationRho);
+                    value = carryingCapacity/2.0;
+                    ++SpeciesNum;
+                    //value = EstCarryingCapacities[SpeciesNum++]/2.0;
                 }
             } else if (tableName == "OutputMSY") {
                 if (! EstGrowthRates.empty() and ! EstCarryingCapacities.empty()) {
-                    value = EstGrowthRates[SpeciesNum]*EstCarryingCapacities[SpeciesNum]/4.0;
-                    SpeciesNum++;
+                    carryingCapacity = calculateCarryingCapacityForMSY(
+                         SpeciesNum,EstCarryingCapacities,EstGrowthRates,
+                         EstCompetitionAlpha,EstPredationRho);
+                    value = EstGrowthRates[SpeciesNum]*carryingCapacity/4.0;
+                    ++SpeciesNum;
                 }
             } else if (tableName == "OutputMSYFishing") {
                 if (! EstGrowthRates.empty()) {
@@ -3615,10 +3646,10 @@ nmfMainWindow::updateOutputTables(
                                    "OutputCompetitionBetaSpecies",
                                    "OutputPredation",
                                    "OutputHandling"};
-    QList<bool> Skip = {EstCompetitionAlpha.size1() == 0,
+    QList<bool> Skip = {EstCompetitionAlpha.size1()  == 0,
                         EstCompetitionBetaSpecies.size1() == 0,
-                        EstPredation.size1() == 0,
-                        EstHandling.size1()  == 0};
+                        EstPredationRho.size1()      == 0,
+                        EstPredationHandling.size1() == 0};
     int i = 0;
     for (QString tableName : TableNames2)
     {
@@ -3647,9 +3678,9 @@ nmfMainWindow::updateOutputTables(
                 } else if (tableName == "OutputCompetitionBetaSpecies") {
                     value = EstCompetitionBetaSpecies(row,col);
                 } else if (tableName == "OutputPredation") {
-                    value = EstPredation(row,col);
+                    value = EstPredationRho(row,col);
                 } else if (tableName == "OutputHandling") {
-                    value = EstHandling(row,col);
+                    value = EstPredationHandling(row,col);
                 }
                 if (std::isnan(std::fabs(value)))
                     value = 0;

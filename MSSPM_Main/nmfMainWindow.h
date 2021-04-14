@@ -333,18 +333,24 @@ private:
     bool areFieldsValid(std::string table,
                         std::string system,
                         std::vector<std::string> fields);
+    double calculateCarryingCapacityForMSY(
+            const int& SpeciesNum,
+            const std::vector<double>& EstCarryingCapacities,
+            const std::vector<double>& EstGrowthRates,
+            const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
+            const boost::numeric::ublas::matrix<double>& EstPredationRho);
     bool calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
-                          std::vector<double>& EstGrowthRates,
-                          std::vector<double>& EstCarryingCapacities,
-                          std::vector<double>& EstCatchability,
-                          boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
-                          boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
-                          boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
-                          boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
-                          boost::numeric::ublas::matrix<double>& EstPredation,
-                          boost::numeric::ublas::matrix<double>& EstHandling,
-                          std::vector<double>& EstExponent,
-                          boost::numeric::ublas::matrix<double>& calculatedBiomass);
+                                std::vector<double>& EstGrowthRates,
+                                std::vector<double>& EstCarryingCapacities,
+                                std::vector<double>& EstCatchability,
+                                boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
+                                boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
+                                boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
+                                boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
+                                boost::numeric::ublas::matrix<double>& EstPredation,
+                                boost::numeric::ublas::matrix<double>& EstHandling,
+                                std::vector<double>& EstExponent,
+                                boost::numeric::ublas::matrix<double>& calculatedBiomass);
     double calculateMonteCarloValue(const double& uncertainty,
                                     const double& value,
                                     double& randomValue);
