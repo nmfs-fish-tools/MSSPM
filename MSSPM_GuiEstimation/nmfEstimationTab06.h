@@ -66,8 +66,10 @@ class nmfEstimation_Tab6: public QObject
     std::string     m_PredationForm;
     EnsembleDialog* m_EnsembleDialog;
 
+    QGroupBox*   Estimation_Tab6_ModelAlgorithmsGB;
     QGroupBox*   Estimation_Tab6_Bees_ParametersGB;
     QGroupBox*   Estimation_Tab6_NL_ParametersGB;
+    QGroupBox*   Estimation_Tab6_EstParametersGB;
     QComboBox*   Estimation_Tab6_MinimizerAlgorithmCMB;
     QComboBox*   Estimation_Tab6_ObjectiveCriterionCMB;
     QLabel*      Estimation_Tab6_MinimizerAlgorithmLBL;
@@ -136,6 +138,7 @@ class nmfEstimation_Tab6: public QObject
     QList<QCheckBox* > getAllEstimateCheckboxes();
     void initializeDetStoMap();
     void enableRunButton(bool enableRun);
+    void enableEnsembleWidgets(bool enable);
     void adjustNumberOfParameters();
     bool addToMultiRunFile(const int& numRunsToAdd,
                            const int& currentNumberOfRuns,

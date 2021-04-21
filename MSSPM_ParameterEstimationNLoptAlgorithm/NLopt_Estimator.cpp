@@ -313,13 +313,11 @@ NLopt_Estimator::objectiveFunction(unsigned n,
             guildK += carryingCapacity[GuildSpecies[i][j]];
 
             systemCarryingCapacity += guildK;
-//std::cout << "sysCap: " << systemCarryingCapacity << std::endl;
         }
-//std::cout << "guildK: " << guildK << std::endl;
         guildCarryingCapacity.push_back(guildK);
     }
-//std::cout << "final sysCap: " << systemCarryingCapacity << std::endl;
-     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+
+    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i);
     }
      for (int i=0; i<NumGuilds; ++i) {
@@ -394,7 +392,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //std::cout << "EstBiomassVal: " << EstBiomassVal << std::endl;
 //}
 
-//if (time < 2) {
+//if (species == 0 && time <= 3) {
 //std::cout << "nlo year: " << time << ", val = "
 //          << EstBiomassSpecies(timeMinus1,species) << " + "
 //          << GrowthTerm << " - "
@@ -402,7 +400,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //          << CompetitionTerm << " - "
 //          << PredationTerm << " = "
 //          << EstBiomassVal << std::endl;
-//
+//}
 
 if (EstBiomassVal < 0) { // test code only
     EstBiomassVal = 0;

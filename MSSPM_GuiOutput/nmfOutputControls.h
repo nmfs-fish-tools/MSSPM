@@ -102,11 +102,6 @@ class MSSPM_GuiOutputControls: public QObject
     bool isAggProd();
     void loadSortedForecastLabels();
     void readSettings();
-    /**
-     * @brief Show data in the data table only if use is viewing 2d data and not for the 3d data chart.
-     * @param showTable : boolean specifying whether table should be shown or not
-     */
-    void showDataTable(bool showTable);
     void updateChart();
 
 public:

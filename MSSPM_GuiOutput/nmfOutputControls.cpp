@@ -416,7 +416,7 @@ MSSPM_GuiOutputControls::loadSpeciesControlWidget()
         m_Logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::loadSpeciesControlWidget: No records found in table Guilds, Name = "+m_ProjectSettingsConfig);
         return;
     }
-    if ((OutputGroupTypeCMB->currentText() == "Guild:") || (CompetitionForm == "AGG-PROD")) {
+    if ((getOutputGroupType() == "Guild") || (CompetitionForm == "AGG-PROD")) {
        NumSpecies  = NumGuilds;
        SpeciesList = GuildList;
     } else {
@@ -859,13 +859,11 @@ MSSPM_GuiOutputControls::callback_OutputParametersCB(int state)
         OutputParametersMinimumPB->setEnabled(true);
         emit ShowDiagnosticsChart3d();
         emit SetChartView2d(false);
-        showDataTable(false);
     } else {
         OutputParametersCMB->setEnabled(true);
         OutputParametersCenterPB->setEnabled(false);
         OutputParametersMinimumPB->setEnabled(false);
         emit SetChartView2d(true);
-        showDataTable(true);
     }
     OutputShowShadowLBL->setEnabled(state == Qt::Checked);
     OutputShowShadowCB->setEnabled(state == Qt::Checked);
@@ -878,20 +876,13 @@ MSSPM_GuiOutputControls::callback_OutputShowShadowCB(int dummy)
 }
 
 void
-MSSPM_GuiOutputControls::showDataTable(bool showTable)
-{
-
-}
-
-
-void
 MSSPM_GuiOutputControls::updateChart()
 {
     QString outputGroupType = getOutputGroupType();
 
-    if (outputGroupType == "Species:") {
-        emit ShowChart("",""); //,m_IsAveraged);
-    } else if (outputGroupType == "Guild:") {
+    if (outputGroupType == "Species") {
+        emit ShowChart("","");
+    } else if (outputGroupType == "Guild") {
         emit ShowChartBy("Guild",m_IsAveraged);
     } else if (outputGroupType == "System") {
         emit ShowChartBy("System",m_IsAveraged);
@@ -948,7 +939,7 @@ MSSPM_GuiOutputControls::callback_ResetOutputWidgetsForAggProd()
         OutputSpeciesLBL->setText("Guilds:");
         SpeciesOrGuildList = GuildList;
     } else {
-        OutputSpeciesLBL->setText("Species:");
+        OutputSpeciesLBL->setText("Species");
         SpeciesOrGuildList = SpeciesList;
     }
 
@@ -1069,7 +1060,8 @@ MSSPM_GuiOutputControls::getOutputChartType()
 QString
 MSSPM_GuiOutputControls::getOutputGroupType()
 {
-    return OutputGroupTypeCMB->currentText();
+
+    return OutputGroupTypeCMB->currentText().replace(":","");
 }
 
 QString

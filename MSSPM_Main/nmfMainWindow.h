@@ -223,6 +223,8 @@ private:
     QStringList                           m_orderedFinalList;
     boost::numeric::ublas::matrix<double> m_biomassMatrix;
     boost::numeric::ublas::matrix<double> m_parameterMatrix;
+    int                                   m_NumRuns;
+    nmfUtilsStatisticsAveraging*          m_AveragedData;
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
@@ -297,12 +299,13 @@ private:
 //  nmfSimulation_Tab6*         Simulation_Tab6_ptr;
 //  LogisticMultiSpeciesDialog* LogisticMultiSpeciesDlg;
     int getTabIndex(QTabWidget* tabWidget, QString tabName);
-    void calculateAverageBiomassAndDisplay(int& NumSpecies,
-                                           int& RunLength);
-    void   clearOutputData(std::string algorithm,
-                           std::string minimizer,
-                           std::string objectiveCriterion,
-                           std::string scaling);
+//    void calculateAverageBiomassAndDisplay();
+    void calculateAverageBiomass();
+    void displayAverageBiomass();
+    void clearOutputData(std::string algorithm,
+                         std::string minimizer,
+                         std::string objectiveCriterion,
+                         std::string scaling);
     bool clearMonteCarloParametersTable(
             std::string& ForecastName,
             std::string& Algorithm,
@@ -324,9 +327,12 @@ private:
     void   initializeMModeMain();
     void   initializeMModeViewer();
     bool   runningREMORA();
+    void   getOutputBiomassEnsemble(
+            const int& NumRows,
+            const int& NumCols,
+            std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassEnsemble);
     void   showDockWidgets(bool show);
     QList<QString> getTableNames(bool isExponent);
-
     void adjustProgressWidget();
     bool areFieldsValid(std::string table,
                         std::vector<std::string> fields);
@@ -339,7 +345,8 @@ private:
             const std::vector<double>& EstGrowthRates,
             const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
             const boost::numeric::ublas::matrix<double>& EstPredationRho);
-    bool calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
+    bool calculateSubRunBiomass(std::string& Scaling,
+                                std::vector<double>& EstInitBiomass,
                                 std::vector<double>& EstGrowthRates,
                                 std::vector<double>& EstCarryingCapacities,
                                 std::vector<double>& EstCatchability,
@@ -511,7 +518,6 @@ private:
             QList<double> &OutputInitBiomass);
     std::vector<boost::numeric::ublas::matrix<double> >
     getOutputBiomassByGroup(
-            const int& NumLines,
             const int& RunLength,
             const std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassSpecies,
             const std::string& type);
@@ -567,6 +573,7 @@ private:
     void getMonteCarloUncertaintyData(
             const QString& Species,
             QList<QString>& formattedUncertaintyData);
+    bool getOutputBiomassEnsembleLineLabels(QList<QString>& lineLabels);
     void initConnections();
     void initGUIs();
     bool isAggProd();
@@ -694,13 +701,26 @@ private:
     void setupOutputScreenShotViewerWidgets();
     void setupOutputViewerWidget();
     void setupProgressChart();
+    void showObservedBiomassScatter(
+            const std::string &ChartTitle,
+            const int &StartForecastYear,
+            const int &NumSpecies,
+            const QString &OutputSpecies,
+            const int &SpeciesNum,
+            const int NumYears,
+            boost::numeric::ublas::matrix<double> &ObservedBiomass,
+            QString &ScaleStr,
+            double &ScaleVal,
+            double &YMinSliderVal,
+            const bool& clearChart,
+            QStringList ColumnLabelsForLegend);
     void showChartBiomassVsTime(
             const int &NumSpecies,
             const QString &OutputSpecies,
             const int &SpeciesNum,
             const int &RunLength,
             const int &StartYear,
-            const int &m_NumLines,
+//            const int &m_NumLines,
             std::vector<std::string> &Algorithms,
             std::vector<std::string> &Minimizers,
             std::vector<std::string> &ObjectiveCriteria,
@@ -710,7 +730,26 @@ private:
             QList<double> &BiomassMSYValues,
             QString &ScaleStr,
             double &ScaleVal,
+            const bool& clearChart,
             double &YMin);
+    void showChartBiomassVsTimeMultiRunWithScatter(
+            const int &NumSpecies,
+            const QString &OutputSpecies,
+            const int &SpeciesNum,
+            const int &RunLength,
+            const int &StartYear,
+            std::vector<std::string> &Algorithms,
+            std::vector<std::string> &Minimizers,
+            std::vector<std::string> &ObjectiveCriteria,
+            std::vector<std::string> &Scalings,
+            std::vector<boost::numeric::ublas::matrix<double> > &OutputBiomass,
+            boost::numeric::ublas::matrix<double> &ObservedBiomass,
+            QList<double> &BiomassMSYValues,
+            QString &ScaleStr,
+            double &ScaleVal,
+            const bool& clearChart,
+            double &YMin,
+            const QList<QString>& lineLabels);
     void showChartBcVsTimeSelectedSpecies(QList<int> &RowList,
                                           QList<QString> &RowNameList);
 //    void showChartBcVsTimeAllSpecies(
@@ -758,7 +797,7 @@ private:
             boost::numeric::ublas::matrix<double> &DiagnosticsValue,
             boost::numeric::ublas::matrix<double> &DiagnosticsFitness,
             double& YMinSliderVal);
-    void showForecastBiomassVsTime(const std::string &label,
+    void showBiomassVsTimeForMultipleRuns(const std::string &label,
                                    const int         &StartYear,
                                    const int         &NumSpecies,
                                    const QString     &OutputSpecies,
@@ -769,7 +808,8 @@ private:
                                    double            &ScaleVal,
                                    double            &YMinSliderVal,
                                    double            &brightnessFactor,
-                                   bool              useDimColor,
+                                   bool              isMonteCarlo,
+                                   bool              isEnsemble,
                                    bool              clearChart,
                                    QStringList       ColumnLabelsForLegend);
     bool showForecastChart(const bool& isAggProd,
@@ -878,6 +918,13 @@ private:
             QString& multiRunSpeciesFilename,
             QString& multiRunModelFilename);
     void averageBiomassAndDisplay(QString& fullSpeciesPath);
+    void updateBiomassEnsembleTable(
+            const int& RunNumber,
+            const std::string& Algorithm,
+            const std::string& Minimizer,
+            const std::string& ObjectiveCriterion,
+            const std::string& Scaling,
+            const boost::numeric::ublas::matrix<double>& CalculatedBiomass);
 
     //    bool isThereMohnsRhoData();
     //    bool loadGradientParameters(Gradient_Struct &gradientStruct);

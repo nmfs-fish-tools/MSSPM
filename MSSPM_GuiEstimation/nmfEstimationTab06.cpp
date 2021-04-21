@@ -41,6 +41,8 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
 
     Estimation_Tab6_Bees_ParametersGB       = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_Bees_ParametersGB");
     Estimation_Tab6_NL_ParametersGB         = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_NL_ParametersGB");
+    Estimation_Tab6_EstParametersGB         = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_EstParametersGB");
+    Estimation_Tab6_ModelAlgorithmsGB       = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_ModelAlgorithmsGB");
     Estimation_Tab6_EstimationAlgorithmCMB  = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_EstimationAlgorithmCMB");
     Estimation_Tab6_ObjectiveCriterionCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_ObjectiveCriterionCMB");
     Estimation_Tab6_MinimizerAlgorithmCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinimizerAlgorithmCMB");
@@ -1098,7 +1100,7 @@ nmfEstimation_Tab6::callback_EnsembleAddPB()
         QMessageBox::information(Estimation_Tabs, "Multi-Run/Ensemble Setup Complete",
                                  "\nAll runs in current Multi-Run/Ensemble have now been set up.\n",
                                  QMessageBox::Ok);
-        enableRunButton(true);
+        enableEnsembleWidgets(false);
     }
 }
 
@@ -1107,8 +1109,8 @@ nmfEstimation_Tab6::callback_EnsembleClearPB()
 {
     if (queryUserIfOkToClearMultiRunFile()) {
         m_EnsembleDialog->clear();
+        enableEnsembleWidgets(true);
     }
-    enableRunButton(false);
 }
 
 
@@ -1291,9 +1293,8 @@ void
 nmfEstimation_Tab6::callback_EnsembleControlsGB(bool isChecked)
 {
     callback_EnsembleTotalRunsSB(Estimation_Tab6_EnsembleTotalRunsSB->value());
-    enableRunButton(isChecked);
+    enableEnsembleWidgets(! isChecked);
 }
-
 
 void
 nmfEstimation_Tab6::callback_EnsembleLoadPB()
@@ -1316,12 +1317,22 @@ nmfEstimation_Tab6::callback_EnsembleLoadPB()
         setEnsembleRuns(TotalNumRuns);
         setEnsembleRunsSet(TotalNumRuns);
         saveSystem(false);
-        enableRunButton(true);
+        enableEnsembleWidgets(false);
     } else {
         QMessageBox::warning(Estimation_Tabs, "Warning",
                              "\nNo previous Multi-Run/Ensemble file found to load.\n",
                              QMessageBox::Ok);
     }
+}
+
+void
+nmfEstimation_Tab6::enableEnsembleWidgets(bool enable)
+{
+    enableRunButton(! enable);
+    Estimation_Tab6_NL_ParametersGB->setEnabled(enable);
+    Estimation_Tab6_Bees_ParametersGB->setEnabled(enable);
+    Estimation_Tab6_EstParametersGB->setEnabled(enable);
+    Estimation_Tab6_ModelAlgorithmsGB->setEnabled(enable);
 }
 
 void
