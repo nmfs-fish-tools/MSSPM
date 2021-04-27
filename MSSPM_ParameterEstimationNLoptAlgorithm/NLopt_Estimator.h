@@ -193,12 +193,14 @@ public:
      * @brief The main routine that runs the NLopt Optimizer
      * @param NLoptDataStruct : structure containing all of the parameters needed by NLopt
      * @param RunNum : the number of the run
+     * @param isAMultiRun : true if a multirun, false if not
      * @param MultiRunLines : the contents of the multi-run run file
      * @param TotalIndividualRuns : total of all of the multi-run runs
      */
     void estimateParameters(
             Data_Struct& NLoptDataStruct,
-            int&          RunNumber,
+            int& RunNumber,
+            bool& isAMultiRun,
             std::vector<QString>& MultiRunLines,
             int& TotalIndividualRuns);
     /**

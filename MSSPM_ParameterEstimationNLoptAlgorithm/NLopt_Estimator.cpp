@@ -539,8 +539,8 @@ NLopt_Estimator::loadInitBiomassParameterRanges(
             aPair = std::make_pair(dataStruct.InitBiomassMin[species],
                                    dataStruct.InitBiomassMax[species]);
         } else {
-            aPair = std::make_pair(dataStruct.InitBiomass[species],  //-nmfConstantsMSSPM::epsilon,
-                                   dataStruct.InitBiomass[species]); //+nmfConstantsMSSPM::epsilon);
+            aPair = std::make_pair(dataStruct.InitBiomass[species],
+                                   dataStruct.InitBiomass[species]);
         }
         parameterRanges.emplace_back(aPair);
     }
@@ -600,15 +600,6 @@ NLopt_Estimator::setParameterBounds(Data_Struct& NLoptStruct,
     for (int i=0; i<NumEstParameters; ++i) {
         lowerVal = ParameterRanges[i].first;
         upperVal = ParameterRanges[i].second;
-        // Tweak bounds if they're equal and they're both not 0
-//        if ((lowerVal == upperVal)) { // && (lowerVal*upperVal != 0)) {
-//            lowerVal -= eps;
-//            upperVal += eps;
-//        }
-//        // RSK logstuff take this out possibly
-//        lowerVal = myNaturalLog(lowerVal);
-//        upperVal = myNaturalLog(upperVal);
-
         lowerBounds[i] = lowerVal;
         upperBounds[i] = upperVal;
     }
@@ -632,6 +623,7 @@ NLopt_Estimator::setParameterBounds(Data_Struct& NLoptStruct,
 void
 NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
                                     int& RunNumber,
+                                    bool& isAMultiRun,
                                     std::vector<QString>& MultiRunLines,
                                     int& TotalIndividualRuns)
 {
@@ -640,7 +632,6 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
     int NumMultiRuns = 1;
     int NumSubRuns = 0;
     double fitnessStdDev   = 0;
-    bool isAMultiRun = (MultiRunLines.size() > 1);
     std::chrono::_V2::system_clock::time_point startTime = nmfUtils::startTimer();
     std::chrono::_V2::system_clock::time_point startTimeSpecies;
     std::string bestFitnessStr = "TBD";
@@ -668,35 +659,42 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
     NLoptHarvestForm->loadParameterRanges(    ParameterRanges, NLoptStruct);
     NLoptCompetitionForm->loadParameterRanges(ParameterRanges, NLoptStruct);
     NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
-
     NumEstParameters = ParameterRanges.size();
+std::cout << "FIX: Remove delayMSec" << std::endl;
 std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
 for (int i=0; i< NumEstParameters; ++i) {
  std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
 }
 
-std::cout << "isAMultiRun: " << isAMultiRun << std::endl;
-
     if (isAMultiRun) {
         NumMultiRuns = MultiRunLines.size();
     }
-std::cout << "NLopt NumMultiRuns: " << NumMultiRuns << std::endl;
 
     for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
         NumSubRuns = 1;
         if (isAMultiRun) {
             nmfUtilsQt::reloadDataStruct(NLoptStruct,MultiRunLines[multiRun]);
             NumSubRuns = NLoptStruct.NLoptNumberOfRuns;
+            NLoptGrowthForm->setType(     NLoptStruct.GrowthForm);
+            NLoptHarvestForm->setType(    NLoptStruct.HarvestForm);
+            NLoptCompetitionForm->setType(NLoptStruct.CompetitionForm);
+            NLoptPredationForm->setType(  NLoptStruct.PredationForm);
+            ParameterRanges.clear();
+            loadInitBiomassParameterRanges(           ParameterRanges, NLoptStruct);
+            NLoptGrowthForm->loadParameterRanges(     ParameterRanges, NLoptStruct);
+            NLoptHarvestForm->loadParameterRanges(    ParameterRanges, NLoptStruct);
+            NLoptCompetitionForm->loadParameterRanges(ParameterRanges, NLoptStruct);
+            NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
+            NumEstParameters = ParameterRanges.size();
         }
-std::cout << "NLopt multiRun: " << multiRun << ", EstimationAlgorithm: " << NLoptStruct.EstimationAlgorithm << std::endl;
-        if (NLoptStruct.EstimationAlgorithm != "NLopt Algorithm") { // This must follow the reloadNLoptStruct call
-std::cout << "NLopt Skipping: " <<  MultiRunLines[multiRun].toStdString() << std::endl;
+
+        // This must follow the reloadNLoptStruct call
+        if (NLoptStruct.EstimationAlgorithm != "NLopt Algorithm") {
             continue; // skip over rest of for statement and continue with next increment
         }
 
         foundOneNLoptRun = true;
         for (int run=0; run<NumSubRuns; ++run) {
-std::cout << "NLopt subRunNum: " << run << std::endl;
 
             // Initialize the optimizer with the appropriate algorithm
             m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
@@ -733,17 +731,13 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                         m_EstBetaSpecies,  m_EstBetaGuilds, m_EstBetaGuildsGuilds,
                         m_EstPredation,    m_EstHandling,   m_EstExponent);
 
-//std::cout << "m_EstGrowthRates:" << std::endl;
-//for (int ii=0; ii<int(m_EstGrowthRates.size()); ++ii) {
-//std::cout << m_EstGrowthRates[ii] << std::endl;
-//}
-
                 createOutputStr(m_Parameters.size(),
                                 NLoptStruct.TotalNumberParameters,
                                 NumSubRuns,
                                 fitness,fitnessStdDev,NLoptStruct,bestFitnessStr);
-
                 if (isAMultiRun) {
+                    // RSK -remove this and replace with logic writing est parameters to file
+                    // (Having to use this with a delay is pretty ad hoc.)
                     emit SubRunCompleted(RunNumber++,
                                          TotalIndividualRuns,
                                          NLoptStruct.EstimationAlgorithm,
@@ -752,6 +746,8 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                                          NLoptStruct.ScalingAlgorithm,
                                          NLoptStruct.MultiRunModelFilename,
                                          fitness);
+                    nmfUtilsQt::delayMSec(100);
+
                 } else {
                     emit RunCompleted(bestFitnessStr,NLoptStruct.showDiagnosticChart);
                 }
@@ -813,12 +809,6 @@ NLopt_Estimator::createOutputStr(
     bestFitnessStr += "<br><br>Number of Runs:&nbsp;&nbsp;&nbsp;" + std::to_string(numSubRuns);
     bestFitnessStr += "<br>Best Fitness (SSE) value of all runs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + QString::number(bestFitness,'f',2).toStdString();
     bestFitnessStr += "<br>Std dev of Best Fitness values from all runs:&nbsp;&nbsp;" + QString::number(fitnessStdDev,'f',2).toStdString();
-
-// This may not be necessary...
-//    if (growthForm == "Logistic") {
-//        bestFitnessStr += "<br><br><strong>Initial Parameters:</strong>";
-//        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity",m_InitialCarryingCapacities,true);
-//    }
     bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong>";
     bestFitnessStr += convertValues1DToOutputStr("Initial Biomass:    ",m_EstInitBiomass,false);
     bestFitnessStr += convertValues1DToOutputStr("Growth Rate:        ",m_EstGrowthRates,  false);

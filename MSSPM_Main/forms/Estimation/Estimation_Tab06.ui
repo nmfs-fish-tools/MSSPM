@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>722</width>
-    <height>894</height>
+    <width>721</width>
+    <height>814</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,8 +46,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>680</width>
-            <height>794</height>
+            <width>665</width>
+            <height>782</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -1837,7 +1837,7 @@ with the non-assigned bees being assigned to random positions.</string>
                  </widget>
                 </item>
                 <item row="0" column="0">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateInitBiomassCB">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateInitialBiomassCB">
                   <property name="toolTip">
                    <string>If checked, the Initial Biomass parameter will be estimated</string>
                   </property>
@@ -1848,7 +1848,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    <enum>Qt::LeftToRight</enum>
                   </property>
                   <property name="text">
-                   <string>Init Biomass (B₀)</string>
+                   <string>Initial Biomass (B₀)</string>
                   </property>
                  </widget>
                 </item>
@@ -2169,6 +2169,19 @@ with the non-assigned bees being assigned to random positions.</string>
                     </property>
                    </widget>
                   </item>
+                  <item>
+                   <spacer name="horizontalSpacer_20">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                  </layout>
                 </item>
                 <item>
@@ -2200,6 +2213,18 @@ with the non-assigned bees being assigned to random positions.</string>
                   </item>
                   <item>
                    <widget class="QSpinBox" name="Estimation_Tab6_EnsembleRunsSB">
+                    <property name="minimumSize">
+                     <size>
+                      <width>75</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="font">
                      <font>
                       <weight>50</weight>
@@ -2344,6 +2369,19 @@ with the non-assigned bees being assigned to random positions.</string>
                     </property>
                    </widget>
                   </item>
+                  <item>
+                   <spacer name="horizontalSpacer_13">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                  </layout>
                 </item>
                 <item>
@@ -2357,7 +2395,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>Algorithm used to combine results of multiple runs</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Averaging Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When user selects Number of Runs more than 1, this algorithm is used to combine the resulting output data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Averaging Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When the user selects the Number of Total Runs to be than 1, this algorithm is used to combine the resulting output data. The available algorithms are:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1. Unweighted&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Each model is weighted equally when averaged.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. AIC Weighted&lt;/span&gt;&lt;/p&gt;&lt;p&gt;(http://brianomeara.info/aic.html)&lt;/p&gt;&lt;p&gt;Each model is weighted using the Akaike Information Criterion (AIC). The averaging is done as follows:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Step 1.&lt;/span&gt; The AIC values are calculated for each model.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Step 2.&lt;/span&gt; The &lt;span style=&quot; font-family:'Roboto','arial','sans-serif'; font-size:14px; color:#4d5156;&quot;&gt;Δ&lt;/span&gt;AIC values are calculated. They are the differences between the best model (the smallest AIC) and all the other models. (The best model has a &lt;span style=&quot; font-family:'Roboto','arial','sans-serif'; font-size:14px; color:#4d5156;&quot;&gt;Δ&lt;/span&gt;AIC = 0.)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Step 3. &lt;/span&gt;The relative likelihood of each model is calculated using: exp(-0.5 * &lt;span style=&quot; font-family:'Roboto','arial','sans-serif'; font-size:14px; color:#4d5156;&quot;&gt;Δ&lt;/span&gt;AIC).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Step 4. &lt;/span&gt;The AIC weights for each model are calculated as the relative likelihood of that model (&lt;span style=&quot; font-style:italic;&quot;&gt;Step 3&lt;/span&gt;) divided by the sum of all of the relative likelihoods across all models.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Averaging Algorithm:</string>
@@ -2368,13 +2406,13 @@ with the non-assigned bees being assigned to random positions.</string>
                    <widget class="QComboBox" name="Estimation_Tab6_EnsembleAveragingAlgorithmCMB">
                     <property name="minimumSize">
                      <size>
-                      <width>100</width>
+                      <width>110</width>
                       <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>100</width>
+                      <width>110</width>
                       <height>16777215</height>
                      </size>
                     </property>
@@ -2385,13 +2423,129 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>Algorithm used to combine results of multiple runs</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Averaging Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When user selects Number of Runs more than 1, this algorithm is used to combine the resulting output data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Averaging Algorithm&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When the user selects the Number of Total Runs to be than 1, this algorithm is used to combine the resulting output data. The available algorithms are:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1. Unweighted&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Each model is weighted equally when averaged.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. AIC Weighted&lt;/span&gt;&lt;/p&gt;&lt;p&gt;(http://brianomeara.info/aic.html)&lt;/p&gt;&lt;p&gt;Each model is weighted using the Akaike Information Criterion (AIC). The averaging is done as follows:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Step 1.&lt;/span&gt; The AIC values are calculated for each model.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Step 2.&lt;/span&gt; The &lt;span style=&quot; font-family:'Roboto','arial','sans-serif'; font-size:14px; color:#4d5156;&quot;&gt;Δ&lt;/span&gt;AIC values are calculated. They are the differences between the best model (the smallest AIC) and all the other models. (The best model has a &lt;span style=&quot; font-family:'Roboto','arial','sans-serif'; font-size:14px; color:#4d5156;&quot;&gt;Δ&lt;/span&gt;AIC = 0.)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Step 3. &lt;/span&gt;The relative likelihood of each model is calculated using: exp(-0.5 * &lt;span style=&quot; font-family:'Roboto','arial','sans-serif'; font-size:14px; color:#4d5156;&quot;&gt;Δ&lt;/span&gt;AIC).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Step 4. &lt;/span&gt;The AIC weights for each model are calculated as the relative likelihood of that model (&lt;span style=&quot; font-style:italic;&quot;&gt;Step 3&lt;/span&gt;) divided by the sum of all of the relative likelihoods across all models.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <item>
                      <property name="text">
                       <string>Unweighted</string>
                      </property>
                     </item>
+                    <item>
+                     <property name="text">
+                      <string>AIC Weighted</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="Estimation_Tab6_EnsembleAverageByCMB">
+                    <property name="minimumSize">
+                     <size>
+                      <width>110</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>110</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Determines what to average</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Determines what to average</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;What to Average&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This pulldown instructs the application to average either:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1. by Parameter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In this case, the estimated parameters will be averaged and the averaged biomass will be derived from those averaged parameters. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. by Biomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In this case the biomass will be averaged after being calculated from the estimated parameters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>by Biomass</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>by Parameter</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="Estimation_Tab6_EnsembleUsingAmountCMB">
+                    <property name="toolTip">
+                     <string>Determines how many of the individual runs should be averaged</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Determines how many of the individual runs should be averaged</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Using Amount&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This pulldown allows the user to specify if they want to use all of the individual runs in calculating the average or a specific number of them.&lt;/p&gt;&lt;p&gt;If the latter, a number spin box and a percent button will be enabled. The spin box allows the user to specify the top, either &lt;span style=&quot; font-style:italic;&quot;&gt;n&lt;/span&gt; percent or &lt;span style=&quot; font-style:italic;&quot;&gt;n&lt;/span&gt; individual runs to use in the average. The percent button allows the user to specify if they want &lt;span style=&quot; font-style:italic;&quot;&gt;n&lt;/span&gt; to refer to a percentage or an absolute number of individual runs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>using All</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>using Top:</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="Estimation_Tab6_EnsembleUsingAmountSB">
+                    <property name="toolTip">
+                     <string>How many runs should be used in the averaging calculations</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>How many runs should be used in the averaging calculations</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Number of Runs&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This allows the user to specify how many runs should be used in the averaging calculations. This number may be either a percentage or an absolute number, depending on the button state to the right.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="minimum">
+                     <number>2</number>
+                    </property>
+                    <property name="value">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="Estimation_Tab6_EnsembleUsingPctPB">
+                    <property name="minimumSize">
+                     <size>
+                      <width>18</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>18</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Percentage or absolute number specifier</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Percentage or absolute number specifier</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Percentage Specifier&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button specifies if the number visible in the spin box to the left represents a percentage of runs or an absolute number of runs to be used in the averaging calculations.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>%</string>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>16</width>
+                      <height>16</height>
+                     </size>
+                    </property>
                    </widget>
                   </item>
                   <item>

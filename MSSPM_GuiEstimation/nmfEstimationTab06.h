@@ -102,7 +102,7 @@ class nmfEstimation_Tab6: public QObject
     QLineEdit*   Estimation_Tab6_NL_StopAfterValueLE;
     QSpinBox*    Estimation_Tab6_NL_StopAfterTimeSB;
     QSpinBox*    Estimation_Tab6_NL_StopAfterIterSB;
-    QCheckBox*   Estimation_Tab6_EstimateInitBiomassCB;
+    QCheckBox*   Estimation_Tab6_EstimateInitialBiomassCB;
     QCheckBox*   Estimation_Tab6_EstimateGrowthRateCB;
     QCheckBox*   Estimation_Tab6_EstimateCarryingCapacityCB;
     QCheckBox*   Estimation_Tab6_EstimateCatchabilityCB;
@@ -127,6 +127,10 @@ class nmfEstimation_Tab6: public QObject
     QPushButton* Estimation_Tab6_EnsembleSetAllPB;
     QComboBox*   Estimation_Tab6_NL_StopAfterTimeUnitsCMB;
     QPushButton* Estimation_Tab6_EnsembleLoadPB;
+    QComboBox*   Estimation_Tab6_EnsembleAverageByCMB;
+    QComboBox*   Estimation_Tab6_EnsembleUsingAmountCMB;
+    QSpinBox*    Estimation_Tab6_EnsembleUsingAmountSB;
+    QPushButton* Estimation_Tab6_EnsembleUsingPctPB;
 
     void readSettings();
     bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
@@ -147,6 +151,7 @@ class nmfEstimation_Tab6: public QObject
     bool queryUserIfOkToClearMultiRunFile();
     void runEnsemble();
     void runEstimation();
+    bool passRunChecks(std::string& msg);
 
 public:
     /**
@@ -189,8 +194,9 @@ public:
     void setEnsembleRuns(int value);
     void setEnsembleRunsSet(int value);
     bool isAMultiRun();
-
+    QString getAverageBy();
     QString getAveragingAlgorithm();
+    QString getEnsembleUsingAmount();
     /**
      * @brief Gets the current Algorithm selected from the GUI
      * @return Returns the algorithm chosen
@@ -236,19 +242,22 @@ public:
      * @return The time (in number of seconds) after which to stop the model
      */
     int getCurrentStopAfterTime();
+    int getEnsembleUsingAmountValue();
+    int getEnsembleNumberOfTotalRuns();
 
     /**
      * @brief Check to see if user has checked or unchecked the estimated parameter checkboxes on the Run page
      * @return True if user wants to estimate competition, else false
      */
     bool isEstimatedCompetition();
+    bool isEstimatedInitialBiomass();
     bool isEstimatedExponent();
     bool isEstimatedPredation();
     bool isEstimatedHandling();
     bool isEstimatedCompetitionBetaSpecies();
     bool isEstimatedCompetitionBetaGuilds();
     bool isEstimatedCompetitionBetaGuildsGuilds();
-
+    bool isEnsembleUsingPct();
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
@@ -456,6 +465,9 @@ public Q_SLOTS:
      * @param scalingAlgorithm : new scaling algorithm selected
      */
     void callback_ScalingCMB(QString scalingAlgorithm);
+
+    void callback_EnsembleUsingPctPB();
+    void callback_EnsembleUsingAmountCMB(QString value);
 };
 
 #endif // NMFESTIMATIONTAB6_H

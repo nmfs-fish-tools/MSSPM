@@ -35,6 +35,8 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_isStartUpOK = true;
     m_isRunning = false;
     m_NumRuns = 0;
+    m_AveBiomass.clear();
+    m_OutputBiomassEnsemble.clear();
 
     m_ProjectDir.clear();
     m_ProjectDatabase.clear();
@@ -3412,11 +3414,15 @@ std::cout << "Showing current run..." << std::endl;
     QString outputSpeciesOrGuild = Output_Controls_ptr->getOutputSpecies();
     Output_Controls_ptr->callback_OutputGroupTypeCMB(outputGroupType);
     Output_Controls_ptr->setOutputSpecies(outputSpeciesOrGuild);
-
-//    if (! callback_ShowChart("","")) {
-//        return;
-//    }
+    if (outputGroupType == "Species") {
+        if (! callback_ShowChart("","")) {
+            return;
+        }
+    } else {
+        callback_ShowChartBy(outputGroupType,false);
+    }
 }
+
 
 void
 nmfMainWindow::menu_setBees(bool isPressed)
@@ -5352,7 +5358,7 @@ nmfMainWindow::getOutputBiomassByGroup(
         }
         for (int chart=0; chart<NumLines; ++chart) {
             nmfUtils::initialize(TmpMatrix,RunLength+1,guilds.size());
-            for (int species=0; species<NumSpecies; ++species) {
+            for (int species=0; species<OutputBiomassSpecies[chart].size2(); ++species) {
                 guild = guildOrder[species];
                 guildNum = GuildMap[guild];
                 for (int time=0; time<=RunLength; ++time) {
@@ -6571,15 +6577,6 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
         }
 
         // Load the model (i.e., last column) stats, either summed or averaged
-//        if (aveOrSum[j] == "sum") {
-//            if (j == 5) {
-//                statStruct.aic.push_back(total);
-//            }
-//            stats[j].push_back(total);
-//        } if (aveOrSum[j] == "ave") {
-//            stats[j].push_back(total/NumSpeciesOrGuilds);
-//        }
-
         if (j == 5) { // AIC
             if (aveOrSum[j] == "sum") {
                 statStruct.aic.push_back(total);
@@ -7280,7 +7277,6 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
         LineColors[0] = QColor(150,150,255);
     }
 
-
     if (m_ChartWidget != nullptr) {
         std::string lineColorName = "MonteCarloSimulation";
         nmfChartLine* lineChart = new nmfChartLine();
@@ -7290,7 +7286,10 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
             ShowLegend    = true;
         } else if (ChartTitle == "Ensemble Biomass") {
             HoverLabels   = ColumnLabelsForLegend;
+
+            // RSK modify this to show/hide legend
             ShowLegend    = false;
+//          ShowLegend = true;
         }
 
         lineChart->populateChart(m_ChartWidget,
@@ -7770,18 +7769,15 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
 
     nmfChartLineWithScatter* lineWithScatterChart = new nmfChartLineWithScatter();
 
-    for (int line=0; line<NumLines; ++line)
-    {
+    // Load individual run data into appropriate structures
+    for (int line=0; line<NumLines; ++line)  {
         legendCode.push_back(getLegendCode(isAveraged,
                                            Algorithms[line],
                                            Minimizers[line],
                                            ObjectiveCriteria[line],
                                            Scalings[line]));
-    }
 
-    // Load Line plot points into data structure and update the chart
-    for (int line=0; line<NumLines; ++line)
-    {
+        // Load Line plot points into data structure and update the chart
         lineLabel = lineLabels[line];
         for (int species=0; species<NumSpecies; ++species) {
             if (species == SpeciesNum) {
@@ -7797,39 +7793,38 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
                 break;
             }
         }
+    }
 
-        // Call the chart api function that will populate and annotate the
-        // desired chart type.
-        ColumnLabelsForLegend.clear();
-        ColumnLabelsForLegend << QString::fromStdString(legendCode[line]);
-        if (m_ChartWidget != nullptr) {
-            lineWithScatterChart->populateChart(m_ChartWidget,
-                                                ChartType,
-                                                LineStyle,
-                                                nmfConstantsMSSPM::ShowFirstPoint,
-                                                AddScatter,
-                                                StartYear,
-                                                xAxisIsInteger,
-                                                YMinSliderVal,
-                                                ChartLineData,
-                                                ChartScatterData,
-                                                RowLabelsForBars,
-                                                ColumnLabelsForLegend,
-                                                MainTitle,
-                                                XLabel,
-                                                YLabel,
-                                                GridLines,
-                                                Theme,
-                                                ChartColor,
-                                                ScatterColor,
-                                                "lightGray", //nmfConstants::LineColors[line%NumLineColors],
-                                                "",
-                                                lineLabels);
+    // Draw set of individual lines in light gray color
+    ColumnLabelsForLegend.clear();
+//  ColumnLabelsForLegend << QString::fromStdString(legendCode[line]);
+    if (m_ChartWidget != nullptr) {
+        lineWithScatterChart->populateChart(m_ChartWidget,
+                                            ChartType,
+                                            LineStyle,
+                                            nmfConstantsMSSPM::ShowFirstPoint,
+                                            AddScatter,
+                                            StartYear,
+                                            xAxisIsInteger,
+                                            YMinSliderVal,
+                                            ChartLineData,
+                                            ChartScatterData,
+                                            RowLabelsForBars,
+                                            ColumnLabelsForLegend,
+                                            MainTitle,
+                                            XLabel,
+                                            YLabel,
+                                            GridLines,
+                                            Theme,
+                                            ChartColor,
+                                            ScatterColor,
+                                            "lightGray", //nmfConstants::LineColors[line%NumLineColors],
+                                            "",
+                                            lineLabels);
 
-        }
+    }
 
-        AddScatter = (line+1 == NumLines-1);
-    } // end for line
+//        AddScatter = (line+1 == NumLines-1);
 
     if (Output_Controls_ptr->isCheckedOutputBMSY()) {
         double BMSYValue = 0;
@@ -7845,18 +7840,16 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
                 for (int j=0; j<=RunLength; ++j) {
                     ChartBMSYData(j,0) = BMSYValue;
                 }
-//                Output_Controls_ptr->clearOutputBMSY();
+//               Output_Controls_ptr->clearOutputBMSY();
                 Output_Controls_ptr->setTextOutputBMSY(QString::number(BMSYValue));
                 break;
             }
         }
 
         for (int line=0; line<NumLines; ++line) {
-
             ColumnLabelsForLegend << "B MSY";
-
             if (m_ChartWidget != nullptr) {
-                lineLabel = lineLabels[line];
+//                lineLabel = lineLabels[line];
                 nmfChartLine* lineChart = new nmfChartLine();
                 lineChart->populateChart(m_ChartWidget,
                                          ChartType,
@@ -7877,19 +7870,17 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
                                          GridLines,
                                          Theme,
                                          QColor(nmfConstants::LineColors[line%NumLineColors].c_str()),
-                                         lineLabel.toStdString(),
+                                         "", //lineLabel.toStdString(),
                                          1.0);
-
-
-                markerColors.push_back(lineLabel);
+                // markerColors.push_back(lineLabel);
             }
         }
 
         // Add color for Biomass Obs
-        markerColors.push_back("Deep Sky Blue");
+        // markerColors.push_back("Deep Sky Blue");
         // Set up the legend for tooltips.  Needs to be done like this due to the
         // B MSY labels being the same for all of the B MSY dotted line plots.
-        legend->setToolTips(markerColors);
+        // legend->setToolTips(markerColors);
         legend->setConnections();
     } else {
         Output_Controls_ptr->clearOutputBMSY();
@@ -7897,10 +7888,10 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
 
     //
     // Load ChartData into Output table view
-    SpeciesNames << OutputSpecies;
-    smodel->setHorizontalHeaderLabels(SpeciesNames);
-    smodel->setVerticalHeaderLabels(Years);
-    m_UI->MSSPMOutputTV->setModel(smodel);
+//    SpeciesNames << OutputSpecies;
+//    smodel->setHorizontalHeaderLabels(SpeciesNames);
+//    smodel->setVerticalHeaderLabels(Years);
+//    m_UI->MSSPMOutputTV->setModel(smodel);
 
 }
 
@@ -9416,6 +9407,7 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
                 &NLopt_Estimator::estimateParameters,
                 m_DataStruct,
                 m_RunNumNLopt,
+                isAMultiRun,
                 MultiRunLines,
                 TotalIndividualRuns);
 
@@ -9603,8 +9595,7 @@ nmfMainWindow::runGradientAlgorithm(std::string &Algorithm,
 */
 
 bool
-nmfMainWindow::calculateSubRunBiomass(std::string& Scaling,
-                                      std::vector<double>& EstInitBiomass,
+nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                       std::vector<double>& EstGrowthRates,
                                       std::vector<double>& EstCarryingCapacities,
                                       std::vector<double>& EstCatchabilityRates,
@@ -9639,14 +9630,7 @@ nmfMainWindow::calculateSubRunBiomass(std::string& Scaling,
     nmfHarvestForm*     harvestForm;
     nmfCompetitionForm* competitionForm;
     nmfPredationForm*   predationForm;
-    bool isCatchability = (HarvestForm     == "Effort (qE)");
     bool isAggProd      = (CompetitionForm == "AGG-PROD");
-    bool isAlpha        = (CompetitionForm == "NO_K");
-    bool isBetaSpecies  = (CompetitionForm == "MS-PROD");
-    bool isBetaGuilds   = (CompetitionForm == "AGG-PROD") || (CompetitionForm == "MS-PROD");
-    bool isPredation    = (PredationForm   == "Type I");
-    bool isHandling     = (PredationForm   == "Type II")  || (PredationForm   == "Type III");
-    bool isExponent     = (PredationForm   == "Type III");
     QStringList SpeciesList;
     QStringList GuildList;
     std::vector<int>                GuildNum;
@@ -9691,29 +9675,13 @@ nmfMainWindow::calculateSubRunBiomass(std::string& Scaling,
         return false;
     }
 
-
-
-//    // RSK - fix this logic ===================================================================================
-//    // Use estimated initial biomass if it was checked to be estimated
     nmfUtils::initialize(EstBiomassSpecies,RunLength+1,NumSpeciesOrGuilds);
-////    if (! setFirstRowEstimatedBiomass(NumSpeciesOrGuilds,InitialBiomass,EstimatedBiomassBySpecies)) {
-////        return false;
-////    }
-std::cout << "Warning: Assuming user has estimated biomass" << std::endl;
+
+    // Even though this is EstInitBiomass, if initial biomass wasn't estimated, it
+    // should be the initial biomass.
     for (int j=0; j<int(EstInitBiomass.size()); ++j) {
-std::cout << "est init biomass, init biomass: " << EstInitBiomass[j] << ", " << InitialBiomass[j] << std::endl;
         EstBiomassSpecies(0,j) = EstInitBiomass[j];
     }
-    // ========================================================================================================
-
-
-//    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-//std::cout << "init biomass: " << m_DataStruct.ObservedBiomassBySpecies(0,i) << std::endl;
-//        EstBiomassSpecies(0,i) = m_DataStruct.ObservedBiomassBySpecies(0,i);
-//    }
-//std::cout << "EstBiomassSpecies(0,0): " << EstBiomassSpecies(0,0) << std::endl;
-
-
 
     // Get guild map
     nmfUtils::initialize(EstimatedBiomassByGuilds, RunLength+1,NumGuilds);
@@ -9793,11 +9761,6 @@ std::cout << "est init biomass, init biomass: " << EstInitBiomass[j] << ", " << 
 //        nmfUtils::initialize(HarvestRandomValues,NumSpeciesOrGuilds);
     }
 
-    // RSK hack this for now...
-    std::cout << "FIX this!" << std::endl;
-    bool isCheckedInitBiomass = true; //nmfUtils::isEstimateParameterChecked(m_Estimator_NLopt,"InitBiomass");
-
-
     for (int time = 1; time <= RunLength; time++) {
         timeMinus1 = time-1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species)
@@ -9813,18 +9776,7 @@ std::cout << "est init biomass, init biomass: " << EstInitBiomass[j] << ", " << 
                 }
             }
 
-
-            if (isCheckedInitBiomass) { // if estimating the initial biomass
-                if (timeMinus1 == 0) {
-                    EstBiomassVal = InitialBiomass[species];
-                } else {
-                    EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
-                }
-            } else {
-                EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
-            }
-//            EstBiomassVal  = EstBiomassSpecies(timeMinus1,species);
-
+            EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
 
             growthTerm      = growthForm->evaluate(species,EstBiomassVal,
                                                    EstGrowthRates,EstCarryingCapacities);
@@ -9850,19 +9802,6 @@ std::cout << "est init biomass, init biomass: " << EstInitBiomass[j] << ", " << 
 
             EstBiomassVal += growthTerm - harvestTerm - competitionTerm - predationTerm;
 
-
-//if (species == 0 && time <= 10) {
-//    for (int g=0; g<EstGrowthRates.size(); ++g) {
-//        std::cout << "  r: " << EstGrowthRates[g] << std::endl;
-//    }
-//std::cout << "ens year: " << time << ", val = "
-//          << EstBiomassSpecies(timeMinus1,species) << " + "
-//          << growthTerm << " - "
-//          << harvestTerm << " - "
-//          << competitionTerm << " - "
-//          << predationTerm << " = "
-//          << EstBiomassVal << std::endl;
-//}
 
             if ( std::isnan(std::fabs(EstBiomassVal)) ||
                 (EstBiomassVal < 0) )
@@ -9954,6 +9893,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
                                         std::string multiRunModelFilename,
                                         double fitness)
 {
+std::cout << "---> RECEVIED SubRunCompleted" << std::endl;
     int RunLength;
     int InitialYear;
     std::string GrowthForm;
@@ -10007,7 +9947,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     m_Estimator_NLopt->getEstHandling(EstPredationHandling);
     m_Estimator_NLopt->getEstExponent(EstPredationExponent);
 
-    if (! calculateSubRunBiomass(ScalingAlgorithm,EstInitBiomass,EstGrowthRates,
+    if (! calculateSubRunBiomass(EstInitBiomass,EstGrowthRates,
                                  EstCarryingCapacities,EstCatchability,EstCompetitionAlpha,
                                  EstCompetitionBetaSpecies,EstCompetitionBetaGuilds,
                                  EstCompetitionBetaGuildsGuilds,EstPredationRho,
@@ -10076,7 +10016,8 @@ nmfMainWindow::callback_SubRunCompleted(int run,
         std::cout << "*** Creating AveragedData object" << std::endl;
         m_AveragedData = new nmfUtilsStatisticsAveraging();
     }
-    m_AveragedData->loadEstData(statStruct.aic,
+    m_AveragedData->loadEstData(fitness,
+                                statStruct.aic,
                                 EstInitBiomass,
                                 EstGrowthRates,
                                 EstCarryingCapacities,
@@ -10251,7 +10192,6 @@ nmfMainWindow::callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
 
 
     // Calculate the average biomass and display the chart
-//    calculateAverageBiomassAndDisplay();
     calculateAverageBiomass();
     displayAverageBiomass();
 
@@ -10267,6 +10207,7 @@ nmfMainWindow::calculateAverageBiomass()
 
     QString aveAlgorithm = Estimation_Tab6_ptr->getAveragingAlgorithm();
     std::string aveAlgorithmStr = aveAlgorithm.toStdString();
+    std::vector<double> Fitness;
     std::vector<double> AveInitBiomass;
     std::vector<double> AveGrowthRates;
     std::vector<double> AveCarryingCapacities;
@@ -10278,13 +10219,15 @@ nmfMainWindow::calculateAverageBiomass()
     boost::numeric::ublas::matrix<double> AveCompetitionBetaGuildsGuilds;
     boost::numeric::ublas::matrix<double> AvePredationRho;
     boost::numeric::ublas::matrix<double> AvePredationHandling;
-    boost::numeric::ublas::matrix<double> AveBiomass;
+//    boost::numeric::ublas::matrix<double> AveBiomass;
     std::string GrowthForm;
     std::string HarvestForm;
     std::string CompetitionForm;
     std::string PredationForm;
     QStringList GuildList;
     QStringList SpeciesList;
+
+    m_AveBiomass.clear();
 
     if (! getSpecies(NumSpecies,SpeciesList))
         return;
@@ -10297,10 +10240,15 @@ nmfMainWindow::calculateAverageBiomass()
         return;
     }
     bool isCompetitionAGGPROD = (CompetitionForm == "AGG-PROD");
+    int usingTopValue = 100;
+    if (Estimation_Tab6_ptr->getEnsembleUsingAmount() == "using Top:") {
+        usingTopValue = Estimation_Tab6_ptr->getEnsembleUsingAmountValue();
+    }
+    bool isPercent = Estimation_Tab6_ptr->isEnsembleUsingPct();
+    m_AveragedData->calculateAverage(usingTopValue,isPercent,aveAlgorithm);
 
-    m_AveragedData->calculateAverage(aveAlgorithm);
-
-    m_AveragedData->getAveData(AveInitBiomass,
+    m_AveragedData->getAveData(Fitness,
+                               AveInitBiomass,
                                AveGrowthRates,
                                AveCarryingCapacities,
                                AvePredationExponent,
@@ -10311,10 +10259,25 @@ nmfMainWindow::calculateAverageBiomass()
                                AveCompetitionBetaGuildsGuilds,
                                AvePredationRho,
                                AvePredationHandling,
-                               AveBiomass);
+                               m_AveBiomass);
 
     // Save AveragedBiomass as OutputBiomass
-    updateOutputAverageBiomassTable(AveBiomass);
+    if (Estimation_Tab6_ptr->getAverageBy() == "by Parameter") {
+        calculateSubRunBiomass(AveInitBiomass,
+                               AveGrowthRates,
+                               AveCarryingCapacities,
+                               AveCatchability,
+                               AveCompetitionAlpha,
+                               AveCompetitionBetaSpecies,
+                               AveCompetitionBetaGuilds,
+                               AveCompetitionBetaGuildsGuilds,
+                               AvePredationRho,
+                               AvePredationHandling,
+                               AvePredationExponent,
+                               m_AveBiomass);
+    }
+    updateOutputBiomassTableWithAverageBiomass(m_AveBiomass);
+
     updateOutputTables(aveAlgorithmStr,
                        aveAlgorithmStr,
                        aveAlgorithmStr,
@@ -10334,26 +10297,39 @@ nmfMainWindow::calculateAverageBiomass()
                        AvePredationHandling,
                        AvePredationExponent);
 
-    //    callback_ShowChart("","");
+    m_OutputBiomassEnsemble.clear();
+    getOutputBiomassEnsemble(m_AveBiomass.size1(),m_AveBiomass.size2(),m_OutputBiomassEnsemble);
 
 }
 
 bool
 nmfMainWindow::getOutputBiomassEnsembleLineLabels(QList<QString>& lineLabels)
 {
-    int NumRecords;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
+    std::string min;
+    std::string obj;
+    std::string sca;
+    std::map<std::string,std::string> objMap;
+    std::map<std::string,std::string> scaMap;
+
+    objMap["Maximum Likelihood"] = "_MxLk";
+    objMap["Least Squares"]      = "_LsSq";
+    objMap["Model Efficiency"]   = "_MdEf";
+    scaMap["Mean"]               = "_mn";
+    scaMap["Min Max"]            = "_mm";
 
     lineLabels.clear();
 
-    fields   = {"RunNumber","Minimizer"};
-    queryStr = "SELECT DISTINCT RunNumber, Minimizer FROM OutputBiomassEnsemble ORDER BY RunNumber";
+    fields   = {"RunNumber","Minimizer","ObjectiveCriterion","Scaling"};
+    queryStr = "SELECT DISTINCT RunNumber,Minimizer,ObjectiveCriterion,Scaling FROM OutputBiomassEnsemble ORDER BY RunNumber";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = int(dataMap["RunNumber"].size());
-    for (int i=0; i<NumRecords; ++i) {
-        lineLabels.push_back(QString::fromStdString(dataMap["Minimizer"][i]));
+    for (int i=0; i<int(dataMap["RunNumber"].size()); ++i) {
+        min = dataMap["Minimizer"][i];
+        obj = dataMap["ObjectiveCriterion"][i];
+        sca = dataMap["Scaling"][i];
+        lineLabels.push_back(QString::fromStdString(min+objMap[obj]+scaMap[sca]));
     }
 
     return true;
@@ -10412,40 +10388,35 @@ nmfMainWindow::displayAverageBiomass()
         return;
     }
 
-
     if (! m_DatabasePtr->getModelFormData(
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
                 RunLength,InitialYear,m_Logger,m_ProjectSettingsConfig)) {
         return;
     }
 
-    m_AveragedData->getAveData(AveInitBiomass,
-                               AveGrowthRates,
-                               AveCarryingCapacities,
-                               AvePredationExponent,
-                               AveCatchability,
-                               AveCompetitionAlpha,
-                               AveCompetitionBetaSpecies,
-                               AveCompetitionBetaGuilds,
-                               AveCompetitionBetaGuildsGuilds,
-                               AvePredationRho,
-                               AvePredationHandling,
-                               AveBiomass);
-
-    OutputBiomassEnsemble.clear();
-    getOutputBiomassEnsemble(AveBiomass.size1(),AveBiomass.size2(),OutputBiomassEnsemble);
+    // The following may happen if user runs, quits the app, restarts and then wants
+    // to view their last run (which had to have been a multi-run for them to be here)
+    if (m_AveBiomass.size1() == 0) {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        if (! getOutputBiomassAveraged(m_AveBiomass)) {
+            return;
+        }
+        getOutputBiomassEnsemble(m_AveBiomass.size1(),m_AveBiomass.size2(),m_OutputBiomassEnsemble);
+        QApplication::restoreOverrideCursor();
+    }
 
     // Group-specific code here (i.e., Species, Guild, System)
-    if (GroupType != "Species") {
-        ObservedBiomass = getObservedBiomassByGroup(NumGuilds,RunLength,GroupType.toStdString());
-        OutputBiomassByGuilds = getOutputBiomassByGroup(RunLength,OutputBiomassEnsemble,GroupType.toStdString());
-        OutputBiomassEnsemble = OutputBiomassByGuilds;
-    } else {
+    if (GroupType == "Species") {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                "","","BiomassAbsolute",
                                                NumSpecies,RunLength,ObservedBiomass)) {
             return;
         }
+        OutputBiomassEnsemble= m_OutputBiomassEnsemble;
+    } else {
+        ObservedBiomass       = getObservedBiomassByGroup(NumGuilds,RunLength,GroupType.toStdString());
+        OutputBiomassByGuilds = getOutputBiomassByGroup(RunLength,m_OutputBiomassEnsemble,GroupType.toStdString());
+        OutputBiomassEnsemble = OutputBiomassByGuilds;
     }
 
     if (GroupType == "Guild") {
@@ -10465,8 +10436,6 @@ nmfMainWindow::displayAverageBiomass()
     QList<double> FMSYValues;
     getMSYData(true,1,NumSpecies,GroupType.toStdString(),
                BMSYValuesAveraged,MSYValues,FMSYValues);
-
-
 
 
     // Load some vectors with empty strings that aren't currently used
@@ -10496,7 +10465,7 @@ nmfMainWindow::displayAverageBiomass()
 
     // Show dark blue average line(s)
     OutputBiomassEnsembleAve.clear();
-    OutputBiomassEnsembleAve.push_back(AveBiomass);
+    OutputBiomassEnsembleAve.push_back(m_AveBiomass);
     ColumnLabelsForLegend.clear();
     ColumnLabelsForLegend << aveAlgorithm + " Average";
     if (GroupType != "Species") {
@@ -10513,9 +10482,61 @@ nmfMainWindow::displayAverageBiomass()
                               nmfConstantsMSSPM::IsNotEnsemble,
                               nmfConstantsMSSPM::DontClear,
                               ColumnLabelsForLegend);
-
 }
 
+bool
+nmfMainWindow::getOutputBiomassAveraged(
+        boost::numeric::ublas::matrix<double>& AveBiomass)
+{
+    int m=0;
+    int NumSpecies;
+    int RunLength;
+    int InitialYear;
+    std::string GrowthForm;
+    std::string HarvestForm;
+    std::string CompetitionForm;
+    std::string PredationForm;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string AveragingAlgorithm = Estimation_Tab6_ptr->getAveragingAlgorithm().toStdString();
+    QStringList SpeciesList;
+
+    if (! getSpecies(NumSpecies,SpeciesList)) {
+        return false;
+    }
+
+    if (! m_DatabasePtr->getModelFormData(
+                GrowthForm,HarvestForm,CompetitionForm,PredationForm,
+                RunLength,InitialYear,m_Logger,m_ProjectSettingsConfig)) {
+        return false;
+    }
+    ++RunLength; // Needed as it's 1 less than what's needed here
+
+    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Year","Value"};
+    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value FROM OutputBiomass WHERE Algorithm = '" + AveragingAlgorithm +
+             "' AND Minimizer = '" + AveragingAlgorithm +
+             "' AND ObjectiveCriterion = '" + AveragingAlgorithm +
+             "' AND Scaling = '" + AveragingAlgorithm + "' ORDER BY SpeName,Year";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    int NumRecords = dataMap["Value"].size();
+
+    if (NumRecords != RunLength*NumSpecies) {
+        std::string msg = "getOutputBiomassAveraged: NumRecords (" + std::to_string(NumRecords);
+        msg += ") is not equal to RunLength (" + std::to_string(RunLength) + ") * NumSpecies (";
+        msg += std::to_string(NumSpecies) + ")";
+        m_Logger->logMsg(nmfConstants::Error,msg);
+        return false;
+    }
+
+    nmfUtils::initialize(AveBiomass,RunLength,NumSpecies);
+    for (int species=0; species<NumSpecies; ++species) {
+        for (int time=0; time<RunLength; ++time) {
+            AveBiomass(time,species) = std::stod(dataMap["Value"][m++]);
+        }
+    }
+    return true;
+}
 
 void
 nmfMainWindow::getOutputBiomassEnsemble(
@@ -10693,9 +10714,9 @@ std::cout << "Warning: Only updating 3 estimated parameters" << std::endl;
 */
 
 void
-nmfMainWindow::updateOutputAverageBiomassTable(boost::numeric::ublas::matrix<double>& AveragedBiomass)
+nmfMainWindow::updateOutputBiomassTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass)
 {
-std::cout << "\nupdateOutputAverageBiomassTable " << std::endl;
+std::cout << "\nupdateOutputBiomassTableWithAverageBiomass " << std::endl;
 
     int NumSpecies;
     int RunLength = AveragedBiomass.size1();
@@ -10721,7 +10742,7 @@ std::cout << "\nupdateOutputAverageBiomassTable " << std::endl;
           "' AND Scaling = '" + Scaling + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] updateOutputAverageBiomassTable: DELETE error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"[Error 1] updateOutputBiomassTableWithAverageBiomass: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
     }
@@ -10740,7 +10761,7 @@ std::cout << "\nupdateOutputAverageBiomassTable " << std::endl;
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 2] updateOutputAverageBiomassTable: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"[Error 2] updateOutputBiomassTableWithAverageBiomass: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
     }

@@ -225,6 +225,8 @@ private:
     boost::numeric::ublas::matrix<double> m_parameterMatrix;
     int                                   m_NumRuns;
     nmfUtilsStatisticsAveraging*          m_AveragedData;
+    boost::numeric::ublas::matrix<double> m_AveBiomass;
+    std::vector<boost::numeric::ublas::matrix<double> > m_OutputBiomassEnsemble;
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
@@ -314,9 +316,11 @@ private:
             std::string& Scaling,
             std::string& MonteCarloParametersTable);
     double convertUnitsStringToValue(QString& ScaleStr);
+    bool   getOutputBiomassAveraged(boost::numeric::ublas::matrix<double>& AveBiomass);
     int    getNumDistinctRecords(const std::string& field,
                                  const std::string& table);
-    void   updateOutputAverageBiomassTable(boost::numeric::ublas::matrix<double>& AveragedBiomass);
+    void   loadBiomassByGroup(QString& GroupType);
+    void   updateOutputBiomassTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
     void   setupLogWidget();
     void   initializeNavigatorTree();
     void   initLogo();
@@ -345,8 +349,7 @@ private:
             const std::vector<double>& EstGrowthRates,
             const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
             const boost::numeric::ublas::matrix<double>& EstPredationRho);
-    bool calculateSubRunBiomass(std::string& Scaling,
-                                std::vector<double>& EstInitBiomass,
+    bool calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                 std::vector<double>& EstGrowthRates,
                                 std::vector<double>& EstCarryingCapacities,
                                 std::vector<double>& EstCatchability,
@@ -872,7 +875,6 @@ private:
                                   std::string& CarryingCapacityTable,
                                   std::string& CatchabilityTable,
                                   std::string& BiomassTable);
-    void updateOutputAverageBiomassTable();
     void updateProgressChartAnnotation(double xMin, double xMax, double xInc);
     void updateOutputTables(
         std::string                                 &Algorithm,

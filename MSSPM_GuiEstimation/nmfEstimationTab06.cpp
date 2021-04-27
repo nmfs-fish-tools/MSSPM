@@ -39,42 +39,43 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     // Add the loaded widget as the new tabbed page
     Estimation_Tabs->addTab(Estimation_Tab6_Widget, tr("6. Run Estimation"));
 
-    Estimation_Tab6_Bees_ParametersGB       = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_Bees_ParametersGB");
-    Estimation_Tab6_NL_ParametersGB         = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_NL_ParametersGB");
-    Estimation_Tab6_EstParametersGB         = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_EstParametersGB");
-    Estimation_Tab6_ModelAlgorithmsGB       = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_ModelAlgorithmsGB");
-    Estimation_Tab6_EstimationAlgorithmCMB  = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_EstimationAlgorithmCMB");
-    Estimation_Tab6_ObjectiveCriterionCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_ObjectiveCriterionCMB");
-    Estimation_Tab6_MinimizerAlgorithmCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinimizerAlgorithmCMB");
-    Estimation_Tab6_MinimizerAlgorithmLBL   = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_MinimizerAlgorithmLBL");
-    Estimation_Tab6_MinimizerDetStoTypeLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_MinimizerDetStoTypeLBL");
-    Estimation_Tab6_MinimizerTypeCMB        = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinimizerTypeCMB");
-    Estimation_Tab6_RunTE                   = Estimation_Tabs->findChild<QTextEdit   *>("Estimation_Tab6_RunTE");
-    Estimation_Tab6_RunPB                   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_RunPB");
-    Estimation_Tab6_ReloadPB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_ReloadPB");
-    Estimation_Tab6_SavePB                  = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_SavePB");
-    Estimation_Tab6_PrevPB                  = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_PrevPB");
-    Estimation_Tab6_FontSizeCMB             = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_FontSizeCMB");
-    Estimation_Tab6_MonoCB                  = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_MonoCB");
-    Estimation_Tab6_Bees_NumberOfRunsSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumberOfRunsSB");
-    Estimation_Tab6_Bees_NumBeesSB          = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumBeesSB");
-    Estimation_Tab6_Bees_NumOtherBeesSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumOtherBeesSB");
-    Estimation_Tab6_Bees_NumEliteSitesSB    = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumEliteSitesSB");
-    Estimation_Tab6_Bees_NumBestSitesSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumBestSitesSB");
-    Estimation_Tab6_Bees_NumEliteBeesSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumEliteBeesSB");
-    Estimation_Tab6_Bees_NumBestBeesSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumOtherBeesSB");
-    Estimation_Tab6_Bees_MaxGenerationsSB   = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_MaxGenerationsSB");
-    Estimation_Tab6_Bees_NeighborhoodSizeSB = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NeighborhoodSizeSB");
-    Estimation_Tab6_ScalingLBL              = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_ScalingLBL");
-    Estimation_Tab6_ScalingCMB              = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_ScalingCMB");
-    Estimation_Tab6_NL_StopAfterValueCB     = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopAfterValueCB");
-    Estimation_Tab6_NL_StopAfterTimeCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopAfterTimeCB");
-    Estimation_Tab6_NL_StopAfterIterCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopAfterIterCB");
-    Estimation_Tab6_NL_StopAfterValueLE     = Estimation_Tabs->findChild<QLineEdit   *>("Estimation_Tab6_NL_StopAfterValueLE");
-    Estimation_Tab6_NL_StopAfterTimeSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_NL_StopAfterTimeSB");
-    Estimation_Tab6_NL_StopAfterIterSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_NL_StopAfterIterSB");
-    Estimation_Tab6_EstimateInitBiomassCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateInitBiomassCB");
-    Estimation_Tab6_EstimateGrowthRateCB    = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateGrowthRateCB");
+    Estimation_Tab6_Bees_ParametersGB          = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_Bees_ParametersGB");
+    Estimation_Tab6_NL_ParametersGB            = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_NL_ParametersGB");
+    Estimation_Tab6_EstParametersGB            = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_EstParametersGB");
+    Estimation_Tab6_ModelAlgorithmsGB          = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab6_ModelAlgorithmsGB");
+    Estimation_Tab6_EstimationAlgorithmCMB     = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_EstimationAlgorithmCMB");
+    Estimation_Tab6_ObjectiveCriterionCMB      = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_ObjectiveCriterionCMB");
+    Estimation_Tab6_MinimizerAlgorithmCMB      = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinimizerAlgorithmCMB");
+    Estimation_Tab6_MinimizerAlgorithmLBL      = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_MinimizerAlgorithmLBL");
+    Estimation_Tab6_MinimizerDetStoTypeLBL     = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_MinimizerDetStoTypeLBL");
+    Estimation_Tab6_MinimizerTypeCMB           = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinimizerTypeCMB");
+    Estimation_Tab6_RunTE                      = Estimation_Tabs->findChild<QTextEdit   *>("Estimation_Tab6_RunTE");
+    Estimation_Tab6_RunPB                      = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_RunPB");
+    Estimation_Tab6_ReloadPB                   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_ReloadPB");
+    Estimation_Tab6_SavePB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_SavePB");
+    Estimation_Tab6_PrevPB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_PrevPB");
+    Estimation_Tab6_FontSizeCMB                = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_FontSizeCMB");
+    Estimation_Tab6_MonoCB                     = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_MonoCB");
+    Estimation_Tab6_Bees_NumberOfRunsSB        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumberOfRunsSB");
+    Estimation_Tab6_Bees_NumBeesSB             = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumBeesSB");
+    Estimation_Tab6_Bees_NumOtherBeesSB        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumOtherBeesSB");
+    Estimation_Tab6_Bees_NumEliteSitesSB       = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumEliteSitesSB");
+    Estimation_Tab6_Bees_NumBestSitesSB        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumBestSitesSB");
+    Estimation_Tab6_Bees_NumEliteBeesSB        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumEliteBeesSB");
+    Estimation_Tab6_Bees_NumBestBeesSB         = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumOtherBeesSB");
+    Estimation_Tab6_Bees_MaxGenerationsSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_MaxGenerationsSB");
+    Estimation_Tab6_Bees_NeighborhoodSizeSB    = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NeighborhoodSizeSB");
+    Estimation_Tab6_ScalingLBL                 = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_ScalingLBL");
+    Estimation_Tab6_ScalingCMB                 = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_ScalingCMB");
+    Estimation_Tab6_NL_StopAfterValueCB        = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopAfterValueCB");
+    Estimation_Tab6_NL_StopAfterTimeCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopAfterTimeCB");
+    Estimation_Tab6_NL_StopAfterIterCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_NL_StopAfterIterCB");
+    Estimation_Tab6_NL_StopAfterValueLE        = Estimation_Tabs->findChild<QLineEdit   *>("Estimation_Tab6_NL_StopAfterValueLE");
+    Estimation_Tab6_NL_StopAfterTimeSB         = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_NL_StopAfterTimeSB");
+    Estimation_Tab6_NL_StopAfterIterSB         = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_NL_StopAfterIterSB");
+    Estimation_Tab6_NL_StopAfterTimeUnitsCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_NL_StopAfterTimeUnitsCMB");
+    Estimation_Tab6_EstimateInitialBiomassCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateInitialBiomassCB");
+    Estimation_Tab6_EstimateGrowthRateCB       = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateGrowthRateCB");
     Estimation_Tab6_EstimateCarryingCapacityCB = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateCarryingCapacityCB");
     Estimation_Tab6_EstimateCatchabilityCB     = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateCatchabilityCB");
     Estimation_Tab6_EstimateHandlingCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EstimateHandlingCB");
@@ -96,13 +97,12 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_EnsembleRunsWithSettingsLBL   = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_EnsembleRunsWithSettingsLBL");
     Estimation_Tab6_EnsembleRunsSetLBL            = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_EnsembleRunsSetLBL");
     Estimation_Tab6_EnsembleSetAllPB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleSetAllPB");
-    Estimation_Tab6_NL_StopAfterTimeUnitsCMB      = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_NL_StopAfterTimeUnitsCMB");
     Estimation_Tab6_EnsembleLoadPB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleLoadPB");
+    Estimation_Tab6_EnsembleAverageByCMB          = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_EnsembleAverageByCMB");
+    Estimation_Tab6_EnsembleUsingAmountCMB        = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_EnsembleUsingAmountCMB");
+    Estimation_Tab6_EnsembleUsingAmountSB         = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_EnsembleUsingAmountSB");
+    Estimation_Tab6_EnsembleUsingPctPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleUsingPctPB");
 
-
-    // RSK - Temporarily disable...there's a bug where if you set, for example,
-    // 5 of the same subruns, the clock doesn't function correctly in the progress widget
-    Estimation_Tab6_EnsembleSetAllPB->setEnabled(false);
 
     // Update tool tip
     BeesMsg  = "Stochastic search algorithm based on the behavior of honey bees.";
@@ -170,6 +170,11 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
             this,                                     SLOT(callback_EnsembleLoadPB()));
     connect(Estimation_Tab6_NL_StopAfterTimeUnitsCMB, SIGNAL(currentTextChanged(QString)),
             this,                                     SLOT(callback_StopAfterTimeUnitsCMB(QString)));
+    connect(Estimation_Tab6_EnsembleUsingPctPB,       SIGNAL(clicked()),
+            this,                                     SLOT(callback_EnsembleUsingPctPB()));
+    connect(Estimation_Tab6_EnsembleUsingAmountCMB,   SIGNAL(currentTextChanged(QString)),
+            this,                                     SLOT(callback_EnsembleUsingAmountCMB(QString)));
+
 
     // Wire up signals/slots for the Estimate Run checkboxes
     for (QCheckBox* cbox : getAllEstimateCheckboxes()) {
@@ -290,6 +295,13 @@ nmfEstimation_Tab6::callback_PrevPB()
 }
 
 bool
+nmfEstimation_Tab6::isEstimatedInitialBiomass()
+{
+    return (Estimation_Tab6_EstimateInitialBiomassCB ->isEnabled() &&
+            Estimation_Tab6_EstimateInitialBiomassCB->isChecked());
+}
+
+bool
 nmfEstimation_Tab6::isEstimatedCompetition()
 {
     return (Estimation_Tab6_EstimateCompetitionAlphaCB->isEnabled() &&
@@ -348,8 +360,8 @@ nmfEstimation_Tab6::adjustNumberOfParameters()
     std::string cmd;
     std::string errorMsg;
 
-    if (Estimation_Tab6_EstimateInitBiomassCB->isEnabled()) {
-        numberOfParameters += (Estimation_Tab6_EstimateInitBiomassCB->isChecked()) ? 1 : 0;
+    if (Estimation_Tab6_EstimateInitialBiomassCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab6_EstimateInitialBiomassCB->isChecked()) ? 1 : 0;
     }
     if (Estimation_Tab6_EstimateGrowthRateCB->isEnabled()) {
         numberOfParameters += (Estimation_Tab6_EstimateGrowthRateCB->isChecked()) ? 1 : 0;
@@ -413,10 +425,49 @@ nmfEstimation_Tab6::callback_RunPB()
     }
 }
 
+bool
+nmfEstimation_Tab6::passRunChecks(std::string& msg)
+{
+    int MIN_NUMBER_RUNS_TO_AVERAGE = 2;
+    int topAmount    = getEnsembleUsingAmountValue();
+    int numTotalRuns = getEnsembleNumberOfTotalRuns();
+    bool isUsingAll  = (getEnsembleUsingAmount() == "using All");
+
+    if (isUsingAll) {
+        return true;
+    }
+
+    // Check #1
+    if (isEnsembleUsingPct()) {
+        if (numTotalRuns*(topAmount/100.0) < MIN_NUMBER_RUNS_TO_AVERAGE) {
+            msg = "The \"using Top\" number of runs % specified must evaluate to be at least " +
+                   std::to_string(MIN_NUMBER_RUNS_TO_AVERAGE) + " runs.";
+            return false;
+        }
+    }
+
+    // Check #2
+    if (!isEnsembleUsingPct() && (topAmount > numTotalRuns))
+    {
+        msg = "The \"using Top\" number of runs specified must be less than the Number of Total Runs given.";
+        return false;
+    }
+
+    return true;
+}
+
 void
 nmfEstimation_Tab6::runEnsemble()
 {
-    std::string msg = "\nOK to run the current MultiRun/Ensemble?\n";
+    std::string msg;
+
+    if (! passRunChecks(msg)) {
+        m_Logger->logMsg(nmfConstants::Error,msg);
+        QMessageBox::critical(Estimation_Tabs, "Error", QString::fromStdString("\n"+msg+"\n"), QMessageBox::Ok);
+        return;
+    }
+
+    msg = "\nOK to run the current MultiRun/Ensemble?\n";
     QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Run Ensemble"),
                                                               tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
     if (reply == QMessageBox::Yes) {
@@ -449,6 +500,12 @@ nmfEstimation_Tab6::runEstimation()
         QMessageBox::warning(Estimation_Tabs, "Error", msg, QMessageBox::Ok);
     }
     QApplication::restoreOverrideCursor();
+}
+
+QString
+nmfEstimation_Tab6::getAverageBy()
+{
+    return Estimation_Tab6_EnsembleAverageByCMB->currentText();
 }
 
 QString
@@ -814,7 +871,7 @@ nmfEstimation_Tab6::callback_ScalingCMB(QString scalingAlgorithm)
 void
 nmfEstimation_Tab6::callback_AveragingAlgorithmCMB(QString averagingAlgorithm)
 {
-    enableRunButton(false);
+    //    enableRunButton(false);
 }
 
 std::string
@@ -972,7 +1029,12 @@ nmfEstimation_Tab6::callback_EnsembleTotalRunsSB(int value)
     Estimation_Tab6_EnsembleClearPB->setEnabled(isMultiRun);
     Estimation_Tab6_EnsembleRunsWithSettingsLBL->setEnabled(isMultiRun);
     Estimation_Tab6_EnsembleRunsSetLBL->setEnabled(isMultiRun);
-//  Estimation_Tab6_EnsembleSetAllPB->setEnabled(isMultiRun); // RSK uncomment this when you fix the bug
+    Estimation_Tab6_EnsembleSetAllPB->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleAverageByCMB->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleUsingAmountCMB->setEnabled(isMultiRun);
+    bool showUsingWidgets = (getEnsembleUsingAmount() == "using Top:" && isMultiRun);
+    Estimation_Tab6_EnsembleUsingAmountSB->setEnabled(showUsingWidgets);
+    Estimation_Tab6_EnsembleUsingPctPB->setEnabled(showUsingWidgets);
     if (! isMultiRun) {
         Estimation_Tab6_EnsembleRunsSetLE->setText("0");
         Estimation_Tab6_EnsembleRunsSB->setValue(1);
@@ -981,6 +1043,23 @@ nmfEstimation_Tab6::callback_EnsembleTotalRunsSB(int value)
     enableRunButton(false);
 }
 
+int
+nmfEstimation_Tab6::getEnsembleNumberOfTotalRuns()
+{
+    return Estimation_Tab6_EnsembleTotalRunsSB->value();
+}
+
+QString
+nmfEstimation_Tab6::getEnsembleUsingAmount()
+{
+    return Estimation_Tab6_EnsembleUsingAmountCMB->currentText();
+}
+
+int
+nmfEstimation_Tab6::getEnsembleUsingAmountValue()
+{
+    return Estimation_Tab6_EnsembleUsingAmountSB->value();
+}
 
 void
 nmfEstimation_Tab6::callback_EnsembleRunsSB(int value)
@@ -1215,7 +1294,7 @@ QList<QCheckBox* >
 nmfEstimation_Tab6::getAllEstimateCheckboxes()
 {
     QList<QCheckBox*> AllCheckboxes = {
-        Estimation_Tab6_EstimateInitBiomassCB,
+        Estimation_Tab6_EstimateInitialBiomassCB,
         Estimation_Tab6_EstimateGrowthRateCB,
         Estimation_Tab6_EstimateCarryingCapacityCB,
         Estimation_Tab6_EstimateCatchabilityCB,
@@ -1243,7 +1322,7 @@ nmfEstimation_Tab6::callback_SetEstimateRunCheckboxes(std::vector<std::string> E
 
     for (std::string cbox : EstimateRunBoxes) {
         if (cbox == "InitBiomass") {
-            activateCheckBox(Estimation_Tab6_EstimateInitBiomassCB,true);
+            activateCheckBox(Estimation_Tab6_EstimateInitialBiomassCB,true);
         } else if (cbox == "GrowthRate") {
             activateCheckBox(Estimation_Tab6_EstimateGrowthRateCB,true);
         } else if (cbox == "CarryingCapacity") {
@@ -1294,6 +1373,36 @@ nmfEstimation_Tab6::callback_EnsembleControlsGB(bool isChecked)
 {
     callback_EnsembleTotalRunsSB(Estimation_Tab6_EnsembleTotalRunsSB->value());
     enableEnsembleWidgets(! isChecked);
+}
+
+
+void
+nmfEstimation_Tab6::callback_EnsembleUsingAmountCMB(QString value)
+{
+    if (value == "using All") {
+        Estimation_Tab6_EnsembleUsingAmountSB->setEnabled(false);
+        Estimation_Tab6_EnsembleUsingPctPB->setEnabled(false);
+    } else if (value == "using Top:") {
+        Estimation_Tab6_EnsembleUsingAmountSB->setEnabled(true);
+        Estimation_Tab6_EnsembleUsingPctPB->setEnabled(true);
+    }
+}
+
+bool
+nmfEstimation_Tab6::isEnsembleUsingPct()
+{
+    return (Estimation_Tab6_EnsembleUsingPctPB->text() == "%");
+}
+
+void
+nmfEstimation_Tab6::callback_EnsembleUsingPctPB()
+{
+    QString label = Estimation_Tab6_EnsembleUsingPctPB->text();
+    if (label == "%") {
+        Estimation_Tab6_EnsembleUsingPctPB->setText("");
+    } else {
+        Estimation_Tab6_EnsembleUsingPctPB->setText("%");
+    }
 }
 
 void
@@ -1362,6 +1471,7 @@ nmfEstimation_Tab6::callback_EnsembleSetAllPB()
             QString msg = "\nSaved Mult-Run Parameter File to:\n\n" + fullPath + "\n";
             QMessageBox::information(Estimation_Tabs, "MultiRun Parameter File Save",
                                      msg,QMessageBox::Ok);
+            enableEnsembleWidgets(false);
         }
     }
 }
