@@ -9360,6 +9360,7 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     QString multiRunModelFilename;
 
     bool isAMultiRun = Estimation_Tab6_ptr->isAMultiRun();
+    bool isSetToDeterministic = Estimation_Tab6_ptr->isSetToDeterministic();
 
     Output_Controls_ptr->setAveraged(isAMultiRun);
     m_DataStruct.showDiagnosticChart = showDiagnosticChart;
@@ -9402,12 +9403,13 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     updateProgressChartAnnotation(0,(double)m_DataStruct.NLoptStopAfterIter,5.0);
 
     // Run the optimizer
+    std::pair<bool,bool> boolPair = std::make_pair(isAMultiRun,isSetToDeterministic);
     QFuture<void> future = QtConcurrent::run(
                 m_Estimator_NLopt,
                 &NLopt_Estimator::estimateParameters,
                 m_DataStruct,
                 m_RunNumNLopt,
-                isAMultiRun,
+                boolPair,
                 MultiRunLines,
                 TotalIndividualRuns);
 
@@ -9893,7 +9895,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
                                         std::string multiRunModelFilename,
                                         double fitness)
 {
-std::cout << "---> RECEVIED SubRunCompleted" << std::endl;
+std::cout << "---> RECEIVED SubRunCompleted" << std::endl;
     int RunLength;
     int InitialYear;
     std::string GrowthForm;

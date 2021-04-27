@@ -102,7 +102,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_EnsembleUsingAmountCMB        = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_EnsembleUsingAmountCMB");
     Estimation_Tab6_EnsembleUsingAmountSB         = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_EnsembleUsingAmountSB");
     Estimation_Tab6_EnsembleUsingPctPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleUsingPctPB");
-
+    Estimation_Tab6_SetDeterministicCB            = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_SetDeterministicCB");
 
     // Update tool tip
     BeesMsg  = "Stochastic search algorithm based on the behavior of honey bees.";
@@ -327,6 +327,12 @@ nmfEstimation_Tab6::isEstimatedHandling()
 {
     return (Estimation_Tab6_EstimateHandlingCB->isEnabled() &&
             Estimation_Tab6_EstimateHandlingCB->isChecked());
+}
+
+bool
+nmfEstimation_Tab6::isSetToDeterministic()
+{
+    return Estimation_Tab6_SetDeterministicCB->isChecked();
 }
 
 bool

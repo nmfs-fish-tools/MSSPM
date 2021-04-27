@@ -10,7 +10,6 @@ bool m_Quit;
 //int NLopt_Estimator::m_NLoptIters    = 0;
 int NLopt_Estimator::m_NLoptFcnEvals = 0;
 int NLopt_Estimator::m_NumObjFcnCalls = 0;
-//int NLopt_Estimator::m_Counter       = 0;
 int NLopt_Estimator::m_RunNum        = 0;
 nlopt::opt       NLopt_Estimator::m_Optimizer;
 
@@ -23,7 +22,7 @@ std::unique_ptr<nmfPredationForm>   NLoptPredationForm;
 NLopt_Estimator::NLopt_Estimator()
 {
     m_Quit = false;
-//  m_Counter = 0;
+    m_Seed = 0;
     m_MinimizerToEnum.clear();
 
     // Load Minimizer Name Map with global algorithms
@@ -581,6 +580,18 @@ NLopt_Estimator::setObjectiveFunction(Data_Struct& NLoptStruct,
     }
 }
 
+
+void
+NLopt_Estimator::setSeed(const bool& isSetToDeterministic)
+{
+    if (isSetToDeterministic) {
+        nlopt::srand(++m_Seed);
+    } else {
+        nlopt::srand_time();
+    }
+}
+
+
 void
 NLopt_Estimator::setParameterBounds(Data_Struct& NLoptStruct,
                                     std::vector<std::pair<double,double> >& ParameterRanges,
@@ -623,10 +634,12 @@ NLopt_Estimator::setParameterBounds(Data_Struct& NLoptStruct,
 void
 NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
                                     int& RunNumber,
-                                    bool& isAMultiRun,
+                                    std::pair<bool,bool>& bools,
                                     std::vector<QString>& MultiRunLines,
                                     int& TotalIndividualRuns)
 {
+    bool isAMultiRun = bools.first;
+    bool isSetToDeterministic = bools.second;
     bool foundOneNLoptRun = false;
     int NumEstParameters;
     int NumMultiRuns = 1;
@@ -637,6 +650,7 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
     std::string bestFitnessStr = "TBD";
     std::vector<std::pair<double,double> > ParameterRanges;
     std::string MaxOrMin;
+
 
     startTimeSpecies = nmfUtils::startTimer();
 
@@ -693,6 +707,7 @@ for (int i=0; i< NumEstParameters; ++i) {
             continue; // skip over rest of for statement and continue with next increment
         }
 
+        m_Seed = 0;
         foundOneNLoptRun = true;
         for (int run=0; run<NumSubRuns; ++run) {
 
@@ -700,6 +715,7 @@ for (int i=0; i< NumEstParameters; ++i) {
             m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
 
             // Set Parameter Bounds, Objective Function, and Stopping Criteria
+            setSeed(isSetToDeterministic);
             setParameterBounds(NLoptStruct,ParameterRanges,NumEstParameters);
             setObjectiveFunction(NLoptStruct,MaxOrMin);
             setStoppingCriteria(NLoptStruct);

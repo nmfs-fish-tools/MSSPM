@@ -131,6 +131,7 @@ class nmfEstimation_Tab6: public QObject
     QComboBox*   Estimation_Tab6_EnsembleUsingAmountCMB;
     QSpinBox*    Estimation_Tab6_EnsembleUsingAmountSB;
     QPushButton* Estimation_Tab6_EnsembleUsingPctPB;
+    QCheckBox*   Estimation_Tab6_SetDeterministicCB;
 
     void readSettings();
     bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
@@ -194,6 +195,7 @@ public:
     void setEnsembleRuns(int value);
     void setEnsembleRunsSet(int value);
     bool isAMultiRun();
+    bool isSetToDeterministic();
     QString getAverageBy();
     QString getAveragingAlgorithm();
     QString getEnsembleUsingAmount();

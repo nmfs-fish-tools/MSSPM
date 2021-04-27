@@ -45,7 +45,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-68</y>
             <width>665</width>
             <height>782</height>
            </rect>
@@ -423,6 +423,25 @@
                    </widget>
                   </item>
                   <item>
+                   <widget class="QCheckBox" name="Estimation_Tab6_SetDeterministicCB">
+                    <property name="toolTip">
+                     <string>Check to seed stochastic algorithms for reproducibility</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Check to seed stochastic algorithms for reproducibility</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Stochastic Seed&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The stochastic Minimizer algorithms use a seed based upon the system time and so each stochastic run will be different from a previous. If the user wants to be able to reproduce stochastic algorithm runs, then this box should be checked. This box will cause the same set of seeds to be generated each time each group of multi-runs is run (i.e., for each line in the multi-run run list).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QComboBox" name="Estimation_Tab6_MinimizerTypeCMB">
                     <property name="enabled">
                      <bool>false</bool>
@@ -432,6 +451,14 @@
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Noto Sans</family>
+                      <pointsize>9</pointsize>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
                     </property>
                     <property name="toolTip">
                      <string>Valid types are global or local</string>
@@ -2538,7 +2565,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Percentage Specifier&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button specifies if the number visible in the spin box to the left represents a percentage of runs or an absolute number of runs to be used in the averaging calculations.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>%</string>
+                     <string/>
                     </property>
                     <property name="iconSize">
                      <size>

@@ -60,7 +60,8 @@ class  NLopt_Estimator : public QObject
     Q_OBJECT
 
 private:
-    static nlopt::opt                             m_Optimizer;
+    int                                    m_Seed;
+    static nlopt::opt                      m_Optimizer;
     std::vector<double>                    m_InitialCarryingCapacities;
     std::vector<double>                    m_EstCatchability;
     std::vector<double>                    m_EstExponent;
@@ -111,7 +112,7 @@ private:
     void reloadNLoptStruct(
             Data_Struct& NLoptStruct,
             const QString& MultiRunLine);
-
+    void setSeed(const bool& isSetToDeterministic);
 
     static double myNaturalLog(double value);
     static double myExp(double value);
@@ -193,14 +194,14 @@ public:
      * @brief The main routine that runs the NLopt Optimizer
      * @param NLoptDataStruct : structure containing all of the parameters needed by NLopt
      * @param RunNum : the number of the run
-     * @param isAMultiRun : true if a multirun, false if not
+     * @param bools: pair holding isAMultiRun and isSetToDeterministic
      * @param MultiRunLines : the contents of the multi-run run file
      * @param TotalIndividualRuns : total of all of the multi-run runs
      */
     void estimateParameters(
             Data_Struct& NLoptDataStruct,
             int& RunNumber,
-            bool& isAMultiRun,
+            std::pair<bool,bool>& bools,
             std::vector<QString>& MultiRunLines,
             int& TotalIndividualRuns);
     /**
