@@ -132,6 +132,7 @@ class nmfEstimation_Tab6: public QObject
     QSpinBox*    Estimation_Tab6_EnsembleUsingAmountSB;
     QPushButton* Estimation_Tab6_EnsembleUsingPctPB;
     QCheckBox*   Estimation_Tab6_SetDeterministicCB;
+    QCheckBox*   Estimation_Tab6_EnsembleSetDeterministicCB;
 
     void readSettings();
     bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
@@ -470,6 +471,9 @@ public Q_SLOTS:
 
     void callback_EnsembleUsingPctPB();
     void callback_EnsembleUsingAmountCMB(QString value);
+    void callback_SetDeterministicCB(int state);
+    void callback_EnsembleSetDeterministicCB(int state);
+
 };
 
 #endif // NMFESTIMATIONTAB6_H

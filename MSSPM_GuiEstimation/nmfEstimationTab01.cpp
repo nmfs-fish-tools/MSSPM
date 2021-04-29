@@ -106,6 +106,7 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
 
     Estimation_Tab1_SpeciesRangeCMB->setEnabled(false);
     Estimation_Tab1_SpeciesRangeSB->setEnabled(false);
+    Estimation_Tab1_MinMaxCMB->setEnabled(false);
 
     readSettings();
 
@@ -1660,16 +1661,16 @@ void
 nmfEstimation_Tab1::callback_SpeciesRangeCMB(QString value)
 {
     Estimation_Tab1_SpeciesRangeSB->setEnabled(value == "Percentage");
+    Estimation_Tab1_MinMaxCMB->setEnabled(value == "Percentage");
 
-    QModelIndexList indexes = getSelectedVisibleCells();
-
-    if (value == "Percentage") {
-        callback_SpeciesRangeSB(Estimation_Tab1_SpeciesRangeSB->value());
-    } else {
-        loadWidgets();
-    }
-
-    reselectVisibleCells(indexes);
+    // RSK - Not sure we want this logic. Comment it out for now.
+//    QModelIndexList indexes = getSelectedVisibleCells();
+//    if (value == "Percentage") {
+//        callback_SpeciesRangeSB(Estimation_Tab1_SpeciesRangeSB->value());
+//    } else {
+//        loadWidgets();
+//    }
+//    reselectVisibleCells(indexes);
 }
 
 void
@@ -1688,7 +1689,7 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
     QString rangeType = Estimation_Tab1_MinMaxCMB->currentText();
     // Column number of parameters that have min/max values associated with them
     // Update this as necessary when implementing supplemental parameters.
-    std::vector<int> parameters = {1,4,8};  // Probably shouldn't be hard-coded.
+    std::vector<int> parameters = {1,4,8,12,15};  // RSK - shouldn't be hard-coded.
 
     QModelIndexList indexes = getSelectedVisibleCells();
 
@@ -1719,7 +1720,9 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                 case 2:
                 case 5:
                 case 9:
-                    index    = m_SpeciesModel->index(row,col-1);
+                case 13:
+                case 16:
+                    index = m_SpeciesModel->index(row,col-1);
                     parameterValue = index.data().toDouble();
                     minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal),'f',6));
                     minItem->setTextAlignment(Qt::AlignCenter);
@@ -1728,6 +1731,8 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                 case 3:
                 case 6:
                 case 10:
+                case 14:
+                case 17:
                     index    = m_SpeciesModel->index(row,col-2);
                     parameterValue = index.data().toDouble();
                     maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal),'f',6));

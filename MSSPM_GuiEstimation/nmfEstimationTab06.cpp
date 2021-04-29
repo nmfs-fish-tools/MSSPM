@@ -103,6 +103,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_EnsembleUsingAmountSB         = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_EnsembleUsingAmountSB");
     Estimation_Tab6_EnsembleUsingPctPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleUsingPctPB");
     Estimation_Tab6_SetDeterministicCB            = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_SetDeterministicCB");
+    Estimation_Tab6_EnsembleSetDeterministicCB    = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EnsembleSetDeterministicCB");
 
     // Update tool tip
     BeesMsg  = "Stochastic search algorithm based on the behavior of honey bees.";
@@ -174,7 +175,10 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
             this,                                     SLOT(callback_EnsembleUsingPctPB()));
     connect(Estimation_Tab6_EnsembleUsingAmountCMB,   SIGNAL(currentTextChanged(QString)),
             this,                                     SLOT(callback_EnsembleUsingAmountCMB(QString)));
-
+    connect( Estimation_Tab6_SetDeterministicCB,      SIGNAL(stateChanged(int)),
+             this,                                    SLOT(callback_SetDeterministicCB(int)));
+    connect( Estimation_Tab6_EnsembleSetDeterministicCB, SIGNAL(stateChanged(int)),
+             this,                                       SLOT(callback_EnsembleSetDeterministicCB(int)));
 
     // Wire up signals/slots for the Estimate Run checkboxes
     for (QCheckBox* cbox : getAllEstimateCheckboxes()) {
@@ -1038,6 +1042,7 @@ nmfEstimation_Tab6::callback_EnsembleTotalRunsSB(int value)
     Estimation_Tab6_EnsembleSetAllPB->setEnabled(isMultiRun);
     Estimation_Tab6_EnsembleAverageByCMB->setEnabled(isMultiRun);
     Estimation_Tab6_EnsembleUsingAmountCMB->setEnabled(isMultiRun);
+    Estimation_Tab6_EnsembleSetDeterministicCB->setEnabled(isMultiRun);
     bool showUsingWidgets = (getEnsembleUsingAmount() == "using Top:" && isMultiRun);
     Estimation_Tab6_EnsembleUsingAmountSB->setEnabled(showUsingWidgets);
     Estimation_Tab6_EnsembleUsingPctPB->setEnabled(showUsingWidgets);
@@ -1392,6 +1397,22 @@ nmfEstimation_Tab6::callback_EnsembleUsingAmountCMB(QString value)
         Estimation_Tab6_EnsembleUsingAmountSB->setEnabled(true);
         Estimation_Tab6_EnsembleUsingPctPB->setEnabled(true);
     }
+}
+
+void
+nmfEstimation_Tab6::callback_SetDeterministicCB(int state)
+{
+    Estimation_Tab6_EnsembleSetDeterministicCB->blockSignals(true);
+    Estimation_Tab6_EnsembleSetDeterministicCB->setChecked(state==Qt::Checked);
+    Estimation_Tab6_EnsembleSetDeterministicCB->blockSignals(false);
+}
+
+void
+nmfEstimation_Tab6::callback_EnsembleSetDeterministicCB(int state)
+{
+    Estimation_Tab6_SetDeterministicCB->blockSignals(true);
+    Estimation_Tab6_SetDeterministicCB->setChecked(state==Qt::Checked);
+    Estimation_Tab6_SetDeterministicCB->blockSignals(false);
 }
 
 bool

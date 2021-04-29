@@ -1048,7 +1048,7 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
     std::map<std::string, std::vector<std::string> > dataMapCalculatedBiomass;
 
     OutputBiomass.clear();
-
+//std::cout << "-> isAMultiRun: " << isAveraged << std::endl;
     if (! isAveraged) {
         m_DatabasePtr->getAlgorithmIdentifiers(
                     this,m_Logger,m_ProjectSettingsConfig,
@@ -1076,6 +1076,7 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
         }
     }
     queryStr += " ORDER BY Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year";
+//std::cout << "-> q: " << queryStr << std::endl;
     dataMapCalculatedBiomass = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMapCalculatedBiomass["SpeName"].size();
     if (NumRecords == 0) {
@@ -3322,54 +3323,7 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
                                  InitBiomassTable,GrowthRateTable,CarryingCapacityTable,
                                  CatchabilityTable,BiomassTable);
     }
-    /*
-    else if ((Algorithm == "Genetic Algorithm") && paramObj) {
 
-        UpdateOutputTables(Algorithm,Minimizer,
-                           ObjectiveCriterion,Scaling,
-                           isCompetitionAGGPROD,
-                           SpeciesList, GuildList,
-                           paramObj->getGrowthRateList(),
-                           paramObj->getSpeciesKList(),
-                           paramObj->getCatchabilitiesList());
-
-        UpdateOutputTables_GeneticAlgorithm(RunLength,Algorithm,Minimizer,
-                                            ObjectiveCriterion,Scaling,
-                                            paramObj,isCompetitionAlpha,
-                                            isPredation,isHandling);
-    } else if  (Algorithm == "Gradient-Based Algorithm") {
-        if (gradient_Estimator) {
-            gradient_Estimator->EstimatedGrowthRates(EstGrowthRates);
-            gradient_Estimator->EstimatedCarryingCapacities(EstCarryingCapacities);
-            if (isCompetitionAlpha)
-                gradient_Estimator->EstimatedCompetition(EstCompetitionAlpha);
-            if (isPredation)
-                gradient_Estimator->EstimatedPredation(EstPredation);
-            UpdateOutputTables(Algorithm,Minimizer,
-                               ObjectiveCriterion,Scaling,
-                               isCompetitionAGGPROD,
-                               SpeciesList,
-                               GuildList,
-                               EstGrowthRates,
-                               EstCarryingCapacities,
-                               EstCatchability,
-                               EstCompetitionAlpha,
-                               EstCompetitionBetaSpecies,
-                               EstCompetitionBetaGuilds,
-                               EstPredation,
-                               EstHandling,
-                               EstExponent);
-        }
-        ClearOutputBiomassTable(ForecastName,Algorithm,Minimizer,
-                                ObjectiveCriterion,Scaling,
-                                isAggProd,BiomassTable);
-        updateOutputBiomassTable(ForecastName,StartYear,RunLength,isMonteCarlo,RunNum,
-                                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,
-                                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                                 InitBiomassTable,GrowthRateTable,CarryingCapacityTable,
-                                 CatchabilityTable,BiomassTable);
-    }
-    */
 }
 
 bool
@@ -5769,7 +5723,7 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     smodel->setHorizontalHeaderLabels(vLabels);
     SummaryTV->setModel(smodel);
     SummaryTV->resizeColumnsToContents();
-
+std::cout << "-> printing here..." << std::endl;
     QString msg = "";
     msg += "<p style = \"font-family:monospace;\">";
     msg += "<strong><center>Summary Statistics Formulae</center></strong>";
@@ -6625,6 +6579,7 @@ nmfMainWindow::loadSummaryStatisticsModel(
         bool isMohnsRhoBool,
         StatStruct& statStruct)
 {
+    double value;
     QStandardItem* item = nullptr;
     QList<std::vector<double> > stats;
 
@@ -6643,12 +6598,22 @@ nmfMainWindow::loadSummaryStatisticsModel(
     for (int j=0; j<stats.size(); ++j) {
         // Load the species stats
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-            item = new QStandardItem(QString::number(stats[j][i],'f',3));
+            value = stats[j][i];
+            if (value >= nmfConstantsMSSPM::ValueToStartEE) {
+                item = new QStandardItem(QString::number(value,'G',4));
+            } else {
+                item = new QStandardItem(QString::number(value,'f',3));
+            }
             item->setTextAlignment(Qt::AlignCenter);
             smodel->setItem(j, i+1, item);
         }
         // Load the model (i.e., last column) stats
-        item = new QStandardItem(QString::number(stats[j][NumSpeciesOrGuilds],'f',3));
+        value = stats[j][NumSpeciesOrGuilds];
+        if (value >= nmfConstantsMSSPM::ValueToStartEE) {
+            item = new QStandardItem(QString::number(value,'G',4));
+        } else {
+            item = new QStandardItem(QString::number(value,'f',3));
+        }
         item->setTextAlignment(Qt::AlignCenter);
         smodel->setItem(j, NumSpeciesOrGuilds+1, item);
     }
@@ -9895,7 +9860,6 @@ nmfMainWindow::callback_SubRunCompleted(int run,
                                         std::string multiRunModelFilename,
                                         double fitness)
 {
-std::cout << "---> RECEIVED SubRunCompleted" << std::endl;
     int RunLength;
     int InitialYear;
     std::string GrowthForm;
@@ -9920,8 +9884,6 @@ std::cout << "---> RECEIVED SubRunCompleted" << std::endl;
     boost::numeric::ublas::matrix<double> EstPredationRho;
     boost::numeric::ublas::matrix<double> EstPredationHandling;
     boost::numeric::ublas::matrix<double> CalculatedBiomass;
-
-//    std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling;
 
     if (! m_DatabasePtr->getSpeciesInitialData(NumSpecies,SpeciesList,InitialBiomass,
                                                InitialGrowthRate,InitialSpeciesK,m_Logger)) {
@@ -10196,6 +10158,9 @@ nmfMainWindow::callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
     // Calculate the average biomass and display the chart
     calculateAverageBiomass();
     displayAverageBiomass();
+
+    callback_UpdateSummaryStatistics();
+
 
 }
 
