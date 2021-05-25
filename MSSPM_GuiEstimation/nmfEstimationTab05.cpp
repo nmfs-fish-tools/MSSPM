@@ -49,6 +49,7 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
     Estimation_Tab5_AbsoluteBiomassRB = Estimation_Tabs->findChild<QRadioButton *>("Estimation_Tab5_AbsoluteBiomassRB");
     Estimation_Tab5_RelativeBiomassRB = Estimation_Tabs->findChild<QRadioButton *>("Estimation_Tab5_RelativeBiomassRB");
     Estimation_Tab5_CalcBiomassPB     = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_CalcBiomassPB");
+    Estimation_Tab5_EstimateSurveyQCB = Estimation_Tabs->findChild<QCheckBox    *>("Estimation_Tab5_EstimateSurveyQCB");
 
     connect(Estimation_Tab5_PrevPB,   SIGNAL(clicked()),
             this,                     SLOT(callback_PrevPB()));
@@ -72,6 +73,8 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
                                                                       this, SLOT(callback_RelativeBiomassTVScrolled(int)));
     connect(Estimation_Tab5_Rel2AbsScalarTV->horizontalScrollBar(),   SIGNAL(sliderMoved(int)),
             this,                                                     SLOT(callback_Rel2AbsScalarTVScrolled(int)));
+    connect(Estimation_Tab5_EstimateSurveyQCB, SIGNAL(stateChanged(int)),
+            this,                              SLOT(callback_EstimateSurveyQCB(int)));
 
     Estimation_Tab5_PrevPB->setText("\u25C1--");
     Estimation_Tab5_NextPB->setText("--\u25B7");
@@ -86,6 +89,12 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
 nmfEstimation_Tab5::~nmfEstimation_Tab5()
 {
 
+}
+
+bool
+nmfEstimation_Tab5::useRelativeBiomass()
+{
+    return Estimation_Tab5_RelativeBiomassRB->isChecked();
 }
 
 void
@@ -631,13 +640,13 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
     std::vector<std::string> SpeciesNames;
     QStringList VerticalList;
     QStringList SpeciesList;
-    QString SystemName = QString::fromStdString(m_ProjectSettingsConfig);
 
+    readSettings();
+
+    QString SystemName = QString::fromStdString(m_ProjectSettingsConfig);
     // Strip off the MohnsRho suffix
     auto parts = SystemName.split("__");
     SystemName =  parts[0];
-
-    readSettings();
     if (SystemName.isEmpty())
         return false;
 
@@ -666,6 +675,8 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
     loadScalars(1,StartYear,NumSpecies,SystemName,
                 MohnsRhoLabel,SpeciesNames,SpeciesList,VerticalList);
 
+    Estimation_Tab5_RelativeBiomassTV->resizeColumnsToContents();
+    Estimation_Tab5_Rel2AbsScalarTV->resizeColumnsToContents();
     return true;
 }
 
@@ -911,14 +922,21 @@ nmfEstimation_Tab5::callback_UpdateInitialObservedBiomass()
 }
 
 void
+nmfEstimation_Tab5::enableEstimateSurveyQCB(bool enable)
+{
+    Estimation_Tab5_EstimateSurveyQCB->setEnabled(enable);
+}
+
+void
 nmfEstimation_Tab5::callback_AbsoluteBiomassRB()
 {
     Estimation_Tab5_AbsoluteBiomassTV->show();
     Estimation_Tab5_RelativeBiomassTV->hide();
     Estimation_Tab5_CalcBiomassPB->setEnabled(false);
     Estimation_Tab5_Rel2AbsScalarTV->hide();
+    emit EnableSurveyQ("Absolute",false,Estimation_Tab5_EstimateSurveyQCB->isChecked());
+    enableEstimateSurveyQCB(false);
 }
-
 
 void
 nmfEstimation_Tab5::callback_RelativeBiomassRB()
@@ -927,6 +945,44 @@ nmfEstimation_Tab5::callback_RelativeBiomassRB()
     Estimation_Tab5_RelativeBiomassTV->show();
     Estimation_Tab5_Rel2AbsScalarTV->show();
     Estimation_Tab5_CalcBiomassPB->setEnabled(true);
+    emit EnableSurveyQ("Relative",true,Estimation_Tab5_EstimateSurveyQCB->isChecked());
+    enableEstimateSurveyQCB(true);
+    callback_EstimateSurveyQCB(Estimation_Tab5_EstimateSurveyQCB->checkState());
+}
+
+void
+nmfEstimation_Tab5::callback_DimScalarBiomassControls(bool estimate)
+{
+//std::cout << "estimate: " << estimate << std::endl;
+    Estimation_Tab5_CalcBiomassPB->setEnabled(! estimate);
+    Estimation_Tab5_Rel2AbsScalarTV->setVisible(! estimate);
+
+    Estimation_Tab5_EstimateSurveyQCB->blockSignals(true);
+    Estimation_Tab5_EstimateSurveyQCB->setChecked(estimate);
+    Estimation_Tab5_EstimateSurveyQCB->blockSignals(false);
+}
+
+void
+nmfEstimation_Tab5::callback_EstimateSurveyQCB(int state)
+{
+    bool isChecked = (state == Qt::Checked);
+    Estimation_Tab5_Rel2AbsScalarTV->setVisible(!isChecked);
+    Estimation_Tab5_CalcBiomassPB->setEnabled(!isChecked);
+    emit EnableSurveyQ("Relative",true,isChecked);
+}
+
+
+bool
+nmfEstimation_Tab5::isTableValueOK(QString value)
+{
+    bool retv = true;
+    if (value.isEmpty()) {
+        QMessageBox::information(Estimation_Tabs, "Error: Missing Data",
+                                 "\nPlease make sure all table cells are populated.\n",
+                                 QMessageBox::Ok);
+        retv = false;
+    }
+    return retv;
 }
 
 void
@@ -939,11 +995,20 @@ nmfEstimation_Tab5::callback_CalcBiomassPB()
     double scalar;
     double absBiomass;
     QStandardItem *item;
+    QString value;
 
     for (int col=0; col<NumSpecies; ++col) {
-        scalar = m_SModelScalars->item(0,col)->text().toDouble();
+        value = m_SModelScalars->item(0,col)->text();
+        if (! isTableValueOK(value)) {
+            return;
+        }
+        scalar = value.toDouble();
         for (int row=0; row<NumYears; ++row) {
-            absBiomass = scalar*m_SModelRelativeBiomass->item(row,col)->text().toDouble();
+            value = m_SModelRelativeBiomass->item(row,col)->text();
+            if (! isTableValueOK(value)) {
+                return;
+            }
+            absBiomass = scalar*value.toDouble();
             item = new QStandardItem(QString::number(absBiomass,'f',6));
             item->setTextAlignment(Qt::AlignCenter);
             m_SModelAbsoluteBiomass->setItem(row,col,item);
@@ -952,7 +1017,8 @@ nmfEstimation_Tab5::callback_CalcBiomassPB()
 
     QMessageBox::information(Estimation_Tabs, "Absolute Biomass Calculated",
                              "\nAbsolute Biomass has been calculated from the product of the Relative Biomass and their corresponding Scalar values.\n",
-                             QMessageBox::Ok);}
+                             QMessageBox::Ok);
+}
 
 bool
 nmfEstimation_Tab5::areTablesOK()

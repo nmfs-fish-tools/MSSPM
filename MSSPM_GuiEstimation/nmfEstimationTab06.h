@@ -33,6 +33,7 @@
 #include <QMessageBox>
 
 #include "nmfUtilsQt.h"
+#include "nmfStructsQt.h"
 #include "EnsembleDialog.h"
 
 #ifndef NMFESTIMATIONTAB6_H
@@ -49,6 +50,7 @@ class nmfEstimation_Tab6: public QObject
 {
     Q_OBJECT
 
+
     nmfDatabase*    m_DatabasePtr;
     int             m_FontSize;
     int             m_IsMonospaced;
@@ -58,14 +60,16 @@ class nmfEstimation_Tab6: public QObject
     std::string     m_EstimationDataFile;
     std::string     m_EstimationID;
     std::string     m_EstimationOutputFile;
-    std::vector<std::string> m_EstimateRunBoxes;
+    std::vector<nmfStructsQt::EstimateRunBox> m_EstimateRunBoxes;
     std::map<QString,QString> m_DetStoTypeMap;
     std::string     m_GrowthForm;
     std::string     m_HarvestForm;
     std::string     m_CompetitionForm;
     std::string     m_PredationForm;
     EnsembleDialog* m_EnsembleDialog;
+    std::string     m_EnsembleFilename;
 
+    QWidget*     Estimation_Tab6_Widget;
     QGroupBox*   Estimation_Tab6_ModelAlgorithmsGB;
     QGroupBox*   Estimation_Tab6_Bees_ParametersGB;
     QGroupBox*   Estimation_Tab6_NL_ParametersGB;
@@ -76,12 +80,12 @@ class nmfEstimation_Tab6: public QObject
     QLabel*      Estimation_Tab6_MinimizerDetStoTypeLBL;
     QComboBox*   Estimation_Tab6_MinimizerTypeCMB;
     QTabWidget*  Estimation_Tabs;
-    QWidget*     Estimation_Tab6_Widget;
     QTextEdit*   Estimation_Tab6_RunTE;
     QPushButton* Estimation_Tab6_RunPB;
     QPushButton* Estimation_Tab6_SavePB;
     QPushButton* Estimation_Tab6_ReloadPB;
     QPushButton* Estimation_Tab6_PrevPB;
+    QPushButton* Estimation_Tab6_NextPB;
     QComboBox*   Estimation_Tab6_FontSizeCMB;
     QCheckBox*   Estimation_Tab6_MonoCB;
     QComboBox*   Estimation_Tab6_EstimationAlgorithmCMB;
@@ -106,13 +110,14 @@ class nmfEstimation_Tab6: public QObject
     QCheckBox*   Estimation_Tab6_EstimateGrowthRateCB;
     QCheckBox*   Estimation_Tab6_EstimateCarryingCapacityCB;
     QCheckBox*   Estimation_Tab6_EstimateCatchabilityCB;
-    QCheckBox*   Estimation_Tab6_EstimateHandlingCB;
     QCheckBox*   Estimation_Tab6_EstimateCompetitionAlphaCB;
     QCheckBox*   Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB;
     QCheckBox*   Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB;
     QCheckBox*   Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB;
     QCheckBox*   Estimation_Tab6_EstimatePredationRhoCB;
+    QCheckBox*   Estimation_Tab6_EstimatePredationHandlingCB;
     QCheckBox*   Estimation_Tab6_EstimatePredationExponentCB;
+    QCheckBox*   Estimation_Tab6_EstimateSurveyQCB;
     QSpinBox*    Estimation_Tab6_EnsembleTotalRunsSB;
     QLabel*      Estimation_Tab6_EnsembleAveragingAlgorithmLBL;
     QComboBox*   Estimation_Tab6_EnsembleAveragingAlgorithmCMB;
@@ -121,30 +126,27 @@ class nmfEstimation_Tab6: public QObject
     QPushButton* Estimation_Tab6_EnsembleAddPB;
     QSpinBox*    Estimation_Tab6_EnsembleRunsSB;
     QPushButton* Estimation_Tab6_EnsembleClearPB;
-    QPushButton* Estimation_Tab6_EnsembleEditPB;
+    QPushButton* Estimation_Tab6_EnsembleViewPB;
     QLabel*      Estimation_Tab6_EnsembleRunsWithSettingsLBL;
     QLabel*      Estimation_Tab6_EnsembleRunsSetLBL;
     QPushButton* Estimation_Tab6_EnsembleSetAllPB;
     QComboBox*   Estimation_Tab6_NL_StopAfterTimeUnitsCMB;
     QPushButton* Estimation_Tab6_EnsembleLoadPB;
     QComboBox*   Estimation_Tab6_EnsembleAverageByCMB;
-    QComboBox*   Estimation_Tab6_EnsembleUsingAmountCMB;
+    QComboBox*   Estimation_Tab6_EnsembleUsingByCMB;
     QSpinBox*    Estimation_Tab6_EnsembleUsingAmountSB;
     QPushButton* Estimation_Tab6_EnsembleUsingPctPB;
     QCheckBox*   Estimation_Tab6_SetDeterministicCB;
     QCheckBox*   Estimation_Tab6_EnsembleSetDeterministicCB;
+    QPushButton* Estimation_Tab6_AddToReviewPB;
 
     void readSettings();
     bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
-    bool isStopAfterValue();
-    bool isStopAfterTime();
-    bool isStopAfterIter();
+
     void activateCheckBox(QCheckBox* cbox,
-                          bool state);
+                           std::pair<bool,bool> state);
     QList<QCheckBox* > getAllEstimateCheckboxes();
     void initializeDetStoMap();
-    void enableRunButton(bool enableRun);
-    void enableEnsembleWidgets(bool enable);
     void adjustNumberOfParameters();
     bool addToMultiRunFile(const int& numRunsToAdd,
                            const int& currentNumberOfRuns,
@@ -184,6 +186,8 @@ public:
      * @return the converted value in hours or minutes (or seconds if < 60)
      */
     int convertToAppropriateUnits(int seconds);
+    void clearEnsembleFile();
+    void enableEnsembleWidgets(bool enable);
     std::string getBeesMaxGenerations();
     std::string getBeesNumBees();
     std::string getBeesNumBestSites();
@@ -192,14 +196,19 @@ public:
     std::string getBeesNumOtherBees();
     std::string getBeesNeighborhoodSize();
     std::string getBeesNumberOfRuns();
-
+    std::string getEnsembleFilename();
+    void loadEnsembleFile(QString ensembleFile);
     void setEnsembleRuns(int value);
     void setEnsembleRunsSet(int value);
     bool isAMultiRun();
     bool isSetToDeterministic();
-    QString getAverageBy();
-    QString getAveragingAlgorithm();
-    QString getEnsembleUsingAmount();
+    void enableAddToReview(bool enable);
+    void enableMultiRunControls(bool enable);
+    void enableRunButton(bool enableRun);
+    QString getMultiRunColumnData(int col);
+    bool isStopAfterValue();
+    bool isStopAfterTime();
+    bool isStopAfterIter();
     /**
      * @brief Gets the current Algorithm selected from the GUI
      * @return Returns the algorithm chosen
@@ -227,9 +236,9 @@ public:
     QString getCurrentTimeUnits();
     /**
      * @brief Gets the list of checked and enabled Estimate run boxes
-     * @return Returns list of the Estimate run boxes from Estimation Tab6
+     * @return Returns list of the Estimate run box structs from Estimation Tab6
      */
-    std::vector<std::string> getEstimateRunBoxes();
+    std::vector<nmfStructsQt::EstimateRunBox> getEstimateRunBoxes();
     /**
      * @brief Gets the current Stop after (fcn evals) value
      * @return Returns number of function evaluations after which to stop the run
@@ -247,19 +256,35 @@ public:
     int getCurrentStopAfterTime();
     int getEnsembleUsingAmountValue();
     int getEnsembleNumberOfTotalRuns();
+    QString getEnsembleAverageBy();
+    QString getEnsembleAveragingAlgorithm();
+    QString getEnsembleUsingBy();
+    QString createEnsembleFile();
 
-    /**
-     * @brief Check to see if user has checked or unchecked the estimated parameter checkboxes on the Run page
-     * @return True if user wants to estimate competition, else false
-     */
-    bool isEstimatedCompetition();
-    bool isEstimatedInitialBiomass();
-    bool isEstimatedExponent();
-    bool isEstimatedPredation();
-    bool isEstimatedHandling();
-    bool isEstimatedCompetitionBetaSpecies();
-    bool isEstimatedCompetitionBetaGuilds();
-    bool isEstimatedCompetitionBetaGuildsGuilds();
+    bool isEstInitialBiomassEnabled();
+    bool isEstInitialBiomassChecked();
+    bool isEstGrowthRateEnabled();
+    bool isEstGrowthRateChecked();
+    bool isEstCarryingCapacityEnabled();
+    bool isEstCarryingCapacityChecked();
+    bool isEstCatchabilityEnabled();
+    bool isEstCatchabilityChecked();
+    bool isEstCompetitionAlphaEnabled();
+    bool isEstCompetitionAlphaChecked();
+    bool isEstCompetitionBetaSpeciesEnabled();
+    bool isEstCompetitionBetaSpeciesChecked();
+    bool isEstCompetitionBetaGuildsEnabled();
+    bool isEstCompetitionBetaGuildsChecked();
+    bool isEstCompetitionBetaGuildsGuildsEnabled();
+    bool isEstCompetitionBetaGuildsGuildsChecked();
+    bool isEstPredationRhoEnabled();
+    bool isEstPredationRhoChecked();
+    bool isEstPredationHandlingEnabled();
+    bool isEstPredationHandlingChecked();
+    bool isEstPredationExponentEnabled();
+    bool isEstPredationExponentChecked();
+    bool isEstSurveyQEnabled();
+    bool isEstSurveyQChecked();
     bool isEnsembleUsingPct();
     /**
      * @brief Loads all widgets for this GUI from database tables
@@ -286,6 +311,12 @@ public:
      * @param units : current units to set the time units combo box to
      */
     void setCurrentTimeUnits(QString units);
+    void setEnsembleAverageBy(QString averageBy);
+    void setEnsembleAveragingAlgorithm(QString aveAlg);
+    void setEnsembleUsingBy(QString usingBy);
+    void setEnsembleUsingAmountValue(QString usingAmount);
+    void setEnsembleUsingPct(bool isUsingPct);
+
     /**
      * @brief Sets the font for the output text edit widget
      * @param font : the font to use for the output text edit widget
@@ -296,17 +327,15 @@ public:
      * @param msg : the content to use for the output text edit widget
      */
     void setOutputTE(QString msg);
+    void clearWidgets();
 
 signals:
     /**
      * @brief Signal sent to check all Estimation tables for completeness
      */
     void CheckAllEstimationTablesAndRun();
-//    /**
-//     * @brief Signal notifying that a new Estimation should be run
-//     * @param showDiagnosticsChart : boolean signifying that the user wants to show the Diagnostics chart
-//     */
-//    void RunEstimation(bool showDiagnosticsChart);
+    void AddToReview();
+    void DimScalarBiomassControls(bool dim);
     /**
      * @brief Signal sent after the user checks the Mono Font box. It causes
      * the displayed output edit widget to use a monospaced font.
@@ -342,6 +371,10 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user clicks the Next Page button
+     */
+    void callback_NextPB();
     /**
      * @brief Callback invoked when the user clicks the Previous Page button
      */
@@ -408,7 +441,7 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Edit button to edit or view a set of
      * runs to a multi-run
      */
-    void callback_EnsembleEditPB();
+    void callback_EnsembleViewPB();
     /**
      * @brief Callback invoked when the user changes the Objective Criterion
      * @param objectiveCriterion : the objective criterion selected
@@ -460,9 +493,10 @@ public Q_SLOTS:
     void callback_SaveSettings();
     /**
      * @brief Callback invoked when main routine needs to update Estimate checkboxes
-     * @param EstimateRunBoxes : Names of Estimate checkboxes to update
+     * @param EstimateRunBoxes : Names and states of Estimate checkboxes to update
      */
-    void callback_SetEstimateRunCheckboxes(std::vector<std::string> EstimateRunBoxes);
+    void callback_SetEstimateRunCheckboxes(
+            std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes);
     /**
      * @brief Callback invoked when user changes the scaling algorithm
      * @param scalingAlgorithm : new scaling algorithm selected
@@ -473,6 +507,11 @@ public Q_SLOTS:
     void callback_EnsembleUsingAmountCMB(QString value);
     void callback_SetDeterministicCB(int state);
     void callback_EnsembleSetDeterministicCB(int state);
+    void callback_AddToReviewPB();
+    void callback_EnableSurveyQ(const QString biomassType,
+                                const bool enable,
+                                const bool checked);
+    void callback_EstimateSurveyQCB(int state);
 
 };
 

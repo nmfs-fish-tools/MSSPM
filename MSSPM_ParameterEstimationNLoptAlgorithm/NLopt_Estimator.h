@@ -65,6 +65,7 @@ private:
     std::vector<double>                    m_InitialCarryingCapacities;
     std::vector<double>                    m_EstCatchability;
     std::vector<double>                    m_EstExponent;
+    std::vector<double>                    m_EstSurveyQ;
     boost::numeric::ublas::matrix<double>  m_EstAlpha;
     boost::numeric::ublas::matrix<double>  m_EstBetaSpecies;
     boost::numeric::ublas::matrix<double>  m_EstBetaGuilds;
@@ -88,7 +89,7 @@ private:
             const int&         numSubRuns,
             const double&      bestFitness,
             const double&      fitnessStdDev,
-            const Data_Struct& beeStruct,
+            const nmfStructsQt::ModelDataStruct& beeStruct,
             std::string&       bestFitnessStr);
     std::string convertValues1DToOutputStr(const std::string& label,
                                     const std::vector<double> &Values,
@@ -97,20 +98,23 @@ private:
                                     const boost::numeric::ublas::matrix<double> &matrix);
     static void incrementObjectiveFunctionCounter(std::string MSSPMName,
                                            double fitness,
-                                           Data_Struct NLoptDataStruct);
+                                           nmfStructsQt::ModelDataStruct NLoptDataStruct);
 //    double  dnorm4(double x, double mu, double sigma, int give_log);
 
     void loadInitBiomassParameterRanges(
             std::vector<std::pair<double,double> >& parameterRanges,
-            const Data_Struct& dataStruct);
-    void setStoppingCriteria(Data_Struct&  NLoptStruct);
-    void setObjectiveFunction(Data_Struct& NLoptStruct,
+            const nmfStructsQt::ModelDataStruct& dataStruct);
+    void loadSurveyQParameterRanges(
+            std::vector<std::pair<double,double> >& parameterRanges,
+            const nmfStructsQt::ModelDataStruct& dataStruct);
+    void setStoppingCriteria(nmfStructsQt::ModelDataStruct&  NLoptStruct);
+    void setObjectiveFunction(nmfStructsQt::ModelDataStruct& NLoptStruct,
                               std::string& MaxOrMin);
-    void setParameterBounds(Data_Struct& NLoptStruct,
+    void setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
                             std::vector<std::pair<double,double> >& ParameterRanges,
                             const int& NumEstParameters);
     void reloadNLoptStruct(
-            Data_Struct& NLoptStruct,
+            nmfStructsQt::ModelDataStruct& NLoptStruct,
             const QString& MultiRunLine);
     void setSeed(const bool& isSetToDeterministic);
 
@@ -199,7 +203,7 @@ public:
      * @param TotalIndividualRuns : total of all of the multi-run runs
      */
     void estimateParameters(
-            Data_Struct& NLoptDataStruct,
+            nmfStructsQt::ModelDataStruct& NLoptDataStruct,
             int& RunNumber,
             std::pair<bool,bool>& bools,
             std::vector<QString>& MultiRunLines,
@@ -216,12 +220,13 @@ public:
      * @param CompetitionBetaSpecies : estimated food competition beta parameters per Species
      * @param CompetitionBetaGuilds : estimated food competition beta parameters per Species-Guild
      * @param CompetitionBetaGuildsGuilds : estimated food competition beta parameters per Guild-Guild
-     * @param Predation : estimated predation parameters
-     * @param Handling : estimated handling parameters
-     * @param Exponent : estimated handling parameters
+     * @param Predation : estimated predation rho parameters
+     * @param Handling : estimated predation handling coefficient parameters
+     * @param Exponent : estimated predation exponent parameters
+     * @param SurveyQ : estimated SurveyQ parameters
      */
     static void extractParameters(
-            const Data_Struct&                     NLoptDataStruct,
+            const nmfStructsQt::ModelDataStruct&                     NLoptDataStruct,
             const double*                          EstParameters,
             std::vector<double>&                   InitBiomass,
             std::vector<double>&                   GrowthRate,
@@ -233,7 +238,8 @@ public:
             boost::numeric::ublas::matrix<double>& CompetitionBetaGuildsGuilds,
             boost::numeric::ublas::matrix<double>& Predation,
             boost::numeric::ublas::matrix<double>& Handling,
-            std::vector<double>&                   Exponent);
+            std::vector<double>&                   Exponent,
+            std::vector<double>&                   SurveyQ);
     /**
      * @brief Get the estimated carrying capacity values
      * @param EstCarryingCapacities : the estimated carrying capacity values to return
@@ -246,6 +252,12 @@ public:
      */
     void getEstCatchability(
             std::vector<double>& EstCatchability);
+    /**
+     * @brief Get the estimated Survey Q values
+     * @param EstSurveyQ : the estimated Surbey Q values to return
+     */
+    void getEstSurveyQ(
+            std::vector<double>& EstSurveyQ);
     /**
      * @brief Get the estimated food competition alpha values
      * @param EstInteraction : the estimated food competition alpha values to return

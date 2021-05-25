@@ -33,5 +33,6 @@
         <file>forms/Main/PreferencesDlg.ui</file>
         <file>icons/scrgrbAll.png</file>
         <file>forms/Main/TableNamesDlg.ui</file>
+        <file>forms/Estimation/Estimation_Tab07.ui</file>
     </qresource>
 </RCC>

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>721</width>
+    <width>729</width>
     <height>814</height>
    </rect>
   </property>
@@ -45,8 +45,8 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-68</y>
-            <width>665</width>
+            <y>0</y>
+            <width>673</width>
             <height>782</height>
            </rect>
           </property>
@@ -1840,38 +1840,6 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="3">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimatePredationRhoCB">
-                  <property name="toolTip">
-                   <string>If checked, the Predation rho parameter will be estimated</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>If checked, the Predation rho parameter will be estimated</string>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text">
-                   <string>Predation (ρ)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="3">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB">
-                  <property name="toolTip">
-                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text">
-                   <string>Competition (β Guild by Guild)</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="0">
                  <widget class="QCheckBox" name="Estimation_Tab6_EstimateInitialBiomassCB">
                   <property name="toolTip">
@@ -1937,22 +1905,6 @@ with the non-assigned bees being assigned to random positions.</string>
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateHandlingCB">
-                  <property name="toolTip">
-                   <string>If checked, the Handling parameter will be estimated</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>If checked, the Handling parameter will be estimated</string>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text">
-                   <string>Handling (h)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
                  <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionAlphaCB">
                   <property name="toolTip">
                    <string>If checked, the Competition alpha parameter will be estimated</string>
@@ -1968,7 +1920,7 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
+                <item row="1" column="1">
                  <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB">
                   <property name="toolTip">
                    <string>If checked, the Competition beta Species by Species parameter will be estimated</string>
@@ -1984,7 +1936,7 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1">
+                <item row="2" column="1">
                  <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB">
                   <property name="toolTip">
                    <string>If checked, the Competition beta Guild by Species parameter will be estimated</string>
@@ -1994,6 +1946,73 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                   <property name="text">
                    <string>Competition (β Guild by Species)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB">
+                  <property name="toolTip">
+                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Competition (β Guild by Guild)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimatePredationRhoCB">
+                  <property name="toolTip">
+                   <string>If checked, the Predation rho parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Predation rho parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Predation (ρ)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimatePredationHandlingCB">
+                  <property name="toolTip">
+                   <string>If checked, the Handling parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Handling parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Predation Handling (h)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="3">
+                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateSurveyQCB">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>If checked, Survey Q will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, Survey Q will be estimated</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Survey Q&lt;/span&gt;&lt;/p&gt;&lt;p&gt;To enable this option, make sure that Relative Biomass is checked in Estimation Tab 5, Observation Data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>Survey Q</string>
                   </property>
                  </widget>
                 </item>
@@ -2207,7 +2226,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <enum>Qt::RightToLeft</enum>
                     </property>
                     <property name="text">
-                     <string>Reproducible</string>
+                     <string>Fixed Seed</string>
                     </property>
                    </widget>
                   </item>
@@ -2319,7 +2338,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Estimation_Tab6_EnsembleEditPB">
+                   <widget class="QPushButton" name="Estimation_Tab6_EnsembleViewPB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2494,13 +2513,13 @@ with the non-assigned bees being assigned to random positions.</string>
                      </size>
                     </property>
                     <property name="toolTip">
-                     <string>Determines what to average</string>
+                     <string>Determines how to average</string>
                     </property>
                     <property name="statusTip">
-                     <string>Determines what to average</string>
+                     <string>Determines how to average</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;What to Average&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This pulldown instructs the application to average either:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1. by Parameter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In this case, the estimated parameters will be averaged and the averaged biomass will be derived from those averaged parameters. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. by Biomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In this case the biomass will be averaged after being calculated from the estimated parameters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;How to Average&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This pulldown instructs the application to average either:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1. by Parameter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In this case, the estimated parameters will be averaged and the averaged biomass will be derived from those averaged parameters. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. by Biomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;In this case the biomass will be averaged after being calculated from the estimated parameters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <item>
                      <property name="text">
@@ -2515,7 +2534,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_EnsembleUsingAmountCMB">
+                   <widget class="QComboBox" name="Estimation_Tab6_EnsembleUsingByCMB">
                     <property name="toolTip">
                      <string>Determines how many of the individual runs should be averaged</string>
                     </property>
@@ -2845,6 +2864,18 @@ with the non-assigned bees being assigned to random positions.</string>
      </item>
      <item>
       <widget class="QPushButton" name="Estimation_Tab6_ReloadPB">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>60</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Reload saved Model settings. Load new Model settings in Setup Tab 4.</string>
        </property>
@@ -2860,6 +2891,18 @@ with the non-assigned bees being assigned to random positions.</string>
       <widget class="QPushButton" name="Estimation_Tab6_RunPB">
        <property name="enabled">
         <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
        </property>
        <property name="toolTip">
         <string>Run Estimation</string>
@@ -2877,6 +2920,18 @@ with the non-assigned bees being assigned to random positions.</string>
      </item>
      <item>
       <widget class="QPushButton" name="Estimation_Tab6_SavePB">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>60</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Save current Model settings to database</string>
        </property>
@@ -2885,6 +2940,34 @@ with the non-assigned bees being assigned to random positions.</string>
        </property>
        <property name="text">
         <string>Save...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Estimation_Tab6_AddToReviewPB">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Add the completed run's data to the Model Review page</string>
+       </property>
+       <property name="statusTip">
+        <string>Add the completed run's data to the Model Review page</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Add to Review&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will add the completed run's meta-data to the list of completed runs on the Model Review page (Estimation Tab 7). From there, the user can either re-create the model or create model summary reports.&lt;/p&gt;&lt;p&gt;N.B. This should be pressed immediately after a run, as it saves the current GUI's settings. If the user completes a run and changes settings and then presses this button, inaccurate meta-data will be saved.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Add to Review</string>
        </property>
       </widget>
      </item>
@@ -2905,20 +2988,38 @@ with the non-assigned bees being assigned to random positions.</string>
       </spacer>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QPushButton" name="Estimation_Tab6_NextPB">
+       <property name="enabled">
+        <bool>true</bool>
        </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-       <property name="sizeHint" stdset="0">
+       <property name="minimumSize">
         <size>
          <width>60</width>
-         <height>20</height>
+         <height>0</height>
         </size>
        </property>
-      </spacer>
+       <property name="maximumSize">
+        <size>
+         <width>60</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Go to the next tab page</string>
+       </property>
+       <property name="statusTip">
+        <string>Go to the next tab page</string>
+       </property>
+       <property name="text">
+        <string>-&gt;</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

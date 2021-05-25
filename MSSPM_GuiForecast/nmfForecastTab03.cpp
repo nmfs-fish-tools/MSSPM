@@ -86,6 +86,7 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_ParameterNames << "Handling (h)";
     m_ParameterNames << "Exponent (b)";
     m_ParameterNames << "Catchability (q)";
+    m_ParameterNames << "SurveyQ";
     m_ParameterNames << harvestType();
 }
 
@@ -220,8 +221,8 @@ nmfForecast_Tab3::callback_SavePB()
     // Update ForecastUncertainty table
     cmd  = "INSERT INTO ForecastUncertainty (" ;
     cmd += "SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-    cmd += "InitBiomass,GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
-    cmd += "BetaGuilds,BetaGuildsGuilds,Handling,Exponent,Catchability,Harvest) VALUES ";
+    cmd += "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies,";
+    cmd += "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest) VALUES ";
     for (int i=0; i<m_SModel->rowCount(); ++i) { // Species
             cmd += "('" + SpeNames[i] + "','" + ForecastName + "','" + Algorithm +
                     "','" + Minimizer + "','" + ObjectiveCriterion + "','" + Scaling + "'";
@@ -344,11 +345,12 @@ nmfForecast_Tab3::loadWidgets()
     if (ForecastNameExists) {
         // Find Forecast info
         fields     = {"SpeName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
-                      "InitBiomass","GrowthRate","CarryingCapacity","Predation","Competition","BetaSpecies",
-                      "BetaGuilds","BetaGuildsGuilds","Handling","Exponent","Catchability","Harvest"};
+                      "InitBiomass","GrowthRate","CarryingCapacity","Catchability",
+                      "CompetitionAlpha","CompetitionBetaSpecies","CompetitionBetaGuilds","CompetitionBetaGuildsGuilds",
+                      "PredationRho","PredationHandling","PredationExponent","SurveyQ","Harvest"};
         queryStr   = "SELECT SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-        queryStr  += "InitBiomass,GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
-        queryStr  += "BetaGuilds,BetaGuildsGuilds,Handling,Exponent,Catchability,Harvest FROM ForecastUncertainty where ";
+        queryStr  += "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies,";
+        queryStr  += "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest FROM ForecastUncertainty where ";
         queryStr  += "ForecastName = '" + ForecastName + "'";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["ForecastName"].size();
@@ -362,14 +364,15 @@ nmfForecast_Tab3::loadWidgets()
             param.emplace_back(QString::fromStdString(dataMap["InitBiomass"][m]));
             param.emplace_back(QString::fromStdString(dataMap["GrowthRate"][m]));
             param.emplace_back(QString::fromStdString(dataMap["CarryingCapacity"][m]));
-            param.emplace_back(QString::fromStdString(dataMap["Predation"][m]));
-            param.emplace_back(QString::fromStdString(dataMap["Competition"][m]));
-            param.emplace_back(QString::fromStdString(dataMap["BetaSpecies"][m]));
-            param.emplace_back(QString::fromStdString(dataMap["BetaGuilds"][m]));
-            param.emplace_back(QString::fromStdString(dataMap["BetaGuildsGuilds"][m]));
-            param.emplace_back(QString::fromStdString(dataMap["Handling"][m]));
-            param.emplace_back(QString::fromStdString(dataMap["Exponent"][m]));
             param.emplace_back(QString::fromStdString(dataMap["Catchability"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["CompetitionAlpha"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["CompetitionBetaSpecies"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["CompetitionBetaGuilds"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["CompetitionBetaGuildsGuilds"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["PredationRho"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["PredationHandling"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["PredationExponent"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["SurveyQ"][m]));
             param.emplace_back(QString::fromStdString(dataMap["Harvest"][m]));
             for (int j=0; j<NumParameters; ++j) {
                 item = new QStandardItem(param[j]);

@@ -341,13 +341,13 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
     QStandardItem *item;
     QStringList SpeciesNames;
     QStringList VerticalList;
-    QString SystemName = QString::fromStdString(m_ProjectSettingsConfig);
 
+    readSettings();
+
+    QString SystemName = QString::fromStdString(m_ProjectSettingsConfig);
     // Strip off the MohnsRho suffix
     auto parts = SystemName.split("__");
     SystemName =  parts[0];
-
-    readSettings();
 
     clearWidgets();
 
@@ -416,12 +416,7 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
 void
 nmfEstimation_Tab2::setHarvestType(std::string harvestType)
 {
-    m_HarvestType = (QString::fromStdString(harvestType).split(" ")[0]).toStdString();
-//    if (m_HarvestType == "Exploitation (F)") {
-//        m_HarvestType = "Exploitation";
-//    } else if (m_HarvestType == "Effort (qE)") {
-//        m_HarvestType = "Effort";
-//    }
+    m_HarvestType = "Harvest"+(QString::fromStdString(harvestType).split(" ")[0]).toStdString();
 }
 
 void

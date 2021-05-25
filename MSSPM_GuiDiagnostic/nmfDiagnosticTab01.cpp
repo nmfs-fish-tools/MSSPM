@@ -255,6 +255,8 @@ nmfDiagnostic_Tab1::isAggProd(std::string Algorithm,
 void
 nmfDiagnostic_Tab1::callback_RunPB()
 {
+    int RunLength;
+    int InitialYear;
     int NumSpecies;
     int NumGuilds;
     int NumSpeciesOrGuilds=0;
@@ -263,7 +265,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
     int totalNumPoints = 2*numPoints;
     double startVal;
     double inc;
-    double parameter;
+    double estParameter;
     double rParameter;
     double KParameter;
     double diagnosticParameter;
@@ -282,7 +284,10 @@ nmfDiagnostic_Tab1::callback_RunPB()
     std::string Minimizer;
     std::string ObjectiveCriterion;
     std::string Scaling;
+    std::string GrowthForm;
+    std::string HarvestForm;
     std::string CompetitionForm;
+    std::string PredationForm;
     std::vector<double> EstParameter;
     std::vector<double> rEstParameter;
     std::vector<double> KEstParameter;
@@ -294,6 +299,8 @@ nmfDiagnostic_Tab1::callback_RunPB()
     std::string isAggProdStr;
     bool isAggProdBool;
     QString msg;
+    QStringList ParameterNames = {"Growth Rate (r)"};
+    bool thereIsCarryingCapacity = false;
 
     m_Logger->logMsg(nmfConstants::Normal,"");
     m_Logger->logMsg(nmfConstants::Normal,"Start Diagnostic");
@@ -305,14 +312,18 @@ nmfDiagnostic_Tab1::callback_RunPB()
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (! systemFound) {
-        QMessageBox::warning(m_Diagnostic_Tabs,
-                             tr("No System Found"),
-                             tr("\nPlease enter a valid System.\n"),
-                             QMessageBox::Ok);
+        QMessageBox::warning(m_Diagnostic_Tabs,tr("No System Found"),
+                             tr("\nPlease enter a valid System.\n"),QMessageBox::Ok);
         return;
     }
     isAggProdBool = isAggProd(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
     isAggProdStr  = (isAggProdBool) ? "1" : "0";
+    if (! m_DatabasePtr->getModelFormData(
+                GrowthForm,HarvestForm,CompetitionForm,PredationForm,
+                RunLength,InitialYear,m_Logger,m_ProjectSettingsConfig)) {
+        return;
+    }
+    thereIsCarryingCapacity = (GrowthForm == "Logistic");
 
     getSpeciesInfo(NumSpecies,SpeciesNames);
     getGuildInfo(NumGuilds,GuildNames);
@@ -329,7 +340,9 @@ nmfDiagnostic_Tab1::callback_RunPB()
 
     // Hardcode parameter names for diagnostics. Save to the 1-parameter tables to be
     // used in the 2d plots.
-    QStringList ParameterNames = {"Growth Rate (r)","Carrying Capacity (K)"};
+    if (thereIsCarryingCapacity) {
+        ParameterNames << "Carrying Capacity (K)";
+    }
     for (QString parameterName : ParameterNames) {
 
         EstParameter.clear();
@@ -345,14 +358,26 @@ nmfDiagnostic_Tab1::callback_RunPB()
         }
 
         // Calculate all parameter increment values and save to table
+std::cout << "NumSpecies: " << NumSpeciesOrGuilds << std::endl;
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-            parameter = EstParameter[i];
-            startVal  = parameter * (1.0-pctVariation/100.0);
-            inc       = (parameter - startVal)/numPoints;
+            estParameter = EstParameter[i];
+            startVal  = estParameter * (1.0-pctVariation/100.0);
+            inc       = (estParameter - startVal)/numPoints;
             diagnosticParameter = startVal;
+if (i == 0) {
+std::cout << "estParameter: " << estParameter << ", startVal: " << startVal << ", inc: " << inc << ", totalNumPoints: " << totalNumPoints << std::endl;
+}
             for (int j=0; j<=totalNumPoints; ++j) {
-                try {
+
+                try {   // RSK look at this
+
                     fitness = calculateFitness(i,parameterName,diagnosticParameter);
+//if (i==0) {
+//std::cout << "  parameterName: " << parameterName.toStdString() << ", diagnosticParameter: " << diagnosticParameter << ", fitness: " << fitness << std::endl;
+//}
+
+
+
                 } catch (...) {
                     msg = "Please run an Estimation prior to running this Diagnostic.";
                     m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
@@ -364,8 +389,12 @@ nmfDiagnostic_Tab1::callback_RunPB()
                     m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
                     return;
                 }
+if (i == 0) {
+std::cout << "  tuple: " << SpeciesOrGuildNames[i].toStdString() << ", " << diagnosticParameter-estParameter
+          << ", " << diagnosticParameter << ", " << fitness << std::endl;
+}
                 aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[i],
-                                                   diagnosticParameter-parameter,
+                                                   diagnosticParameter-estParameter,
                                                    diagnosticParameter,
                                                    fitness);
                 DiagnosticTupleVector.push_back(aDiagnosticTuple);
@@ -382,41 +411,44 @@ nmfDiagnostic_Tab1::callback_RunPB()
     // Now save to the 2-parameter table
     // Calculate all parameter increment values and save to table to be
     // used in the 3d plots.
-    DiagnosticTupleVector.clear();
-    for (int SpeciesNum=0; SpeciesNum<NumSpeciesOrGuilds; ++SpeciesNum) {
-        rParameter       =  rEstParameter[SpeciesNum];
-        rStartVal        =  rParameter * (1.0-pctVariation/100.0);
-        rInc             = (rParameter - rStartVal)/numPoints;
-        rPctVar          = -pctVariation;
-        rPctInc          = -rPctVar/numPoints;
-        rDiagnosticParam =  rStartVal;
-        for (int j=0; j<=totalNumPoints; ++j) {
-            KParameter       =  KEstParameter[SpeciesNum];
-            KStartVal        =  KParameter * (1.0-pctVariation/100.0);
-            KInc             = (KParameter - KStartVal)/numPoints;
-            KPctVar          = -pctVariation;
-            KPctInc          = -KPctVar/numPoints;
-            KDiagnosticParam =  KStartVal;
-            for (int k=0; k<=totalNumPoints; ++k) {
-                fitness = calculateFitness(SpeciesNum,rDiagnosticParam,KDiagnosticParam);
-                if (fitness == -1) {
-                    m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
-                    return;
+    if (thereIsCarryingCapacity) {
+        DiagnosticTupleVector.clear();
+        for (int SpeciesNum=0; SpeciesNum<NumSpeciesOrGuilds; ++SpeciesNum) {
+            rParameter       =  rEstParameter[SpeciesNum];
+            rStartVal        =  rParameter * (1.0-pctVariation/100.0);
+            rInc             = (rParameter - rStartVal)/numPoints;
+            rPctVar          = -pctVariation;
+            rPctInc          = -rPctVar/numPoints;
+            rDiagnosticParam =  rStartVal;
+            for (int j=0; j<=totalNumPoints; ++j) {
+                KParameter       =  KEstParameter[SpeciesNum];
+                KStartVal        =  KParameter * (1.0-pctVariation/100.0);
+                KInc             = (KParameter - KStartVal)/numPoints;
+                KPctVar          = -pctVariation;
+                KPctInc          = -KPctVar/numPoints;
+                KDiagnosticParam =  KStartVal;
+                for (int k=0; k<=totalNumPoints; ++k) {
+                    fitness = calculateFitness(SpeciesNum,rDiagnosticParam,KDiagnosticParam);
+                    if (fitness == -1) {
+                        m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
+                        return;
+                    }
+                    aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[SpeciesNum],
+                                                       rPctVar,
+                                                       KPctVar,
+                                                       fitness);
+                    DiagnosticTupleVector.push_back(aDiagnosticTuple);
+                    KDiagnosticParam += KInc;
+                    KPctVar          += KPctInc;
                 }
-                aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[SpeciesNum],
-                                                   rPctVar,
-                                                   KPctVar,
-                                                   fitness);
-                DiagnosticTupleVector.push_back(aDiagnosticTuple);
-                KDiagnosticParam += KInc;
-                KPctVar          += KPctInc;
+                rDiagnosticParam += rInc;
+                rPctVar          += rPctInc;
             }
-            rDiagnosticParam += rInc;
-            rPctVar          += rPctInc;
         }
+        updateParameterTable(Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                             isAggProdStr,DiagnosticTupleVector);
     }
-    updateParameterTable(Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                         isAggProdStr,DiagnosticTupleVector);
+
 
     m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
 
@@ -754,17 +786,17 @@ nmfDiagnostic_Tab1::loadPredationParameters(
     std::string isAggProdStr = (isAggProd(Algorithm,Minimizer,ObjectiveCriterion,Scaling)) ? "1" : "0";
 
     if (m_DataStruct.PredationForm == "Type I") {
-        tableNames << "OutputPredation";
+        tableNames << "OutputPredationRho";
     } else if (m_DataStruct.PredationForm == "Type II") {
-        tableNames << "OutputPredation";
-        tableNames << "OutputHandling";
+        tableNames << "OutputPredationRho";
+        tableNames << "OutputPredationHandling";
     } else if (m_DataStruct.PredationForm == "Type III") {
-        tableNames << "OutputPredation";
-        tableNames << "OutputHandling";
-        tableNames << "OutputExponent";
+        tableNames << "OutputPredationRho";
+        tableNames << "OutputPredationHandling";
+        tableNames << "OutputPredationExponent";
     }
     for (QString table : tableNames) {
-        isExponent = (table == "OutputExponent");
+        isExponent = (table == "OutputPredationExponent");
         fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
         queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + table.toStdString();
         OrderBy    = " ORDER BY SpeciesA,SpeciesB";
@@ -809,7 +841,7 @@ nmfDiagnostic_Tab1::loadPredationParameters(
 
 
 void
-nmfDiagnostic_Tab1::setDataStruct(Data_Struct& theDataStruct)
+nmfDiagnostic_Tab1::setDataStruct(nmfStructsQt::ModelDataStruct& theDataStruct)
 {
     m_DataStruct = theDataStruct;
 }
@@ -862,6 +894,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
        }
    }
    cmd = cmd.substr(0,cmd.size()-1);
+
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
    if (nmfUtilsQt::isAnError(errorMsg)) {
        m_Logger->logMsg(nmfConstants::Error,"[Error 2] UpdateParameterTable: Write table error: " + errorMsg);
@@ -911,6 +944,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
        ++m;
    }
    cmd = cmd.substr(0,cmd.size()-1);
+
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
    if (nmfUtilsQt::isAnError(errorMsg)) {
        m_Logger->logMsg(nmfConstants::Error,"[Error 2a] UpdateParameterTable: Write table error: " + errorMsg);

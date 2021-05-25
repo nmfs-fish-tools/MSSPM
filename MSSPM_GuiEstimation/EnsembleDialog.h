@@ -59,8 +59,9 @@ public:
     EnsembleDialog(QWidget* parent, std::string projectDir);
     virtual ~EnsembleDialog() {}
 
-    bool loadWidgets();
+    bool loadWidgets(QString ensembleFile);
     void clear();
+    QString getColumnData(int col);
 
 public Q_SLOTS:
     void callback_refreshPB();

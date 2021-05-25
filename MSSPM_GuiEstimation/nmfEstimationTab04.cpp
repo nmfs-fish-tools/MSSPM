@@ -145,25 +145,25 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMaxTV);
 
     m_TableNamesTypeI.clear();
-    m_TableNamesTypeI.push_back("PredationLossRates");
-    m_TableNamesTypeI.push_back("PredationLossRatesMin");
-    m_TableNamesTypeI.push_back("PredationLossRatesMax");
+    m_TableNamesTypeI.push_back("PredationRho");
+    m_TableNamesTypeI.push_back("PredationRhoMin");
+    m_TableNamesTypeI.push_back("PredationRhoMax");
 
     m_TableNamesTypeII.clear();
-//    m_TableNamesTypeII.push_back("PredationLossRates");
-//    m_TableNamesTypeII.push_back("PredationLossRatesMin");
-//    m_TableNamesTypeII.push_back("PredationLossRatesMax");
-    m_TableNamesTypeII.push_back("HandlingTime");
-    m_TableNamesTypeII.push_back("HandlingTimeMin");
-    m_TableNamesTypeII.push_back("HandlingTimeMax");
+//    m_TableNamesTypeII.push_back("PredationRho");
+//    m_TableNamesTypeII.push_back("PredationRhoMin");
+//    m_TableNamesTypeII.push_back("PredationRhoMax");
+    m_TableNamesTypeII.push_back("PredationHandling");
+    m_TableNamesTypeII.push_back("PredationHandlingMin");
+    m_TableNamesTypeII.push_back("PredationHandlingMax");
 
     m_TableNamesTypeIII.clear();
-//    m_TableNamesTypeIII.push_back("PredationLossRates");
-//    m_TableNamesTypeIII.push_back("PredationLossRatesMin");
-//    m_TableNamesTypeIII.push_back("PredationLossRatesMax");
-//    m_TableNamesTypeIII.push_back("HandlingTime");
-//    m_TableNamesTypeIII.push_back("HandlingTimeMin");
-//    m_TableNamesTypeIII.push_back("HandlingTimeMax");
+//    m_TableNamesTypeIII.push_back("PredationRho");
+//    m_TableNamesTypeIII.push_back("PredationRhoMin");
+//    m_TableNamesTypeIII.push_back("PredationRhoMax");
+//    m_TableNamesTypeIII.push_back("PredationHandling");
+//    m_TableNamesTypeIII.push_back("PredationHandlingMin");
+//    m_TableNamesTypeIII.push_back("PredationHandlingMax");
     m_TableNamesTypeIII.push_back("PredationExponent");
     m_TableNamesTypeIII.push_back("PredationExponentMin");
     m_TableNamesTypeIII.push_back("PredationExponentMax");
@@ -277,10 +277,10 @@ nmfEstimation_Tab4::callback_ImportPB()
     } else if (reply == QMessageBox::Yes) {
         loadCSVFiles(allTableNames);
     } else {
-        // if no, raise browser and have user select "PredationLossRates*.csv" file.
+        // if no, raise browser and have user select "PredationRho*.csv" file.
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
-                    QObject::tr("Select PredationLossRates*.csv file"), inputDataPath,
+                    QObject::tr("Select PredationRho*.csv file"), inputDataPath,
                     QObject::tr("Data Files (*.csv)"));
         QFileInfo fi(filename);
         if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
@@ -290,7 +290,7 @@ nmfEstimation_Tab4::callback_ImportPB()
             loadCSVFiles(allTableNames);
         } else {
             QMessageBox::information(Estimation_Tabs, "Predation CSV Import",
-                                     "\nPlease make sure to select the filename that begins with: PredationLossRates\n",
+                                     "\nPlease make sure to select the filename that begins with: PredationRho\n",
                                      QMessageBox::Ok);
         }
     }
@@ -696,13 +696,13 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
         m_TableNames1d.push_back("PredationExponentMax");
     }
     m_TableNames2d.clear();
-    m_TableNames2d.push_back("PredationLossRates");
-    m_TableNames2d.push_back("PredationLossRatesMin");
-    m_TableNames2d.push_back("PredationLossRatesMax");
+    m_TableNames2d.push_back("PredationRho");
+    m_TableNames2d.push_back("PredationRhoMin");
+    m_TableNames2d.push_back("PredationRhoMax");
     if (isTypeII() || isTypeIII()) {
-        m_TableNames2d.push_back("HandlingTime");
-        m_TableNames2d.push_back("HandlingTimeMin");
-        m_TableNames2d.push_back("HandlingTimeMax");
+        m_TableNames2d.push_back("PredationHandling");
+        m_TableNames2d.push_back("PredationHandlingMin");
+        m_TableNames2d.push_back("PredationHandlingMax");
     }
 }
 

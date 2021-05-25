@@ -36,11 +36,13 @@
 
 #include "LoadDlg.h"
 
+#include "nmfStructsQt.h"
+
 
 /**
- * @brief The Setup Tab 4 allows the user to enter and modify general System and Model Setup data
+ * @brief The Setup Tab 4 allows the user to enter and modify general Model Setup data
  *
- * This tab allows the user to define a System which contains data related to the
+ * This tab allows the user to define a Model which contains data related to the
  * current model such as run length, year range, and model form.
  */
 class nmfSetup_Tab4: public QObject
@@ -73,7 +75,7 @@ class nmfSetup_Tab4: public QObject
     QComboBox*   Setup_Tab4_HarvestFormCMB;
     QComboBox*   Setup_Tab4_CompetitionFormCMB;
     QTextEdit*   SetupOutputTE;
-    QLineEdit*   Setup_Tab4_SystemNameLE;
+    QLineEdit*   Setup_Tab4_ModelNameLE;
     QLineEdit*   Setup_Tab4_SystemCarryingCapacityLE;
     QTextEdit*   Setup_Tab4_ModelEquationTE;
     QWidget*     Setup_Tab4_Widget;
@@ -82,7 +84,7 @@ class nmfSetup_Tab4: public QObject
     QPushButton* Setup_Tab4_DelPB;
     QPushButton* Setup_Tab4_NextPB;
     QPushButton* Setup_Tab4_PrevPB;
-    QPushButton* Setup_Tab4_NewSystemPB;
+    QPushButton* Setup_Tab4_NewModelPB;
     QSpinBox*    Setup_Tab4_NumberOfRunsSB;
     QSpinBox*    Setup_Tab4_StartYearSB;
     QLineEdit*   Setup_Tab4_EndYearLE;
@@ -97,16 +99,15 @@ class nmfSetup_Tab4: public QObject
                             QString& harvestColorName,
                             QString& competitionColorName,
                             QString& predationColorName);
-    bool   systemFileExists(QString SystemName);
+    bool   modelExists(QString ModelName);
     bool   saveSettingsConfiguration(bool verbose,
                                      std::string CurrentSettingsName);
 
     void clearWidgets();
-    void loadSystem();
     void readSettings();
     void setEstimatedParameterNames();
     void saveSettings();
-    void setModelName(std::string modelName);
+    void setModelPreset(std::string modelName);
     void updateOutputWidget();
 
 public:
@@ -124,10 +125,10 @@ public:
     virtual ~nmfSetup_Tab4();
 
     /**
-     * @brief Deletes the passed System
-     * @param systemToDelete : name of System to delete
+     * @brief Deletes the passed model
+     * @param modelToDelete : name of Model to delete
      */
-    void deleteSystem(QString systemToDelete);
+    void deleteModel(QString modelToDelete);
     /**
      * @brief Writes the current Model Equation and variable descriptions into the Model
      * Equation text box
@@ -151,6 +152,11 @@ public:
      * @return The Competition Form GUI combo box widget
      */
     QComboBox* getCompetitionFormCMB();
+    /**
+     * @brief Returns the contents of the Equation text edit box
+     * @return The model equation and variable definitions
+     */
+    QString getEquation();
     /**
      * @brief Gets the Growth Form GUI combo box
      * @return The Growth Form GUI combo box widget
@@ -177,10 +183,10 @@ public:
      */
     int  getRunLength();
     /**
-     * @brief Returns the name of the current System file
-     * @return The current System file name
+     * @brief Returns the name of the current Model
+     * @return The current Model name
      */
-    QString getSystemFile();
+    QString getModelName();
     /**
      * @brief Returns whether or not Growth Form is highlighted
      * @return True if Growth Form is highlighted, else False
@@ -212,18 +218,22 @@ public:
      */
     bool isTypeIII();
     /**
+     * @brief Loads the model whose name has been saved in the Settings
+     */
+    void loadModel();
+    /**
      * @brief Load all widgets for this Setup GUI page
      */
     void loadWidgets();
     /**
-     * @brief Reloads System settings for current System name
+     * @brief Reloads Model settings for current Model
      */
-    void reloadSystemName();
+    void reloadModelName();
     /**
-     * @brief Saves System parameters
-     * @param RunChecks : boolean value used to determine if System parameter checks should be run
+     * @brief Saves Model parameters
+     * @param RunChecks : boolean value used to determine if Model parameter checks should be run
      */
-    void saveSystem(bool RunChecks);
+    void saveModel(bool RunChecks);
     /**
      * @brief Sets the value of the Start Year to the passed value
      * @param StartYear : new Start Year for all application data
@@ -244,10 +254,10 @@ public:
      */
     void setHighlightColors();
     /**
-     * @brief Sets the System name to the passed argument
-     * @param systemName : the new System name
+     * @brief Sets the Model name to the passed argument
+     * @param modelName : the new Model name
      */
-    void setSystemName(QString systemName);
+    void setModelName(QString modelName);
     /**
      * @brief Unchecks the formula highlight buttons
      */
@@ -282,21 +292,21 @@ signals:
     void SaveMainSettings();
     /**
      * @brief Signal emitted so that the Estimate checkboxes in the Estimation Tab6 will be updated
-     * @param EstimateRunBoxes : list of Estimate checkboxes to update
+     * @param EstimateRunBoxes : list of Estimate checkbox names and states to update
      */
-    void SetEstimateRunCheckboxes(std::vector<std::string> EstimateRunBoxes);
+    void SetEstimateRunCheckboxes(std::vector<nmfStructsQt::EstimateRunBox>  EstimateRunBoxes);
     /**
-     * @brief Signal emitted after the user deletes an existing System from the database
+     * @brief Signal emitted after the user deletes an existing Model from the database
      */
-    void SystemDeleted();
+    void ModelDeleted();
     /**
      * @brief Signal emitted after the user loads an existing System from the database
      */
-    void SystemLoaded();
+    void ModelLoaded();
     /**
-     * @brief Signal emitted after used saves a new system
+     * @brief Signal emitted after used saves a new Model
      */
-    void SystemSaved();
+    void ModelSaved();
     /**
      * @brief Signal emitted to update the initial Forecast year
      */
@@ -313,9 +323,9 @@ public Q_SLOTS:
      */
     void callback_CalcPB();
     /**
-     * @brief Callback invoked when the user needs to clear the System name
+     * @brief Callback invoked when the user needs to clear the Model name
      */
-    void callback_ClearSystemName();
+    void callback_ClearModelName();
     /**
      * @brief Callback invoked when the user selects a Competition Form
      * @param name : name of the Competition Form selected
@@ -326,7 +336,7 @@ public Q_SLOTS:
      */
     void callback_CompetitionHighlightPB();
     /**
-     * @brief Callback invoked when the user clicks the Delete System Configuration button
+     * @brief Callback invoked when the user clicks the Delete Model button
      */
     void callback_DelPB();
     /**
@@ -363,9 +373,9 @@ public Q_SLOTS:
      */
     void callback_ModelPresetsCMB(QString preset);
     /**
-     * @brief Callback invoked when the user clicks the New System button
+     * @brief Callback invoked when the user clicks the New Model button
      */
-    void callback_NewSystemPB();
+    void callback_NewModelPB();
     /**
      * @brief Callback invoked when the user clicks the Next Page button
      */

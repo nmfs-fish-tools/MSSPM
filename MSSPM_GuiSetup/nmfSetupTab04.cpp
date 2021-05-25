@@ -41,7 +41,7 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     m_ModelPresets["MS-PROD"]              = {"Logistic", "Type I", "Exploitation (F)", "MS-PROD"};
     m_ModelPresets["AGG-PROD"]             = {"Logistic", "Type I", "Exploitation (F)", "AGG-PROD"};
 
-    Setup_Tab4_SystemNameLE             = Setup_Tabs->findChild<QLineEdit *>("Setup_Tab4_SystemNameLE");
+    Setup_Tab4_ModelNameLE              = Setup_Tabs->findChild<QLineEdit *>("Setup_Tab4_ModelNameLE");
     Setup_Tab4_SystemCarryingCapacityLE = Setup_Tabs->findChild<QLineEdit *>("Setup_Tab4_SystemCarryingCapacityLE");
     Setup_Tab4_ModelEquationTE          = Setup_Tabs->findChild<QTextEdit *>("Setup_Tab4_ModelEquationTE");
     Setup_Tab4_FontSizeCMB              = Setup_Tabs->findChild<QComboBox *>("Setup_Tab4_FontSizeCMB");
@@ -49,7 +49,7 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tab4_HarvestHighlightPB       = Setup_Tabs->findChild<QPushButton  *>("HarvestHighlightPB");
     Setup_Tab4_PredationHighlightPB     = Setup_Tabs->findChild<QPushButton  *>("PredationHighlightPB");
     Setup_Tab4_CompetitionHighlightPB   = Setup_Tabs->findChild<QPushButton  *>("CompetitionHighlightPB");
-    Setup_Tab4_NewSystemPB             = Setup_Tabs->findChild<QPushButton   *>("Setup_Tab4_NewSystemPB");
+    Setup_Tab4_NewModelPB               = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_NewModelPB");
     Setup_Tab4_StartYearSB              = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab4_StartYearSB");
     Setup_Tab4_EndYearLE                = Setup_Tabs->findChild<QLineEdit    *>("Setup_Tab4_EndYearLE");
     Setup_Tab4_RunLengthSB              = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab4_RunLengthSB");
@@ -59,12 +59,12 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tab4_PredationFormCMB         = Setup_Tabs->findChild<QComboBox    *>("Setup_Tab4_PredationFormCMB");
     Setup_Tab4_HarvestFormCMB           = Setup_Tabs->findChild<QComboBox    *>("Setup_Tab4_HarvestFormCMB");
     Setup_Tab4_CompetitionFormCMB       = Setup_Tabs->findChild<QComboBox    *>("Setup_Tab4_CompetitionFormCMB");
-    Setup_Tab4_PrevPB                   = Setup_Tabs->findChild<QPushButton    *>("Setup_Tab4_PrevPB");
-    Setup_Tab4_NextPB                   = Setup_Tabs->findChild<QPushButton    *>("Setup_Tab4_NextPB");
-    Setup_Tab4_LoadPB                   = Setup_Tabs->findChild<QPushButton    *>("Setup_Tab4_LoadPB");
-    Setup_Tab4_DelPB                    = Setup_Tabs->findChild<QPushButton    *>("Setup_Tab4_DelPB");
-    Setup_Tab4_SavePB                   = Setup_Tabs->findChild<QPushButton    *>("Setup_Tab4_SavePB");
-    Setup_Tab4_CalcPB                   = Setup_Tabs->findChild<QPushButton    *>("Setup_Tab4_CalcPB");
+    Setup_Tab4_PrevPB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_PrevPB");
+    Setup_Tab4_NextPB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_NextPB");
+    Setup_Tab4_LoadPB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_LoadPB");
+    Setup_Tab4_DelPB                    = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_DelModelPB");
+    Setup_Tab4_SavePB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_SavePB");
+    Setup_Tab4_CalcPB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_CalcPB");
 
     // Set widget parameters
     Setup_Tab4_LoadPB->show();
@@ -72,7 +72,7 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tab4_SavePB->setEnabled(true);
     Setup_Tab4_PrevPB->setText("\u25C1--");
     Setup_Tab4_NextPB->setText("--\u25B7");
-    Setup_Tab4_SystemNameLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
+    Setup_Tab4_ModelNameLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
     Setup_Tab4_EndYearLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
 
     // Get and set the highlight colors
@@ -98,8 +98,8 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
             this,                              SLOT(callback_PredationHighlightPB()));
     connect(Setup_Tab4_CompetitionHighlightPB, SIGNAL(clicked()),
             this,                              SLOT(callback_CompetitionHighlightPB()));
-    connect(Setup_Tab4_NewSystemPB,            SIGNAL(clicked()),
-            this,                              SLOT(callback_NewSystemPB()));
+    connect(Setup_Tab4_NewModelPB,             SIGNAL(clicked()),
+            this,                              SLOT(callback_NewModelPB()));
     connect(Setup_Tab4_CalcPB,                 SIGNAL(clicked()),
             this,                              SLOT(callback_CalcPB()));
     connect(Setup_Tab4_LoadPB,                 SIGNAL(clicked()),
@@ -123,9 +123,9 @@ nmfSetup_Tab4::~nmfSetup_Tab4()
 }
 
 QString
-nmfSetup_Tab4::getSystemFile()
+nmfSetup_Tab4::getModelName()
 {
-    return Setup_Tab4_SystemNameLE->text();
+    return Setup_Tab4_ModelNameLE->text();
 }
 
 void
@@ -144,13 +144,6 @@ int
 nmfSetup_Tab4::getRunLength()
 {
     return Setup_Tab4_RunLengthSB->value()-1;
-}
-
-void
-nmfSetup_Tab4::setSystemName(QString systemName)
-{
-    Setup_Tab4_SystemNameLE->setText(systemName);
-    saveSettings();
 }
 
 void
@@ -259,6 +252,12 @@ nmfSetup_Tab4::getCompetitionFormCMB()
     return Setup_Tab4_CompetitionFormCMB;
 }
 
+QString
+nmfSetup_Tab4::getEquation()
+{
+   return Setup_Tab4_ModelEquationTE->toHtml();
+}
+
 void
 nmfSetup_Tab4::drawEquation(QString Label, QString Eqn, QString Key)
 {
@@ -313,7 +312,7 @@ nmfSetup_Tab4::callback_NextPB()
 }
 
 void
-nmfSetup_Tab4::loadSystem()
+nmfSetup_Tab4::loadModel()
 {
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -323,7 +322,6 @@ nmfSetup_Tab4::loadSystem()
     readSettings();
 
     m_logger->logMsg(nmfConstants::Normal,"Loading: "+m_ProjectSettingsConfig);
-
     fields     = {"SystemName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
                   "NumberOfRuns","StartYear","RunLength","TimeStep","GAGenerations","GAPopulationSize","GAMutationRate","GAConvergence",
                   "Algorithm","Minimizer","ObjectiveCriterion","Scaling",
@@ -385,9 +383,9 @@ nmfSetup_Tab4::loadSystem()
     if (data.StartYear < nmfConstantsMSSPM::Start_Year)
         data.StartYear = nmfConstantsMSSPM::Start_Year;
 
-    m_LoadDialog->getSettingData(data);
+//    m_LoadDialog->getSettingData(data);
 
-    Setup_Tab4_SystemNameLE->setText(QString::fromStdString(data.Name));
+    Setup_Tab4_ModelNameLE->setText(QString::fromStdString(data.Name));
     Setup_Tab4_SystemCarryingCapacityLE->setText(QString::fromStdString(data.CarryingCapacity));
     Setup_Tab4_GrowthFormCMB->setCurrentText(QString::fromStdString(data.GrowthForm));
     Setup_Tab4_HarvestFormCMB->setCurrentText(QString::fromStdString(data.HarvestForm));
@@ -419,7 +417,7 @@ nmfSetup_Tab4::loadSystem()
 
     saveSettings();
 
-    emit SystemLoaded();
+    emit ModelLoaded();
 
     setEstimatedParameterNames();
 }
@@ -432,11 +430,11 @@ nmfSetup_Tab4::callback_LoadPB()
                              QString::fromStdString(m_ProjectSettingsConfig));
 
     connect(m_LoadDialog, SIGNAL(ClearSystemName()),
-            this,         SLOT(callback_ClearSystemName()));
+            this,         SLOT(callback_ClearModelName()));
 
     if (m_LoadDialog->exec() == QDialog::Accepted) {
-        loadSystem();
-        emit SystemSaved();
+        loadModel();
+        emit ModelSaved();
     }
 }
 
@@ -495,7 +493,7 @@ nmfSetup_Tab4::callback_DelPB()
 {
     QMessageBox::StandardButton reply;
     QString msg;
-    QString currentSystemName = Setup_Tab4_SystemNameLE->text();
+    QString currentSystemName = Setup_Tab4_ModelNameLE->text();
 
     if (currentSystemName.isEmpty()) {
         QMessageBox::warning(Setup_Tabs,
@@ -511,39 +509,39 @@ nmfSetup_Tab4::callback_DelPB()
                                   QMessageBox::No|QMessageBox::Yes,
                                   QMessageBox::Yes);
     if (reply == QMessageBox::Yes) {
-        deleteSystem(currentSystemName);
+        deleteModel(currentSystemName);
         QMessageBox::information(Setup_Tabs, "Settings Configuration",
                                  "\nSuccessfully deleted Settings configuration.\n");
-        emit SystemDeleted();
+        emit ModelDeleted();
     }
 }
 
 void
-nmfSetup_Tab4::deleteSystem(QString systemToDelete)
+nmfSetup_Tab4::deleteModel(QString modelToDelete)
 {
     std::string cmd;
     std::string errorMsg;
 
-    cmd  = "DELETE FROM Systems WHERE SystemName = '" + systemToDelete.toStdString() + "'";
+    cmd  = "DELETE FROM Systems WHERE SystemName = '" + modelToDelete.toStdString() + "'";
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_logger->logMsg(nmfConstants::Error,"[Error 1] deleteSystem: Delete error: " + errorMsg);
         m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
     }
-    callback_ClearSystemName();
+    callback_ClearModelName();
 }
 
 void
-nmfSetup_Tab4::callback_ClearSystemName()
+nmfSetup_Tab4::callback_ClearModelName()
 {
-    Setup_Tab4_SystemNameLE->setText("");
+    Setup_Tab4_ModelNameLE->setText("");
 }
 
 void
 nmfSetup_Tab4::callback_SavePB()
 {
-    saveSystem(true);
+    saveModel(true);
     setEstimatedParameterNames();
 }
 
@@ -556,7 +554,10 @@ nmfSetup_Tab4::getEstimatedParameterNames()
 void
 nmfSetup_Tab4::setEstimatedParameterNames()
 {
-    std::vector<std::string> EstimateRunBoxes;
+    nmfStructsQt::EstimateRunBox runBox;
+
+    std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes;
+
     QString growthForm      = getGrowthFormCMB()->currentText();
     QString harvestForm     = getHarvestFormCMB()->currentText();
     QString competitionForm = getCompetitionFormCMB()->currentText();
@@ -566,55 +567,77 @@ nmfSetup_Tab4::setEstimatedParameterNames()
 
     // Set Initial Biomass
     m_EstimatedParameters.push_back("Initial Biomass");
-    EstimateRunBoxes.push_back("InitBiomass");
+    runBox.parameter = "InitBiomass";
+    runBox.state     = std::make_pair(true,true);
+    EstimateRunBoxes.push_back(runBox);
+
+    // Set SurveyQ
+    runBox.parameter = "SurveyQ";
+    m_EstimatedParameters.push_back("SurveyQ");
+    EstimateRunBoxes.push_back(runBox);
 
     // Load Growth estimated parameters
     if (growthForm == "Linear") {
+        runBox.parameter = "GrowthRate";
         m_EstimatedParameters.push_back("Growth Rate");
-        EstimateRunBoxes.push_back("GrowthRate");
+        EstimateRunBoxes.push_back(runBox);
     } else if (growthForm == "Logistic") {
+        runBox.parameter = "GrowthRate";
         m_EstimatedParameters.push_back("Growth Rate");
+        EstimateRunBoxes.push_back(runBox);
+        runBox.parameter = "CarryingCapacity";
         m_EstimatedParameters.push_back("Carrying Capacity");
-        EstimateRunBoxes.push_back("GrowthRate");
-        EstimateRunBoxes.push_back("CarryingCapacity");
+        EstimateRunBoxes.push_back(runBox);
     }
 
     // Load Harvest estimated parameters
     if (harvestForm == "Effort (qE)") {
+        runBox.parameter = "Catchability";
         m_EstimatedParameters.push_back("Catchability");
-        EstimateRunBoxes.push_back("Catchability");
+        EstimateRunBoxes.push_back(runBox);
     }
 
     // Load Competition estimated parameters
     if (competitionForm == "NO_K") {
+        runBox.parameter = "CompetitionAlpha";
         m_EstimatedParameters.push_back("Alpha");
-        EstimateRunBoxes.push_back("CompetitionAlpha");
+        EstimateRunBoxes.push_back(runBox);
     } else if (competitionForm == "MS-PROD") {
+        runBox.parameter = "CompetitionAlpha";
         m_EstimatedParameters.push_back("Beta SpeciesSpecies");
         m_EstimatedParameters.push_back("Beta GuildSpecies");
-        EstimateRunBoxes.push_back("CompetitionBetaSpeciesSpecies");
-        EstimateRunBoxes.push_back("CompetitionBetaGuildSpecies");
+        runBox.parameter = "CompetitionBetaSpeciesSpecies";
+        EstimateRunBoxes.push_back(runBox);
+        runBox.parameter = "CompetitionBetaGuildSpecies";
+        EstimateRunBoxes.push_back(runBox);
     } else if (competitionForm == "AGG-PROD") {
         m_EstimatedParameters.push_back("Beta GuildGuild");
-        EstimateRunBoxes.push_back("CompetitionBetaGuildGuild");
+        runBox.parameter = "CompetitionBetaGuildGuild";
+        EstimateRunBoxes.push_back(runBox);
     }
 
     // Load Predation estimated parameters
     if (predationForm == "Type I") {
         m_EstimatedParameters.push_back("Predation Effect");
-        EstimateRunBoxes.push_back("PredationRho");
+        runBox.parameter = "PredationRho";
+        EstimateRunBoxes.push_back(runBox);
     } else if (predationForm == "Type II") {
         m_EstimatedParameters.push_back("Predation Effect");
         m_EstimatedParameters.push_back("Handling Time");
-        EstimateRunBoxes.push_back("PredationRho");
-        EstimateRunBoxes.push_back("Handling");
+        runBox.parameter = "PredationRho";
+        EstimateRunBoxes.push_back(runBox);
+        runBox.parameter = "PredationHandling";
+        EstimateRunBoxes.push_back(runBox);
     } else if (predationForm == "Type III") {
         m_EstimatedParameters.push_back("Predation Effect");
         m_EstimatedParameters.push_back("Handling Time");
         m_EstimatedParameters.push_back("Predation Exponent");
-        EstimateRunBoxes.push_back("PredationRho");
-        EstimateRunBoxes.push_back("Handling");
-        EstimateRunBoxes.push_back("PredationExponent");
+        runBox.parameter = "PredationRho";
+        EstimateRunBoxes.push_back(runBox);
+        runBox.parameter = "PredationHandling";
+        EstimateRunBoxes.push_back(runBox);
+        runBox.parameter = "PredationExponent";
+        EstimateRunBoxes.push_back(runBox);
     }
 
     emit SetEstimateRunCheckboxes(EstimateRunBoxes);
@@ -622,26 +645,26 @@ nmfSetup_Tab4::setEstimatedParameterNames()
 }
 
 void
-nmfSetup_Tab4::reloadSystemName()
+nmfSetup_Tab4::reloadModelName()
 {
-    QString SystemName = Setup_Tab4_SystemNameLE->text();
+    QString ModelName = Setup_Tab4_ModelNameLE->text();
     readSettings();
 
-    if (SystemName.isEmpty() || SystemName.contains("__")) {
-        Setup_Tab4_SystemNameLE->setText(QString::fromStdString(m_ProjectSettingsConfig));
+    if (ModelName.isEmpty() || ModelName.contains("__")) {
+        Setup_Tab4_ModelNameLE->setText(QString::fromStdString(m_ProjectSettingsConfig));
     }
 }
 
 void
-nmfSetup_Tab4::saveSystem(bool RunChecks)
+nmfSetup_Tab4::saveModel(bool RunChecks)
 {
     bool okToSave = true;
     std::string msg;
-    std::string SystemName = Setup_Tab4_SystemNameLE->text().toStdString();
+    std::string ModelName = Setup_Tab4_ModelNameLE->text().toStdString();
 
     calculateSystemCarryingCapacity();
 
-    if (RunChecks && SystemName.empty()) {
+    if (RunChecks && ModelName.empty()) {
         msg = "\nError: A System Name must be given prior to saving.\n";
         m_logger->logMsg(nmfConstants::Error,"");
         QMessageBox::critical(Setup_Tabs, "Save Error",QString::fromStdString(msg));
@@ -649,7 +672,7 @@ nmfSetup_Tab4::saveSystem(bool RunChecks)
     }
 
     if (RunChecks) {
-        msg = "\nOK to save current settings as: " + SystemName + " ?";
+        msg = "\nOK to save current settings as: " + ModelName + " ?";
         QMessageBox::StandardButton reply = QMessageBox::question(Setup_Tabs, tr("Save"),
                                                                   tr(msg.c_str()),
                                                                   QMessageBox::No|QMessageBox::Yes,
@@ -657,10 +680,10 @@ nmfSetup_Tab4::saveSystem(bool RunChecks)
         okToSave = (reply == QMessageBox::Yes);
     }
     if (okToSave) {
-        m_ProjectSettingsConfig = SystemName;
-        saveSettingsConfiguration(RunChecks,SystemName);
+        m_ProjectSettingsConfig = ModelName;
+        saveSettingsConfiguration(RunChecks,ModelName);
         readSettings();
-        emit SystemSaved();
+        emit ModelSaved();
     }
 
     emit UpdateInitialObservedBiomass();
@@ -815,7 +838,7 @@ nmfSetup_Tab4::loadWidgets()
     if (PredationStr.empty())   PredationStr   = "Null";
 
     // Load widgets with saved table data
-    Setup_Tab4_SystemNameLE->setText(QString::fromStdString(dataMap["SystemName"][0]));
+    Setup_Tab4_ModelNameLE->setText(QString::fromStdString(dataMap["SystemName"][0]));
     Setup_Tab4_SystemCarryingCapacityLE->setText(QString::fromStdString(dataMap["CarryingCapacity"][0]));
     Setup_Tab4_GrowthFormCMB->setCurrentText(QString::fromStdString(GrowthStr));
     Setup_Tab4_HarvestFormCMB->setCurrentText(QString::fromStdString(HarvestStr));
@@ -834,7 +857,7 @@ nmfSetup_Tab4::loadWidgets()
 void
 nmfSetup_Tab4::clearWidgets()
 {
-    Setup_Tab4_SystemNameLE->clear();
+    Setup_Tab4_ModelNameLE->clear();
     Setup_Tab4_SystemCarryingCapacityLE->clear();
     Setup_Tab4_StartYearSB->clear();
     Setup_Tab4_EndYearLE->clear();
@@ -864,15 +887,21 @@ nmfSetup_Tab4::callback_ModelPresetsCMB(QString name)
     Setup_Tab4_PredationFormCMB->blockSignals(false);
 }
 
+void
+nmfSetup_Tab4::setModelName(QString modelName)
+{
+    m_ProjectSettingsConfig = modelName.toStdString();
+    Setup_Tab4_ModelNameLE->setText(modelName);
+    saveSettings();
+}
 
 void
-nmfSetup_Tab4::setModelName(std::string modelName)
+nmfSetup_Tab4::setModelPreset(std::string modelName)
 {
     Setup_Tab4_ModelPresetsCMB->blockSignals(true);
     Setup_Tab4_ModelPresetsCMB->setCurrentText(QString::fromStdString(modelName));
     Setup_Tab4_ModelPresetsCMB->blockSignals(false);
 }
-
 
 void
 nmfSetup_Tab4::callback_GrowthFormCMB(QString growthForm)
@@ -889,7 +918,7 @@ nmfSetup_Tab4::callback_GrowthFormCMB(QString growthForm)
                  (ModelPreset[1] == Setup_Tab4_PredationFormCMB->currentText().toStdString()) &&
                  (ModelPreset[2] == Setup_Tab4_HarvestFormCMB->currentText().toStdString()) &&
                  (ModelPreset[3] == Setup_Tab4_CompetitionFormCMB->currentText().toStdString())) {
-                setModelName(ModelName);
+                setModelPreset(ModelName);
                 done = true;
             }
             if (done)
@@ -898,7 +927,7 @@ nmfSetup_Tab4::callback_GrowthFormCMB(QString growthForm)
         ++i;
     }
     if (! done) {
-        setModelName("Build Your Own Model");
+        setModelPreset("Build Your Own Model");
     }
 }
 
@@ -911,10 +940,6 @@ nmfSetup_Tab4::callback_HarvestFormCMB(QString harvestForm)
     std::vector<std::string> ModelPreset;
 
     // Change the Estimation->Harvest Parameters table to correspond with the selected harvestForm
-//    if (harvestForm == "Effort (qE)")
-//        harvestForm = "Effort";
-//    else if (harvestForm == "Exploitation (F)")
-//        harvestForm = "Exploitation";
     harvestForm = harvestForm.split(" ")[0];
 
     while (!done and (i<NumPresets)) {
@@ -924,7 +949,7 @@ nmfSetup_Tab4::callback_HarvestFormCMB(QString harvestForm)
                  (ModelPreset[1] == Setup_Tab4_PredationFormCMB->currentText().toStdString()) &&
                  (ModelPreset[2] == harvestForm.toStdString()) &&
                  (ModelPreset[3] == Setup_Tab4_CompetitionFormCMB->currentText().toStdString())) {
-                setModelName(ModelName);
+                setModelPreset(ModelName);
                 done = true;
             }
             if (done)
@@ -933,7 +958,7 @@ nmfSetup_Tab4::callback_HarvestFormCMB(QString harvestForm)
         ++i;
     }
     if (! done) {
-        setModelName("Build Your Own Model");
+        setModelPreset("Build Your Own Model");
     }
 }
 
@@ -954,7 +979,7 @@ nmfSetup_Tab4::callback_CompetitionFormCMB(QString competitionForm)
                  (ModelPreset[1] == Setup_Tab4_PredationFormCMB->currentText().toStdString()) &&
                  (ModelPreset[2] == Setup_Tab4_HarvestFormCMB->currentText().toStdString()) &&
                  (ModelPreset[3] == competitionForm.toStdString())) {
-                setModelName(ModelName);
+                setModelPreset(ModelName);
                 done = true;
             }
             if (done)
@@ -963,7 +988,7 @@ nmfSetup_Tab4::callback_CompetitionFormCMB(QString competitionForm)
         ++i;
     }
     if (! done) {
-        setModelName("Build Your Own Model");
+        setModelPreset("Build Your Own Model");
     }
 }
 
@@ -984,7 +1009,7 @@ nmfSetup_Tab4::callback_PredationFormCMB(QString predationForm)
                  (ModelPreset[1] == predationForm.toStdString()) &&
                  (ModelPreset[2] == Setup_Tab4_HarvestFormCMB->currentText().toStdString()) &&
                  (ModelPreset[3] == Setup_Tab4_CompetitionFormCMB->currentText().toStdString())) {
-                setModelName(ModelName);
+                setModelPreset(ModelName);
                 done = true;
             }
             if (done)
@@ -993,7 +1018,7 @@ nmfSetup_Tab4::callback_PredationFormCMB(QString predationForm)
         ++i;
     }
     if (! done) {
-        setModelName("Build Your Own Model");
+        setModelPreset("Build Your Own Model");
     }
 }
 
@@ -1078,34 +1103,34 @@ nmfSetup_Tab4::callback_CalcPB()
 }
 
 void
-nmfSetup_Tab4::callback_NewSystemPB()
+nmfSetup_Tab4::callback_NewModelPB()
 {
     bool ok;
-    QString SystemName = QInputDialog::getText(Setup_Tabs,
-                                               tr("New System File"),
-                                               tr("Enter New System File Name:"),
+    QString ModelName = QInputDialog::getText(Setup_Tabs,
+                                               tr("New Model Name"),
+                                               tr("Enter New Model Name:"),
                                                QLineEdit::Normal, "", &ok);
     if (ok) {
-        if (SystemName.isEmpty()) {
+        if (ModelName.isEmpty()) {
             QMessageBox::warning(Setup_Tabs,
                                  tr("Illegal Name"),
-                                 tr("\nSystem file name cannot be blank.\n"),
+                                 tr("\nModel Name cannot be blank.\n"),
                                  QMessageBox::Ok);
         } else {
-            if (systemFileExists(SystemName)) {
+            if (modelExists(ModelName)) {
                 QMessageBox::warning(Setup_Tabs,
-                                     tr("System File Exists"),
-                                     tr("\nSystem file already exists. Please select another name.\n"),
+                                     tr("Model Name Exists"),
+                                     tr("\nModel Name already exists. Please select another name.\n"),
                                      QMessageBox::Ok);
             } else {
-                Setup_Tab4_SystemNameLE->setText(SystemName);
+                Setup_Tab4_ModelNameLE->setText(ModelName);
             }
         }
     }
 }
 
 bool
-nmfSetup_Tab4::systemFileExists(QString SystemName)
+nmfSetup_Tab4::modelExists(QString ModelName)
 {
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -1113,7 +1138,7 @@ nmfSetup_Tab4::systemFileExists(QString SystemName)
 
     fields   = {"SystemName"};
     queryStr = "SELECT SystemName FROM Systems WHERE SystemName = '" +
-                SystemName.toStdString() + "'";
+                ModelName.toStdString() + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
 
     return (dataMap["SystemName"].size() > 0);

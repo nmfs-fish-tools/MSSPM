@@ -54,7 +54,7 @@ class nmfDiagnostic_Tab1: public QObject
 
 private:
     nmfDatabase* m_DatabasePtr;
-    Data_Struct  m_DataStruct;
+    nmfStructsQt::ModelDataStruct  m_DataStruct;
     QTabWidget*  m_Diagnostic_Tabs;
     QWidget*     m_Diagnostic_Tab1_Widget;
     QComboBox*   m_Diagnostic_Tab1_ParameterCMB;
@@ -215,7 +215,7 @@ public:
      * @brief Sets the class data structure variable
      * @param theDataStruct : the data structure containing the estimated parameter variables
      */
-    void        setDataStruct(Data_Struct& theDataStruct);
+    void        setDataStruct(nmfStructsQt::ModelDataStruct& theDataStruct);
 
 signals:
     /**

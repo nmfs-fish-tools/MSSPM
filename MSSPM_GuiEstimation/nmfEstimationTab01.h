@@ -134,6 +134,7 @@ class nmfEstimation_Tab1: public QObject
     bool saveSpeciesDataSupplementalAndRange(bool showPopup);
     void setupHelpSpecies();
     void setupHelpGuilds();
+    bool surveyQValid(bool showPopup);
     void updateBiomassAbsoluteTable();
 
 signals:

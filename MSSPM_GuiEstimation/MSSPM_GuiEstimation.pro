@@ -33,7 +33,8 @@ SOURCES += \
     nmfEstimationTab03.cpp \
     nmfEstimationTab04.cpp \
     nmfEstimationTab05.cpp \
-    nmfEstimationTab06.cpp
+    nmfEstimationTab06.cpp \
+    nmfEstimationTab07.cpp
 
 HEADERS += \
     EnsembleDialog.h \
@@ -43,6 +44,7 @@ HEADERS += \
     nmfEstimationTab03.h \
     nmfEstimationTab04.h \
     nmfEstimationTab05.h \
+    nmfEstimationTab07.h \
     precompiled_header.h \
     nmfEstimationTab06.h
 
@@ -64,3 +66,10 @@ else:unix: LIBS += -L$$PWD/../../../builds/build-nmfDatabase-Desktop_Qt_5_15_1_G
 
 INCLUDEPATH += $$PWD/../../nmfSharedUtilities/nmfDatabase
 DEPENDPATH += $$PWD/../../nmfSharedUtilities/nmfDatabase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfModels-Desktop_Qt_5_15_1_GCC_64bit-Release/release/ -lnmfModels
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfModels-Desktop_Qt_5_15_1_GCC_64bit-Release/debug/ -lnmfModels
+else:unix: LIBS += -L$$PWD/../../../builds/build-nmfModels-Desktop_Qt_5_15_1_GCC_64bit-Release/ -lnmfModels
+
+INCLUDEPATH += $$PWD/../../nmfSharedUtilities/nmfModels
+DEPENDPATH += $$PWD/../../nmfSharedUtilities/nmfModels

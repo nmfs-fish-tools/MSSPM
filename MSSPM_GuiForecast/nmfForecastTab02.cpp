@@ -13,7 +13,7 @@ nmfForecast_Tab2::nmfForecast_Tab2(QTabWidget*  tabs,
 
     m_Logger      = logger;
     m_DatabasePtr = databasePtr;
-    m_HarvestType = "ForecastCatch";
+    m_HarvestType = "ForecastHarvestCatch";
     m_SModel      = nullptr;
     m_ProjectDir  = projectDir;
     m_ProjectSettingsConfig.clear();
@@ -425,7 +425,7 @@ nmfForecast_Tab2::loadWidgets()
 
     clearWidgets();
 
-    Forecast_Tab2_HarvestGB->setTitle(QString::fromStdString(m_HarvestType).replace("Forecast","Forecast "));
+    Forecast_Tab2_HarvestGB->setTitle(QString::fromStdString(m_HarvestType).replace("ForecastHarvest","Forecast "));
 
     // Get latest harvest form. RSK Need to change this once user can select a run which wasn't the last run
     fields     = {"GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
@@ -439,11 +439,11 @@ nmfForecast_Tab2::loadWidgets()
     }
     harvestForm = dataMap["HarvestForm"][0];
     if (harvestForm == "Catch") {
-        m_HarvestType = "ForecastCatch";
+        m_HarvestType = "ForecastHarvestCatch";
     } else if (harvestForm == "Exploitation (F)") {
-        m_HarvestType = "ForecastExploitation";
+        m_HarvestType = "ForecastHarvestExploitation";
     } else if (harvestForm == "Effort (qE)") {
-        m_HarvestType = "ForecastEffort";
+        m_HarvestType = "ForecastHarvestEffort";
     }
 
     // Find species info

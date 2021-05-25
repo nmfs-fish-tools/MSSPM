@@ -458,7 +458,6 @@ nmfEstimation_Tab1::callback_SavePB()
         return;
     }
 
-
     if (onGuildTab()) {
         ok = savePopulationParametersGuilds(nmfConstantsMSSPM::ShowPopupError);
     } else { // if on Species tab
@@ -1049,6 +1048,27 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
 }
 
 bool
+nmfEstimation_Tab1::surveyQValid(bool showPopup)
+{
+    QModelIndex index;
+    double surveyQ;
+
+    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
+        index = m_SpeciesModel->index(i,12);
+        surveyQ = index.data().toString().toDouble();
+        if (surveyQ == 0) {
+            if (showPopup) {
+                QMessageBox::warning(Estimation_Tabs, "Error",
+                                     "\nError in Save command. SurveyQ values must be non-zero.\n",
+                                     QMessageBox::Ok);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
 nmfEstimation_Tab1::saveSpeciesDataSupplementalAndRange(bool showPopup)
 {
     std::string errorMsg;
@@ -1107,6 +1127,12 @@ nmfEstimation_Tab1::saveSpeciesDataSupplementalAndRange(bool showPopup)
 bool
 nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
 {
+    if (isChecked(Estimation_Tab1_SpeciesSuppCB)) {
+            if (! surveyQValid(showPopup)) {
+                return false;
+            }
+    }
+
     if (isChecked(Estimation_Tab1_SpeciesSuppCB) &&
         isChecked(Estimation_Tab1_SpeciesRangeCB)) {
         if (! saveSpeciesDataSupplementalAndRange(showPopup)) {

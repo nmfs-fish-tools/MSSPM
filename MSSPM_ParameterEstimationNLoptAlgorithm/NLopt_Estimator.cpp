@@ -63,7 +63,7 @@ NLopt_Estimator::getVersion()
 }
 
 void
-NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
+NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDataStruct,
                                    const double *EstParameters,
                                    std::vector<double>& initBiomass,
                                    std::vector<double>& growthRate,
@@ -75,7 +75,8 @@ NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
                                    boost::numeric::ublas::matrix<double>& competitionBetaGuildsGuilds,
                                    boost::numeric::ublas::matrix<double>& predation,
                                    boost::numeric::ublas::matrix<double>& handling,
-                                   std::vector<double>& exponent)
+                                   std::vector<double>& exponent,
+                                   std::vector<double>& surveyQ)
 {
     bool isLogistic     = (NLoptDataStruct.GrowthForm      == "Logistic");
     bool isCatchability = (NLoptDataStruct.HarvestForm     == "Effort (qE)");
@@ -106,6 +107,7 @@ NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
     predation.clear();
     handling.clear();
     exponent.clear();
+    surveyQ.clear();
 
     // Always extract init biomass
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -207,6 +209,12 @@ NLopt_Estimator::extractParameters(const Data_Struct& NLoptDataStruct,
         }
         offset += NumSpeciesOrGuilds;
     }
+
+    // Survey Q
+    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+        surveyQ.emplace_back(EstParameters[offset+i]);
+    }
+    offset += NumSpeciesOrGuilds;
 }
 
 double
@@ -235,7 +243,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
                                    void* dataPtr)
 {
     const int DefaultFitness = 99999;
-    Data_Struct NLoptDataStruct = *((Data_Struct *)dataPtr);
+    nmfStructsQt::ModelDataStruct NLoptDataStruct = *((nmfStructsQt::ModelDataStruct *)dataPtr);
     bool isAggProd = (NLoptDataStruct.CompetitionForm == "AGG-PROD");
     double EstBiomassVal;
     double GrowthTerm;
@@ -251,12 +259,14 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     int NumGuilds  = NLoptDataStruct.NumGuilds;
     int guildNum = 0;
     int NumSpeciesOrGuilds;
+    double surveyQVal;
     std::vector<double> initBiomass;
     std::vector<double> growthRate;
     std::vector<double> carryingCapacity;
     std::vector<double> guildCarryingCapacity;
-    std::vector<double> exponent;
+    std::vector<double> predationExponent;
     std::vector<double> catchabilityRate;
+    std::vector<double> surveyQ;
     boost::numeric::ublas::matrix<double> EstBiomassSpecies;
     boost::numeric::ublas::matrix<double> EstBiomassGuilds;
     boost::numeric::ublas::matrix<double> EstBiomassRescaled;
@@ -266,14 +276,15 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     boost::numeric::ublas::matrix<double> competitionBetaGuilds;
     boost::numeric::ublas::matrix<double> competitionBetaGuildsGuilds;
     boost::numeric::ublas::matrix<double> predationRho;
-    boost::numeric::ublas::matrix<double> handling;
+    boost::numeric::ublas::matrix<double> predationHandling;
     boost::numeric::ublas::matrix<double> ObsBiomassBySpeciesOrGuilds;
     boost::numeric::ublas::matrix<double> Catch        = NLoptDataStruct.Catch;
     boost::numeric::ublas::matrix<double> Effort       = NLoptDataStruct.Effort;
     boost::numeric::ublas::matrix<double> Exploitation = NLoptDataStruct.Exploitation;
     std::map<int,std::vector<int> > GuildSpecies = NLoptDataStruct.GuildSpecies;
     std::string MSSPMName = "Run " + std::to_string(m_RunNum) + "-1";
-//std::cout << "obj func" << std::endl;
+//std::cout << "NLopt_Estimator::objectiveFunction - start" << std::endl;
+
     if (m_Quit) {
        throw nlopt::forced_stop();
     }
@@ -285,7 +296,8 @@ NLopt_Estimator::objectiveFunction(unsigned n,
         NumSpeciesOrGuilds = NumSpecies;
         ObsBiomassBySpeciesOrGuilds = NLoptDataStruct.ObservedBiomassBySpecies;
     }
-//std::cout << "\n\nSetting size of competitionAlpha: " <<  NumSpeciesOrGuilds << "x" <<  NumSpeciesOrGuilds << std::endl;
+
+    //std::cout << "\n\nSetting size of competitionAlpha: " <<  NumSpeciesOrGuilds << "x" <<  NumSpeciesOrGuilds << std::endl;
     nmfUtils::initialize(EstBiomassSpecies,                   NumYears,           NumSpeciesOrGuilds);
     nmfUtils::initialize(EstBiomassGuilds,                    NumYears,           NumGuilds);
     nmfUtils::initialize(EstBiomassRescaled,                  NumYears,           NumSpeciesOrGuilds);
@@ -295,14 +307,22 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     nmfUtils::initialize(competitionBetaGuilds,               NumSpeciesOrGuilds, NumGuilds);
     nmfUtils::initialize(competitionBetaGuildsGuilds,         NumGuilds,          NumGuilds);
     nmfUtils::initialize(predationRho,                        NumSpeciesOrGuilds, NumSpeciesOrGuilds);
-    nmfUtils::initialize(handling,                            NumSpeciesOrGuilds, NumSpeciesOrGuilds);
+    nmfUtils::initialize(predationHandling,                   NumSpeciesOrGuilds, NumSpeciesOrGuilds);
 
+    // RSK - how does this initBiomass work with SurveyQ
     extractParameters(NLoptDataStruct, EstParameters, initBiomass,
                       growthRate,carryingCapacity,catchabilityRate,
                       competitionAlpha,competitionBetaSpecies,
                       competitionBetaGuilds,competitionBetaGuildsGuilds,
-                      predationRho,handling,exponent);
+                      predationRho,predationHandling,predationExponent,surveyQ);
 
+    // Since we may be estimating SurveyQ, need to multiply Observed Biomass by the SurveyQ
+    for (int species=0; species<int(ObsBiomassBySpeciesOrGuilds.size2()); ++species) {
+        surveyQVal = surveyQ[species];
+        for (int time=0; time<int(ObsBiomassBySpeciesOrGuilds.size1()); ++time) {
+            ObsBiomassBySpeciesOrGuilds(time,species) *= surveyQVal;
+        }
+    }
 
     // Calculate carrying capacity for all guilds
     systemCarryingCapacity = 0;
@@ -317,12 +337,19 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     }
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-        EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i);
+        EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)*surveyQ[i];
     }
-     for (int i=0; i<NumGuilds; ++i) {
-        EstBiomassGuilds(0,i)  = NLoptDataStruct.ObservedBiomassByGuilds(0,i); // Remember there's only initial guild biomass data.
+
+
+    // RSK - Remember there's only initial guild biomass data
+    // Multiply by guild surveyQ data when you have it
+    for (int i=0; i<NumGuilds; ++i) {
+        EstBiomassGuilds(0,i)  = NLoptDataStruct.ObservedBiomassByGuilds(0,i);
+
     }
-     if (NLoptGrowthForm == nullptr) {
+
+
+    if (NLoptGrowthForm == nullptr) {
         incrementObjectiveFunctionCounter(MSSPMName,-1.0,NLoptDataStruct);
         return -1;
     }
@@ -382,7 +409,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
                                    EstBiomassGuilds);
             PredationTerm   = NLoptPredationForm->evaluate(
                                    timeMinus1,species,
-                                   predationRho,handling,exponent,
+                                   predationRho,predationHandling,predationExponent,
                                    EstBiomassSpecies,EstBiomassVal);
 
             EstBiomassVal  += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
@@ -391,15 +418,15 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //std::cout << "EstBiomassVal: " << EstBiomassVal << std::endl;
 //}
 
-//if (species == 0 && time <= 3) {
-//std::cout << "nlo year: " << time << ", val = "
-//          << EstBiomassSpecies(timeMinus1,species) << " + "
-//          << GrowthTerm << " - "
-//          << HarvestTerm << " - "
-//          << CompetitionTerm << " - "
-//          << PredationTerm << " = "
-//          << EstBiomassVal << std::endl;
-//}
+            //if (species == 0 && time == 1) {
+            //std::cout << "nlopt year: " << time << ", val = "
+            //          << EstBiomassSpecies(timeMinus1,species) << " + "
+            //          << GrowthTerm << " - "
+            //          << HarvestTerm << " - "
+            //          << CompetitionTerm << " - "
+            //          << PredationTerm << " = "
+            //          << EstBiomassVal << std::endl;
+            //}
 
 if (EstBiomassVal < 0) { // test code only
     EstBiomassVal = 0;
@@ -441,13 +468,13 @@ if (EstBiomassVal < 0) { // test code only
 //        ObsBiomassBySpeciesOrGuildsRescaled(ii,jj) = myNaturalLog(ObsBiomassBySpeciesOrGuildsRescaled(ii,jj));
 //    }
 //}
-
     // Calculate fitness using the appropriate objective criterion
     if (NLoptDataStruct.ObjectiveCriterion == "Least Squares") {
 
         fitness =  nmfUtilsStatistics::calculateSumOfSquares(
                     EstBiomassRescaled,
                     ObsBiomassBySpeciesOrGuildsRescaled);
+//std::cout << "fitness1: " << fitness << std::endl; // OK
     } else if (NLoptDataStruct.ObjectiveCriterion == "Model Efficiency") {
 
         // Negate the MEF here since the ranges is from -inf to 1, where 1 is best.  So we negate it,
@@ -458,12 +485,16 @@ if (EstBiomassVal < 0) { // test code only
     } else if (NLoptDataStruct.ObjectiveCriterion == "Maximum Likelihood") {
         // The maximum likelihood calculations must use the unscaled data or else the
         // results will be incorrect.
+
         fitness =  nmfUtilsStatistics::calculateMaximumLikelihoodNoRescale(
                     EstBiomassSpecies,
                     ObsBiomassBySpeciesOrGuilds);
+//std::cout << "fitness2: " << fitness << std::endl; // Not OK
      }
 
     incrementObjectiveFunctionCounter(MSSPMName,fitness,NLoptDataStruct);
+
+//std::cout << "NLopt_Estimator::objectiveFunction - end" << std::endl;
 
     return fitness;
 }
@@ -472,7 +503,7 @@ if (EstBiomassVal < 0) { // test code only
 void
 NLopt_Estimator::incrementObjectiveFunctionCounter(std::string MSSPMName,
                                                    double fitness,
-                                                   Data_Struct NLoptDataStruct)
+                                                   nmfStructsQt::ModelDataStruct NLoptDataStruct)
 {
     int unused = -1;
 
@@ -527,7 +558,7 @@ NLopt_Estimator::writeCurrentLoopFile(std::string &MSSPMName,
 void
 NLopt_Estimator::loadInitBiomassParameterRanges(
         std::vector<std::pair<double,double> >& parameterRanges,
-        const Data_Struct& dataStruct)
+        const nmfStructsQt::ModelDataStruct& dataStruct)
 {
     bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(dataStruct,"InitBiomass");
     std::pair<double,double> aPair;
@@ -546,7 +577,29 @@ NLopt_Estimator::loadInitBiomassParameterRanges(
 }
 
 void
-NLopt_Estimator::setStoppingCriteria(Data_Struct &NLoptStruct)
+NLopt_Estimator::loadSurveyQParameterRanges(
+        std::vector<std::pair<double,double> >& parameterRanges,
+        const nmfStructsQt::ModelDataStruct& dataStruct)
+{
+    bool isCheckedSurveyQ= nmfUtils::isEstimateParameterChecked(dataStruct,"SurveyQ");
+    std::pair<double,double> aPair;
+
+    // Always load SurveyQ values
+    for (unsigned species=0; species<dataStruct.SurveyQMin.size(); ++species) {
+        if (isCheckedSurveyQ) {
+            aPair = std::make_pair(dataStruct.SurveyQMin[species],
+                                   dataStruct.SurveyQMax[species]);
+        } else {
+            aPair = std::make_pair(dataStruct.SurveyQ[species],
+                                   dataStruct.SurveyQ[species]);
+        }
+qDebug() << "surveyQ data: " << aPair;
+        parameterRanges.emplace_back(aPair);
+    }
+}
+
+void
+NLopt_Estimator::setStoppingCriteria(nmfStructsQt::ModelDataStruct &NLoptStruct)
 {
     if (NLoptStruct.NLoptUseStopVal) {
         std::cout << "Setting stop fitness value: " << NLoptStruct.NLoptStopVal << std::endl;
@@ -565,7 +618,7 @@ NLopt_Estimator::setStoppingCriteria(Data_Struct &NLoptStruct)
 
 
 void
-NLopt_Estimator::setObjectiveFunction(Data_Struct& NLoptStruct,
+NLopt_Estimator::setObjectiveFunction(nmfStructsQt::ModelDataStruct& NLoptStruct,
                                       std::string& MaxOrMin)
 {
     if (NLoptStruct.ObjectiveCriterion == "Least Squares") {
@@ -593,7 +646,7 @@ NLopt_Estimator::setSeed(const bool& isSetToDeterministic)
 
 
 void
-NLopt_Estimator::setParameterBounds(Data_Struct& NLoptStruct,
+NLopt_Estimator::setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
                                     std::vector<std::pair<double,double> >& ParameterRanges,
                                     const int& NumEstParameters)
 {
@@ -632,7 +685,7 @@ NLopt_Estimator::setParameterBounds(Data_Struct& NLoptStruct,
 
 
 void
-NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
+NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                                     int& RunNumber,
                                     std::pair<bool,bool>& bools,
                                     std::vector<QString>& MultiRunLines,
@@ -650,7 +703,6 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
     std::string bestFitnessStr = "TBD";
     std::vector<std::pair<double,double> > ParameterRanges;
     std::string MaxOrMin;
-
 
     startTimeSpecies = nmfUtils::startTimer();
 
@@ -673,6 +725,7 @@ NLopt_Estimator::estimateParameters(Data_Struct &NLoptStruct,
     NLoptHarvestForm->loadParameterRanges(    ParameterRanges, NLoptStruct);
     NLoptCompetitionForm->loadParameterRanges(ParameterRanges, NLoptStruct);
     NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
+    loadSurveyQParameterRanges(               ParameterRanges, NLoptStruct);
     NumEstParameters = ParameterRanges.size();
 std::cout << "FIX: Remove delayMSec" << std::endl;
 std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
@@ -699,6 +752,7 @@ for (int i=0; i< NumEstParameters; ++i) {
             NLoptHarvestForm->loadParameterRanges(    ParameterRanges, NLoptStruct);
             NLoptCompetitionForm->loadParameterRanges(ParameterRanges, NLoptStruct);
             NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
+            loadSurveyQParameterRanges(               ParameterRanges, NLoptStruct);
             NumEstParameters = ParameterRanges.size();
         }
 
@@ -745,7 +799,7 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                         m_EstGrowthRates,  m_EstCarryingCapacities,
                         m_EstCatchability, m_EstAlpha,
                         m_EstBetaSpecies,  m_EstBetaGuilds, m_EstBetaGuildsGuilds,
-                        m_EstPredation,    m_EstHandling,   m_EstExponent);
+                        m_EstPredation,    m_EstHandling,   m_EstExponent,  m_EstSurveyQ);
 
                 createOutputStr(m_Parameters.size(),
                                 NLoptStruct.TotalNumberParameters,
@@ -806,7 +860,7 @@ NLopt_Estimator::createOutputStr(
         const int&         numSubRuns,
         const double&      bestFitness,
         const double&      fitnessStdDev,
-        const Data_Struct& NLoptStruct,
+        const nmfStructsQt::ModelDataStruct& NLoptStruct,
         std::string&       bestFitnessStr)
 {
     std::string growthForm      = NLoptStruct.GrowthForm;
@@ -860,8 +914,10 @@ NLopt_Estimator::createOutputStr(
     if (predationForm == "Type III")
     {
     bestFitnessStr += "<br>&nbsp;&nbsp;";
-    bestFitnessStr += convertValues1DToOutputStr("Predation Exponent",m_EstExponent,false);
+    bestFitnessStr += convertValues1DToOutputStr("Predation Exponent", m_EstExponent,false);
     }
+    bestFitnessStr += convertValues1DToOutputStr("SurveyQ:          ", m_EstSurveyQ, false);
+
 }
 
 
@@ -949,6 +1005,12 @@ NLopt_Estimator::getEstCatchability(std::vector<double> &estCatchability)
 }
 
 void
+NLopt_Estimator::getEstSurveyQ(std::vector<double> &estSurveyQ)
+{
+    estSurveyQ = m_EstSurveyQ;
+}
+
+void
 NLopt_Estimator::getEstCompetitionAlpha(boost::numeric::ublas::matrix<double> &estInteraction)
 {
     estInteraction = m_EstAlpha;
@@ -989,7 +1051,6 @@ NLopt_Estimator::getEstExponent(std::vector<double> &estExponent)
 {
     estExponent = m_EstExponent;
 }
-
 
 std::string
 NLopt_Estimator::returnCode(int result)

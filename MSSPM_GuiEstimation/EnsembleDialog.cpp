@@ -12,18 +12,16 @@ EnsembleDialog::EnsembleDialog(QWidget *parent,
     m_Parent     = parent;
 
     m_ensembleTV = new QTableView();
-    QPushButton*  savePB     = new QPushButton("Save");
-    QPushButton*  refreshPB  = new QPushButton("Refresh");
+//  QPushButton*  savePB     = new QPushButton("Save");
+//  QPushButton*  refreshPB  = new QPushButton("Refresh");
     QPushButton*  cancelPB   = new QPushButton("Cancel");
     QHBoxLayout*  hLayt      = new QHBoxLayout;
     QVBoxLayout*  vLayt      = new QVBoxLayout;
 
-    savePB->setEnabled(false); // Just for now...
-
     hLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
     hLayt->addWidget(cancelPB);
-    hLayt->addWidget(refreshPB);
-    hLayt->addWidget(savePB);
+//  hLayt->addWidget(refreshPB);
+//  hLayt->addWidget(savePB);
     hLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
     vLayt->addWidget(m_ensembleTV);
     vLayt->addLayout(hLayt);
@@ -32,14 +30,13 @@ EnsembleDialog::EnsembleDialog(QWidget *parent,
     setMinimumWidth(800);
 
     connect(cancelPB,  SIGNAL(clicked()), this, SLOT(close()));
-    connect(refreshPB, SIGNAL(clicked()), this, SLOT(callback_refreshPB()));
-    connect(savePB,    SIGNAL(clicked()), this, SLOT(callback_savePB()));
+//  connect(refreshPB, SIGNAL(clicked()), this, SLOT(callback_refreshPB()));
+//  connect(savePB,    SIGNAL(clicked()), this, SLOT(callback_savePB()));
 }
 
 bool
-EnsembleDialog::loadWidgets()
+EnsembleDialog::loadWidgets(QString ensembleFile)
 {
-    QString ensembleFile = "MultiRunParameter.csv"; // RSK hard code for now...eventually could be a table
     QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
     fullPath = QDir(fullPath).filePath(ensembleFile);
     QFile file(fullPath);
@@ -85,6 +82,20 @@ EnsembleDialog::loadWidgets()
     return retv;
 }
 
+QString
+EnsembleDialog::getColumnData(int col)
+{
+    QModelIndex index = m_SModel->index(0,col);
+    QString colData   = index.data().toString();
+
+    for (int row=1; row<m_SModel->rowCount(); ++row) {
+        index = m_SModel->index(row,col);
+        colData += "||" + index.data().toString();
+    }
+
+    return colData;
+}
+
 void
 EnsembleDialog::clear()
 {
@@ -96,7 +107,7 @@ EnsembleDialog::clear()
 void
 EnsembleDialog::callback_refreshPB()
 {
-    loadWidgets();
+//    loadWidgets();
 }
 
 void

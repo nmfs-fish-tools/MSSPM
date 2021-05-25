@@ -77,6 +77,7 @@
 #include "nmfEstimationTab04.h"
 #include "nmfEstimationTab05.h"
 #include "nmfEstimationTab06.h"
+#include "nmfEstimationTab07.h"
 
 #include "nmfDiagnosticTab01.h"
 #include "nmfDiagnosticTab02.h"
@@ -165,7 +166,7 @@ private:
     QChartView*                           m_ChartView2d;
     QWidget*                              m_ChartView3d;
     nmfDatabase*                          m_DatabasePtr;
-    Data_Struct                           m_DataStruct;
+    nmfStructsQt::ModelDataStruct                           m_DataStruct;
     int                                   m_DiagnosticsFontSize;
     int                                   m_DiagnosticsNumPoints;
     int                                   m_DiagnosticsVariation;
@@ -235,9 +236,10 @@ private:
     QTableView*              CompetitionAlphaTV;
     QTableView*              CompetitionBetaSTV;
     QTableView*              CompetitionBetaGTV;
-    QTableView*              PredationTV;
-    QTableView*              HandlingTV;
-    QTableView*              ExponentTV;
+    QTableView*              PredationRhoTV;
+    QTableView*              PredationHandlingTV;
+    QTableView*              PredationExponentTV;
+    QTableView*              SurveyQTV;
     QTableView*              CarryingCapacityTV;
     QTableView*              CatchabilityTV;
     QTableView*              BMSYTV;
@@ -264,6 +266,7 @@ private:
     nmfEstimation_Tab4*      Estimation_Tab4_ptr;
     nmfEstimation_Tab5*      Estimation_Tab5_ptr;
     nmfEstimation_Tab6*      Estimation_Tab6_ptr;
+    nmfEstimation_Tab7*      Estimation_Tab7_ptr;
     nmfForecast_Tab1*        Forecast_Tab1_ptr;
     nmfForecast_Tab2*        Forecast_Tab2_ptr;
     nmfForecast_Tab3*        Forecast_Tab3_ptr;
@@ -322,6 +325,10 @@ private:
     void   loadBiomassByGroup(QString& GroupType);
     void   updateOutputBiomassTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
     void   setupLogWidget();
+    QString getFormGrowth();
+    QString getFormHarvest();
+    QString getFormPredation();
+    QString getFormCompetition();
     void   initializeNavigatorTree();
     void   initLogo();
     void   initPostGuiConnections();
@@ -353,13 +360,14 @@ private:
                                 std::vector<double>& EstGrowthRates,
                                 std::vector<double>& EstCarryingCapacities,
                                 std::vector<double>& EstCatchability,
+                                std::vector<double>& EstExponent,
+                                std::vector<double>& EstSurveyQ,
                                 boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
                                 boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
                                 boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
                                 boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
                                 boost::numeric::ublas::matrix<double>& EstPredation,
                                 boost::numeric::ublas::matrix<double>& EstHandling,
-                                std::vector<double>& EstExponent,
                                 boost::numeric::ublas::matrix<double>& calculatedBiomass);
     double calculateMonteCarloValue(const double& uncertainty,
                                     const double& value,
@@ -400,7 +408,7 @@ private:
     bool calculateSummaryStatisticsMohnsRhoBiomass(std::vector<double>& mohnsRhoEstimatedBiomass);
     void checkGuildRanges(
             const int& NumGuilds,
-            const Data_Struct& dataStruct);
+            const nmfStructsQt::ModelDataStruct& dataStruct);
     bool checkFields(std::string& table,
                      std::map<std::string, std::vector<std::string> >& dataMap,
                      std::vector<std::string>& fields);
@@ -415,6 +423,7 @@ private:
     void clearOutputTables();
     void closeEvent(QCloseEvent *event);
     void completeApplicationInitialization();
+    QString createEstimatedFile();
     std::pair<bool,QString> dataAdequateForCurrentModel(QStringList estParamNames);
     bool deleteAllMohnsRho(const std::string& TableName);
     bool deleteAllOutputMohnsRho();
@@ -424,6 +433,22 @@ private:
      */
     void enableApplicationFeatures(std::string navigatorGroup,
                                    bool enable);
+    QString extractMatrixData(const bool& isEnabled,
+                              const bool& isChecked,
+                              const bool& isAMultiRun,
+                              const QStringList& species,
+                              const QString& label,
+                              const boost::numeric::ublas::matrix<double>& matrix,
+                              const char& format,
+                              const int& precision);
+    QString extractVectorData(const bool& isEnabled,
+                              const bool& isChecked,
+                              const bool& isAMultiRun,
+                              const QStringList& species,
+                              const QString& label,
+                              const std::vector<double> &vector,
+                              const char& format,
+                              const int& precision);
     QTableView* findTableInFocus();
     void getAlgorithmIdentifiers(std::string& algorithm,
                                  std::string& minimizer,
@@ -434,7 +459,9 @@ private:
     bool getForecastInitialData(
             QString& forecastName,
             int&     numYearsPerRun,
-            int&     numRunsPerForecast);
+            int&     numRunsPerForecast,
+            QString& growthForm,
+            QString& harvestForm);
     bool getSystemDataForChart(
             int& StartYear,
             int& RunLength,
@@ -634,7 +661,7 @@ private:
                                      std::vector<std::vector<double> > &MinData,
                                      std::vector<std::vector<double> > &MaxData,
                                      int &NumInteractionParameters);
-    bool loadParameters(Data_Struct &m_DataStruct,
+    bool loadParameters(nmfStructsQt::ModelDataStruct &m_DataStruct,
                         const bool& verbose);
     void loadSummaryStatisticsModel(
             const int& NumSpeciesOrGuilds,
@@ -666,6 +693,7 @@ private:
                              std::vector<double>& HandlingUncertainty,
                              std::vector<double>& ExponentUncertainty,
                              std::vector<double>& CatchabilityUncertainty,
+                             std::vector<double>& SurveyQUncertainty,
                              std::vector<double>& HarvestUncertainty);
     bool modifyTable(const std::string& TableName,
                      const QString&     OriginalSystemName,
@@ -677,6 +705,7 @@ private:
     void readSettings(QString name);
     void readSettings();
     void readSettingsGuiOrientation(bool alsoResetPosition);
+//    void removeExistingMultiRuns();
     void runBeesAlgorithm(bool showDiagnosticsChart,
                           std::vector<QString>& MultiRunLines,
                           int& TotalIndividualRuns);
@@ -687,9 +716,10 @@ private:
     void saveRemoraDataFile(QString filename);
     bool saveScreenshot(QString &outputfile, QPixmap &pm);
     void saveSettings();
-    bool scaleTimeSeries(const std::vector<double>&             Uncertainty,
-                         boost::numeric::ublas::matrix<double>& HarvestMatrix,
-                         std::vector<double>&                   RandomValues);
+    bool scaleTimeSeriesIfMonteCarlo(const bool& isMonteCarlo,
+                                     const std::vector<double>&             Uncertainty,
+                                     boost::numeric::ublas::matrix<double>& HarvestMatrix,
+                                     std::vector<double>&                   RandomValues);
     void setCurrentOutputTab(QString outputTab);
     void setVisibilityToolbarButtons(bool isVisible);
     void setDefaultDockWidgetsVisibility();
@@ -874,6 +904,7 @@ private:
                                   std::string& GrowthRateTable,
                                   std::string& CarryingCapacityTable,
                                   std::string& CatchabilityTable,
+                                  std::string& SurveyQTable,
                                   std::string& BiomassTable);
     void updateProgressChartAnnotation(double xMin, double xMax, double xInc);
     void updateOutputTables(
@@ -894,10 +925,11 @@ private:
         const boost::numeric::ublas::matrix<double> &EstCompetitionBetaGuildsGuilds,
         const boost::numeric::ublas::matrix<double> &EstPredation,
         const boost::numeric::ublas::matrix<double> &EstHandling,
-        const std::vector<double>                   &EstExponent);
+        const std::vector<double>                   &EstExponent,
+        const std::vector<double>                   &EstSurveyQ);
     void updateModelEquationSummary();
     void updateScreenShotViewer(QString filename);
-    void getSurfaceData(
+    bool getSurfaceData(
             boost::numeric::ublas::matrix<double>& rowValues,
             boost::numeric::ublas::matrix<double>& columnValues,
             boost::numeric::ublas::matrix<double>& heightValues,
@@ -927,6 +959,21 @@ private:
             const std::string& ObjectiveCriterion,
             const std::string& Scaling,
             const boost::numeric::ublas::matrix<double>& CalculatedBiomass);
+    void updateOutputTableViews(
+            const QStringList&                           SpeciesList,
+            const QStringList&                           GuildList,
+            const std::vector<double>&                   EstInitBiomass,
+            const std::vector<double>&                   EstGrowthRates,
+            const std::vector<double>&                   EstCarryingCapacities,
+            const std::vector<double>&                   EstCatchability,
+            const std::vector<double>&                   EstPredationExponent,
+            const std::vector<double>&                   EstSurveyQ,
+            const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
+            const boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
+            const boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
+            const boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
+            const boost::numeric::ublas::matrix<double>& EstPredationRho,
+            const boost::numeric::ublas::matrix<double>& EstPredationHandling);
 
     //    bool isThereMohnsRhoData();
     //    bool loadGradientParameters(Gradient_Struct &gradientStruct);
@@ -939,7 +986,7 @@ private:
     //    bool loadParamObj(Parameters* ptr,
     //                      const QList<double> &InitialBiomassList,
     //                      const QList<QList<double> > *CatchMatrix,
-    //                      const Data_Struct &dataStruct);
+    //                      const nmfStructsQt::Data_Struct &dataStruct);
     //    bool loadTimeSeriesObj(TimeSeriesObservations* timeSeriesObj,
     //                           QList<double> &InitialBiomassList,
     //                           QList<QList<double> > *CatchMatrix);
@@ -1010,9 +1057,9 @@ public slots:
      */
     void callback_ClearEstimationTables();
     /**
-     * @brief Callback invoked when user deletes a system
+     * @brief Callback invoked when user deletes a Model
      */
-    void callback_DeleteSystem();
+    void callback_ToDoAfterModelDelete();
     /**
      * @brief Callback invoked when user selects a tab from the Diagnostics tab group
      * @param tab : Diagnostics tab selected
@@ -1164,9 +1211,9 @@ public slots:
      */
     void callback_SaveOutputBiomassData(std::string ForecastName);
     /**
-     * @brief Callback invoked when user saves a new system
+     * @brief Callback invoked when user saves a new Model
      */
-    void callback_SaveSystem();
+    void callback_ToDoAfterModelSave();
     /**
      * @brief Callback invoked when user changes the type of Output chart desired
      * @param type : type of Output chart to view
@@ -1288,7 +1335,7 @@ public slots:
     /**
      * @brief Callback invoked when user loads a System from the Setup Page 4 GUI
      */
-    void callback_SystemLoaded();
+    void callback_ModelLoaded();
 //  void callback_UpdateProgressData(int SpeciesNum,int NumParams,QString elapsedTime);
     /**
      * @brief Callback invoked when the run has completed and user wants to update the Run Statistics
@@ -1460,6 +1507,8 @@ public slots:
     void callback_PreferencesMShotOkPB();
     void callback_ErrorFound(std::string errorMsg);
     void callback_ManagerModeViewerClose(bool state);
+    void callback_AddToReview();
+    void callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct modeReview);
 
 //  /**
 //   * @brief Copy TestData into OutputGrowthRate

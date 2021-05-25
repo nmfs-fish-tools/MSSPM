@@ -45,7 +45,7 @@ class nmfDiagnostic_Tab2: public QObject
 
 private:
 
-    Data_Struct  m_BeeStruct;
+    nmfStructsQt::ModelDataStruct  m_BeeStruct;
     nmfDatabase* m_DatabasePtr;
     QLabel*      m_Diagnostic_Tab2_MaxYearLBL;
     QLineEdit*   m_Diagnostic_Tab2_MaxYearLE;

@@ -75,7 +75,9 @@ LoadForecastDlg::callback_DeleteSelection()
                    " and its associated data.\n\nOK to delete?\n";
     std::vector<std::string> ForecastTables = {"ForecastBiomass",
                                                "ForecastBiomassMonteCarlo",
-                                               "ForecastCatch",
+                                               "ForecastHarvestCatch",
+                                               "ForecastHarvestEffort",
+                                               "ForecastHarvestExploitation",
                                                "ForecastUncertainty",
                                                "Forecasts"};
 

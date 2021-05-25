@@ -28,7 +28,7 @@ Bees_Estimator::printBee(std::string          msg,
 }
 
 void
-Bees_Estimator::estimateParameters(Data_Struct &beeStruct,
+Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
                                    int& RunNumber,
                                    std::vector<QString>& MultiRunLines,
                                    int& TotalIndividualRuns)
@@ -75,6 +75,7 @@ Bees_Estimator::estimateParameters(Data_Struct &beeStruct,
     m_EstPredation.clear();
     m_EstHandling.clear();
     m_EstCatchability.clear();
+    m_EstSurveyQ.clear();
     m_EstExponent.clear();
     m_EstBetaSpecies.clear();
     m_EstBetaGuilds.clear();
@@ -180,6 +181,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 beesAlg->extractPredationParameters(EstParameters,startPos,m_EstPredation);
                 beesAlg->extractHandlingParameters(EstParameters,startPos,m_EstHandling);
                 beesAlg->extractExponentParameters(EstParameters,startPos,m_EstExponent);
+                beesAlg->extractSurveyQParameters(EstParameters,startPos,m_EstSurveyQ);
                 numEstParameters   = beesAlg->calculateActualNumEstParameters();
                 numTotalParameters = EstParameters.size();
                 createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,
@@ -237,7 +239,7 @@ Bees_Estimator::createOutputStr(
         const int&         numSubRuns,
         const double&      bestFitness,
         const double&      fitnessStdDev,
-        const Data_Struct& beeStruct,
+        const nmfStructsQt::ModelDataStruct& beeStruct,
         std::string&       bestFitnessStr)
 {
     std::string growthForm      = beeStruct.GrowthForm;
@@ -305,6 +307,8 @@ Bees_Estimator::createOutputStr(
 //            bestFitnessStr += nmfUtils::to_string_scientificNotation(m_EstExponent[i]) + " ";
 //        }
     }
+    bestFitnessStr += convertValues1DToOutputStr("Survey Q:    ",m_EstSurveyQ,false);
+
 }
 
 std::string
@@ -384,6 +388,12 @@ void
 Bees_Estimator::getEstimatedCatchability(std::vector<double> &estCatchability)
 {
     estCatchability = m_EstCatchability;
+}
+
+void
+Bees_Estimator::getEstimatedSurveyQ(std::vector<double> &estSurveyQ)
+{
+    estSurveyQ = m_EstSurveyQ;
 }
 
 void

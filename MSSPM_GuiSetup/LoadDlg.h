@@ -45,7 +45,7 @@ public:
    ~LoadDlg() {}
 
     /**
-     * @brief Gets the database data affiliated with the current System name
+     * @brief Gets the database data affiliated with the current Model name
      * @param data : the data structure to load with the system data read from the database
      */
     void getSettingData(SystemData &data);

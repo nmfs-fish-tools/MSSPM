@@ -334,8 +334,8 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
             (fGrowthForm != sGrowthForm) || (fHarvestForm != sHarvestForm) ||
             (fCompetitionForm != sCompetitionForm) || (fPredationForm != sPredationForm))
     {
-        msg  = "\nForecast ("+forecastToLoad+") incompatible with System Run ("+m_ProjectSettingsConfig+").\n\n";
-        msg += "(Forecast parameters on left and System Run parameters on right)\n\n";
+        msg  = "\nForecast ("+forecastToLoad+") incompatible with latest Model Run ("+m_ProjectSettingsConfig+").\n\n";
+        msg += "(Forecast parameters on left and latest Model Run parameters on right)\n\n";
         msg += fAlgorithm +          " --- " + sAlgorithm +          "\n";
         msg += fMinimizer +          " --- " + sMinimizer +          "\n";
         msg += fObjectiveCriterion + " --- " + sObjectiveCriterion + "\n";

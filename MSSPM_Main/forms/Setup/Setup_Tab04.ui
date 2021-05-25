@@ -50,7 +50,7 @@
       </font>
      </property>
      <property name="title">
-      <string>System Settings:</string>
+      <string>Model Settings:</string>
      </property>
      <property name="flat">
       <bool>false</bool>
@@ -86,7 +86,7 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout">
               <item>
-               <widget class="QLabel" name="SystemNameLBL">
+               <widget class="QLabel" name="ModelNameLBL">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -112,10 +112,10 @@
                  </font>
                 </property>
                 <property name="toolTip">
-                 <string>System Configuration Name</string>
+                 <string>Model Name</string>
                 </property>
                 <property name="statusTip">
-                 <string>System Configuration Name</string>
+                 <string>Model Name</string>
                 </property>
                 <property name="text">
                  <string>Name:</string>
@@ -123,7 +123,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="Setup_Tab4_SystemNameLE">
+               <widget class="QLineEdit" name="Setup_Tab4_ModelNameLE">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -149,10 +149,10 @@
                  </font>
                 </property>
                 <property name="toolTip">
-                 <string>System Configuration Name</string>
+                 <string>Model Name</string>
                 </property>
                 <property name="statusTip">
-                 <string>System Configuration Name</string>
+                 <string>Model Name</string>
                 </property>
                 <property name="readOnly">
                  <bool>false</bool>
@@ -160,7 +160,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="Setup_Tab4_NewSystemPB">
+               <widget class="QPushButton" name="Setup_Tab4_NewModelPB">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -180,10 +180,10 @@
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Add New System Name</string>
+                 <string>Add New Model</string>
                 </property>
                 <property name="statusTip">
-                 <string>Add New System Name</string>
+                 <string>Add New Model</string>
                 </property>
                 <property name="text">
                  <string>New...</string>
@@ -191,7 +191,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="Setup_Tab4_DelPB">
+               <widget class="QPushButton" name="Setup_Tab4_DelModelPB">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -211,10 +211,10 @@
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Delete the current System configuration</string>
+                 <string>Delete the current Model</string>
                 </property>
                 <property name="statusTip">
-                 <string>Delete the current System configuration</string>
+                 <string>Delete the current Model</string>
                 </property>
                 <property name="text">
                  <string>Del</string>

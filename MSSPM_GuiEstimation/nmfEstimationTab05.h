@@ -68,6 +68,7 @@ class nmfEstimation_Tab5: public QObject
     QRadioButton* Estimation_Tab5_AbsoluteBiomassRB;
     QRadioButton* Estimation_Tab5_RelativeBiomassRB;
     QGroupBox*    Estimation_Tab5_CovariatesGB;
+    QCheckBox*    Estimation_Tab5_EstimateSurveyQCB;
 
     void importAbsoluteBiomass();
     void importRelativeBiomass();
@@ -168,7 +169,9 @@ public:
     bool loadWidgets(QString MohnsRhoLabel);
 
     bool loadWidgetsFirstRow();
-
+    void enableEstimateSurveyQCB(bool enable);
+    bool isTableValueOK(QString value);
+    bool useRelativeBiomass();
 
 signals:
     /**
@@ -176,6 +179,9 @@ signals:
      * @param showPopup : boolean signifying whether the application should pop up a successful reload acknowledgement
      */
     void ReloadSpecies(bool showPopup);
+    void EnableSurveyQ(const QString biomassType,
+                       const bool enable,
+                       const bool checked);
 
 public Q_SLOTS:
     /**
@@ -233,6 +239,8 @@ public Q_SLOTS:
      * @brief Callback invoked when the user saves a new model in Setup -> Model Setup
      */
     void callback_UpdateInitialObservedBiomass();
+    void callback_DimScalarBiomassControls(bool dim);
+    void callback_EstimateSurveyQCB(int state);
 
 };
 

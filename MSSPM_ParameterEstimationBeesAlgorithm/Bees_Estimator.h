@@ -74,6 +74,7 @@ private:
 //  std::vector<double>                   m_EstExploitationRates;
     std::vector<double>                   m_EstCatchability;
     std::vector<double>                   m_EstExponent;
+    std::vector<double>                   m_EstSurveyQ;
     boost::numeric::ublas::matrix<double> m_EstAlpha;
     boost::numeric::ublas::matrix<double> m_EstBetaSpecies;
     boost::numeric::ublas::matrix<double> m_EstBetaGuilds;
@@ -86,7 +87,7 @@ private:
                          const int&         numSubRuns,
                          const double&      bestFitness,
                          const double&      fitnessStdDev,
-                         const Data_Struct& beeStruct,
+                         const nmfStructsQt::ModelDataStruct& beeStruct,
                          std::string&       bestFitnessStr);
     std::string convertValues1DToOutputStr(const std::string& label,
                                            const std::vector<double>& valuesVec,
@@ -171,7 +172,7 @@ public:
      * @param MultiRunLines : contents of multi-run run file
      * @param TotalIndividualRuns : total of all multi-run runs
      */
-    void estimateParameters(Data_Struct &BeeStruct,
+    void estimateParameters(nmfStructsQt::ModelDataStruct &BeeStruct,
                             int& RunNumber,
                             std::vector<QString>& MultiRunLines,
                             int& TotalIndividualRuns);
@@ -230,7 +231,11 @@ public:
      * @param EstPredation : vector of predation values per species
      */
     void getEstimatedPredation(boost::numeric::ublas::matrix<double> &EstPredation);
-
+    /**
+     * @brief Gets the estimated SurveyQ values per species
+     * @param EstSurveyQ : vector of SurveyQ values per species
+     */
+    void getEstimatedSurveyQ(std::vector<double> &EstSurveyQ);
 };
 
 

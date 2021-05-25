@@ -15,7 +15,7 @@ REMORA::REMORA(
     m_Widget                 = MModeWidget;
     m_ScenarioChanged        = false;
     m_MaxYAxis               = -1.0;
-    m_HarvestType            = "ForecastCatch";
+    m_HarvestType            = "ForecastHarvestCatch";
     m_NumYearsPerRun         = 20;
     m_NumRunsPerForecast     = 10;
     m_IndexMaxYScaleFactor   =  0;
@@ -1074,7 +1074,7 @@ REMORA::getLastYearsCatchValues(
 
     // Get last year's catch data
     fields    = {"Value"};
-    queryStr  = "SELECT Value from Catch where SystemName = '" +
+    queryStr  = "SELECT Value from HarvestCatch where SystemName = '" +
                  QString::fromStdString(m_ProjectSettingsConfig).split("__")[0].toStdString() + "'";
     queryStr += " AND Year = " + std::to_string(lastYear-1);
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -1559,8 +1559,8 @@ REMORA::saveUncertaintyParameters()
     m_NumUnusedParameters = 7;  // RSK adjust this later
     cmd  = "INSERT INTO ForecastUncertainty (" ;
     cmd += "SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-    cmd += "GrowthRate,CarryingCapacity,Predation,Competition,BetaSpecies,";
-    cmd += "BetaGuilds,Handling,Exponent,Catchability,Harvest) VALUES ";
+    cmd += "GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies,";
+    cmd += "CompetitionBetaGuilds,PredationRho,PredationHandling,PredationExponent,Harvest) VALUES ";
     for (unsigned i = 0; i < SpeNames.size(); ++i) { // Species
             cmd += "('" + SpeNames[i] + "','" + ForecastName + "','" + Algorithm +
                     "','" + Minimizer + "','" + ObjectiveCriterion + "','" + Scaling + "'";
@@ -1657,11 +1657,11 @@ REMORA::setHarvestType(QString arg1)
 {
     MModeHarvestTypePB->setText(arg1);
     if (arg1 == "Catch") {
-        m_HarvestType = "ForecastCatch";
+        m_HarvestType = "ForecastHarvestCatch";
     } else if (arg1 == "Effort (E)") {
-        m_HarvestType = "ForecastEffort";
+        m_HarvestType = "ForecastHarvestEffort";
     } else if (arg1 == "Exploitation (F)") {
-        m_HarvestType = "ForecastExploitation";
+        m_HarvestType = "ForecastHarvestExploitation";
     }
 }
 
@@ -2219,13 +2219,13 @@ REMORA::callback_UncertaintyHarvestParameterPB()
 
     if (harvestType == "Catch") {
         MModeHarvestTypePB->setText("Effort (E)");
-        m_HarvestType = "ForecastCatch";
+        m_HarvestType = "ForecastHarvestCatch";
     } else if (harvestType == "Effort (E)") {
         MModeHarvestTypePB->setText("Exploitation (F)");
-        m_HarvestType = "ForecastEffort";
+        m_HarvestType = "ForecastHarvestEffort";
     } else if (harvestType == "Exploitation (F)") {
         MModeHarvestTypePB->setText("Catch");
-        m_HarvestType = "ForecastExploitation";
+        m_HarvestType = "ForecastHarvestExploitation";
     }
     setScenarioChanged(true);
 }

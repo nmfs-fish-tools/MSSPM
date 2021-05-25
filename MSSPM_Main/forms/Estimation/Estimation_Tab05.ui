@@ -102,6 +102,28 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="Estimation_Tab5_EstimateSurveyQCB">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>If checked, SurveyQ will be estimated</string>
+           </property>
+           <property name="statusTip">
+            <string>If checked, SurveyQ will be estimated</string>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimate SurveyQ&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This box is used only when Relative Biomass is selected to the left. If it's checked, Survey Q will be estimated. If it's unchecked, the user must enter scalar values to be multiplied with the Relative Biomass values. The Calc button performs this multiplcation and pastes the products into the Absolute Biomass table, which the user can then save.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+           <property name="text">
+            <string>Estimate SurveyQ:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
