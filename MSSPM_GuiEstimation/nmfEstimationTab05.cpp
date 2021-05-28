@@ -17,7 +17,6 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
     m_ProjectSettingsConfig.clear();
     m_SModelAbsoluteBiomass = nullptr;
     m_SModelRelativeBiomass = nullptr;
-    m_SModelScalars         = nullptr;
     m_SModelCovariates      = nullptr;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::nmfEstimation_Tab5");
@@ -38,7 +37,7 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
     Estimation_Tab5_CovariatesGB      = Estimation_Tabs->findChild<QGroupBox    *>("Estimation_Tab5_CovariatesGB");
     Estimation_Tab5_AbsoluteBiomassTV = Estimation_Tabs->findChild<QTableView   *>("Estimation_Tab5_AbsoluteBiomassTV");
     Estimation_Tab5_RelativeBiomassTV = Estimation_Tabs->findChild<QTableView   *>("Estimation_Tab5_RelativeBiomassTV");
-    Estimation_Tab5_Rel2AbsScalarTV   = Estimation_Tabs->findChild<QTableView   *>("Estimation_Tab5_Rel2AbsScalarTV");
+//  Estimation_Tab5_Rel2AbsScalarTV   = Estimation_Tabs->findChild<QTableView   *>("Estimation_Tab5_Rel2AbsScalarTV");
     Estimation_Tab5_CovariatesTV      = Estimation_Tabs->findChild<QTableView   *>("Estimation_Tab5_CovariatesTV");
     Estimation_Tab5_PrevPB            = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_PrevPB");
     Estimation_Tab5_NextPB            = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_NextPB");
@@ -46,10 +45,7 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
     Estimation_Tab5_SavePB            = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_SavePB");
     Estimation_Tab5_ImportPB          = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_ImportPB");
     Estimation_Tab5_ExportPB          = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_ExportPB");
-    Estimation_Tab5_AbsoluteBiomassRB = Estimation_Tabs->findChild<QRadioButton *>("Estimation_Tab5_AbsoluteBiomassRB");
-    Estimation_Tab5_RelativeBiomassRB = Estimation_Tabs->findChild<QRadioButton *>("Estimation_Tab5_RelativeBiomassRB");
-    Estimation_Tab5_CalcBiomassPB     = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_CalcBiomassPB");
-    Estimation_Tab5_EstimateSurveyQCB = Estimation_Tabs->findChild<QCheckBox    *>("Estimation_Tab5_EstimateSurveyQCB");
+    Estimation_Tab5_ObsBiomassTypeLBL = Estimation_Tabs->findChild<QLabel       *>("Estimation_Tab5_ObsBiomassTypeLBL");
 
     connect(Estimation_Tab5_PrevPB,   SIGNAL(clicked()),
             this,                     SLOT(callback_PrevPB()));
@@ -63,24 +59,12 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
             this,                     SLOT(callback_ImportPB()));
     connect(Estimation_Tab5_ExportPB, SIGNAL(clicked()),
             this,                     SLOT(callback_ExportPB()));
-    connect(Estimation_Tab5_CalcBiomassPB,     SIGNAL(clicked()),
-            this,                              SLOT(callback_CalcBiomassPB()));
-    connect(Estimation_Tab5_AbsoluteBiomassRB, SIGNAL(clicked()),
-            this,                              SLOT(callback_AbsoluteBiomassRB()));
-    connect(Estimation_Tab5_RelativeBiomassRB, SIGNAL(clicked()),
-            this,                              SLOT(callback_RelativeBiomassRB()));
-    connect(Estimation_Tab5_RelativeBiomassTV->horizontalScrollBar(), SIGNAL(sliderMoved(int)),
-                                                                      this, SLOT(callback_RelativeBiomassTVScrolled(int)));
-    connect(Estimation_Tab5_Rel2AbsScalarTV->horizontalScrollBar(),   SIGNAL(sliderMoved(int)),
-            this,                                                     SLOT(callback_Rel2AbsScalarTVScrolled(int)));
-    connect(Estimation_Tab5_EstimateSurveyQCB, SIGNAL(stateChanged(int)),
-            this,                              SLOT(callback_EstimateSurveyQCB(int)));
 
     Estimation_Tab5_PrevPB->setText("\u25C1--");
     Estimation_Tab5_NextPB->setText("--\u25B7");
 
     Estimation_Tab5_CovariatesGB->setVisible(false);
-    Estimation_Tab5_Rel2AbsScalarTV->hide();
+//    Estimation_Tab5_Rel2AbsScalarTV->hide();
     Estimation_Tab5_RelativeBiomassTV->hide();
 
 } // end constructor
@@ -89,12 +73,6 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
 nmfEstimation_Tab5::~nmfEstimation_Tab5()
 {
 
-}
-
-bool
-nmfEstimation_Tab5::useRelativeBiomass()
-{
-    return Estimation_Tab5_RelativeBiomassRB->isChecked();
 }
 
 void
@@ -141,9 +119,9 @@ nmfEstimation_Tab5::callback_ImportPB()
     if (isAbsoluteBiomassChecked()) {
         importAbsoluteBiomass();
     } else {
-        importScalarValues();
+//        importScalarValues();
         importRelativeBiomass();
-        matchTableColumnWidths();
+//        matchTableColumnWidths();
     }
 }
 
@@ -161,12 +139,12 @@ nmfEstimation_Tab5::importRelativeBiomass()
                     "BiomassRelative",Estimation_Tab5_RelativeBiomassTV);
 }
 
-void
-nmfEstimation_Tab5::importScalarValues()
-{
-    importTableData(nmfConstantsMSSPM::FirstLineNotReadOnly,"Relative Biomass Scalars",
-                    "BiomassRelativeScalars",Estimation_Tab5_Rel2AbsScalarTV);
-}
+//void
+//nmfEstimation_Tab5::importScalarValues()
+//{
+//    importTableData(nmfConstantsMSSPM::FirstLineNotReadOnly,"Relative Biomass Scalars",
+//                    "BiomassRelativeScalars",Estimation_Tab5_Rel2AbsScalarTV);
+//}
 
 void
 nmfEstimation_Tab5::importTableData(const bool& firstLineReadOnly,
@@ -227,18 +205,39 @@ std::cout << "tableNameStr: " << tableNameStr.toStdString() << std::endl;
 bool
 nmfEstimation_Tab5::isAbsoluteBiomassChecked()
 {
-    return Estimation_Tab5_AbsoluteBiomassRB->isChecked();
+    return getObsBiomassType().contains("Absolute Biomass");
+}
+
+QString
+nmfEstimation_Tab5::getObsBiomassType()
+{
+    return Estimation_Tab5_ObsBiomassTypeLBL->text();
+}
+
+void
+nmfEstimation_Tab5::setObsBiomassType(QString obsBiomassType)
+{
+    Estimation_Tab5_ObsBiomassTypeLBL->setText(obsBiomassType+":");
 }
 
 void
 nmfEstimation_Tab5::callback_SavePB()
 {
+    bool okSave;
     if (isAbsoluteBiomassChecked()) {
-        saveAbsoluteBiomass();
+        okSave = saveAbsoluteBiomass();
+        if (okSave) {
+            QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
+                                     "\nObserved Absolute Biomass table has been successfully updated.\n",
+                                     QMessageBox::Ok);
+        }
     } else {
-        saveScalarValues();
-        saveRelativeBiomass();
-        matchTableColumnWidths();
+        okSave = saveRelativeBiomass();
+        if (okSave) {
+            QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
+                                     "\nObserved Relative Biomass table has been successfully updated.\n",
+                                     QMessageBox::Ok);
+        }
     }
 }
 
@@ -248,37 +247,37 @@ nmfEstimation_Tab5::callback_ExportPB()
     if (isAbsoluteBiomassChecked()) {
         saveTableValuesToCSVFile("Absolute Biomass","BiomassAbsolute",m_SModelAbsoluteBiomass);
     } else {
-        saveTableValuesToCSVFile("Relative Biomass Scalars","BiomassRelativeScalars",m_SModelScalars);
+//        saveTableValuesToCSVFile("Relative Biomass Scalars","BiomassRelativeScalars",m_SModelScalars);
         saveTableValuesToCSVFile("Relative Biomass","BiomassRelative",m_SModelRelativeBiomass);
-        matchTableColumnWidths();
+//        matchTableColumnWidths();
     }
 }
 
-void
-nmfEstimation_Tab5::matchTableColumnWidths()
-{
-    int relativeColWidth;
-    int scalarColWidth;
-    int NumSpecies = m_SModelRelativeBiomass->columnCount();
+//void
+//nmfEstimation_Tab5::matchTableColumnWidths()
+//{
+//    int relativeColWidth;
+//    int scalarColWidth;
+//    int NumSpecies = m_SModelRelativeBiomass->columnCount();
 
-    Estimation_Tab5_RelativeBiomassTV->verticalHeader()->setFixedWidth(
-        Estimation_Tab5_Rel2AbsScalarTV->verticalHeader()->width());
+//    Estimation_Tab5_RelativeBiomassTV->verticalHeader()->setFixedWidth(
+//        Estimation_Tab5_Rel2AbsScalarTV->verticalHeader()->width());
 
-    Estimation_Tab5_RelativeBiomassTV->resizeColumnsToContents();
-    Estimation_Tab5_Rel2AbsScalarTV->resizeColumnsToContents();
+//    Estimation_Tab5_RelativeBiomassTV->resizeColumnsToContents();
+//    Estimation_Tab5_Rel2AbsScalarTV->resizeColumnsToContents();
 
-    for (int col=0; col<NumSpecies; ++col) {
-        relativeColWidth = Estimation_Tab5_RelativeBiomassTV->columnWidth(col);
-        scalarColWidth   = Estimation_Tab5_Rel2AbsScalarTV->columnWidth(col);
-        if (relativeColWidth > scalarColWidth) {
-            Estimation_Tab5_Rel2AbsScalarTV->setColumnWidth(col,relativeColWidth);
-        } else {
-            Estimation_Tab5_RelativeBiomassTV->setColumnWidth(col,scalarColWidth);
-        }
-    }
-}
+//    for (int col=0; col<NumSpecies; ++col) {
+//        relativeColWidth = Estimation_Tab5_RelativeBiomassTV->columnWidth(col);
+//        scalarColWidth   = Estimation_Tab5_Rel2AbsScalarTV->columnWidth(col);
+//        if (relativeColWidth > scalarColWidth) {
+//            Estimation_Tab5_Rel2AbsScalarTV->setColumnWidth(col,relativeColWidth);
+//        } else {
+//            Estimation_Tab5_RelativeBiomassTV->setColumnWidth(col,scalarColWidth);
+//        }
+//    }
+//}
 
-void
+bool
 nmfEstimation_Tab5::saveAbsoluteBiomass()
 {
     QModelIndex index;
@@ -296,7 +295,7 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     QString msg;
 
     if ((m_SModelAbsoluteBiomass == NULL)||(m_SModelCovariates == NULL)) {
-        return;
+        return false;
     }
     SpeciesKMin.clear();
 
@@ -324,7 +323,7 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
             errorMsg += "\n\nInitBiomass must be less than SpeciesKMin.\n";
             QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
                                  QMessageBox::Ok);
-            return;
+            return false;
         }
     }
 
@@ -341,7 +340,7 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
                              "\nError in Save command.  Couldn't delete all records from CovariteTS table.\n",
                              QMessageBox::Ok);
         Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return;
+        return false;
     }
 
     cmd = "INSERT INTO Covariate (Year,Value) VALUES ";
@@ -363,7 +362,7 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
                              "\nError in Save command.  Check that all cells are populated.\n",
                              QMessageBox::Ok);
         Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return;
+        return false;
     }
 
     Estimation_Tab5_CovariatesTV->resizeColumnsToContents();
@@ -374,24 +373,27 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
 
+    return true;
+
 }
 
-void
+bool
 nmfEstimation_Tab5::saveRelativeBiomass()
 {
     // Save Relative Biomass data to Database table
-    saveTableValuesToDatabase("BiomassRelative",m_SModelRelativeBiomass);
+    bool ok = saveTableValuesToDatabase("BiomassRelative",m_SModelRelativeBiomass);
+    return ok;
 }
 
 
-void
-nmfEstimation_Tab5::saveScalarValues()
-{
-    // Save Relative Biomass Scalar data to database table
-    saveTableValuesToDatabase("BiomassRelativeScalars",m_SModelScalars);
-}
+//void
+//nmfEstimation_Tab5::saveScalarValues()
+//{
+//    // Save Relative Biomass Scalar data to database table
+//    saveTableValuesToDatabase("BiomassRelativeScalars",m_SModelScalars);
+//}
 
-void
+bool
 nmfEstimation_Tab5::saveTableValuesToDatabase(
         const std::string& tableName,
         QStandardItemModel* smodel)
@@ -411,7 +413,7 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
 
     // Save Relative Biomass data to database table
     if (smodel == NULL) {
-        return;
+        return false;
     }
     NumSpecies = smodel->columnCount();
 
@@ -431,7 +433,7 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
                     msg = "Invalid value found (" + value +"). No commas or special characters allowed in a number.";
                     m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
                     QMessageBox::warning(Estimation_Tabs, "Error", "\n"+msg, QMessageBox::Ok);
-                    return;
+                    return false;
                 }
             }
         }
@@ -450,7 +452,7 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
                              "\nError in Save command.  Couldn't delete all records from " + QString::fromStdString(tableName) + " table.\n",
                              QMessageBox::Ok);
         Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return;
+        return false;
     }
 
     if (tableName == "BiomassRelativeScalars") {
@@ -459,7 +461,6 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
         for (int species=0; species<NumSpecies; ++species) {
             for (int time=0; time<smodel->rowCount(); ++time) {
                 index = smodel->index(time,species);
-//                value = index.data().toString();
                 cmd += "('"   + MohnsRhoLabel +
                         "','" + m_ProjectSettingsConfig +
                         "','" + SpeNames[species] +
@@ -472,7 +473,6 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
         for (int species=0; species<NumSpecies; ++species) {
             for (int time=0; time<smodel->rowCount(); ++time) {
                 index = smodel->index(time,species);
-//                value = index.data().toString();
                 cmd += "('"   + MohnsRhoLabel +
                         "','" + m_ProjectSettingsConfig +
                         "','" + SpeNames[species] +
@@ -490,7 +490,7 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
                              "\nError in Save command.  Check that all cells are populated.\n",
                              QMessageBox::Ok);
         Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return;
+        return false;
     }
 
     if (tableName == "BiomassAbsolute") {
@@ -507,13 +507,14 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
                 QMessageBox::warning(Estimation_Tabs,"Warning",
                                      "\nCouldn't REPLACE INTO Species table.\n",
                                      QMessageBox::Ok);
-                return;
+                return false;
             }
         }
         emit ReloadSpecies(nmfConstantsMSSPM::ShowPopupError);
     }
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
+    return true;
 }
 
 void
@@ -663,7 +664,6 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
 
     m_SModelAbsoluteBiomass = new QStandardItemModel( RunLength, NumSpecies );
     m_SModelRelativeBiomass = new QStandardItemModel( RunLength, NumSpecies );
-    m_SModelScalars         = new QStandardItemModel( 1,         NumSpecies );
     m_SModelCovariates      = new QStandardItemModel( RunLength, 1 );
 
     // Load tableviews
@@ -672,63 +672,12 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
     loadRelativeBiomass(RunLength,StartYear,NumSpecies,SystemName,
                         MohnsRhoLabel,SpeciesNames,SpeciesList,VerticalList);
     loadCovariates(RunLength,VerticalList);
-    loadScalars(1,StartYear,NumSpecies,SystemName,
-                MohnsRhoLabel,SpeciesNames,SpeciesList,VerticalList);
+//    loadScalars(1,StartYear,NumSpecies,SystemName,
+//                MohnsRhoLabel,SpeciesNames,SpeciesList,VerticalList);
 
     Estimation_Tab5_RelativeBiomassTV->resizeColumnsToContents();
-    Estimation_Tab5_Rel2AbsScalarTV->resizeColumnsToContents();
+//    Estimation_Tab5_Rel2AbsScalarTV->resizeColumnsToContents();
     return true;
-}
-
-void
-nmfEstimation_Tab5::loadScalars(const int& RunLength,
-                                const int& StartYear,
-                                const int& NumSpecies,
-                                const QString& SystemName,
-                                const QString& MohnsRhoLabel,
-                                const std::vector<std::string>& SpeciesNames,
-                                const QStringList& SpeciesList,
-                                QStringList& VerticalList)
-{
-    QStringList VerticalList2;
-    QStandardItem *item;
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    int m=0;
-
-    fields     = {"MohnsRhoLabel","SystemName","SpeName","Type","Value"};
-    queryStr   = "SELECT MohnsRhoLabel,SystemName,SpeName,Type,Value FROM BiomassRelativeScalars WHERE SystemName = '" +
-                 SystemName.toStdString() + "' AND MohnsRhoLabel = '" +
-                 MohnsRhoLabel.toStdString() + "' ORDER BY SpeName ";
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SpeName"].size();
-
-    if (NumRecords > 0) {
-        for (int row=0; row<RunLength; ++row) {
-            VerticalList2 << QString::fromStdString(" "+dataMap["Type"][m]+" ");
-            for (int col=0; col<NumSpecies; ++col) {
-                item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
-                item->setTextAlignment(Qt::AlignCenter);
-                m_SModelScalars->setItem(0,col,item);
-            }
-        }
-    } else {
-        for (int col=0; col<NumSpecies; ++col) {
-            item = new QStandardItem(QString(""));
-            item->setTextAlignment(Qt::AlignCenter);
-            m_SModelScalars->setItem(0,col,item);
-        }
-    }
-
-    m_SModelScalars->setHorizontalHeaderLabels(SpeciesList);
-    m_SModelScalars->setVerticalHeaderLabels(VerticalList2);
-    Estimation_Tab5_Rel2AbsScalarTV->setModel(m_SModelScalars);
-    Estimation_Tab5_Rel2AbsScalarTV->resizeColumnsToContents();
-
-    Estimation_Tab5_RelativeBiomassTV->verticalHeader()->setFixedWidth(
-        Estimation_Tab5_Rel2AbsScalarTV->verticalHeader()->width());
 }
 
 void
@@ -921,10 +870,21 @@ nmfEstimation_Tab5::callback_UpdateInitialObservedBiomass()
     Estimation_Tab5_AbsoluteBiomassTV->resizeColumnsToContents();
 }
 
+//void
+//nmfEstimation_Tab5::enableEstimateSurveyQCB(bool enable)
+//{
+//    Estimation_Tab5_EstimateSurveyQCB->setEnabled(enable);
+//}
+
 void
-nmfEstimation_Tab5::enableEstimateSurveyQCB(bool enable)
+nmfEstimation_Tab5::callback_ObservedBiomassType(QString obsBiomassType)
 {
-    Estimation_Tab5_EstimateSurveyQCB->setEnabled(enable);
+    if (obsBiomassType == "Absolute") {
+        callback_AbsoluteBiomassRB();
+    } else if (obsBiomassType == "Relative") {
+        callback_RelativeBiomassRB();
+    }
+    setObsBiomassType(obsBiomassType+" Biomass");
 }
 
 void
@@ -932,10 +892,9 @@ nmfEstimation_Tab5::callback_AbsoluteBiomassRB()
 {
     Estimation_Tab5_AbsoluteBiomassTV->show();
     Estimation_Tab5_RelativeBiomassTV->hide();
-    Estimation_Tab5_CalcBiomassPB->setEnabled(false);
-    Estimation_Tab5_Rel2AbsScalarTV->hide();
-    emit EnableSurveyQ("Absolute",false,Estimation_Tab5_EstimateSurveyQCB->isChecked());
-    enableEstimateSurveyQCB(false);
+//    Estimation_Tab5_Rel2AbsScalarTV->hide();
+//    emit EnableSurveyQ("Absolute",false,Estimation_Tab5_EstimateSurveyQCB->isChecked());
+//    enableEstimateSurveyQCB(false);
 }
 
 void
@@ -943,33 +902,12 @@ nmfEstimation_Tab5::callback_RelativeBiomassRB()
 {
     Estimation_Tab5_AbsoluteBiomassTV->hide();
     Estimation_Tab5_RelativeBiomassTV->show();
-    Estimation_Tab5_Rel2AbsScalarTV->show();
-    Estimation_Tab5_CalcBiomassPB->setEnabled(true);
-    emit EnableSurveyQ("Relative",true,Estimation_Tab5_EstimateSurveyQCB->isChecked());
-    enableEstimateSurveyQCB(true);
-    callback_EstimateSurveyQCB(Estimation_Tab5_EstimateSurveyQCB->checkState());
+//    Estimation_Tab5_Rel2AbsScalarTV->show();
+//    emit EnableSurveyQ("Relative",true,Estimation_Tab5_EstimateSurveyQCB->isChecked());
+//    enableEstimateSurveyQCB(true);
+//    callback_EstimateSurveyQCB(Estimation_Tab5_EstimateSurveyQCB->checkState());
 }
 
-void
-nmfEstimation_Tab5::callback_DimScalarBiomassControls(bool estimate)
-{
-//std::cout << "estimate: " << estimate << std::endl;
-    Estimation_Tab5_CalcBiomassPB->setEnabled(! estimate);
-    Estimation_Tab5_Rel2AbsScalarTV->setVisible(! estimate);
-
-    Estimation_Tab5_EstimateSurveyQCB->blockSignals(true);
-    Estimation_Tab5_EstimateSurveyQCB->setChecked(estimate);
-    Estimation_Tab5_EstimateSurveyQCB->blockSignals(false);
-}
-
-void
-nmfEstimation_Tab5::callback_EstimateSurveyQCB(int state)
-{
-    bool isChecked = (state == Qt::Checked);
-    Estimation_Tab5_Rel2AbsScalarTV->setVisible(!isChecked);
-    Estimation_Tab5_CalcBiomassPB->setEnabled(!isChecked);
-    emit EnableSurveyQ("Relative",true,isChecked);
-}
 
 
 bool
@@ -985,41 +923,6 @@ nmfEstimation_Tab5::isTableValueOK(QString value)
     return retv;
 }
 
-void
-nmfEstimation_Tab5::callback_CalcBiomassPB()
-{
-    // Calculate the Absolute Biomass from the Relative Biomass and the Scalar values
-    // AbsBiomass = Scalar*RelBiomass
-    int NumSpecies = m_SModelAbsoluteBiomass->columnCount();
-    int NumYears   = m_SModelAbsoluteBiomass->rowCount();
-    double scalar;
-    double absBiomass;
-    QStandardItem *item;
-    QString value;
-
-    for (int col=0; col<NumSpecies; ++col) {
-        value = m_SModelScalars->item(0,col)->text();
-        if (! isTableValueOK(value)) {
-            return;
-        }
-        scalar = value.toDouble();
-        for (int row=0; row<NumYears; ++row) {
-            value = m_SModelRelativeBiomass->item(row,col)->text();
-            if (! isTableValueOK(value)) {
-                return;
-            }
-            absBiomass = scalar*value.toDouble();
-            item = new QStandardItem(QString::number(absBiomass,'f',6));
-            item->setTextAlignment(Qt::AlignCenter);
-            m_SModelAbsoluteBiomass->setItem(row,col,item);
-        }
-    }
-
-    QMessageBox::information(Estimation_Tabs, "Absolute Biomass Calculated",
-                             "\nAbsolute Biomass has been calculated from the product of the Relative Biomass and their corresponding Scalar values.\n",
-                             QMessageBox::Ok);
-}
-
 bool
 nmfEstimation_Tab5::areTablesOK()
 {
@@ -1027,15 +930,6 @@ nmfEstimation_Tab5::areTablesOK()
                 Estimation_Tabs,
                 Estimation_Tab5_AbsoluteBiomassTV,
                 nmfConstantsMSSPM::DontShowError);
-}
-
-
-void
-nmfEstimation_Tab5::callback_RelativeBiomassTVScrolled(int value)
-{
-    Estimation_Tab5_Rel2AbsScalarTV->blockSignals(true);
-    Estimation_Tab5_Rel2AbsScalarTV->horizontalScrollBar()->setValue(value);
-    Estimation_Tab5_Rel2AbsScalarTV->blockSignals(false);
 }
 
 void

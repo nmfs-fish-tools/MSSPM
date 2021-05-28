@@ -34,14 +34,15 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     // Add the loaded widget as the new tabbed page
     Estimation_Tabs->addTab(Estimation_Tab2_Widget, tr("2. Harvest Parameters"));
 
-    Estimation_Tab2_CatchTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_CatchTV");
-    Estimation_Tab2_CatchGB  = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab2_CatchGB");
-    Estimation_Tab2_PrevPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_PrevPB");
-    Estimation_Tab2_NextPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_NextPB");
-    Estimation_Tab2_LoadPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_LoadPB");
-    Estimation_Tab2_SavePB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_SavePB");
-    Estimation_Tab2_ImportPB = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ImportPB");
-    Estimation_Tab2_ExportPB = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ExportPB");
+    Estimation_Tab2_HarvestTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_HarvestTV");
+    Estimation_Tab2_HarvestGB  = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab2_HarvestGB");
+    Estimation_Tab2_PrevPB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_PrevPB");
+    Estimation_Tab2_NextPB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_NextPB");
+    Estimation_Tab2_LoadPB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_LoadPB");
+    Estimation_Tab2_SavePB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_SavePB");
+    Estimation_Tab2_ImportPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ImportPB");
+    Estimation_Tab2_ExportPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ExportPB");
+    Estimation_Tab2_HarvestLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab2_HarvestLBL");
 
     connect(Estimation_Tab2_PrevPB,   SIGNAL(clicked(bool)),
             this,                     SLOT(callback_PrevPB()));
@@ -69,7 +70,7 @@ nmfEstimation_Tab2::~nmfEstimation_Tab2()
 void
 nmfEstimation_Tab2::clearWidgets()
 {
-    nmfUtilsQt::clearTableView({Estimation_Tab2_CatchTV});
+    nmfUtilsQt::clearTableView({Estimation_Tab2_HarvestTV});
 }
 
 void
@@ -156,7 +157,7 @@ nmfEstimation_Tab2::loadCSVFile(std::string& tableName)
 std::cout << "input: " << tableNameStr.toStdString() << std::endl;
 
     loadOK = nmfUtilsQt::loadTimeSeries(
-                Estimation_Tabs, Estimation_Tab2_CatchTV, inputDataPath, tableNameStr,
+                Estimation_Tabs, Estimation_Tab2_HarvestTV, inputDataPath, tableNameStr,
                 nmfConstantsMSSPM::FirstLineNotReadOnly,
                 nmfConstantsMSSPM::FixedNotation,
                 nonZeroCell,errorMsg);
@@ -239,7 +240,7 @@ nmfEstimation_Tab2::callback_SavePB()
         return;
     }
 
-    Estimation_Tab2_CatchTV->resizeColumnsToContents();
+    Estimation_Tab2_HarvestTV->resizeColumnsToContents();
 
     QMessageBox::information(Estimation_Tabs, QString::fromStdString(m_HarvestType) + " Updated",
                              "\n" + QString::fromStdString(m_HarvestType) +
@@ -355,13 +356,13 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
         return false;
     if (m_HarvestType.empty() || (m_HarvestType == "Null")) {
         m_Logger->logMsg(nmfConstants::Warning,"Warning: Harvest Type set to Null.");
-        Estimation_Tab2_CatchTV->setEnabled(false);
+        Estimation_Tab2_HarvestTV->setEnabled(false);
         return true;
     }
 
-    Estimation_Tab2_CatchTV->setEnabled(true);
+    Estimation_Tab2_HarvestTV->setEnabled(true);
 
-    Estimation_Tab2_CatchGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_HarvestType]));
+    Estimation_Tab2_HarvestGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_HarvestType]));
 
     fields   = {"RunLength","StartYear"};
     queryStr = "SELECT RunLength,StartYear FROM Systems where SystemName = '" + SystemName.toStdString() + "'";
@@ -407,8 +408,9 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
 
     m_SModel->setVerticalHeaderLabels(VerticalList);
     m_SModel->setHorizontalHeaderLabels(SpeciesNames);
-    Estimation_Tab2_CatchTV->setModel(m_SModel);
-    Estimation_Tab2_CatchTV->resizeColumnsToContents();
+    Estimation_Tab2_HarvestTV->setModel(m_SModel);
+    Estimation_Tab2_HarvestTV->resizeColumnsToContents();
+    Estimation_Tab2_HarvestLBL->setText(QString::fromStdString(m_HarvestType+":").replace("Harvest",""));
 
     return true;
 }
@@ -431,7 +433,7 @@ nmfEstimation_Tab2::areTablesOK()
 {
     return nmfUtilsQt::allCellsArePopulated(
                 Estimation_Tabs,
-                Estimation_Tab2_CatchTV,
+                Estimation_Tab2_HarvestTV,
                 nmfConstantsMSSPM::DontShowError);
 }
 

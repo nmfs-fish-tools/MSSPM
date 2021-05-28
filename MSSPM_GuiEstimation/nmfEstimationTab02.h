@@ -52,14 +52,15 @@ class nmfEstimation_Tab2: public QObject
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab2_Widget;
-    QTableView*  Estimation_Tab2_CatchTV;
-    QGroupBox*   Estimation_Tab2_CatchGB;
+    QTableView*  Estimation_Tab2_HarvestTV;
+    QGroupBox*   Estimation_Tab2_HarvestGB;
     QPushButton* Estimation_Tab2_PrevPB;
     QPushButton* Estimation_Tab2_NextPB;
     QPushButton* Estimation_Tab2_LoadPB;
     QPushButton* Estimation_Tab2_SavePB;
     QPushButton* Estimation_Tab2_ImportPB;
     QPushButton* Estimation_Tab2_ExportPB;
+    QLabel*      Estimation_Tab2_HarvestLBL;
 
     void loadCSVFile(std::string& tableName);
     void readSettings();

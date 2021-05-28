@@ -50,13 +50,11 @@ class nmfEstimation_Tab5: public QObject
     QStandardItemModel* m_SModelAbsoluteBiomass;
     QStandardItemModel* m_SModelRelativeBiomass;
     QStandardItemModel* m_SModelCovariates;
-    QStandardItemModel* m_SModelScalars;
 
     QTabWidget*   Estimation_Tabs;
     QWidget*      Estimation_Tab5_Widget;
     QTableView*   Estimation_Tab5_AbsoluteBiomassTV;
     QTableView*   Estimation_Tab5_RelativeBiomassTV;
-    QTableView*   Estimation_Tab5_Rel2AbsScalarTV;
     QTableView*   Estimation_Tab5_CovariatesTV;
     QPushButton*  Estimation_Tab5_PrevPB;
     QPushButton*  Estimation_Tab5_NextPB;
@@ -64,15 +62,12 @@ class nmfEstimation_Tab5: public QObject
     QPushButton*  Estimation_Tab5_SavePB;
     QPushButton*  Estimation_Tab5_ImportPB;
     QPushButton*  Estimation_Tab5_ExportPB;
-    QPushButton*  Estimation_Tab5_CalcBiomassPB;
-    QRadioButton* Estimation_Tab5_AbsoluteBiomassRB;
-    QRadioButton* Estimation_Tab5_RelativeBiomassRB;
     QGroupBox*    Estimation_Tab5_CovariatesGB;
     QCheckBox*    Estimation_Tab5_EstimateSurveyQCB;
+    QLabel*       Estimation_Tab5_ObsBiomassTypeLBL;
 
     void importAbsoluteBiomass();
     void importRelativeBiomass();
-    void importScalarValues();
     void importTableData(const bool& firstLineReadOnly,
                          const QString& type,
                          const std::string& tableName,
@@ -96,14 +91,6 @@ class nmfEstimation_Tab5: public QObject
                              const std::vector<std::string>& SpeciesNames,
                              const QStringList& SpeciesList,
                              QStringList& VerticalList);
-    void loadScalars(const int& RunLength,
-                     const int& StartYear,
-                     const int& NumSpecies,
-                     const QString& SystemName,
-                     const QString& MohnsRhoLabel,
-                     const std::vector<std::string>& SpeciesNames,
-                     const QStringList& SpeciesList,
-                     QStringList& VerticalList);
     void loadTableValuesFromDatabase(const int& RunLength,
                                      const int& StartYear,
                                      const int& NumSpecies,
@@ -118,18 +105,16 @@ class nmfEstimation_Tab5: public QObject
     void loadCSVFile(const bool& firstLineReadOnly,
                      const std::string& tableName,
                      QTableView* tableView);
-    void matchTableColumnWidths();
     void readSettings();
     void saveCSVFile(const QString& type,
                      QStandardItemModel* smodel,
                      const std::string& tableName);
-    void saveAbsoluteBiomass();
-    void saveRelativeBiomass();
-    void saveScalarValues();
+    bool saveAbsoluteBiomass();
+    bool saveRelativeBiomass();
     void saveTableValuesToCSVFile(const QString& type,
                                   const std::string& tableName,
                                   QStandardItemModel* smodel);
-    void saveTableValuesToDatabase(const std::string& tableName,
+    bool saveTableValuesToDatabase(const std::string& tableName,
                                    QStandardItemModel* smodel);
 
 public:
@@ -169,9 +154,9 @@ public:
     bool loadWidgets(QString MohnsRhoLabel);
 
     bool loadWidgetsFirstRow();
-    void enableEstimateSurveyQCB(bool enable);
     bool isTableValueOK(QString value);
-    bool useRelativeBiomass();
+    QString getObsBiomassType();
+    void setObsBiomassType(QString obsBiomassType);
 
 signals:
     /**
@@ -179,19 +164,12 @@ signals:
      * @param showPopup : boolean signifying whether the application should pop up a successful reload acknowledgement
      */
     void ReloadSpecies(bool showPopup);
-    void EnableSurveyQ(const QString biomassType,
-                       const bool enable,
-                       const bool checked);
 
 public Q_SLOTS:
     /**
      * @brief Callback invoked when the user clicks the Absolute Biomass radio button
      */
     void callback_AbsoluteBiomassRB();
-    /**
-     * @brief Callback invoked when the user clicks the (calc)ulate Relative Biomass to Absolute Biomass button
-     */
-    void callback_CalcBiomassPB();
     /**
      * @brief Callback invoked when the user clicks the Export button to save a .csv file
      */
@@ -222,11 +200,6 @@ public Q_SLOTS:
      */
     void callback_RelativeBiomassRB();
     /**
-     * @brief Callback invoked when user scrolls the Relative Biomass table to sync it with the Scalar table
-     * @param value : value to scroll the table
-     */
-    void callback_RelativeBiomassTVScrolled(int value);
-    /**
      * @brief Callback invoked when user scrolls the Scalar table to sync it with the Relative Biomass table
      * @param value : value to scroll the table
      */
@@ -239,8 +212,7 @@ public Q_SLOTS:
      * @brief Callback invoked when the user saves a new model in Setup -> Model Setup
      */
     void callback_UpdateInitialObservedBiomass();
-    void callback_DimScalarBiomassControls(bool dim);
-    void callback_EstimateSurveyQCB(int state);
+    void callback_ObservedBiomassType(QString obsBiomassType);
 
 };
 

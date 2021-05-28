@@ -57,8 +57,7 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     std::string errorMsg;
     std::string bestFitnessStr;
     std::vector<double> lastBestParameters;
-    std::chrono::_V2::system_clock::time_point startTime = nmfUtils::startTimer();
-    std::chrono::_V2::system_clock::time_point startTimeSpecies;
+    QDateTime startTime = nmfUtilsQt::getCurrentTime();
     std::vector<double> EstParameters;
     std::vector<double> MeanEstParameters;
     std::vector<double> stdDevParameters;
@@ -87,7 +86,7 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     nmfUtils::initialize(m_EstBetaGuilds, NumSpeciesOrGuilds,NumGuilds);
     nmfUtils::initialize(m_EstBetaGuildsGuilds, NumGuilds,   NumGuilds);
 
-    startTimeSpecies = nmfUtils::startTimer();
+//    startTimeSpecies = nmfUtils::startTimer();
 std::cout << "Bees num estimate boxes: " << beeStruct.EstimateRunBoxes.size() << std::endl;
 std::cout << "Bees: isAMultiRun: " << isAMultiRun << std::endl;
 
@@ -147,7 +146,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                     emit RepetitionRunCompleted(RunNumber,subRunNum,NumRepetitions);
                 }
                 // Added a delay to give Qt enough time to finish drawing this run's curve.
-                std::this_thread::sleep_for(std::chrono::microseconds(usecDelay));
+                QThread::usleep((unsigned long)(usecDelay));
 
                 // Break out if user has stopped the run
                 if (wasStoppedByUser()) {
@@ -212,7 +211,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                                  beeStruct.MultiRunModelFilename);
     }
 
-    std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtils::elapsedTime(startTime);
+    std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtilsQt::elapsedTime(startTime);
     std::cout << elapsedTimeStr << std::endl;
 
     stopRun(elapsedTimeStr,bestFitnessStr);
@@ -264,7 +263,7 @@ Bees_Estimator::createOutputStr(
         bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:",m_InitialCarryingCapacities,true);
     }
     bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong>";
-    bestFitnessStr += convertValues1DToOutputStr("Initial Biomass:    ",m_EstInitBiomass,false);
+    bestFitnessStr += convertValues1DToOutputStr("Initial Absolute Biomass:    ",m_EstInitBiomass,false);
     bestFitnessStr += convertValues1DToOutputStr("Growth Rate:        ",m_EstGrowthRates,false);
     if (growthForm == "Logistic") {
         bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:  ",m_EstCarryingCapacities,true);

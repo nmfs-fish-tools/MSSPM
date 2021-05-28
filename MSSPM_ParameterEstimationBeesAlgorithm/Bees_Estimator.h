@@ -46,11 +46,12 @@
 #include "BeesAlgorithm.h"
 #include "BeesStats.h"
 
+#include <QDateTime>
 #include <QFile>
 #include <QMutex>
 #include <QString>
 #include <QTextStream>
-#include <chrono>
+#include <QThread>
 #include <thread>
 
 typedef boost::uniform_real<> NumberDistribution;

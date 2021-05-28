@@ -886,6 +886,10 @@ private:
     bool simulatePredation(const std::string& PredationForm,
                            double& competitionValue);
     void updateDiagnosticSummaryStatistics();
+    bool updateObservedBiomassAndEstSurveyQTable(
+            const QStringList& Species,
+            const int& RunLength,
+            const std::vector<double>& EstSurveyQ);
     bool updateOutputBiomassTable(std::string& ForecastName,
                                   int&         StartYear,
                                   int&         RunLength,

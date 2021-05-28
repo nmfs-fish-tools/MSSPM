@@ -444,7 +444,7 @@ nmfMainWindow::setupOutputEstimateParametersWidgets()
     FMSYTV              = new QTableView();
     OutputBiomassTV     = new QTableView();
 
-    m_EstimatedParametersTW->addTab(InitBiomassTV,"Initial Biomass");
+    m_EstimatedParametersTW->addTab(InitBiomassTV,"Initial Absolute Biomass");
     m_EstimatedParametersTW->addTab(GrowthRateTV,"Growth Rate (r)");
     m_EstimatedParametersTW->addTab(CarryingCapacityTV,"Carrying Capacity (K)");
     m_EstimatedParametersTW->addTab(CatchabilityTV,"Catchability (q)");
@@ -461,10 +461,10 @@ nmfMainWindow::setupOutputEstimateParametersWidgets()
     m_EstimatedParametersTW->addTab(FMSYTV,"Fishing Mortality MSY (r/2)");
     m_EstimatedParametersTW->setObjectName("EstimatedParametersTab");
 
-    m_EstimatedParametersMap["Initial Biomass"]        = InitBiomassTV;
-    m_EstimatedParametersMap["Growth Rate (r)"]        = GrowthRateTV;
-    m_EstimatedParametersMap["Carrying Capacity (K)"]  = CarryingCapacityTV;
-    m_EstimatedParametersMap["Catchability (q)"]       = CatchabilityTV;
+    m_EstimatedParametersMap["Initial Absolute Biomass"] = InitBiomassTV;
+    m_EstimatedParametersMap["Growth Rate (r)"]          = GrowthRateTV;
+    m_EstimatedParametersMap["Carrying Capacity (K)"]    = CarryingCapacityTV;
+    m_EstimatedParametersMap["Catchability (q)"]         = CatchabilityTV;
     m_EstimatedParametersMap["Competition ("+QString(QChar(0x03B1))+")"] = CompetitionAlphaTV;
     m_EstimatedParametersMap["Competition ("+QString(QChar(0x03B2))+":Species)"] = CompetitionBetaSTV;
     m_EstimatedParametersMap["Competition ("+QString(QChar(0x03B2))+":Guilds)"] = CompetitionBetaGTV;
@@ -2396,7 +2396,6 @@ nmfMainWindow::menu_copy()
         std::cout << "\nError: Invalid cells found to copy." << std::endl;
         return;
     }
-
     QString retv = nmfUtilsQt::copy(qApp,findTableInFocus());
     if (! retv.isEmpty()) {
         QMessageBox::question(this,tr("Copy"),retv,QMessageBox::Ok);
@@ -2810,6 +2809,8 @@ nmfMainWindow::initConnections()
             Estimation_Tab5_ptr, SLOT(callback_UpdateInitialObservedBiomass()));
     connect(Setup_Tab4_ptr,      SIGNAL(UpdateInitialForecastYear()),
             Forecast_Tab1_ptr,   SLOT(callback_UpdateForecastYears()));
+    connect(Setup_Tab4_ptr,      SIGNAL(ObservedBiomassType(QString)),
+            Estimation_Tab5_ptr, SLOT(callback_ObservedBiomassType(QString)));
 
     connect(Estimation_Tab1_ptr, SIGNAL(StoreOutputSpecies()),
             this,                SLOT(callback_StoreOutputSpecies()));
@@ -2858,10 +2859,6 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_AddToReview()));
     connect(Estimation_Tab7_ptr, SIGNAL(LoadFromModelReview(nmfStructsQt::ModelReviewStruct)),
             this,                SLOT(callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct)));
-    connect(Estimation_Tab5_ptr, SIGNAL(EnableSurveyQ(QString,bool,bool)),
-            Estimation_Tab6_ptr, SLOT(callback_EnableSurveyQ(QString,bool,bool)));
-    connect(Estimation_Tab6_ptr, SIGNAL(DimScalarBiomassControls(bool)),
-            Estimation_Tab5_ptr, SLOT(callback_DimScalarBiomassControls(bool)));
 
     connect(Forecast_Tab1_ptr,   SIGNAL(ForecastLoaded(std::string)),
             this,                SLOT(callback_ForecastLoaded(std::string)));
@@ -3019,8 +3016,8 @@ nmfMainWindow::findTableInFocus()
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_GuildPopulationTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_SpeciesPopulationTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_SpeciesPopulationTV");
-    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV")->hasFocus()) {
-        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_HarvestTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_HarvestTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaMinTV")->hasFocus()) {
@@ -3069,8 +3066,6 @@ nmfMainWindow::findTableInFocus()
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_AbsoluteBiomassTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_RelativeBiomassTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_RelativeBiomassTV");
-    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_Rel2AbsScalarTV")->hasFocus()) {
-        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_Rel2AbsScalarTV");
 
     } else if (m_UI->ForecastDataInputTabWidget->findChild<QTableView *>("Forecast_Tab2_HarvestTV")->hasFocus()) {
         return m_UI->ForecastDataInputTabWidget->findChild<QTableView *>("Forecast_Tab2_HarvestTV");
@@ -3266,7 +3261,7 @@ std::cout << "RSK todo - put Bees gets here" << std::endl;
         stream << "Estimated Parameters\n";
         stream << extractVectorData(Estimation_Tab6_ptr->isEstInitialBiomassEnabled(),
                                     Estimation_Tab6_ptr->isEstInitialBiomassChecked(),isAMultiRun,
-                                    SpeciesList,"Initial Biomass:",EstInitBiomass,'f',2);
+                                    SpeciesList,"Initial Absolute Biomass:",EstInitBiomass,'f',2);
         stream << extractVectorData(Estimation_Tab6_ptr->isEstGrowthRateEnabled(),
                                     Estimation_Tab6_ptr->isEstGrowthRateChecked(),isAMultiRun,
                                     SpeciesList,"Growth Rate:",EstGrowthRates,'f',3);
@@ -3483,6 +3478,7 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
                                  GrowthForm,HarvestForm,CompetitionForm,PredationForm,
                                  InitBiomassTable,GrowthRateTable,CarryingCapacityTable,
                                  CatchabilityTable,SurveyQTable,BiomassTable);
+        updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,EstSurveyQ);
     } else if ((Algorithm == "Bees Algorithm") && m_Estimator_Bees) {
 
         m_Estimator_Bees->getEstimatedInitBiomass(EstInitBiomass);
@@ -3532,6 +3528,7 @@ std::cout << "\nSaving current run... MohnsRhoLabel: " << m_MohnsRhoLabel << std
                                  GrowthForm,HarvestForm,CompetitionForm,PredationForm,
                                  InitBiomassTable,GrowthRateTable,CarryingCapacityTable,
                                  CatchabilityTable,SurveyQTable,BiomassTable);
+        updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,EstSurveyQ);
     }
 
 }
@@ -4259,6 +4256,79 @@ nmfMainWindow::setFirstRowEstimatedBiomass(
             EstimatedBiomassBySpecies(0,SpeciesNum) = InitialBiomass[SpeciesNum];
         }
     }
+    return true;
+}
+
+bool
+nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
+        const QStringList& SpeciesList,
+        const int& RunLength,
+        const std::vector<double>& EstSurveyQ)
+{
+    int NumRecords;
+    int NumSpecies = int(EstSurveyQ.size());
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string errorMsg;
+    double product;
+    double estSurveyQ;
+    QString Species;
+    int m=0;
+
+    // Read BiomassRelative data from table
+    fields    = {"MohnsRhoLabel","SpeName","Year","Value"};
+    queryStr  = "SELECT MohnsRhoLabel,SpeName,Year,Value FROM BiomassRelative";
+    queryStr += " WHERE MohnsRhoLabel = '" + m_MohnsRhoLabel +
+                "' ORDER BY SpeName,Year";
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["Value"].size();
+    if (NumRecords != NumSpecies*RunLength) {
+        errorMsg  = "nmfMainWindow::updateObservedBiomassAndEstSurveyQTable::Incorrect number of records found in: BiomassRelativeAndEstSurveyQProduct";
+        errorMsg += "Found " + std::to_string(NumRecords) + " expecting " + std::to_string(NumSpecies)+" * "+std::to_string(RunLength) + ".";
+        m_Logger->logMsg(nmfConstants::Error, "nmfMainWindow::updateObservedBiomassAndEstSurveyQTable: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error, queryStr);
+        errorMsg  = "\n" + errorMsg + "\n";
+        QMessageBox::information(this, tr("Run Failed"), tr(errorMsg.c_str()),QMessageBox::Ok);
+        return false;
+    }
+
+    // Clear BiomassRelativeAndEstSurveyQProduct table
+    std::string cmd = "DELETE FROM BiomassRelativeAndEstSurveyQProduct";
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::updateObservedBiomassAndEstSurveyQTable: DELETE error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        QMessageBox::warning(this, "Error",
+                             "\nCouldn't delete all records from updateObservedBiomassAndEstSurveyQTable table.\n",
+                             QMessageBox::Ok);
+        return false;
+    }
+
+    // Write to BiomassRelativeAndEstSurveyQProduct table
+    cmd = "INSERT INTO BiomassRelativeAndEstSurveyQProduct (MohnsRhoLabel,SystemName,SpeName,Year,Value) VALUES ";
+    for (int speciesNum=0; speciesNum<NumSpecies; ++speciesNum) {
+        estSurveyQ = EstSurveyQ[speciesNum];
+        Species    = SpeciesList[speciesNum];
+        for (int year=0; year<RunLength; ++year) {
+//          product = estSurveyQ * std::stod(dataMap["Value"][m++]);
+            product = std::stod(dataMap["Value"][m++]) / estSurveyQ;
+            // Write product to BiomassRelativeAndEstSurveyQProduct table
+            cmd += "('"   + m_MohnsRhoLabel +
+                    "','" + m_ProjectSettingsConfig +
+                    "','" + Species.toStdString() +
+                    "',"  + std::to_string(year) +
+                    ","   + std::to_string(product) + "),";
+        }
+    }
+    cmd = cmd.substr(0,cmd.size()-1);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::updateBiomassEnsembleTable: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        return false;
+    }
+
     return true;
 }
 
@@ -5037,6 +5107,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     std::string CompetitionForm;
     std::string PredationForm;
     std::string isAggProdStr = "";
+    std::string ObsBiomassType = "";
     std::vector<std::string> Algorithms        = {DefaultAveragingAlgorithm};
     std::vector<std::string> Minimizers        = {DefaultAveragingAlgorithm};
     std::vector<std::string> ObjectiveCriteria = {DefaultAveragingAlgorithm};
@@ -5070,8 +5141,8 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     }
 
     // Get Systems data
-    fields     = {"RunLength","StartYear","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
-    queryStr   = "SELECT RunLength,StartYear,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm";
+    fields     = {"ObsBiomassType","RunLength","StartYear","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
+    queryStr   = "SELECT ObsBiomassType,RunLength,StartYear,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm";
     queryStr  += " FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["RunLength"].size();
@@ -5090,7 +5161,8 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     isHandling      = (PredationForm == "Type II") || (PredationForm == "Type III");
     isExponent      = (PredationForm == "Type III");
     isAggProdStr    = (isAggProd) ? "1" : "0";
-
+    ObsBiomassType  = dataMap["ObsBiomassType"][0];
+    ObsBiomassType  = (ObsBiomassType.empty() || ObsBiomassType == "Absolute") ? "BiomassAbsolute" : "BiomassRelativeAndEstSurveyQProduct";
 
     if (OutputType.isEmpty()) {
         OutputType = Output_Controls_ptr->getOutputChartType();
@@ -5309,12 +5381,12 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
     // Load Observed (ie, original) Biomass
     if (isAggProd) {
-        if (! getTimeSeriesDataByGuild("","BiomassAbsolute",NumSpeciesOrGuilds,RunLength,ObservedBiomass)) {
+        if (! getTimeSeriesDataByGuild("",ObsBiomassType,NumSpeciesOrGuilds,RunLength,ObservedBiomass)) {
             return false;
         }
     } else {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
-                                               m_MohnsRhoLabel,"","BiomassAbsolute",
+                                               m_MohnsRhoLabel,"",ObsBiomassType,
                                                NumSpeciesOrGuilds,RunLength,ObservedBiomass)) {
             return false;
         }
@@ -5436,17 +5508,34 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
 boost::numeric::ublas::matrix<double>
 nmfMainWindow::getObservedBiomassByGroup(const int& NumGuilds,
-                                  const int& RunLength,
-                                  const std::string& group)
+                                         const int& RunLength,
+                                         const std::string& group)
 {
     boost::numeric::ublas::matrix<double> tmpObservedBiomass;
     boost::numeric::ublas::matrix<double> ObservedBiomass;
+    std::vector<std::string> fields;
+    std::string queryStr;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string ObsBiomassType = "";
+
+    // Find observed biomass type
+    fields     = {"ObsBiomassType"};
+    queryStr   = "SELECT ObsBiomassType";
+    queryStr  += " FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    int NumRecords = dataMap["ObsBiomassType"].size();
+    if (NumRecords == 0) {
+        ObsBiomassType = "BiomassAbsolute";
+    } else {
+        ObsBiomassType = dataMap["ObsBiomassType"][0];
+        ObsBiomassType = (ObsBiomassType.empty() || ObsBiomassType == "Absolute") ? "BiomassAbsolute" : "BiomassRelativeAndEstSurveyQProduct";
+    }
 
     if (group == "Guild") {
-        getTimeSeriesDataByGuild("","BiomassAbsolute",NumGuilds,RunLength,ObservedBiomass);
+        getTimeSeriesDataByGuild("",ObsBiomassType,NumGuilds,RunLength,ObservedBiomass);
     } else if (group == "System") {
         // Find total system observed biomass
-        if (! getTimeSeriesDataByGuild("","BiomassAbsolute",NumGuilds,RunLength,tmpObservedBiomass)) {
+        if (! getTimeSeriesDataByGuild("",ObsBiomassType,NumGuilds,RunLength,tmpObservedBiomass)) {
             return ObservedBiomass;
         }
         nmfUtils::initialize(ObservedBiomass,RunLength+1,1);
@@ -11452,6 +11541,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct &dataStruct, const b
     std::string harvestForm;
     std::string competitionForm;
     std::string predationForm;
+    std::string obsBiomassType;
     std::map<std::string,double> initialGuildBiomass;
     std::map<std::string,double> initialGuildBiomassMin;
     std::map<std::string,double> initialGuildBiomassMax;
@@ -11527,13 +11617,14 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct &dataStruct, const b
     m_Logger->logMsg(nmfConstants::Normal,"Reading from: "+m_ProjectSettingsConfig);
 
     // Find RunLength
-    fields     = {"GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","Minimizer","ObjectiveCriterion",
+    fields     = {"ObsBiomassType","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm",
+                  "RunLength","Minimizer","ObjectiveCriterion",
                   "BeesNumTotal","BeesNumElite","BeesNumOther","BeesNumEliteSites",
                   "BeesNumBestSites","BeesNumRepetitions","BeesMaxGenerations","BeesNeighborhoodSize",
                   "Scaling","GAGenerations","GAConvergence",
                   "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter",
                   "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptNumberOfRuns"};
-    queryStr   = "SELECT GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,Minimizer,ObjectiveCriterion,";
+    queryStr   = "SELECT ObsBiomassType,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,Minimizer,ObjectiveCriterion,";
     queryStr  += "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions,";
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,Scaling,GAGenerations,GAConvergence,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
@@ -11541,6 +11632,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct &dataStruct, const b
     queryStr  += "FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
 
+    obsBiomassType                   = dataMap["ObsBiomassType"][0];
     RunLength                        = std::stoi(dataMap["RunLength"][0]);
     dataStruct.RunLength             = RunLength;
     dataStruct.GrowthForm            = dataMap["GrowthForm"][0];
@@ -11585,7 +11677,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct &dataStruct, const b
     bool isExponent = (predationForm   == "Type III");
     bool isMSPROD   = (competitionForm == "MS-PROD");
     bool isAGGPROD  = (competitionForm == "AGG-PROD");
-    bool isSurveyQ  = Estimation_Tab5_ptr->useRelativeBiomass();
+    bool isSurveyQ  = (obsBiomassType == "Relative");
 
     if (isAlpha) {
         dataStruct.CompetitionMin.clear();
@@ -11723,15 +11815,6 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
     }
 
     NumSpeciesOrGuilds = (isAGGPROD) ? NumGuilds : NumSpecies;
-
-    // Set SurveyQ to 1 if not being estimated
-    if (! isSurveyQ) {
-        for (int i=0; i<int(dataStruct.SurveyQ.size()); ++i) {
-            dataStruct.SurveyQ(i)    = 1.0;
-            dataStruct.SurveyQMin(i) = 1.0;
-            dataStruct.SurveyQMax(i) = 1.0;
-        }
-    }
 
     // Load Interaction coefficients
     if (isAlpha) {
@@ -12973,7 +13056,7 @@ nmfMainWindow::dataAdequateForCurrentModel(QStringList estParamNames)
         m_Logger->logMsg(nmfConstants::Normal,msg);
     }
 
-    if (estParamNames.contains("Initial Biomass")) {
+    if (estParamNames.contains("Initial Absolute Biomass")) {
         // Check Species for valid B₀, B₀ min, and B₀ max values
         if (! areFieldsValid("Species",{"SpeName","InitBiomass","InitBiomassMin","InitBiomassMax"})) {
             return std::make_pair(false,"");

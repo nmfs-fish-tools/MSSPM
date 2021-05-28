@@ -24,102 +24,15 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QRadioButton" name="Estimation_Tab5_AbsoluteBiomassRB">
+          <widget class="QLabel" name="Estimation_Tab5_ObsBiomassTypeLBL">
            <property name="font">
             <font>
              <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
-           <property name="toolTip">
-            <string>Set large table below for Absolute Biomass</string>
-           </property>
-           <property name="statusTip">
-            <string>Set large table below for Absolute Biomass</string>
-           </property>
-           <property name="whatsThis">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Absolute Biomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When set, the values in the below biomass table represent Absolute Biomass values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
            <property name="text">
-            <string>Absolute Biomass</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="Estimation_Tab5_RelativeBiomassRB">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>Set large table below for Relative Biomass</string>
-           </property>
-           <property name="statusTip">
-            <string>Set large table below for Relative Biomass</string>
-           </property>
-           <property name="whatsThis">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Relative Biomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When set, the values in the below biomass table represent Relative Biomass values. The smaller table above that table contains scalar values used to convert Relative Biomass values to Absolute Biomass values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string>Relative Biomass</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="Estimation_Tab5_CalcBiomassPB">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>40</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>40</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Calculate Absolute Biomass from Relative Biomass</string>
-           </property>
-           <property name="statusTip">
-            <string>Calculate Absolute Biomass from Relative Biomass</string>
-           </property>
-           <property name="whatsThis">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Calc&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button calculates Absolute Biomass from the given Relative Biomass table below. In order to do this, the per-Species values in the smaller, scalar table below are multiplied by the Relative Biomass table values and placed into the Absolute Biomass table. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="text">
-            <string>calc</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="Estimation_Tab5_EstimateSurveyQCB">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>If checked, SurveyQ will be estimated</string>
-           </property>
-           <property name="statusTip">
-            <string>If checked, SurveyQ will be estimated</string>
-           </property>
-           <property name="whatsThis">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimate SurveyQ&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This box is used only when Relative Biomass is selected to the left. If it's checked, Survey Q will be estimated. If it's unchecked, the user must enter scalar values to be multiplied with the Relative Biomass values. The Calc button performs this multiplcation and pastes the products into the Absolute Biomass table, which the user can then save.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-           <property name="text">
-            <string>Estimate SurveyQ:</string>
+            <string>Absolute Biomass:</string>
            </property>
           </widget>
          </item>
@@ -137,40 +50,6 @@
           </spacer>
          </item>
         </layout>
-       </item>
-       <item>
-        <widget class="QTableView" name="Estimation_Tab5_Rel2AbsScalarTV">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>65</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>65</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="statusTip">
-          <string/>
-         </property>
-        </widget>
        </item>
        <item>
         <widget class="QTableView" name="Estimation_Tab5_RelativeBiomassTV"/>

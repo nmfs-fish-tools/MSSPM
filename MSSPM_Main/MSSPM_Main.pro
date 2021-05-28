@@ -32,7 +32,7 @@ QMAKE_CXXFLAGS += -std=c++0x
 
 CONFIG += c++14
 
-LIBS += -lboost_system -lboost_filesystem
+#LIBS += -lboost_system -lboost_filesystem
 
 SOURCES += \
     SimulatedBiomassDialog.cpp \

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>633</width>
-    <height>648</height>
+    <width>587</width>
+    <height>613</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -343,6 +343,69 @@ This value is read-only and auto-generated.</string>
                 <property name="sizeHint" stdset="0">
                  <size>
                   <width>96</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_16">
+              <item>
+               <widget class="QLabel" name="label">
+                <property name="minimumSize">
+                 <size>
+                  <width>110</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>110</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Fitting data to:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="Setup_Tab4_ObsBiomassTypeCMB">
+                <property name="toolTip">
+                 <string>The type of observed biomass that the user will enter</string>
+                </property>
+                <property name="statusTip">
+                 <string>The type of observed biomass that the user will enter</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Absolute</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Relative</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>biomass</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_92">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
                   <height>20</height>
                  </size>
                 </property>

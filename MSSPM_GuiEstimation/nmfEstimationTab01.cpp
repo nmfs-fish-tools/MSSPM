@@ -1464,9 +1464,9 @@ nmfEstimation_Tab1::setupHelpSpecies()
 
     // set Tool tips here for column headings
     smodel->horizontalHeaderItem( 0)->setToolTip("Species Name");
-    smodel->horizontalHeaderItem( 1)->setToolTip("Initial Biomass");
-    smodel->horizontalHeaderItem( 2)->setToolTip("Initial Biomass Minimum Value");
-    smodel->horizontalHeaderItem( 3)->setToolTip("Initial Biomass Maximum Value");
+    smodel->horizontalHeaderItem( 1)->setToolTip("Initial Absolute Biomass");
+    smodel->horizontalHeaderItem( 2)->setToolTip("Initial Absolute Biomass Minimum Value");
+    smodel->horizontalHeaderItem( 3)->setToolTip("Initial Absolute Biomass Maximum Value");
     smodel->horizontalHeaderItem( 4)->setToolTip("Initial Growth Rate");
     smodel->horizontalHeaderItem( 5)->setToolTip("Minimum Growth Rate");
     smodel->horizontalHeaderItem( 6)->setToolTip("Maximum Growth Rate");
@@ -1477,14 +1477,14 @@ nmfEstimation_Tab1::setupHelpSpecies()
     msg  = "</html><strong><center>Species Name</center></strong><br>";
     msg += "The Species name entered must be unique.";
     smodel->horizontalHeaderItem(0)->setWhatsThis(prefix+msg+suffix);
-    msg  = "</html><strong><center>Initial Biomass</center></strong><br>";
+    msg  = "</html><strong><center>Initial Absolute Biomass</center></strong><br>";
     msg += "The initial species biomass is in units of metric tons.";
     smodel->horizontalHeaderItem(1)->setWhatsThis(prefix+msg+suffix);
-    msg  = "</html><strong><center>Minimum Initial Biomass</center></strong><br>";
-    msg += "The minimum initial biomass must be less than or equal to the initial biomass.";
+    msg  = "</html><strong><center>Minimum Initial Absolute Biomass</center></strong><br>";
+    msg += "The minimum initial absolute biomass must be less than or equal to the initial absolute biomass.";
     smodel->horizontalHeaderItem(2)->setWhatsThis(prefix+msg+suffix);
-    msg  = "</html><strong><center>Maximum Initial Biomass</center></strong><br>";
-    msg += "The maximum initial biomass must be greater than or equal to the initial biomass.";
+    msg  = "</html><strong><center>Maximum Initial Absolute Biomass</center></strong><br>";
+    msg += "The maximum initial absolute biomass must be greater than or equal to the initial absolute biomass.";
     smodel->horizontalHeaderItem(3)->setWhatsThis(prefix+msg+suffix);
     msg  = "</html><strong><center>Growth Rate</center></strong><br>";
     msg += "The Species growth rate (r) is a unit-less value typically between 0.0 and 1.0.";

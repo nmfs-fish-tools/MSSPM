@@ -96,18 +96,9 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     Setup_Tab3_GuildsTW->setSelectionMode(QAbstractItemView::ContiguousSelection);
     Setup_Tab3_SpeciesTW->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
-//    m_colLabelsSpecies << "Name" << "Guild" << "Initial Biomass" << "Initial Biomas Min" << "Initial Biomass Max"
-//                       << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max" << "Growth Rate Covar Coeff"
-//                       << "Species K" << "Species K Min" << "Species K Max" << "Species K Covar Coeff"
-//                       << "Survey Q" << "Survey Q Min" << "Survey Q Max"
-//                       << "CatchabilityMin" << "CatchabilityMax" << "Dependence";
-
-    m_colLabelsSpecies << "Name" << "Guild" << "Initial Biomass" << "Growth Rate" << "Species K" ;
+    m_colLabelsSpecies << "Name" << "Guild" << "Initial Absolute Biomass" << "Growth Rate" << "Species K" ;
     m_colLabelsGuilds << "GuildName" << "GrowthRate" << "GuildK";
 
-//    m_colLabelsGuilds << "Guild Name" << "Growth Rate" << "Growth Rate Min" << "Growth Rate Max"
-//                      << "Carrying Capacity" << "Carrying Capacity Min" << "Carrying Capacity Max"
-//                      << "Catchability Min" << "Catchability Max";
 }
 
 
@@ -756,7 +747,7 @@ nmfSetup_Tab3::saveSpeciesData()
             return;
         }
 
-        // Need to also update the BiomassAbsolute table with the initial Biomass values
+        // Need to also update the BiomassAbsolute table with the Initial Absolute Biomass values
         cmd  = "REPLACE INTO BiomassAbsolute (";
         cmd += "MohnsRhoLabel,SystemName,SpeName,Year,Value) ";
         cmd += "VALUES ('" + MohnsRhoLabel + "','" + m_ProjectSettingsConfig + "','" +
@@ -1097,7 +1088,7 @@ nmfSetup_Tab3::setupHelp()
     // set Tool tips here for column headings
     Setup_Tab3_SpeciesTW->horizontalHeaderItem(0)->setToolTip("Species Name");
     Setup_Tab3_SpeciesTW->horizontalHeaderItem(1)->setToolTip("Guild Name");
-    Setup_Tab3_SpeciesTW->horizontalHeaderItem(2)->setToolTip("Species Initial Biomass");
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(2)->setToolTip("Species Initial Absolute Biomass");
     Setup_Tab3_SpeciesTW->horizontalHeaderItem(3)->setToolTip("Species Growth Rate");
     Setup_Tab3_SpeciesTW->horizontalHeaderItem(4)->setToolTip("Species Carrying Capacity");
 
@@ -1107,8 +1098,8 @@ nmfSetup_Tab3::setupHelp()
     msg  = "</html><strong><center>Guild Name</center></strong><br>";
     msg += "The user must create Guilds prior to being able to select one here.";
     Setup_Tab3_SpeciesTW->horizontalHeaderItem(1)->setWhatsThis(prefix+msg+suffix);
-    msg  = "</html><strong><center>Initial Biomass</center></strong><br>";
-    msg += "The initial species biomass is in units of metric tons.";
+    msg  = "</html><strong><center>Initial Absolute Biomass</center></strong><br>";
+    msg += "The initial species absolute biomass is in units of metric tons.";
     Setup_Tab3_SpeciesTW->horizontalHeaderItem(2)->setWhatsThis(prefix+msg+suffix);
     msg  = "</html><strong><center>Growth Rate</center></strong><br>";
     msg += "The Species growth rate (r) is a unit-less value typically between 0.0 and 1.0.";

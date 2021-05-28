@@ -74,6 +74,7 @@ class nmfSetup_Tab4: public QObject
     QComboBox*   Setup_Tab4_PredationFormCMB;
     QComboBox*   Setup_Tab4_HarvestFormCMB;
     QComboBox*   Setup_Tab4_CompetitionFormCMB;
+    QComboBox*   Setup_Tab4_ObsBiomassTypeCMB;
     QTextEdit*   SetupOutputTE;
     QLineEdit*   Setup_Tab4_ModelNameLE;
     QLineEdit*   Setup_Tab4_SystemCarryingCapacityLE;
@@ -100,7 +101,7 @@ class nmfSetup_Tab4: public QObject
                             QString& competitionColorName,
                             QString& predationColorName);
     bool   modelExists(QString ModelName);
-    bool   saveSettingsConfiguration(bool verbose,
+    bool   saveModelData(bool verbose,
                                      std::string CurrentSettingsName);
 
     void clearWidgets();
@@ -187,6 +188,11 @@ public:
      * @return The current Model name
      */
     QString getModelName();
+    /**
+     * @brief Returns the observed biomass type to be entered by the user
+     * @return  The observed biomass type: Absolute or Relative
+     */
+    QString getObsBiomassType();
     /**
      * @brief Returns whether or not Growth Form is highlighted
      * @return True if Growth Form is highlighted, else False
@@ -308,6 +314,10 @@ signals:
      */
     void ModelSaved();
     /**
+     * @brief Signal emitted to set the observed biomass type in Estimation Tab 5: Observation Data
+     */
+    void ObservedBiomassType(QString obsBiomassType);
+    /**
      * @brief Signal emitted to update the initial Forecast year
      */
     void UpdateInitialForecastYear();
@@ -315,6 +325,7 @@ signals:
      * @brief Signal emitted to update the initial Observed Biomass values
      */
     void UpdateInitialObservedBiomass();
+
 
 public Q_SLOTS:
     /**
@@ -380,6 +391,11 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Next Page button
      */
     void callback_NextPB();
+    /**
+     * @brief Callback invoked when the user selects the type of observed biomass to be used in the current model
+     * @param obsBiomassType : The type of observed biomass data. Either Absolute or Relative.
+     */
+    void callback_ObsBiomassTypeCMB(QString obsBiomassType);
     /**
      * @brief Callback invoked when the user selects a Predation Form
      * @param name : name of the Predation Form selected

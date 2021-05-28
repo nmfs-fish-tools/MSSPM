@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>574</width>
-    <height>377</height>
+    <height>566</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="Estimation_Tab2_CatchGB">
+    <widget class="QGroupBox" name="Estimation_Tab2_HarvestGB">
      <property name="font">
       <font>
        <weight>75</weight>
@@ -26,8 +26,21 @@
       <string/>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>9</number>
+      </property>
       <item>
-       <widget class="QTableView" name="Estimation_Tab2_CatchTV">
+       <widget class="QLabel" name="Estimation_Tab2_HarvestLBL">
+        <property name="text">
+         <string>Catch:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTableView" name="Estimation_Tab2_HarvestTV">
         <property name="font">
          <font>
           <weight>50</weight>

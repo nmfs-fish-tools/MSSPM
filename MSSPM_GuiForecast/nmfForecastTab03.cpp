@@ -75,7 +75,7 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_FormMap["Type III"] = {m_Rho.toStdString(),"Handling (h)","Exponent (b)"};
 
     m_ParameterNames.clear();
-    m_ParameterNames << "Initial Biomass (B₀)";
+    m_ParameterNames << "Initial Absolute Biomass (B₀)";
     m_ParameterNames << "Growth Rate (r)";
     m_ParameterNames << "Carrying Capacity (K)";
     m_ParameterNames << m_Rho;
