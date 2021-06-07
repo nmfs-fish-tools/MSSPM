@@ -1,4 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node2" href="$class_load_forecast_dlg.html" title="Dialog to Load a Forecast. " alt="" coords="137,5,259,32"/>
-<area shape="rect" id="node3" href="$class_multi_scenario_save_dlg.html" title="Dialog to Save Multiple Forecasts. " alt="" coords="123,56,273,83"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,31,80,57"/>
+<area shape="rect" id="node2" href="$class_load_forecast_dlg.html" title="Dialog to Load a Forecast." alt="" coords="145,5,276,32"/>
+<area shape="rect" id="node3" href="$class_multi_scenario_save_dlg.html" title="Dialog to Save Multiple Forecasts." alt="" coords="128,56,293,83"/>
 </map>

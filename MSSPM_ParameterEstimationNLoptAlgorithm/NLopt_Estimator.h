@@ -43,6 +43,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QThread>
 
 #include <exception>
 #include <nlopt.hpp>

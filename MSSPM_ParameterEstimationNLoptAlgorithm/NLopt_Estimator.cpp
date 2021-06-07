@@ -316,7 +316,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
                       competitionBetaGuilds,competitionBetaGuildsGuilds,
                       predationRho,predationHandling,predationExponent,surveyQ);
 
-    // Since we may be estimating SurveyQ, need to multiply Observed Biomass by the SurveyQ
+    // Since we may be estimating SurveyQ, need to divide the Observed Biomass by the SurveyQ
     for (int species=0; species<int(ObsBiomassBySpeciesOrGuilds.size2()); ++species) {
         surveyQVal = surveyQ[species];
         for (int time=0; time<int(ObsBiomassBySpeciesOrGuilds.size1()); ++time) {
@@ -337,7 +337,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     }
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-        EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)*surveyQ[i];
+        EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)/surveyQ[i];
     }
 
 
@@ -813,8 +813,8 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                                          NLoptStruct.ScalingAlgorithm,
                                          NLoptStruct.MultiRunModelFilename,
                                          fitness);
-                    nmfUtilsQt::delayMSec(100);
-
+                    // nmfUtilsQt::delayMSec(100);
+                    QThread::msleep((unsigned long)(100));
                 } else {
                     emit RunCompleted(bestFitnessStr,NLoptStruct.showDiagnosticChart);
                 }

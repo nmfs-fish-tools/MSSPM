@@ -117,6 +117,8 @@ class nmfEstimation_Tab5: public QObject
     bool saveTableValuesToDatabase(const std::string& tableName,
                                    QStandardItemModel* smodel);
 
+    void updateInitialObservedBiomass(const std::string& tableName,
+                                      QTableView* tableView);
 public:
     /**
      * @brief nmfEstimation_Tab5 : class constructor for the Observation Data GUI page
@@ -153,7 +155,7 @@ public:
      */
     bool loadWidgets(QString MohnsRhoLabel);
 
-    bool loadWidgetsFirstRow();
+//    bool loadWidgetsFirstRow();
     bool isTableValueOK(QString value);
     QString getObsBiomassType();
     void setObsBiomassType(QString obsBiomassType);
@@ -210,8 +212,14 @@ public Q_SLOTS:
     void callback_SavePB();
     /**
      * @brief Callback invoked when the user saves a new model in Setup -> Model Setup
+     * @param obsBiomassType : the type of observed biomass: Absolute or Relative
      */
-    void callback_UpdateInitialObservedBiomass();
+    void callback_UpdateInitialObservedBiomass(QString obsBiomassType);
+    /**
+     * @brief Callback invoked when the user changes the observed biomass type from
+     * Setup Tab4. It toggles visibility between the Absolute and Relative observed biomass tables.
+     * @param obsBiomassType : type of observed biomass selected: Absolute or Relative
+     */
     void callback_ObservedBiomassType(QString obsBiomassType);
 
 };

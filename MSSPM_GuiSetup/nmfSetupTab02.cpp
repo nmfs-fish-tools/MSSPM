@@ -422,13 +422,13 @@ nmfSetup_Tab2::createTables(QString databaseName)
     // 19 of 65: Exploitation
     // 20 of 65: BiomassAbsolute
     // 21 of 65: BiomassRelative
-    // 22 of 65: BiomassRelativeAndEstSurveyQProduct
+    // 22 of 65: BiomassRelativeDividedByEstSurveyQ
     for (std::string tableName : {"HarvestCatch",
                                   "HarvestEffort",
                                   "HarvestExploitation",
                                   "BiomassAbsolute",
                                   "BiomassRelative",
-                                  "BiomassRelativeAndEstSurveyQProduct"})
+                                  "BiomassRelativeDividedByEstSurveyQ"})
     {
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;

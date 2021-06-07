@@ -1,9 +1,6 @@
 var searchData=
 [
-  ['savesettings',['saveSettings',['../classnmf_forecast___tab1.html#a4d08998802a2b56f625b9cc39be81cb0',1,'nmfForecast_Tab1::saveSettings()'],['../classnmf_forecast___tab4.html#a64625d8f69091669da8248acfe65f709',1,'nmfForecast_Tab4::saveSettings()']]],
-  ['setcharttype',['SetChartType',['../classnmf_forecast___tab4.html#a650cf2eaa21cda0e0c9db90a52db738a',1,'nmfForecast_Tab4']]],
-  ['setfontsize',['setFontSize',['../classnmf_forecast___tab4.html#a3e77526ca0eae3a8b8399535b9ab9340',1,'nmfForecast_Tab4']]],
-  ['setoutputscenario',['setOutputScenario',['../classnmf_forecast___tab4.html#acde5b3e1bb3baee17fba85993ba80ece',1,'nmfForecast_Tab4']]],
-  ['setoutputscenariotext',['SetOutputScenarioText',['../classnmf_forecast___tab4.html#a1653d5a5bb82b0d17f5163b29ea2c3a7',1,'nmfForecast_Tab4']]],
-  ['setoutputte',['setOutputTE',['../classnmf_forecast___tab4.html#a329c52ab3b92cd60950280760f27d272',1,'nmfForecast_Tab4']]]
+  ['refreshoutput_114',['RefreshOutput',['../class_multi_scenario_save_dlg.html#afb99904839b9db7aeaf7d05083415a15',1,'MultiScenarioSaveDlg::RefreshOutput()'],['../classnmf_forecast___tab4.html#a432480b73c38c2f37ab42e0cdacab7ec',1,'nmfForecast_Tab4::RefreshOutput()']]],
+  ['resetoutputwidgetsforaggprod_115',['ResetOutputWidgetsForAggProd',['../classnmf_forecast___tab1.html#aca5d5ea9f56ca9315273058031a2bde8',1,'nmfForecast_Tab1']]],
+  ['runforecast_116',['RunForecast',['../classnmf_forecast___tab3.html#a53a7ae2269c83ca5cb7c4a6e2c0b0f62',1,'nmfForecast_Tab3::RunForecast()'],['../classnmf_forecast___tab4.html#a3259d857e66a564de28810faa3da95d5',1,'nmfForecast_Tab4::RunForecast()']]]
 ];

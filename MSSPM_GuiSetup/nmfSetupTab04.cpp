@@ -689,7 +689,7 @@ nmfSetup_Tab4::saveModel(bool RunChecks)
         emit ModelSaved();
     }
 
-    emit UpdateInitialObservedBiomass();
+    emit UpdateInitialObservedBiomass(getObsBiomassType());
     emit UpdateInitialForecastYear();
     emit ReloadWidgets();
 

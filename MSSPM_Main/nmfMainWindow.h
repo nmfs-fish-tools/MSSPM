@@ -166,7 +166,7 @@ private:
     QChartView*                           m_ChartView2d;
     QWidget*                              m_ChartView3d;
     nmfDatabase*                          m_DatabasePtr;
-    nmfStructsQt::ModelDataStruct                           m_DataStruct;
+    nmfStructsQt::ModelDataStruct         m_DataStruct;
     int                                   m_DiagnosticsFontSize;
     int                                   m_DiagnosticsNumPoints;
     int                                   m_DiagnosticsVariation;
@@ -213,7 +213,7 @@ private:
     int                                   m_MShotNumRows;
     int                                   m_MShotNumCols;
     nmfViewerWidget*                      m_ViewerWidget;
-//    QString                               m_outputFile;
+//  QString                               m_outputFile;
     bool                                  m_isStartUpOK;
     QTableView*                           m_BiomassAbsTV;
     QTableView*                           m_BiomassRelTV;
@@ -546,6 +546,7 @@ private:
             const std::string& type);
     bool getOutputInitialBiomass(
             QList<double> &OutputInitBiomass);
+    std::string getObservedBiomassTableName();
     std::vector<boost::numeric::ublas::matrix<double> >
     getOutputBiomassByGroup(
             const int& RunLength,

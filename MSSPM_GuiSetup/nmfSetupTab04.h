@@ -323,8 +323,9 @@ signals:
     void UpdateInitialForecastYear();
     /**
      * @brief Signal emitted to update the initial Observed Biomass values
+     * @param obsBiomassType : type of observed biomass: Absolute or Relative
      */
-    void UpdateInitialObservedBiomass();
+    void UpdateInitialObservedBiomass(QString obsBiomassType);
 
 
 public Q_SLOTS:
