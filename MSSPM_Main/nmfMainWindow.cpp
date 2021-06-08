@@ -9392,6 +9392,7 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     }
     isAggProd = (CompetitionForm == "AGG-PROD");
     isAggProdStr = (isAggProd) ? "1" : "0";
+std::cout << "NumRuns2: " << NumRuns << std::endl;
 
     // Calculate Monte Carlo simulations
     isMonteCarlo = true;
@@ -9446,11 +9447,6 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    std::string GrowthRateTable        = "OutputGrowthRate";
-    std::string CarryingCapacityTable  = "OutputCarryingCapacity";
-    std::string CatchabilityTable      = "OutputCatchability";
-    std::string BiomassTable           = "ForecastBiomass";
-    std::string BiomassMonteCarloTable = "ForecastBiomassMonteCarlo";
     std::string Algorithm;
     std::string Minimizer;
     std::string ObjectiveCriterion;
@@ -9495,7 +9491,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
         PredationForm      = dataMap["PredationForm"][0];
         NumRuns            = std::stoi(dataMap["NumRuns"][0]);
     }
-
+std::cout << "NumRuns1: " << NumRuns << std::endl;
     isAggProd    = (CompetitionForm == "AGG-PROD");
     isAggProdStr = (isAggProd) ? "1" : "0";
 
@@ -9761,7 +9757,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
     boost::numeric::ublas::matrix<double> Catch;
     boost::numeric::ublas::matrix<double> Effort;
     boost::numeric::ublas::matrix<double> Exploitation;
-std::cout << "Error (possibly): nmfMainWindow::calculateSubRunBiomass not using SurveyQ or Observed Biomass" << std::endl;
+std::cout << "Warning: nmfMainWindow::calculateSubRunBiomass possibly not using SurveyQ or Observed Biomass" << std::endl;
     //
     // continue here.....
     // RSK try calling    updateOutputBiomassTable(..."OutputBiomassEnsemble") instead of doing this....seems like there's repetitive code here
@@ -11929,7 +11925,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         dataStruct.TotalNumberParameters += NumSpecies; // Just K
     }
     dataStruct.TotalNumberParameters += NumSpecies; // Add on for estimating InitBiomass parameter
-std::cout << "Error (possibly): Check that num parameters is correct even if not estimating init biomass" << std::endl;
+std::cout << "Warning: Check that num parameters is possibly correct even if not estimating init biomass" << std::endl;
     if (harvestForm == "Effort (qE)") {
         dataStruct.TotalNumberParameters += NumSpecies;
     }
@@ -11984,7 +11980,7 @@ std::cout << "Error (possibly): Check that num parameters is correct even if not
     }
 
     // RSK possible error here....
-std::cout << "----> isSurveyQ: " << isSurveyQ << std::endl;
+//std::cout << "----> isSurveyQ: " << isSurveyQ << std::endl;
     if (isSurveyQ) {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                m_MohnsRhoLabel,"","BiomassRelative",

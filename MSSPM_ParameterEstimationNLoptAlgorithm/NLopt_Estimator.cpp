@@ -593,7 +593,6 @@ NLopt_Estimator::loadSurveyQParameterRanges(
             aPair = std::make_pair(dataStruct.SurveyQ[species],
                                    dataStruct.SurveyQ[species]);
         }
-qDebug() << "surveyQ data: " << aPair;
         parameterRanges.emplace_back(aPair);
     }
 }
