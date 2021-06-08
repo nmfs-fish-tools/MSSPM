@@ -751,7 +751,7 @@ nmfSetup_Tab4::saveModelData(bool verbose,
                ",  RunLength = "                   + RunLength +
                " WHERE SystemName = '"             + CurrentSettingsName + "'";
     } else { // This means the system name does not exist so do a replace
-        cmd  = "REPLACE INTO Systems (SystemName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,";
+        cmd  = "REPLACE INTO Systems (SystemName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,";
         cmd += "WithinGuildCompetitionForm,StartYear,RunLength,NumberOfParameters) ";
         cmd += "VALUES ('" +
                 CurrentSettingsName                + "', "  +

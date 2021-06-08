@@ -264,6 +264,9 @@
              <property name="whatsThis">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Range Percentage&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This value represents the percentage of a parameter the min/max values will be set to. For example, if SpeciesK is 100 and this value is set to 10, SpeciesKMin will be set to 90 and SpeciesKMax will be set to 110.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
             </widget>
            </item>
            <item>
