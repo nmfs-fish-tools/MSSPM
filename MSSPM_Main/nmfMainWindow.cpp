@@ -4290,15 +4290,16 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     int m=0;
 
     // Read BiomassRelative data from table
-    fields    = {"MohnsRhoLabel","SpeName","Year","Value"};
-    queryStr  = "SELECT MohnsRhoLabel,SpeName,Year,Value FROM BiomassRelative";
+    fields    = {"MohnsRhoLabel","SystemName","SpeName","Year","Value"};
+    queryStr  = "SELECT MohnsRhoLabel,SystemName,SpeName,Year,Value FROM BiomassRelative";
     queryStr += " WHERE MohnsRhoLabel = '" + m_MohnsRhoLabel +
+                "' and SystemName = '" + m_ProjectSettingsConfig +
                 "' ORDER BY SpeName,Year";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Value"].size();
     if (NumRecords != NumSpecies*RunLength) {
-        errorMsg  = "nmfMainWindow::updateObservedBiomassAndEstSurveyQTable::Incorrect number of records found in: BiomassRelativeDividedByEstSurveyQ";
-        errorMsg += "Found " + std::to_string(NumRecords) + " expecting " + std::to_string(NumSpecies)+" * "+std::to_string(RunLength) + ".";
+        errorMsg  = "nmfMainWindow::updateObservedBiomassAndEstSurveyQTable Incorrect number of records found in: BiomassRelativeDividedByEstSurveyQ";
+        errorMsg += "\n\nFound " + std::to_string(NumRecords) + " expecting " + std::to_string(NumSpecies)+" * "+std::to_string(RunLength) + ".";
         m_Logger->logMsg(nmfConstants::Error, "nmfMainWindow::updateObservedBiomassAndEstSurveyQTable: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error, queryStr);
         errorMsg  = "\n" + errorMsg + "\n";
