@@ -144,6 +144,7 @@ MSSPM_GuiOutputControls::initWidgets()
     ShadowLayt->addStretch();
     controlLayt->addLayout(ShadowLayt);
     ControlsGroupBox->setLayout(controlLayt);
+
     OutputSpeListLBL->setEnabled(false);
     OutputSpeListLV->setEnabled(false);
     OutputSpeListLV->setSelectionMode(QAbstractItemView::ExtendedSelection);

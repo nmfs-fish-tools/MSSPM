@@ -4322,7 +4322,7 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     // Write to BiomassRelativeDividedByEstSurveyQ table
     cmd = "INSERT INTO BiomassRelativeDividedByEstSurveyQ (MohnsRhoLabel,SystemName,SpeName,Year,Value) VALUES ";
     for (int speciesNum=0; speciesNum<NumSpecies; ++speciesNum) {
-        estSurveyQ = (EstSurveyQ.size() == NumSpecies) ? EstSurveyQ[speciesNum] : 0;
+        estSurveyQ = (int(EstSurveyQ.size()) == NumSpecies) ? EstSurveyQ[speciesNum] : 0;
         if (estSurveyQ == 0) {
             zeroError = true;
         }
