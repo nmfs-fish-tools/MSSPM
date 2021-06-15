@@ -45,19 +45,12 @@
 #include "nmfChartSurface.h"
 #include "nmfProgressWidget.h"
 #include "ClearOutputDialog.h"
-//#include "PreferencesDialog.h"
 #include "nmfDatabaseConnectDialog.h"
 #include "nmfOutputChart3DBarModifier.h"
 #include "nmfOutputChart3D.h"
 #include "nmfSimulatedData.h"
 #include "SimulatedBiomassDialog.h"
 
-//#include "LogisticMultiSpeciesDialog.h"
-//#include "Parameters.h"
-//#include "ModelFormParameters.h"
-//#include "TimeSeriesObservations.h"
-
-//#include "GA_Estimator.h"
 #include "Bees_Estimator.h"
 #include "NLopt_Estimator.h"
 
@@ -89,6 +82,7 @@
 
 #include "nmfOutputControls.h"
 #include "nmfViewerWidget.h"
+#include "TableNamesDialog.h"
 
 #include <QtDataVisualization>
 #include <QImage>
@@ -99,7 +93,6 @@
 
 #include "REMORA_UI.h"
 
-//class Gradient_Estimator;
 
 /**
  * @brief Struct to hold initial Species data
@@ -213,7 +206,6 @@ private:
     int                                   m_MShotNumRows;
     int                                   m_MShotNumCols;
     nmfViewerWidget*                      m_ViewerWidget;
-//  QString                               m_outputFile;
     bool                                  m_isStartUpOK;
     QTableView*                           m_BiomassAbsTV;
     QTableView*                           m_BiomassRelTV;
@@ -251,8 +243,6 @@ private:
     QTableView*              OutputBiomassMSSPMTV;
     QVBoxLayout*             VChartLayt;
     QVBoxLayout*             OutputChartMainLayt;
-//    QSurfaceDataProxy*       SurfaceProxy;
-//    QSurface3DSeries*        SurfaceSeries;
     QWidget*                 NavigatorTreeWidget;
     QTreeWidget*             NavigatorTree;
     QDockWidget*			 MModeDockWidget;
@@ -272,13 +262,13 @@ private:
     nmfForecast_Tab3*        Forecast_Tab3_ptr;
     nmfForecast_Tab4*        Forecast_Tab4_ptr;
     MSSPM_GuiOutputControls* Output_Controls_ptr;
-    REMORA_UI*    Remora_ptr;
+    REMORA_UI*               Remora_ptr;
     nmfSetup_Tab1*           Setup_Tab1_ptr;
     nmfSetup_Tab2*           Setup_Tab2_ptr;
     nmfSetup_Tab3*           Setup_Tab3_ptr;
     nmfSetup_Tab4*           Setup_Tab4_ptr;
     QDialog*                 m_PreferencesDlg;
-	QDialog*				 m_TableNamesDlg;
+    TableNamesDialog*        m_TableNamesDlg;
     QWidget*                 m_PreferencesWidget;
 	QWidget*                 m_TableNamesWidget;
     QTabWidget*              m_EstimatedParametersTW;
@@ -290,21 +280,7 @@ private:
     QWidget*                 MModeViewerDataTB;
     QWidget*                 MModeViewerTab1;
 
-//  Gradient_Struct             gradientStruct;
-//  int                         RunNumGenetic;
-//  int                         RunNumGradient;
-//  Gradient_Estimator*         gradient_Estimator;
-//  Parameters*                 paramObj;
-//  ModelFormParameters*        modelParamObj;
-//  nmfSimulation_Tab1*         Simulation_Tab1_ptr;
-//  nmfSimulation_Tab2*         Simulation_Tab2_ptr;
-//  nmfSimulation_Tab3*         Simulation_Tab3_ptr;
-//  nmfSimulation_Tab4*         Simulation_Tab4_ptr;
-//  nmfSimulation_Tab5*         Simulation_Tab5_ptr;
-//  nmfSimulation_Tab6*         Simulation_Tab6_ptr;
-//  LogisticMultiSpeciesDialog* LogisticMultiSpeciesDlg;
     int getTabIndex(QTabWidget* tabWidget, QString tabName);
-//    void calculateAverageBiomassAndDisplay();
     void calculateAverageBiomass();
     void displayAverageBiomass();
     void clearOutputData(std::string algorithm,
@@ -333,7 +309,6 @@ private:
     void   initLogo();
     void   initPostGuiConnections();
     void   initializePreferencesDlg();
-	void   initializeTableNamesDlg();
     void   initializeMMode();
     void   initializeMModeMain();
     void   initializeMModeViewer();
@@ -546,7 +521,7 @@ private:
             const std::string& type);
     bool getOutputInitialBiomass(
             QList<double> &OutputInitBiomass);
-    std::string getObservedBiomassTableName();
+    std::string getObservedBiomassTableName(bool isPreEstimation);
     std::vector<boost::numeric::ublas::matrix<double> >
     getOutputBiomassByGroup(
             const int& RunLength,
@@ -734,6 +709,7 @@ private:
     void setupOutputDiagnosticSummaryWidgets();
     void setupOutputScreenShotViewerWidgets();
     void setupOutputViewerWidget();
+    void setOutputControlsWidth();
     void setupProgressChart();
     void showObservedBiomassScatter(
             const std::string &ChartTitle,
@@ -818,9 +794,9 @@ private:
             QString &ScaleStr,
             double &ScaleVal,
             double &YMinSliderVal);
-    bool showDiagnosticsChart2d(QString& ScaleStr,
-                                double&  ScaleVal,
-                                double&  YMinSliderVal);
+    bool showDiagnosticsChart2d(const QString& ScaleStr,
+                                const double&  ScaleVal,
+                                const double&  YMinSliderVal);
     void showDiagnosticsFitnessVsParameter(
             const int&         NumPoints,
             std::string        XLabel,
@@ -830,7 +806,7 @@ private:
             const int&         SpeciesNum,
             boost::numeric::ublas::matrix<double> &DiagnosticsValue,
             boost::numeric::ublas::matrix<double> &DiagnosticsFitness,
-            double& YMinSliderVal);
+            const double& YMinSliderVal);
     void showBiomassVsTimeForMultipleRuns(const std::string &label,
                                    const int         &StartYear,
                                    const int         &NumSpecies,
@@ -938,7 +914,8 @@ private:
             boost::numeric::ublas::matrix<double>& rowValues,
             boost::numeric::ublas::matrix<double>& columnValues,
             boost::numeric::ublas::matrix<double>& heightValues,
-            const int& yMax);
+            int& yMin,
+            int& yMax);
     QString getColorName(int line);
     bool selectMinimumSurfacePoint();
     /**
@@ -1508,7 +1485,6 @@ public slots:
     void menu_toggleManagerMode();
     void menu_toggleManagerModeViewer();
 
-    void callback_TableNamesOkPB();
     void callback_PreferencesMShotOkPB();
     void callback_ErrorFound(std::string errorMsg);
     void callback_ManagerModeViewerClose(bool state);

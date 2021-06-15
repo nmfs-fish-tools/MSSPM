@@ -32,6 +32,7 @@
 #include <tuple>
 #include <BeesAlgorithm.h>
 #include "NLopt_Estimator.h"
+#include "nmfConstantsMSSPM.h"
 
 /**
  * @brief Diagnostic Tuple for Percent Variations
@@ -57,8 +58,10 @@ private:
     nmfStructsQt::ModelDataStruct  m_DataStruct;
     QTabWidget*  m_Diagnostic_Tabs;
     QWidget*     m_Diagnostic_Tab1_Widget;
-    QComboBox*   m_Diagnostic_Tab1_ParameterCMB;
-    QLabel*      m_Diagnostic_Tab1_ParameterLBL;
+//    QComboBox*   m_Diagnostic_Tab1_ParameterCMB;
+//    QLabel*      m_Diagnostic_Tab1_ParameterLBL;
+    QComboBox*   Diagnostic_Tab1_SurfaceParameter1CMB;
+    QComboBox*   Diagnostic_Tab1_SurfaceParameter2CMB;
     QSpinBox*    m_Diagnostic_Tab1_PctVarSB;
     QSpinBox*    m_Diagnostic_Tab1_NumPtsSB;
     QPushButton* m_Diagnostic_Tab1_RunPB;
@@ -67,13 +70,11 @@ private:
     int          m_PctVariation;
     std::string  m_ProjectDir;
     std::string  m_ProjectSettingsConfig;
+    std::map<QString,QString> m_OutputTableName;
+    std::map<QString,QString> m_DiagnosticTableName;
 
-    double calculateFitness(int     SpeciesOrGuildNum,
-                            QString ParameterName,
-                            double  ParameterValue);
-    double calculateFitness(int     SpeciesOrGuildNum,
-                            double  rParameter,
-                            double  KParameter);
+    double calculateFitness(const int& SpeciesOrGuildNum,
+                            const std::vector<std::pair<QString,double> >& ParameterData);
     bool isAggProd(std::string Algorithm,
                    std::string Minimizer,
                    std::string ObjectiveCriterion,
@@ -93,6 +94,15 @@ private:
                                 const std::string&   scaling,
                                 const QString&       parameterName,
                                 std::vector<double>& estParameter);
+    void loadOutputParameters(
+            const std::string&   TableName,
+            const int&           NumSpeciesOrGuilds,
+            const std::string&   Algorithm,
+            const std::string&   Minimizer,
+            const std::string&   ObjectiveCriterion,
+            const std::string&   Scaling,
+            const std::string&   isAggProd,
+            std::vector<double>& Parameters);
     void loadGrowthParameters(
             const int&           NumSpeciesOrGuilds,
             const std::string&   Algorithm,
@@ -216,6 +226,8 @@ public:
      * @param theDataStruct : the data structure containing the estimated parameter variables
      */
     void        setDataStruct(nmfStructsQt::ModelDataStruct& theDataStruct);
+    QString getParameter1Name();
+    QString getParameter2Name();
 
 signals:
     /**
@@ -238,6 +250,11 @@ public slots:
      * @brief Callback for when the Run button is pressed
      */
     void callback_RunPB();
+    /**
+     * @brief Callback loads the parameter check boxes after the user clicks Save on the Model Setup Tab 4
+     */
+    void callback_UpdateDiagnosticParameterChoices();
+
 };
 
 #endif

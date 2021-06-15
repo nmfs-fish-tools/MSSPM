@@ -47,11 +47,11 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
 
     // Setup connections
     connect(m_Diagnostic_Tab2_RunPB, SIGNAL(clicked()),
-            this,                    SLOT(callback_Diagnostic_Tab2_RunPB()));
+            this,                    SLOT(callback_RunPB()));
     connect(m_Diagnostic_Tab2_NumPeelsSB, SIGNAL(valueChanged(int)),
-            this,                    SLOT(callback_Diagnostic_Tab2_NumPeelsSB(int)));
+            this,                    SLOT(callback_NumPeelsSB(int)));
     connect(m_Diagnostic_Tab2_PeelPositionCMB, SIGNAL(currentIndexChanged(QString)),
-            this,                    SLOT(callback_Diagnostic_Tab2_PeelPositionCMB(QString)));
+            this,                    SLOT(callback_PeelPositionCMB(QString)));
 
     loadWidgets();
 }
@@ -135,9 +135,9 @@ nmfDiagnostic_Tab2::loadWidgets(int NumPeels)
     if (NumPeels == -1) {
         m_Diagnostic_Tab2_NumPeelsSB->setMaximum(RunLength);
         m_Diagnostic_Tab2_NumPeelsSB->setMinimum(1);
-        callback_Diagnostic_Tab2_NumPeelsSB(m_Diagnostic_Tab2_NumPeelsSB->value()); //1);
+        callback_NumPeelsSB(m_Diagnostic_Tab2_NumPeelsSB->value()); //1);
     } else {
-        callback_Diagnostic_Tab2_NumPeelsSB(NumPeels);
+        callback_NumPeelsSB(NumPeels);
     }
 
     readSettings();
@@ -216,7 +216,7 @@ nmfDiagnostic_Tab2::clearWidgets()
 
 
 void
-nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_NumPeelsSB(int numPeels)
+nmfDiagnostic_Tab2::callback_NumPeelsSB(int numPeels)
 {
     int RunLength = 0;
     int StartYear = 0;
@@ -230,17 +230,17 @@ nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_NumPeelsSB(int numPeels)
 }
 
 void
-nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_PeelPositionCMB(QString position)
+nmfDiagnostic_Tab2::callback_PeelPositionCMB(QString position)
 {
     int NumPeels = getNumPeels();
 
     loadWidgets(NumPeels);
-    callback_Diagnostic_Tab2_NumPeelsSB(NumPeels);
+    callback_NumPeelsSB(NumPeels);
 }
 
 
 void
-nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_RunPB()
+nmfDiagnostic_Tab2::callback_RunPB()
 {
     m_Logger->logMsg(nmfConstants::Normal,"");
     m_Logger->logMsg(nmfConstants::Normal,"Start Retrospective");
@@ -263,7 +263,7 @@ nmfDiagnostic_Tab2::callback_Diagnostic_Tab2_RunPB()
     saveSettings();
 
     // Mohn's Rho = {Σ[(X(t-n,t-n)-X(t-n,t)) / X(t-n,t)]} / x
-    // where Σ from n=1 to x
+    // where Σ goes from n=1 to x
     ranges.clear();
     for (int i=0; i<=NumPeeledYears; ++i) {
         ranges.push_back(std::make_pair(StartYear,EndYear));

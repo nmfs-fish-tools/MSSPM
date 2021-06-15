@@ -546,6 +546,7 @@ nmfSetup_Tab4::callback_SavePB()
 {
     saveModel(true);
     setEstimatedParameterNames();
+    emit UpdateDiagnosticParameterChoices();
 }
 
 QStringList
@@ -565,6 +566,7 @@ nmfSetup_Tab4::setEstimatedParameterNames()
     QString harvestForm     = getHarvestFormCMB()->currentText();
     QString competitionForm = getCompetitionFormCMB()->currentText();
     QString predationForm   = getPredationFormCMB()->currentText();
+    QString obsBiomassType  = getObsBiomassType();
 
     m_EstimatedParameters.clear();
 
@@ -575,9 +577,11 @@ nmfSetup_Tab4::setEstimatedParameterNames()
     EstimateRunBoxes.push_back(runBox);
 
     // Set SurveyQ
-    runBox.parameter = "SurveyQ";
-    m_EstimatedParameters.push_back("SurveyQ");
-    EstimateRunBoxes.push_back(runBox);
+    if (obsBiomassType == "Relative") {
+        runBox.parameter = "SurveyQ";
+        m_EstimatedParameters.push_back("SurveyQ");
+        EstimateRunBoxes.push_back(runBox);
+    }
 
     // Load Growth estimated parameters
     if (growthForm == "Linear") {

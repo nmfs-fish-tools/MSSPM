@@ -338,6 +338,9 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)/surveyQ[i];
+//std::cout << "EBS(0," << i << "): " << EstBiomassSpecies(0,i) << ", " <<
+//         NLoptDataStruct.ObservedBiomassBySpecies(0,i) << ", " <<
+//         surveyQ[i] << std::endl;
     }
 
 
@@ -418,15 +421,15 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //std::cout << "EstBiomassVal: " << EstBiomassVal << std::endl;
 //}
 
-            //if (species == 0 && time == 1) {
-            //std::cout << "nlopt year: " << time << ", val = "
-            //          << EstBiomassSpecies(timeMinus1,species) << " + "
-            //          << GrowthTerm << " - "
-            //          << HarvestTerm << " - "
-            //          << CompetitionTerm << " - "
-            //          << PredationTerm << " = "
-            //          << EstBiomassVal << std::endl;
-            //}
+//if (species == 0 && time == 1) {
+//    std::cout << "nlopt year: " << time << ", val = "
+//              << EstBiomassSpecies(timeMinus1,species) << " + "
+//              << GrowthTerm << " - "
+//              << HarvestTerm << " - "
+//              << CompetitionTerm << " - "
+//              << PredationTerm << " = "
+//              << EstBiomassVal << std::endl;
+//}
 
 if (EstBiomassVal < 0) { // test code only
     EstBiomassVal = 0;
@@ -696,7 +699,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     int NumEstParameters;
     int NumMultiRuns = 1;
     int NumSubRuns = 0;
-    double fitnessStdDev   = 0;
+    double fitnessStdDev = 0;
     std::string bestFitnessStr = "TBD";
     std::string MaxOrMin;
     std::vector<std::pair<double,double> > ParameterRanges;
@@ -723,7 +726,6 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
     loadSurveyQParameterRanges(               ParameterRanges, NLoptStruct);
     NumEstParameters = ParameterRanges.size();
-std::cout << "FIX: Remove delayMSec" << std::endl;
 std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
 for (int i=0; i< NumEstParameters; ++i) {
  std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
@@ -812,7 +814,6 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                                          NLoptStruct.ScalingAlgorithm,
                                          NLoptStruct.MultiRunModelFilename,
                                          fitness);
-                    // nmfUtilsQt::delayMSec(100);
                     QThread::msleep((unsigned long)(100));
                 } else {
                     emit RunCompleted(bestFitnessStr,NLoptStruct.showDiagnosticChart);

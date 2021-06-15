@@ -37,6 +37,7 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QScrollArea>
 #include <QSpinBox>
 
 /**
@@ -49,14 +50,14 @@ class MSSPM_GuiOutputControls: public QObject
 
     Q_OBJECT
 
-    nmfDatabase*       m_DatabasePtr;
-    nmfLogger*         m_Logger;
-    std::string        m_ProjectDir;
-    std::string        m_ProjectSettingsConfig;
+    nmfDatabase*        m_DatabasePtr;
+    nmfLogger*          m_Logger;
+    std::string         m_ProjectDir;
+    std::string         m_ProjectSettingsConfig;
     std::map<QString,QStringList> m_SortedForecastLabelsMap;
-    QHash<QString,int> m_SpeciesHash;
-    QStringListModel*  m_SpeciesOrGuildModel;
-    bool               m_IsAveraged;
+    QHash<QString,int>  m_SpeciesHash;
+    QStringListModel*   m_SpeciesOrGuildModel;
+    bool                m_IsAveraged;
 
     QLabel*      OutputChartTypeLBL;
     QComboBox*   OutputGroupTypeCMB;
@@ -81,7 +82,7 @@ class MSSPM_GuiOutputControls: public QObject
     QPushButton* OutputParametersMinimumPB;
     QComboBox*   OutputChartTypeCMB;
     QSlider*     OutputYAxisMinSL;
-//  QSlider*     OutputYAxisMaxSL;
+    QSpinBox*    OutputYAxisMinSB;
     QSpinBox*    OutputYAxisMaxSB;
     QComboBox*   OutputScaleCMB;
     QListView*   OutputAgeListLV;
@@ -101,7 +102,6 @@ class MSSPM_GuiOutputControls: public QObject
     void initWidgets();
     bool isAggProd();
     void loadSortedForecastLabels();
-    void readSettings();
     void updateChart();
 
 public:
@@ -210,7 +210,7 @@ public:
      * @brief Get the Y Max slider value which allows the user to change the maximum value that appears on the y-axis.
      * @return The value set by the user on this slider widget
      */
-    int             getYMaxSliderVal();
+//    int             getYMaxSliderVal();
     /**
      * @brief Get the Y Min slider value which allows the user to change the minimum value that appears on the y-axis.
      * @return The value set by the user on this slider widget
@@ -331,6 +331,7 @@ public:
      * @brief Assure appropriate widgets are enabled/disabled when user selects Retrospectve Analysis
      */
     void            setForMohnsRho();
+    void readSettings();
 
 signals:
     /**
@@ -362,6 +363,11 @@ signals:
      * @param isVisible : boolean set to True for 2d chart or False for 3d chart
      */
     void SetChartView2d(bool isVisible);
+    /**
+     * @brief Sets the 2 vector parameters that will be used in the 3d surface diagnostics comparison chart
+     * @param selectedParameters : the 2 selected parameters to be used for the 3d surface plot parameters
+     */
+    void SetDiagnosticsChart3dParameters(QStringList selectedParameters);
     /**
      * @brief Signal emitted when a Chart is to be shown
      * @param OutputType : the type of Chart to show
@@ -457,6 +463,11 @@ public slots:
      * @param value : the value of the Forecast line brightness slider
      */
     void callback_OutputLineBrightnessSL(int value);
+    /**
+     * @brief Callback invoked when the user modifies the Y-Axis Minimum value slider
+     * @param value : the minimum value of the y-axis to set
+     */
+    void callback_OutputYAxisMinSB(int value);
     /**
      * @brief Callback invoked when the user modifies the Y-Axis Maximum value slider
      * @param value : the maximum value of the y-axis to set

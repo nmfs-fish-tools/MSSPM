@@ -326,7 +326,7 @@ signals:
      * @param obsBiomassType : type of observed biomass: Absolute or Relative
      */
     void UpdateInitialObservedBiomass(QString obsBiomassType);
-
+    void UpdateDiagnosticParameterChoices();
 
 public Q_SLOTS:
     /**

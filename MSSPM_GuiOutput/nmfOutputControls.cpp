@@ -13,7 +13,7 @@ MSSPM_GuiOutputControls::MSSPM_GuiOutputControls(
     m_Logger              = logger;
     m_DatabasePtr         = databasePtr;
     m_ProjectDir          = projectDir;
-    m_SpeciesOrGuildModel = new QStringListModel(this);
+    m_SpeciesOrGuildModel = new QStringListModel();
     m_ProjectSettingsConfig.clear();
     m_SortedForecastLabelsMap.clear();
     m_IsAveraged          = nmfConstantsMSSPM::IsNotAveraged;
@@ -58,8 +58,12 @@ MSSPM_GuiOutputControls::initWidgets()
     QHBoxLayout* MSYLayt     = new QHBoxLayout();
     QHBoxLayout* FMSYLayt    = new QHBoxLayout();
     QHBoxLayout* ParametersLayt = new QHBoxLayout();
-    QHBoxLayout* ScaleLayt  = new QHBoxLayout();
-    QHBoxLayout* ShadowLayt = new QHBoxLayout();
+    QHBoxLayout* ScaleLayt    = new QHBoxLayout();
+    QHBoxLayout* ShadowLayt   = new QHBoxLayout();
+    QHBoxLayout* MinMaxLayt   = new QHBoxLayout();
+    QWidget*     scrollAreaW  = new QWidget();
+    QScrollArea* scrollAreaSA = new QScrollArea();
+    QVBoxLayout* controlScrollableLayt = new QVBoxLayout;
     OutputChartTypeLBL      = new QLabel("Chart Type:");
     OutputGroupTypeCMB      = new QComboBox();
     OutputGroupTypeCMB->addItems({"Species:","Guild:","System"});
@@ -89,6 +93,7 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputParametersMinimumPB = new QPushButton();
     OutputScaleCMB       = new QComboBox();
     OutputYAxisMinSL     = new QSlider(Qt::Horizontal);
+    OutputYAxisMinSB     = new QSpinBox();
     OutputYAxisMaxSB     = new QSpinBox();
     OutputSpeListLV      = new QListView();
     OutputShowBMSYCB     = new QCheckBox("B MSY:");
@@ -113,6 +118,8 @@ MSSPM_GuiOutputControls::initWidgets()
     ParametersLayt->addWidget(OutputParametersCenterPB);
     ParametersLayt->addWidget(OutputParametersMinimumPB);
     ParametersLayt->addWidget(OutputParametersCB);
+//    MinMaxLayt->addWidget(OutputYAxisMinSB);
+    MinMaxLayt->addWidget(OutputYAxisMaxSB);
     controlLayt->addWidget(OutputChartTypeLBL);
     controlLayt->addWidget(OutputChartTypeCMB);
     controlLayt->addWidget(OutputGroupTypeCMB);
@@ -126,15 +133,15 @@ MSSPM_GuiOutputControls::initWidgets()
     controlLayt->addLayout(BMSYLayt);
     controlLayt->addLayout(MSYLayt);
     controlLayt->addLayout(FMSYLayt);
-    controlLayt->addWidget(OutputSpeListLBL);
-    controlLayt->addWidget(OutputSpeListLV);
+//    controlLayt->addWidget(OutputSpeListLBL);
+//    controlLayt->addWidget(OutputSpeListLV);
     controlLayt->addSpacerItem(new QSpacerItem(1,2,QSizePolicy::Fixed,QSizePolicy::Expanding));
     controlLayt->addWidget(OutputLineBrightnessLBL);
     controlLayt->addWidget(OutputLineBrightnessSL);
     controlLayt->addWidget(OutputYAxisMinLBL);
     controlLayt->addWidget(OutputYAxisMinSL);
     controlLayt->addWidget(OutputYAxisMaxLBL);
-    controlLayt->addWidget(OutputYAxisMaxSB);
+    controlLayt->addLayout(MinMaxLayt);
     ScaleLayt->addWidget(OutputScaleLBL);
     ScaleLayt->addWidget(OutputScaleCMB);
     ScaleLayt->addStretch();
@@ -143,8 +150,14 @@ MSSPM_GuiOutputControls::initWidgets()
     ShadowLayt->addWidget(OutputShowShadowCB);
     ShadowLayt->addStretch();
     controlLayt->addLayout(ShadowLayt);
-    ControlsGroupBox->setLayout(controlLayt);
+    scrollAreaSA->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollAreaSA->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollAreaW->setLayout(controlLayt);
+    scrollAreaSA->setWidget(scrollAreaW);
+    controlScrollableLayt->addWidget(scrollAreaSA);
+    scrollAreaSA->setObjectName("ScrollAreaSA");
 
+    ControlsGroupBox->setLayout(controlScrollableLayt);
     OutputSpeListLBL->setEnabled(false);
     OutputSpeListLV->setEnabled(false);
     OutputSpeListLV->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -190,7 +203,9 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputScenariosCMB->setStatusTip("These are the available Multi-Forecast Scenarios");
     OutputYAxisMinSL->setMaximum(100);
     OutputYAxisMinSL->setValue(OutputYAxisMinSL->maximum());
-    OutputYAxisMaxSB->setMaximum(99999);
+    OutputYAxisMinSB->setMaximum(999999);
+    OutputYAxisMinSB->setValue(0);
+    OutputYAxisMaxSB->setMaximum(999999);
     OutputYAxisMaxSB->setValue(OutputYAxisMaxSB->maximum());
     OutputShowBMSYLE->setReadOnly(true);
     OutputShowMSYLE->setReadOnly(true);
@@ -234,8 +249,11 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputMethodsCMB->addItem("Retrospective Analysis");
     OutputParametersLBL->setEnabled(false);
     OutputParametersCMB->setEnabled(false);
+    OutputParametersCMB->addItem("Initial Biomass (B₀)");
     OutputParametersCMB->addItem("Growth Rate (r)");
     OutputParametersCMB->addItem("Carrying Capacity (K)");
+    OutputParametersCMB->addItem("Catchability (q)");
+    OutputParametersCMB->addItem("SurveyQ");
     OutputParametersCB->setText("");
     OutputParametersCB->setToolTip("Toggles between 2d and 3d Diagnostics View");
     OutputParametersCB->setStatusTip("Toggles between 2d and 3d Diagnostics View");
@@ -290,6 +308,7 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputShowMSYCB->setEnabled( false);
     OutputShowFMSYCB->setEnabled(false);
     OutputYAxisMaxLBL->setEnabled(false);
+    OutputYAxisMinSB->setEnabled(false);
     OutputYAxisMaxSB->setEnabled(false);
     OutputShowShadowCB->setEnabled(false);
     OutputShowShadowCB->setChecked(true);
@@ -343,6 +362,8 @@ MSSPM_GuiOutputControls::initConnections()
             this,                   SLOT(callback_OutputParametersMinimumPB()));
     connect(OutputYAxisMinSL,       SIGNAL(valueChanged(int)),
             this,                   SLOT(callback_OutputYAxisMinSL(int)));
+    connect(OutputYAxisMinSB,       SIGNAL(valueChanged(int)),
+            this,                   SLOT(callback_OutputYAxisMinSB(int)));
     connect(OutputYAxisMaxSB,       SIGNAL(valueChanged(int)),
             this,                   SLOT(callback_OutputYAxisMaxSB(int)));
     connect(OutputShowShadowCB,     SIGNAL(stateChanged(int)),
@@ -524,16 +545,24 @@ int
 MSSPM_GuiOutputControls::getYMinSliderVal()
 {
     return OutputYAxisMinSL->value();
+//    return OutputYAxisMinSB->value();
 }
 
-int
-MSSPM_GuiOutputControls::getYMaxSliderVal()
-{
-    return OutputYAxisMaxSB->value();
-}
+// RSK - unused function
+//int
+//MSSPM_GuiOutputControls::getYMaxSliderVal()
+//{
+//    return OutputYAxisMaxSB->value();
+//}
 
 void
 MSSPM_GuiOutputControls::callback_OutputYAxisMinSL(int value)
+{
+    updateChart();
+}
+
+void
+MSSPM_GuiOutputControls::callback_OutputYAxisMinSB(int value)
 {
     updateChart();
 }
@@ -640,7 +669,8 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
     OutputYAxisMinLBL->setEnabled(isBiomassVsTime || isHarvestVsTime);
     OutputYAxisMinSL->setEnabled( isBiomassVsTime || isHarvestVsTime);
     OutputYAxisMaxLBL->setEnabled(isDiagnostic);
-    OutputYAxisMaxSB->setEnabled(isDiagnostic);
+    OutputYAxisMinSB->setEnabled(isDiagnostic);
+//    OutputYAxisMaxSB->setEnabled(isDiagnostic);
     OutputShowShadowCB->setEnabled(isDiagnostic && is3dChecked);
     OutputShowShadowLBL->setEnabled(isDiagnostic && is3dChecked);
 

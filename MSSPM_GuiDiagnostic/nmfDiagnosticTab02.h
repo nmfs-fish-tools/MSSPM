@@ -136,16 +136,16 @@ public slots:
      * @brief Callback for when user changes the number of peel years in the GUI spinbox
      * @param numYearsPeeled : number of peeled years desired
      */
-    void callback_Diagnostic_Tab2_NumPeelsSB(int numYearsPeeled);
+    void callback_NumPeelsSB(int numYearsPeeled);
     /**
      * @brief Callback for when user changes the position of the peeled years
      * @param peelPosition : position of peeled years (beginning or end of time period)
      */
-    void callback_Diagnostic_Tab2_PeelPositionCMB(QString peelPosition);
+    void callback_PeelPositionCMB(QString peelPosition);
     /**
      * @brief Callback for when the Run button is pressed
      */
-    void callback_Diagnostic_Tab2_RunPB();
+    void callback_RunPB();
 };
 
 #endif

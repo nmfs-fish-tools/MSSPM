@@ -919,7 +919,7 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
         "CompetitionBetaGuildsMax",
         "CompetitionBetaGuildsMin",
         "DiagnosticCarryingCapacity",
-        "DiagnosticGRandCC",
+        "DiagnosticSurface",
         "DiagnosticGrowthRate",
         "HarvestEffort",
         "HarvestExploitation",

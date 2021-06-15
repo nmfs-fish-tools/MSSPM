@@ -36,6 +36,7 @@ CONFIG += c++14
 
 SOURCES += \
     SimulatedBiomassDialog.cpp \
+    TableNamesDialog.cpp \
     main.cpp \
     nmfMainWindow.cpp \
     ClearOutputDialog.cpp \
@@ -43,6 +44,7 @@ SOURCES += \
 
 HEADERS  += \
     SimulatedBiomassDialog.h \
+    TableNamesDialog.h \
     mainpage.h \
     nmfMainWindow.h \
     ClearOutputDialog.h \

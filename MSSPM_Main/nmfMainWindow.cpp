@@ -68,7 +68,6 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     Output_Controls_ptr = nullptr;
     Remora_ptr          = nullptr;
     m_PreferencesDlg    = new QDialog(this);
-    m_TableNamesDlg     = new QDialog(this);
     m_PreferencesWidget = nullptr;
     m_TableNamesWidget  = nullptr;
     m_ViewerWidget      = nullptr;
@@ -113,6 +112,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     readSettingsGuiOrientation(nmfConstantsMSSPM::ResetPositionAlso);
     readSettings();
 
+    m_TableNamesDlg = new TableNamesDialog(this, m_DatabasePtr, m_ProjectDatabase);
     initializePreferencesDlg();
 
     // Hide Progress Chart and Log dock widgets. Show them once user does their first MSSPM run.
@@ -133,7 +133,6 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
         loadDatabase();
     }
 
-    initializeTableNamesDlg();
     initializeMMode();
     this->setMouseTracking(true);
 
@@ -174,6 +173,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     readSettings("OutputDockWidgetPos");
     readSettings("LogDockWidgetIsVisible");
     readSettings("ProgressDockWidgetIsVisible");
+    readSettings("OutputControls");
 
     callback_ModelLoaded();
 //    removeExistingMultiRuns();
@@ -182,6 +182,9 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     // created and loaded a System file
     enableApplicationFeatures("AllOtherGroups",
         !Setup_Tab4_ptr->getModelName().isEmpty());
+
+    setOutputControlsWidth();
+
 }
 
 
@@ -668,7 +671,7 @@ nmfMainWindow::getFinalObservedBiomass(QList<double> &FinalBiomass)
     if (! getSpecies(NumSpecies,SpeciesList))
         return false;
     // Get final observed biomass values
-    std::string ObsBiomassTableName = getObservedBiomassTableName();
+    std::string ObsBiomassTableName = getObservedBiomassTableName(!nmfConstantsMSSPM::PreEstimation);
     if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                            "","",ObsBiomassTableName,
                                            NumSpecies,RunLength,ObservedBiomass)) {
@@ -916,7 +919,7 @@ nmfMainWindow::getDiagnosticsData(
     std::string errorMsg;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string TableName = Diagnostic_Tab1_ptr->getTableName(Output_Controls_ptr->getOutputParameter());
-std::cout << "TTableName: " << TableName << std::endl;
+
     DiagnosticsValue.clear();
     DiagnosticsFitness.clear();
 
@@ -940,14 +943,11 @@ std::cout << "TTableName: " << TableName << std::endl;
 
     nmfUtils::initialize(DiagnosticsValue,  TotalNumPoints,NumSpeciesOrGuilds);
     nmfUtils::initialize(DiagnosticsFitness,TotalNumPoints,NumSpeciesOrGuilds);
-    int yMax = Output_Controls_ptr->getYMaxSliderVal();
     for (int j=0; j<NumSpeciesOrGuilds; ++j) {
         for (int i=0; i<TotalNumPoints; ++i) {
             DiagnosticsValue(i,j)   = std::stod(dataMap["Value"][m]);
             fitness = std::stod(dataMap["Fitness"][m]);
-            fitness = (fitness > yMax) ? yMax : fitness;
             DiagnosticsFitness(i,j) = fitness;
-//std::cout << "DF(" << i << "," << j << "): " << fitness << std::endl;
             ++m;
         }
     }
@@ -2510,7 +2510,9 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
                                  "OutputMSYBiomass",
                                  "OutputMSYFishing",
                                  "DiagnosticCarryingCapacity",
-                                 "DiagnosticGRandCC",
+                                 "DiagnosticCatchability",
+                                 "DiagnosticSurface",
+                                 "DiagnosticSurveyQ",
                                  "DiagnosticGrowthRate",
                                  "ForecastBiomass",
                                  "ForecastBiomassMonteCarlo",
@@ -2800,6 +2802,8 @@ nmfMainWindow::initConnections()
             this,                                    SLOT(callback_Setup_Tab4_HarvestFormCMB(QString)));
     connect(Setup_Tab4_ptr->getCompetitionFormCMB(), SIGNAL(currentTextChanged(QString)),
             this,                                    SLOT(callback_Setup_Tab4_CompetitionFormCMB(QString)));
+    connect(Setup_Tab4_ptr,      SIGNAL(UpdateDiagnosticParameterChoices()),
+            Diagnostic_Tab1_ptr, SLOT(callback_UpdateDiagnosticParameterChoices()));
 
     connect(Setup_Tab4_ptr,      SIGNAL(RedrawEquation()),
             this,                SLOT(callback_UpdateModelEquationSummary()));
@@ -5115,7 +5119,6 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     double ScaleVal = 1.0;
     double val = 0.0;
     double YMinSliderVal = Output_Controls_ptr->getYMinSliderVal();
-    //double YMaxSliderVal = Output_Controls_ptr->getYMaxSliderVal();
     std::vector<std::string> fields;
     std::string queryStr;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -5504,7 +5507,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     else if (OutputType == "Diagnostics") {
 
         if (OutputMethod == "Parameter Profiles") {
-            if (! showDiagnosticsChart2d(ScaleStr,ScaleVal,YMinSliderVal)) {
+            if (! showDiagnosticsChart2d(ScaleStr,ScaleVal,100.0)) { //YMinSliderVal)) {
                 return false;
             }
             callback_ShowDiagnosticsChart3d();
@@ -5537,7 +5540,7 @@ nmfMainWindow::getObservedBiomassByGroup(const int& NumGuilds,
     std::vector<std::string> fields;
     std::string queryStr;
     std::map<std::string, std::vector<std::string> > dataMap;
-    std::string ObsBiomassTableName = getObservedBiomassTableName();
+    std::string ObsBiomassTableName = getObservedBiomassTableName(!nmfConstantsMSSPM::PreEstimation);
 
     if (group == "Guild") {
         getTimeSeriesDataByGuild("",ObsBiomassTableName,NumGuilds,RunLength,ObservedBiomass);
@@ -6318,9 +6321,9 @@ nmfMainWindow::loadVisibleTables(const bool& isAlpha,
 
 
 bool
-nmfMainWindow::showDiagnosticsChart2d(QString& ScaleStr,
-                                      double&  ScaleVal,
-                                      double&  YMinSliderVal)
+nmfMainWindow::showDiagnosticsChart2d(const QString& ScaleStr,
+                                      const double&  ScaleVal,
+                                      const double&  YMinSliderVal)
 {
     int NumSpeciesOrGuilds;
     int NumSpecies;
@@ -6332,12 +6335,13 @@ nmfMainWindow::showDiagnosticsChart2d(QString& ScaleStr,
     std::string ObjectiveCriterion;
     std::string Scaling;
     std::string CompetitionForm;
-    std::string ParameterName = Output_Controls_ptr->getOutputParameter().toStdString(); // Diagnostic_Tab1_ptr->getParameterName();
+    std::string ParameterName = Output_Controls_ptr->getOutputParameter().toStdString();
     QString msg;
     QStringList SpeciesList;
     QStringList GuildList;
     QStringList SpeciesOrGuildList;
     QStringList ColHeadings = {"Pct Deviation","Fitness"};
+//  QStringList ColHeadings = {"Pct Deviation","log(Fitness)"};
     QString OutputSpecies = Output_Controls_ptr->getOutputSpecies();
     boost::numeric::ublas::matrix<double> DiagnosticsValue;
     boost::numeric::ublas::matrix<double> DiagnosticsFitness;
@@ -6386,12 +6390,14 @@ nmfMainWindow::showDiagnosticsChart2d(QString& ScaleStr,
         return false;
     }
 
-    showDiagnosticsFitnessVsParameter(NumPoints,ParameterName,"Fitness Value",
-                              NumSpeciesOrGuilds,OutputSpecies,
-                              SpeciesNum,
-                              DiagnosticsValue,
-                              DiagnosticsFitness,
-                              YMinSliderVal);
+    showDiagnosticsFitnessVsParameter(NumPoints,ParameterName,
+//                                    "log(Fitness Value)",
+                                      "Fitness Value",
+                                      NumSpeciesOrGuilds,OutputSpecies,
+                                      SpeciesNum,
+                                      DiagnosticsValue,
+                                      DiagnosticsFitness,
+                                      YMinSliderVal);
 
     // Update Output->Data table
     double XStart = -Diagnostic_Tab1_ptr->getLastRunsPctVariation();
@@ -6576,12 +6582,13 @@ nmfMainWindow::isThereMohnsRhoData()
 */
 
 std::string
-nmfMainWindow::getObservedBiomassTableName()
+nmfMainWindow::getObservedBiomassTableName(bool isPreEstimation)
 {
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     std::string ObsBiomassType;
+    std::string relativeBiomassName = (isPreEstimation) ? "BiomassRelative" : "BiomassRelativeDividedByEstSurveyQ";
 
     fields    = {"ObsBiomassType"};
     queryStr  = "SELECT ObsBiomassType";
@@ -6592,7 +6599,8 @@ nmfMainWindow::getObservedBiomassTableName()
         ObsBiomassType = "BiomassAbsolute";
     } else {
         ObsBiomassType = dataMap["ObsBiomassType"][0];
-        ObsBiomassType = (ObsBiomassType.empty() || ObsBiomassType == "Absolute") ? "BiomassAbsolute" : "BiomassRelativeDividedByEstSurveyQ";
+        ObsBiomassType = (ObsBiomassType.empty() || ObsBiomassType == "Absolute") ?
+                         "BiomassAbsolute" : relativeBiomassName;
     }
     return ObsBiomassType;
 }
@@ -6660,7 +6668,7 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     NumberOfParameters = std::stoi(dataMap["NumberOfParameters"][0]);
 
     // Load Observed (i.e., original) Biomass (need to check if should be loading Absolute or Relative)
-    std::string ObsBiomassTableName = getObservedBiomassTableName();
+    std::string ObsBiomassTableName = getObservedBiomassTableName(!nmfConstantsMSSPM::PreEstimation);
     if (isAggProd) {
         if (! getTimeSeriesDataByGuild("",ObsBiomassTableName,NumSpeciesOrGuilds,RunLength,ObservedBiomass)) {
             return false;
@@ -7163,7 +7171,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
         const int&         SpeciesNum,
         boost::numeric::ublas::matrix<double> &DiagnosticsValue,
         boost::numeric::ublas::matrix<double> &DiagnosticsFitness,
-        double& YMinSliderVal)
+        const double& YMinSliderVal)
 {
    int TotalNumPoints = 2*NumPoints+1;
    int NumLines = 1;
@@ -7222,7 +7230,6 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    }
 
    if (m_ChartWidget != nullptr) {
-
        nmfChartLine* lineChart = new nmfChartLine();
        lineChart->populateChart(m_ChartWidget,
                                 ChartType,
@@ -8655,60 +8662,8 @@ nmfMainWindow::context_Action(bool triggered)
 void
 nmfMainWindow::menu_showTableNames()
 {
-    QLabel* DatabaseNameLB = m_TableNamesWidget->findChild<QLabel*>("DatabaseNameLB");
-    DatabaseNameLB->setText(QString::fromStdString(m_ProjectDatabase));
+    m_TableNamesDlg->loadTableNames();
     m_TableNamesDlg->show();
-}
-
-void
-nmfMainWindow::initializeTableNamesDlg()
-{
-    QUiLoader loader;
-    QFile file(":/forms/Main/TableNamesDlg.ui");
-    file.open(QFile::ReadOnly);
-    m_TableNamesWidget = loader.load(&file,this);
-    file.close();
-
-    QPushButton* TableNamesOkPB = m_TableNamesWidget->findChild<QPushButton*>("TableNamesOkPB");
-    QListWidget* TableNamesLW   = m_TableNamesWidget->findChild<QListWidget*>("TableNamesLW");
-    QLabel*      DatabaseNameLB = m_TableNamesWidget->findChild<QLabel*>("DatabaseNameLB");
-
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    int NumTables=0;
-
-    fields    = {"table_name"};
-    queryStr  = "SELECT table_name FROM information_schema.tables WHERE ";
-    queryStr += "table_schema = '" + m_ProjectDatabase + "'";
-    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumTables = dataMap["table_name"].size();
-
-    if (NumTables <= 0) {
-        TableNamesLW->addItem(QString::fromStdString("No tables found in database: " + m_ProjectDatabase));
-    } else {
-        DatabaseNameLB->setText(QString::fromStdString(m_ProjectDatabase));
-        for (int i=0; i<NumTables; ++i) {
-            TableNamesLW->addItem(QString::fromStdString(std::to_string(i+1) + ". " + dataMap["table_name"][i]));
-        }
-    }
-
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(m_TableNamesWidget);
-    m_TableNamesDlg->adjustSize();
-    m_TableNamesDlg->setMinimumWidth(400);
-    m_TableNamesDlg->setMinimumHeight(300);
-    m_TableNamesDlg->setLayout(layout);
-    m_TableNamesDlg->setWindowTitle("Table Names");
-
-    connect(TableNamesOkPB, SIGNAL(clicked()),
-            this,           SLOT(callback_TableNamesOkPB()));
-}
-
-void
-nmfMainWindow::callback_TableNamesOkPB()
-{
-    m_TableNamesDlg->hide();
 }
 
 void
@@ -8882,22 +8837,7 @@ nmfMainWindow::showDockWidgets(bool show)
     m_UI->LogDockWidget->setVisible(show);
     m_UI->OutputDockWidget->setVisible(show);
     this->tabifyDockWidget(m_UI->LogDockWidget, m_UI->ProgressDockWidget);
-
-
-
 } // end showDockWidgets
-
-void
-nmfMainWindow::closeEvent(QCloseEvent *event)
-{
-    saveSettings();
-    menu_stopRun();
-    m_ProgressWidget->stopTimer();
-    disconnect(m_ProgressWidget,0,0,0);
-    if (m_ProgressChartTimer != nullptr) {
-        delete m_ProgressChartTimer;
-    }
-}
 
 void
 nmfMainWindow::callback_PreferencesSetStyleSheet(QString style)
@@ -8983,9 +8923,6 @@ nmfMainWindow::readSettings(QString Name)
     } else if (Name == "LogDockWidgetIsVisible") {
         //ui->LogDockWidget->setVisible(settings->value("LogDockWidgetIsVisible",false).toBool());
     }
-//std::cout << "resizing (h,w): " <<    settings->value("CentralWidgetSize", QSize(400, 400)).toSize().height() << ", "
-//          << settings->value("CentralWidgetSize", QSize(400, 400)).toSize().width() << std::endl;
-//    centralWidget()->resize(settings->value("CentralWidgetSize", QSize(400, 400)).toSize());
     settings->endGroup();
 
     if (Name == "Preferences") {
@@ -9098,14 +9035,46 @@ nmfMainWindow::saveSettings() {
     settings->setValue("MShotNumCols", m_MShotNumCols);
     settings->endGroup();
 
-    delete settings;
-
     // Save other pages' settings
     Setup_Tab2_ptr->saveSettings();
     Estimation_Tab6_ptr->saveSettings();
     Forecast_Tab1_ptr->saveSettings();
     Forecast_Tab4_ptr->saveSettings();
     Output_Controls_ptr->saveSettings();
+
+    settings->beginGroup("Output");
+    int width = m_UI->MSSPMOutputControlsGB->width();
+    settings->setValue("Width", width);
+std::cout << "===> SAVING: " << width << std::endl;
+    settings->endGroup();
+
+    delete settings;
+}
+
+void
+nmfMainWindow::setOutputControlsWidth()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    settings->beginGroup("Output");
+    int width = settings->value("Width",0).toString().toInt();
+std::cout << "===> SETTING to: " << width << std::endl;
+    m_UI->MSSPMOutputControlsGB->resize(width+55,m_UI->MSSPMOutputControlsGB->height());
+    settings->endGroup();
+    delete settings;
+
+}
+
+void
+nmfMainWindow::closeEvent(QCloseEvent *event)
+{
+    menu_stopRun();
+    m_ProgressWidget->stopTimer();
+    disconnect(m_ProgressWidget,0,0,0);
+    if (m_ProgressChartTimer != nullptr) {
+        delete m_ProgressChartTimer;
+    }
+    saveSettings();
 }
 
 /*
@@ -10635,7 +10604,7 @@ nmfMainWindow::displayAverageBiomass()
 
     // Group-specific code here (i.e., Species, Guild, System)
     if (GroupType == "Species") {
-        std::string ObsBiomassTableName = getObservedBiomassTableName();
+        std::string ObsBiomassTableName = getObservedBiomassTableName(!nmfConstantsMSSPM::PreEstimation);
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                "","",ObsBiomassTableName,
                                                NumSpecies,RunLength,ObservedBiomass)) {
@@ -11099,6 +11068,15 @@ void
 nmfMainWindow::callback_RunDiagnosticEstimation(
         std::vector<std::pair<int,int> > MohnsRhoRanges)
 {
+    // Ensure that the user is not running a Multi-Run
+    Estimation_Tab6_ptr->enableMultiRunControls(false);
+
+}
+/*
+void
+nmfMainWindow::callback_RunDiagnosticEstimation(
+        std::vector<std::pair<int,int> > MohnsRhoRanges)
+{
     int RunLength;
     int InitialYear;
     std::string GrowthForm;
@@ -11106,11 +11084,12 @@ nmfMainWindow::callback_RunDiagnosticEstimation(
     std::string CompetitionForm;
     std::string PredationForm;
     std::string HarvestTable = "HarvestCatch";
-//    std::string ObservedBiomassTable = "BiomassAbsolute";
-    std::string ObsBiomassTableName = getObservedBiomassTableName();
+    std::string ObsBiomassTableName  = getObservedBiomassTableName(nmfConstantsMSSPM::PreEstimation);
 
+    // Ensure that the user is not running a Multi-Run
+    Estimation_Tab6_ptr->enableMultiRunControls(false);
 
-    // First run the Mohns Rho
+    // First get the current Model structure
     if (! m_DatabasePtr->getModelFormData(
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
                 RunLength,InitialYear,m_Logger,m_ProjectSettingsConfig)) {
@@ -11136,7 +11115,7 @@ nmfMainWindow::callback_RunDiagnosticEstimation(
     setCurrentOutputTab("Chart");
 
 }
-
+*/
 void
 nmfMainWindow::setCurrentOutputTab(QString outputTab)
 {
@@ -11160,8 +11139,7 @@ nmfMainWindow::runNextMohnsRhoEstimation()
     QString OriginalSystemName = QString::fromStdString(m_ProjectSettingsConfig).split("__")[0];
     QString MohnsRhoSystemName;
     std::string HarvestTable = "HarvestCatch";
-//    std::string ObservedBiomassTable = "BiomassAbsolute";
-    std::string ObservedBiomassTable = getObservedBiomassTableName();
+    std::string ObservedBiomassTable = getObservedBiomassTableName(nmfConstantsMSSPM::PreEstimation);
     std::string GrowthForm;
     std::string HarvestForm;
     std::string CompetitionForm;
@@ -11201,6 +11179,7 @@ nmfMainWindow::runNextMohnsRhoEstimation()
         Setup_Tab4_ptr->setStartYear(MohnsRhoStartYear);
         Setup_Tab4_ptr->setRunLength(MohnsRhoRunLength);
         Setup_Tab4_ptr->setModelName(MohnsRhoSystemName);
+        //m_ProjectSettingsConfig = MohnsRhoSystemName.toStdString();
 
         // RSK - Bug here.  The method saveSystem clears the StartYearLE
         // widget. Resetting StartYear to patch.
@@ -11266,7 +11245,7 @@ nmfMainWindow::runNextMohnsRhoEstimation()
         }
         saveSettings();
         Diagnostic_Tab2_ptr->loadWidgets();
-        Diagnostic_Tab2_ptr->callback_Diagnostic_Tab2_PeelPositionCMB("");
+        Diagnostic_Tab2_ptr->callback_PeelPositionCMB("");
 
         m_MohnsRhoLabel.clear();
 
@@ -11553,7 +11532,8 @@ nmfMainWindow::callback_SetChartType(std::string type, std::string method)
 
 
 bool
-nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct &dataStruct, const bool& verbose)
+nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct &dataStruct,
+                              const bool& verbose)
 {
     bool loadOK;
     int RunLength;
@@ -11648,7 +11628,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct &dataStruct, const b
 //std::cout << "  " << runBox.parameter << std::endl;
 //}
 
-    m_Logger->logMsg(nmfConstants::Normal,"Reading from: "+m_ProjectSettingsConfig);
+//    m_Logger->logMsg(nmfConstants::Normal,"Reading from: "+m_ProjectSettingsConfig);
 
     // Find RunLength
     fields     = {"ObsBiomassType","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm",
@@ -11963,21 +11943,21 @@ std::cout << "Warning: Check that num parameters is possibly correct even if not
                                                NumSpecies,RunLength,dataStruct.Catch)) {
             return false;
         }
-        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Catch");
+//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Catch");
     } else if (harvestForm == "Effort (qE)") {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                m_MohnsRhoLabel,"","HarvestEffort",
                                                NumSpecies,RunLength,dataStruct.Effort)) {
             return false;
         }
-        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Effort");
+//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Effort");
     } else if (harvestForm == "Exploitation (F)") {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                m_MohnsRhoLabel,"","HarvestExploitation",
                                                NumSpecies,RunLength,dataStruct.Exploitation)) {
             return false;
         }
-        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Exploitation");
+//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Exploitation");
     }
 
     // RSK possible error here....
@@ -11988,14 +11968,14 @@ std::cout << "Warning: Check that num parameters is possibly correct even if not
                                                NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
             return false;
         }
-        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Relative Biomass");
+//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Relative Biomass");
     } else {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                m_MohnsRhoLabel,"","BiomassAbsolute",
                                                NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
             return false;
         }
-        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Absoulte Biomass");
+//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Absolute Biomass");
     }
 
     // Load time series by guild observed biomass just load the first year's
@@ -12008,7 +11988,7 @@ std::cout << "Warning: If loading observed biomass by guild, must account for us
            dataStruct.InitBiomassMax[i] = initialGuildBiomassMax[Guild[i]];
        }
     }
-    m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Biomass");
+//    m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Biomass");
 
     return true;
 }
@@ -12596,12 +12576,14 @@ bool
 nmfMainWindow::selectMinimumSurfacePoint()
 {
     bool ok;
+    int yMin = 0;
+    int yMax = 0;
 
     if (m_Graph3D != nullptr) {
 
-        QString xLabel = "Carrying Capacity (K) Percent Deviation";
+        QString xLabel = Diagnostic_Tab1_ptr->getParameter1Name() + " Percent Deviation";
         QString yLabel = "Fitness";
-        QString zLabel = "Growth Rate (r) Percent Deviation";
+        QString zLabel = Diagnostic_Tab1_ptr->getParameter2Name() + " Percent Deviation";
         QString xLabelFormat = "%d";
         QString zLabelFormat = "%d";
 
@@ -12609,18 +12591,17 @@ nmfMainWindow::selectMinimumSurfacePoint()
         boost::numeric::ublas::matrix<double> columnValues;
         boost::numeric::ublas::matrix<double> heightValues;
 
-        int yMax = Output_Controls_ptr->getYMaxSliderVal();
-        ok = getSurfaceData(rowValues,columnValues,heightValues,yMax);
+        ok = getSurfaceData(rowValues,columnValues,heightValues,yMin,yMax);
         if (ok) {
             nmfChartSurface surface(m_Graph3D,xLabel,yLabel,zLabel,
                                     xLabelFormat,zLabelFormat,
                                     nmfConstants::DontReverseAxis,
                                     nmfConstants::DontReverseAxis,
                                     rowValues,columnValues,heightValues,
-                                    Output_Controls_ptr->isShadowShown());
+                                    Output_Controls_ptr->isShadowShown(),
+                                    true,yMin,yMax);
             surface.selectMinimumPoint();
         }
-
     }
 
     return true;
@@ -12641,9 +12622,9 @@ nmfMainWindow::callback_ShowDiagnosticsChart3d()
     bool ok;
     if (m_Graph3D != nullptr) {
 
-        QString xLabel = "Carrying Capacity (K) Percent Deviation";
+        QString xLabel = Diagnostic_Tab1_ptr->getParameter1Name() + " Percent Deviation";
         QString yLabel = "Fitness";
-        QString zLabel = "Growth Rate (r) Percent Deviation";
+        QString zLabel = Diagnostic_Tab1_ptr->getParameter2Name() + " Percent Deviation";
         QString xLabelFormat = "%d";
         QString zLabelFormat = "%d";
 
@@ -12651,15 +12632,17 @@ nmfMainWindow::callback_ShowDiagnosticsChart3d()
         boost::numeric::ublas::matrix<double> columnValues;
         boost::numeric::ublas::matrix<double> heightValues;
 
-        int yMax = Output_Controls_ptr->getYMaxSliderVal();
-        ok = getSurfaceData(rowValues,columnValues,heightValues,yMax);
+        int yMin = 0;
+        int yMax = 0;
+        ok = getSurfaceData(rowValues,columnValues,heightValues,yMin,yMax);
         if (ok) {
             nmfChartSurface surface(m_Graph3D,xLabel,yLabel,zLabel,
                                     xLabelFormat,zLabelFormat,
                                     nmfConstants::DontReverseAxis,
                                     nmfConstants::DontReverseAxis,
                                     rowValues,columnValues,heightValues,
-                                    Output_Controls_ptr->isShadowShown());
+                                    Output_Controls_ptr->isShadowShown(),
+                                    true,yMin,yMax);
             surface.selectCenterPoint();
         }
     }
@@ -12672,7 +12655,8 @@ nmfMainWindow::getSurfaceData(
         boost::numeric::ublas::matrix<double>& rowValues,
         boost::numeric::ublas::matrix<double>& columnValues,
         boost::numeric::ublas::matrix<double>& heightValues,
-        const int& yMax)
+        int& yMin,
+        int& yMax)
 {
     int m=0;
     int NumRecords;
@@ -12690,10 +12674,10 @@ nmfMainWindow::getSurfaceData(
     std::string CompetitionForm;
     std::string isAggProdStr;
     std::string currentSpecies = Output_Controls_ptr->getOutputSpecies().toStdString();
-
+//std::cout << "~~~~~~~~> NNumPoints: " << NumPoints << std::endl;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
-    QStringList TableNames = {"DiagnosticGRandCC"};
+    QStringList TableNames = {"DiagnosticSurface"};
 
     m_DatabasePtr->getAlgorithmIdentifiers(
                 this,m_Logger,m_ProjectSettingsConfig,
@@ -12702,9 +12686,9 @@ nmfMainWindow::getSurfaceData(
     isAggProdStr = (CompetitionForm == "AGG-PROD") ? "1" : "0";
 
     fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd",
-                  "SpeName","rPctVariation","KPctVariation","Fitness"};
+                  "SpeName","parameter1PctVar","parameter2PctVar","Fitness"};
     queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,";
-    queryStr  += "SpeName,rPctVariation,KPctVariation,Fitness FROM " + TableNames[0].toStdString();
+    queryStr  += "SpeName,parameter1PctVar,parameter2PctVar,Fitness FROM " + TableNames[0].toStdString();
     queryStr  += "  WHERE SpeName = '" + currentSpecies +
                 "' AND Algorithm = '" + Algorithm +
                 "' AND Minimizer = '" + Minimizer +
@@ -12722,23 +12706,37 @@ nmfMainWindow::getSurfaceData(
         return false;
     }
 
+    rowValues.clear();
+    columnValues.clear();
+    heightValues.clear();
     rowValues.resize(nrows,ncols);
     columnValues.resize(nrows,ncols);
     heightValues.resize(nrows,ncols);
+    double theYMax = 0;
+    double theYMin = 9999999;
     for (int row = 0; row < nrows; ++row) {
         for (int col = 0; col < ncols; ++col) {
-            x = std::stod(dataMap["rPctVariation"][m]);
+            x = std::stod(dataMap["parameter1PctVar"][m]);
             y = std::stod(dataMap["Fitness"][m]);
-            z = std::stod(dataMap["KPctVariation"][m]);
-            if (yMax > 0) {
-                y = (y > yMax) ? yMax : y;
-            }
+            z = std::stod(dataMap["parameter2PctVar"][m]);
+//std::cout << "x,z: " << x << "," << z << std::endl;
+//            if (yMax > 0) {
+//                y = (y > yMax) ? yMax : y;
+//            }
+//            if (yMin < 9999999999) {
+//                y = (y < yMin) ? yMin : y;
+//            }
+            theYMin = (y < theYMin) ? y : theYMin;
+            theYMax = (y > theYMax) ? y : theYMax;
+
             rowValues(row,col)    = x;
-            columnValues(row,col) = z;
             heightValues(row,col) = y;
+            columnValues(row,col) = z;
             ++m;
         }
     }
+    yMin = theYMin;
+    yMax = theYMax;
 
     return true;
 }
