@@ -502,6 +502,11 @@ public slots:
      * @param scenario : Scenario selected by the user
      */
     void callback_SetOutputScenario(QString scenario);
+    /**
+     * @brief Callback invoked when the user changes the Model structure. Only the
+     * parameters that pertain to the appropriate Model parameters should be visible.
+     */
+    void callback_UpdateDiagnosticParameterChoices();
 };
 
 

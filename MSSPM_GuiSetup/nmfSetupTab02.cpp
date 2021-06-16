@@ -189,7 +189,10 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
 
     QApplication::restoreOverrideCursor();
 
-} // end callback_Setup_Tab2_SaveProject
+    msg = "\nSaved Project: " + m_ProjectName.toStdString() + "\n";
+    QMessageBox::information(Setup_Tabs, "Project Saved", tr(msg.c_str()));
+
+}
 
 void
 nmfSetup_Tab2::callback_progressDlgCancel()
@@ -297,7 +300,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -326,7 +329,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -354,7 +357,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -382,7 +385,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -411,7 +414,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -446,7 +449,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -469,7 +472,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -488,7 +491,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -507,7 +510,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -534,7 +537,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -560,7 +563,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -594,7 +597,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -623,7 +626,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -652,7 +655,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -696,7 +699,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -719,7 +722,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -756,7 +759,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -813,7 +816,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -846,7 +849,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -877,7 +880,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -904,7 +907,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -931,7 +934,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -966,7 +969,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -989,7 +992,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -1025,7 +1028,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -1061,7 +1064,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -1090,7 +1093,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -1184,7 +1187,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -1205,7 +1208,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
             m_ProgressDlg->setValue(++pInc);
-            m_ProgressDlg->update();
+            m_ProgressDlg->repaint();
         }
         if (! okToCreateMoreTables)
             return;
@@ -1234,7 +1237,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
         m_ProgressDlg->setValue(++pInc);
-        m_ProgressDlg->update();
+        m_ProgressDlg->repaint();
     }
     if (! okToCreateMoreTables)
         return;
@@ -1292,6 +1295,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
         createTables(enteredName);
         loadDatabaseNames(enteredName);
         Setup_Tab2_ProjectDatabaseCMB->setCurrentText(enteredName);
+        QApplication::restoreOverrideCursor();
         std::string msg = "\nDatabase created: " + enteredName.toStdString() + "\n";
         QMessageBox::information(Setup_Tabs, "Set up Project",
                                  tr(msg.c_str()));

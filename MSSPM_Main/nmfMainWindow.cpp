@@ -2084,7 +2084,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.15 (beta)";
+    QString version = "MSSPM v0.9.16 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2804,6 +2804,8 @@ nmfMainWindow::initConnections()
             this,                                    SLOT(callback_Setup_Tab4_CompetitionFormCMB(QString)));
     connect(Setup_Tab4_ptr,      SIGNAL(UpdateDiagnosticParameterChoices()),
             Diagnostic_Tab1_ptr, SLOT(callback_UpdateDiagnosticParameterChoices()));
+    connect(Setup_Tab4_ptr,      SIGNAL(UpdateDiagnosticParameterChoices()),
+            Output_Controls_ptr, SLOT(callback_UpdateDiagnosticParameterChoices()));
 
     connect(Setup_Tab4_ptr,      SIGNAL(RedrawEquation()),
             this,                SLOT(callback_UpdateModelEquationSummary()));
@@ -8823,7 +8825,8 @@ nmfMainWindow::initGUIs()
     Forecast_Tab3_ptr   = new nmfForecast_Tab3(m_UI->ForecastDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
     Forecast_Tab4_ptr   = new nmfForecast_Tab4(m_UI->ForecastDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
 
-    Output_Controls_ptr = new MSSPM_GuiOutputControls(m_UI->MSSPMOutputControlsGB,m_Logger,m_DatabasePtr,m_ProjectDir);
+    Output_Controls_ptr = new MSSPM_GuiOutputControls(m_UI->MSSPMOutputControlsGB,
+                                                      m_Logger,m_DatabasePtr,m_ProjectDir);
 
     // Select first item in Navigator Tree
     callback_SetupTabChanged(0);
@@ -9043,9 +9046,10 @@ nmfMainWindow::saveSettings() {
     Output_Controls_ptr->saveSettings();
 
     settings->beginGroup("Output");
-    int width = m_UI->MSSPMOutputControlsGB->width();
+    int width = m_UI->MSSPMOutputControlsGB->size().width();
+//    int width = m_UI->MSSPMOutputTabWidget->width();
     settings->setValue("Width", width);
-std::cout << "===> SAVING: " << width << std::endl;
+    //std::cout << "===> SAVING: " << width << std::endl;
     settings->endGroup();
 
     delete settings;
@@ -9058,11 +9062,13 @@ nmfMainWindow::setOutputControlsWidth()
 
     settings->beginGroup("Output");
     int width = settings->value("Width",0).toString().toInt();
-std::cout << "===> SETTING to: " << width << std::endl;
-    m_UI->MSSPMOutputControlsGB->resize(width+55,m_UI->MSSPMOutputControlsGB->height());
+    //std::cout << "===> SETTING to: " << width << std::endl;
+    // +30 term is needed cause the group box wouldn't return to the saved size without it
+    m_UI->MSSPMOutputControlsGB->resize(width+30,m_UI->MSSPMOutputControlsGB->height());
+//    m_UI->MSSPMOutputTabWidget->resize(width-30,m_UI->MSSPMOutputTabWidget->height());
     settings->endGroup();
-    delete settings;
 
+    delete settings;
 }
 
 void
@@ -11691,7 +11697,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct &dataStruct,
     bool isExponent = (predationForm   == "Type III");
     bool isMSPROD   = (competitionForm == "MS-PROD");
     bool isAGGPROD  = (competitionForm == "AGG-PROD");
-    bool isSurveyQ  = (obsBiomassType == "Relative");
+    bool isSurveyQ  = (obsBiomassType  == "Relative");
 
     if (isAlpha) {
         dataStruct.CompetitionMin.clear();
@@ -11898,7 +11904,6 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
 
     // Calculate total number of parameters
     dataStruct.TotalNumberParameters = 0;
-
     if (growthForm == "Linear") {
         dataStruct.TotalNumberParameters += NumSpecies; // Just r for each Species
     } else if (growthForm == "Logistic") {
@@ -11906,7 +11911,6 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         dataStruct.TotalNumberParameters += NumSpecies; // Just K
     }
     dataStruct.TotalNumberParameters += NumSpecies; // Add on for estimating InitBiomass parameter
-std::cout << "Warning: Check that num parameters is possibly correct even if not estimating init biomass" << std::endl;
     if (harvestForm == "Effort (qE)") {
         dataStruct.TotalNumberParameters += NumSpecies;
     }
@@ -11927,9 +11931,11 @@ std::cout << "Warning: Check that num parameters is possibly correct even if not
     } else if (competitionForm == "AGG-PROD") {
         dataStruct.TotalNumberParameters += NumBetaGuildsParameters;
     }
-//    if (isSurveyQ) {
-        dataStruct.TotalNumberParameters += NumSpecies;
-//    }
+    // SurveyQ is always estimated...even for absolute biomass which is technically incorrect,
+    // but it's set to 1 for absolute biomass and so it just makes the code simpler and causes no issues.
+    //  if (isSurveyQ) {
+    dataStruct.TotalNumberParameters += NumSpecies;
+    //  }
 
     // Set Benchmark type and number of parameters (RSK - improve this later)
     dataStruct.Benchmark = growthForm;
@@ -11943,43 +11949,44 @@ std::cout << "Warning: Check that num parameters is possibly correct even if not
                                                NumSpecies,RunLength,dataStruct.Catch)) {
             return false;
         }
-//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Catch");
+        // m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Catch");
     } else if (harvestForm == "Effort (qE)") {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                m_MohnsRhoLabel,"","HarvestEffort",
                                                NumSpecies,RunLength,dataStruct.Effort)) {
             return false;
         }
-//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Effort");
+        // m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Effort");
     } else if (harvestForm == "Exploitation (F)") {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                m_MohnsRhoLabel,"","HarvestExploitation",
                                                NumSpecies,RunLength,dataStruct.Exploitation)) {
             return false;
         }
-//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Exploitation");
+        // m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Exploitation");
     }
 
-    // RSK possible error here....
-//std::cout << "----> isSurveyQ: " << isSurveyQ << std::endl;
+    //std::cout << "----> isSurveyQ: " << isSurveyQ << std::endl;
     if (isSurveyQ) {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                m_MohnsRhoLabel,"","BiomassRelative",
                                                NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
             return false;
         }
-//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Relative Biomass");
+        //  m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Relative Biomass");
     } else {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectSettingsConfig,
                                                m_MohnsRhoLabel,"","BiomassAbsolute",
                                                NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
             return false;
         }
-//        m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Absolute Biomass");
+        //  m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Absolute Biomass");
     }
 
     // Load time series by guild observed biomass just load the first year's
+    if (isAGGPROD) {
 std::cout << "Warning: If loading observed biomass by guild, must account for user wanting relative biomass" << std::endl;
+    }
     nmfUtils::initialize(dataStruct.ObservedBiomassByGuilds,RunLength+1,NumGuilds);
     for (int i=0; i<NumGuilds; ++i) {
        dataStruct.ObservedBiomassByGuilds(0,i) = initialGuildBiomass[Guild[i]];
@@ -11988,7 +11995,7 @@ std::cout << "Warning: If loading observed biomass by guild, must account for us
            dataStruct.InitBiomassMax[i] = initialGuildBiomassMax[Guild[i]];
        }
     }
-//    m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Biomass");
+    //  m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Biomass");
 
     return true;
 }

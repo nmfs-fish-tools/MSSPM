@@ -66,54 +66,12 @@ nmfDiagnostic_Tab1::~nmfDiagnostic_Tab1()
 void
 nmfDiagnostic_Tab1::callback_UpdateDiagnosticParameterChoices()
 {
-    int index;
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::string queryStr;
-    std::map<std::string, std::vector<std::string> > dataMap;
-
-    // Get Systems data
-    fields     = {"SystemName","ObsBiomassType","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
-    queryStr   = "SELECT SystemName,ObsBiomassType,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm";
-    queryStr  += " FROM Systems WHERE SystemName='" + m_ProjectSettingsConfig + "'";
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SystemName"].size();
-    if (NumRecords == 0) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab1::callback_UpdateDiagnosticParameterChoices: No records found in table Systems for Name = "+m_ProjectSettingsConfig);
-        return;
-    }
-
-    // Figure out which items should be in the pulldown lists based upon the Model structure
-    Diagnostic_Tab1_SurfaceParameter1CMB->clear();
-    Diagnostic_Tab1_SurfaceParameter2CMB->clear();
-    Diagnostic_Tab1_SurfaceParameter1CMB->addItems(nmfConstantsMSSPM::VectorParameterNames);
-    Diagnostic_Tab1_SurfaceParameter2CMB->addItems(nmfConstantsMSSPM::VectorParameterNames);
-
-    // Check for appropriate items in parameter combo boxes.
-    if (dataMap["ObsBiomassType"][0] != "Relative") {
-        for (QComboBox* cmbox : {Diagnostic_Tab1_SurfaceParameter1CMB,Diagnostic_Tab1_SurfaceParameter2CMB}) {
-            index = cmbox->findText("SurveyQ");
-            cmbox->removeItem(index);
-        }
-    }
-    if (dataMap["GrowthForm"][0] != "Logistic") {
-        for (QComboBox* cmbox : {Diagnostic_Tab1_SurfaceParameter1CMB,Diagnostic_Tab1_SurfaceParameter2CMB}) {
-            index = cmbox->findText("Carrying Capacity (K)");
-            cmbox->removeItem(index);
-        }
-    }
-    if (dataMap["GrowthForm"][0] == "Null") {
-        for (QComboBox* cmbox : {Diagnostic_Tab1_SurfaceParameter1CMB,Diagnostic_Tab1_SurfaceParameter2CMB}) {
-            index = cmbox->findText("Growth Rate (r)");
-            cmbox->removeItem(index);
-        }
-    }
-    if (dataMap["HarvestForm"][0] != "Effort (qE)") {
-        for (QComboBox* cmbox : {Diagnostic_Tab1_SurfaceParameter1CMB,Diagnostic_Tab1_SurfaceParameter2CMB}) {
-            index = cmbox->findText("Catchability (q)");
-            cmbox->removeItem(index);
-        }
-    }
+    m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,
+                                                 m_ProjectSettingsConfig,
+                                                 Diagnostic_Tab1_SurfaceParameter1CMB);
+    m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,
+                                                 m_ProjectSettingsConfig,
+                                                 Diagnostic_Tab1_SurfaceParameter2CMB);
 }
 
 void

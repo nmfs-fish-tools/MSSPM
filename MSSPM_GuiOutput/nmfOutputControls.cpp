@@ -156,8 +156,8 @@ MSSPM_GuiOutputControls::initWidgets()
     scrollAreaSA->setWidget(scrollAreaW);
     controlScrollableLayt->addWidget(scrollAreaSA);
     scrollAreaSA->setObjectName("ScrollAreaSA");
-
     ControlsGroupBox->setLayout(controlScrollableLayt);
+
     OutputSpeListLBL->setEnabled(false);
     OutputSpeListLV->setEnabled(false);
     OutputSpeListLV->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -249,11 +249,7 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputMethodsCMB->addItem("Retrospective Analysis");
     OutputParametersLBL->setEnabled(false);
     OutputParametersCMB->setEnabled(false);
-    OutputParametersCMB->addItem("Initial Biomass (B₀)");
-    OutputParametersCMB->addItem("Growth Rate (r)");
-    OutputParametersCMB->addItem("Carrying Capacity (K)");
-    OutputParametersCMB->addItem("Catchability (q)");
-    OutputParametersCMB->addItem("SurveyQ");
+    OutputParametersCMB->addItems(nmfConstantsMSSPM::VectorParameterNames);
     OutputParametersCB->setText("");
     OutputParametersCB->setToolTip("Toggles between 2d and 3d Diagnostics View");
     OutputParametersCB->setStatusTip("Toggles between 2d and 3d Diagnostics View");
@@ -824,7 +820,6 @@ MSSPM_GuiOutputControls::callback_OutputMethodsCMB(QString method)
         OutputParametersCMB->setEnabled(false);
         OutputParametersCB->setEnabled(false);
     }
-
 }
 
 void
@@ -1223,4 +1218,12 @@ MSSPM_GuiOutputControls::saveSettings()
     settings->endGroup();
 
     delete settings;
+}
+
+void
+MSSPM_GuiOutputControls::callback_UpdateDiagnosticParameterChoices()
+{
+    m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,
+                                                 m_ProjectSettingsConfig,
+                                                 OutputParametersCMB);
 }

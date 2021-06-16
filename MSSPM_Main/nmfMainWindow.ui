@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1452</width>
+    <width>1557</width>
     <height>858</height>
    </rect>
   </property>
@@ -102,7 +102,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1452</width>
+     <width>1557</width>
      <height>21</height>
     </rect>
    </property>
@@ -238,118 +238,114 @@
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="OutputWidget">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QSplitter" name="splitter">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <widget class="QTabWidget" name="MSSPMOutputTabWidget">
-          <property name="minimumSize">
-           <size>
-            <width>10</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <property name="usesScrollButtons">
-           <bool>false</bool>
-          </property>
-          <widget class="QWidget" name="MSSPMOutputChartTab">
-           <attribute name="title">
-            <string>Chart</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="MSSPMDataTab">
-           <attribute name="title">
-            <string>Data</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_13">
-            <item>
-             <widget class="QTableView" name="MSSPMOutputTV"/>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="MSSPMOutputEstimatedParametersTab">
-           <attribute name="title">
-            <string>Estimated Parameters</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="MSSPMOutputModelFitSummaryTab">
-           <attribute name="title">
-            <string>Model Fit Summary</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="MSSPMOutputDiagnosticSummaryTab">
-           <attribute name="title">
-            <string>Diagnostic Summary</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="MSSPMOutputScreenShotViewerTab">
-           <attribute name="title">
-            <string>Screen Shot Viewer</string>
-           </attribute>
-          </widget>
-         </widget>
-         <widget class="QGroupBox" name="MSSPMOutputControlsGB">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>115</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>460</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Controls</string>
-          </property>
-         </widget>
+      <widget class="QSplitter" name="splitter">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <widget class="QTabWidget" name="MSSPMOutputTabWidget">
+        <property name="minimumSize">
+         <size>
+          <width>10</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <property name="usesScrollButtons">
+         <bool>false</bool>
+        </property>
+        <widget class="QWidget" name="MSSPMOutputChartTab">
+         <attribute name="title">
+          <string>Chart</string>
+         </attribute>
         </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="SetupOutputTE">
-         <property name="toolTip">
-          <string>Shows the output from the Setup procedure.</string>
-         </property>
-         <property name="statusTip">
-          <string>Shows the output from the Setup procedure.</string>
-         </property>
-         <property name="whatsThis">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Setup Output&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This window shows a recap of the data entered into MSSPM during the Setup process.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="html">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <widget class="QWidget" name="MSSPMDataTab">
+         <attribute name="title">
+          <string>Data</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_13">
+          <item>
+           <widget class="QTableView" name="MSSPMOutputTV"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="MSSPMOutputEstimatedParametersTab">
+         <attribute name="title">
+          <string>Estimated Parameters</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="MSSPMOutputModelFitSummaryTab">
+         <attribute name="title">
+          <string>Model Fit Summary</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="MSSPMOutputDiagnosticSummaryTab">
+         <attribute name="title">
+          <string>Diagnostic Summary</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="MSSPMOutputScreenShotViewerTab">
+         <attribute name="title">
+          <string>Screen Shot Viewer</string>
+         </attribute>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="MSSPMOutputControlsGB">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>115</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>460</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Controls</string>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QTextEdit" name="SetupOutputTE">
+       <property name="toolTip">
+        <string>Shows the output from the Setup procedure.</string>
+       </property>
+       <property name="statusTip">
+        <string>Shows the output from the Setup procedure.</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Setup Output&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This window shows a recap of the data entered into MSSPM during the Setup process.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="html">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Noto Sans'; font-size:9pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
