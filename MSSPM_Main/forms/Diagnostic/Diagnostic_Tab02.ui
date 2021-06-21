@@ -545,7 +545,7 @@
      <item>
       <widget class="QPushButton" name="Diagnostic_Tab2_RunPB">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

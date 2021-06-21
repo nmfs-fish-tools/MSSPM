@@ -94,6 +94,12 @@ private:
                                 const std::string&   scaling,
                                 const QString&       parameterName,
                                 std::vector<double>& estParameter);
+    void loadEstimatedParameterZScore(const std::string&   algorithm,
+                                      const std::string&   minimizer,
+                                      const std::string&   objectiveCriterion,
+                                      const std::string&   scaling,
+                                      const QString&       parameterName,
+                                      std::vector<double>& estParameter);
     void loadOutputParameters(
             const std::string&   TableName,
             const int&           NumSpeciesOrGuilds,
@@ -156,6 +162,7 @@ private:
                               const std::string& ObjectiveCriterion,
                               const std::string& Scaling,
                               const std::string& isAggProd,
+                              const std::string& SurfaceType,
                               std::vector<DiagnosticTuple>& DiagnosticTupleVector);
 
 

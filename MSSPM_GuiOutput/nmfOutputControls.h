@@ -77,7 +77,8 @@ class MSSPM_GuiOutputControls: public QObject
     QComboBox*   OutputParametersCMB;
     QComboBox*   OutputMethodsCMB;
     QComboBox*   OutputScenariosCMB;
-    QCheckBox*   OutputParametersCB;
+    QCheckBox*   OutputParametersZScoreCB;
+    QPushButton* OutputParameters2d3dPB;
     QPushButton* OutputParametersCenterPB;
     QPushButton* OutputParametersMinimumPB;
     QComboBox*   OutputChartTypeCMB;
@@ -150,6 +151,7 @@ public:
     int             getNumberSpecies();
     void            setSpeciesNum(int speciesNum);
     void            setAveraged(bool isAveraged);
+    bool            displaying3dChart();
     bool            isAveraged();
     /**
      * @brief Get the brightness factor set by the Forecast Run Brightness slider widget
@@ -248,10 +250,20 @@ public:
      */
     bool            isEnabledOutputFMSY();
     /**
+     * @brief Informs the user if the Method combobox is set to Retrospective Analysis
+     * @return Boolean signifying if combobox is set to Retrospective Analysis
+     */
+    bool            isSetToRetrospectiveAnalysis();
+    /**
      * @brief Informs the user if the Show Shadow box is checked
      * @return The state of the Show Shadow box
      */
     bool            isShadowShown();
+    /**
+     * @brief Informs the user if the ZScore check box has been checked
+     * @return The state of the ZScore check box
+     */
+    bool isSurfaceTypeZScore();
     /**
      * @brief Loads the Species list view widget that's used for specific (but currently disabled) Output chart types
      */
@@ -319,9 +331,9 @@ public:
     void            setForecastLabels(std::map<QString,QStringList>& sortedForecastLabelsMap);
     /**
      * @brief Toggles between a 2d and 3d Diagnostics view
-     * @param checked : the state of the checkbox (checked or not)
+     * @param chartType : 2d or 3d
      */
-    void            setOutputParametersCB(bool checked);
+    void            setOutputParameters2d3dPB(QString chartType);
     /**
      * @brief Sets the Output Diagnostics method widget with the passed method
      * @param method : the method to set the Output Diagnostics combobox widget
@@ -432,7 +444,7 @@ public slots:
      * @brief Callback invoked when the user checks the Parameters checkbox to specify a 2d or 3d Parameter data view.
      * @param state : state of the Parameter checkbox (unchecked - 2d data view, checked - 3d data view)
      */
-    void callback_OutputParametersCB(int state);
+    void callback_OutputParametersZScoreCB(int state);
     /**
      * @brief Callback invoked when the user checks the BMSY checkbox
      * @param state : state of the BMSY check box
@@ -498,6 +510,10 @@ public slots:
      */
     void callback_LoadScenariosWidget();
     /**
+     * @brief Callback invoked when the user clicks on the 2d/3d chart parameter button.
+     */
+    void callback_OutputParameters2d3dPB();
+    /**
      * @brief Callback invoked when the user selects an Output Scenario from the Forecast -> MultiScenario Forecast button popup
      * @param scenario : Scenario selected by the user
      */
@@ -507,6 +523,7 @@ public slots:
      * parameters that pertain to the appropriate Model parameters should be visible.
      */
     void callback_UpdateDiagnosticParameterChoices();
+
 };
 
 

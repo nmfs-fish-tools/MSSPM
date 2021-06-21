@@ -637,7 +637,7 @@ private:
                                      std::vector<std::vector<double> > &MinData,
                                      std::vector<std::vector<double> > &MaxData,
                                      int &NumInteractionParameters);
-    bool loadParameters(nmfStructsQt::ModelDataStruct &m_DataStruct,
+    bool loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
                         const bool& verbose);
     void loadSummaryStatisticsModel(
             const int& NumSpeciesOrGuilds,
@@ -780,6 +780,8 @@ private:
 //            std::map<std::string, std::vector<std::string> > &dataMapCatch,
 //            QString &ScaleStr,
 //            double &ScaleVal);
+    bool isAMohnsRhoMultiRun();
+    bool isAMultiOrMohnsRhoRun();
     void showChartTableVsTime(
             const std::string &label,
             const int &NumSpecies,
@@ -930,9 +932,9 @@ private:
     void setDefaultDockWidgetsVisibility(
             const QString& actionName,
             QAction* action);
-    void QueryUserForMultiRunFilenames(
-            QString& multiRunSpeciesFilename,
-            QString& multiRunModelFilename);
+//    void QueryUserForMultiRunFilenames(
+//            QString& multiRunSpeciesFilename,
+//            QString& multiRunModelFilename);
     void averageBiomassAndDisplay(QString& fullSpeciesPath);
     void updateBiomassEnsembleTable(
             const int& RunNumber,
@@ -1032,7 +1034,7 @@ public slots:
     /**
      * @brief Callback invoked when user Runs an Estimation
      */
-    void callback_CheckEstimationTablesAndRun();
+    void callback_CheckAllEstimationTablesAndRun();
     /**
      * @brief Callback invoked to clear all of the Estimation tables. This happens
      * if the user selects a new Project.
@@ -1247,9 +1249,8 @@ public slots:
                             QString outputSpecies);
     /**
      * @brief Callback invoked when user selects a Retrospective Analysis chart to view
-     * @return Boolean describing a successful display (True) or error getting supporting data (False)
      */
-    bool callback_ShowChartMohnsRho();
+    void callback_ShowChartMohnsRho();
     /**
      * @brief Callback invoked when user selects a Scenario chart to view
      * @param SortedForecastLabels : list of Forecast labels to show on the plot

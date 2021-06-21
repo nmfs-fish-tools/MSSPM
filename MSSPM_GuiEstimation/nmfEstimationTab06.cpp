@@ -1226,8 +1226,10 @@ nmfEstimation_Tab6::addToMultiRunFile(const int& numRunsToAdd,
                                       QString& fullPath)
 {
     QString msg;
-    fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename));
+    if (fullPath.isEmpty()) { // Means it's not a Mohn's Rho multi-run
+        fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+        fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename));
+    }
     QFile file(fullPath);
 
     if (numRunsToAdd+currentNumberOfRuns > totalNumberOfRunsDesired) {
@@ -1337,7 +1339,7 @@ nmfEstimation_Tab6::callback_EnsembleAddPB()
     int currentNumberOfRuns      = Estimation_Tab6_EnsembleRunsSetLE->text().toInt();
     int totalNumberOfRunsDesired = Estimation_Tab6_EnsembleTotalRunsSB->value();
     int tmpSum                   = numRunsToAdd+currentNumberOfRuns;
-    QString fullPath;
+    QString fullPath = "";
 
     enableRunButton(false);
 
@@ -1386,6 +1388,15 @@ nmfEstimation_Tab6::clearEnsembleFile()
     m_EnsembleDialog->clear();
     enableEnsembleWidgets(true);
     m_EnsembleFilename = nmfConstantsMSSPM::MultiRunFilename;
+}
+
+void
+nmfEstimation_Tab6::clearMohnsRhoFile()
+{
+    QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::MohnsRhoRunFilename));
+    QFile file(fullPath);
+    file.remove();
 }
 
 void
@@ -1723,7 +1734,7 @@ nmfEstimation_Tab6::callback_EnsembleSetAllPB()
     int numRunsToAdd             = Estimation_Tab6_EnsembleTotalRunsSB->value();
     int currentNumberOfRuns      = Estimation_Tab6_EnsembleRunsSetLE->text().toInt();
     int totalNumberOfRunsDesired = numRunsToAdd;
-    QString fullPath;
+    QString fullPath = "";
 
     Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(Estimation_Tab6_EnsembleTotalRunsSB->value()));
     if (addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,totalNumberOfRunsDesired,fullPath)) {

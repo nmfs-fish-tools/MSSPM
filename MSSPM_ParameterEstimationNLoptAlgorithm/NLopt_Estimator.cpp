@@ -24,6 +24,7 @@ NLopt_Estimator::NLopt_Estimator()
     m_Quit = false;
     m_Seed = 0;
     m_MinimizerToEnum.clear();
+    m_MohnsRhoOffset = 0;
 
     // Load Minimizer Name Map with global algorithms
     m_MinimizerToEnum["GN_ORIG_DIRECT_L"] = nlopt::GN_ORIG_DIRECT_L;
@@ -254,7 +255,7 @@ NLopt_Estimator::objectiveFunction(unsigned n,
     double guildK;
     double fitness=0;
     int timeMinus1;
-    int NumYears   = NLoptDataStruct.RunLength+1;
+    int NumYears   = NLoptDataStruct.RunLength+1 - m_MohnsRhoOffset;
     int NumSpecies = NLoptDataStruct.NumSpecies;
     int NumGuilds  = NLoptDataStruct.NumGuilds;
     int guildNum = 0;
@@ -376,7 +377,6 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //        }
 //    }
 //}
-
     for (int time=1; time<NumYears; ++time) {
 
         timeMinus1 = time - 1;
@@ -391,8 +391,6 @@ NLopt_Estimator::objectiveFunction(unsigned n,
             } else {
                 EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
             }
-
-
 
             GrowthTerm      = NLoptGrowthForm->evaluate(species,EstBiomassVal,
                                                         growthRate,carryingCapacity);
@@ -465,7 +463,7 @@ if (EstBiomassVal < 0) { // test code only
         rescaleMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     }
 
-// temp test RSK - take this logstuff out possibly
+    // temp test RSK - take this logstuff out possibly
 //for (int ii=0; ii<int(ObsBiomassBySpeciesOrGuildsRescaled.size1()); ++ii) {
 //    for (int jj=0; jj<int(ObsBiomassBySpeciesOrGuildsRescaled.size2()); ++jj) {
 //        ObsBiomassBySpeciesOrGuildsRescaled(ii,jj) = myNaturalLog(ObsBiomassBySpeciesOrGuildsRescaled(ii,jj));
@@ -492,12 +490,13 @@ if (EstBiomassVal < 0) { // test code only
         fitness =  nmfUtilsStatistics::calculateMaximumLikelihoodNoRescale(
                     EstBiomassSpecies,
                     ObsBiomassBySpeciesOrGuilds);
-//std::cout << "fitness2: " << fitness << std::endl; // Not OK
+
+        //std::cout << "fitness2: " << fitness << std::endl; // Not OK
      }
 
     incrementObjectiveFunctionCounter(MSSPMName,fitness,NLoptDataStruct);
 
-//std::cout << "NLopt_Estimator::objectiveFunction - end" << std::endl;
+    //std::cout << "NLopt_Estimator::objectiveFunction - end" << std::endl;
 
     return fitness;
 }
@@ -736,6 +735,7 @@ for (int i=0; i< NumEstParameters; ++i) {
     }
 
     for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
+
         NumSubRuns = 1;
         if (isAMultiRun) {
             nmfUtilsQt::reloadDataStruct(NLoptStruct,MultiRunLines[multiRun]);
@@ -758,10 +758,14 @@ for (int i=0; i< NumEstParameters; ++i) {
         if (NLoptStruct.EstimationAlgorithm != "NLopt Algorithm") {
             continue; // skip over rest of for statement and continue with next increment
         }
-
         m_Seed = 0;
         foundOneNLoptRun = true;
+
         for (int run=0; run<NumSubRuns; ++run) {
+
+            if (NLoptStruct.isMohnsRho) {
+                m_MohnsRhoOffset = run;
+            }
 
             // Initialize the optimizer with the appropriate algorithm
             m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
@@ -1096,8 +1100,8 @@ void
 NLopt_Estimator::rescaleMinMax(const boost::numeric::ublas::matrix<double> &matrix,
                                      boost::numeric::ublas::matrix<double> &rescaledMatrix)
 {
-    int numYears   = matrix.size1();
-    int numSpecies = matrix.size2();
+    int numYears   = rescaledMatrix.size1();
+    int numSpecies = rescaledMatrix.size2();
     double den;
     double minVal;
     double maxVal;
@@ -1124,6 +1128,7 @@ NLopt_Estimator::rescaleMinMax(const boost::numeric::ublas::matrix<double> &matr
             rescaledMatrix(time,species) = (matrix(time,species) - minVal) / den;  // min max normalization
         }
     }
+
 }
 
 

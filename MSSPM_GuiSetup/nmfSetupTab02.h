@@ -118,6 +118,8 @@ public:
                   nmfDatabase* databasePtr);
     virtual ~nmfSetup_Tab2();
 
+    void updateProgressDlg(const std::string& msg,
+                           int& pInc);
     /**
      * @brief Clears the Project meta data text boxes
      */

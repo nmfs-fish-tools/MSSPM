@@ -148,13 +148,9 @@ class nmfEstimation_Tab6: public QObject
     QList<QCheckBox* > getAllEstimateCheckboxes();
     void initializeDetStoMap();
     void adjustNumberOfParameters();
-    bool addToMultiRunFile(const int& numRunsToAdd,
-                           const int& currentNumberOfRuns,
-                           const int& totalNumberOfRunsDesired,
-                           QString& filename);
+
     bool queryUserIfOkToClearMultiRunFile();
     void runEnsemble();
-    void runEstimation();
     bool passRunChecks(std::string& msg);
 
 public:
@@ -170,6 +166,13 @@ public:
                        nmfDatabase* databasePtr,
                        std::string& projectDir);
     virtual ~nmfEstimation_Tab6();
+
+    void runEstimation();
+    bool addToMultiRunFile(const int& numRunsToAdd,
+                           const int& currentNumberOfRuns,
+                           const int& totalNumberOfRunsDesired,
+                           QString& filename);
+    void clearMohnsRhoFile();
 
     /**
      * @brief Append the passed message to the output text edit widget

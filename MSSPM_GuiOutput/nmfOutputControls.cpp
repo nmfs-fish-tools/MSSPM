@@ -19,8 +19,8 @@ MSSPM_GuiOutputControls::MSSPM_GuiOutputControls(
     m_IsAveraged          = nmfConstantsMSSPM::IsNotAveraged;
 
     OutputLineBrightnessSL = nullptr;
-    OutputParametersCB     = nullptr;
-    ControlsGroupBox       = controlsGroupBox;
+    OutputParametersZScoreCB = nullptr;
+    ControlsGroupBox = controlsGroupBox;
 
     readSettings();
 
@@ -88,7 +88,7 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputParametersCMB  = new QComboBox();
     OutputMethodsCMB     = new QComboBox();
     OutputScenariosCMB   = new QComboBox();
-    OutputParametersCB   = new QCheckBox();
+    OutputParametersZScoreCB  = new QCheckBox();
     OutputParametersCenterPB  = new QPushButton();
     OutputParametersMinimumPB = new QPushButton();
     OutputScaleCMB       = new QComboBox();
@@ -104,6 +104,7 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputShowFMSYLE     = new QLineEdit();
     OutputShowShadowCB   = new QCheckBox();
     OutputShowShadowLBL  = new QLabel("3d Surface Shadow: ");
+    OutputParameters2d3dPB = new QPushButton("3d");
     OutputShowBMSYCB->setMinimumWidth(120);
     OutputShowMSYCB->setMinimumWidth(120);
     OutputShowFMSYCB->setMinimumWidth(120);
@@ -115,10 +116,11 @@ MSSPM_GuiOutputControls::initWidgets()
     FMSYLayt->addWidget(OutputShowFMSYLE);
     OutputParametersCMB->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
     ParametersLayt->addWidget(OutputParametersCMB);
+    ParametersLayt->addWidget(OutputParameters2d3dPB);
+    ParametersLayt->addWidget(OutputParametersZScoreCB);
     ParametersLayt->addWidget(OutputParametersCenterPB);
     ParametersLayt->addWidget(OutputParametersMinimumPB);
-    ParametersLayt->addWidget(OutputParametersCB);
-//    MinMaxLayt->addWidget(OutputYAxisMinSB);
+//  MinMaxLayt->addWidget(OutputYAxisMinSB);
     MinMaxLayt->addWidget(OutputYAxisMaxSB);
     controlLayt->addWidget(OutputChartTypeLBL);
     controlLayt->addWidget(OutputChartTypeCMB);
@@ -133,8 +135,8 @@ MSSPM_GuiOutputControls::initWidgets()
     controlLayt->addLayout(BMSYLayt);
     controlLayt->addLayout(MSYLayt);
     controlLayt->addLayout(FMSYLayt);
-//    controlLayt->addWidget(OutputSpeListLBL);
-//    controlLayt->addWidget(OutputSpeListLV);
+//  controlLayt->addWidget(OutputSpeListLBL);
+//  controlLayt->addWidget(OutputSpeListLV);
     controlLayt->addSpacerItem(new QSpacerItem(1,2,QSizePolicy::Fixed,QSizePolicy::Expanding));
     controlLayt->addWidget(OutputLineBrightnessLBL);
     controlLayt->addWidget(OutputLineBrightnessSL);
@@ -157,6 +159,11 @@ MSSPM_GuiOutputControls::initWidgets()
     controlScrollableLayt->addWidget(scrollAreaSA);
     scrollAreaSA->setObjectName("ScrollAreaSA");
     ControlsGroupBox->setLayout(controlScrollableLayt);
+    scrollAreaSA->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+    scrollAreaSA->setMinimumWidth(315);
+    scrollAreaSA->setMaximumWidth(315);
+    ControlsGroupBox->setMinimumWidth(350);
+    ControlsGroupBox->setMaximumWidth(350);
 
     OutputSpeListLBL->setEnabled(false);
     OutputSpeListLV->setEnabled(false);
@@ -250,9 +257,18 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputParametersLBL->setEnabled(false);
     OutputParametersCMB->setEnabled(false);
     OutputParametersCMB->addItems(nmfConstantsMSSPM::VectorParameterNames);
-    OutputParametersCB->setText("");
-    OutputParametersCB->setToolTip("Toggles between 2d and 3d Diagnostics View");
-    OutputParametersCB->setStatusTip("Toggles between 2d and 3d Diagnostics View");
+    OutputParametersZScoreCB->setText("");
+    OutputParametersZScoreCB->setToolTip("Toggles between an absolute fitness scale and a zscore fitness scale");
+    OutputParametersZScoreCB->setStatusTip("Toggles between an absolute fitness scale and a zscore fitness scale");
+    msg ="<html>\
+<strong><center>ZScore</center></strong><br>\
+The ZScore value is calculated by the following formula: \
+<br><center>ZScore = (x - μ)/σ, where</center> \
+<br>x = a particular fitness value, \
+<br>μ = estimated parameter, and \
+<br>σ = sqrt[Σ(x-μ)²/N] where N=number of estimations \
+</html>";
+    OutputParametersZScoreCB->setWhatsThis(msg);
     OutputParametersCenterPB->setText("");
     OutputParametersCenterPB->setIcon(centerIcon);
     OutputParametersCenterPB->setFixedWidth(20);
@@ -267,6 +283,11 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputParametersMinimumPB->setToolTip("Selects minimum point on surface\n(i.e., the estimated r and K values)");
     OutputParametersMinimumPB->setStatusTip("Selects minimum point on surface\n(i.e., the estimated r and K values)");
     OutputParametersMinimumPB->setEnabled(false);
+    OutputParameters2d3dPB->setFixedWidth(20);
+    OutputParameters2d3dPB->setFixedHeight(20);
+    OutputParameters2d3dPB->setEnabled(false);
+    OutputParameters2d3dPB->setToolTip("Displays a 1-parameter 2d chart or 2-parameter 3d chart.");
+    OutputParameters2d3dPB->setStatusTip("Displays a 1-parameter 2d chart or 2-parameter 3d chart.");
     OutputScenariosLBL->setEnabled(false);
     OutputScenariosCMB->setEnabled(false);
     OutputMethodsCMB->setEnabled(false);
@@ -309,6 +330,7 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputShowShadowCB->setEnabled(false);
     OutputShowShadowCB->setChecked(true);
     OutputShowShadowLBL->setEnabled(false);
+    OutputParametersZScoreCB->setEnabled(false);
 
     ControlsGroupBox->setMinimumHeight(100);
 }
@@ -340,8 +362,8 @@ MSSPM_GuiOutputControls::initConnections()
             this,                   SLOT(callback_OutputParametersCMB(QString)));
     connect(OutputScenariosCMB,     SIGNAL(currentIndexChanged(QString)),
             this,                   SLOT(callback_OutputScenariosCMB(QString)));
-    connect(OutputParametersCB,     SIGNAL(stateChanged(int)),
-            this,                   SLOT(callback_OutputParametersCB(int)));
+    connect(OutputParametersZScoreCB, SIGNAL(stateChanged(int)),
+            this,                   SLOT(callback_OutputParametersZScoreCB(int)));
     connect(OutputShowBMSYCB,       SIGNAL(stateChanged(int)),
             this,                   SLOT(callback_OutputBMSYCB(int)));
     connect(OutputShowMSYCB,        SIGNAL(stateChanged(int)),
@@ -364,6 +386,8 @@ MSSPM_GuiOutputControls::initConnections()
             this,                   SLOT(callback_OutputYAxisMaxSB(int)));
     connect(OutputShowShadowCB,     SIGNAL(stateChanged(int)),
             this,                   SLOT(callback_OutputShowShadowCB(int)));
+    connect(OutputParameters2d3dPB, SIGNAL(clicked()),
+            this,                   SLOT(callback_OutputParameters2d3dPB()));
 }
 
 void
@@ -613,6 +637,13 @@ MSSPM_GuiOutputControls::setSpeciesNum(int speciesNum)
     OutputSpeciesCMB->setCurrentIndex(speciesNum);
 }
 
+
+bool
+MSSPM_GuiOutputControls::isSetToRetrospectiveAnalysis()
+{
+    return OutputMethodsCMB->currentText() == "Retrospective Analysis";
+}
+
 void
 MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
 {
@@ -625,8 +656,7 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
     bool isForecast      = (outputType == "Forecast");
     bool isDiagnostic    = (outputType == "Diagnostics");
     bool isMultiScenario = (outputType == "Multi-Scenario Plots");
-    bool paramIsChecked  = (OutputParametersCB->checkState() == Qt::Checked);
-    bool is3dChecked     = OutputParametersCB->isChecked();
+    bool is3dSurfaceDisplayed = displaying3dChart();
     QString scenario     = getOutputScenario();
     QStringList emptyList;
 
@@ -648,16 +678,15 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
     OutputMethodsLBL->setEnabled(isDiagnostic);
     OutputMethodsCMB->setEnabled(isDiagnostic);
     OutputParametersCMB->setEnabled(isDiagnostic && isParameterProfiles);
-    OutputParametersCB->setEnabled(isDiagnostic);
     OutputParametersCenterPB->setEnabled(false);
     OutputParametersMinimumPB->setEnabled(false);
-    if (paramIsChecked) {
+    OutputParameters2d3dPB->setEnabled(isDiagnostic);
+    if (is3dSurfaceDisplayed) {
         OutputParametersCMB->setEnabled(false); // this should override the previous statement
-        OutputParametersCB->setEnabled(false);
         OutputParametersCenterPB->setEnabled(true);
         OutputParametersMinimumPB->setEnabled(true);
+        OutputParameters2d3dPB->setEnabled(true);
     }
-    OutputParametersCB->setEnabled(isDiagnostic);
     OutputParametersLBL->setEnabled(isDiagnostic && isParameterProfiles);
     OutputScenariosLBL->setEnabled(isMultiScenario);
     OutputScenariosCMB->setEnabled(isMultiScenario);
@@ -666,9 +695,9 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
     OutputYAxisMinSL->setEnabled( isBiomassVsTime || isHarvestVsTime);
     OutputYAxisMaxLBL->setEnabled(isDiagnostic);
     OutputYAxisMinSB->setEnabled(isDiagnostic);
-//    OutputYAxisMaxSB->setEnabled(isDiagnostic);
-    OutputShowShadowCB->setEnabled(isDiagnostic && is3dChecked);
-    OutputShowShadowLBL->setEnabled(isDiagnostic && is3dChecked);
+//  OutputYAxisMaxSB->setEnabled(isDiagnostic);
+    OutputShowShadowCB->setEnabled(isDiagnostic && is3dSurfaceDisplayed);
+    OutputShowShadowLBL->setEnabled(isDiagnostic && is3dSurfaceDisplayed);
 
     speciesLVFlag = ((outputType == "(Abs) Bc vs Time") ||
                      (outputType == "(Rel) Bc vs Time"));
@@ -696,8 +725,8 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
         if (isParameterProfiles) {
             callback_ResetOutputWidgetsForAggProd();
             emit ShowChart("",""); //,m_IsAveraged);
-            if (OutputParametersCB->isChecked()) {
-                emit SetChartView2d(false);
+            if (! displaying3dChart()) {
+                emit SetChartView2d(true);
             }
         } else { // Mohn's Rho
             emit ShowChartMohnsRho();
@@ -801,32 +830,41 @@ MSSPM_GuiOutputControls::callback_OutputMethodsCMB(QString method)
 {
     OutputParametersCMB->setEnabled(true);
     OutputParametersLBL->setEnabled(true);
-    OutputParametersCB->setEnabled(true);
+    OutputParameters2d3dPB->setEnabled(true);
+    OutputParametersZScoreCB->setEnabled(displaying3dChart());
     OutputScaleLBL->setEnabled(true);
     OutputScaleCMB->setEnabled(true);
 
     if (method == "Parameter Profiles") {
         callback_ResetOutputWidgetsForAggProd();
-        emit ShowChart("",""); //,m_IsAveraged);
-        if (OutputParametersCB->isChecked()) {
-            emit SetChartView2d(false);
-        }
+        emit SetChartView2d(true);
+        emit ShowChart("","");
         OutputScaleLBL->setEnabled(false);
         OutputScaleCMB->setEnabled(false);
     } else if (method == "Retrospective Analysis") {
         emit ShowChartMohnsRho();
-        OutputParametersCB->setChecked(false);
+        OutputParameters2d3dPB->setText("3d");
+        OutputParameters2d3dPB->setEnabled(false);
         OutputParametersLBL->setEnabled(false);
         OutputParametersCMB->setEnabled(false);
-        OutputParametersCB->setEnabled(false);
+        OutputParametersZScoreCB->setChecked(false);
+        OutputParametersZScoreCB->setEnabled(false);
+        OutputParametersMinimumPB->setEnabled(false);
+        OutputParametersCenterPB->setEnabled(false);
     }
 }
 
 void
 MSSPM_GuiOutputControls::setForMohnsRho()
 {
+    OutputChartTypeCMB->setCurrentText("Diagnostics");
+    OutputMethodsCMB->setCurrentText("Retrospective Analysis");
     OutputParametersLBL->setEnabled(false);
     OutputParametersCMB->setEnabled(false);
+    OutputParametersZScoreCB->setEnabled(false);
+    OutputParameters2d3dPB->setEnabled(false);
+    OutputParametersMinimumPB->setEnabled(false);
+    OutputParametersCenterPB->setEnabled(false);
 }
 
 void
@@ -877,22 +915,41 @@ MSSPM_GuiOutputControls::callback_SetOutputScenario(QString scenario)
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputParametersCB(int state)
+MSSPM_GuiOutputControls::callback_OutputParameters2d3dPB()
 {
-    if (state == Qt::Checked) {
+    QString currentText = OutputParameters2d3dPB->text();
+    bool stateIs3d      = (currentText == "3d");
+
+    if (stateIs3d) {
+        OutputParameters2d3dPB->setText("2d");
         OutputParametersCMB->setEnabled(false);
         OutputParametersCenterPB->setEnabled(true);
         OutputParametersMinimumPB->setEnabled(true);
+        OutputParametersZScoreCB->setEnabled(true);
         emit ShowDiagnosticsChart3d();
         emit SetChartView2d(false);
     } else {
+        OutputParameters2d3dPB->setText("3d");
         OutputParametersCMB->setEnabled(true);
         OutputParametersCenterPB->setEnabled(false);
         OutputParametersMinimumPB->setEnabled(false);
+        OutputParametersZScoreCB->setEnabled(false);
         emit SetChartView2d(true);
     }
-    OutputShowShadowLBL->setEnabled(state == Qt::Checked);
-    OutputShowShadowCB->setEnabled(state == Qt::Checked);
+    OutputShowShadowLBL->setEnabled(stateIs3d);
+    OutputShowShadowCB->setEnabled(stateIs3d);
+}
+
+void
+MSSPM_GuiOutputControls::callback_OutputParametersZScoreCB(int state)
+{
+    emit ShowChart("","");
+}
+
+bool
+MSSPM_GuiOutputControls::displaying3dChart()
+{
+    return (OutputParameters2d3dPB->text() == "2d");
 }
 
 void
@@ -940,6 +997,8 @@ MSSPM_GuiOutputControls::callback_OutputScaleCMB(QString scale)
 
     if (getOutputChartType() == "Multi-Scenario Plots") {
         emit ShowChartMultiScenario(m_SortedForecastLabelsMap[scenario]);
+    } else if (isSetToRetrospectiveAnalysis()) {
+        emit ShowChartMohnsRho();
     } else {
         updateChart();
     }
@@ -1010,6 +1069,12 @@ void
 MSSPM_GuiOutputControls::clearOutputFMSY()
 {
     OutputShowFMSYLE->clear();
+}
+
+bool
+MSSPM_GuiOutputControls::isSurfaceTypeZScore()
+{
+    return OutputParametersZScoreCB->isChecked();
 }
 
 bool
@@ -1115,9 +1180,10 @@ MSSPM_GuiOutputControls::getOutputScenario()
 }
 
 void
-MSSPM_GuiOutputControls::setOutputParametersCB(bool checked)
+MSSPM_GuiOutputControls::setOutputParameters2d3dPB(QString chartType)
 {
-    OutputParametersCB->setChecked(checked);
+    OutputParameters2d3dPB->setText(chartType);
+    callback_OutputParameters2d3dPB();
 }
 
 void

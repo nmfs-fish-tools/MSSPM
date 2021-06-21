@@ -16,6 +16,7 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
     m_Logger          = logger;
     m_DatabasePtr     = databasePtr;
     m_ProjectDir      = projectDir;
+    m_isMohnsRhoRun   = false;
 
     // Load ui as a widget from disk
     QFile file(":/forms/Diagnostic/Diagnostic_Tab02.ui");
@@ -214,6 +215,17 @@ nmfDiagnostic_Tab2::clearWidgets()
     setEndYearLE(0);
 }
 
+bool
+nmfDiagnostic_Tab2::isAMohnsRhoRun()
+{
+    return m_isMohnsRhoRun;
+}
+
+void
+nmfDiagnostic_Tab2::setIsMohnsRho(bool state)
+{
+    m_isMohnsRhoRun = state;
+}
 
 void
 nmfDiagnostic_Tab2::callback_NumPeelsSB(int numPeels)
@@ -274,6 +286,7 @@ nmfDiagnostic_Tab2::callback_RunPB()
         }
     }
 
+    m_isMohnsRhoRun = true;
     emit RunDiagnosticEstimation(ranges);
 
 }

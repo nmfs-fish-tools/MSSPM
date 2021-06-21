@@ -49,6 +49,7 @@
 #include <nlopt.hpp>
 #include <random>
 
+static int m_MohnsRhoOffset = 0;
 
 /**
  * @brief This class acts as an interface class to the NLopt library.
@@ -60,6 +61,9 @@ class  NLopt_Estimator : public QObject
 {
 
     Q_OBJECT
+
+
+
 
 private:
     int                                    m_Seed;
