@@ -1926,7 +1926,7 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
     QStringList SpeciesList;
     QString Header = "Year";
     QStringList HeaderList;
-    std::vector<boost::numeric::ublas::matrix<double> > ForecastCatch;
+    std::vector<boost::numeric::ublas::matrix<double> > ForecastHarvest;
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomass;
     QStandardItem* item;
     QString growthForm;
@@ -1957,10 +1957,11 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
         return;
     }
 
-    // Get ForecastCatch data
-    if (! m_DatabasePtr->getForecastCatch(
+    // Get ForecastHarvest data
+    if (! m_DatabasePtr->getForecastHarvest(
                 this,m_Logger,ForecastName.toStdString(),NumSpecies,RunLength,
-                Algorithm,Minimizer,ObjectiveCriterion,Scaling,ForecastCatch)) {
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,harvestForm.toStdString(),
+                ForecastHarvest)) {
         return;
     }
 
@@ -2024,7 +2025,7 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
             item->setTextAlignment(Qt::AlignCenter);
             smodel3->setItem(i, 0, item);
             for (int j=0; j<NumSpecies; ++j) {
-                numerator   = ForecastCatch[0](i,j);
+                numerator   = ForecastHarvest[0](i,j);
                 denominator = ForecastBiomass[0](i,j);
                 val = (denominator == 0) ? 0 : numerator/denominator;
                 stream << ", " << val;
@@ -9358,7 +9359,6 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     }
     isAggProd = (CompetitionForm == "AGG-PROD");
     isAggProdStr = (isAggProd) ? "1" : "0";
-std::cout << "NumRuns2: " << NumRuns << std::endl;
 
     // Calculate Monte Carlo simulations
     isMonteCarlo = true;
@@ -9457,7 +9457,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
         PredationForm      = dataMap["PredationForm"][0];
         NumRuns            = std::stoi(dataMap["NumRuns"][0]);
     }
-std::cout << "NumRuns1: " << NumRuns << std::endl;
+
     isAggProd    = (CompetitionForm == "AGG-PROD");
     isAggProdStr = (isAggProd) ? "1" : "0";
 
