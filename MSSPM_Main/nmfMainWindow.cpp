@@ -1688,12 +1688,14 @@ nmfMainWindow::getForecastInitialData(
     bool ok;
     QStringList items;
 
-    forecastName.clear();
     numYearsPerRun     = 0;
     numRunsPerForecast = 0;
 
     fields     = {"ForecastName","RunLength","NumRuns","GrowthForm","HarvestForm"};
     queryStr   = "SELECT ForecastName,RunLength,NumRuns,GrowthForm,HarvestForm FROM Forecasts";
+    if (! forecastName.isEmpty()) {
+        queryStr  += " WHERE ForecastName = '" + forecastName.toStdString() + "'";
+    }
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
     if (NumRecords == 0) {
@@ -1748,6 +1750,9 @@ nmfMainWindow::menu_toggleManagerMode()
     QString harvestForm;
     QStringList speciesList;
     bool showManagerMode = ! runningREMORA();
+    int numYearsPerRun;
+    int numRunsPerForecast;
+    QString forecastName = "";
 
     // Set state of relevant menu items
     m_UI->actionToggleManagerModeViewer->setEnabled(showManagerMode);
@@ -1756,13 +1761,8 @@ nmfMainWindow::menu_toggleManagerMode()
     }
 
     if (showManagerMode) {
-
         saveSettings();
-
         // Get desired forecast data and initialize Remora with them
-        int numYearsPerRun;
-        int numRunsPerForecast;
-        QString forecastName;
         ok = getForecastInitialData(forecastName,numYearsPerRun,numRunsPerForecast,growthForm,harvestForm);
         if (! ok and forecastName.isEmpty()) {
             m_UI->actionToggleManagerMode->setChecked(false);
@@ -1866,7 +1866,7 @@ nmfMainWindow::saveScreenshot(QString &outputImageFile, QPixmap &pm)
     pm.save(outputImageFileWithPath);
 
     // Save the data file
-    if (runningREMORA()) {
+    if (runningREMORA()) {        
         saveRemoraDataFile(outputDataFileWithPath);
     }
 
@@ -1917,7 +1917,7 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
     double val  = 0;
     double val0 = 0;
     double numerator,denominator;
-    QString ForecastName;
+    QString ForecastName = "";
     std::string Algorithm;
     std::string Minimizer;
     std::string ObjectiveCriterion;
@@ -1941,6 +1941,7 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
         HeaderList << Species;
     }
 
+    ForecastName = QString::fromStdString(Remora_ptr->getForecastName());
     getForecastInitialData(ForecastName,NumYearsPerRun,NumRunsPerForecast,growthForm,harvestForm);
 
     // Find Forecast info
