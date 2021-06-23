@@ -34,5 +34,7 @@
         <file>icons/scrgrbAll.png</file>
         <file>forms/Main/TableNamesDlg.ui</file>
         <file>forms/Estimation/Estimation_Tab07.ui</file>
+        <file>icons/locked.png</file>
+        <file>icons/unlocked.png</file>
     </qresource>
 </RCC>

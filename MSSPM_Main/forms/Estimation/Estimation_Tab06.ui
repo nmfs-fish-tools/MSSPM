@@ -1560,7 +1560,7 @@ with the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>64</width>
+                      <width>84</width>
                       <height>20</height>
                      </size>
                     </property>
@@ -1651,7 +1651,7 @@ with the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>64</width>
+                      <width>84</width>
                       <height>20</height>
                      </size>
                     </property>
@@ -1782,6 +1782,40 @@ with the non-assigned bees being assigned to random positions.</string>
                       <string>hour</string>
                      </property>
                     </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="Estimation_Tab6_NL_TimeUnitsLockPB">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>17</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>17</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Locks/unlocks the time units pulldown to the left</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Locks/unlocks the time units pulldown to the left</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
                    </widget>
                   </item>
                  </layout>

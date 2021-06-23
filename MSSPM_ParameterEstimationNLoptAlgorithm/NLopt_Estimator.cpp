@@ -11,7 +11,7 @@ bool m_Quit;
 int NLopt_Estimator::m_NLoptFcnEvals = 0;
 int NLopt_Estimator::m_NumObjFcnCalls = 0;
 int NLopt_Estimator::m_RunNum        = 0;
-nlopt::opt       NLopt_Estimator::m_Optimizer;
+nlopt::opt NLopt_Estimator::m_Optimizer;
 
 std::unique_ptr<nmfGrowthForm>      NLoptGrowthForm;
 std::unique_ptr<nmfHarvestForm>     NLoptHarvestForm;
@@ -636,12 +636,17 @@ NLopt_Estimator::setObjectiveFunction(nmfStructsQt::ModelDataStruct& NLoptStruct
 
 
 void
-NLopt_Estimator::setSeed(const bool& isSetToDeterministic)
+NLopt_Estimator::setSeed(const bool& isSetToDeterministic,
+                         const bool& useFixedSeed)
 {
-    if (isSetToDeterministic) {
-        nlopt::srand(++m_Seed);
+    if (useFixedSeed) {
+        nlopt::srand(1);
     } else {
-        nlopt::srand_time();
+        if (isSetToDeterministic) {
+            nlopt::srand(++m_Seed);
+        } else {
+            nlopt::srand_time();
+        }
     }
 }
 
@@ -771,7 +776,7 @@ for (int i=0; i< NumEstParameters; ++i) {
             m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
 
             // Set Parameter Bounds, Objective Function, and Stopping Criteria
-            setSeed(isSetToDeterministic);
+            setSeed(isSetToDeterministic,NLoptStruct.useFixedSeed);
             setParameterBounds(NLoptStruct,ParameterRanges,NumEstParameters);
             setObjectiveFunction(NLoptStruct,MaxOrMin);
             setStoppingCriteria(NLoptStruct);

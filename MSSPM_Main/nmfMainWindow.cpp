@@ -1309,6 +1309,8 @@ void
 nmfMainWindow::menu_stopRun()
 {
     m_ProgressWidget->StopRun();
+    Output_Controls_ptr->enableControls();
+
 }
 
 void
@@ -2086,7 +2088,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.17 (beta)";
+    QString version = "MSSPM v0.9.18 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -6108,7 +6110,6 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
 void
 nmfMainWindow::callback_ShowChartMohnsRho()
 {
-std::cout << "--> " << "callback_ShowChartMohnsRho" << std::endl;
     callback_SetChartView2d(true);
     displayAverageBiomass();
 }
@@ -6903,10 +6904,25 @@ nmfMainWindow::loadSummaryStatisticsModel(
 bool
 nmfMainWindow::isAMohnsRhoMultiRun()
 {
-    return Diagnostic_Tab2_ptr->isAMohnsRhoRun() ||
-           (Output_Controls_ptr->getOutputChartType() == "Diagnostics" &&
-            Output_Controls_ptr->isSetToRetrospectiveAnalysis());
+//    return Diagnostic_Tab2_ptr->isAMohnsRhoRun() ||
+//           (Output_Controls_ptr->getOutputChartType() == "Diagnostics" &&
+//            Output_Controls_ptr->isSetToRetrospectiveAnalysis());
+
+    QString NavigatorStr = NavigatorTree->currentItem()->text(0);
+
+    return ( Diagnostic_Tab2_ptr->isAMohnsRhoRun() ||
+
+             (Output_Controls_ptr->getOutputChartType() == "Diagnostics" &&
+              Output_Controls_ptr->isSetToRetrospectiveAnalysis() &&
+              (NavigatorStr.contains("Retrospective Analysis") ||
+               NavigatorStr.contains("Parameter Profiles")) ));
 }
+
+//bool
+//nmfMainWindow::isAMultiRun()
+//{
+//    return (Estimation_Tab6_ptr->isAMultiRun());
+//}
 
 bool
 nmfMainWindow::isAMultiOrMohnsRhoRun()
@@ -7079,7 +7095,9 @@ nmfMainWindow::showChartTableVsTime(
                                      ChartColor,
                                      ScatterColor,
                                      nmfConstants::LineColors[line%NumLineColors],
-                                     nmfConstants::LineColorNames[line%NumLineColors],{});
+                                     nmfConstants::LineColorNames[line%NumLineColors],
+                                     {},
+                                     nmfConstantsMSSPM::ShowLegend);
         }
 
         AddScatter = (line+1 == NumLines-1);
@@ -7243,7 +7261,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    }
 }
 
-
+/*
 void
 nmfMainWindow::showMohnsRhoBiomassVsTime(
         const std::string &label,
@@ -7375,7 +7393,7 @@ nmfMainWindow::showMohnsRhoBiomassVsTime(
                                  1.0);
     }
 }
-
+*/
 
 
 
@@ -7875,7 +7893,8 @@ nmfMainWindow::showChartBiomassVsTime(
                                                 ChartColor,
                                                 ScatterColor,
                                                 nmfConstants::LineColors[line%NumLineColors],
-                                                colorName.toStdString(),{});
+                                                colorName.toStdString(),{},
+                                                nmfConstantsMSSPM::ShowLegend);
         }
 
         AddScatter = (line+1 == NumLines-1);
@@ -7982,7 +8001,7 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
     boost::numeric::ublas::matrix<double> ChartScatterData;
     int NumLines = OutputBiomass.size();
     bool isMohnsRho = isAMohnsRhoMultiRun();
-
+//std::cout << "===> isMohnsRho: " << isMohnsRho << std::endl;
     ChartBMSYData.resize(RunLength+1,1); // NumSpecies);
     ChartBMSYData.clear();
     ChartLineData.resize(RunLength+1,NumLines); // NumSpecies);
@@ -8042,7 +8061,6 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
                                            Minimizers[line],
                                            ObjectiveCriteria[line],
                                            Scalings[line]));
-std::cout << "line: " << line << ", length: " << ModifiedRunLength << std::endl;
 
         // Load Line plot points into data structure and update the chart
         lineLabel = lineLabels[line];
@@ -8089,11 +8107,11 @@ std::cout << "line: " << line << ", length: " << ModifiedRunLength << std::endl;
                                             ScatterColor,
                                             "lightGray", //nmfConstants::LineColors[line%NumLineColors],
                                             "",
-                                            lineLabels);
+                                            lineLabels,
+                                            nmfConstantsMSSPM::DontShowLegend);
 
     }
 
-//        AddScatter = (line+1 == NumLines-1);
 
     if (Output_Controls_ptr->isCheckedOutputBMSY()) {
         double BMSYValue = 0;
@@ -8109,7 +8127,6 @@ std::cout << "line: " << line << ", length: " << ModifiedRunLength << std::endl;
                 for (int j=0; j<=RunLength; ++j) {
                     ChartBMSYData(j,0) = BMSYValue;
                 }
-//               Output_Controls_ptr->clearOutputBMSY();
                 Output_Controls_ptr->setTextOutputBMSY(QString::number(BMSYValue));
                 break;
             }
@@ -8118,7 +8135,6 @@ std::cout << "line: " << line << ", length: " << ModifiedRunLength << std::endl;
         for (int line=0; line<NumLines; ++line) {
             ColumnLabelsForLegend << "B MSY";
             if (m_ChartWidget != nullptr) {
-//                lineLabel = lineLabels[line];
                 nmfChartLine* lineChart = new nmfChartLine();
                 lineChart->populateChart(m_ChartWidget,
                                          ChartType,
@@ -9260,9 +9276,12 @@ std::cout << "====================== isAMultiRun: " << isAMultiRun << std::endl;
         }
     }
 
+    Output_Controls_ptr->disableControls();
+
     callback_InitializeSubRuns(m_DataStruct.MultiRunModelFilename,TotalIndividualRuns);
 
     m_ProgressWidget->clearRunBoxes();
+
 
     if (isAMultiRun) {
         m_ProgressWidget->setRunBoxes(1,0,m_DataStruct.NLoptNumberOfRuns);
@@ -9595,6 +9614,9 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     bool isAMultiRun          = isAMultiOrMohnsRhoRun();
     bool isSetToDeterministic = Estimation_Tab6_ptr->isSetToDeterministic();
 
+    // Force isSetToDeterministic to be true if running Mohns Rho
+    m_DataStruct.useFixedSeed = isAMohnsRhoMultiRun();
+
     Output_Controls_ptr->setAveraged(isAMultiRun);
     m_DataStruct.showDiagnosticChart = showDiagnosticChart;
 
@@ -9648,12 +9670,6 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
 
     m_ProgressWidget->hideLegend();
     m_isRunning = true;
-
-//    static const QMetaMethod updateProgressSignal = QMetaMethod::fromSignal(&NLopt_Estimator::UpdateProgressData);
-//    if (! isSignalConnected(updateProgressSignal)) {
-//        connect(m_Estimator_NLopt, SIGNAL(UpdateProgressData(int,int,QString)),
-//                this,              SLOT(callback_UpdateProgressData(int,int,QString)));
-//    }
 
     /****************************************************/
     /* Any statements after this point will be executed */
@@ -10211,6 +10227,8 @@ nmfMainWindow::callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
     QStringList parts;
     QStringList SpeciesList;
 
+    Output_Controls_ptr->enableControls();
+
     getSpecies(NumSpecies,SpeciesList);
     if (! m_DatabasePtr->getModelFormData(
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
@@ -10273,10 +10291,18 @@ nmfMainWindow::callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
     displayAverageBiomass();
     callback_UpdateSummaryStatistics();
 
+    // RSK - continue here and display Diagnostic Summary Statistics
+    // updateDiagnosticSummaryStatistics();
+
+
     QApplication::restoreOverrideCursor();
 
+    if (isAMohnsRhoMultiRun()) {
+        Output_Controls_ptr->setForMohnsRho();
+    } else {
+        Output_Controls_ptr->setForBiomassVsTime();
+    }
     Diagnostic_Tab2_ptr->setIsMohnsRho(false);
-    Output_Controls_ptr->setForMohnsRho();
 
 }
 
@@ -10638,6 +10664,9 @@ nmfMainWindow::displayAverageBiomass()
     }
 
     // Show scatter plot with light gray individual run lines
+//    if (isAMohnsRhoMultiRun()) {
+//        lineLabels.clear();
+//    }
     showChartBiomassVsTimeMultiRunWithScatter(
                 NumSpecies,OutputSpecies,
                 SpeciesNum,RunLength,
@@ -10654,25 +10683,27 @@ nmfMainWindow::displayAverageBiomass()
                 YMinSliderValue,
                 lineLabels);
 
-    // Show dark blue average line(s)
-    OutputBiomassEnsembleAve.clear();
-    OutputBiomassEnsembleAve.push_back(m_AveBiomass);
-    ColumnLabelsForLegend.clear();
-    ColumnLabelsForLegend << aveAlgorithm + " Average";
-    if (GroupType != "Species") {
-        OutputBiomassByGuilds = getOutputBiomassByGroup(RunLength,OutputBiomassEnsembleAve,GroupType.toStdString());
-        OutputBiomassEnsembleAve = OutputBiomassByGuilds;
+    if (! isAMohnsRhoMultiRun()) {
+        // Show dark blue average line(s)
+        OutputBiomassEnsembleAve.clear();
+        OutputBiomassEnsembleAve.push_back(m_AveBiomass);
+        ColumnLabelsForLegend.clear();
+        ColumnLabelsForLegend << aveAlgorithm + " Average";
+        if (GroupType != "Species") {
+            OutputBiomassByGuilds = getOutputBiomassByGroup(RunLength,OutputBiomassEnsembleAve,GroupType.toStdString());
+            OutputBiomassEnsembleAve = OutputBiomassByGuilds;
+        }
+        showBiomassVsTimeForMultipleRuns("Ensemble Biomass",InitialYear,
+                                         NumSpecies,OutputSpecies,
+                                         SpeciesNum,RunLength+1,
+                                         OutputBiomassEnsembleAve,
+                                         ScaleStr,ScaleVal,
+                                         YMinSliderValue,BrightnessFactor,
+                                         nmfConstantsMSSPM::IsNotMonteCarlo,
+                                         nmfConstantsMSSPM::IsNotEnsemble,
+                                         nmfConstantsMSSPM::DontClear,
+                                         ColumnLabelsForLegend);
     }
-    showBiomassVsTimeForMultipleRuns("Ensemble Biomass",InitialYear,
-                              NumSpecies,OutputSpecies,
-                              SpeciesNum,RunLength+1,
-                              OutputBiomassEnsembleAve,
-                              ScaleStr,ScaleVal,
-                              YMinSliderValue,BrightnessFactor,
-                              nmfConstantsMSSPM::IsNotMonteCarlo,
-                              nmfConstantsMSSPM::IsNotEnsemble,
-                              nmfConstantsMSSPM::DontClear,
-                              ColumnLabelsForLegend);
 
 }
 
@@ -10966,6 +10997,8 @@ nmfMainWindow::callback_RunCompleted(std::string output,
 {
 std::cout << "=====>>>>> run completed" << std::endl;
     m_Logger->logMsg(nmfConstants::Normal,"Run Completed");
+
+    Output_Controls_ptr->enableControls();
 
     m_isRunning = false;
 

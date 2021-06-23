@@ -108,6 +108,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_SetDeterministicCB            = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_SetDeterministicCB");
     Estimation_Tab6_EnsembleSetDeterministicCB    = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EnsembleSetDeterministicCB");
     Estimation_Tab6_AddToReviewPB                 = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_AddToReviewPB");
+    Estimation_Tab6_NL_TimeUnitsLockPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_NL_TimeUnitsLockPB");
 
     Estimation_Tab6_AddToReviewPB->setEnabled(false);
 
@@ -192,6 +193,9 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
             this,                                    SLOT(callback_AddToReviewPB()));
     connect(Estimation_Tab6_EstimateSurveyQCB,       SIGNAL(stateChanged(int)),
             this,                                    SLOT(callback_EstimateSurveyQCB(int)));
+    connect(Estimation_Tab6_NL_TimeUnitsLockPB,      SIGNAL(clicked(bool)),
+            this,                                    SLOT(callback_TimeUnitsLockPB(bool)));
+
 
     // Wire up signals/slots for the Estimate Run checkboxes
     for (QCheckBox* cbox : getAllEstimateCheckboxes()) {
@@ -211,6 +215,12 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
 
     // Initialize minimize function label map
     initializeDetStoMap();
+
+    // Initialize lock button
+    QIcon lockedIcon(":/icons/locked.png");
+    Estimation_Tab6_NL_TimeUnitsLockPB->setIcon(lockedIcon);
+    Estimation_Tab6_NL_StopAfterTimeUnitsCMB->setEnabled(false);
+    Estimation_Tab6_NL_TimeUnitsLockPB->setChecked(true);
 
     callback_EstimationAlgorithmCMB("Bees Algorithm");
     enableRunButton(true);
@@ -1882,4 +1892,14 @@ nmfEstimation_Tab6::saveSettings()
     settings->endGroup();
 
     delete settings;
+}
+
+void
+nmfEstimation_Tab6::callback_TimeUnitsLockPB(bool isChecked)
+{
+    QString iconName = (isChecked) ? ":/icons/locked.png" : ":/icons/unlocked.png";
+    QIcon icon(iconName);
+
+    Estimation_Tab6_NL_StopAfterTimeUnitsCMB->setEnabled(!isChecked);
+    Estimation_Tab6_NL_TimeUnitsLockPB->setIcon(icon);
 }

@@ -34,6 +34,18 @@ MSSPM_GuiOutputControls::~MSSPM_GuiOutputControls()
 
 }
 
+void
+MSSPM_GuiOutputControls::disableControls()
+{
+    ControlsGroupBox->setEnabled(false);
+}
+
+void
+MSSPM_GuiOutputControls::enableControls()
+{
+    ControlsGroupBox->setEnabled(true);
+}
+
 bool
 MSSPM_GuiOutputControls::isAveraged()
 {
@@ -865,6 +877,12 @@ MSSPM_GuiOutputControls::setForMohnsRho()
     OutputParameters2d3dPB->setEnabled(false);
     OutputParametersMinimumPB->setEnabled(false);
     OutputParametersCenterPB->setEnabled(false);
+}
+
+void
+MSSPM_GuiOutputControls::setForBiomassVsTime()
+{
+  OutputChartTypeCMB->setCurrentText("Biomass vs Time");
 }
 
 void

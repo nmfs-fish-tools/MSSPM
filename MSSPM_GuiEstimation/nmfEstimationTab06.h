@@ -139,6 +139,7 @@ class nmfEstimation_Tab6: public QObject
     QCheckBox*   Estimation_Tab6_SetDeterministicCB;
     QCheckBox*   Estimation_Tab6_EnsembleSetDeterministicCB;
     QPushButton* Estimation_Tab6_AddToReviewPB;
+    QPushButton* Estimation_Tab6_NL_TimeUnitsLockPB;
 
     void readSettings();
     bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
@@ -515,7 +516,7 @@ public Q_SLOTS:
                                 const bool enable,
                                 const bool checked);
     void callback_EstimateSurveyQCB(int state);
-
+    void callback_TimeUnitsLockPB(bool isChecked);
 };
 
 #endif // NMFESTIMATIONTAB6_H

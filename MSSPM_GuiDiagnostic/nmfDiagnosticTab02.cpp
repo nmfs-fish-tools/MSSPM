@@ -278,6 +278,7 @@ nmfDiagnostic_Tab2::callback_RunPB()
     // where Σ goes from n=1 to x
     ranges.clear();
     for (int i=0; i<=NumPeeledYears; ++i) {
+std::cout << "range: " << StartYear << ", " << EndYear << std::endl;
         ranges.push_back(std::make_pair(StartYear,EndYear));
         if (isFromEnd) {
             ++EndYear;

@@ -153,6 +153,8 @@ public:
     void            setAveraged(bool isAveraged);
     bool            displaying3dChart();
     bool            isAveraged();
+    void            disableControls();
+    void            enableControls();
     /**
      * @brief Get the brightness factor set by the Forecast Run Brightness slider widget
      * @return The brightness value desired for the stochastic Forecast plots
@@ -343,6 +345,7 @@ public:
      * @brief Assure appropriate widgets are enabled/disabled when user selects Retrospectve Analysis
      */
     void            setForMohnsRho();
+    void setForBiomassVsTime();
     void readSettings();
 
 signals:

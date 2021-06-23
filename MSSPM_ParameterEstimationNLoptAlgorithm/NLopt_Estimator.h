@@ -122,7 +122,8 @@ private:
     void reloadNLoptStruct(
             nmfStructsQt::ModelDataStruct& NLoptStruct,
             const QString& MultiRunLine);
-    void setSeed(const bool& isSetToDeterministic);
+    void setSeed(const bool& isSetToDeterministic,
+                 const bool& useFixedSeed);
 
     static double myNaturalLog(double value);
     static double myExp(double value);
