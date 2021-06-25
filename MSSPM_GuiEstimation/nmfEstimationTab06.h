@@ -201,7 +201,8 @@ public:
     std::string getBeesNeighborhoodSize();
     std::string getBeesNumberOfRuns();
     std::string getEnsembleFilename();
-    void loadEnsembleFile(QString ensembleFile);
+    bool loadEnsembleFile(QString ensembleFile,
+                          const bool& verbose);
     void setEnsembleRuns(int value);
     void setEnsembleRunsSet(int value);
     bool isAMultiRun();

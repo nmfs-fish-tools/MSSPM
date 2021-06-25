@@ -31,7 +31,7 @@ nmfForecast_Tab2::nmfForecast_Tab2(QTabWidget*  tabs,
     file.close();
 
     // Add the loaded widget as the new tabbed page
-    Forecast_Tabs->addTab(Forecast_Tab2_Widget, tr("2. Harvest Parameters"));
+    Forecast_Tabs->addTab(Forecast_Tab2_Widget, tr("2. Harvest Data"));
 
     Forecast_Tab2_HarvestTV     = Forecast_Tabs->findChild<QTableView     *>("Forecast_Tab2_HarvestTV");
     Forecast_Tab2_HarvestGB     = Forecast_Tabs->findChild<QGroupBox      *>("Forecast_Tab2_HarvestGB");

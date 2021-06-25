@@ -243,9 +243,9 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputChartTypeLBL->setStatusTip("The type of chart that will be displayed");
     OutputChartTypeCMB->setToolTip("The type of chart that will be displayed");
     OutputChartTypeCMB->setStatusTip("The type of chart that will be displayed");
-    OutputChartTypeCMB->addItem("Biomass vs Time");
-    OutputChartTypeCMB->addItem("Harvest vs Time");
-    OutputChartTypeCMB->addItem("Fishing Mortality vs Time");
+    OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartBiomass);
+    OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartHarvest);
+    OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartExploitation);
     OutputChartTypeCMB->addItem("(Abs) Bc vs Time");
     OutputChartTypeCMB->addItem("(Rel) Bc vs Time");
     OutputChartTypeCMB->addItem("Catch vs Bc");
@@ -662,9 +662,9 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
     bool isParameterProfiles = (OutputMethodsCMB->currentText() == "Parameter Profiles");
     bool speciesLVFlag;
     bool dontShowScaleWidgets;
-    bool isBiomassVsTime = (outputType == "Biomass vs Time");
-    bool isHarvestVsTime = (outputType == "Harvest vs Time");
-    bool isFishingMortalityVsTime = (outputType == "Fishing Mortality vs Time");
+    bool isBiomassVsTime = (outputType == nmfConstantsMSSPM::OutputChartBiomass);
+    bool isHarvestVsTime = (outputType == nmfConstantsMSSPM::OutputChartHarvest);
+    bool isFishingMortalityVsTime = (outputType == nmfConstantsMSSPM::OutputChartExploitation);
     bool isForecast      = (outputType == "Forecast");
     bool isDiagnostic    = (outputType == "Diagnostics");
     bool isMultiScenario = (outputType == "Multi-Scenario Plots");
@@ -713,21 +713,21 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
 
     speciesLVFlag = ((outputType == "(Abs) Bc vs Time") ||
                      (outputType == "(Rel) Bc vs Time"));
-    dontShowScaleWidgets = (outputType == "Fishing Mortality vs Time") ||
+    dontShowScaleWidgets = (outputType == nmfConstantsMSSPM::OutputChartExploitation) ||
                           ((outputType == "Diagnostics") && isParameterProfiles);
     OutputSpeciesLBL->setEnabled(! speciesLVFlag);
     OutputSpeciesCMB->setEnabled(! speciesLVFlag);
     OutputSpeListLBL->setEnabled(  speciesLVFlag);
     OutputSpeListLV->setEnabled(   speciesLVFlag);
-    OutputShowBMSYCB->setEnabled( outputType == "Biomass vs Time");
-    OutputShowBMSYLE->setEnabled( outputType == "Biomass vs Time");
-    OutputShowMSYCB->setEnabled(  outputType == "Harvest vs Time");
-    OutputShowMSYLE->setEnabled(  outputType == "Harvest vs Time");
-    OutputShowFMSYCB->setEnabled( outputType == "Fishing Mortality vs Time");
-    OutputShowFMSYLE->setEnabled( outputType == "Fishing Mortality vs Time");
+    OutputShowBMSYCB->setEnabled( outputType == nmfConstantsMSSPM::OutputChartBiomass);
+    OutputShowBMSYLE->setEnabled( outputType == nmfConstantsMSSPM::OutputChartBiomass);
+    OutputShowMSYCB->setEnabled(  outputType == nmfConstantsMSSPM::OutputChartHarvest);
+    OutputShowMSYLE->setEnabled(  outputType == nmfConstantsMSSPM::OutputChartHarvest);
+    OutputShowFMSYCB->setEnabled( outputType == nmfConstantsMSSPM::OutputChartExploitation);
+    OutputShowFMSYLE->setEnabled( outputType == nmfConstantsMSSPM::OutputChartExploitation);
     OutputScaleCMB->setEnabled(! dontShowScaleWidgets) ;
     OutputScaleLBL->setEnabled(! dontShowScaleWidgets) ;
-    if (outputType == "Fishing Mortality vs Time") {
+    if (outputType == nmfConstantsMSSPM::OutputChartExploitation) {
         OutputScaleCMB->setCurrentIndex(0);
         OutputScaleCMB->setEnabled(false);
         OutputScaleLBL->setEnabled(false);
@@ -759,9 +759,9 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
 
         emit SetChartView2d(true);
 
-        // Reset toolbar buttons and only enable them for "Biomass vs Time"
+        // Reset toolbar buttons and only enable them for nmfConstantsMSSPM::OutputChartBiomass
         emit ResetFilterButtons();
-        emit EnableFilterButtons(outputType == "Biomass vs Time");
+        emit EnableFilterButtons(outputType == nmfConstantsMSSPM::OutputChartBiomass);
 
         OutputSpeListLV->clearSelection();
 
@@ -822,7 +822,7 @@ MSSPM_GuiOutputControls::callback_OutputSpeciesCMB(QString outputSpecies)
     QString scenario  = getOutputScenario();
     QString chartType = getOutputChartType();
     QString method    = getOutputDiagnostics();
-    if (getOutputChartType() != "Fishing Mortality vs Time") {
+    if (getOutputChartType() != nmfConstantsMSSPM::OutputChartExploitation) {
         OutputScaleLBL->setEnabled(true);
         OutputScaleCMB->setEnabled(true);
     }
@@ -882,7 +882,7 @@ MSSPM_GuiOutputControls::setForMohnsRho()
 void
 MSSPM_GuiOutputControls::setForBiomassVsTime()
 {
-  OutputChartTypeCMB->setCurrentText("Biomass vs Time");
+  OutputChartTypeCMB->setCurrentText(nmfConstantsMSSPM::OutputChartBiomass);
 }
 
 void

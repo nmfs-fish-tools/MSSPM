@@ -227,6 +227,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
 
     callback_MinimizerTypeCMB(Estimation_Tab6_MinimizerTypeCMB->currentText());
     callback_MinimizerAlgorithmCMB(Estimation_Tab6_MinimizerAlgorithmCMB->currentText());
+
 }
 
 
@@ -1587,6 +1588,11 @@ nmfEstimation_Tab6::callback_EnsembleControlsGB(bool isChecked)
 {
     callback_EnsembleTotalRunsSB(Estimation_Tab6_EnsembleTotalRunsSB->value());
     enableEnsembleWidgets(! isChecked);
+
+    if (isChecked) {
+        loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename),
+                         nmfConstantsMSSPM::VerboseOff);
+    }
 }
 
 
@@ -1644,12 +1650,17 @@ nmfEstimation_Tab6::callback_EnsembleUsingPctPB()
 void
 nmfEstimation_Tab6::callback_EnsembleLoadPB()
 {
-    loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename));
+    loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename),
+                     nmfConstantsMSSPM::VerboseOn);
 }
-void
-nmfEstimation_Tab6::loadEnsembleFile(QString ensembleFilename)
+
+
+bool
+nmfEstimation_Tab6::loadEnsembleFile(QString ensembleFilename,
+                                     const bool& verbose)
 {
 std::cout << "Loading: " << ensembleFilename.toStdString() << std::endl;
+    bool retv = true;
     int TotalNumRuns = 0;
     QString msg;
     QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
@@ -1672,10 +1683,14 @@ std::cout << "Loading: " << ensembleFilename.toStdString() << std::endl;
         enableEnsembleWidgets(false);
         m_EnsembleDialog->loadWidgets(ensembleFilename);
     } else {
-        QMessageBox::warning(Estimation_Tabs, "Warning",
-                             "\nNo previous Multi-Run/Ensemble file found to load.\n",
-                             QMessageBox::Ok);
+        if (verbose) {
+            QMessageBox::warning(Estimation_Tabs, "Warning",
+                                 "\nNo previous Multi-Run/Ensemble file found to load.\n",
+                                 QMessageBox::Ok);
+        }
+        retv = false;
     }
+    return retv;
 }
 
 void
@@ -1746,8 +1761,8 @@ nmfEstimation_Tab6::callback_EnsembleSetAllPB()
     int totalNumberOfRunsDesired = numRunsToAdd;
     QString fullPath = "";
 
-    Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(Estimation_Tab6_EnsembleTotalRunsSB->value()));
     if (addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,totalNumberOfRunsDesired,fullPath)) {
+        Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(Estimation_Tab6_EnsembleTotalRunsSB->value()));
         m_EnsembleDialog->loadWidgets(QString::fromStdString(m_EnsembleFilename));
         if (numRunsToAdd+currentNumberOfRuns == totalNumberOfRunsDesired) {
             QString msg = "\nSaved Mult-Run Parameter File to:\n\n" + fullPath + "\n";

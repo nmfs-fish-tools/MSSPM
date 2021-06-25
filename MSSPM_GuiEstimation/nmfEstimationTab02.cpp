@@ -23,7 +23,7 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
 
     m_GroupBoxTitle["Catch"]        = "Catch";
     m_GroupBoxTitle["Effort"]       = "Effort";
-    m_GroupBoxTitle["Exploitation"] = "Exploitation Rate";
+    m_GroupBoxTitle["Exploitation"] = nmfConstantsMSSPM::OutputChartExploitation.toStdString();
 
     // Load ui as a widget from disk
     QFile file(":/forms/Estimation/Estimation_Tab02.ui");
@@ -32,7 +32,7 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     file.close();
 
     // Add the loaded widget as the new tabbed page
-    Estimation_Tabs->addTab(Estimation_Tab2_Widget, tr("2. Harvest Parameters"));
+    Estimation_Tabs->addTab(Estimation_Tab2_Widget, tr("2. Harvest Data"));
 
     Estimation_Tab2_HarvestTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_HarvestTV");
     Estimation_Tab2_HarvestGB  = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab2_HarvestGB");

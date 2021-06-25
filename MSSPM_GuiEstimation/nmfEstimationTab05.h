@@ -47,6 +47,7 @@ class nmfEstimation_Tab5: public QObject
     nmfLogger*          m_Logger;
     std::string         m_ProjectDir;
     std::string         m_ProjectSettingsConfig;
+    bool                m_IsDark;
     QStandardItemModel* m_SModelAbsoluteBiomass;
     QStandardItemModel* m_SModelRelativeBiomass;
     QStandardItemModel* m_SModelCovariates;
@@ -154,11 +155,16 @@ public:
      * @return
      */
     bool loadWidgets(QString MohnsRhoLabel);
-
 //    bool loadWidgetsFirstRow();
     bool isTableValueOK(QString value);
-    QString getObsBiomassType();
+//    QString getObsBiomassType();
     void setObsBiomassType(QString obsBiomassType);
+    /**
+     * @brief Updates the data member m_IsDark accordingly and refreshes the GUI
+     * @param style : the new light/dark preference setting
+     *
+     */
+    void setIsDark(QString style);
 
 signals:
     /**

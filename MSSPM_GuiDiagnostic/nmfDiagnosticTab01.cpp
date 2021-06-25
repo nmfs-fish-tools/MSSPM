@@ -331,11 +331,12 @@ nmfDiagnostic_Tab1::callback_RunPB()
     std::pair<QString,double> parameterItem;
     std::pair<QString,double> parameterItem1;
     std::pair<QString,double> parameterItem2;
+    QStringList vectorParameterNames = m_DatabasePtr->getVectorParameterNames(m_Logger,m_ProjectSettingsConfig);
     QString surfaceParameter1Name = getParameter1Name();
     QString surfaceParameter2Name = getParameter2Name();
     QProgressDialog* progressDlg = new QProgressDialog(
                 "\nProcessing parameter variations...\n",
-                "Cancel", 0, nmfConstantsMSSPM::VectorParameterNames.size(),
+                "Cancel", 0, vectorParameterNames.size(),
                 m_Diagnostic_Tabs);
 
     m_Logger->logMsg(nmfConstants::Normal,"");
@@ -389,7 +390,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
 
     m_Diagnostic_Tabs->setCursor(Qt::WaitCursor);
 
-    for (QString parameterName : nmfConstantsMSSPM::VectorParameterNames) {
+    for (QString parameterName : vectorParameterNames) {
 
         nmfUtilsQt::updateProgressDlg(m_Logger,progressDlg,"Processing parameter: "+parameterName.toStdString(),pInc);
 

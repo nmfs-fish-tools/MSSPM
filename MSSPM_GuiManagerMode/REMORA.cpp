@@ -197,7 +197,7 @@ REMORA::drawMultiSpeciesChart()
     boost::numeric::ublas::matrix<double> ChartLine;
     boost::numeric::ublas::matrix<double> Catch;
     std::vector<std::string> SpeNames;
-    std::vector<bool> GridLines(true,true);
+    std::vector<bool> GridLines = {true,true};
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomass;
     QList<QColor> LineColors;
 
@@ -217,7 +217,7 @@ REMORA::drawMultiSpeciesChart()
     NumSpecies = SpeNames.size();
 
     if (isFishingMortality) {
-        YLabel = "Fishing Mortality (C/Bc)";
+        YLabel = nmfConstantsMSSPM::OutputChartExploitationCatchTitle.toStdString();
         if (! m_DatabasePtr->getTimeSeriesData(m_Widget,m_Logger,m_ProjectSettingsConfig,
                                                "","","Catch",NumSpecies,NumObservedYears,Catch)) {
             return;
@@ -477,7 +477,7 @@ REMORA::drawMSYLines(
         const bool& ShowLegend,
         const double& Pct)
 {
-    bool isFishingMortality = (getForecastPlotType() == "Fishing Mortality");
+    bool isFishingMortality = (getForecastPlotType() == nmfConstantsMSSPM::OutputChartExploitation);
     int Theme = 0;
     double MSYValue;
     double ScaleVal = 1.0;
@@ -488,7 +488,7 @@ REMORA::drawMSYLines(
     boost::numeric::ublas::matrix<double> ChartMSYData;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::vector<std::string> fields;
-    std::vector<bool> GridLines(true,true);
+    std::vector<bool> GridLines = {true,true};
     QColor LineColor = QColor(nmfConstants::LineColors[0].c_str());
 
     if (Pct != 1.0) {
@@ -624,7 +624,7 @@ REMORA::drawSingleSpeciesChart()
     std::vector<boost::numeric::ublas::matrix<double> > ChartLinesMonteCarloMultiPlot;
     std::vector<boost::numeric::ublas::matrix<double> > ChartLineSpans;
     boost::numeric::ublas::matrix<double> Catch;
-    std::vector<bool> GridLines(true,true);
+    std::vector<bool> GridLines = {true,true};
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomass;
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomassMonteCarlo;
     std::vector<std::string> SpeNames;
@@ -644,7 +644,7 @@ REMORA::drawSingleSpeciesChart()
     NumObservedYears = EndYear-StartYear;
 
     if (isFishingMortality) {
-        YLabel = "Fishing Mortality (C/Bc)";
+        YLabel = nmfConstantsMSSPM::OutputChartExploitationCatchTitle.toStdString();
         if (! m_DatabasePtr->getTimeSeriesData(m_Widget,m_Logger,m_ProjectSettingsConfig,
                                                "","","Catch",NumSpecies,NumObservedYears,Catch)) {
             return;
@@ -1220,7 +1220,7 @@ REMORA::isDeterministic()
 bool
 REMORA::isFishingMortalityPlotType()
 {
-    return (MModeForecastPlotTypeCMB->currentText() == "Fishing Mortality");
+    return (MModeForecastPlotTypeCMB->currentText() == nmfConstantsMSSPM::OutputChartExploitation);
 }
 
 bool
@@ -1977,7 +1977,7 @@ REMORA::callback_ForecastPlotTypeCMB(QString type)
         MModeShowMSYCB->setChecked(false);
         MModePctMSYCB->setEnabled(false);
         MModePctMSYCB->setChecked(false);
-    } else if (type == "Fishing Mortality") {
+    } else if (type == nmfConstantsMSSPM::OutputChartExploitation) {
         MModeShowMSYCB->setEnabled(showMSYCheckboxes);
         MModePctMSYCB->setEnabled(showMSYCheckboxes);
     }

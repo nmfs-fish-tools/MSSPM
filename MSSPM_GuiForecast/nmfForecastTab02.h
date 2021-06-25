@@ -74,7 +74,7 @@ private:
 
 public:
     /**
-     * @brief nmfForecast_Tab2 : class constructor for the Forecast Harvest parameters GUI page
+     * @brief nmfForecast_Tab2 : class constructor for the Forecast Harvest Data GUI page
      * @param tabs : the tab widget into which this Forecast tab will be placed
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database

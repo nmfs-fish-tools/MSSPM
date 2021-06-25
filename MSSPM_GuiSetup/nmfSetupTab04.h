@@ -51,6 +51,7 @@ class nmfSetup_Tab4: public QObject
 
     std::string  m_ProjectDir;
     std::string  m_ProjectSettingsConfig;
+    bool         m_isDark;
     nmfLogger*   m_logger;
     nmfDatabase* m_databasePtr;
     QDialog      m_loadDlg;
@@ -259,6 +260,14 @@ public:
      * @brief Sets the button highlight colors to their appropriate values
      */
     void setHighlightColors();
+    /**
+     * @brief sets class m_isDark variable
+     */
+    void setIsDark(QString style);
+    /**
+     * @brief set boolean static datamember m_IsDark accordingly based on the QString style
+     */
+    void setLineEditColors();
     /**
      * @brief Sets the Model name to the passed argument
      * @param modelName : the new Model name

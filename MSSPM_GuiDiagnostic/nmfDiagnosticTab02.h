@@ -130,6 +130,9 @@ public:
      */
     void    setStartYearLE(int StartYear);
 
+    void    setWidgetsDark();
+    void    setWidgetsLight();
+
 signals:
     // void ResaveSystem();
     /**

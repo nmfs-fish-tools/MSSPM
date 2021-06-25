@@ -1153,11 +1153,6 @@ This value is read-only and auto-generated.</string>
                   </item>
                   <item>
                    <property name="text">
-                    <string>Exploitation (F)</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
                     <string>Effort (qE)</string>
                    </property>
                   </item>

@@ -73,8 +73,8 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tab4_SavePB->setEnabled(true);
     Setup_Tab4_PrevPB->setText("\u25C1--");
     Setup_Tab4_NextPB->setText("--\u25B7");
-    Setup_Tab4_ModelNameLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
-    Setup_Tab4_EndYearLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
+//    Setup_Tab4_ModelNameLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
+//    Setup_Tab4_EndYearLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
 
     // Get and set the highlight colors
     setHighlightColors();
@@ -195,6 +195,28 @@ nmfSetup_Tab4::setHighlightColors()
     Setup_Tab4_PredationHighlightPB->setStyleSheet(predationHighlightColorStyle);
 }
 
+void
+nmfSetup_Tab4::setIsDark(QString style)
+{
+    if (style == "Dark"){
+        m_isDark = true;
+    } else {
+        m_isDark = false;
+    }
+
+}
+
+void
+nmfSetup_Tab4::setLineEditColors()
+{
+    if (m_isDark){
+        nmfUtilsQt::setBackgroundLineEdit(Setup_Tab4_ModelNameLE,nmfUtilsQt::ReadOnlyLineEditBgColorDark);
+        nmfUtilsQt::setBackgroundLineEdit(Setup_Tab4_EndYearLE,  nmfUtilsQt::ReadOnlyLineEditBgColorDark);
+    } else {
+        nmfUtilsQt::setBackgroundLineEdit(Setup_Tab4_ModelNameLE,nmfUtilsQt::ReadOnlyLineEditBgColorLight);
+        nmfUtilsQt::setBackgroundLineEdit(Setup_Tab4_EndYearLE,  nmfUtilsQt::ReadOnlyLineEditBgColorLight);
+    }
+}
 
 void
 nmfSetup_Tab4::getHighlightColors(QString& growthHighlightColor,
@@ -423,6 +445,8 @@ nmfSetup_Tab4::loadModel()
     emit ModelLoaded();
 
     setEstimatedParameterNames();
+
+    emit UpdateDiagnosticParameterChoices();
 }
 
 void
@@ -546,7 +570,6 @@ nmfSetup_Tab4::callback_SavePB()
 {
     saveModel(true);
     setEstimatedParameterNames();
-    emit UpdateDiagnosticParameterChoices();
 }
 
 QStringList
@@ -951,7 +974,7 @@ nmfSetup_Tab4::callback_HarvestFormCMB(QString harvestForm)
     bool done = false;
     std::vector<std::string> ModelPreset;
 
-    // Change the Estimation->Harvest Parameters table to correspond with the selected harvestForm
+    // Change the Estimation->Harvest Data table to correspond with the selected harvestForm
     harvestForm = harvestForm.split(" ")[0];
 
     while (!done and (i<NumPresets)) {
