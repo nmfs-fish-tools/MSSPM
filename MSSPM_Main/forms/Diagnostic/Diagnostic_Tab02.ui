@@ -139,7 +139,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QHBoxLayout" name="Diagnostic_Tab2_PeelPositionLT">
         <item>
          <widget class="QLabel" name="Diagnostic_Tab2_PeelPositionLBL">
           <property name="sizePolicy">
@@ -234,8 +234,8 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>40</width>
-            <height>20</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
          </spacer>

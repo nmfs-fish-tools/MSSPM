@@ -142,6 +142,7 @@ nmfForecast_Tab1::callback_LoadPB()
        forecastToLoad = loadDialog->getSelectedItem();
        loadForecast(forecastToLoad);
        emit ResetOutputWidgetsForAggProd();
+       emit EnableRun(true);
     }
 }
 
@@ -251,6 +252,8 @@ nmfForecast_Tab1::callback_SavePB()
     QMessageBox::information(Forecast_Tabs, "Forecast Saved",
                              "\nForecast has been successfully saved in database.\n",
                              QMessageBox::Ok);
+
+    emit EnableRun(true);
 }
 
 

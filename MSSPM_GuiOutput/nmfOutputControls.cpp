@@ -756,15 +756,10 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
             emit ShowChartMultiScenario(m_SortedForecastLabelsMap[scenario]);
         }
     } else {
-
         emit SetChartView2d(true);
-
-        // Reset toolbar buttons and only enable them for nmfConstantsMSSPM::OutputChartBiomass
-        emit ResetFilterButtons();
+        emit ResetFilterButtons(); // Reset toolbar buttons and only enable them for nmfConstantsMSSPM::OutputChartBiomass
         emit EnableFilterButtons(outputType == nmfConstantsMSSPM::OutputChartBiomass);
-
         OutputSpeListLV->clearSelection();
-
         updateChart();
     }
 

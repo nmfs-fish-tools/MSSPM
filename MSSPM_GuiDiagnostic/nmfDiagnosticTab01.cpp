@@ -156,7 +156,7 @@ nmfDiagnostic_Tab1::loadWidgets()
 }
 
 
-void
+bool
 nmfDiagnostic_Tab1::loadEstimatedParameter(const std::string& Algorithm,
                                            const std::string& Minimizer,
                                            const std::string& ObjectiveCriterion,
@@ -172,9 +172,10 @@ nmfDiagnostic_Tab1::loadEstimatedParameter(const std::string& Algorithm,
 
     parameterToTableName("input",parameterName, tableName);
     if (tableName.isEmpty()) {
-        return;
+        return false;
     }
 
+    EstParameter.clear();
     fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};
     queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " + tableName.toStdString();
     queryStr  += " WHERE Algorithm='" + Algorithm + "' AND Minimizer = '" + Minimizer;
@@ -186,6 +187,7 @@ nmfDiagnostic_Tab1::loadEstimatedParameter(const std::string& Algorithm,
     for (int i=0; i<NumSpecies; ++i) {
         EstParameter.push_back(std::stod(dataMap["Value"][i]));
     }
+    return (EstParameter.size() > 0);
 }
 
 void
@@ -398,8 +400,14 @@ nmfDiagnostic_Tab1::callback_RunPB()
         DiagnosticTupleVector.clear();
 
         // Get estimated parameter from appropriate table for all species and load into EstParameter
-        loadEstimatedParameter(Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                               parameterName,EstParameter);
+        if (! loadEstimatedParameter(Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                               parameterName,EstParameter)) {
+            msg = "No estimated parameters found. Please run an Estimation prior to running this Diagnostic.";
+            m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
+            QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
+            progressDlg->close();
+            return;
+        }
         if (parameterName == surfaceParameter1Name) {
             surfaceParameter1 = EstParameter;
         } else if (parameterName == surfaceParameter2Name) {
@@ -420,11 +428,13 @@ nmfDiagnostic_Tab1::callback_RunPB()
                     msg = "Please run an Estimation prior to running this Diagnostic.";
                     m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
                     QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
+                    progressDlg->close();
                     return;
                 }
 
                 if (fitness == -1) {
                     m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
+                    progressDlg->close();
                     return;
                 }
                 aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[i],

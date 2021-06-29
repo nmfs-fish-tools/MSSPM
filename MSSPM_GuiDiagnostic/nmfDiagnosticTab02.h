@@ -30,6 +30,7 @@
 #define NMFDIAGNOSTICTAB2_H
 
 #include <QComboBox>
+#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QSpinBox>
 
@@ -53,6 +54,7 @@ private:
     QLineEdit*   m_Diagnostic_Tab2_MinYearLE;
     QSpinBox*    m_Diagnostic_Tab2_NumPeelsSB;
     QComboBox*   m_Diagnostic_Tab2_PeelPositionCMB;
+    QLabel*      m_Diagnostic_Tab2_PeelPositionLBL;
     QPushButton* m_Diagnostic_Tab2_RunPB;
     QWidget*     m_Diagnostic_Tab2_Widget;
     QTabWidget*  m_Diagnostic_Tabs;

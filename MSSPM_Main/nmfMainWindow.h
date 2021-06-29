@@ -462,30 +462,17 @@ private:
                             std::string &ObjectiveCriterion,
                             std::string &Scaling,
                             std::vector<boost::numeric::ublas::matrix<double> > &ForecastBiomass);
-//    bool getForecastBiomassMonteCarlo(const std::string& ForecastName,
-//                                      const int&         NumSpecies,
-//                                      const int&         RunLength,
-//                                      const int&         NumRuns,
-//                                      std::string&       Algorithm,
-//                                      std::string&       Minimizer,
-//                                      std::string&       ObjectiveCriterion,
-//                                      std::string&       Scaling,
-//                                      std::vector<boost::numeric::ublas::matrix<double> >& ForecastBiomassMonteCarlo);
     bool getGuildData(const int                             &NumGuilds,
                       const int                             &RunLength,
                       const QStringList                     &GuildList,
                       std::map<int,std::vector<int> >       &GuildSpecies,
                       std::vector<int>                      &GuildNum,
                       boost::numeric::ublas::matrix<double> &ObservedBiomassByGuilds);
-    bool getGuilds(int &NumGuilds, QStringList &GuildList);
     bool getHarvestData(const int& NumSpecies,
                         const int& RunLength,
                         const std::string& HarvestType,
                         boost::numeric::ublas::matrix<double>& Harvest);
     bool getInitialObservedBiomass(QList<double> &InitBiomass);
-    //    bool getInitialSpeciesData(int &NumSpecies,
-//                            InitSpeciesDataStruct &InitSpeciesData);
-
     void getInitialYear(int& InitialYear,
                         int& MaxNumYears);
     std::string getLegendCode(bool isAveraged,
@@ -541,8 +528,6 @@ private:
     void getOutputGrowthRate(std::vector<double> &EstGrowthRate, bool isMohnsRho);
     int  getRunLength();
     bool getRunLength(int &RunLength);
-    bool getSpecies(int &NumSpecies, QStringList &SpeciesList);
-    void getSpeciesGuildMap(std::map<std::string,std::string>& SpeciesGuildMap);
     bool getSpeciesInitialData(int& NumSpecies,
                                QStringList& SpeciesList,
                                QList<double>& InitBiomass,
@@ -559,17 +544,7 @@ private:
                     QList<double>& BMSYValues,
                     QList<double>& MSYValues,
                     QList<double>& FMSYValues);
-    bool getTimeSeriesData(const std::string  MohnsRhoLabel,
-                           const std::string  ForecastName,
-                           const std::string& TableName,
-                           const int&         NumSpecies,
-                           const int&         RunLength,
-                           boost::numeric::ublas::matrix<double> &Catch);
-    bool getTimeSeriesDataByGuild(std::string        ForecastName,
-                                  const std::string& TableName,
-                                  const int&         NumSpecies,
-                                  const int&         RunLength,
-                                  boost::numeric::ublas::matrix<double> &Catch);
+
     /**
      * @brief Gets the formatted string describing what uncertainty
      * values were used for each Monte Carlo curve for the given species.
@@ -685,7 +660,6 @@ private:
     void runBeesAlgorithm(bool showDiagnosticsChart,
                           std::vector<QString>& MultiRunLines,
                           int& TotalIndividualRuns);
-    void runNextMohnsRhoEstimation();
     void runNLoptAlgorithm(bool showDiagnosticChart,
                            std::vector<QString>& MultiRunLines,
                            int& TotalIndividualRuns);
@@ -783,14 +757,14 @@ private:
     bool isAMohnsRhoMultiRun();
     bool isAMultiOrMohnsRhoRun();
     void showChartTableVsTime(
-            const std::string &label,
+            const std::string &chartType,
             const int &NumSpecies,
             const QString &OutputSpecies,
             const int &SpeciesNum,
             const int &RunLength,
             const int &StartYear,
             int &m_NumLines,
-            boost::numeric::ublas::matrix<double> &Catch,  // Catch data
+            boost::numeric::ublas::matrix<double> &Harvest,
             std::vector<boost::numeric::ublas::matrix<double> > &Biomass,  // Catch or Calculated Biomass
             QList<double> &Values,
             QString &ScaleStr,

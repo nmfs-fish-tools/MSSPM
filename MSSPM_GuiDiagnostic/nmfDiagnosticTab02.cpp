@@ -33,6 +33,7 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
     m_Diagnostic_Tab2_RunPB           = m_Diagnostic_Tabs->findChild<QPushButton *>("Diagnostic_Tab2_RunPB");
     m_Diagnostic_Tab2_NumPeelsSB      = m_Diagnostic_Tabs->findChild<QSpinBox    *>("Diagnostic_Tab2_NumPeelsSB");
     m_Diagnostic_Tab2_PeelPositionCMB = m_Diagnostic_Tabs->findChild<QComboBox   *>("Diagnostic_Tab2_PeelPositionCMB");
+    m_Diagnostic_Tab2_PeelPositionLBL = m_Diagnostic_Tabs->findChild<QLabel      *>("Diagnostic_Tab2_PeelPositionLBL");
 
     // Add the loaded widget as the new tabbed page
     m_Diagnostic_Tabs->addTab(m_Diagnostic_Tab2_Widget, tr("2. Retrospective Analysis"));
@@ -43,8 +44,10 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
     m_Diagnostic_Tab2_MinYearLE->setReadOnly(true);
     m_Diagnostic_Tab2_MaxYearLE->setReadOnly(true);
 
-    // Temporarily allow only mods to the end of the time series
+    // Hide the Peel position widgets until a user asks for this functionality
     m_Diagnostic_Tab2_PeelPositionCMB->setEnabled(false);
+    m_Diagnostic_Tab2_PeelPositionCMB->hide();
+    m_Diagnostic_Tab2_PeelPositionLBL->hide();
 
     // Setup connections
     connect(m_Diagnostic_Tab2_RunPB, SIGNAL(clicked()),

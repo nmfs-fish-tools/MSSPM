@@ -47,6 +47,9 @@ nmfForecast_Tab4::nmfForecast_Tab4(QTabWidget*  tabs,
     Forecast_Tab4_OutputTE->setFont(font);
     Forecast_Tab4_PrevPB->setText("\u25C1--");
 
+    // Enable only after the user loads or saves a Forecast name
+    Forecast_Tab4_RunPB->setEnabled(false);
+
     connect(Forecast_Tab4_PrevPB,      SIGNAL(clicked()),
             this,                      SLOT(callback_PrevPB()));
     connect(Forecast_Tab4_RunPB,       SIGNAL(clicked()),
@@ -82,6 +85,12 @@ void
 nmfForecast_Tab4::clearOutputTE()
 {
     Forecast_Tab4_OutputTE->clear();
+}
+
+void
+nmfForecast_Tab4::callback_EnableRun(bool enable)
+{
+    Forecast_Tab4_RunPB->setEnabled(enable);
 }
 
 void

@@ -138,6 +138,11 @@ signals:
      * @brief If the model is an AggProd model, set any output controls accordingly
      */
     void ResetOutputWidgetsForAggProd();
+    /**
+     * @brief Signal emitted to change the state of the Run button on Forecast Tab 4
+     * @param enable : the enable state: true (enabled) or false (disabled)
+     */
+    void EnableRun(bool enable);
 
 public Q_SLOTS:
     /**

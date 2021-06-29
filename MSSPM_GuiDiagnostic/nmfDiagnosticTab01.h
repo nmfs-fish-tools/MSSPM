@@ -87,8 +87,9 @@ private:
      * @param scaling : name of estimation algorithm scaling function
      * @param parameterName : name of parameter whose estimation data are requested
      * @param estParameter : the estimation data to be returned to calling function
+     * @return Boolean signifying if estimated parameters were found and loaded into vector
      */
-    void loadEstimatedParameter(const std::string&   algorithm,
+    bool loadEstimatedParameter(const std::string&   algorithm,
                                 const std::string&   minimizer,
                                 const std::string&   objectiveCriterion,
                                 const std::string&   scaling,

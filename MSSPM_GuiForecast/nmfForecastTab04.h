@@ -178,6 +178,11 @@ public Q_SLOTS:
      * @brief Callback invoked after the user updates a Scenario
      */
     void callback_RefreshOutput();
+    /**
+     * @brief Callback invoked when the user either loads or saves a Forecast name
+     * @param enable : state of run button (enabled or disabled)
+     */
+    void callback_EnableRun(bool enable);
 };
 
 #endif // NMFFORECASTTAB4_H
