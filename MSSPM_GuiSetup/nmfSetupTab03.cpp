@@ -652,7 +652,6 @@ nmfSetup_Tab3::saveSpeciesData()
     std::string errorMsg;
     std::string GuildName;
     std::string SpeciesName;
-    std::string MohnsRhoLabel = "";
     std::string InitBiomass,SurveyQ,SpeciesK,SpeciesKCovarCoeff,GrowthRate,GrowthRateCovarCoeff;
     std::string InitBiomassMin,InitBiomassMax,SurveyQMin,SurveyQMax,GrowthRateMin;
     std::string GrowthRateMax,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SpeDependence;
@@ -749,8 +748,8 @@ nmfSetup_Tab3::saveSpeciesData()
 
         // Need to also update the BiomassAbsolute table with the Initial Absolute Biomass values
         cmd  = "REPLACE INTO BiomassAbsolute (";
-        cmd += "MohnsRhoLabel,SystemName,SpeName,Year,Value) ";
-        cmd += "VALUES ('" + MohnsRhoLabel + "','" + m_ProjectSettingsConfig + "','" +
+        cmd += "ProjectName,ModelName,SpeName,Year,Value) ";
+        cmd += "VALUES ('" + m_ProjectName + "','" + m_ModelName + "','" +
                 SpeciesName + "', 0, "+ InitBiomass + ");";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -1116,10 +1115,11 @@ nmfSetup_Tab3::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName = settings->value("Name","").toString().toStdString();
     settings->endGroup();
     settings->beginGroup("SetupTab");
-    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     delete settings;

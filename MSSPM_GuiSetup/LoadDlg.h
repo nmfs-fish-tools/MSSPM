@@ -25,11 +25,12 @@ private:
     nmfDatabase*      m_databasePtr;
     QDialogButtonBox* m_buttonBox;
     QListWidget*      m_SettingsLW;
+    std::string       m_ProjectName;
     std::string       m_GrowthForm;
     std::string       m_HarvestForm;
     std::string       m_CompetitionForm;
     std::string       m_PredationForm;
-    SystemData        m_data;
+    ModelData        m_data;
     std::vector<std::string> m_SettingNames;
 
     void reloadSystemsList();
@@ -39,22 +40,23 @@ private:
 public:
     LoadDlg(const QString &title,
                   QWidget *parent,
-                  nmfLogger* m_logger,
-                  nmfDatabase* m_databasePtr,
+                  nmfLogger* logger,
+                  nmfDatabase* databasePtr,
+            const std::string& projectName,
             const QString &currentConfig);
    ~LoadDlg() {}
 
-    /**
-     * @brief Gets the database data affiliated with the current Model name
-     * @param data : the data structure to load with the system data read from the database
-     */
-    void getSettingData(SystemData &data);
+//    /**
+//     * @brief Gets the database data affiliated with the current Model name
+//     * @param data : the data structure to load with the system data read from the database
+//     */
+//    void getSettingData(SystemData &data);
 
 signals:
     /**
      * @brief Signal emitted when user deletes a System name
      */
-    void ClearSystemName();
+    void ClearModelName();
 
 public slots:
     /**

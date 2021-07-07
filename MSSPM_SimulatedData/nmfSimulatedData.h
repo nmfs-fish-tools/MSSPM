@@ -18,7 +18,8 @@
 
 class nmfSimulatedData
 {
-    std::string  m_ProjectSettingsConfig;
+    std::string  m_ProjectName;
+    std::string  m_ModelName;
     nmfDatabase* m_Database;
     nmfLogger*   m_Logger;
 
@@ -76,9 +77,11 @@ class nmfSimulatedData
                            double& predationValue);
 */
 public:
-    nmfSimulatedData(std::string  projectSettingsConfig,
-                     nmfDatabase* database,
-                     nmfLogger*   logger);
+    nmfSimulatedData(
+            std::string& projectName,
+            std::string& modelName,
+            nmfDatabase* database,
+            nmfLogger*   logger);
     ~nmfSimulatedData() {}
 
     /**

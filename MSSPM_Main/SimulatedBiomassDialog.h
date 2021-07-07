@@ -60,7 +60,8 @@ class SimulatedBiomassDialog : public QDialog
     QHBoxLayout* ErrorLT1;
 
     std::string  m_ProjectDir;
-    std::string  m_ProjectSettingsConfig;
+    std::string  m_ProjectName;
+    std::string  m_ModelName;
     nmfDatabase* m_Database;
     nmfLogger*   m_Logger;
 
@@ -70,13 +71,15 @@ public:
      * @brief SimulatedBiomassDialog : class constructor
      * @param parent : the parent widget (typically the main window)
      * @param projectDir : string representing the directory that the project file is in
-     * @param projectSettingsConfig : string representing the project settings config file
+     * @param projectName : name of the current project
+     * @param modelName : string representing the project settings config file
      * @param database : pointer to database object
      * @param logger : pointer to logger object)
      */
     SimulatedBiomassDialog(QWidget* parent,
                            std::string projectDir,
-                           std::string projectSettingsConfig,
+                           std::string projectName,
+                           std::string modelName,
                            nmfDatabase* database,
                            nmfLogger* logger);
     virtual ~SimulatedBiomassDialog() {}

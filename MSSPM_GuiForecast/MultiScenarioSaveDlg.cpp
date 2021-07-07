@@ -11,7 +11,8 @@
 MultiScenarioSaveDlg::MultiScenarioSaveDlg(QTabWidget*  parent,
                                                  nmfDatabase* databasePtr,
                                                  nmfLogger*   logger,
-                                                 std::string& ProjectSettingsConfig,
+                                                 std::string& ProjectName,
+                                                 std::string& ModelName,
                                                  std::map<QString,QStringList>& SortedForecastLabelsMap,
                                                  std::string& currentScenario,
                                                  std::string  forecastName) : QDialog(parent)
@@ -20,7 +21,8 @@ MultiScenarioSaveDlg::MultiScenarioSaveDlg(QTabWidget*  parent,
     m_Logger       = logger;
     m_ScenarioName = currentScenario;
     m_ForecastName = forecastName;
-    m_ProjectSettingsConfig = ProjectSettingsConfig;
+    m_ModelName    = ModelName;
+    m_ProjectName  = ProjectName;
     if (SortedForecastLabelsMap.empty()) {
         m_OrderedForecastLabelsMap.clear();
     } else {
@@ -218,7 +220,7 @@ MultiScenarioSaveDlg::getForecastData(
     QString msg;
 
     m_DatabasePtr->getAlgorithmIdentifiers(
-                this,m_Logger,m_ProjectSettingsConfig,
+                this,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
@@ -226,7 +228,8 @@ MultiScenarioSaveDlg::getForecastData(
     // Find number of years in forecast
     fields     = {"ForecastName","RunLength"};
     queryStr   = "SELECT ForecastName,RunLength FROM Forecasts";
-    queryStr  += "  WHERE ForecastName = '" + forecastName + "'";
+    queryStr  += "  WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ForecastName = '" + forecastName + "'";
     queryStr  += "  AND Algorithm = '" + Algorithm +
                  "' AND Minimizer = '" + Minimizer +
                  "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
@@ -244,7 +247,8 @@ MultiScenarioSaveDlg::getForecastData(
     // Find number of species in forecast
     fields     = {"ForecastName","isAggProd","SpeName","Year","Value"};
     queryStr   = "SELECT ForecastName,isAggProd,SpeName,Year,Value FROM ForecastBiomass";
-    queryStr  += " WHERE ForecastName = '" + forecastName + "'";
+    queryStr  += " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ForecastName = '" + forecastName + "'";
     queryStr  += "  AND Algorithm = '" + Algorithm +
                  "' AND Minimizer = '" + Minimizer +
                  "' AND ObjectiveCriterion = '" + ObjectiveCriterion +

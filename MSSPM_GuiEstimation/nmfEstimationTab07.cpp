@@ -35,7 +35,8 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     m_DatabasePtr  = databasePtr;
     m_ProjectDir   = projectDir;
     m_NumColumns   = horizontalHeaders.size();
-    m_ProjectSettingsConfig.clear();
+    m_ModelName.clear();
+    m_ProjectName.clear();
     m_SModel = new QStandardItemModel(0,m_NumColumns);
     m_SModel->setHorizontalHeaderLabels(horizontalHeaders);
 
@@ -61,7 +62,7 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_GenerateSummaryPB = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_GenerateSummaryPB");
     Estimation_Tab7_PrevPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_PrevPB");
     Estimation_Tab7_DeletePB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_DeletePB");
-    Estimation_Tab7_ShowHiddenCB      = Estimation_Tabs->findChild<QCheckBox *>("Estimation_Tab7_ShowHiddenCB");
+    Estimation_Tab7_ShowHiddenCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_ShowHiddenCB");
 
     Estimation_Tab7_ModelReviewTV->setModel(m_SModel);
     Estimation_Tab7_ModelReviewTV->setSortingEnabled(true);
@@ -475,18 +476,14 @@ nmfEstimation_Tab7::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("SetupTab");
-    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
-    settings->endGroup();
-
-    settings->beginGroup("Estimation");
-//    m_EstimationOutputFile = settings->value("OutputFile","").toString().toStdString();
+    m_ModelName = settings->value("Name","").toString().toStdString();
     settings->endGroup();
 
     delete settings;
-
 }
 
 void

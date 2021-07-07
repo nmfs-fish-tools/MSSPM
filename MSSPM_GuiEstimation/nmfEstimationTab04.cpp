@@ -14,6 +14,8 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     m_Logger      = logger;
     m_DatabasePtr = databasePtr;
     m_PredationForm.clear();
+    m_ProjectName.clear();
+    m_ModelName.clear();
 
     readSettings();
 
@@ -224,11 +226,12 @@ nmfEstimation_Tab4::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName   = settings->value("Name","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("SetupTab");
-    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     delete settings;
@@ -379,7 +382,7 @@ nmfEstimation_Tab4::callback_SavePB()
 
     // Find Algorithm type
     systemFound = m_DatabasePtr->getAlgorithmIdentifiers(
-                Estimation_Tabs,m_Logger,m_ProjectSettingsConfig,
+                Estimation_Tabs,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (! systemFound) {
@@ -445,7 +448,8 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
                 return;
             }
         }
-        cmd = "DELETE FROM " + tableNames[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+        cmd = "DELETE FROM " + tableNames[k] + " WHERE ProjectName = '" + m_ProjectName +
+              "' AND ModelName = '" + m_ModelName + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab4::callback_SavePB: DELETE error: " + errorMsg);
@@ -459,22 +463,24 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
         }
 
         if (! isTypeIII) {
-            cmd = "INSERT INTO " + tableNames[k] + " (SystemName,SpeciesA,SpeciesB,Value) VALUES ";
+            cmd = "INSERT INTO " + tableNames[k] + " (ProjectName,ModelName,SpeciesA,SpeciesB,Value) VALUES ";
             smodel = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
             for (int i=0; i<smodel->rowCount(); ++i) {
                 for (int j=0; j<smodel->columnCount(); ++ j) {
                     index = smodel->index(i,j);
                     value = index.data().toString().toStdString();
-                    cmd += "('" + m_ProjectSettingsConfig + "','" + SpeNames[i] + "','" + SpeNames[j] + "', " + value + "),";
+                    cmd += "('" + m_ProjectName + "','" + m_ModelName + "','" + SpeNames[i] +
+                            "','" + SpeNames[j] + "', " + value + "),";
                 }
             }
         } else {
-            cmd = "INSERT INTO " + tableNames[k] + " (SystemName,SpeName,Value) VALUES ";
+            cmd = "INSERT INTO " + tableNames[k] + " (ProjectName,ModelName,SpeName,Value) VALUES ";
             for (int i=0; i<smodel->rowCount(); ++i) {
                 for (int j=0; j<smodel->columnCount(); ++ j) {
                     index = smodel->index(i,j);
                     value = index.data().toString().toStdString();
-                    cmd += "('" + m_ProjectSettingsConfig + "','" + SpeNames[i] + "'," + value + "),";
+                    cmd += "('" + m_ProjectName + "','" + m_ModelName + "','" + SpeNames[i] +
+                            "'," + value + "),";
                 }
             }
         }
@@ -740,8 +746,8 @@ nmfEstimation_Tab4::getForms(std::string& predationForm,
 
     // Get forms
     fields    = {"PredationForm","WithinGuildCompetitionForm"};
-    queryStr  = "SELECT PredationForm,WithinGuildCompetitionForm FROM Systems WHERE ";
-    queryStr += " SystemName = '" + m_ProjectSettingsConfig + "'";
+    queryStr  = "SELECT PredationForm,WithinGuildCompetitionForm FROM Models WHERE ";
+    queryStr += " ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["PredationForm"].size() > 0) {
         predationForm   = dataMap["PredationForm"][0];
@@ -815,9 +821,9 @@ nmfEstimation_Tab4::loadWidgets()
                 m_smodels2d[k] = smodel;
                 m_TableViews2d[k]->setModel(smodel);
             }
-            fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
-            queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_TableNames2d[k] +
-                    " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+            fields    = {"ProjectName","ModelName","SpeciesA","SpeciesB","Value"};
+            queryStr  = "SELECT ProjectName,ModelName,SpeciesA,SpeciesB,Value FROM " + m_TableNames2d[k] +
+                        " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
             dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
             NumRecords = dataMap["SpeciesA"].size();
 
@@ -860,9 +866,9 @@ nmfEstimation_Tab4::loadWidgets()
                 smodel = new QStandardItemModel(NumSpeciesOrGuilds, 1);
                 m_TableViewsTypeIII[k]->setModel(smodel);
             }
-            fields    = {"SystemName","SpeName","Value"};
-            queryStr  = "SELECT SystemName,SpeName,Value FROM " + m_TableNamesTypeIII[k] +
-                    " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+            fields    = {"ProjectName","ModelName","SpeName","Value"};
+            queryStr  = "SELECT ProjectName,ModelName,SpeName,Value FROM " + m_TableNamesTypeIII[k] +
+                        " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
             dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
             NumRecords = dataMap["SpeName"].size();
 

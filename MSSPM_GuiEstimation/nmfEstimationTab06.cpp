@@ -18,7 +18,8 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     m_FontSize     = 9;
     m_IsMonospaced = false;
     m_ProjectDir   = projectDir;
-    m_ProjectSettingsConfig.clear();
+    m_ModelName.clear();
+    m_ProjectName.clear();
     m_GrowthForm      = "";
     m_HarvestForm     = "";
     m_CompetitionForm = "";
@@ -519,15 +520,17 @@ nmfEstimation_Tab6::adjustNumberOfParameters()
         numberOfParameters += (Estimation_Tab6_EstimateSurveyQCB->isChecked()) ? 1 : 0;
     }
 
-    // Update current System in Systems table
-    fields   = {"SystemName"};
-    queryStr = "SELECT SystemName from Systems where SystemName = '" + m_ProjectSettingsConfig + "'";
+    // Update current ModelName in Models table
+    fields   = {"ProjectName","ModelName"};
+    queryStr = "SELECT ProjectName,ModelName from Models WHERE ProjectName = '" + m_ProjectName +
+               "' AND  ModelName = '" + m_ModelName + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["SystemName"].size() != 0) { // This means the system name exists so do an update
-        cmd  = "UPDATE Systems SET";
-        cmd += "   SystemName = '"                 + m_ProjectSettingsConfig +
-               "', NumberOfParameters = "          + std::to_string(numberOfParameters) +
-               " WHERE SystemName = '"             + m_ProjectSettingsConfig + "'";
+    if (dataMap["ModelName"].size() != 0) { // This means the model name exists so do an update
+        cmd  = "UPDATE Models SET";
+        cmd += "   ProjectName = '" + m_ProjectName +
+               "', ModelName = '" + m_ModelName +
+               "', NumberOfParameters = " + std::to_string(numberOfParameters) +
+               " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfSetup_Tab4::SaveSettingsConfiguration: Write table error: " + errorMsg);
@@ -719,13 +722,13 @@ nmfEstimation_Tab6::saveSystem(bool RunChecks)
 {
     bool okToSave = true;
     std::string msg;
-    std::string SystemName;
+    std::string ModelName;
 
     readSettings();
-    SystemName = m_ProjectSettingsConfig;
+    ModelName = m_ModelName;
 
     if (RunChecks) {
-        msg = "\nOK to save current settings as: " + SystemName + " ?";
+        msg = "\nOK to save current settings as: " + ModelName + " ?";
         QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Save"),
                                                                   tr(msg.c_str()),
                                                                   QMessageBox::No|QMessageBox::Yes,
@@ -733,8 +736,8 @@ nmfEstimation_Tab6::saveSystem(bool RunChecks)
         okToSave = (reply == QMessageBox::Yes);
     }
     if (okToSave) {
-        m_ProjectSettingsConfig = SystemName;
-        saveSettingsConfiguration(RunChecks,SystemName);
+        m_ModelName = ModelName;
+        saveSettingsConfiguration(RunChecks,ModelName);
         readSettings();
     }
 
@@ -743,14 +746,14 @@ nmfEstimation_Tab6::saveSystem(bool RunChecks)
 
 bool
 nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
-                                              std::string CurrentSettingsName)
+                                              std::string currentModelName)
 {
     std::string cmd;
     std::string errorMsg;
 
 std::cout << "------- ---- current algorithm: " << getCurrentAlgorithm() << std::endl;
 
-    cmd  =  "UPDATE Systems SET";
+    cmd  =  "UPDATE Models SET";
     cmd +=  "   NumberOfRuns = "          + getBeesNumberOfRuns() +
             ",  TimeStep = 1"             + // std::to_string(Estimation_Tab6_TimeStepSB->value()) +
             ",  Algorithm = '"            + getCurrentAlgorithm() +
@@ -772,7 +775,8 @@ std::cout << "------- ---- current algorithm: " << getCurrentAlgorithm() << std:
             ",  NLoptStopAfterTime = "    + std::to_string(getCurrentStopAfterTime()) +
             ",  NLoptStopAfterIter = "    + std::to_string(getCurrentStopAfterIter()) +
             ",  NLoptNumberOfRuns = "     + std::to_string(Estimation_Tab6_EnsembleTotalRunsSB->value()) +
-            "   WHERE SystemName = '"     + CurrentSettingsName + "'";
+            "   WHERE ProjectName = '"    + m_ProjectName +
+            "'  AND ModelName = '"        + currentModelName + "'";
 
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -783,7 +787,7 @@ std::cout << "------- ---- current algorithm: " << getCurrentAlgorithm() << std:
 
     if (verbose) {
         QMessageBox::information(Estimation_Tabs, "Settings Updated",
-                                 "\nSettings in Systems table have been successfully updated.\n");
+                                 "\nSettings in Models table have been successfully updated.\n");
     }
     saveSettings();
 
@@ -1800,10 +1804,10 @@ nmfEstimation_Tab6::loadWidgets()
 
     readSettings();
 
-    if (m_ProjectSettingsConfig.empty())
+    if (m_ModelName.empty())
         return false;
 
-    fields     = {"SystemName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
+    fields     = {"ProjectName","ModelName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
                   "NumberOfRuns","StartYear","RunLength","TimeStep","Algorithm","Minimizer",
                   "ObjectiveCriterion","Scaling","GAGenerations","GAPopulationSize",
                   "GAMutationRate","GAConvergence","BeesNumTotal","BeesNumElite","BeesNumOther",
@@ -1811,19 +1815,19 @@ nmfEstimation_Tab6::loadWidgets()
                   "BeesMaxGenerations","BeesNeighborhoodSize",
                   "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter",
                   "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptNumberOfRuns"};
-    queryStr   = "SELECT SystemName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,";
+    queryStr   = "SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,";
     queryStr  += "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     queryStr  += "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence,";
     queryStr  += "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions,";
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
     queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptNumberOfRuns ";
-    queryStr  += "FROM Systems where SystemName = '";
-    queryStr  += m_ProjectSettingsConfig + "'";
+    queryStr  += "FROM Models WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '";
+    queryStr  += m_ModelName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SystemName"].size();
+    NumRecords = dataMap["ModelName"].size();
     if (NumRecords == 0) {
-        m_Logger->logMsg(nmfConstants::Warning,"No records found in Systems");
+        m_Logger->logMsg(nmfConstants::Warning,"No records found in Models");
         return false;
     }
 
@@ -1875,18 +1879,20 @@ nmfEstimation_Tab6::readSettings()
     int index;
 
     settings->beginGroup("SetupTab");
-    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
+
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName = settings->value("Name","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Estimation");
     m_EstimationOutputFile = settings->value("OutputFile","").toString().toStdString();
     m_EstimationDataFile   = settings->value("DataFile","").toString().toStdString();
     m_EstimationID         = settings->value("ID","").toString().toStdString();
-    m_FontSize           = settings->value("FontSize",9).toString().toInt();
-    m_IsMonospaced       = settings->value("Monospace",0).toString().toInt();
+    m_FontSize             = settings->value("FontSize",9).toString().toInt();
+    m_IsMonospaced         = settings->value("Monospace",0).toString().toInt();
     settings->endGroup();
 
     delete settings;

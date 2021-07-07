@@ -69,7 +69,8 @@ private:
     int          m_NumPoints;
     int          m_PctVariation;
     std::string  m_ProjectDir;
-    std::string  m_ProjectSettingsConfig;
+    std::string  m_ProjectName;
+    std::string  m_ModelName;
     std::map<QString,QString> m_OutputTableName;
     std::map<QString,QString> m_DiagnosticTableName;
 

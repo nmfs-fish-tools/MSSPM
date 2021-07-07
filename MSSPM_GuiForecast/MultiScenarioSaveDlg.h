@@ -49,7 +49,8 @@ class MultiScenarioSaveDlg : public QDialog
     std::string  m_ForecastName;
     nmfLogger*   m_Logger;
     std::map<QString,QStringList> m_OrderedForecastLabelsMap;
-    std::string  m_ProjectSettingsConfig;
+    std::string  m_ModelName;
+    std::string  m_ProjectName;
     std::string  m_ScenarioName;
 
     QVBoxLayout* MainVLT;
@@ -97,6 +98,8 @@ public:
      * @param parent : the tab widget into which this Estimation tab will be placed
      * @param databasePtr : pointer to the application database
      * @param logger : pointer to the application logger
+     * @param ProjectName : name of the current project
+     * @param ModelName : name of the current model
      * @param sortedForecastLabelsMap : map of Forecasts per Scenario
      * @param currentScenario : name of Scenario that will store passed Forecast
      * @param forecastName : name of Forecast to add to Scenario
@@ -104,7 +107,8 @@ public:
     MultiScenarioSaveDlg(QTabWidget*  parent,
                          nmfDatabase* databasePtr,
                          nmfLogger*   logger,
-                         std::string& projectSettingsConfig,
+                         std::string& ProjectName,
+                         std::string& ModelName,
                          std::map<QString,QStringList>& sortedForecastLabelsMap,
                          std::string& currentScenario,
                          std::string  forecastName);

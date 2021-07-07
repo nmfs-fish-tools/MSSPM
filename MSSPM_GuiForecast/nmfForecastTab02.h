@@ -48,8 +48,9 @@ private:
     nmfDatabase*        m_DatabasePtr;
     std::string         m_HarvestType;
     nmfLogger*          m_Logger;
-    std::string         m_ProjectSettingsConfig;
+    std::string         m_ModelName;
     std::string         m_ProjectDir;
+    std::string         m_ProjectName;
     QStandardItemModel* m_SModel;
 
     QTabWidget*     Forecast_Tabs;

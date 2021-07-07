@@ -14,7 +14,8 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
 
     m_Logger      = theLogger;
     m_DatabasePtr = theDatabasePtr;
-    m_ProjectSettingsConfig.clear();
+    m_ModelName.clear();
+    m_ProjectName.clear();
     m_SModelAbsoluteBiomass = nullptr;
     m_SModelRelativeBiomass = nullptr;
     m_SModelCovariates      = nullptr;
@@ -205,15 +206,8 @@ std::cout << "tableNameStr: " << tableNameStr.toStdString() << std::endl;
 bool
 nmfEstimation_Tab5::isAbsoluteBiomassChecked()
 {
-    return ! m_DatabasePtr->isARelativeBiomassModel(m_ProjectSettingsConfig);
-//  return getObsBiomassType().contains("Absolute Biomass");
+    return (! m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName));
 }
-
-//QString
-//nmfEstimation_Tab5::getObsBiomassType()
-//{
-//    return Estimation_Tab5_ObsBiomassTypeLBL->text();
-//}
 
 void
 nmfEstimation_Tab5::setObsBiomassType(QString obsBiomassType)
@@ -225,21 +219,38 @@ void
 nmfEstimation_Tab5::callback_SavePB()
 {
     bool okSave;
-    if (isAbsoluteBiomassChecked()) {
-        okSave = saveAbsoluteBiomass();
-        if (okSave) {
-            QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
-                                     "\nObserved Absolute Biomass table has been successfully updated.\n",
-                                     QMessageBox::Ok);
-        }
-    } else {
-        okSave = saveRelativeBiomass();
-        if (okSave) {
-            QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
-                                     "\nObserved Relative Biomass table has been successfully updated.\n",
-                                     QMessageBox::Ok);
+    bool shownAlready=false;
+    std::vector<std::string> modelsInProject = {};
+
+    if (! m_DatabasePtr->updateAllModelsInProject(Estimation_Tabs,"ObservedBiomass",m_ProjectName,
+                                                  m_ModelName,modelsInProject)) {
+        return;
+    }
+
+    std::string m_ModelNameRem = m_ModelName;
+    for (std::string projectModel : modelsInProject)
+    {
+        m_ModelName = projectModel;
+        if (isAbsoluteBiomassChecked()) {
+            okSave = saveAbsoluteBiomass();
+            if (okSave && ! shownAlready) {
+                QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
+                                         "\nObserved Absolute Biomass table has been successfully updated.\n",
+                                         QMessageBox::Ok);
+                shownAlready = true;
+            }
+        } else {
+            okSave = saveRelativeBiomass();
+            if (okSave && ! shownAlready) {
+                QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
+                                         "\nObserved Relative Biomass table has been successfully updated.\n",
+                                         QMessageBox::Ok);
+                shownAlready = true;
+            }
         }
     }
+    m_ModelName = m_ModelNameRem;
+
 }
 
 void
@@ -291,7 +302,6 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    std::string MohnsRhoLabel = "";
     QString value;
     QString msg;
 
@@ -328,6 +338,8 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     // Save Observed Biomass data to Database table
     saveTableValuesToDatabase("BiomassAbsolute",m_SModelAbsoluteBiomass);
 
+/*
+    // Put when in when implement covariates
     cmd = "DELETE FROM Covariate";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -363,7 +375,7 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     }
 
     Estimation_Tab5_CovariatesTV->resizeColumnsToContents();
-
+*/
     QMessageBox::information(Estimation_Tabs, "Absolute Data Updated",
                              "\nAbsolute data table(s) have been successfully updated.\n",
                              QMessageBox::Ok);
@@ -400,7 +412,6 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    std::string MohnsRhoLabel = "";
     std::vector<std::string> SpeNames;
     int NumSpecies;
     QString value;
@@ -440,8 +451,8 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
     Estimation_Tabs->setCursor(Qt::WaitCursor);
 
     // Delete existing data
-    cmd = "DELETE FROM " + tableName + " WHERE SystemName = '" +
-           m_ProjectSettingsConfig + "' AND MohnsRhoLabel = ''";
+    cmd = "DELETE FROM " + tableName + " WHERE ProjectName = '" + m_ProjectName +
+          "' AND ModelName = '" + m_ModelName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab5::saveTableValuesToDatabase: DELETE error: " + errorMsg);
@@ -455,24 +466,24 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
 
     if (tableName == "BiomassRelativeScalars") {
         std::string type1 = "Scalar";
-        cmd = "INSERT INTO " + tableName + " (MohnsRhoLabel,SystemName,SpeName,Type,Value) VALUES ";
+        cmd = "INSERT INTO " + tableName + " (ProjectName,ModelName,SpeName,Type,Value) VALUES ";
         for (int species=0; species<NumSpecies; ++species) {
             for (int time=0; time<smodel->rowCount(); ++time) {
                 index = smodel->index(time,species);
-                cmd += "('"   + MohnsRhoLabel +
-                        "','" + m_ProjectSettingsConfig +
+                cmd += "('"   + m_ProjectName +
+                        "','" + m_ModelName +
                         "','" + SpeNames[species] +
                         "','" + type1 +
                         "', " + QString::number(index.data().toDouble(),'f',6).toStdString() + "),";
             }
         }
     } else {
-        cmd = "INSERT INTO " + tableName + " (MohnsRhoLabel,SystemName,SpeName,Year,Value) VALUES ";
+        cmd = "INSERT INTO " + tableName + " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
         for (int species=0; species<NumSpecies; ++species) {
             for (int time=0; time<smodel->rowCount(); ++time) {
                 index = smodel->index(time,species);
-                cmd += "('"   + MohnsRhoLabel +
-                        "','" + m_ProjectSettingsConfig +
+                cmd += "('"   + m_ProjectName +
+                        "','" + m_ModelName +
                         "','" + SpeNames[species] +
                         "',"  + std::to_string(time) +
                         ", "  + QString::number(index.data().toDouble(),'f',6).toStdString() + "),";
@@ -581,29 +592,20 @@ nmfEstimation_Tab5::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName   = settings->value("Name","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("SetupTab");
-    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     delete settings;
 }
 
+
 bool
 nmfEstimation_Tab5::loadWidgets()
-{
-    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::loadWidgets()");
-
-    loadWidgets("");
-
-    return true;
-}
-
-
-bool
-nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
 {
     int NumSpecies;
     int RunLength;
@@ -612,18 +614,17 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
     QStringList VerticalList;
     QStringList SpeciesList;
 
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::loadWidgets()");
+
     readSettings();
 
-    QString SystemName = QString::fromStdString(m_ProjectSettingsConfig);
-    // Strip off the MohnsRho suffix
-    auto parts = SystemName.split("__");
-    SystemName =  parts[0];
-    if (SystemName.isEmpty())
+    QString ModelName = QString::fromStdString(m_ModelName);
+    if (ModelName.isEmpty())
         return false;
 
     clearWidgets();
 
-    if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear)) {
+    if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear)) {
         return false;
     }
     if (! m_DatabasePtr->getAllSpecies(m_Logger,SpeciesNames)) {
@@ -637,10 +638,10 @@ nmfEstimation_Tab5::loadWidgets(QString MohnsRhoLabel)
     m_SModelCovariates      = new QStandardItemModel( RunLength, 1 );
 
     // Load tableviews
-    loadAbsoluteBiomass(RunLength,StartYear,NumSpecies,SystemName,
-                        MohnsRhoLabel,SpeciesNames,SpeciesList,VerticalList);
-    loadRelativeBiomass(RunLength,StartYear,NumSpecies,SystemName,
-                        MohnsRhoLabel,SpeciesNames,SpeciesList,VerticalList);
+    loadAbsoluteBiomass(RunLength,StartYear,NumSpecies,ModelName,
+                        SpeciesNames,SpeciesList,VerticalList);
+    loadRelativeBiomass(RunLength,StartYear,NumSpecies,ModelName,
+                        SpeciesNames,SpeciesList,VerticalList);
     loadCovariates(RunLength,VerticalList);
 
     Estimation_Tab5_RelativeBiomassTV->resizeColumnsToContents();
@@ -651,13 +652,12 @@ void
 nmfEstimation_Tab5::loadAbsoluteBiomass(const int& RunLength,
                                         const int& StartYear,
                                         const int& NumSpecies,
-                                        const QString& SystemName,
-                                        const QString& MohnsRhoLabel,
+                                        const QString& ModelName,
                                         const std::vector<std::string>& SpeciesNames,
                                         const QStringList& SpeciesList,
                                         QStringList& VerticalList)
 {
-    loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,SystemName,MohnsRhoLabel,SpeciesNames,
+    loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,ModelName,SpeciesNames,
                                 SpeciesList,VerticalList,"BiomassAbsolute",m_SModelAbsoluteBiomass,
                                 Estimation_Tab5_AbsoluteBiomassTV);
 }
@@ -666,14 +666,13 @@ void
 nmfEstimation_Tab5::loadRelativeBiomass(const int& RunLength,
                                         const int& StartYear,
                                         const int& NumSpecies,
-                                        const QString& SystemName,
-                                        const QString& MohnsRhoLabel,
+                                        const QString& ModelName,
                                         const std::vector<std::string>& SpeciesNames,
                                         const QStringList& SpeciesList,
                                         QStringList& VerticalList)
 {
     VerticalList.clear();
-    loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,SystemName,MohnsRhoLabel,SpeciesNames,
+    loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,ModelName,SpeciesNames,
                                 SpeciesList,VerticalList,"BiomassRelative",m_SModelRelativeBiomass,
                                 Estimation_Tab5_RelativeBiomassTV);
 }
@@ -684,8 +683,7 @@ nmfEstimation_Tab5::loadTableValuesFromDatabase(
         const int& RunLength,
         const int& StartYear,
         const int& NumSpecies,
-        const QString& SystemName,
-        const QString& MohnsRhoLabel,
+        const QString& ModelName,
         const std::vector<std::string>& SpeciesNames,
         const QStringList& SpeciesList,
         QStringList& VerticalList,
@@ -700,10 +698,10 @@ nmfEstimation_Tab5::loadTableValuesFromDatabase(
     QStandardItem *item;
 
     // Get data from database table
-    fields     = {"MohnsRhoLabel","SystemName","SpeName","Year","Value"};
-    queryStr   = "SELECT MohnsRhoLabel,SystemName,SpeName,Year,Value FROM "+tableName+" WHERE SystemName = '" +
-                 SystemName.toStdString() + "' AND MohnsRhoLabel = '" +
-                 MohnsRhoLabel.toStdString() + "' ORDER BY SpeName,Year ";
+    fields     = {"ProjectName","ModelName","SpeName","Year","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " + tableName +
+                 " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" +
+                 ModelName.toStdString() + "' ORDER BY SpeName,Year ";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();
     Qt::ItemFlags flags;
@@ -787,7 +785,7 @@ nmfEstimation_Tab5::updateInitialObservedBiomass(const std::string& tableName,
     QStringList VerticalList;
     QStandardItem *item;
 
-    m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear);
+    m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear);
 
     // Populate first row of Observed Absolute Biomass with Init Absolute Biomass from Species.
     // Populate first row of Observed Relative Biomass with product of Init SurveyQ and Init Absolute Biomass from Species.

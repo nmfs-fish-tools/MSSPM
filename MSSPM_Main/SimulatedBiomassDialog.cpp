@@ -5,7 +5,8 @@
 
 SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
                                                std::string projectDir,
-                                               std::string projectSettingsConfig,
+                                               std::string projectName,
+                                               std::string modelName,
                                                nmfDatabase* database,
                                                nmfLogger* logger) :
     QDialog(parent)
@@ -13,10 +14,11 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
     QString msg;
     QString defaultName = "BiomassAbsolute_Sim.csv";
 
-    m_ProjectDir = projectDir;
-    m_ProjectSettingsConfig = projectSettingsConfig;
-    m_Database = database;
-    m_Logger   = logger;
+    m_ProjectDir  = projectDir;
+    m_ProjectName = projectName;
+    m_ModelName   = modelName;
+    m_Database    = database;
+    m_Logger      = logger;
 
     InfoLBL    = new QLabel();
     ContinuePB = new QPushButton("Continue");
@@ -84,7 +86,7 @@ void
 SimulatedBiomassDialog::callback_ContinuePB()
 {
     QString msg;
-    nmfSimulatedData SimulatedData(m_ProjectSettingsConfig,m_Database,m_Logger);
+    nmfSimulatedData SimulatedData(m_ProjectName,m_ModelName,m_Database,m_Logger);
     QString filenameWithPath;
     QString filename = getFilename();
     int errorPct = getErrorPct();

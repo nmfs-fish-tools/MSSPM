@@ -56,7 +56,8 @@ class nmfEstimation_Tab6: public QObject
     int             m_IsMonospaced;
     nmfLogger*      m_Logger;
     std::string     m_ProjectDir;
-    std::string     m_ProjectSettingsConfig;
+    std::string     m_ProjectName;
+    std::string     m_ModelName;
     std::string     m_EstimationDataFile;
     std::string     m_EstimationID;
     std::string     m_EstimationOutputFile;

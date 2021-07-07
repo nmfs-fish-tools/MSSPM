@@ -49,7 +49,8 @@ class nmfEstimation_Tab4: public QObject
     nmfDatabase*             m_DatabasePtr;
     std::string              m_PredationForm;
     std::string              m_ProjectDir;
-    std::string              m_ProjectSettingsConfig;
+    std::string              m_ProjectName;
+    std::string              m_ModelName;
     std::vector<QTableView*> m_TableViews1d;
     std::vector<QTableView*> m_TableViews2d;
     std::vector<QTableView*> m_TableViewsTypeI;

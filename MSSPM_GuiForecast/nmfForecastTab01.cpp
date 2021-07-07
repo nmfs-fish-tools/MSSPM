@@ -16,7 +16,8 @@ nmfForecast_Tab1::nmfForecast_Tab1(QTabWidget*  tabs,
     m_DatabasePtr = databasePtr;
     m_SModel      = nullptr;
     m_ProjectDir  = projectDir;
-    m_ProjectSettingsConfig.clear();
+    m_ModelName.clear();
+    m_ProjectName.clear();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab1::nmfForecast_Tab1");
 
@@ -110,7 +111,7 @@ nmfForecast_Tab1::setDeterministic(bool isDeterministic)
 void
 nmfForecast_Tab1::callback_SetNamePB()
 {
-    Forecast_Tab1_NameLE->setText(QString::fromStdString(m_ProjectSettingsConfig));
+    Forecast_Tab1_NameLE->setText(QString::fromStdString(m_ModelName));
 }
 
 void
@@ -134,6 +135,7 @@ nmfForecast_Tab1::callback_LoadPB()
                                                       Forecast_Tabs,
                                                       m_Logger,
                                                       m_DatabasePtr,
+                                                      m_ProjectName,
                                                       Forecast_Tab1_NameLE,
                                                       Forecast_Tab1_RunLengthSB,
                                                       Forecast_Tab1_NumRunsSB);
@@ -150,7 +152,7 @@ nmfForecast_Tab1::callback_LoadPB()
 void
 nmfForecast_Tab1::callback_SavePB()
 {
-    bool systemFound   = false;
+    bool modelFound   = false;
     int  isPreviousRun = false;
     int  NumRecords;
     std::string cmd;
@@ -185,12 +187,12 @@ nmfForecast_Tab1::callback_SavePB()
 
     // Get forms
     fields    = {"GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength"};
-    queryStr  = "SELECT GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength FROM Systems WHERE ";
-    queryStr += "SystemName = '" + m_ProjectSettingsConfig + "'";
+    queryStr  = "SELECT GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength FROM Models WHERE ";
+    queryStr += "ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["RunLength"].size();
     if (NumRecords == 0) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfForecast_Tab1::callback_SavePB: No records found in table Systems for Name = "+m_ProjectSettingsConfig);
+        m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfForecast_Tab1::callback_SavePB: No records found in table Models for Name = "+m_ModelName);
         return;
     }
     GrowthForm      = dataMap["GrowthForm"][0];
@@ -203,17 +205,18 @@ nmfForecast_Tab1::callback_SavePB()
         Minimizer          = Forecast_Tab1_MinimizerCMB->currentText().toStdString();
         ObjectiveCriterion = Forecast_Tab1_ObjectiveCriterionCMB->currentText().toStdString();
     } else {
-        systemFound = m_DatabasePtr->getAlgorithmIdentifiers(
-                    Forecast_Tabs,m_Logger,m_ProjectSettingsConfig,
+        modelFound = m_DatabasePtr->getAlgorithmIdentifiers(
+                    Forecast_Tabs,m_Logger,m_ProjectName,m_ModelName,
                     Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                     CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
-        if (! systemFound) {
-            m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: No systems found");
+        if (! modelFound) {
+            m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: No models found");
             return;
         }
     }
 
-    cmd = "DELETE FROM Forecasts WHERE ForecastName = '" + ForecastName + "'";
+    cmd = "DELETE FROM Forecasts WHERE ProjectName = '" + m_ProjectName +
+          "' AND ForecastName = '" + ForecastName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab1::callback_SavePB: DELETE error: " + errorMsg);
@@ -225,10 +228,11 @@ nmfForecast_Tab1::callback_SavePB()
         return;
     }
 
-    cmd  = "INSERT INTO Forecasts (ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
+    cmd  = "INSERT INTO Forecasts (ProjectName,ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     cmd += "GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,";
     cmd += "StartYear,EndYear,NumRuns,IsDeterministic,Seed) VALUES ";
-    cmd += "('" + ForecastName + "'," + std::to_string(isPreviousRun) + ",'" +
+    cmd += "('" + m_ProjectName + "','" + ForecastName +
+            "'," + std::to_string(isPreviousRun) + ",'" +
             Algorithm + "','" + Minimizer + "','" +
             ObjectiveCriterion + "','" +
             Scaling + "','" +
@@ -285,13 +289,13 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
 
     // Load Output Growth Rate Algorithm, Minimizer, ObjectiveCriterion, and Scaling from OutputGrowthRate
     // so that user can see what runs have already been done.
-    fields    = {"ForecastName","PreviousRun","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
+    fields    = {"ProjectName","ForecastName","PreviousRun","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
                  "GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm",
                  "RunLength","StartYear","EndYear","NumRuns","IsDeterministic","Seed"};
-    queryStr  = "SELECT ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
+    queryStr  = "SELECT ProjectName,ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     queryStr += "GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,";
     queryStr += "StartYear,EndYear,NumRuns,IsDeterministic,Seed from Forecasts WHERE ";
-    queryStr += " ForecastName = '" + forecastToLoad + "'";
+    queryStr += " ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + forecastToLoad + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() == 0) {
         m_Logger->logMsg(nmfConstants::Error,"No records found in table Forecasts for forecast: "+forecastToLoad);
@@ -313,12 +317,12 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
     Seed                = std::stoi(dataMap["Seed"][0]);
 
     // Check that Forecast forms match System forms (if not, the Forecast may fail.)
-    fields    = {"SystemName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
-    queryStr  = "SELECT SystemName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm from Systems WHERE ";
-    queryStr += " SystemName = '" + m_ProjectSettingsConfig + "'";
+    fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
+    queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm from Models WHERE ";
+    queryStr += " ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["SystemName"].size() == 0) {
-        m_Logger->logMsg(nmfConstants::Error,"No records found in table Systems for SystemName: "+m_ProjectSettingsConfig);
+    if (dataMap["ModelName"].size() == 0) {
+        m_Logger->logMsg(nmfConstants::Error,"No records found in table Models for ModelName: "+m_ModelName);
         return;
     }
     sAlgorithm          = dataMap["Algorithm"][0];
@@ -337,7 +341,7 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
             (fGrowthForm != sGrowthForm) || (fHarvestForm != sHarvestForm) ||
             (fCompetitionForm != sCompetitionForm) || (fPredationForm != sPredationForm))
     {
-        msg  = "\nForecast ("+forecastToLoad+") incompatible with latest Model Run ("+m_ProjectSettingsConfig+").\n\n";
+        msg  = "\nForecast ("+forecastToLoad+") incompatible with latest Model Run ("+m_ModelName+").\n\n";
         msg += "(Forecast parameters on left and latest Model Run parameters on right)\n\n";
         msg += fAlgorithm +          " --- " + sAlgorithm +          "\n";
         msg += fMinimizer +          " --- " + sMinimizer +          "\n";
@@ -471,8 +475,8 @@ nmfForecast_Tab1::loadWidgets()
 
     // Load years
     fields    = {"StartYear","RunLength"};
-    queryStr  = "SELECT StartYear,RunLength from Systems WHERE ";
-    queryStr += "SystemName = '" + m_ProjectSettingsConfig + "'";
+    queryStr  = "SELECT StartYear,RunLength from Models WHERE ";
+    queryStr += "ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["StartYear"].size() == 0) {
         std::cout << "Error 2: nmfForecast_Tab1::loadWidgets" << std::endl;
@@ -501,7 +505,11 @@ nmfForecast_Tab1::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Forecast");

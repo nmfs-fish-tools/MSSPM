@@ -50,6 +50,7 @@ private:
     QListWidget*             m_ForecastsLW;
     std::vector<std::string> m_ForecastNames;
     nmfLogger*               m_Logger;
+    std::string              m_ProjectName;
 
 public:
     /**
@@ -58,6 +59,7 @@ public:
      * @param parent : pointer to the parent widget of this dialog
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
+     * @param projectName : name of the project
      * @param forecastName : name of Forecast
      * @param runLengthSB : Spin Box for the number of Years per Run
      * @param numRunsSB : Spin Box for the number of Runs in the current Forecast
@@ -66,6 +68,7 @@ public:
                           QWidget*     parent,
                           nmfLogger*   logger,
                           nmfDatabase* databasePtr,
+                          const std::string& projectName,
                           QLineEdit*   forecastName,
                           QSpinBox*    runLengthSB,
                           QSpinBox*    numRunsSB);

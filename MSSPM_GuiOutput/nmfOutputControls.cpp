@@ -14,11 +14,12 @@ MSSPM_GuiOutputControls::MSSPM_GuiOutputControls(
     m_DatabasePtr         = databasePtr;
     m_ProjectDir          = projectDir;
     m_SpeciesOrGuildModel = new QStringListModel();
-    m_ProjectSettingsConfig.clear();
-    m_SortedForecastLabelsMap.clear();
     m_IsAveraged          = nmfConstantsMSSPM::IsNotAveraged;
+    m_ProjectName.clear();
+    m_ModelName.clear();
+    m_SortedForecastLabelsMap.clear();
 
-    OutputLineBrightnessSL = nullptr;
+    OutputLineBrightnessSL   = nullptr;
     OutputParametersZScoreCB = nullptr;
     ControlsGroupBox = controlsGroupBox;
 
@@ -243,6 +244,28 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputChartTypeLBL->setStatusTip("The type of chart that will be displayed");
     OutputChartTypeCMB->setToolTip("The type of chart that will be displayed");
     OutputChartTypeCMB->setStatusTip("The type of chart that will be displayed");
+    msg ="<html>\
+<strong><center>Chart Types</center></strong><br>\
+The various output chart types are: <br><br>\
+<strong>1. Biomass vs Time</strong><br><br> \
+This is a plot of calculated (i.e., estimated) biomass vs time. <br><br>\
+<strong>2. Harvest vs Time</strong><br><br> \
+This plot will show either catch vs time or (catchability * effort * calculated biomass) vs time.<br><br>\
+<strong>3. Exploitation Rate</strong><br><br> \
+This plot will show (catchability * effort) vs time and will typically \
+range from 0 to 1 in the y-axis.<br><br>\
+<strong>4. Diagnostics</strong><br><br> \
+These plots will show either the parameter estimation diagnostics \
+(2d or 3d) or the retrospective analysis (i.e., Mohn's Rho).<br><br>\
+<strong>5. Forecasts</strong><br><br>\
+This plot will show the Monte Carlo n% variation forecasts overlayed onto the 0% variation forecast.<br><br>\
+<strong>6. Multi-Scenario Plots</strong><br><br>\
+This plot shows combined user selected forecasts. That is, after the user runs a forecast,<br>\
+they can elect to save the forecast into a multi-forecast scenario. In this fashion, they<br>\
+can compare several forecasts simultaneously.<br><br>\
+</html>";
+    OutputChartTypeLBL->setWhatsThis(msg);
+    OutputChartTypeCMB->setWhatsThis(msg);
     OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartBiomass);
     OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartHarvest);
     OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartExploitation);
@@ -462,12 +485,12 @@ MSSPM_GuiOutputControls::loadSpeciesControlWidget()
     readSettings();
 
     m_DatabasePtr->getAlgorithmIdentifiers(
-                ControlsGroupBox,m_Logger,m_ProjectSettingsConfig,
+                ControlsGroupBox,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                 CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     if (! getGuilds(NumGuilds,GuildList)) {
-        m_Logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::loadSpeciesControlWidget: No records found in table Guilds, Name = "+m_ProjectSettingsConfig);
+        m_Logger->logMsg(nmfConstants::Warning,"[Warning] MSSPM_GuiOutputControls::loadSpeciesControlWidget: No records found in table Guilds, Name = "+m_ModelName);
         return;
     }
     if ((getOutputGroupType() == "Guild") || (CompetitionForm == "AGG-PROD")) {
@@ -475,7 +498,7 @@ MSSPM_GuiOutputControls::loadSpeciesControlWidget()
        SpeciesList = GuildList;
     } else {
         if (! getSpecies(NumSpecies,SpeciesList)) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 2] loadSpeciesControlWidget: No records found in table Species, Name = "+m_ProjectSettingsConfig);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 2] loadSpeciesControlWidget: No records found in table Species, Name = "+m_ModelName);
             return;
         }
     }
@@ -1059,7 +1082,7 @@ MSSPM_GuiOutputControls::isAggProd()
     std::string CompetitionForm;
 
     m_DatabasePtr->getAlgorithmIdentifiers(
-                ControlsGroupBox,m_Logger,m_ProjectSettingsConfig,
+                ControlsGroupBox,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                 CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
@@ -1275,7 +1298,11 @@ MSSPM_GuiOutputControls::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Output");
@@ -1303,6 +1330,7 @@ void
 MSSPM_GuiOutputControls::callback_UpdateDiagnosticParameterChoices()
 {
     m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,
-                                                 m_ProjectSettingsConfig,
+                                                 m_ProjectName,
+                                                 m_ModelName,
                                                  OutputParametersCMB);
 }

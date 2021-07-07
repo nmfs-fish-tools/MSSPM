@@ -48,7 +48,8 @@ class nmfSetup_Tab3: public QObject
     nmfLogger*          m_logger;
     nmfDatabase*        m_databasePtr;
     std::string         m_ProjectDir;
-    std::string         m_ProjectSettingsConfig;
+    std::string         m_ProjectName;
+    std::string         m_ModelName;
     QStringList         m_colLabelsSpecies;
     QStringList         m_colLabelsGuilds;
     std::vector<std::string> m_ModelPresetNames;

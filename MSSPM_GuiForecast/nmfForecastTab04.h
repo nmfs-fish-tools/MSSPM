@@ -50,8 +50,9 @@ class nmfForecast_Tab4: public QObject
     int                           m_FontSize;
     nmfLogger*                    m_Logger;
     std::string                   m_ProjectDir;
-    std::string                   m_ProjectSettingsConfig;
-    MultiScenarioSaveDlg*      m_SaveDlg;
+    std::string                   m_ProjectName;
+    std::string                   m_ModelName;
+    MultiScenarioSaveDlg*         m_SaveDlg;
     std::map<QString,QStringList> m_SortedForecastLabelsMap;
 
     QTabWidget*  Forecast_Tabs;

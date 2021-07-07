@@ -8,6 +8,7 @@ LoadForecastDlg::LoadForecastDlg(const QString& title,
                                  QWidget*       parent,
                                  nmfLogger*     logger,
                                  nmfDatabase*   databasePtr,
+                                 const std::string& projectName,
                                  QLineEdit*     forecastNameLE,
                                  QSpinBox*      forecastRunLengthSB,
                                  QSpinBox*      forecastNumRunsSB)
@@ -17,6 +18,7 @@ LoadForecastDlg::LoadForecastDlg(const QString& title,
 
     m_Logger              = logger;
     m_DatabasePtr         = databasePtr;
+    m_ProjectName         = projectName;
     m_ForecastNameLE      = forecastNameLE;
     m_ForecastName        = forecastNameLE->text();
     m_ForecastRunLengthSB = forecastRunLengthSB;
@@ -86,8 +88,9 @@ LoadForecastDlg::callback_DeleteSelection()
                                   QMessageBox::Yes);
     if (reply == QMessageBox::Yes) {
         for (std::string ForecastTable : ForecastTables) {
-            cmd = "DELETE FROM " + ForecastTable +  " WHERE ForecastName = '" +
-                   ForecastToDelete.toStdString() + "'";
+            cmd = "DELETE FROM " + ForecastTable +  " WHERE ProjectName = '" +
+                  m_ProjectName + "' AND ForecastName = '" +
+                  ForecastToDelete.toStdString() + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"callback_DeleteSelection: DELETE error: " + errorMsg);
@@ -126,7 +129,7 @@ LoadForecastDlg::loadWidgets()
     m_ForecastsLW->clear();
 
     fields   = {"ForecastName"};
-    queryStr = "SELECT ForecastName from Forecasts ";
+    queryStr = "SELECT ForecastName from Forecasts WHERE ProjectName = '" + m_ProjectName + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     for (unsigned i=0; i<dataMap["ForecastName"].size(); ++i) {
         forecastName = dataMap["ForecastName"][i];

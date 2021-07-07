@@ -52,7 +52,8 @@ class nmfEstimation_Tab1: public QObject
     QStandardItemModel*  m_GuildModel;
     QStandardItemModel*  m_SpeciesModel;
     std::string          m_ProjectDir;
-    std::string          m_ProjectSettingsConfig;
+    std::string          m_ProjectName;
+    std::string          m_ModelName;
     QModelIndexList      m_selIndexes;
     QList<QString> m_originalSpeciesValuesAll;
     std::vector<double>  m_originalValuesSelected;

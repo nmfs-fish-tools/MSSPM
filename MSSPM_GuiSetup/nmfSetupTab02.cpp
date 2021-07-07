@@ -286,11 +286,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(SystemName     varchar(50) NOT NULL,";
+        cmd += "(ProjectName    varchar(50) NOT NULL,";
+        cmd += " ModelName      varchar(50) NOT NULL,";
         cmd += " SpeciesA       varchar(50) NOT NULL,";
         cmd += " SpeciesB       varchar(50) NOT NULL,";
         cmd += " Value          float NOT NULL,";
-        cmd += " PRIMARY KEY (SystemName,SpeciesA,SpeciesB))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 2] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -313,11 +314,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(SystemName     varchar(50) NOT NULL,";
+        cmd += "(ProjectName    varchar(50) NOT NULL,";
+        cmd += " ModelName      varchar(50) NOT NULL,";
         cmd += " SpeciesA       varchar(50) NOT NULL,";
         cmd += " SpeciesB       varchar(50) NOT NULL,";
         cmd += " Value          float NOT NULL,";
-        cmd += " PRIMARY KEY (SystemName,SpeciesA,SpeciesB))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 3] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -339,11 +341,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(SystemName     varchar(50) NOT NULL,";
+        cmd += "(ProjectName    varchar(50) NOT NULL,";
+        cmd += " ModelName      varchar(50) NOT NULL,";
         cmd += " Guild          varchar(50) NOT NULL,";
         cmd += " SpeName        varchar(50) NOT NULL,";
         cmd += " Value          float NOT NULL,";
-        cmd += " PRIMARY KEY (SystemName,Guild,SpeName))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,Guild,SpeName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 4] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -365,11 +368,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(SystemName     varchar(50) NOT NULL,";
+        cmd += "(ProjectName    varchar(50) NOT NULL,";
+        cmd += " ModelName      varchar(50) NOT NULL,";
         cmd += " GuildA         varchar(50) NOT NULL,";
         cmd += " GuildB         varchar(50) NOT NULL,";
         cmd += " Value          float NOT NULL,";
-        cmd += " PRIMARY KEY (SystemName,GuildA,GuildB))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,GuildA,GuildB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 5] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -393,10 +397,11 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(SystemName varchar(50) NOT NULL,";
-        cmd += " SpeName    varchar(50) NOT NULL,";
-        cmd += " Value      float NOT NULL,";
-        cmd += " PRIMARY KEY (SystemName,SpeName))";
+        cmd += "(ProjectName varchar(50) NOT NULL,";
+        cmd += " ModelName   varchar(50) NOT NULL,";
+        cmd += " SpeName     varchar(50) NOT NULL,";
+        cmd += " Value       float NOT NULL,";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,SpeName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 6] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -424,12 +429,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(MohnsRhoLabel varchar(50) NOT NULL,";
-        cmd += " SystemName    varchar(50) NOT NULL,";
+        cmd += "(ProjectName   varchar(50) NOT NULL,";
+        cmd += " ModelName     varchar(50) NOT NULL,";
         cmd += " SpeName       varchar(50) NOT NULL,";
         cmd += " Year          int(11) NOT NULL,";
         cmd += " Value         double NOT NULL,";
-        cmd += " PRIMARY KEY (MohnsRhoLabel,SystemName,SpeName,Year))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,SpeName,Year))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 6] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -445,12 +450,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + ".BiomassRelativeScalars";
     ExistingTableNames.push_back("BiomassRelativeScalars");
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(MohnsRhoLabel varchar(50) NOT NULL,";
-    cmd += " SystemName    varchar(50) NOT NULL,";
+    cmd += "(ProjectName   varchar(50) NOT NULL,";
+    cmd += " ModelName     varchar(50) NOT NULL,";
     cmd += " SpeName       varchar(50) NOT NULL,";
     cmd += " Type          varchar(50) NOT NULL,";
     cmd += " Value         float NOT NULL,";
-    cmd += " PRIMARY KEY (MohnsRhoLabel,SystemName,SpeName,Type))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,SpeName,Type))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 7] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -524,8 +529,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + ".OutputBiomass";
     ExistingTableNames.push_back("OutputBiomass");
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(MohnsRhoLabel       varchar(50) NOT NULL,";
-    cmd += " Algorithm           varchar(50) NOT NULL,";
+    cmd += "(Algorithm           varchar(50) NOT NULL,";
     cmd += " Minimizer           varchar(50) NOT NULL,";
     cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
     cmd += " Scaling             varchar(50) NOT NULL,";
@@ -533,7 +537,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " SpeName             varchar(50) NOT NULL,";
     cmd += " Year                int(11)     NOT NULL,";
     cmd += " Value               double      NOT NULL,";
-    cmd += " PRIMARY KEY (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
+    cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 11] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -556,8 +560,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(MohnsRhoLabel       varchar(50) NOT NULL,";
-        cmd += " Algorithm           varchar(50) NOT NULL,";
+        cmd += "(Algorithm           varchar(50) NOT NULL,";
         cmd += " Minimizer           varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
         cmd += " Scaling             varchar(50) NOT NULL,";
@@ -565,7 +568,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " SpeciesA            varchar(50) NOT NULL,";
         cmd += " SpeciesB            varchar(50) NOT NULL,";
         cmd += " Value               double      NULL,";
-        cmd += " PRIMARY KEY (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB))";
+        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 12] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -583,8 +586,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(MohnsRhoLabel       varchar(50) NOT NULL,";
-        cmd += " Algorithm           varchar(50) NOT NULL,";
+        cmd += "(Algorithm           varchar(50) NOT NULL,";
         cmd += " Minimizer           varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
         cmd += " Scaling             varchar(50) NOT NULL,";
@@ -592,7 +594,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " SpeName             varchar(50) NOT NULL,";
         cmd += " Guild               varchar(50) NOT NULL,";
         cmd += " Value               double      NULL,";
-        cmd += " PRIMARY KEY (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild))";
+        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 13] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -610,8 +612,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(MohnsRhoLabel       varchar(50) NOT NULL,";
-        cmd += " Algorithm           varchar(50) NOT NULL,";
+        cmd += "(Algorithm           varchar(50) NOT NULL,";
         cmd += " Minimizer           varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
         cmd += " Scaling             varchar(50) NOT NULL,";
@@ -619,7 +620,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " GuildA              varchar(50) NOT NULL,";
         cmd += " GuildB              varchar(50) NOT NULL,";
         cmd += " Value               double      NULL,";
-        cmd += " PRIMARY KEY (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB))";
+        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 13.1] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -653,15 +654,14 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(MohnsRhoLabel       varchar(50) NOT NULL,";
-        cmd += " Algorithm           varchar(50) NOT NULL,";
+        cmd += "(Algorithm           varchar(50) NOT NULL,";
         cmd += " Minimizer           varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
         cmd += " Scaling             varchar(50) NOT NULL,";
         cmd += " isAggProd           int(11)     NOT NULL,";
         cmd += " SpeName             varchar(50) NOT NULL,";
         cmd += " Value               double      NOT NULL,";
-        cmd += " PRIMARY KEY (MohnsRhoLabel,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName))";
+        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 14] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -713,11 +713,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(SystemName          varchar(50) NOT NULL,";
+        cmd += "(ProjectName         varchar(50) NOT NULL,";
+        cmd += " ModelName           varchar(50) NOT NULL,";
         cmd += " SpeciesA            varchar(50) NOT NULL,";
         cmd += " SpeciesB            varchar(50) NOT NULL,";
         cmd += " Value               float NULL,";
-        cmd += " PRIMARY KEY (SystemName,SpeciesA,SpeciesB))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 16] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -1069,14 +1070,14 @@ nmfSetup_Tab2::createTables(QString databaseName)
     if (! okToCreateMoreTables)
         return;
 */
-    // 66 of 68: Systems
-    for (std::string tableName : {"Systems"})
+    // 66 of 68: Models
+    for (std::string tableName : {"Models"})
     {
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
-//      fullTableName = db + ".Systems";
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(SystemName                  varchar(100) NOT NULL,";
+        cmd += "(ProjectName                 varchar(50)  NOT NULL,";
+        cmd += " ModelName                   varchar(50)  NOT NULL,";
         cmd += " CarryingCapacity            int(11)      NULL,";
         cmd += " ObsBiomassType              varchar(50)  NULL,";
         cmd += " Units                       varchar(50)  NULL,";
@@ -1124,7 +1125,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " NLoptStopVal                double       NULL,";
         cmd += " NLoptStopAfterTime          int(11)      NULL,";
         cmd += " NLoptStopAfterIter          int(11)      NULL,";
-        cmd += " PRIMARY KEY (SystemName))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 27] CreateTables: Create table " + fullTableName + " error: ", errorMsg);

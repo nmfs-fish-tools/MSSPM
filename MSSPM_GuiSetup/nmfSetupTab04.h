@@ -50,7 +50,8 @@ class nmfSetup_Tab4: public QObject
     Q_OBJECT
 
     std::string  m_ProjectDir;
-    std::string  m_ProjectSettingsConfig;
+    std::string  m_ProjectName;
+    std::string  m_ModelName;
     bool         m_isDark;
     nmfLogger*   m_logger;
     nmfDatabase* m_databasePtr;
@@ -106,12 +107,20 @@ class nmfSetup_Tab4: public QObject
                                      std::string CurrentSettingsName);
 
     void clearWidgets();
+    /**
+     * @brief Populates new model data with data from other models in the project
+     * @return True for success, false otherwise
+     */
+    bool populateNewModel();
     void readSettings();
     void setEstimatedParameterNames();
     void saveSettings();
     void setModelPreset(std::string modelName);
     void updateOutputWidget();
-
+    bool loadDuplicateData(
+            const std::string& tableName,
+            const QStringList& SpeciesList,
+            const boost::numeric::ublas::matrix<double>& data);
 public:
     /**
      * @brief nmfSetup_Tab4 : class constructor
@@ -315,7 +324,7 @@ signals:
      */
     void ModelDeleted();
     /**
-     * @brief Signal emitted after the user loads an existing System from the database
+     * @brief Signal emitted after the user loads an existing Model from the database
      */
     void ModelLoaded();
     /**

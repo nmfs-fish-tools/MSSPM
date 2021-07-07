@@ -45,7 +45,8 @@ class nmfEstimation_Tab2: public QObject
     nmfLogger*                        m_Logger;
     nmfDatabase*                      m_DatabasePtr;
     std::string                       m_ProjectDir;
-    std::string                       m_ProjectSettingsConfig;
+    std::string                       m_ProjectName;
+    std::string                       m_ModelName;
     std::string                       m_HarvestType;
     std::map<std::string,std::string> m_GroupBoxTitle;
     QStandardItemModel*               m_SModel;
@@ -94,12 +95,6 @@ public:
      * @return Returns true if all data were loaded successfully
      */
     bool loadWidgets();
-    /**
-     * @brief Loads all widgets for this GUI from database tables
-     * @param MohnsRhoLabel : Optional Mohns Rho label used when running a Restrospective Analysis
-     * @return
-     */
-    bool loadWidgets(QString MohnsRhoLabel);
 
     /**
      * @brief Sets the class harvest type variable to the appropriate value

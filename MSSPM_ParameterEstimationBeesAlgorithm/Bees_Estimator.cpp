@@ -176,11 +176,11 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                                                       m_EstBetaSpecies,
                                                       m_EstBetaGuilds,
                                                       m_EstBetaGuildsGuilds);
-
                 beesAlg->extractPredationParameters(EstParameters,startPos,m_EstPredation);
                 beesAlg->extractHandlingParameters(EstParameters,startPos,m_EstHandling);
                 beesAlg->extractExponentParameters(EstParameters,startPos,m_EstExponent);
                 beesAlg->extractSurveyQParameters(EstParameters,startPos,m_EstSurveyQ);
+
                 numEstParameters   = beesAlg->calculateActualNumEstParameters();
                 numTotalParameters = EstParameters.size();
                 createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,

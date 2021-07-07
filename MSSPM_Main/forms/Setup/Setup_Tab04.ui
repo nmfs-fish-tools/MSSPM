@@ -180,10 +180,13 @@
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Add New Model</string>
+                 <string>Add new model to current project</string>
                 </property>
                 <property name="statusTip">
-                 <string>Add New Model</string>
+                 <string>Add new model to current project</string>
+                </property>
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;New&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This adds a new model to the current project. If the current project already has models associated with it, the data associated with those models, are copied to the new model. This assures that all models associated with a given project use the same data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
                  <string>New...</string>

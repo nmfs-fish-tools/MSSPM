@@ -18,6 +18,8 @@ nmfDiagnostic_Tab1::nmfDiagnostic_Tab1(QTabWidget*  tabs,
     m_ProjectDir      = projectDir;
     m_NumPoints       = 1;
     m_PctVariation    = 1;
+    m_ProjectName.clear();
+    m_ModelName.clear();
 
     m_OutputTableName["Growth Rate (r)"]       = "OutputGrowthRate";
     m_OutputTableName["Carrying Capacity (K)"] = "OutputCarryingCapacity";
@@ -66,11 +68,9 @@ nmfDiagnostic_Tab1::~nmfDiagnostic_Tab1()
 void
 nmfDiagnostic_Tab1::callback_UpdateDiagnosticParameterChoices()
 {
-    m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,
-                                                 m_ProjectSettingsConfig,
+    m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,m_ProjectName,m_ModelName,
                                                  Diagnostic_Tab1_SurfaceParameter1CMB);
-    m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,
-                                                 m_ProjectSettingsConfig,
+    m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,m_ProjectName,m_ModelName,
                                                  Diagnostic_Tab1_SurfaceParameter2CMB);
 }
 
@@ -80,8 +80,13 @@ nmfDiagnostic_Tab1::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName = settings->value("Name","").toString().toStdString();
     settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    settings->endGroup();
+
     settings->beginGroup("Diagnostics");
     m_NumPoints    = settings->value("NumPoints","").toInt();
     m_PctVariation = settings->value("Variation","").toInt();
@@ -248,19 +253,19 @@ nmfDiagnostic_Tab1::isAggProd(std::string Algorithm,
     std::string queryStr;
     std::string CompetitionStr;
 
-    fields     = {"SystemName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm",
+    fields     = {"ProjectName","ModelName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm",
                   "WithinGuildCompetitionForm","Algorithm","Minimizer","ObjectiveCriterion","Scaling"};
-    queryStr   = "SELECT SystemName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,";
+    queryStr   = "SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,";
     queryStr  += "WithinGuildCompetitionForm,Algorithm,Minimizer,ObjectiveCriterion,Scaling ";
-    queryStr  += "FROM Systems where SystemName = '" + m_ProjectSettingsConfig;
+    queryStr  += "FROM Models WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName;
     queryStr  += "' AND Algorithm = '" + Algorithm;
     queryStr  += "' AND Minimizer = '" + Minimizer;
     queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
     queryStr  += "' AND Scaling = '" + Scaling + "' ";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SystemName"].size();
+    NumRecords = dataMap["ModelName"].size();
     if (NumRecords == 0) {
-        std::cout << "Error: No records found in Systems" << std::endl;
+        std::cout << "Error: No records found in Models" << std::endl;
         std::cout << queryStr << std::endl;
         return false;
     }
@@ -333,7 +338,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
     std::pair<QString,double> parameterItem;
     std::pair<QString,double> parameterItem1;
     std::pair<QString,double> parameterItem2;
-    QStringList vectorParameterNames = m_DatabasePtr->getVectorParameterNames(m_Logger,m_ProjectSettingsConfig);
+    QStringList vectorParameterNames = m_DatabasePtr->getVectorParameterNames(m_Logger,m_ProjectName,m_ModelName);
     QString surfaceParameter1Name = getParameter1Name();
     QString surfaceParameter2Name = getParameter2Name();
     QProgressDialog* progressDlg = new QProgressDialog(
@@ -354,7 +359,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
 
     // Get the AlgorithmIdentifiers
     bool systemFound = m_DatabasePtr->getAlgorithmIdentifiers(
-                m_Diagnostic_Tabs,m_Logger,m_ProjectSettingsConfig,
+                m_Diagnostic_Tabs,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (! systemFound) {
@@ -366,7 +371,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
     isAggProdStr  = (isAggProdBool) ? "1" : "0";
     if (! m_DatabasePtr->getModelFormData(
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear,m_Logger,m_ProjectSettingsConfig)) {
+                RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
         return;
     }
     thereIsCarryingCapacity = (GrowthForm == "Logistic");
@@ -408,6 +413,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
             progressDlg->close();
             return;
         }
+
         if (parameterName == surfaceParameter1Name) {
             surfaceParameter1 = EstParameter;
         } else if (parameterName == surfaceParameter2Name) {
@@ -580,7 +586,7 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     std::vector<double> surveyQParameters;
 
     m_DatabasePtr->getAlgorithmIdentifiers(
-                m_Diagnostic_Tabs,m_Logger,m_ProjectSettingsConfig,
+                m_Diagnostic_Tabs,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
@@ -674,7 +680,7 @@ nmfDiagnostic_Tab1::loadOutputParameters(
     queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
     queryStr  += "' AND Scaling = '" + Scaling;
     queryStr  += "' AND isAggProd = " + isAggProd;
-    queryStr  += "  AND MohnsRhoLabel = '' ORDER BY SpeName";
+    queryStr  += "  ORDER BY SpeName";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Algorithm"].size();
     if (NumRecords == 0) {
@@ -723,7 +729,7 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
         queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
         queryStr  += "' AND Scaling = '" + Scaling;
         queryStr  += "' AND isAggProd = " + isAggProd;
-        queryStr  += "  AND MohnsRhoLabel = '' ORDER BY SpeName";
+        queryStr  += "  ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
@@ -768,7 +774,7 @@ nmfDiagnostic_Tab1::loadHarvestParameters(
         queryStr  += "' AND Minimizer = '" + Minimizer;
         queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
         queryStr  += "' AND Scaling = '" + Scaling;
-        queryStr  += "' AND MohnsRhoLabel = '' ORDER BY SpeName";
+        queryStr  += "' ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
@@ -834,7 +840,7 @@ nmfDiagnostic_Tab1::loadCompetitionParameters(
         queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
         queryStr  += "' AND Scaling = '" + Scaling;
         queryStr  += "' AND isAggProd = " + isAggProdStr;
-        queryStr  += "  AND MohnsRhoLabel = '' " + OrderBy;
+        queryStr  += "  " + OrderBy;
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
@@ -913,7 +919,7 @@ nmfDiagnostic_Tab1::loadPredationParameters(
         queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
         queryStr  += "' AND Scaling = '" + Scaling;
         queryStr  += "' AND isAggProd = " + isAggProdStr;
-        queryStr  += "  AND MohnsRhoLabel = '' " + OrderBy;
+        queryStr  += "  " + OrderBy;
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {

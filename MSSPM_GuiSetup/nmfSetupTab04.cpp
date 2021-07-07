@@ -16,7 +16,7 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     m_databasePtr = databasePtr;
     m_logger      = logger;
     m_ProjectDir  = projectDir;
-    m_ProjectSettingsConfig.clear();
+    m_ModelName.clear();
     m_EstimatedParameters.clear();
 
     Setup_Tab4_GrowthHighlightPB = nullptr;
@@ -297,7 +297,12 @@ nmfSetup_Tab4::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName   = settings->value("Name","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     delete settings;
@@ -309,7 +314,7 @@ nmfSetup_Tab4::saveSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    settings->setValue("Name", QString::fromStdString(m_ProjectSettingsConfig));
+    settings->setValue("Name", QString::fromStdString(m_ModelName));
     settings->endGroup();
 
     settings->beginGroup("SetupTab");
@@ -342,12 +347,12 @@ nmfSetup_Tab4::loadModel()
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    SystemData data;
+    ModelData data;
 
     readSettings();
 
-    m_logger->logMsg(nmfConstants::Normal,"Loading: "+m_ProjectSettingsConfig);
-    fields     = {"SystemName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
+    m_logger->logMsg(nmfConstants::Normal,"Loading: "+m_ModelName);
+    fields     = {"ProjectName","ModelName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
                   "NumberOfRuns","StartYear","RunLength","TimeStep","GAGenerations","GAPopulationSize","GAMutationRate","GAConvergence",
                   "Algorithm","Minimizer","ObjectiveCriterion","Scaling",
                   "BeesNumTotal","BeesNumElite","BeesNumOther",
@@ -356,7 +361,7 @@ nmfSetup_Tab4::loadModel()
                   "GradMaxIterations","GradMaxLineSearches",
                   "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter",
                   "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter"};
-    queryStr   = "SELECT SystemName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,";
+    queryStr   = "SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,";
     queryStr  += "NumberOfRuns,StartYear,RunLength,TimeStep,GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence,";
     queryStr  += "Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     queryStr  += "BeesNumTotal,BeesNumElite,BeesNumOther,";
@@ -364,15 +369,16 @@ nmfSetup_Tab4::loadModel()
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
     queryStr  += "GradMaxIterations,GradMaxLineSearches,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
-    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter FROM Systems ";
-    queryStr  += "WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter FROM Models ";
+    queryStr  += "WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["SystemName"].size() == 0) {
+    if (dataMap["ModelName"].size() == 0) {
         m_logger->logMsg(nmfConstants::Error,"nmfSetupTab3::callback_Setup_Tab4_LoadPB: No system config table entry found.");
         return;
     }
 
-    data.Name                  = dataMap["SystemName"][0];
+    data.ProjectName           = dataMap["ProjectName"][0];
+    data.ModelName             = dataMap["ModelName"][0];
     data.CarryingCapacity      = dataMap["CarryingCapacity"][0];
     data.GrowthForm            = dataMap["GrowthForm"][0];
     data.HarvestForm           = dataMap["HarvestForm"][0];
@@ -410,7 +416,7 @@ nmfSetup_Tab4::loadModel()
 
 //    m_LoadDialog->getSettingData(data);
 
-    Setup_Tab4_ModelNameLE->setText(QString::fromStdString(data.Name));
+    Setup_Tab4_ModelNameLE->setText(QString::fromStdString(data.ModelName));
     Setup_Tab4_SystemCarryingCapacityLE->setText(QString::fromStdString(data.CarryingCapacity));
     Setup_Tab4_GrowthFormCMB->setCurrentText(QString::fromStdString(data.GrowthForm));
     Setup_Tab4_HarvestFormCMB->setCurrentText(QString::fromStdString(data.HarvestForm));
@@ -420,19 +426,20 @@ nmfSetup_Tab4::loadModel()
     setRunLength(data.RunLength);
     Setup_Tab4_EndYearLE->setText(QString::number(data.StartYear+data.RunLength));
 
-    m_ProjectSettingsConfig = data.Name;
+    m_ModelName = data.ModelName;
 
     // Save Algorithm, Minimizer, and ObjectiveFunction back into table so user can run without
     // hitting Save.....
     std::string cmd;
     std::string errorMsg;
 
-    cmd  = "UPDATE Systems SET";
+    cmd  = "UPDATE Models SET";
     cmd += "  Algorithm = '"          + data.Algorithm + "'";
     cmd += ", Minimizer = '"          + data.Minimizer + "'";
     cmd += ", ObjectiveCriterion = '" + data.ObjectiveCriterion + "'";
     cmd += ", Scaling = '"            + data.Scaling + "'";
-    cmd += " WHERE SystemName = '"    + m_ProjectSettingsConfig + "'";
+    cmd += " WHERE ProjectName = '" + m_ProjectName +
+           "' AND ModelName = '"    + m_ModelName + "'";
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_logger->logMsg(nmfConstants::Error,"nmfSetupTab3 callback_Setup_Tab4_LoadPB: Write table error: " + errorMsg);
@@ -453,10 +460,10 @@ void
 nmfSetup_Tab4::callback_LoadPB()
 {
     m_LoadDialog = new LoadDlg(tr("Load Settings"), Setup_Tabs,
-                             m_logger, m_databasePtr,
-                             QString::fromStdString(m_ProjectSettingsConfig));
+                             m_logger, m_databasePtr, m_ProjectName,
+                             QString::fromStdString(m_ModelName));
 
-    connect(m_LoadDialog, SIGNAL(ClearSystemName()),
+    connect(m_LoadDialog, SIGNAL(ClearModelName()),
             this,         SLOT(callback_ClearModelName()));
 
     if (m_LoadDialog->exec() == QDialog::Accepted) {
@@ -520,25 +527,24 @@ nmfSetup_Tab4::callback_DelPB()
 {
     QMessageBox::StandardButton reply;
     QString msg;
-    QString currentSystemName = Setup_Tab4_ModelNameLE->text();
+    QString currentModelName = Setup_Tab4_ModelNameLE->text();
 
-    if (currentSystemName.isEmpty()) {
+    if (currentModelName.isEmpty()) {
         QMessageBox::warning(Setup_Tabs,
                              tr("Warning"),
-                             tr("Cannot delete a System Name that's blank."),
+                             tr("Cannot delete a Model Name that's blank."),
                              QMessageBox::Ok);
         return;
     }
 
-    msg = "\nOK to delete configuration: " + currentSystemName + " ?";
-    reply = QMessageBox::question(Setup_Tabs, tr("Delete Configuration"),
+    msg = "\nOK to delete all data associated with Model: " + currentModelName + " ?";
+    reply = QMessageBox::question(Setup_Tabs, tr("Delete Model"),
                                   tr(msg.toLatin1()),
                                   QMessageBox::No|QMessageBox::Yes,
                                   QMessageBox::Yes);
     if (reply == QMessageBox::Yes) {
-        deleteModel(currentSystemName);
-        QMessageBox::information(Setup_Tabs, "Settings Configuration",
-                                 "\nSuccessfully deleted Settings configuration.\n");
+        deleteModel(currentModelName);
+        QMessageBox::information(Setup_Tabs, "Delete", "\nSuccessfully deleted Model.\n");
         emit ModelDeleted();
     }
 }
@@ -546,16 +552,8 @@ nmfSetup_Tab4::callback_DelPB()
 void
 nmfSetup_Tab4::deleteModel(QString modelToDelete)
 {
-    std::string cmd;
-    std::string errorMsg;
+    m_databasePtr->cleanTables(m_logger,m_ProjectName,modelToDelete.toStdString());
 
-    cmd  = "DELETE FROM Systems WHERE SystemName = '" + modelToDelete.toStdString() + "'";
-    errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-    if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_logger->logMsg(nmfConstants::Error,"[Error 1] deleteSystem: Delete error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
     callback_ClearModelName();
 }
 
@@ -681,7 +679,7 @@ nmfSetup_Tab4::reloadModelName()
     readSettings();
 
     if (ModelName.isEmpty() || ModelName.contains("__")) {
-        Setup_Tab4_ModelNameLE->setText(QString::fromStdString(m_ProjectSettingsConfig));
+        Setup_Tab4_ModelNameLE->setText(QString::fromStdString(m_ModelName));
     }
 }
 
@@ -695,7 +693,7 @@ nmfSetup_Tab4::saveModel(bool RunChecks)
     calculateSystemCarryingCapacity();
 
     if (RunChecks && ModelName.empty()) {
-        msg = "\nError: A System Name must be given prior to saving.\n";
+        msg = "\nError: A Model Name must be given prior to saving.\n";
         m_logger->logMsg(nmfConstants::Error,"");
         QMessageBox::critical(Setup_Tabs, "Save Error",QString::fromStdString(msg));
         return;
@@ -710,7 +708,7 @@ nmfSetup_Tab4::saveModel(bool RunChecks)
         okToSave = (reply == QMessageBox::Yes);
     }
     if (okToSave) {
-        m_ProjectSettingsConfig = ModelName;
+        m_ModelName = ModelName;
         saveModelData(RunChecks,ModelName);
         readSettings();
         emit ModelSaved();
@@ -719,13 +717,11 @@ nmfSetup_Tab4::saveModel(bool RunChecks)
     emit UpdateInitialObservedBiomass(getObsBiomassType());
     emit UpdateInitialForecastYear();
     emit ReloadWidgets();
-
 }
 
 
 bool
-nmfSetup_Tab4::saveModelData(bool verbose,
-                             std::string CurrentSettingsName)
+nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
 {
     std::string cmd;
     std::string errorMsg;
@@ -760,13 +756,15 @@ nmfSetup_Tab4::saveModelData(bool verbose,
     // For now, assume initial absolute biomass is always estimated (adjust this assumption in Estimation Tab6)
     NumberOfParameters += 1;
 
-    // Check if system exists, if so Update else REPLACE
-    fields   = {"SystemName"};
-    queryStr = "SELECT SystemName from Systems where SystemName = '" + CurrentSettingsName + "'";
+    // Check if Model exists, if so Update else REPLACE
+    fields   = {"ProjectName","ModelName"};
+    queryStr = "SELECT ProjectName,ModelName from Models where ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '" + currentModelName + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["SystemName"].size() != 0) { // This means the system name exists so do an update
-        cmd  = "UPDATE Systems SET";
-        cmd += "   SystemName = '"                 + CurrentSettingsName +
+    if (dataMap["ModelName"].size() != 0) { // This means the model name exists so do an update
+        cmd  = "UPDATE Models SET";
+        cmd += "   ProjectName = '"                + m_ProjectName +
+               "', ModelName = '"                  + currentModelName +
                "', CarryingCapacity = "            + SystemK +
                ",  ObsBiomassType = '"             + ObsBiomassType +
                "', GrowthForm = '"                 + GrowthForm +
@@ -776,12 +774,14 @@ nmfSetup_Tab4::saveModelData(bool verbose,
                "', NumberOfParameters = "          + std::to_string(NumberOfParameters) +
                ",  StartYear = "                   + StartYear +
                ",  RunLength = "                   + RunLength +
-               " WHERE SystemName = '"             + CurrentSettingsName + "'";
+               " WHERE ModelName = '"              + currentModelName +
+               "' AND ProjectName = '"             + m_ProjectName + "'";
     } else { // This means the system name does not exist so do a replace
-        cmd  = "REPLACE INTO Systems (SystemName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,";
+        cmd  = "REPLACE INTO Models (ProjectName,ModelName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,";
         cmd += "WithinGuildCompetitionForm,StartYear,RunLength,NumberOfParameters) ";
         cmd += "VALUES ('" +
-                CurrentSettingsName                + "', "  +
+                m_ProjectName                      + "','"  +
+                currentModelName                   + "', "  +
                 SystemK                            + ", '"  +
                 ObsBiomassType                     + "', '" +
                 GrowthForm                         + "', '" +
@@ -801,7 +801,7 @@ nmfSetup_Tab4::saveModelData(bool verbose,
     }
     if (verbose) {
         QMessageBox::information(Setup_Tabs, "Settings Updated",
-                                 "\nSettings in Systems database table have been successfully updated.\n");
+                                 "\nSettings in Models database table have been successfully updated.\n");
     }
     saveSettings();
 
@@ -832,12 +832,12 @@ nmfSetup_Tab4::loadWidgets()
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::loadWidgets()");
 
     readSettings();
-    if (m_ProjectSettingsConfig.empty())
+    if (m_ModelName.empty())
         return;
 
     clearWidgets();
 
-    fields     = {"SystemName","CarryingCapacity","ObsBiomassType","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
+    fields     = {"ProjectName","ModelName","CarryingCapacity","ObsBiomassType","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
                   "NumberOfRuns","StartYear","RunLength","TimeStep","Algorithm","Minimizer",
                   "ObjectiveCriterion","Scaling","GAGenerations","GAPopulationSize",
                   "GAMutationRate","GAConvergence","BeesNumTotal","BeesNumElite","BeesNumOther",
@@ -845,19 +845,19 @@ nmfSetup_Tab4::loadWidgets()
                   "BeesMaxGenerations","BeesNeighborhoodSize",
                   "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter",
                   "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter"};
-    queryStr   = "SELECT SystemName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,";
+    queryStr   = "SELECT ProjectName,ModelName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,";
     queryStr  += "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     queryStr  += "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence,";
     queryStr  += "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions,";
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
     queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter ";
-    queryStr  += "FROM Systems where SystemName = '";
-    queryStr  += m_ProjectSettingsConfig + "'";
+    queryStr  += "FROM Models where ModelName = '";
+    queryStr  += m_ModelName + "' AND ProjectName = '" + m_ProjectName + "'";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SystemName"].size();
+    NumRecords = dataMap["ModelName"].size();
     if (NumRecords == 0) {
-        std::cout << "Error: No records found in Systems" << std::endl;
+        std::cout << "Error: No records found in Models" << std::endl;
         return;
     }
 
@@ -871,7 +871,7 @@ nmfSetup_Tab4::loadWidgets()
     if (PredationStr.empty())   PredationStr   = "Null";
 
     // Load widgets with saved table data
-    Setup_Tab4_ModelNameLE->setText(QString::fromStdString(dataMap["SystemName"][0]));
+    Setup_Tab4_ModelNameLE->setText(QString::fromStdString(dataMap["ModelName"][0]));
     Setup_Tab4_SystemCarryingCapacityLE->setText(QString::fromStdString(dataMap["CarryingCapacity"][0]));
     Setup_Tab4_GrowthFormCMB->setCurrentText(QString::fromStdString(GrowthStr));
     Setup_Tab4_HarvestFormCMB->setCurrentText(QString::fromStdString(HarvestStr));
@@ -925,7 +925,7 @@ nmfSetup_Tab4::callback_ModelPresetsCMB(QString name)
 void
 nmfSetup_Tab4::setModelName(QString modelName)
 {
-    m_ProjectSettingsConfig = modelName.toStdString();
+    m_ModelName = modelName.toStdString();
     Setup_Tab4_ModelNameLE->setText(modelName);
     saveSettings();
 }
@@ -1170,9 +1170,120 @@ nmfSetup_Tab4::callback_NewModelPB()
                                      QMessageBox::Ok);
             } else {
                 Setup_Tab4_ModelNameLE->setText(ModelName);
+                m_ModelName = ModelName.toStdString();
+
+                callback_SavePB();
+
+                populateNewModel();
             }
         }
     }
+}
+
+bool
+nmfSetup_Tab4::populateNewModel()
+{
+    // Find another model in same project
+    int RunLength;
+    int StartYear;
+    int NumSpeciesOrGuilds;
+    std::string queryStr;
+    std::string harvestTableName;
+    std::string obsBiomassTableName;
+    std::string obsBiomassType;
+    std::string projectModel;
+    boost::numeric::ublas::matrix<double> harvestData;
+    boost::numeric::ublas::matrix<double> biomassData;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::vector<std::pair<std::string,std::string> > allOtherProjectModelData;
+    std::pair<std::string,std::string> projectModelToCopyDataFrom;
+    QStringList SpeciesList;
+
+    // Get Harvest table name
+    std::string HarvestForm = getHarvestFormCMB()->currentText().toStdString();
+    if (HarvestForm == nmfConstantsMSSPM::HarvestCatch.toStdString()) {
+        harvestTableName = "HarvestCatch";
+    } else if (HarvestForm == nmfConstantsMSSPM::HarvestEffort.toStdString()) {
+        harvestTableName = "HarvestEffort";
+    }
+
+    // Get data from other models in current project
+    fields   = {"ProjectName","ModelName","HarvestForm","ObsBiomassType"};
+    queryStr = "SELECT ProjectName,ModelName,HarvestForm,ObsBiomassType FROM Models WHERE ProjectName = '" + m_ProjectName + "'";
+    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    if ((int)dataMap["ModelName"].size() == 0) {
+        return false;
+    }
+    for (int numModel=0; numModel<(int)dataMap["ModelName"].size(); ++numModel) {
+        projectModel   = dataMap["ModelName"][numModel];
+        obsBiomassType = dataMap["ObsBiomassType"][numModel];
+        if (projectModel != m_ModelName) {
+            if (HarvestForm == dataMap["HarvestForm"][numModel]) {
+                allOtherProjectModelData.push_back(std::make_pair(projectModel,obsBiomassType));
+            }
+        }
+    }
+
+    // Copy data from the found model into the current model
+    if (allOtherProjectModelData.size() > 0) {
+        projectModelToCopyDataFrom = allOtherProjectModelData[0];
+
+        // Get Harvest Data
+        if (! m_databasePtr->getSpecies(m_logger,NumSpeciesOrGuilds,SpeciesList)) {
+            return false;
+        }
+        if (! m_databasePtr->getRunLengthAndStartYear(m_logger,m_ProjectName,projectModelToCopyDataFrom.first,
+                                                RunLength,StartYear)) {
+            return false;
+        }
+        if (! m_databasePtr->getTimeSeriesData(Setup_Tabs,m_logger,m_ProjectName,projectModelToCopyDataFrom.first,
+                                               "",harvestTableName,NumSpeciesOrGuilds,RunLength,harvestData)) {
+            return false;
+        }
+
+        loadDuplicateData(harvestTableName,SpeciesList,harvestData);
+
+        // Copy Observation Data
+        obsBiomassTableName = "Biomass" + projectModelToCopyDataFrom.second;
+        if (! m_databasePtr->getTimeSeriesData(Setup_Tabs,m_logger,m_ProjectName,projectModelToCopyDataFrom.first,
+                                               "",obsBiomassTableName,NumSpeciesOrGuilds,RunLength,biomassData)) {
+            return false;
+        }
+
+        loadDuplicateData(obsBiomassTableName,SpeciesList,biomassData);
+
+        emit ModelLoaded();
+    }
+
+    return true;
+}
+
+bool
+nmfSetup_Tab4::loadDuplicateData(
+        const std::string& tableName,
+        const QStringList& SpeciesList,
+        const boost::numeric::ublas::matrix<double>& data)
+{
+    // Now put Biomass Data with new model name back into table (there might be an easier MySQL way to do this)
+    std::string cmd = "REPLACE INTO " + tableName + " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
+    for (int species=0; species<(int)data.size2(); ++species) {
+        for (int time=0; time<(int)data.size1(); ++time) {
+            cmd += "('"   + m_ProjectName +
+                    "','" + m_ModelName +
+                    "','" + SpeciesList[species].toStdString() +
+                    "',"  + std::to_string(time) +
+                    ","   + std::to_string(data(time,species)) + "),";
+        }
+    }
+    cmd = cmd.substr(0,cmd.size()-1);
+    std::string errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab4::populateNewModel: Write table error: " + errorMsg);
+        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        return false;
+    }
+    return true;
 }
 
 bool
@@ -1182,12 +1293,12 @@ nmfSetup_Tab4::modelExists(QString ModelName)
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
 
-    fields   = {"SystemName"};
-    queryStr = "SELECT SystemName FROM Systems WHERE SystemName = '" +
-                ModelName.toStdString() + "'";
+    fields   = {"ProjectName","ModelName"};
+    queryStr = "SELECT ProjectName,ModelName FROM Models WHERE ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '" + ModelName.toStdString() + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
 
-    return (dataMap["SystemName"].size() > 0);
+    return (dataMap["ModelName"].size() > 0);
 }
 
 bool

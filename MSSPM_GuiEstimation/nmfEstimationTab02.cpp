@@ -15,7 +15,8 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     m_DatabasePtr = databasePtr;
     m_SModel      = nullptr;
     m_ProjectDir  = projectDir;
-    m_ProjectSettingsConfig.clear();
+    m_ModelName.clear();
+    m_ProjectName.clear();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::nmfEstimation_Tab2");
 
@@ -173,9 +174,13 @@ nmfEstimation_Tab2::callback_SavePB()
     std::string cmd;
     std::string errorMsg;
     std::vector<std::string> SpeNames;
-    std::string MohnsRhoLabel = "";
-    QString value;
+    std::vector<std::string> modelsInProject = {};
     QString msg;
+    QString value;
+
+    if (! m_DatabasePtr->updateAllModelsInProject(Estimation_Tabs,"Harvest",m_ProjectName,m_ModelName,modelsInProject)) {
+        return;
+    }
 
     if (m_SModel == nullptr) {
         return;
@@ -202,42 +207,42 @@ nmfEstimation_Tab2::callback_SavePB()
         }
     }
 
-    cmd = "DELETE FROM " + m_HarvestType + " WHERE SystemName = '" +
-           m_ProjectSettingsConfig + "'";
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab2::callback_SavePB: DELETE error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        QMessageBox::warning(Estimation_Tabs, "Error",
-                             "\nError in Save command.  Couldn't delete all records from" +
-                             QString::fromStdString(m_HarvestType) + " table.\n",
-                             QMessageBox::Ok);
-        Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return;
-    }
-    cmd = "INSERT INTO " + m_HarvestType + " (MohnsRhoLabel,SystemName,SpeName,Year,Value) VALUES ";
-    for (int j=0; j<m_SModel->columnCount(); ++j) { // Species
-        for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
-            index = m_SModel->index(i,j);
-//          value = index.data().toString();
-            cmd += "('" + MohnsRhoLabel +
-                   "','" + m_ProjectSettingsConfig +
-                   "','" + SpeNames[j] + "'," + std::to_string(i) +
-                    ", " + std::to_string(index.data().toDouble()) + "),";
-//                  ", " + value.toStdString() + "),";
+    for (std::string projectModel : modelsInProject)
+    {
+        cmd = "DELETE FROM " + m_HarvestType + " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '" + projectModel + "'";
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+        if (nmfUtilsQt::isAnError(errorMsg)) {
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab2::callback_SavePB: DELETE error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            QMessageBox::warning(Estimation_Tabs, "Error",
+                                 "\nError in Save command. Couldn't delete all records from" +
+                                 QString::fromStdString(m_HarvestType) + " table.\n",
+                                 QMessageBox::Ok);
+            Estimation_Tabs->setCursor(Qt::ArrowCursor);
+            return;
         }
-    }
+        cmd = "INSERT INTO " + m_HarvestType + " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
+        for (int j=0; j<m_SModel->columnCount(); ++j) {  // Species
+            for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
+                index = m_SModel->index(i,j);
+                cmd += "('"  + m_ProjectName + "','" + projectModel +
+                        "','" + SpeNames[j] + "'," + std::to_string(i) +
+                        ", " + std::to_string(index.data().toDouble()) + "),";
+            }
+        }
 
-    cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab2::callback_SavePB: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        QMessageBox::warning(Estimation_Tabs, "Error",
-                             "\nError in Save command.  Check that all cells are populated.\n",
-                             QMessageBox::Ok);
-        Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return;
+        cmd = cmd.substr(0,cmd.size()-1);
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+        if (nmfUtilsQt::isAnError(errorMsg)) {
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab2::callback_SavePB: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            QMessageBox::warning(Estimation_Tabs, "Error",
+                                 "\nError in Save command. Check that all cells are populated.\n",
+                                 QMessageBox::Ok);
+            Estimation_Tabs->setCursor(Qt::ArrowCursor);
+            return;
+        }
     }
 
     Estimation_Tab2_HarvestTV->resizeColumnsToContents();
@@ -310,11 +315,12 @@ nmfEstimation_Tab2::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName   = settings->value("Name","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("SetupTab");
-    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     delete settings;
@@ -322,14 +328,6 @@ nmfEstimation_Tab2::readSettings()
 
 bool
 nmfEstimation_Tab2::loadWidgets()
-{
-    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::loadWidgets()");
-
-    return loadWidgets("");
-}
-
-bool
-nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
 {
     int m;
     int NumSpecies;
@@ -343,16 +341,13 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
     QStringList SpeciesNames;
     QStringList VerticalList;
 
-    readSettings();
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::loadWidgets()");
 
-    QString SystemName = QString::fromStdString(m_ProjectSettingsConfig);
-    // Strip off the MohnsRho suffix
-    auto parts = SystemName.split("__");
-    SystemName =  parts[0];
+    readSettings();
 
     clearWidgets();
 
-    if (SystemName.isEmpty())
+    if (m_ModelName.empty())
         return false;
     if (m_HarvestType.empty() || (m_HarvestType == "Null")) {
         m_Logger->logMsg(nmfConstants::Warning,"Warning: Harvest Type set to Null.");
@@ -365,10 +360,11 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
     Estimation_Tab2_HarvestGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_HarvestType]));
 
     fields   = {"RunLength","StartYear"};
-    queryStr = "SELECT RunLength,StartYear FROM Systems where SystemName = '" + SystemName.toStdString() + "'";
+    queryStr = "SELECT RunLength,StartYear FROM Models where ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '" + m_ModelName + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["RunLength"].size() == 0)  {
-        m_Logger->logMsg(nmfConstants::Warning,"No records found in Systems table.");
+        m_Logger->logMsg(nmfConstants::Warning,"No records found in Models table.");
         return false;
     }
     RunLength = std::stoi(dataMap["RunLength"][0]);
@@ -382,10 +378,9 @@ nmfEstimation_Tab2::loadWidgets(QString MohnsRhoLabel)
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
     }
 
-    fields   = {"MohnsRhoLabel","SystemName","SpeName","Year","Value"};
-    queryStr = "SELECT MohnsRhoLabel,SystemName,SpeName,Year,Value FROM " + m_HarvestType +
-               " WHERE SystemName = '" + SystemName.toStdString() +
-               "' AND MohnsRhoLabel = '" + MohnsRhoLabel.toStdString() +
+    fields   = {"ProjectName","ModelName","SpeName","Year","Value"};
+    queryStr = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " + m_HarvestType +
+               " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName +
                "' ORDER BY SpeName,Year ";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();

@@ -46,7 +46,8 @@ class nmfEstimation_Tab5: public QObject
     nmfDatabase*        m_DatabasePtr;
     nmfLogger*          m_Logger;
     std::string         m_ProjectDir;
-    std::string         m_ProjectSettingsConfig;
+    std::string         m_ProjectName;
+    std::string         m_ModelName;
     bool                m_IsDark;
     QStandardItemModel* m_SModelAbsoluteBiomass;
     QStandardItemModel* m_SModelRelativeBiomass;
@@ -78,7 +79,6 @@ class nmfEstimation_Tab5: public QObject
                              const int& StartYear,
                              const int& NumSpecies,
                              const QString& SystemName,
-                             const QString& MohnsRhoLabel,
                              const std::vector<std::string>& SpeciesNames,
                              const QStringList& SpeciesList,
                              QStringList& VerticalList);
@@ -88,7 +88,6 @@ class nmfEstimation_Tab5: public QObject
                              const int& StartYear,
                              const int& NumSpecies,
                              const QString& SystemName,
-                             const QString& MohnsRhoLabel,
                              const std::vector<std::string>& SpeciesNames,
                              const QStringList& SpeciesList,
                              QStringList& VerticalList);
@@ -96,7 +95,6 @@ class nmfEstimation_Tab5: public QObject
                                      const int& StartYear,
                                      const int& NumSpecies,
                                      const QString& SystemName,
-                                     const QString& MohnsRhoLabel,
                                      const std::vector<std::string>& SpeciesNames,
                                      const QStringList& SpeciesList,
                                      QStringList& VerticalList,
@@ -148,16 +146,8 @@ public:
      * @return Returns true if all data were loaded successfully
      */
     bool loadWidgets();
-    /**
-     * @brief Loads all widgets for this GUI from database tables
-     * @param firstRowOnly : boolean to specify if the user just wants to reload only the first row (since the first row is not modifiable by the user in this tab)
-     * @param MohnsRhoLabel : the Mohns Rho name used to identify the data if the run is part of a Retrospective Analysis
-     * @return
-     */
-    bool loadWidgets(QString MohnsRhoLabel);
-//    bool loadWidgetsFirstRow();
+
     bool isTableValueOK(QString value);
-//    QString getObsBiomassType();
     void setObsBiomassType(QString obsBiomassType);
     /**
      * @brief Updates the data member m_IsDark accordingly and refreshes the GUI

@@ -56,7 +56,8 @@ private:
     QStringList         m_ParameterNames;
     std::string         m_PredationForm;
     std::string         m_ProjectDir;
-    std::string         m_ProjectSettingsConfig;
+    std::string         m_ProjectName;
+    std::string         m_ModelName;
     QString             m_Rho;
     QStandardItemModel* m_SModel;
 

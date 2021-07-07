@@ -60,7 +60,8 @@ private:
     QTabWidget*  m_Diagnostic_Tabs;
     nmfLogger*   m_Logger;
     std::string  m_ProjectDir;
-    std::string  m_ProjectSettingsConfig;
+    std::string  m_ProjectName;
+    std::string  m_ModelName;
     int          m_RunLength;
     bool         m_isMohnsRhoRun;
 

@@ -3,13 +3,15 @@
 
 
 nmfSimulatedData::nmfSimulatedData(
-        std::string  projectSettingsConfig,
-        nmfDatabase* database,
-        nmfLogger*   logger)
+        std::string&  projectName,
+        std::string&  modelName,
+        nmfDatabase*  database,
+        nmfLogger*    logger)
 {
-    m_ProjectSettingsConfig = projectSettingsConfig;
-    m_Database = database;
-    m_Logger   = logger;
+    m_ProjectName = projectName;
+    m_ModelName   = modelName;
+    m_Database    = database;
+    m_Logger      = logger;
 }
 
 bool
@@ -62,7 +64,7 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
 
     // First run the Mohns Rho
     if (! m_Database->getModelFormData(GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                                       RunLength,InitialYear,m_Logger,m_ProjectSettingsConfig)) {
+                                       RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
         msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getModelFormData";
         m_Logger->logMsg(nmfConstants::Error,msg);
         return false;
@@ -89,7 +91,7 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
     nmfUtils::initialize(Exploitation,RunLength,NumSpecies);
 
     // Get harvest data
-    if (! m_Database->getHarvestData(HarvestForm,m_Logger,m_ProjectSettingsConfig,
+    if (! m_Database->getHarvestData(HarvestForm,m_Logger,m_ProjectName,m_ModelName,
                                      NumSpecies,RunLength,Catch,Effort,Exploitation,
                                      Catchability)) {
         msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getHarvestData";
@@ -98,7 +100,7 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
     }
 
     // Get predation data
-    if (! m_Database->getPredationData(PredationForm,m_Logger,m_ProjectSettingsConfig,
+    if (! m_Database->getPredationData(PredationForm,m_Logger,m_ProjectName,m_ModelName,
                                        NumSpecies,PredationRho,PredationHandling,
                                        PredationExponent)) {
         msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getPredationData";
@@ -107,7 +109,7 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
     }
 
     // Get competition data
-    if (! m_Database->getCompetitionData(CompetitionForm,m_Logger,m_ProjectSettingsConfig,
+    if (! m_Database->getCompetitionData(CompetitionForm,m_Logger,m_ProjectName,m_ModelName,
                                          NumSpecies,NumGuilds,CompetitionAlpha,CompetitionBetaSpecies,
                                          CompetitionBetaGuild,CompetitionBetaGuildGuild)) {
         msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getCompetitionData";

@@ -17,6 +17,8 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
     m_DatabasePtr     = databasePtr;
     m_ProjectDir      = projectDir;
     m_isMohnsRhoRun   = false;
+    m_ProjectName.clear();
+    m_ModelName.clear();
 
     // Load ui as a widget from disk
     QFile file(":/forms/Diagnostic/Diagnostic_Tab02.ui");
@@ -72,7 +74,11 @@ nmfDiagnostic_Tab2::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Diagnostics");
@@ -115,14 +121,9 @@ nmfDiagnostic_Tab2::loadWidgets(int NumPeels)
 
     clearWidgets();
 
-    bool isMohnsRho = QString::fromStdString(m_ProjectSettingsConfig).contains("__");
-    if (isMohnsRho) {
-//        std::cout << "------------------> isMohnsRho: " << isMohnsRho << ": " << m_ProjectSettingsConfig << std::endl;
-        return;
-    }
-
     fields   = {"StartYear","RunLength"};
-    queryStr = "SELECT StartYear,RunLength from Systems where SystemName = '" + m_ProjectSettingsConfig + "'";
+    queryStr = "SELECT StartYear,RunLength from Models WHERE ProjectName = '" + m_ProjectName +
+               "' AND  ModelName = '" + m_ModelName + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["StartYear"].size() != 0) {
         StartYear = std::stoi(dataMap["StartYear"][0]);
@@ -239,7 +240,7 @@ nmfDiagnostic_Tab2::callback_NumPeelsSB(int numPeels)
         setStartYearLE(getStartYearLBL() + numPeels);
     } else if (getPeelPosition() == "From End") {
         // RSK incorrect if doing a MohnsRho run
-        m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectSettingsConfig,RunLength,StartYear);
+        m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear);
         setEndYearLE(getStartYearLBL()+RunLength-numPeels ); //getEndYearLBL() - numPeels);
     }
 }

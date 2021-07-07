@@ -244,11 +244,12 @@ nmfEstimation_Tab3::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName   = settings->value("Name","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("SetupTab");
-    m_ProjectDir = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     delete settings;
@@ -492,7 +493,7 @@ nmfEstimation_Tab3::callback_SavePB()
 
     // Find Algorithm type
     systemFound = m_DatabasePtr->getAlgorithmIdentifiers(
-                Estimation_Tabs,m_Logger,m_ProjectSettingsConfig,
+                Estimation_Tabs,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     if (! systemFound) {
@@ -520,7 +521,8 @@ nmfEstimation_Tab3::callback_SavePB()
 
         for (unsigned int k=0; k<m_AlphaTables.size(); ++k) {
             ++tableInc;
-            cmd = "DELETE FROM " + m_AlphaTables[tableInc] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+            cmd = "DELETE FROM " + m_AlphaTables[tableInc] + " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND ModelName = '" + m_ModelName + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfEstimation_Tab3::callback_SavePB: DELETE error: " + errorMsg);
@@ -532,12 +534,12 @@ nmfEstimation_Tab3::callback_SavePB()
                 return;
             }
 
-            cmd = "INSERT INTO " + m_AlphaTables[tableInc] + " (SystemName,SpeciesA,SpeciesB,Value) VALUES ";
+            cmd = "INSERT INTO " + m_AlphaTables[tableInc] + " (ProjectName,ModelName,SpeciesA,SpeciesB,Value) VALUES ";
             for (int i=0; i<m_SModels[tableInc]->rowCount(); ++i) {
                 for (int j=0; j<m_SModels[tableInc]->columnCount(); ++ j) {
                     index = m_SModels[tableInc]->index(i,j);
                     value = index.data().toString().toStdString();
-                    cmd += "('" + m_ProjectSettingsConfig + "','" + m_SpeciesNames[i].toStdString() + "','" +
+                    cmd += "('" + m_ProjectName + "','" + m_ModelName + "','" + m_SpeciesNames[i].toStdString() + "','" +
                             m_SpeciesNames[j].toStdString() + "', " + value + "),";
                 }
             }
@@ -570,7 +572,8 @@ nmfEstimation_Tab3::callback_SavePB()
 
         for (unsigned int k=0; k<m_BetaSpeciesTables.size(); ++k) {
             ++tableInc;
-            cmd = "DELETE FROM " + m_BetaSpeciesTables[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+            cmd = "DELETE FROM " + m_BetaSpeciesTables[k] + " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND ModelName = '" + m_ModelName + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab3::callback_SavePB: DELETE error: " + errorMsg);
@@ -582,12 +585,12 @@ nmfEstimation_Tab3::callback_SavePB()
                 return;
             }
 
-            cmd = "INSERT INTO " + m_BetaSpeciesTables[k] + " (SystemName,SpeciesA,SpeciesB,Value) VALUES ";
+            cmd = "INSERT INTO " + m_BetaSpeciesTables[k] + " (ProjectName,ModelName,SpeciesA,SpeciesB,Value) VALUES ";
             for (int i=0; i<m_SModels[tableInc]->rowCount(); ++i) {
                 for (int j=0; j<m_SModels[tableInc]->columnCount(); ++ j) {
                     index = m_SModels[tableInc]->index(i,j);
                     value = index.data().toString().toStdString();
-                    cmd += "('" + m_ProjectSettingsConfig + "','" + m_SpeciesNames[i].toStdString() + "','" +
+                    cmd += "('" + m_ProjectName + "','" + m_ModelName + "','" + m_SpeciesNames[i].toStdString() + "','" +
                             m_SpeciesNames[j].toStdString() + "', " + value + "),";
                 }
             }
@@ -628,7 +631,8 @@ nmfEstimation_Tab3::callback_SavePB()
         }
         for (unsigned int k=0; k<GuildTables.size(); ++k) {
             smodel = qobject_cast<QStandardItemModel*>(tableViews[k+3]->model());
-            cmd = "DELETE FROM " + GuildTables[k] + " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+            cmd = "DELETE FROM " + GuildTables[k] + " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND ModelName = '" + m_ModelName + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (nmfUtilsQt::isAnError(errorMsg)) {
                 m_Logger->logMsg(nmfConstants::Error,"[Error 6] nmfEstimation_Tab3::callback_SavePB: DELETE error: " + errorMsg);
@@ -639,17 +643,17 @@ nmfEstimation_Tab3::callback_SavePB()
                 Estimation_Tabs->setCursor(Qt::ArrowCursor);
                 return;
             }
-            cmd = "INSERT INTO " + GuildTables[k] + " (SystemName,"+VariableNames+",Value) VALUES ";
+            cmd = "INSERT INTO " + GuildTables[k] + " (ProjectName,ModelName,"+VariableNames+",Value) VALUES ";
             for (int i=0; i<smodel->rowCount(); ++i) {
                 for (int j=0; j<smodel->columnCount(); ++ j) {
                     index = smodel->index(i,j);
                     value = index.data().toString().toStdString();
                     if (isMsProd()) {
-                        cmd += "('" + m_ProjectSettingsConfig   + "','" +
+                        cmd += "('" + m_ProjectName + "','" + m_ModelName + "','" +
                                 m_SpeciesNames[i].toStdString() + "','" +
                                 m_GuildNames[j].toStdString()   + "', " + value + "),";
                     } else {
-                        cmd += "('" + m_ProjectSettingsConfig + "','" +
+                        cmd += "('" + m_ProjectName + "','" + m_ModelName + "','" +
                                 m_GuildNames[i].toStdString() + "','" +
                                 m_GuildNames[j].toStdString() + "', " + value + "),";
                     }
@@ -933,8 +937,8 @@ nmfEstimation_Tab3::loadWidgets()
 
     readSettings();
 
-    if (m_ProjectSettingsConfig.empty()) {
-        m_Logger->logMsg(nmfConstants::Warning,"nmfEstimation_Tab3::loadWidgets: No System found.");
+    if (m_ModelName.empty()) {
+        m_Logger->logMsg(nmfConstants::Warning,"nmfEstimation_Tab3::loadWidgets: No Model found.");
     }
 
     clearWidgets();
@@ -958,9 +962,9 @@ nmfEstimation_Tab3::loadWidgets()
     if (isNoK()) {
         for (unsigned int k=0; k<m_AlphaTables.size(); ++k) {
             ++tableInc;
-            fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
-            queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_AlphaTables[k] +
-                        " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+            fields    = {"ProjectName","ModelName","SpeciesA","SpeciesB","Value"};
+            queryStr  = "SELECT ProjectName,ModelName,SpeciesA,SpeciesB,Value FROM " + m_AlphaTables[k] +
+                        " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
             dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
             NumRecords = dataMap["SpeciesA"].size();
             m = 0;
@@ -992,10 +996,10 @@ nmfEstimation_Tab3::loadWidgets()
             QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(m_TableViewsMsProd[k]->model());
             tableInc = 3;
             NumRecords = 0;
-            if (! m_ProjectSettingsConfig.empty()) {
-                fields    = {"SystemName","SpeciesA","SpeciesB","Value"};
-                queryStr  = "SELECT SystemName,SpeciesA,SpeciesB,Value FROM " + m_BetaSpeciesTables[k] +
-                        " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+            if (! m_ModelName.empty()) {
+                fields    = {"ProjectName","ModelName","SpeciesA","SpeciesB","Value"};
+                queryStr  = "SELECT ProjectName,ModelName,SpeciesA,SpeciesB,Value FROM " + m_BetaSpeciesTables[k] +
+                            " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
                 dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
                 NumRecords = dataMap["SpeciesA"].size();
             }
@@ -1044,10 +1048,10 @@ nmfEstimation_Tab3::loadWidgets()
             m_TableViewsAggProd[k]->setModel(smodel);
         }
         NumRecords = 0;
-        if (! m_ProjectSettingsConfig.empty()) {
-            fields    = {"SystemName","SpeName","Guild","Value"};
-            queryStr  = "SELECT SystemName,"+VariableNames+",Value FROM " + GuildTables[k] +
-                        " WHERE SystemName = '" + m_ProjectSettingsConfig + "'";
+        if (! m_ModelName.empty()) {
+            fields    = {"ProjectName","ModelName","SpeName","Guild","Value"};
+            queryStr  = "SELECT ProjectName,ModelName,"+VariableNames+",Value FROM " + GuildTables[k] +
+                        " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
             dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
             NumRecords = dataMap["SpeName"].size();
         }

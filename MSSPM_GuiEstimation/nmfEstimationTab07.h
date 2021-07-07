@@ -58,7 +58,8 @@ class nmfEstimation_Tab7: public QObject
     nmfDatabase*  m_DatabasePtr;
     nmfLogger*    m_Logger;
     std::string   m_ProjectDir;
-    std::string   m_ProjectSettingsConfig;
+    std::string   m_ProjectName;
+    std::string   m_ModelName;
     QStandardItemModel* m_SModel;
 
     QTabWidget*   Estimation_Tabs;

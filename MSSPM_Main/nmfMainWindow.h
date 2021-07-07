@@ -176,7 +176,6 @@ private:
     nmfLogWidget*                         m_LogWidget;
     QStringListModel*                     m_ModelSpeciesOrGuild;
     nmfOutputChart3DBarModifier*          m_Modifier;
-    std::string                           m_MohnsRhoLabel;
     int                                   m_NumLines;
     int                                   m_NumMohnsRhoRanges;
     std::string                           m_Password;
@@ -189,7 +188,7 @@ private:
     std::string                           m_ProjectDir;
     std::string                           m_ProjectDatabase;
     std::string                           m_ProjectName;
-    std::string                           m_ProjectSettingsConfig;
+    std::string                           m_ModelName;
     int                                   m_RunNumBees;
     int                                   m_RunNumNLopt;
     QString                               m_RunOutputMsg;
@@ -280,6 +279,7 @@ private:
     QWidget*                 MModeViewerDataTB;
     QWidget*                 MModeViewerTab1;
 
+    bool isBeesAlgorithm();
     int getTabIndex(QTabWidget* tabWidget, QString tabName);
     void calculateAverageBiomass();
     void displayAverageBiomass();
@@ -400,8 +400,8 @@ private:
     void completeApplicationInitialization();
     QString createEstimatedFile();
     std::pair<bool,QString> dataAdequateForCurrentModel(QStringList estParamNames);
-    bool deleteAllMohnsRho(const std::string& TableName);
-    bool deleteAllOutputMohnsRho();
+//    bool deleteAllMohnsRho(const std::string& TableName);
+//    bool deleteAllOutputMohnsRho();
     /**
      * @brief Forces user to input and save project data.  Until they do so, application
      * functionality is disabled (i.e., grayed out).
@@ -486,14 +486,7 @@ private:
                           std::string& PredationForm,
                           int&         RunLength,
                           int&         InitialYear);
-    bool getMohnsRhoBiomass(
-            const std::string& ScenarioName,
-            int& NumSpecies,
-            QStringList& ColumnLabelsForLegend,
-            std::vector<boost::numeric::ublas::matrix<double> >& BiomassMohnsRho);
-    std::string getMohnsRhoLabel(const int& index);
-    void getMohnsRhoLabelsToDelete(const int& NumMohnsRhos,
-                                   std::string &mohnsRhoLabelsToDelete);
+
     bool getMultiScenarioBiomass(
             const std::string& ScenarioName,
             int& NumSpecies,
@@ -564,11 +557,11 @@ private:
      * @return true or false
      */
     bool isEstimationRunning();
-    /**
-     * @brief This method returns a boolean signifying whether or not the current run is Mohn's Rho run?
-     * @return true or false
-     */
-    bool isMohnsRho();
+//    /**
+//     * @brief This method returns a boolean signifying whether or not the current run is Mohn's Rho run?
+//     * @return true or false
+//     */
+//    bool isMohnsRho();
     bool isStopped(std::string &runName,
                    std::string &msg1,
                    std::string &msg2,
@@ -646,12 +639,7 @@ private:
                              std::vector<double>& CatchabilityUncertainty,
                              std::vector<double>& SurveyQUncertainty,
                              std::vector<double>& HarvestUncertainty);
-    bool modifyTable(const std::string& TableName,
-                     const QString&     OriginalSystemName,
-                     const QString&     MohnsRhoLabel,
-                     const int&         MohnsRhoStartYear,
-                     const int&         MohnsRhoRunLength,
-                     const int&         InitialYear);
+
     void queryUserPreviousDatabase();
     void readSettings(QString name);
     void readSettings();

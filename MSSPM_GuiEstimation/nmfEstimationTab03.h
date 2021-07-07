@@ -46,7 +46,8 @@ private:
     nmfLogger*                       m_Logger;
     nmfDatabase*                     m_DatabasePtr;
     std::string                      m_ProjectDir;
-    std::string                      m_ProjectSettingsConfig;
+    std::string                      m_ProjectName;
+    std::string                      m_ModelName;
     QString                          m_CompetitionForm;
     QStringList                      m_SpeciesNames;
     QStringList                      m_GuildNames;

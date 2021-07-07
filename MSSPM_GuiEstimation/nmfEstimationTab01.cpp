@@ -22,7 +22,8 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     m_runFromModifySlider = false;
     m_OutputSpecies.clear();
     m_SpeciesGuild.clear();
-    m_ProjectSettingsConfig = "";
+    m_ModelName = "";
+    m_ProjectName = "";
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::nmfEstimation_Tab1");
 
@@ -1175,7 +1176,6 @@ nmfEstimation_Tab1::updateBiomassAbsoluteTable()
 {
     std::string cmd;
     std::string errorMsg;
-    std::string MohnsRhoLabel = "";
     QModelIndex index;
     std::string initBiomass;
     std::string species;
@@ -1188,9 +1188,9 @@ nmfEstimation_Tab1::updateBiomassAbsoluteTable()
 
         // Need to also update the BiomassAbsolute table with the initial Biomass values
         cmd  = "REPLACE INTO BiomassAbsolute (";
-        cmd += "MohnsRhoLabel,SystemName,SpeName,Year,Value) ";
-        cmd += "VALUES ('" + MohnsRhoLabel + "','" + m_ProjectSettingsConfig + "','" +
-                species + "', 0, "+ initBiomass + ");";
+        cmd += "ProjectName,ModelName,SpeName,Year,Value) ";
+        cmd += "VALUES ('" + m_ProjectName + "','" + m_ModelName + "','" +
+                species + "', 0, " + initBiomass + ");";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (BiomassAbsolute): Write table error: " + errorMsg);
@@ -1779,7 +1779,11 @@ nmfEstimation_Tab1::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName   = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     delete settings;

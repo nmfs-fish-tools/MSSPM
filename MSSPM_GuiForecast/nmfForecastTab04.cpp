@@ -17,7 +17,8 @@ nmfForecast_Tab4::nmfForecast_Tab4(QTabWidget*  tabs,
     m_ProjectDir  = projectDir;
     m_SaveDlg     = nullptr;
     m_CurrentScenario.clear();
-    m_ProjectSettingsConfig.clear();
+    m_ModelName.clear();
+    m_ProjectName.clear();
     m_SortedForecastLabelsMap.clear();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab4::nmfForecast_Tab4");
@@ -135,7 +136,8 @@ nmfForecast_Tab4::callback_RunMultiScenarioPB()
                 Forecast_Tabs,
                 m_DatabasePtr,
                 m_Logger,
-                m_ProjectSettingsConfig,
+                m_ProjectName,
+                m_ModelName,
                 m_SortedForecastLabelsMap,
                 m_CurrentScenario,
                 getCurrentForecastName());
@@ -201,7 +203,11 @@ nmfForecast_Tab4::readSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
-    m_ProjectSettingsConfig = settings->value("Name","").toString().toStdString();
+    m_ModelName = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     delete settings;
@@ -214,6 +220,10 @@ nmfForecast_Tab4::saveSettings()
 
     settings->beginGroup("Forecast");
     settings->setValue("FontSize", Forecast_Tab4_FontSizeCMB->currentText());
+    settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     delete settings;
