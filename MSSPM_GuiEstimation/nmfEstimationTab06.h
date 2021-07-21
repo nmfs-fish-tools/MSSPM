@@ -292,6 +292,7 @@ public:
     bool isEstSurveyQEnabled();
     bool isEstSurveyQChecked();
     bool isEnsembleUsingPct();
+    void setRunButtonLabel(QString label);
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
@@ -342,6 +343,7 @@ signals:
     void CheckAllEstimationTablesAndRun();
     void AddToReview();
     void DimScalarBiomassControls(bool dim);
+    void EnableRunButtons(bool state);
     /**
      * @brief Signal sent after the user checks the Mono Font box. It causes
      * the displayed output edit widget to use a monospaced font.

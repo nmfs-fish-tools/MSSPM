@@ -87,6 +87,11 @@ public:
                        std::string& projectDir);
     virtual ~nmfDiagnostic_Tab2();
 
+    /**
+     * @brief Sets the enabled state for the Run button
+     * @param state : boolean definin the Run button's enabled state
+     */
+    void enableRunButton(bool state);
     void setIsMohnsRho(bool state);
     /**
      * @brief Gets the last year in the year range
@@ -143,6 +148,9 @@ signals:
      * @param YearRanges : year ranges to run for Mohn's Rho analysis
      */
     void RunDiagnosticEstimation(std::vector<std::pair<int,int> > YearRanges);
+    void EnableRunButtons(bool state);
+    void CheckMSYBoxes(bool state);
+
 
 public slots:
     /**

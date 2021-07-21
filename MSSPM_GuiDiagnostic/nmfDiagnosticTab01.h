@@ -183,6 +183,11 @@ public:
     virtual ~nmfDiagnostic_Tab1();
 
     /**
+     * @brief Sets whether the Run button is enabled
+     * @param state : boolean variable for the Run button enabled state
+     */
+    void enableRunButton(bool state);
+    /**
      * @brief Gets the table name that corresponds to the passed parameter name
      * @param paramName : estimation parameter name
      * @return : Returns the name of the database table that corresponds to the passed in parameter name
@@ -253,6 +258,8 @@ signals:
      * @param method : type of diagnostic desired
      */
     void SetChartType(std::string type, std::string method);
+    void EnableRunButtons(bool state);
+    void CheckMSYBoxes(bool state);
 
 public slots:
     /**

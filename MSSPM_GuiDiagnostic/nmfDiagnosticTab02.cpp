@@ -67,6 +67,13 @@ nmfDiagnostic_Tab2::~nmfDiagnostic_Tab2()
 
 }
 
+void
+nmfDiagnostic_Tab2::enableRunButton(bool state)
+{
+    QString label = (state == true) ? "Run" : "Running...";
+    m_Diagnostic_Tab2_RunPB->setEnabled(state);
+    m_Diagnostic_Tab2_RunPB->setText(label);
+}
 
 void
 nmfDiagnostic_Tab2::readSettings()
@@ -198,8 +205,6 @@ nmfDiagnostic_Tab2::getEndYearLBL()
     return m_Diagnostic_Tab2_MaxYearLBL->text().toInt();
 }
 
-
-
 QString
 nmfDiagnostic_Tab2::getPeelPosition()
 {
@@ -261,11 +266,12 @@ nmfDiagnostic_Tab2::callback_RunPB()
     m_Logger->logMsg(nmfConstants::Normal,"");
     m_Logger->logMsg(nmfConstants::Normal,"Start Retrospective");
 
+    emit EnableRunButtons(false);
+
     // Calculate Mohn's Rho
-    bool isFromEnd = (getPeelPosition() == "From End");
-    int  StartYear = getStartYearLE();
-    int  EndYear   = getEndYearLE();
-    int  NumPeeledYears = getNumPeels();
+    int StartYear      = getStartYearLE();
+    int NumPeeledYears = getNumPeels();
+    int EndYear        = NumPeeledYears + getEndYearLE();
     std::vector<std::pair<int,int> > ranges;
     QString msg;
 
@@ -273,6 +279,7 @@ nmfDiagnostic_Tab2::callback_RunPB()
         msg = "Invalid Year Range for Retrospective. Reload System: Setup -> Model Setup -> Load...";
         m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
         QMessageBox::warning(m_Diagnostic_Tabs, "Error", "\n"+msg, QMessageBox::Ok);
+        emit EnableRunButtons(true);
         return;
     }
 
@@ -284,16 +291,12 @@ nmfDiagnostic_Tab2::callback_RunPB()
     for (int i=0; i<=NumPeeledYears; ++i) {
 std::cout << "range: " << StartYear << ", " << EndYear << std::endl;
         ranges.push_back(std::make_pair(StartYear,EndYear));
-        if (isFromEnd) {
-            ++EndYear;
-        } else {
-            --StartYear;
-        }
+        --EndYear;
     }
 
     m_isMohnsRhoRun = true;
+    emit CheckMSYBoxes(false);
     emit RunDiagnosticEstimation(ranges);
-
 }
 
 void

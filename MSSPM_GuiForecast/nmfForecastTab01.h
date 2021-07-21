@@ -115,6 +115,11 @@ public:
      */
     bool        isDeterministic();
     /**
+     * @brief Returns boolean signifying if the found Forecast name is valid
+     * @return True/False describing if the entered Forecast name is valid
+     */
+    bool        isValidForecastName();
+    /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */

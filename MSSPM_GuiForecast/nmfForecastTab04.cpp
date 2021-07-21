@@ -68,6 +68,14 @@ nmfForecast_Tab4::~nmfForecast_Tab4()
 }
 
 void
+nmfForecast_Tab4::enableRunButton(bool state)
+{
+    QString label = (state == true) ? "Run Forecast" : "Running...";
+    Forecast_Tab4_RunPB->setEnabled(state);
+    Forecast_Tab4_RunPB->setText(label);
+}
+
+void
 nmfForecast_Tab4::setOutputTE(QString msg)
 {
     Forecast_Tab4_OutputTE->setText(msg);
@@ -115,7 +123,10 @@ nmfForecast_Tab4::callback_RunPB()
 
     std::string ForecastName = Forecast_Tab1_NameLE->text().toStdString();
 
+    emit CheckMSYBoxes(false);
+    emit EnableRunButtons(false);
     emit RunForecast(ForecastName,true);
+    emit EnableRunButtons(true);
 }
 
 void

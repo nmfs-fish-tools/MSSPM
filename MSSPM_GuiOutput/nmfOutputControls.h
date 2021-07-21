@@ -154,8 +154,7 @@ public:
     void            setAveraged(bool isAveraged);
     bool            displaying3dChart();
     bool            isAveraged();
-    void            disableControls();
-    void            enableControls();
+    void            enableControls(bool state);
     /**
      * @brief Get the brightness factor set by the Forecast Run Brightness slider widget
      * @return The brightness value desired for the stochastic Forecast plots
@@ -527,7 +526,11 @@ public slots:
      * parameters that pertain to the appropriate Model parameters should be visible.
      */
     void callback_UpdateDiagnosticParameterChoices();
-
+    /**
+     * @brief Callback invoked when the user needs to either check or uncheck all of the MSY boxes
+     * @param state : checked state for all of the MSY boxes
+     */
+    void callback_CheckMSYBoxes(bool state);
 };
 
 

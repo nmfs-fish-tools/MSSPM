@@ -740,7 +740,6 @@ for (int i=0; i< NumEstParameters; ++i) {
     }
 
     for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
-
         NumSubRuns = 1;
         if (isAMultiRun) {
             nmfUtilsQt::reloadDataStruct(NLoptStruct,MultiRunLines[multiRun]);
@@ -750,6 +749,7 @@ for (int i=0; i< NumEstParameters; ++i) {
             NLoptCompetitionForm->setType(NLoptStruct.CompetitionForm);
             NLoptPredationForm->setType(  NLoptStruct.PredationForm);
             ParameterRanges.clear();
+
             loadInitBiomassParameterRanges(           ParameterRanges, NLoptStruct);
             NLoptGrowthForm->loadParameterRanges(     ParameterRanges, NLoptStruct);
             NLoptHarvestForm->loadParameterRanges(    ParameterRanges, NLoptStruct);
@@ -799,7 +799,6 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                 //for (unsigned i=0; i<m_Parameters.size(); ++i) {
                 //    std::cout << "  Est Param[" << i << "]: " << m_Parameters[i] << std::endl;
                 //}
-
 
                 extractParameters(NLoptStruct, &m_Parameters[0],
                         m_EstInitBiomass,

@@ -290,6 +290,14 @@ nmfForecast_Tab3::callback_LoadPB()
     loadWidgets();
 }
 
+bool
+nmfForecast_Tab3::areDataComplete()
+{
+    return nmfUtilsQt::allCellsArePopulated(
+                Forecast_Tabs,
+                Forecast_Tab3_UncertaintyTV,
+                nmfConstantsMSSPM::DontShowError);
+}
 
 bool
 nmfForecast_Tab3::loadWidgets()

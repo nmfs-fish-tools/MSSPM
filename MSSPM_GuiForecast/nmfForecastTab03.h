@@ -93,6 +93,11 @@ public:
     virtual ~nmfForecast_Tab3();
 
     /**
+     * @brief Notifies user if uncertainty table is completely filled out
+     * @return Boolean where true signifies table is complete, and false table is not complete
+     */
+    bool areDataComplete();
+    /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */

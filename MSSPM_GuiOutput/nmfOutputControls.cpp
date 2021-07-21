@@ -36,15 +36,9 @@ MSSPM_GuiOutputControls::~MSSPM_GuiOutputControls()
 }
 
 void
-MSSPM_GuiOutputControls::disableControls()
+MSSPM_GuiOutputControls::enableControls(bool state)
 {
-    ControlsGroupBox->setEnabled(false);
-}
-
-void
-MSSPM_GuiOutputControls::enableControls()
-{
-    ControlsGroupBox->setEnabled(true);
+    ControlsGroupBox->setEnabled(state);
 }
 
 bool
@@ -183,13 +177,18 @@ MSSPM_GuiOutputControls::initWidgets()
     OutputSpeListLV->setSelectionMode(QAbstractItemView::ExtendedSelection);
     OutputGroupTypeCMB->setToolTip("Type of Entity to plot (Species, Guild, or entire System)");
     OutputGroupTypeCMB->setStatusTip("Type of Entity to plot (Species, Guild, or entire System)");
-    OutputShowBMSYCB->setToolTip("Biomass Maximum Sustained Yield (K/2)");
-    OutputShowBMSYCB->setStatusTip("Biomass Maximum Sustained Yield (K/2)");
+
     msg ="<html>\
 <strong><center>B MSY</center></strong><br>\
 If K=0 (which will happen if the growth rate selected is Linear), \
-the equation used for K becomes K(i) = r(i)/alpha(i,i).\
+the equation used for K becomes K(i) = r(i)/alpha(i,i).<br><br>\
+If K is not 0, then:<br><br>\
+&nbsp;&nbsp;For Species: B MSY = K(i)/2, where r(i) = carrying capacity for that species<br><br>\
+&nbsp;&nbsp;For Guilds: B MSY = Σ[K(i)]/2, where Σ is over all species in the selected guild<br><br>\
+&nbsp;&nbsp;For System: B MSY = Σ[K(i)]/2, where Σ is over all species<br>\
 </html>";
+    OutputShowBMSYCB->setToolTip("Biomass Maximum Sustained Yield (K/2)");
+    OutputShowBMSYCB->setStatusTip("Biomass Maximum Sustained Yield (K/2)");
     OutputShowBMSYCB->setWhatsThis(msg);
     OutputShowBMSYLE->setToolTip("Biomass Maximum Sustained Yield (K/2)");
     OutputShowBMSYLE->setStatusTip("Biomass Maximum Sustained Yield (K/2)");
@@ -197,7 +196,11 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     msg ="<html>\
 <strong><center>MSY</center></strong><br>\
 If K=0 (which will happen if the growth rate selected is Linear), \
-the equation used for K becomes K(i) = r(i)/alpha(i,i).\
+the equation used for K becomes K(i) = r(i)/alpha(i,i).<br><br>\
+If K is not 0, then:<br><br>\
+&nbsp;&nbsp;For Species: MSY = [r(i)K(i)]/4, where r(i) and K(i) are the growth rate and carrying capacity for that species<br><br>\
+&nbsp;&nbsp;For Guilds: MSY = Σ[r(i)K(i)]/4, where Σ is over all species in the selected guild<br><br>\
+&nbsp;&nbsp;For System: MSY = Σ[r(i)K(i)]/4, where Σ is over all species<br>\
 </html>";
     OutputShowMSYCB->setToolTip("Maximum Sustained Yield (rK/4)");
     OutputShowMSYCB->setStatusTip("Maximum Sustained Yield (rK/4)");
@@ -205,10 +208,18 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).\
     OutputShowMSYLE->setToolTip("Maximum Sustained Yield (rK/4)");
     OutputShowMSYLE->setStatusTip("Maximum Sustained Yield (rK/4)");
     OutputShowMSYLE->setWhatsThis(msg);
+    msg ="<html>\
+<strong><center>F MSY</center></strong><br>\
+For Species: F MSY = r(i) where r(i) = growth rate for that species<br><br>\
+For Guilds: F MSY = guildAverage[r(i)] / NumSpeciesInGuild, where the guildAverage is the average for the selected guild<br><br>\
+For System: F MSY = average[r(i)] / NumSpecies, where the average is over all species<br>\
+</html>";
     OutputShowFMSYCB->setToolTip("Fishing Mortality Maximum Sustained Yield (r/2)");
     OutputShowFMSYCB->setStatusTip("Fishing Mortality Maximum Sustained Yield (r/2)");
+    OutputShowFMSYCB->setWhatsThis(msg);
     OutputShowFMSYLE->setToolTip("Fishing Mortality Maximum Sustained Yield (r/2)");
     OutputShowFMSYLE->setStatusTip("Fishing Mortality Maximum Sustained Yield (r/2)");
+    OutputShowFMSYLE->setWhatsThis(msg);
     OutputYAxisMinLBL->setToolTip("Set the min value of the y-axis");
     OutputYAxisMinLBL->setStatusTip("Set the min value of the y-axis");
     OutputYAxisMinSL->setToolTip("Set the min value of the y-axis");
@@ -253,7 +264,8 @@ This is a plot of calculated (i.e., estimated) biomass vs time. <br><br>\
 This plot will show either catch vs time or (catchability * effort * calculated biomass) vs time.<br><br>\
 <strong>3. Exploitation Rate</strong><br><br> \
 This plot will show (catchability * effort) vs time and will typically \
-range from 0 to 1 in the y-axis.<br><br>\
+range from 0 to 1 in the y-axis. The guild calculations are: \
+(total catch) / (total estBiomass) or if using effort: Σ(catchability*effort*estBiomass)/Σ(estBiomass).<br><br>\
 <strong>4. Diagnostics</strong><br><br> \
 These plots will show either the parameter estimation diagnostics \
 (2d or 3d) or the retrospective analysis (i.e., Mohn's Rho).<br><br>\
@@ -793,7 +805,7 @@ MSSPM_GuiOutputControls::callback_OutputGroupTypeCMB(QString outputGroupType)
 {
     if (outputGroupType == "Species:" ) {
         loadSpeciesControlWidget();
-        emit ShowChart("",""); //,m_IsAveraged);
+        emit ShowChart("","");
     } else if (outputGroupType == "Guild:") {
         loadSpeciesControlWidget();
         emit ShowChartBy("Guild",m_IsAveraged);
@@ -837,6 +849,7 @@ MSSPM_GuiOutputControls::refreshScenarios()
 void
 MSSPM_GuiOutputControls::callback_OutputSpeciesCMB(QString outputSpecies)
 {
+
     QString scenario  = getOutputScenario();
     QString chartType = getOutputChartType();
     QString method    = getOutputDiagnostics();
@@ -1030,10 +1043,11 @@ void
 MSSPM_GuiOutputControls::callback_OutputScaleCMB(QString scale)
 {
     QString scenario = getOutputScenario();
+    QString chartType = getOutputChartType();
 
-    if (getOutputChartType() == "Multi-Scenario Plots") {
+    if (chartType == "Multi-Scenario Plots") {
         emit ShowChartMultiScenario(m_SortedForecastLabelsMap[scenario]);
-    } else if (isSetToRetrospectiveAnalysis()) {
+    } else if ((chartType == "Diagnostics") && isSetToRetrospectiveAnalysis()) {
         emit ShowChartMohnsRho();
     } else {
         updateChart();
@@ -1333,4 +1347,12 @@ MSSPM_GuiOutputControls::callback_UpdateDiagnosticParameterChoices()
                                                  m_ProjectName,
                                                  m_ModelName,
                                                  OutputParametersCMB);
+}
+
+void
+MSSPM_GuiOutputControls::callback_CheckMSYBoxes(bool state)
+{
+    OutputShowBMSYCB->setChecked(state);
+    OutputShowMSYCB->setChecked(state);
+    OutputShowFMSYCB->setChecked(state);
 }

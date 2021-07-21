@@ -622,6 +622,9 @@ nmfEstimation_Tab6::runEstimation()
         m_Logger->logMsg(nmfConstants::Normal,"");
         m_Logger->logMsg(nmfConstants::Normal,"Start Estimation");
 
+        // Disable all run buttons while a run is in progress
+        emit EnableRunButtons(false);
+        setRunButtonLabel("Running...");
         emit CheckAllEstimationTablesAndRun();
     } else {
         msg = "\nPlease select at least one Stop parameter.\n";
@@ -795,9 +798,16 @@ std::cout << "------- ---- current algorithm: " << getCurrentAlgorithm() << std:
 }
 
 void
-nmfEstimation_Tab6::enableRunButton(bool enableRun)
+nmfEstimation_Tab6::enableRunButton(bool state)
 {
-    Estimation_Tab6_RunPB->setEnabled(enableRun);
+    Estimation_Tab6_RunPB->setEnabled(state);
+    setRunButtonLabel("Run");
+}
+
+void
+nmfEstimation_Tab6::setRunButtonLabel(QString label)
+{
+    Estimation_Tab6_RunPB->setText(label);
 }
 
 

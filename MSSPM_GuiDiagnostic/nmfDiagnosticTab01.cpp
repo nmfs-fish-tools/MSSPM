@@ -66,6 +66,14 @@ nmfDiagnostic_Tab1::~nmfDiagnostic_Tab1()
 }
 
 void
+nmfDiagnostic_Tab1::enableRunButton(bool state)
+{
+    QString label = (state == true) ? "Run" : "Running...";
+    m_Diagnostic_Tab1_RunPB->setEnabled(state);
+    m_Diagnostic_Tab1_RunPB->setText(label);
+}
+
+void
 nmfDiagnostic_Tab1::callback_UpdateDiagnosticParameterChoices()
 {
     m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,m_ProjectName,m_ModelName,
@@ -338,6 +346,10 @@ nmfDiagnostic_Tab1::callback_RunPB()
     std::pair<QString,double> parameterItem;
     std::pair<QString,double> parameterItem1;
     std::pair<QString,double> parameterItem2;
+
+    emit CheckMSYBoxes(false);
+    emit EnableRunButtons(false);
+
     QStringList vectorParameterNames = m_DatabasePtr->getVectorParameterNames(m_Logger,m_ProjectName,m_ModelName);
     QString surfaceParameter1Name = getParameter1Name();
     QString surfaceParameter2Name = getParameter2Name();
@@ -354,6 +366,8 @@ nmfDiagnostic_Tab1::callback_RunPB()
         QMessageBox::warning(m_Diagnostic_Tabs, "Warning",
                              "\nPlease select 2 different parameters to view as a 3d surface.\n",
                              QMessageBox::Ok);
+        emit EnableRunButtons(true);
+        progressDlg->close();
         return;
     }
 
@@ -365,6 +379,8 @@ nmfDiagnostic_Tab1::callback_RunPB()
     if (! systemFound) {
         QMessageBox::warning(m_Diagnostic_Tabs,tr("No System Found"),
                              tr("\nPlease enter a valid System.\n"),QMessageBox::Ok);
+        emit EnableRunButtons(true);
+        progressDlg->close();
         return;
     }
     isAggProdBool = isAggProd(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
@@ -372,6 +388,8 @@ nmfDiagnostic_Tab1::callback_RunPB()
     if (! m_DatabasePtr->getModelFormData(
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
                 RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
+        emit EnableRunButtons(true);
+        progressDlg->close();
         return;
     }
     thereIsCarryingCapacity = (GrowthForm == "Logistic");
@@ -411,6 +429,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
             m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
             QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
             progressDlg->close();
+            emit EnableRunButtons(true);
             return;
         }
 
@@ -435,12 +454,14 @@ nmfDiagnostic_Tab1::callback_RunPB()
                     m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
                     QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
                     progressDlg->close();
+                    emit EnableRunButtons(true);
                     return;
                 }
 
                 if (fitness == -1) {
                     m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
                     progressDlg->close();
+                    emit EnableRunButtons(true);
                     return;
                 }
                 aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[i],
@@ -492,6 +513,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
                 }
                 if (fitness == -1) {
                     m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
+                    emit EnableRunButtons(true);
                     return;
                 }
                 aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[SpeciesNum],
@@ -553,7 +575,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
     saveSettings();
 
     emit SetChartType("Diagnostics","Parameter Profiles");
-
+    emit EnableRunButtons(true);
 }
 
 

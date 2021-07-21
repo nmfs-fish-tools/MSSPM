@@ -78,6 +78,14 @@ nmfForecast_Tab2::~nmfForecast_Tab2()
 
 }
 
+bool
+nmfForecast_Tab2::areDataComplete()
+{
+    return nmfUtilsQt::allCellsArePopulated(
+                Forecast_Tabs,
+                Forecast_Tab2_HarvestTV,
+                nmfConstantsMSSPM::DontShowError);
+}
 
 void
 nmfForecast_Tab2::callback_SelectionChanged(const QItemSelection &sel,

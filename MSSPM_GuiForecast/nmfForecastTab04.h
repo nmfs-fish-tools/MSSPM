@@ -96,6 +96,11 @@ public:
      */
     void clearOutputTE();
     /**
+     * @brief Sets the enabled state of the Run button
+     * @param state : boolean where if true, Run button is enabled, else if false, it's disabled
+     */
+    void enableRunButton(bool state);
+    /**
      * @brief Gets the current Forecast name
      * @return Returns the current Forecast name from the 1st Forecast GUI
      */
@@ -127,6 +132,11 @@ public:
 
 signals:
     /**
+     * @brief Signal emitted to notify application that all Run buttons should be enabled or disabled
+     * @param state : boolean where if true, run buttons are enabled, else if false, they're disabled
+     */
+    void EnableRunButtons(bool state);
+    /**
      * @brief Signal emitted after user clicks the Run Forecast button
      * @param forecastName : name of the Forecast to run
      * @param generateBiomass : boolean signifying if a Monte Carlo simulation is to be run
@@ -156,6 +166,7 @@ signals:
      * @param scenario : name of Scenario to set
      */
     void SetOutputScenarioText(QString scenario);
+    void CheckMSYBoxes(bool state);
 
 public Q_SLOTS:
     /**

@@ -88,6 +88,11 @@ public:
     virtual ~nmfForecast_Tab2();
 
     /**
+     * @brief Notifies caller that data have been entered for this widget
+     * @return Boolean where true signifies data have been entered and false that data have not been entered
+     */
+    bool areDataComplete();
+    /**
      * @brief Clears all GUI widgets
      */
     void clearWidgets();

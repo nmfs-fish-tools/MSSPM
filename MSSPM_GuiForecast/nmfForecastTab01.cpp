@@ -435,6 +435,12 @@ nmfForecast_Tab1::callback_MinimizerCMB(QString minimizer)
 }
 */
 
+bool
+nmfForecast_Tab1::isValidForecastName()
+{
+    return (! Forecast_Tab1_NameLE->text().isEmpty());
+}
+
 void
 nmfForecast_Tab1::callback_RunLengthSB(int duration)
 {

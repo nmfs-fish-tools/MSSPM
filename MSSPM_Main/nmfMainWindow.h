@@ -34,6 +34,7 @@
 #include "nmfLogWidget.h"
 #include "nmfUtilsStatistics.h"
 #include "nmfUtilsStatisticsAveraging.h"
+#include "nmfUtilsStatisticsMohnsRho.h"
 #include "nmfStructsQt.h"
 #include "nmfUtilsQt.h"
 
@@ -217,6 +218,7 @@ private:
     boost::numeric::ublas::matrix<double> m_parameterMatrix;
     int                                   m_NumRuns;
     nmfUtilsStatisticsAveraging*          m_AveragedData;
+    nmfUtilsStatisticsMohnsRho*           m_MohnsRhoData;
     boost::numeric::ublas::matrix<double> m_AveBiomass;
     std::vector<boost::numeric::ublas::matrix<double> > m_OutputBiomassEnsemble;
 
@@ -380,6 +382,7 @@ private:
             const bool&         isAMultiRun,
             boost::numeric::ublas::matrix<double>& EstimatedBiomass,
             StatStruct&         statStruct);
+    bool calculateSummaryStatisticsStructMohnsRho(StatStruct& statStruct);
     bool calculateSummaryStatisticsMohnsRhoBiomass(std::vector<double>& mohnsRhoEstimatedBiomass);
     void checkGuildRanges(
             const int& NumGuilds,
@@ -408,6 +411,7 @@ private:
      */
     void enableApplicationFeatures(std::string navigatorGroup,
                                    bool enable);
+    void enableRunWidgets(bool state);
     QString extractMatrixData(const bool& isEnabled,
                               const bool& isChecked,
                               const bool& isAMultiRun,
@@ -516,9 +520,12 @@ private:
                           std::vector<std::string> &Scalings,
                           std::string              &isAggProd,
                           std::vector<boost::numeric::ublas::matrix<double> > &OutputBiomass);
-    void getOutputCarryingCapacity(std::vector<double> &EstCarryingCapacity, bool isMohnsRho);
+    void getOutputParameterVector(
+            const std::string& tableName,
+            std::vector<double> &EstParameter);
+//    void getOutputCarryingCapacity(std::vector<double> &EstCarryingCapacity, bool isMohnsRho);
     void getOutputCompetition(std::vector<double> &EstCompetition);
-    void getOutputGrowthRate(std::vector<double> &EstGrowthRate, bool isMohnsRho);
+//    void getOutputGrowthRate(std::vector<double> &EstGrowthRate, bool isMohnsRho);
     int  getRunLength();
     bool getRunLength(int &RunLength);
     bool getSpeciesInitialData(int& NumSpecies,
@@ -757,7 +764,8 @@ private:
             QList<double> &Values,
             QString &ScaleStr,
             double &ScaleVal,
-            double &YMinSliderVal);
+            double &YMinVal,
+            double &YMaxVal);
     bool showDiagnosticsChart2d(const QString& ScaleStr,
                                 const double&  ScaleVal,
                                 const double&  YMinSliderVal);
@@ -971,6 +979,7 @@ public:
      * @return true/false signifying the state of the application start
      */
     bool isStartUpOK();
+    bool okToRunForecast();
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);
@@ -1453,6 +1462,7 @@ public slots:
     void callback_ManagerModeViewerClose(bool state);
     void callback_AddToReview();
     void callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct modeReview);
+    void callback_EnableRunButtons(bool state);
 
 //  /**
 //   * @brief Copy TestData into OutputGrowthRate
