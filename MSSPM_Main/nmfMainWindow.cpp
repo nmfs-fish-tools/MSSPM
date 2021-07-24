@@ -1353,10 +1353,14 @@ void
 nmfMainWindow::menu_importDatabase()
 {
     QMessageBox::StandardButton reply;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    bool ok = false;
+    QStringList items = {};
 
     // Go to project data page
-    NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(0,0));
-    m_UI->SetupInputTabWidget->setCurrentIndex(1);
+    setPage(nmfConstantsMSSPM::SectionSetup,1);
 
     // Ask if user wants to clear the Project meta data
     std::string msg  = "\nDo you want to overwrite current Project data with imported database information?";
@@ -1374,9 +1378,10 @@ nmfMainWindow::menu_importDatabase()
                                                    m_ProjectDir,
                                                    m_Username,
                                                    m_Password);
+    QApplication::sync();
+    QApplication::processEvents();
+
     if (!dbName.isEmpty()) {
-        // Setup_Tab2_ptr->loadWidgets();
-        // Setup_Tab3_ptr->loadWidgets();
         loadGuis();
         if (reply == QMessageBox::No) {
             Setup_Tab2_ptr->clearProject();
@@ -1386,12 +1391,56 @@ nmfMainWindow::menu_importDatabase()
             Setup_Tab2_ptr->enableProjectData();
         }
         Setup_Tab2_ptr->setProjectDatabase(dbName);
-        Setup_Tab2_ptr->callback_Setup_Tab2_SaveProject();
 
         // Need to call menu_createTables() in case some tables are missing
         menu_createTables();
-    }
 
+        // Query user to select the desired project
+        fields   = {"ProjectName"};
+        queryStr = "SELECT DISTINCT ProjectName from Models ORDER BY ProjectName";
+        dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+        for (int i=0; i<(int)dataMap["ProjectName"].size(); ++i) {
+            items << QString::fromStdString(dataMap["ProjectName"][i]);
+        }
+        if (items.size() == 0) {
+            QMessageBox::warning(this, "Error", "\nNo projects found to load in database.\n", QMessageBox::Ok);
+            return;
+        }
+        QString selectedProjectName = QInputDialog::getItem(this, tr("Select Project"),
+                                             tr("Select initial project to load:"),
+                                             items, 0, false, &ok);
+        if (ok && !selectedProjectName.isEmpty()) {
+            Setup_Tab2_ptr->setProjectName(selectedProjectName);
+            Remora_ptr->setProjectName(selectedProjectName);
+        } else { // the user clicked Cancel...so select the first project in the list
+            Setup_Tab2_ptr->setProjectName(items[0]);
+            Remora_ptr->setProjectName(items[0]);
+        }
+        Setup_Tab2_ptr->saveSettings();
+        Setup_Tab2_ptr->callback_Setup_Tab2_SaveProject();
+        Setup_Tab2_ptr->callback_Setup_Tab2_ReloadProject();
+        QMessageBox::information(this, "Load Model", "\nPlease load the desired model.\n", QMessageBox::Ok);
+        setPage(nmfConstantsMSSPM::SectionSetup,3);
+    }
+}
+
+void
+nmfMainWindow::setPage(const QString& section,
+                       const int& page)
+{
+    if (section == nmfConstantsMSSPM::SectionSetup) {
+        NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(0,0));
+        m_UI->SetupInputTabWidget->setCurrentIndex(page);
+    } else if (section == nmfConstantsMSSPM::SectionEstimation) {
+        NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(1,0));
+        m_UI->EstimationDataInputTabWidget->setCurrentIndex(page);
+    } else if (section == nmfConstantsMSSPM::SectionDiagnostic) {
+        NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(2,0));
+        m_UI->DiagnosticsDataInputTabWidget->setCurrentIndex(page);
+    } else if (section == nmfConstantsMSSPM::SectionForecast) {
+        NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(3,0));
+        m_UI->ForecastDataInputTabWidget->setCurrentIndex(page);
+    }
 }
 
 void
@@ -1908,7 +1957,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.22 (beta)";
+    QString version = "MSSPM v0.9.23 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -5860,6 +5909,7 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
         item->setTextAlignment(Qt::AlignCenter);
         smodel->setItem(i, 0, item);
     }
+std::cout << "Algorithm: " << Algorithm << std::endl;
 
     calculateSummaryStatistics(smodel,isAggProd,Algorithm,Minimizer,
                                ObjectiveCriterion,Scaling,
@@ -8501,7 +8551,7 @@ nmfMainWindow::callback_NavigatorSelectionChanged()
         m_UI->DiagnosticsDataInputTabWidget->hide();
         m_UI->ForecastDataInputTabWidget->hide();
 
-        if ((itemSelected == "Setup") || (parentStr == "Setup")) {
+        if ((itemSelected == nmfConstantsMSSPM::SectionSetup) || (parentStr == nmfConstantsMSSPM::SectionSetup)) {
             m_UI->SetupInputTabWidget->show();
             if (pageNum > 0) {
                 m_UI->SetupInputTabWidget->blockSignals(true);
@@ -8509,7 +8559,7 @@ nmfMainWindow::callback_NavigatorSelectionChanged()
                 m_UI->SetupInputTabWidget->blockSignals(false);
             }
         } else if ((itemSelected == "Simulation Data Input") || (parentStr == "Simulation Data Input") ||
-                   (itemSelected == "Estimation Data Input") || (parentStr == "Estimation Data Input"))
+                   (itemSelected == nmfConstantsMSSPM::SectionEstimation) || (parentStr == nmfConstantsMSSPM::SectionEstimation))
         {
                 m_UI->EstimationDataInputTabWidget->show();
                 // Select appropriate tab
@@ -8518,14 +8568,14 @@ nmfMainWindow::callback_NavigatorSelectionChanged()
                     m_UI->EstimationDataInputTabWidget->setCurrentIndex(pageNum-1);
                     m_UI->EstimationDataInputTabWidget->blockSignals(false);
                 }
-        } else if ((itemSelected == "Diagnostic Data Input") || (parentStr == "Diagnostic Data Input")) {
+        } else if ((itemSelected == nmfConstantsMSSPM::SectionDiagnostic) || (parentStr == nmfConstantsMSSPM::SectionDiagnostic)) {
             m_UI->DiagnosticsDataInputTabWidget->show();
             if (pageNum > 0) {
                 m_UI->DiagnosticsDataInputTabWidget->blockSignals(true);
                 m_UI->DiagnosticsDataInputTabWidget->setCurrentIndex(pageNum-1);
                 m_UI->DiagnosticsDataInputTabWidget->blockSignals(false);
             }
-        } else if ((itemSelected == "Forecast") || (parentStr == "Forecast")) {
+        } else if ((itemSelected == nmfConstantsMSSPM::SectionForecast) || (parentStr == nmfConstantsMSSPM::SectionForecast)) {
             m_UI->ForecastDataInputTabWidget->show();
             if (pageNum > 0) {
                 m_UI->ForecastDataInputTabWidget->blockSignals(true);
@@ -11798,7 +11848,7 @@ nmfMainWindow::initializeNavigatorTree()
     QTreeWidgetItem *item;
 
     NavigatorTree->clear();
-    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Setup");
+    item = nmfUtilsQt::addTreeRoot(NavigatorTree,nmfConstantsMSSPM::SectionSetup);
     nmfUtilsQt::addTreeItem(item, "1. Getting Started");
     nmfUtilsQt::addTreeItem(item, "2. Project Setup");
     nmfUtilsQt::addTreeItem(item, "3. Species Setup");
@@ -11806,7 +11856,7 @@ nmfMainWindow::initializeNavigatorTree()
     item->setExpanded(true);
 
     // Create Estimation navigator group
-    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Estimation Data Input");
+    item = nmfUtilsQt::addTreeRoot(NavigatorTree,nmfConstantsMSSPM::SectionEstimation);
     nmfUtilsQt::addTreeItem(item, "1. Population Parameters");
     nmfUtilsQt::addTreeItem(item, "2. Harvest Data");
     nmfUtilsQt::addTreeItem(item, "3. Competition Parameters");
@@ -11817,13 +11867,13 @@ nmfMainWindow::initializeNavigatorTree()
     item->setExpanded(true);
 
     // Create Diagnostic navigator group
-    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Diagnostic Data Input");
+    item = nmfUtilsQt::addTreeRoot(NavigatorTree,nmfConstantsMSSPM::SectionDiagnostic);
     nmfUtilsQt::addTreeItem(item, "1. Parameter Profiles");
     nmfUtilsQt::addTreeItem(item, "2. Retrospective Analysis");
     item->setExpanded(true);
 
     // Create Simulation navigator group
-    item = nmfUtilsQt::addTreeRoot(NavigatorTree,"Forecast");
+    item = nmfUtilsQt::addTreeRoot(NavigatorTree,nmfConstantsMSSPM::SectionForecast);
     nmfUtilsQt::addTreeItem(item, "1. Setup");
     nmfUtilsQt::addTreeItem(item, "2. Harvest Data");
     nmfUtilsQt::addTreeItem(item, "3. Uncertainty Parameters");

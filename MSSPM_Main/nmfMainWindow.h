@@ -669,6 +669,8 @@ private:
     void setVisibilityToolbarButtons(bool isVisible);
     void setDefaultDockWidgetsVisibility();
     void setNumLines(int numLines);
+    void setPage(const QString& section,
+                 const int& page);
     void setup2dChart();
     void setup3dChart();
     bool setupIsComplete();
