@@ -273,8 +273,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 2 of 68: CompetitionAlpha
     // 3 of 68: CompetitionAlphaMax
@@ -299,8 +301,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
 
@@ -327,8 +331,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 8  of 68: CompetitionBetaGuilds
@@ -354,8 +360,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 11 of 68: CompetitionBetaGuildsGuilds
@@ -381,11 +389,11 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
-
-
 
     // 14 of 68: PredationExponent
     // 15 of 68: PredationExponentMin
@@ -409,8 +417,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 17 of 68: Catch
@@ -442,8 +452,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 23 of 68: BiomassRelativeScalar
@@ -463,8 +475,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 24 of 68: Covariate
     fullTableName = db + ".Covariate";
@@ -480,8 +494,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 25 of 68: CovariateTS
     fullTableName = db + ".CovariateTS";
@@ -497,8 +513,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 26 of 68: Guilds
     fullTableName = db + ".Guilds";
@@ -522,8 +540,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 27 of 68: OutputBiomass
     fullTableName = db + ".OutputBiomass";
@@ -545,8 +565,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 28 of 68: OutputCompetitionAlpha
     // 29 of 68: OutputCompetitionBetaSpecies
@@ -576,8 +598,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 32 of 68: OutputCompetitionBetaGuilds
@@ -602,8 +626,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 33 of 68: OutputCompetitionBetaGuildsGuilds
@@ -628,8 +654,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 34 of 68: OutputCatchability
@@ -669,8 +697,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 43 of 68: SpatialOverlap
@@ -690,8 +720,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
 
@@ -726,8 +758,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
 //    // 39 of 68: TestData
@@ -781,8 +815,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 51 of 68: Forecasts
     fullTableName = db + ".Forecasts";
@@ -812,8 +848,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 52 of 68: ForecastHarvestExploitation
     // 53 of 68: ForecastHarvestEffort
@@ -841,8 +879,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 55 of 68: ForecastBiomass
@@ -866,8 +906,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 56 of 68: ForecastBiomassMonteCarlo
     fullTableName = db + ".ForecastBiomassMonteCarlo";
@@ -891,8 +933,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 57 of 68: ForecastMonteCarloParameters
     fullTableName = db + ".ForecastMonteCarloParameters";
@@ -924,8 +968,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 58 of 68: ForecastBiomassMultiScenario
     fullTableName = db + ".ForecastBiomassMultiScenario";
@@ -945,8 +991,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 59 of 68: ForecastUncertainty
     fullTableName = db + ".ForecastUncertainty";
@@ -979,8 +1027,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
     // 60 of 68: DiagnosticInitBiomass
     // 61 of 68: DiagnosticGrowthRate
@@ -1013,8 +1063,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 65 of 68: DiagnosticSurface
@@ -1041,8 +1093,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 /*
     // 54 of 68: OutputBiomassMohnsRho
@@ -1133,8 +1187,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
     }
 
     // 67 of 68: Application (contains name of application - used to assure app is using correct database)
@@ -1152,8 +1208,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         } else {
             nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
         }
-        if (! okToCreateMoreTables)
+        if (! okToCreateMoreTables) {
+            m_ProgressDlg->close();
             return;
+        }
         m_DatabasePtr->saveApplicationTable(Setup_Tabs,m_Logger,fullTableName);
     }
 
@@ -1179,8 +1237,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
     } else {
         nmfUtilsQt::updateProgressDlg(m_Logger,m_ProgressDlg,"Created table: "+fullTableName,pInc);
     }
-    if (! okToCreateMoreTables)
+    if (! okToCreateMoreTables) {
+        m_ProgressDlg->close();
         return;
+    }
 
 
     m_ProgressDlg->close();
