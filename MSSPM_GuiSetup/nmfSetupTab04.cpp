@@ -566,8 +566,10 @@ nmfSetup_Tab4::callback_ClearModelName()
 void
 nmfSetup_Tab4::callback_SavePB()
 {
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_SavePB start");
     saveModel(true);
     setEstimatedParameterNames();
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_SavePB end");
 }
 
 QStringList
@@ -579,6 +581,8 @@ nmfSetup_Tab4::getEstimatedParameterNames()
 void
 nmfSetup_Tab4::setEstimatedParameterNames()
 {
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::setEstimatedParameterNames start");
+
     nmfStructsQt::EstimateRunBox runBox;
 
     std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes;
@@ -669,6 +673,7 @@ nmfSetup_Tab4::setEstimatedParameterNames()
     }
 
     emit SetEstimateRunCheckboxes(EstimateRunBoxes);
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::setEstimatedParameterNames end");
 
 }
 
@@ -686,6 +691,8 @@ nmfSetup_Tab4::reloadModelName()
 void
 nmfSetup_Tab4::saveModel(bool RunChecks)
 {
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel start");
+
     bool okToSave = true;
     std::string msg;
     std::string ModelName = Setup_Tab4_ModelNameLE->text().toStdString();
@@ -714,9 +721,14 @@ nmfSetup_Tab4::saveModel(bool RunChecks)
         emit ModelSaved();
     }
 
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel emitting UpdateInitialObservedBiomass");
     emit UpdateInitialObservedBiomass(getObsBiomassType());
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel emitting UpdateInitialForecastYear");
     emit UpdateInitialForecastYear();
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel emitting ReloadWidgets");
     emit ReloadWidgets();
+
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel end");
 }
 
 
@@ -1151,6 +1163,8 @@ nmfSetup_Tab4::callback_CalcPB()
 void
 nmfSetup_Tab4::callback_NewModelPB()
 {
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_NewModelPB start");
+
     bool ok;
     QString ModelName = QInputDialog::getText(Setup_Tabs,
                                                tr("New Model Name"),
@@ -1178,12 +1192,15 @@ nmfSetup_Tab4::callback_NewModelPB()
             }
         }
     }
+
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_NewModelPB end");
 }
 
 bool
 nmfSetup_Tab4::populateNewModel()
 {
     // Find another model in same project
+    bool ok = false;
     int RunLength;
     int StartYear;
     int NumSpeciesOrGuilds;
@@ -1200,6 +1217,8 @@ nmfSetup_Tab4::populateNewModel()
     std::pair<std::string,std::string> projectModelToCopyDataFrom;
     QStringList SpeciesList;
 
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel start");
+
     // Get Harvest table name
     std::string HarvestForm = getHarvestFormCMB()->currentText().toStdString();
     if (HarvestForm == nmfConstantsMSSPM::HarvestCatch.toStdString()) {
@@ -1209,13 +1228,19 @@ nmfSetup_Tab4::populateNewModel()
     }
 
     // Get data from other models in current project
-    fields   = {"ProjectName","ModelName","HarvestForm","ObsBiomassType"};
-    queryStr = "SELECT ProjectName,ModelName,HarvestForm,ObsBiomassType FROM Models WHERE ProjectName = '" + m_ProjectName + "'";
+    fields    = {"ProjectName","ModelName","HarvestForm","ObsBiomassType"};
+    queryStr  = "SELECT ProjectName,ModelName,HarvestForm,ObsBiomassType FROM Models WHERE ProjectName = '" + m_ProjectName + "'";
+    queryStr += " AND ModelName != '" + m_ModelName + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    if ((int)dataMap["ModelName"].size() == 0) {
+    int NumModels = (int)dataMap["ModelName"].size();
+    if (NumModels == 0) {
+        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel No other models found in project");
         return false;
+    } else {
+        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel Found " + std::to_string(NumModels) + " other model(s) in project");
+        m_logger->logMsg(nmfConstants::Normal,queryStr);
     }
-    for (int numModel=0; numModel<(int)dataMap["ModelName"].size(); ++numModel) {
+    for (int numModel=0; numModel<NumModels; ++numModel) {
         projectModel   = dataMap["ModelName"][numModel];
         obsBiomassType = dataMap["ObsBiomassType"][numModel];
         if (projectModel != m_ModelName) {
@@ -1227,6 +1252,8 @@ nmfSetup_Tab4::populateNewModel()
 
     // Copy data from the found model into the current model
     if (allOtherProjectModelData.size() > 0) {
+        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel Start copy data from found model into current model");
+
         projectModelToCopyDataFrom = allOtherProjectModelData[0];
 
         // Get Harvest Data
@@ -1241,8 +1268,10 @@ nmfSetup_Tab4::populateNewModel()
                                                "",harvestTableName,NumSpeciesOrGuilds,RunLength,harvestData)) {
             return false;
         }
-
-        loadDuplicateData(harvestTableName,SpeciesList,harvestData);
+        ok = replaceDuplicateData(harvestTableName,SpeciesList,harvestData);
+        if (! ok ) {
+            return false;
+        }
 
         // Copy Observation Data
         obsBiomassTableName = "Biomass" + projectModelToCopyDataFrom.second;
@@ -1250,17 +1279,21 @@ nmfSetup_Tab4::populateNewModel()
                                                "",obsBiomassTableName,NumSpeciesOrGuilds,RunLength,biomassData)) {
             return false;
         }
+        ok = replaceDuplicateData(obsBiomassTableName,SpeciesList,biomassData);
 
-        loadDuplicateData(obsBiomassTableName,SpeciesList,biomassData);
-
-        emit ModelLoaded();
+        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel emitting ModelLoaded");
+        if (ok) {
+            emit ModelLoaded();
+        }
+        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel End copy data from found model into current model");
     }
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel end");
 
     return true;
 }
 
 bool
-nmfSetup_Tab4::loadDuplicateData(
+nmfSetup_Tab4::replaceDuplicateData(
         const std::string& tableName,
         const QStringList& SpeciesList,
         const boost::numeric::ublas::matrix<double>& data)

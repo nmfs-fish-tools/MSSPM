@@ -117,7 +117,7 @@ class nmfSetup_Tab4: public QObject
     void saveSettings();
     void setModelPreset(std::string modelName);
     void updateOutputWidget();
-    bool loadDuplicateData(
+    bool replaceDuplicateData(
             const std::string& tableName,
             const QStringList& SpeciesList,
             const boost::numeric::ublas::matrix<double>& data);
