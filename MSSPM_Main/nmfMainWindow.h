@@ -224,6 +224,7 @@ private:
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
+    QGroupBox*               SummaryGB;
     QTableView*              InitBiomassTV;
     QTableView*              GrowthRateTV;
     QTableView*              CompetitionAlphaTV;
@@ -282,6 +283,7 @@ private:
     QWidget*                 MModeViewerTab1;
 
     bool isBeesAlgorithm();
+    bool isAMultiRun();
     int getTabIndex(QTabWidget* tabWidget, QString tabName);
     void calculateAverageBiomass();
     void displayAverageBiomass();

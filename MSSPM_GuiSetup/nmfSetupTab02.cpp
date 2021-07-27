@@ -109,8 +109,16 @@ nmfSetup_Tab2::isProjectDataValid()
 }
 
 
+
+
 void
 nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
+{
+    saveProject(nmfConstantsMSSPM::VerboseOn);
+}
+
+void
+nmfSetup_Tab2::saveProject(bool isVerbose)
 {
     QString fullFilename;
     std::string msg;
@@ -119,10 +127,12 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
     std::ofstream outFile;
 
     if (! isProjectDataValid()) {
-        QMessageBox::warning(Setup_Tabs,
-                             tr("Missing Data"),
-                             tr("\nPlease enter missing data above."),
-                             QMessageBox::Ok);
+        if (isVerbose) {
+            QMessageBox::warning(Setup_Tabs,
+                                 tr("Missing Data"),
+                                 tr("\nPlease enter missing data above."),
+                                 QMessageBox::Ok);
+        }
         return;
     }
 
@@ -138,7 +148,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
     fileSuffix =  QFileInfo(fullFilename).suffix();
     if (fileSuffix != "prj")
         fullFilename += ".prj";
-    if (QFileInfo(fullFilename).exists()) {
+    if (QFileInfo(fullFilename).exists() && isVerbose) {
         msg  = "\nThe project file already exists:\n\n" + fullFilename.toStdString() + "\n\n";
         msg += "OK to overwrite it?\n";
         reply = QMessageBox::question(Setup_Tabs,
@@ -189,9 +199,10 @@ nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
 
     QApplication::restoreOverrideCursor();
 
-    msg = "\nSaved Project: " + m_ProjectName.toStdString() + "\n";
-    QMessageBox::information(Setup_Tabs, "Project Saved", tr(msg.c_str()));
-
+    if (isVerbose) {
+        msg = "\nSaved Project: " + m_ProjectName.toStdString() + "\n";
+        QMessageBox::information(Setup_Tabs, "Project Saved", tr(msg.c_str()));
+    }
 }
 
 void

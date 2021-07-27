@@ -198,6 +198,11 @@ public:
      */
     void    loadWidgets();
     /**
+     * @brief Saves the current project information
+     * @param verbose : flag designating if output should be echo'd to the screen
+     */
+    void saveProject(bool verbose);
+    /**
      * @brief Saves this GUI's project data to the Qt Settings file
      */
     void    saveSettings();
@@ -226,6 +231,7 @@ public:
      * @param name : the name of the project
      */
     void setProjectName(QString name);
+
 
 public Q_SLOTS:
     /**

@@ -1378,6 +1378,7 @@ nmfMainWindow::menu_importDatabase()
                                                    m_ProjectDir,
                                                    m_Username,
                                                    m_Password);
+    m_Logger->logMsg(nmfConstants::Normal,"Imported database: "+ dbName.toStdString());
     QApplication::sync();
     QApplication::processEvents();
 
@@ -1391,6 +1392,7 @@ nmfMainWindow::menu_importDatabase()
             Setup_Tab2_ptr->enableProjectData();
         }
         Setup_Tab2_ptr->setProjectDatabase(dbName);
+        Setup_Tab2_ptr->saveProject(nmfConstantsMSSPM::VerboseOff);
 
         // Need to call menu_createTables() in case some tables are missing
         menu_createTables();
@@ -1403,7 +1405,9 @@ nmfMainWindow::menu_importDatabase()
             items << QString::fromStdString(dataMap["ProjectName"][i]);
         }
         if (items.size() == 0) {
-            QMessageBox::warning(this, "Error", "\nNo projects found to load in database.\n", QMessageBox::Ok);
+            std::string currentDatabase = m_DatabasePtr->nmfGetCurrentDatabase();
+            QString qmsg = "\nNo projects found to load in database: "+QString::fromStdString(currentDatabase)+"\n";
+            QMessageBox::warning(this, "Error", qmsg, QMessageBox::Ok);
             return;
         }
         QString selectedProjectName = QInputDialog::getItem(this, tr("Select Project"),
@@ -1417,7 +1421,7 @@ nmfMainWindow::menu_importDatabase()
             Remora_ptr->setProjectName(items[0]);
         }
         Setup_Tab2_ptr->saveSettings();
-        Setup_Tab2_ptr->callback_Setup_Tab2_SaveProject();
+        Setup_Tab2_ptr->saveProject(nmfConstantsMSSPM::VerboseOff);
         Setup_Tab2_ptr->callback_Setup_Tab2_ReloadProject();
         QMessageBox::information(this, "Load Model", "\nPlease load the desired model.\n", QMessageBox::Ok);
         setPage(nmfConstantsMSSPM::SectionSetup,3);
@@ -1957,7 +1961,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.23 (beta)";
+    QString version = "MSSPM v0.9.24 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2066,20 +2070,19 @@ nmfMainWindow::setupOutputModelFitSummaryWidgets()
 {
     QVBoxLayout* mainLayt    = new QVBoxLayout();
     QVBoxLayout* summaryLayt = new QVBoxLayout();
-    QGroupBox*   summaryGB   = new QGroupBox("Summary Statistics:");
+    SummaryGB                = new QGroupBox("Summary Statistics:");
     SummaryTV                = new QTableView();
     summaryLayt->addWidget(SummaryTV);
-    summaryGB->setLayout(summaryLayt);
-    mainLayt->addWidget(summaryGB);
+    SummaryGB->setLayout(summaryLayt);
+    mainLayt->addWidget(SummaryGB);
 
     m_EstimatedParametersMap["Model Fit Summary"] = SummaryTV;
-
-    m_EstimatedParametersMap["Data"] = m_UI->MSSPMOutputTV;
+    m_EstimatedParametersMap["Data"]              = m_UI->MSSPMOutputTV;
 
     // Make the title bold
-    QFont font = summaryGB->font();
+    QFont font = SummaryGB->font();
     font.setBold(true);
-    summaryGB->setFont(font);
+    SummaryGB->setFont(font);
     font.setBold(false);
     SummaryTV->setFont(font);
 
@@ -6495,6 +6498,7 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     Minimizers.push_back(Minimizer);
     ObjectiveCriteria.push_back(ObjectiveCriterion);
     Scalings.push_back(Scaling);
+
     if (isAMultiRun) {
         OutputBiomass.push_back(EstimatedBiomass);
     } else {
@@ -6633,6 +6637,7 @@ std::cout << "N.B.: Add matrix parameters to this map" << std::endl;
     statStruct.ae               = stats[8];
     statStruct.aae              = stats[9];
     statStruct.mef              = stats[10];
+    statStruct.title            = "Summary Statistics (" + Algorithm + "): ";
 
     return true;
 }
@@ -6682,16 +6687,34 @@ nmfMainWindow::calculateSummaryStatistics(QStandardItemModel* smodel,
     bool ok = true;
     StatStruct statStruct;
     boost::numeric::ublas::matrix<double> EstimatedBiomass;
+    statStruct.title = "Summary Statistics:";
+    std::string theAlgorithm = Algorithm;
+    SummaryGB->show();
 
     if (isMohnsRhoBool) {
+        SummaryGB->hide();
         ok = calculateSummaryStatisticsStructMohnsRho(statStruct);
     } else {
-        ok = calculateSummaryStatisticsStruct(isAggProd,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                                              RunLength,NumSpeciesOrGuilds,isMohnsRhoBool,false,
+        // Get the Estimated Biomass
+        bool itsAMultiRun = isAMultiRun();
+        if (itsAMultiRun) {
+            std::string isAggProd = "0";
+            std::string AverageType = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm().toStdString();
+            theAlgorithm = AverageType;
+            if (! m_DatabasePtr->getEstimatedBiomass(NumSpeciesOrGuilds,RunLength,"OutputBiomass",AverageType,AverageType,AverageType,AverageType,isAggProd,EstimatedBiomass)) {
+                QMessageBox::warning(this, "Error",
+                                     "\nmfMainWindow::calculateSummaryStatistics: Error reading OutputBiomass with Algorithm: "+QString::fromStdString(AverageType)+"\n",
+                                     QMessageBox::Ok);
+                return;
+            }
+        }
+        ok = calculateSummaryStatisticsStruct(isAggProd,theAlgorithm,Minimizer,ObjectiveCriterion,Scaling,
+                                              RunLength,NumSpeciesOrGuilds,isMohnsRhoBool,itsAMultiRun,
                                               EstimatedBiomass,statStruct);
     }
     if (ok) {
         loadSummaryStatisticsModel(NumSpeciesOrGuilds,smodel,isMohnsRhoBool,statStruct);
+        SummaryGB->setTitle(QString::fromStdString(statStruct.title));
     }
 }
 
@@ -6757,16 +6780,16 @@ nmfMainWindow::isAMohnsRhoMultiRun()
                NavigatorStr.contains("Parameter Profiles")) ));
 }
 
-//bool
-//nmfMainWindow::isAMultiRun()
-//{
-//    return (Estimation_Tab6_ptr->isAMultiRun());
-//}
+bool
+nmfMainWindow::isAMultiRun()
+{
+    return (Estimation_Tab6_ptr->isAMultiRun());
+}
 
 bool
 nmfMainWindow::isAMultiOrMohnsRhoRun()
 {
-    return (Estimation_Tab6_ptr->isAMultiRun() || isAMohnsRhoMultiRun());
+    return (isAMultiRun() || isAMohnsRhoMultiRun());
 }
 
 void
