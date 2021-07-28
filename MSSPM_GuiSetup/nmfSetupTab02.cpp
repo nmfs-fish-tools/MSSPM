@@ -775,23 +775,6 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-//    // 39 of 68: TestData
-//    fullTableName = db + ".TestData";
-//    cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-//    cmd += "(GrowthRate        float NOT NULL,";
-//    cmd += " CarryingCapacity  float NOT NULL)";
-//    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-//    if (nmfUtilsQt::isAnError(errorMsg)) {
-//        nmfUtils::printError("[Error 16] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
-//        okToCreateMoreTables = false;
-//    } else {
-//        m_Logger->logMsg(nmfConstants::Normal,"Created table: "+fullTableName);
-//        m_ProgressDlg->setValue(++pInc);
-//        m_ProgressDlg->update();
-//    }
-//    if (! okToCreateMoreTables)
-//        return;
-
     // 50 of 68: Species
     fullTableName = db + ".Species";
     ExistingTableNames.push_back("Species");
@@ -961,7 +944,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Scaling                     varchar(50) NOT NULL,";
     cmd += " SpeName                     varchar(50) NOT NULL,";
     cmd += " GrowthRate                  float       NULL,";
-    cmd += " CarryingCapacity            float       NULL,";
+    cmd += " CarryingCapacity            double      NULL,";
     cmd += " Catchability                float       NULL,";
     cmd += " Exponent                    float       NULL,";
     cmd += " CompetitionAlpha            float       NULL,";
@@ -970,7 +953,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " CompetitionBetaGuildsGuilds float       NULL,";
     cmd += " Predation                   float       NULL,";
     cmd += " Handling                    float       NULL,";
-    cmd += " Harvest                     float       NULL,";
+    cmd += " Harvest                     double      NULL,";
     cmd += " PRIMARY KEY (ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -1143,7 +1126,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
         cmd += "(ProjectName                 varchar(50)  NOT NULL,";
         cmd += " ModelName                   varchar(50)  NOT NULL,";
-        cmd += " CarryingCapacity            int(11)      NULL,";
+        cmd += " CarryingCapacity            double       NULL,";
         cmd += " ObsBiomassType              varchar(50)  NULL,";
         cmd += " Units                       varchar(50)  NULL,";
         cmd += " GrowthForm                  varchar(25)  NULL,";

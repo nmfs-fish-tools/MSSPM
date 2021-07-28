@@ -1961,7 +1961,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.24 (beta)";
+    QString version = "MSSPM v0.9.25 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -8460,6 +8460,7 @@ nmfMainWindow::initializeMModeMain()
 
     // Set up main REMORA dock widget
     MModeDockWidget = new QDockWidget(this);
+    MModeDockWidget->setObjectName("REMORA");
     MModeDockWidget->setWidget(Remora_ptr->getTopLevelWidget());
     //MModeDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, MModeDockWidget);
@@ -8852,7 +8853,7 @@ void
 nmfMainWindow::readSettings()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
-    this->restoreState(settings->value("DOCK_LOCATIONS").toByteArray(),12);
+    this->restoreState(settings->value("DOCK_LOCATIONS").toByteArray());
 
     settings->beginGroup("Settings");
     m_ModelName = settings->value("Name","").toString().toStdString();
@@ -8900,7 +8901,7 @@ nmfMainWindow::saveSettings() {
         return;
     }
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
-    settings->setValue("DOCK_LOCATIONS",this->saveState(12));
+    settings->setValue("DOCK_LOCATIONS",this->saveState());
 
     settings->beginGroup("MainWindow");
     settings->setValue("pos", pos());
