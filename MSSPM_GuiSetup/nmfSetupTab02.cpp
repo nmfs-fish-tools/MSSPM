@@ -818,7 +818,8 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + ".Forecasts";
     ExistingTableNames.push_back("Forecasts");
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(ForecastName       varchar(50) NOT NULL,";
+    cmd += "(ProjectName        varchar(50) NOT NULL,";
+    cmd += " ForecastName       varchar(50) NOT NULL,";
     cmd += " PreviousRun        int(11)     NOT NULL,";
     cmd += " Algorithm          varchar(50) NOT NULL,";
     cmd += " Minimizer          varchar(50) NOT NULL,";
@@ -834,7 +835,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " NumRuns            int(11)     NOT NULL,";
     cmd += " IsDeterministic    int(11)     NOT NULL,";
     cmd += " Seed               int(11)     NOT NULL,";
-    cmd += " PRIMARY KEY (ForecastName))";
+    cmd += " PRIMARY KEY (ProjectName,ForecastName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 19] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -857,7 +858,8 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(ForecastName       varchar(50) NOT NULL,";
+        cmd += "(ProjectName        varchar(50) NOT NULL,";
+        cmd += " ForecastName       varchar(50) NOT NULL,";
         cmd += " Algorithm          varchar(50) NOT NULL,";
         cmd += " Minimizer          varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion varchar(50) NOT NULL,";
@@ -865,7 +867,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " SpeName            varchar(50) NOT NULL,";
         cmd += " Year               int(11)     NOT NULL,";
         cmd += " Value              double      NOT NULL,";
-        cmd += " PRIMARY KEY (ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year))";
+        cmd += " PRIMARY KEY (ProjectName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 20] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -883,7 +885,8 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + ".ForecastBiomass";
     ExistingTableNames.push_back("ForecastBiomass");
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(ForecastName       varchar(50) NOT NULL,";
+    cmd += "(ProjectName        varchar(50) NOT NULL,";
+    cmd += " ForecastName       varchar(50) NOT NULL,";
     cmd += " Algorithm          varchar(50) NOT NULL,";
     cmd += " Minimizer          varchar(50) NOT NULL,";
     cmd += " ObjectiveCriterion varchar(50) NOT NULL,";
@@ -892,7 +895,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " SpeName            varchar(50) NOT NULL,";
     cmd += " Year               int(11)     NOT NULL,";
     cmd += " Value              float       NOT NULL,";
-    cmd += " PRIMARY KEY (ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
+    cmd += " PRIMARY KEY (ProjectName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 22] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -909,7 +912,8 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + ".ForecastBiomassMonteCarlo";
     ExistingTableNames.push_back("ForecastBiomassMonteCarlo");
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(ForecastName varchar(50) NOT NULL,";
+    cmd += "(ProjectName  varchar(50) NOT NULL,";
+    cmd += " ForecastName varchar(50) NOT NULL,";
     cmd += " RunNum       int(11)     NOT NULL,";
     cmd += " Algorithm    varchar(50) NOT NULL,";
     cmd += " Minimizer    varchar(50) NOT NULL,";
@@ -919,7 +923,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " SpeName      varchar(50) NOT NULL,";
     cmd += " Year         int(11)     NOT NULL,";
     cmd += " Value        float       NOT NULL,";
-    cmd += " PRIMARY KEY (ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
+    cmd += " PRIMARY KEY (ProjectName,ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 21] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -936,7 +940,8 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + ".ForecastMonteCarloParameters";
     ExistingTableNames.push_back("ForecastMonteCarloParameters");
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(ForecastName                varchar(50) NOT NULL,";
+    cmd += "(ProjectName                 varchar(50) NOT NULL,";
+    cmd += " ForecastName                varchar(50) NOT NULL,";
     cmd += " RunNum                      int(11)     NOT NULL,";
     cmd += " Algorithm                   varchar(50) NOT NULL,";
     cmd += " Minimizer                   varchar(50) NOT NULL,";
@@ -954,7 +959,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Predation                   float       NULL,";
     cmd += " Handling                    float       NULL,";
     cmd += " Harvest                     double      NULL,";
-    cmd += " PRIMARY KEY (ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName))";
+    cmd += " PRIMARY KEY (ProjectName,ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 21.1] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -994,7 +999,8 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + ".ForecastUncertainty";
     ExistingTableNames.push_back("ForecastUncertainty");
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(ForecastName                varchar(50) NOT NULL,";
+    cmd += "(ProjectName                 varchar(50) NOT NULL,";
+    cmd += " ForecastName                varchar(50) NOT NULL,";
     cmd += " SpeName                     varchar(50) NOT NULL,";
     cmd += " Algorithm                   varchar(50) NOT NULL,";
     cmd += " Minimizer                   varchar(50) NOT NULL,";
@@ -1013,7 +1019,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " PredationExponent           float       NOT NULL,";
     cmd += " SurveyQ                     float       NOT NULL,";
     cmd += " Harvest                     float       NOT NULL,";
-    cmd += " PRIMARY KEY (ForecastName,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling))";
+    cmd += " PRIMARY KEY (ProjectName,ForecastName,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 23] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
