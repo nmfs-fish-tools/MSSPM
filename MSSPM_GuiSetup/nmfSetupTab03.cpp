@@ -430,6 +430,8 @@ nmfSetup_Tab3::callback_UpdateGuildTable(QList<QString> GuildNames,
     int col;
     int index = 0;
     QTableWidgetItem *item;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     callback_ReloadSpeciesPB(nmfConstantsMSSPM::DontShowPopupError);
 
@@ -440,7 +442,12 @@ nmfSetup_Tab3::callback_UpdateGuildTable(QList<QString> GuildNames,
         col = columns[index++];
         for (int row=0; row<GuildNames.size(); ++row) {
             item = new QTableWidgetItem();
-            item->setText(list[row]);
+            if (col == nmfConstantsMSSPM::Column_Guild_GuildK) {
+                valueWithComma = locale.toString(list[row].toDouble(),'f',6);
+                item->setText(valueWithComma);
+            } else {
+                item->setText(list[row]);
+            }
             item->setTextAlignment(Qt::AlignCenter);
             Setup_Tab3_GuildsTW->setItem(row,col,item);
         }
@@ -458,6 +465,8 @@ nmfSetup_Tab3::callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
     int index = 0;
     QTableWidgetItem *item;
     QComboBox* cbox;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     callback_ReloadSpeciesPB(nmfConstantsMSSPM::DontShowPopupError);
 
@@ -474,7 +483,13 @@ nmfSetup_Tab3::callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
                 cbox->setCurrentText(list[row]);
             } else {
                 item = new QTableWidgetItem();
-                item->setText(list[row]);
+                if ((col == nmfConstantsMSSPM::Column_Species_InitBiomass) ||
+                    (col == nmfConstantsMSSPM::Column_Species_SpeciesK)) {
+                    valueWithComma = locale.toString(list[row].toDouble(),'f',6);
+                    item->setText(valueWithComma);
+                } else {
+                    item->setText(list[row]);
+                }
                 item->setTextAlignment(Qt::AlignCenter);
                 Setup_Tab3_SpeciesTW->setItem(row,col,item);
             }
@@ -530,6 +545,7 @@ nmfSetup_Tab3::saveGuildData()
     //double GuildKVal; //,GuildKMinVal,GuildKMaxVal;
     //double GrowthRateVal; //,GrowthRateMinVal,GrowthRateMaxVal;
     std::vector<std::string> guilds;
+    QString valueWithoutComma;
 
     m_logger->logMsg(nmfConstants::Normal,"Saving Guild Data");
 
@@ -545,14 +561,7 @@ nmfSetup_Tab3::saveGuildData()
     // If not, display error and return.
     QStringList GuildList;
     for (int i=0; i<NumGuilds; ++i) {
-        GuildName        = Setup_Tab3_GuildsTW->item(i,0)->text().toStdString();
-        //GrowthRateVal    = Setup_Tab3_GuildsTW->item(i,1)->text().toDouble();
-        //GuildKVal        = Setup_Tab3_GuildsTW->item(i,2)->text().toDouble();
-
-//        GrowthRateMinVal = Setup_Tab3_GuildsTW->item(i,2)->text().toDouble();
-//        GrowthRateMaxVal = Setup_Tab3_GuildsTW->item(i,3)->text().toDouble();
-//        GuildKMinVal     = Setup_Tab3_GuildsTW->item(i,5)->text().toDouble();
-//        GuildKMaxVal     = Setup_Tab3_GuildsTW->item(i,6)->text().toDouble();
+        GuildName = Setup_Tab3_GuildsTW->item(i,0)->text().toStdString();
         if (GuildList.contains(QString::fromStdString(GuildName))) {
             errorMsg = "\nFound duplicate Guild name: " + GuildName;
             errorMsg += "\n\nEach Guild name must be unique.\n";
@@ -600,20 +609,11 @@ nmfSetup_Tab3::saveGuildData()
 
     // Save Guilds table from table widget
     for (int i=0; i<NumGuilds; ++i) {
-        GuildName       = Setup_Tab3_GuildsTW->item(i,0)->text().toStdString();
-        GrowthRate      = Setup_Tab3_GuildsTW->item(i,1)->text().toStdString();
-        GuildK          = Setup_Tab3_GuildsTW->item(i,2)->text().toStdString();
-//        GrowthRateMin   = Setup_Tab3_GuildsTW->item(i,2)->text().toStdString();
-//        GrowthRateMax   = Setup_Tab3_GuildsTW->item(i,3)->text().toStdString();
-//        GuildKMin       = Setup_Tab3_GuildsTW->item(i,5)->text().toStdString();
-//        GuildKMax       = Setup_Tab3_GuildsTW->item(i,6)->text().toStdString();
-//        CatchabilityMin = Setup_Tab3_GuildsTW->item(i,7)->text().toStdString();
-//        CatchabilityMax = Setup_Tab3_GuildsTW->item(i,8)->text().toStdString();
-//        cmd  = "INSERT INTO Guilds (GuildName,GrowthRate,GrowthRateMin,GrowthRateMax,GuildK,GuildKMin,GuildKMax,CatchabilityMin,CatchabilityMax) ";
+        GuildName         = Setup_Tab3_GuildsTW->item(i,0)->text().toStdString();
+        GrowthRate        = Setup_Tab3_GuildsTW->item(i,1)->text().toStdString();
+        valueWithoutComma = Setup_Tab3_GuildsTW->item(i,2)->text().remove(",");
+        GuildK            = valueWithoutComma.toStdString();
         cmd  = "INSERT INTO Guilds (GuildName,GrowthRate,GuildK) ";
-//        cmd += "VALUES ('" + GuildName + "'," + GrowthRate + "," + GrowthRateMin + "," + GrowthRateMax + "," +
-//                GuildK + "," + GuildKMin + "," + GuildKMax + "," +
-//                CatchabilityMin  + "," + CatchabilityMax + ");";
         cmd += "VALUES ('" + GuildName + "'," + GrowthRate +  "," + GuildK + ");";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -657,6 +657,7 @@ nmfSetup_Tab3::saveSpeciesData()
     std::string GrowthRateMax,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SpeDependence;
     std::map<std::string,double> guildKMap;
     QString value;
+    QString valueWithoutComma;
     std::vector<std::string> species;
 
     // Check each cell for missing fields
@@ -680,17 +681,16 @@ nmfSetup_Tab3::saveSpeciesData()
                                              QString::fromStdString("\n"+msg+"\n"),
                                              QMessageBox::Ok);
                         return;
-                    } else if (value.contains(',')) {
-//                      if (! okValue) {
-                            msg = "Found an invalid numeric value of: " + value.toStdString();
-                            msg += ". No commas or special characters allowed.";
-                            m_logger->logMsg(nmfConstants::Error,msg);
-                            QMessageBox::warning(Setup_Tabs,"Warning",
-                                                 QString::fromStdString("\n"+msg+"\n"),
-                                                 QMessageBox::Ok);
-                            return;
-//                      }
                     }
+//                    else if (value.contains(',')) {
+//                            msg = "Found an invalid numeric value of: " + value.toStdString();
+//                            msg += ". No commas or special characters allowed.";
+//                            m_logger->logMsg(nmfConstants::Error,msg);
+//                            QMessageBox::warning(Setup_Tabs,"Warning",
+//                                                 QString::fromStdString("\n"+msg+"\n"),
+//                                                 QMessageBox::Ok);
+//                            return;
+//                    }
                 }
             }
         }
@@ -705,7 +705,7 @@ nmfSetup_Tab3::saveSpeciesData()
     // If not, display error and return.
     QStringList SpeciesList;
     for (int i=0; i<NumSpecies; ++i) {
-        SpeciesName       = Setup_Tab3_SpeciesTW->item(i, 0)->text().toStdString();
+        SpeciesName = Setup_Tab3_SpeciesTW->item(i, 0)->text().toStdString();
         if (SpeciesList.contains(QString::fromStdString(SpeciesName))) {
             errorMsg = "\nFound duplicate Species name: " + SpeciesName;
             errorMsg += "\n\nEach Species name must be unique.\n";
@@ -719,11 +719,13 @@ nmfSetup_Tab3::saveSpeciesData()
 
     // Save Species table from table widget
     for (int i=0; i<NumSpecies; ++i) {
-        SpeciesName          = Setup_Tab3_SpeciesTW->item(i, 0)->text().toStdString();
-        GuildName            = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(i,1))->currentText().toStdString();
-        InitBiomass          = Setup_Tab3_SpeciesTW->item(i, 2)->text().toStdString();
-        GrowthRate           = Setup_Tab3_SpeciesTW->item(i, 3)->text().toStdString();
-        SpeciesK             = Setup_Tab3_SpeciesTW->item(i, 4)->text().toStdString();
+        SpeciesName       = Setup_Tab3_SpeciesTW->item(i, 0)->text().toStdString();
+        GuildName         = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(i,1))->currentText().toStdString();
+        valueWithoutComma = Setup_Tab3_SpeciesTW->item(i, 2)->text().remove(",");
+        InitBiomass       = valueWithoutComma.toStdString();
+        GrowthRate        = Setup_Tab3_SpeciesTW->item(i, 3)->text().toStdString();
+        valueWithoutComma = Setup_Tab3_SpeciesTW->item(i, 4)->text().remove(",");
+        SpeciesK          = valueWithoutComma.toStdString();
 
         guildKMap[GuildName] += std::stod(SpeciesK);
         systemK += std::stod(SpeciesK);
@@ -787,9 +789,9 @@ nmfSetup_Tab3::callback_ExportPB()
     QList<QString> SpeciesInitialBiomass;
     QList<QString> SpeciesGrowthRate;
     QList<QString> SpeciesK;
+    QString valueWithoutComma;
 
     // Need to sync Estimation Tab1 tableview with Setup Tab3 table widget
-std::cout << "onGuildPage: " << onGuildPage() << std::endl;
     if (onGuildPage()) {
         for (int col=0; col<Setup_Tab3_GuildsTW->columnCount(); ++col) {
             for (int row=0; row<Setup_Tab3_GuildsTW->rowCount(); ++row) {
@@ -798,7 +800,8 @@ std::cout << "onGuildPage: " << onGuildPage() << std::endl;
                 } else if (col == nmfConstantsMSSPM::Column_Guild_GrowthRate) {
                     GuildGrowthRate.push_back(Setup_Tab3_GuildsTW->item(row,col)->text());
                 } else if (col == nmfConstantsMSSPM::Column_Guild_GuildK) {
-                    GuildK.push_back(Setup_Tab3_GuildsTW->item(row,col)->text());
+                    valueWithoutComma = Setup_Tab3_GuildsTW->item(row,col)->text().remove(",");
+                    GuildK.push_back(valueWithoutComma);
                 }
             }
         }
@@ -813,11 +816,13 @@ std::cout << "onGuildPage: " << onGuildPage() << std::endl;
                     cbox = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(row,col));
                     SpeciesGuild.push_back(cbox->currentText());
                 } else if (col == nmfConstantsMSSPM::Column_Species_InitBiomass) {
-                    SpeciesInitialBiomass.push_back(Setup_Tab3_SpeciesTW->item(row,col)->text());
+                    valueWithoutComma = Setup_Tab3_SpeciesTW->item(row,col)->text().remove(",");
+                    SpeciesInitialBiomass.push_back(valueWithoutComma);
                 } else if (col == nmfConstantsMSSPM::Column_Species_GrowthRate) {
                     SpeciesGrowthRate.push_back(Setup_Tab3_SpeciesTW->item(row,col)->text());
                 } else if (col == nmfConstantsMSSPM::Column_Species_SpeciesK) {
-                    SpeciesK.push_back(Setup_Tab3_SpeciesTW->item(row,col)->text());
+                    valueWithoutComma = Setup_Tab3_SpeciesTW->item(row,col)->text().remove(",");
+                    SpeciesK.push_back(valueWithoutComma);
                 }
             }
         }
@@ -1140,6 +1145,8 @@ nmfSetup_Tab3::loadGuilds()
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     QStringList GuildColumns;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     clearGuildWidgets();
 
@@ -1164,7 +1171,8 @@ nmfSetup_Tab3::loadGuilds()
         for (int i=0; i<NumGuilds; ++i) {
             Setup_Tab3_GuildsTW->item(i,0)->setText(QString::fromStdString(dataMap["GuildName"][i]));
             Setup_Tab3_GuildsTW->item(i,1)->setText(QString::fromStdString(dataMap["GrowthRate"][i]));
-            Setup_Tab3_GuildsTW->item(i,2)->setText(QString::fromStdString(dataMap["GuildK"][i]));
+            valueWithComma = locale.toString(std::stod(dataMap["GuildK"][i]),'f',6);
+            Setup_Tab3_GuildsTW->item(i,2)->setText(valueWithComma);
         }
         Setup_Tab3_NumGuildsSB->setEnabled(false);
     }
@@ -1186,6 +1194,8 @@ nmfSetup_Tab3::loadSpecies()
     std::string queryStr;
     std::string guild;
     QComboBox *guilds;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     clearSpeciesWidgets();
 
@@ -1206,12 +1216,13 @@ nmfSetup_Tab3::loadSpecies()
         Setup_Tab3_NumSpeciesSB->setEnabled(false);
 
         for (int i=0; i<NumSpecies; ++i) {
-
             // Populate text fields
             Setup_Tab3_SpeciesTW->item(i,0)->setText(QString::fromStdString(dataMap["SpeName"][i]));
-            Setup_Tab3_SpeciesTW->item(i,2)->setText(QString::fromStdString(dataMap["InitBiomass"][i]));
+            valueWithComma = locale.toString(std::stod(dataMap["InitBiomass"][i]),'f',6);
+            Setup_Tab3_SpeciesTW->item(i,2)->setText(valueWithComma);
             Setup_Tab3_SpeciesTW->item(i,3)->setText(QString::fromStdString(dataMap["GrowthRate"][i]));
-            Setup_Tab3_SpeciesTW->item(i,4)->setText(QString::fromStdString(dataMap["SpeciesK"][i]));
+            valueWithComma = locale.toString(std::stod(dataMap["SpeciesK"][i]),'f',6);
+            Setup_Tab3_SpeciesTW->item(i,4)->setText(valueWithComma);
 
             // Set Guild combo box
             guild  = dataMap["GuildName"][i];

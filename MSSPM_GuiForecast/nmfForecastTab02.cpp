@@ -240,6 +240,7 @@ nmfForecast_Tab2::saveHarvestData(bool verbose)
     std::string ObjectiveCriterion;
     std::string Scaling;
     std::string CompetitionForm;
+    QString valueWithoutComma;
 
     if (m_SModel == nullptr) {
         return;
@@ -278,7 +279,8 @@ nmfForecast_Tab2::saveHarvestData(bool verbose)
     for (int j=0; j<m_SModel->columnCount(); ++j) { // Species
         for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
             index = m_SModel->index(i,j);
-            value = index.data().toString().toStdString();
+            valueWithoutComma = index.data().toString().remove(",");
+            value = valueWithoutComma.toStdString();
             cmd += "('" + m_ProjectName + "','" + ForecastName +
                     "','" + Algorithm + "','" + Minimizer +
                     "','" + ObjectiveCriterion + "','" + Scaling +
@@ -418,9 +420,11 @@ nmfForecast_Tab2::loadWidgets()
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
+    QLocale locale(QLocale::English);
     QStandardItem *item;
     QStringList SpeciesNames;
     QStringList VerticalList;
+    QString valueWithComma;
     std::string ForecastName = Forecast_Tab1_NameLE->text().toStdString();
 
     readSettings();
@@ -487,10 +491,13 @@ nmfForecast_Tab2::loadWidgets()
     m_SModel = new QStandardItemModel( RunLength, NumSpecies );
     for (int j=0; j<NumSpecies; ++j) {
         for (int i=0; i<=RunLength; ++i) {
-            if ((NumRecords == 0) || RunLengthHasChanged)
+            if ((NumRecords == 0) || RunLengthHasChanged) {
                 item = new QStandardItem(QString(""));
-            else
-                item = new QStandardItem(QString::number(std::stod(dataMap["Value"][m++]),'f',6));
+            } else {
+                valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',6);
+                item = new QStandardItem(valueWithComma);
+//              item = new QStandardItem(QString::number(std::stod(dataMap["Value"][m++]),'f',6));
+            }
             item->setTextAlignment(Qt::AlignCenter);
             m_SModel->setItem(i, j, item);
         }

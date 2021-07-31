@@ -1167,21 +1167,30 @@ MSSPM_GuiOutputControls::isEnabledOutputFMSY()
 void
 MSSPM_GuiOutputControls::setTextOutputBMSY(QString text)
 {
+    QLocale locale(QLocale::English);
+    QString valueWithComma = locale.toString(text.toDouble());
+
     OutputShowBMSYLE->blockSignals(true);
-    OutputShowBMSYLE->setText(text);
+    OutputShowBMSYLE->setText(valueWithComma);
     OutputShowBMSYLE->blockSignals(false);
 }
 
 void
 MSSPM_GuiOutputControls::setTextOutputMSY(QString text)
 {
-    OutputShowMSYLE->setText(text);
+    QLocale locale(QLocale::English);
+    QString valueWithComma = locale.toString(text.toDouble());
+
+    OutputShowMSYLE->setText(valueWithComma);
 }
 
 void
 MSSPM_GuiOutputControls::setTextOutputFMSY(QString text)
 {
-    OutputShowFMSYLE->setText(text);
+    QLocale locale(QLocale::English);
+    QString valueWithComma = locale.toString(text.toDouble());
+
+    OutputShowFMSYLE->setText(valueWithComma);
 }
 
 void

@@ -123,9 +123,13 @@ nmfForecast_Tab4::callback_RunPB()
 
     std::string ForecastName = Forecast_Tab1_NameLE->text().toStdString();
 
+    m_Logger->logMsg(nmfConstants::Normal,"Emitting CheckMSYBoxes");
     emit CheckMSYBoxes(false);
+    m_Logger->logMsg(nmfConstants::Normal,"Emitting EnableRunButtons");
     emit EnableRunButtons(false);
+    m_Logger->logMsg(nmfConstants::Normal,"Emitting RunForecast");
     emit RunForecast(ForecastName,true);
+    m_Logger->logMsg(nmfConstants::Normal,"Emitting EnableRunButtons");
     emit EnableRunButtons(true);
 }
 

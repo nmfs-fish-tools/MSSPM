@@ -99,6 +99,7 @@ class nmfEstimation_Tab1: public QObject
     void importSpeciesData(const QString& tableName,
                            bool updateSetup);
     bool isChecked(QCheckBox* cb);
+    bool isInitBiomassLessThanSpeciesKMin();
     bool loadGuilds();
     bool loadSpecies();
     bool onGuildTab();

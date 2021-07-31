@@ -299,6 +299,8 @@ nmfEstimation_Tab1::callback_RestorePB()
     std::string msg;
     QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab1_SpeciesPopulationTV->model());
     QStandardItem *item;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     int numRows = smodel->rowCount();
     int numCols = smodel->columnCount();
@@ -311,7 +313,12 @@ nmfEstimation_Tab1::callback_RestorePB()
     }
     for (int i=0; i<numRows; ++i) {
         for (int j=0; j<numCols; ++j) {
-            item = new QStandardItem(m_originalSpeciesValuesAll[m++]);
+            if (j > 0) {
+                valueWithComma = locale.toString(m_originalSpeciesValuesAll[m++].toDouble());
+                item = new QStandardItem(valueWithComma);
+            } else {
+                item = new QStandardItem(m_originalSpeciesValuesAll[m++]);
+            }
             item->setTextAlignment(Qt::AlignCenter);
             smodel->setItem(i,j,item);
         }
@@ -429,10 +436,10 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
         QList<QString> SpeciesGrowthRate;
         QList<QString> SpeciesK;
         for (int row=0; row<m_SpeciesModel->rowCount(); ++row) {
-            SpeciesNames.push_back(      m_SpeciesModel->item(row,ColumnNumbers[0])->text());
-            SpeciesInitBiomass.push_back(m_SpeciesModel->item(row,ColumnNumbers[1])->text());
+            SpeciesNames.push_back(      m_SpeciesModel->item(row,ColumnNumbers[0])->text());            
+            SpeciesInitBiomass.push_back(m_SpeciesModel->item(row,ColumnNumbers[1])->text().remove(","));
             SpeciesGrowthRate.push_back( m_SpeciesModel->item(row,ColumnNumbers[2])->text());
-            SpeciesK.push_back(          m_SpeciesModel->item(row,ColumnNumbers[3])->text());
+            SpeciesK.push_back(          m_SpeciesModel->item(row,ColumnNumbers[3])->text().remove(","));
         }
         emit UpdateSpeciesSetupData(SpeciesNames,SpeciesGuilds,SpeciesInitBiomass,
                                     SpeciesGrowthRate,SpeciesK);
@@ -451,7 +458,7 @@ nmfEstimation_Tab1::callback_SavePB()
     // Show warning
     QMessageBox::StandardButton reply;
     msg += "Are you sure you want to overwrite current "+type+" settings\n";
-    msg += "with current Population Parameters? This cannot be undone.\n";
+    msg += "with current Population Parameters?\n\nThis cannot be undone.\n";
     reply = QMessageBox::question(Estimation_Tabs, tr("Overwrite Species"), tr(msg.c_str()),
                                   QMessageBox::No|QMessageBox::Yes,
                                   QMessageBox::Yes);
@@ -716,6 +723,7 @@ nmfEstimation_Tab1::saveGuildDataRange(bool showPopup)
     QString GrowthRate,GrowthRateMin,GrowthRateMax;
     QString GuildK,GuildKMin,GuildKMax;
     QModelIndex index;
+    QString valueWithoutComma;
 
     // Save Guild range fields
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
@@ -731,12 +739,15 @@ nmfEstimation_Tab1::saveGuildDataRange(bool showPopup)
         GrowthRateMax = index.data().toString();
         cmd += "GrowthRateMax=" + GrowthRateMax + ",";
         index = m_GuildModel->index(i,4);
-        GuildK = index.data().toString();
+        valueWithoutComma = index.data().toString().remove(",");
+        GuildK = valueWithoutComma;
         index = m_GuildModel->index(i,5);
-        GuildKMin = index.data().toString();
+        valueWithoutComma = index.data().toString().remove(",");
+        GuildKMin = valueWithoutComma;
         cmd += "GuildKMin=" + GuildKMin + ",";
         index = m_GuildModel->index(i,6);
-        GuildKMax = index.data().toString();
+        valueWithoutComma = index.data().toString().remove(",");
+        GuildKMax = valueWithoutComma;
         cmd += "GuildKMax=" + GuildKMax;
         cmd += " WHERE GuildName = '" + GuildName + "'";
         if (nmfUtilsQt::emptyField({GuildName,GrowthRateMin,GrowthRateMax,GuildKMin,GuildKMax})) {
@@ -821,6 +832,7 @@ nmfEstimation_Tab1::saveGuildDataPrimary(bool showPopup)
     QString GrowthRate;
     QString GuildK;
     QModelIndex index;
+    QString valueWithoutComma;
 
     // Save the default (i.e. non-range and non-supplemental) data
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
@@ -831,7 +843,8 @@ nmfEstimation_Tab1::saveGuildDataPrimary(bool showPopup)
         GrowthRate = index.data().toString();
         cmd += "GrowthRate=" + GrowthRate + ",";
         index = m_GuildModel->index(i,4);
-        GuildK = index.data().toString();
+        valueWithoutComma = index.data().toString().remove(",");
+        GuildK = valueWithoutComma;
         cmd += "GuildK=" + GuildK;
         cmd += " WHERE GuildName = '" + GuildName + "'";
         if (nmfUtilsQt::emptyField({GuildName,GrowthRate,GuildK})) {
@@ -890,6 +903,41 @@ nmfEstimation_Tab1::savePopulationParametersGuilds(bool showPopup)
     return true;
 }
 
+
+bool
+nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin()
+{
+    std::string errorMsg;
+    double InitBiomass;
+    double SpeciesKMin;
+    QModelIndex index;
+    QString SpeName;
+    QString valueWithoutComma;
+
+    // Check that InitBiomass < the SpeciesKMin value in the Species table
+    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
+        index = m_SpeciesModel->index(i,0);
+        SpeName = index.data().toString();
+        index = m_SpeciesModel->index(i,1);
+        valueWithoutComma = index.data().toString().remove(",");
+        InitBiomass = valueWithoutComma.toDouble();
+        index = m_SpeciesModel->index(i,9);
+        valueWithoutComma = index.data().toString().remove(",");
+        SpeciesKMin = valueWithoutComma.toDouble();
+
+        if (InitBiomass > SpeciesKMin) {
+            errorMsg  = "\nFound: InitBiomass (" + std::to_string(InitBiomass) +
+                    ") > SpeciesKMin (" + std::to_string(SpeciesKMin) +
+                    ") for Species: " + SpeName.toStdString();
+            errorMsg += "\n\nInitBiomass must be less than SpeciesKMin.\n";
+            QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
+                                 QMessageBox::Ok);
+            return false;
+        }
+    }
+    return true;
+}
+
 bool
 nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
 {
@@ -899,19 +947,22 @@ nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
     QString GrowthRate;
     QString SpeciesK;
     QModelIndex index;
+    QString valueWithoutComma;
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         cmd  = "UPDATE Species SET ";
         index = m_SpeciesModel->index(i,0);
         SpeName = index.data().toString();
         index = m_SpeciesModel->index(i,1);
-        InitBiomass = index.data().toString();
+        valueWithoutComma = index.data().toString().remove(",");
+        InitBiomass = valueWithoutComma;
         cmd += "InitBiomass=" + InitBiomass + ",";
         index = m_SpeciesModel->index(i,4);
         GrowthRate = index.data().toString();
         cmd += "GrowthRate=" + GrowthRate + ",";
         index = m_SpeciesModel->index(i,8);
-        SpeciesK = index.data().toString();
+        valueWithoutComma = index.data().toString().remove(",");
+        SpeciesK = valueWithoutComma;
         cmd += "SpeciesK=" + SpeciesK;
         cmd += " WHERE SpeName = '" + SpeName + "'";
         if (nmfUtilsQt::emptyField({SpeName,InitBiomass,GrowthRate,SpeciesK})) {
@@ -991,19 +1042,23 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
     QString GrowthRate,GrowthRateMin,GrowthRateMax;
     QString SpeciesK,SpeciesKMin,SpeciesKMax;
     QModelIndex index;
+    QString valueWithoutComma;
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         cmd  = "UPDATE Species SET ";
         index = m_SpeciesModel->index(i,0);
         SpeName = index.data().toString();
         index = m_SpeciesModel->index(i,1);
-        InitBiomass = index.data().toString();
+        valueWithoutComma = index.data().toString().remove(",");
+        InitBiomass = valueWithoutComma;
         index = m_SpeciesModel->index(i,2);
-        InitBiomassMin = index.data().toString();
-        cmd += "InitBiomassMin=" + QString::number(index.data().toDouble(),'f',6) + ",";
+        valueWithoutComma = index.data().toString().remove(",");
+        InitBiomassMin = valueWithoutComma;
+        cmd += "InitBiomassMin=" + QString::number(InitBiomassMin.toDouble(),'f',6) + ",";
         index = m_SpeciesModel->index(i,3);
-        InitBiomassMax = index.data().toString();
-        cmd += "InitBiomassMax=" + QString::number(index.data().toDouble(),'f',6) + ",";
+        valueWithoutComma = index.data().toString().remove(",");
+        InitBiomassMax = valueWithoutComma;
+        cmd += "InitBiomassMax=" + QString::number(InitBiomassMax.toDouble(),'f',6) + ",";
         index = m_SpeciesModel->index(i,4);
         GrowthRate = index.data().toString();
         index = m_SpeciesModel->index(i,5);
@@ -1013,13 +1068,16 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
         GrowthRateMax = index.data().toString();
         cmd += "GrowthRateMax=" + GrowthRateMax + ",";
         index = m_SpeciesModel->index(i,8);
-        SpeciesK = index.data().toString();
+        valueWithoutComma = index.data().toString().remove(",");
+        SpeciesK = valueWithoutComma;
         index = m_SpeciesModel->index(i,9);
-        SpeciesKMin = index.data().toString();
-        cmd += "SpeciesKMin=" + QString::number(index.data().toDouble(),'f',6) + ",";
+        valueWithoutComma = index.data().toString().remove(",");
+        SpeciesKMin = valueWithoutComma;
+        cmd += "SpeciesKMin=" + QString::number(SpeciesKMin.toDouble(),'f',6) + ",";
         index = m_SpeciesModel->index(i,10);
-        SpeciesKMax = index.data().toString();
-        cmd += "SpeciesKMax=" + QString::number(index.data().toDouble(),'f',6);
+        valueWithoutComma = index.data().toString().remove(",");
+        SpeciesKMax = valueWithoutComma;
+        cmd += "SpeciesKMax=" + QString::number(SpeciesKMax.toDouble(),'f',6);
         cmd += " WHERE SpeName = '" + SpeName + "'";
         if (nmfUtilsQt::emptyField({SpeName,InitBiomassMin,InitBiomassMax,
                                     GrowthRateMin,GrowthRateMax,
@@ -1157,6 +1215,10 @@ nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
         return false;
     }
 
+    if (! isInitBiomassLessThanSpeciesKMin()) {
+        return false;
+    }
+
     // update BiomassAbsolute table with the initial Biomass values
     updateBiomassAbsoluteTable();
 
@@ -1179,12 +1241,14 @@ nmfEstimation_Tab1::updateBiomassAbsoluteTable()
     QModelIndex index;
     std::string initBiomass;
     std::string species;
+    QString valueWithoutComma;
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         index = m_SpeciesModel->index(i,0);
         species = index.data().toString().toStdString();
         index = m_SpeciesModel->index(i,1);
-        initBiomass = index.data().toString().toStdString();
+        valueWithoutComma = index.data().toString().remove(",");
+        initBiomass = valueWithoutComma.toStdString();
 
         // Need to also update the BiomassAbsolute table with the initial Biomass values
         cmd  = "REPLACE INTO BiomassAbsolute (";
@@ -1538,13 +1602,17 @@ nmfEstimation_Tab1::loadWidgets()
 bool
 nmfEstimation_Tab1::loadGuilds()
 {
-    int j;
+    int col;
     int NumGuilds;
+    int NumPopulationFields;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     QString value;
     QStandardItem *item;
+    QString field;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::loadGuilds()");
 
@@ -1558,17 +1626,20 @@ nmfEstimation_Tab1::loadGuilds()
     QStringList PopulationFieldList = {"GuildName","GrowthRate","GrowthRateMin","GrowthRateMax",
                                        "GuildK","GuildKMin","GuildKMax",
                                        "Catchability","CatchabilityMin","CatchabilityMax"};
-//    m_originalSpeciesValuesAll.clear();
-    m_GuildModel = new QStandardItemModel( NumGuilds, PopulationFieldList.size() );
-    for (int i=0; i<NumGuilds; ++i) {
-        j = 0;
-        for (QString field : PopulationFieldList)
-        {
-            value = QString::fromStdString(dataMap[field.toStdString()][i]);
-//            m_originalSpeciesValuesAll.push_back(value);
+    NumPopulationFields = (int)PopulationFieldList.size();
+    m_GuildModel = new QStandardItemModel( NumGuilds, NumPopulationFields );
+    for (int row=0; row<NumGuilds; ++row) {
+        col = 0;
+        for (QString field : PopulationFieldList) {
+            if (PopulationFieldList[col].contains("GuildK")) {
+                valueWithComma = locale.toString(field.toDouble());
+                value = valueWithComma;
+            } else {
+                value = QString::fromStdString(dataMap[field.toStdString()][row]);
+            }
             item = new QStandardItem(value);
             item->setTextAlignment(Qt::AlignCenter);
-            m_GuildModel->setItem(i, j++, item);
+            m_GuildModel->setItem(row, col++, item);
         }
     }
     m_GuildModel->setHorizontalHeaderLabels(PopulationFieldList);
@@ -1591,7 +1662,7 @@ nmfEstimation_Tab1::loadGuilds()
 bool
 nmfEstimation_Tab1::loadSpecies()
 {
-    int j;
+    int col;
     int NumSpecies;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -1614,22 +1685,28 @@ nmfEstimation_Tab1::loadSpecies()
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields, nmfConstantsMSSPM::ShowBlankFields);
     NumSpecies = dataMap["SpeName"].size();
     QStringList fieldList;
-
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     m_originalSpeciesValuesAll.clear();
     m_SpeciesModel = new QStandardItemModel( NumSpecies, fields.size() );
-    for (int i=0; i<NumSpecies; ++i) {
-        j = 0;
-        for (std::string field : fields)
-        {
-            if (i == 0) {
+    for (int row=0; row<NumSpecies; ++row) {
+        col = 0;
+        for (std::string field : fields) {
+            if (row == 0) {
                 fieldList << QString::fromStdString(field);
             }
-            value = QString::fromStdString(dataMap[field][i]);
+            value = QString::fromStdString(dataMap[field][row]);
             m_originalSpeciesValuesAll.push_back(value);
-            item = new QStandardItem(value);
+            if ((fields[col].find("InitBiomass") != std::string::npos) ||
+                (fields[col].find("SpeciesK")    != std::string::npos)) {
+                valueWithComma = locale.toString(value.toDouble());
+                item = new QStandardItem(valueWithComma);
+            } else {
+                item = new QStandardItem(value);
+            }
             item->setTextAlignment(Qt::AlignCenter);
-            m_SpeciesModel->setItem(i, j++, item);
+            m_SpeciesModel->setItem(row, col++, item);
         }
     }
     m_SpeciesModel->setHorizontalHeaderLabels(fieldList);

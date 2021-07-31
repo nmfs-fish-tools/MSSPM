@@ -177,6 +177,7 @@ nmfEstimation_Tab2::callback_SavePB()
     std::vector<std::string> modelsInProject = {};
     QString msg;
     QString value;
+    QString valueWithoutComma;
 
     if (! m_DatabasePtr->updateAllModelsInProject(Estimation_Tabs,"Harvest",m_ProjectName,m_ModelName,modelsInProject)) {
         return;
@@ -193,19 +194,19 @@ nmfEstimation_Tab2::callback_SavePB()
     }
 
     // Check data integrity
-    for (int j=0; j<m_SModel->columnCount(); ++j) { // Species
-        for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
-            index = m_SModel->index(i,j);
-            value = index.data().toString();
-            if (value.contains(',')) {
-                msg = "Invalid value found. No commas or special characters allowed in a number.";
-                m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
-                QMessageBox::warning(Estimation_Tabs, "Error", "\n"+msg, QMessageBox::Ok);
-                Estimation_Tabs->setCursor(Qt::ArrowCursor);
-                return;
-            }
-        }
-    }
+//    for (int j=0; j<m_SModel->columnCount(); ++j) { // Species
+//        for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
+//            index = m_SModel->index(i,j);
+//            value = index.data().toString();
+//            if (value.contains(',')) {
+//                msg = "Invalid value found. No commas or special characters allowed in a number.";
+//                m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+//                QMessageBox::warning(Estimation_Tabs, "Error", "\n"+msg, QMessageBox::Ok);
+//                Estimation_Tabs->setCursor(Qt::ArrowCursor);
+//                return;
+//            }
+//        }
+//    }
 
     for (std::string projectModel : modelsInProject)
     {
@@ -226,9 +227,10 @@ nmfEstimation_Tab2::callback_SavePB()
         for (int j=0; j<m_SModel->columnCount(); ++j) {  // Species
             for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
                 index = m_SModel->index(i,j);
+                valueWithoutComma = index.data().toString().remove(",");
                 cmd += "('"  + m_ProjectName + "','" + projectModel +
                         "','" + SpeNames[j] + "'," + std::to_string(i) +
-                        ", " + std::to_string(index.data().toDouble()) + "),";
+                        ", " + std::to_string(valueWithoutComma.toDouble()) + "),";
             }
         }
 
@@ -340,6 +342,8 @@ nmfEstimation_Tab2::loadWidgets()
     QStandardItem *item;
     QStringList SpeciesNames;
     QStringList VerticalList;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::loadWidgets()");
 
@@ -392,10 +396,13 @@ nmfEstimation_Tab2::loadWidgets()
     }
     for (int j=0; j<NumSpecies; ++j) {
         for (int i=0; i<=RunLength; ++i) {
-            if ((m < NumRecords) && (SpeciesNames[j].toStdString() == dataMap["SpeName"][m]))
-                item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
-            else
+            if ((m < NumRecords) && (SpeciesNames[j].toStdString() == dataMap["SpeName"][m])) {
+                valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]));
+                item = new QStandardItem(valueWithComma);
+//              item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
+            } else {
                 item = new QStandardItem(QString(""));
+            }
             item->setTextAlignment(Qt::AlignCenter);
             m_SModel->setItem(i, j, item);
         }

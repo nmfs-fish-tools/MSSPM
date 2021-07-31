@@ -190,7 +190,6 @@ nmfEstimation_Tab5::loadCSVFile(const bool& firstLineReadOnly,
 
     tableNameStr = QString::fromStdString(tableName);
     tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
-std::cout << "tableNameStr: " << tableNameStr.toStdString() << std::endl;
 
     loadOK = nmfUtilsQt::loadTimeSeries(
                 Estimation_Tabs, tableView, inputDataPath, tableNameStr,
@@ -292,18 +291,17 @@ nmfEstimation_Tab5::callback_ExportPB()
 bool
 nmfEstimation_Tab5::saveAbsoluteBiomass()
 {
-    QModelIndex index;
+    int NumSpecies;
     std::string cmd;
     std::string errorMsg;
     std::vector<std::string> SpeNames;
     std::vector<double> SpeciesKMin;
-    int NumSpecies;
-    double InitBiomass;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     QString value;
     QString msg;
+    QString valueWithoutComma;
 
     if ((m_SModelAbsoluteBiomass == NULL)||(m_SModelCovariates == NULL)) {
         return false;
@@ -318,21 +316,6 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     for (int species=0; species<NumSpecies; ++species) {
         SpeciesKMin.push_back(std::stod(dataMap["SpeciesKMin"][species]));
         SpeNames.push_back(dataMap["SpeName"][species]);
-    }
-
-    // Check that InitBiomass < the SpeciesKMin value in the Species table
-    for (int species=0; species<NumSpecies; ++species) {
-        index = m_SModelAbsoluteBiomass->index(0,species);
-        InitBiomass = index.data().toDouble();
-        if (InitBiomass > SpeciesKMin[species]) {            
-            errorMsg  = "\nFound: InitBiomass (" + std::to_string(InitBiomass) +
-                    ") > SpeciesKMin (" + std::to_string(SpeciesKMin[species]) +
-                    ") for Species: " + SpeNames[species];
-            errorMsg += "\n\nInitBiomass must be less than SpeciesKMin.\n";
-            QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return false;
-        }
     }
 
     // Save Observed Biomass data to Database table
@@ -419,6 +402,7 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
     QModelIndex index;
     std::string cmd;
     std::string errorMsg;
+    QString valueWithoutComma;
 
     // Save Relative Biomass data to database table
     if (smodel == NULL) {
@@ -431,22 +415,22 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
         SpeNames.push_back(smodel->horizontalHeaderItem(species)->text().toStdString());
     }
 
-    // Check data integrity
-    for (int j=0; j<smodel->columnCount(); ++j) { // Species
-        for (int i=0; i<smodel->rowCount(); ++i) { // Time
-            index = smodel->index(i,j);
-            value = index.data().toDouble(&ok);
-            if (! ok) {
-                //value = index.data().toString();
-                if (value.contains(',')) {
-                    msg = "Invalid value found (" + value +"). No commas or special characters allowed in a number.";
-                    m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
-                    QMessageBox::warning(Estimation_Tabs, "Error", "\n"+msg, QMessageBox::Ok);
-                    return false;
-                }
-            }
-        }
-    }
+//    // Check data integrity
+//    for (int j=0; j<smodel->columnCount(); ++j) { // Species
+//        for (int i=0; i<smodel->rowCount(); ++i) { // Time
+//            index = smodel->index(i,j);
+//            value = index.data().toDouble(&ok);
+//            if (! ok) {
+//                //value = index.data().toString();
+//                if (value.contains(',')) {
+//                    msg = "Invalid value found (" + value +"). No commas or special characters allowed in a number.";
+//                    m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+//                    QMessageBox::warning(Estimation_Tabs, "Error", "\n"+msg, QMessageBox::Ok);
+//                    return false;
+//                }
+//            }
+//        }
+//    }
 
     Estimation_Tabs->setCursor(Qt::WaitCursor);
 
@@ -470,11 +454,13 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
         for (int species=0; species<NumSpecies; ++species) {
             for (int time=0; time<smodel->rowCount(); ++time) {
                 index = smodel->index(time,species);
+                valueWithoutComma = index.data().toString().remove(",");
                 cmd += "('"   + m_ProjectName +
                         "','" + m_ModelName +
                         "','" + SpeNames[species] +
                         "','" + type1 +
-                        "', " + QString::number(index.data().toDouble(),'f',6).toStdString() + "),";
+                        "', " + QString::number(valueWithoutComma.toDouble(),'f',6).toStdString() + "),";
+//                      "', " + QString::number(index.data().toDouble(),'f',6).toStdString() + "),";
             }
         }
     } else {
@@ -482,11 +468,13 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
         for (int species=0; species<NumSpecies; ++species) {
             for (int time=0; time<smodel->rowCount(); ++time) {
                 index = smodel->index(time,species);
+                valueWithoutComma = index.data().toString().remove(",");
                 cmd += "('"   + m_ProjectName +
                         "','" + m_ModelName +
                         "','" + SpeNames[species] +
                         "',"  + std::to_string(time) +
-                        ", "  + QString::number(index.data().toDouble(),'f',6).toStdString() + "),";
+                        ", "  + QString::number(valueWithoutComma.toDouble(),'f',6).toStdString() + "),";
+//                      ", "  + QString::number(index.data().toDouble(),'f',6).toStdString() + "),";
             }
         }
     }
@@ -506,8 +494,9 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
         // Need to also update the Species table with the initial Biomass values
         for (int species=0; species<NumSpecies; ++species) {
             index = smodel->index(0,species);
-//          value = index.data().toString();
-            cmd  = "UPDATE Species SET InitBiomass = " + QString::number(index.data().toDouble(),'f',6).toStdString();  // value.toStdString();
+            valueWithoutComma = index.data().toString().remove(",");
+            cmd  = "UPDATE Species SET InitBiomass = " + QString::number(valueWithoutComma.toDouble(),'f',6).toStdString();  // value.toStdString();
+//          cmd  = "UPDATE Species SET InitBiomass = " + QString::number(index.data().toDouble(),'f',6).toStdString();  // value.toStdString();
             cmd += " WHERE SpeName = '" + SpeNames[species] + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -705,6 +694,8 @@ nmfEstimation_Tab5::loadTableValuesFromDatabase(
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();
     Qt::ItemFlags flags;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     // Load BiomassTV model and set the tableview
     if (NumRecords > 0) {
@@ -715,7 +706,9 @@ nmfEstimation_Tab5::loadTableValuesFromDatabase(
         for (int j=0; j<NumSpecies; ++j) {
             for (int i=0; i<=RunLength; ++i) {
                 if ((m < NumRecords) && (SpeciesNames[j] == dataMap["SpeName"][m])) {
-                    item = new QStandardItem(QString::number(std::stod(dataMap["Value"][m++]),'f',6));
+                    valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',6);
+                    item = new QStandardItem(valueWithComma);
+//                  item = new QStandardItem(QString::number(std::stod(dataMap["Value"][m++]),'f',6));
                 } else {
                     item = new QStandardItem(QString(""));
                 }

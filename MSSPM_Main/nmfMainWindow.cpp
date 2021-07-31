@@ -1961,7 +1961,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.25 (beta)";
+    QString version = "MSSPM v0.9.26 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -5006,6 +5006,8 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     std::vector<boost::numeric::ublas::matrix<double> > HarvestVec;
     boost::numeric::ublas::matrix<double> NullMatrix;
     std::vector<double> EstCatchability;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     if (isAMultiOrMohnsRhoRun() && OutputType.isEmpty() &&
         (OutputChartType == nmfConstantsMSSPM::OutputChartBiomass)) {
@@ -5132,7 +5134,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         for (int line=0; line<NumLines; ++line) {
             for (int j=0; j<NumSpeciesOrGuilds; ++j) {
                 val = std::stod(dataMap["Value"][j]);
-                item = new QStandardItem(QString::number(val,'f',6));
+                valueWithComma = locale.toString(val,'f',6);
+                item = new QStandardItem(valueWithComma);
+//              item = new QStandardItem(QString::number(val,'f',6));
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel->setItem(j, 0, item);
                 if (TableNames[i] == "OutputMSYBiomass") {
@@ -5234,8 +5238,10 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                 if (NumRecords == 0) {
                     item = new QStandardItem("");
                 } else {
-                    val  = std::stod(dataMap["Value"][m++]);
-                    item = new QStandardItem(QString::number(val,'f',5));
+                    valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',5);
+                    item = new QStandardItem(valueWithComma);
+//                  val  = std::stod(dataMap["Value"][m++]);
+//                  item = new QStandardItem(QString::number(val,'f',5));
                 }
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel->setItem(i, j, item);
@@ -5283,7 +5289,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     smodel = new QStandardItemModel( RunLength, NumSpeciesOrGuilds );
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
         for (int time=0; time<=RunLength; ++time) {
-            item = new QStandardItem(QString::number(OutputBiomass[0](time,species),'f',6));
+            valueWithComma = locale.toString(OutputBiomass[0](time,species),'f',6);
+            item = new QStandardItem(valueWithComma);
+//          item = new QStandardItem(QString::number(OutputBiomass[0](time,species),'f',6));
             item->setTextAlignment(Qt::AlignCenter);
             smodel->setItem(time, species, item);
         }
@@ -5912,7 +5920,6 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
         item->setTextAlignment(Qt::AlignCenter);
         smodel->setItem(i, 0, item);
     }
-std::cout << "Algorithm: " << Algorithm << std::endl;
 
     calculateSummaryStatistics(smodel,isAggProd,Algorithm,Minimizer,
                                ObjectiveCriterion,Scaling,
@@ -6160,6 +6167,8 @@ nmfMainWindow::showDiagnosticsChart2d(const QString& ScaleStr,
     QStandardItem* item;
     bool isAggProdBool = isAggProd();
     std::string isAggProdStr = (isAggProdBool) ? "1" : "0";
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     if (SpeciesNum < 0) {
         SpeciesNum = 0;
@@ -6218,16 +6227,21 @@ nmfMainWindow::showDiagnosticsChart2d(const QString& ScaleStr,
     int TotNumPoints = 2*NumPoints+1;
     smodel2 = new QStandardItemModel(TotNumPoints, 2 );
     for (int i=0; i<TotNumPoints; ++i) {
+        // The % deviation values
         item = new QStandardItem(QString::number(XStart+i*XInc,'f',6));
         item->setTextAlignment(Qt::AlignCenter);
         smodel2->setItem(i, 0, item);
-        item = new QStandardItem(QString::number(DiagnosticsFitness(i,SpeciesNum),'f',6));
+        // The fitness values
+        valueWithComma = locale.toString(DiagnosticsFitness(i,SpeciesNum),'f',6);
+        item = new QStandardItem(valueWithComma);
+//      item = new QStandardItem(QString::number(DiagnosticsFitness(i,SpeciesNum),'f',6));
         item->setTextAlignment(Qt::AlignCenter);
         smodel2->setItem(i, 1, item);
     }
 
     smodel2->setHorizontalHeaderLabels(ColHeadings);
     m_UI->MSSPMOutputTV->setModel(smodel2);
+    m_UI->MSSPMOutputTV->resizeColumnsToContents();
     m_UI->MSSPMOutputTV->show();
 
     return true;
@@ -6268,6 +6282,10 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     QStandardItemModel* smodel2;
     QStandardItem* item;
     QStringList ColumnLabelsForLegend;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
+
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::showForecastChart start");
 
     // Find guild info
     if (! m_DatabasePtr->getGuilds(m_Logger,NumGuilds,GuildList))
@@ -6339,7 +6357,9 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
             if (i == 0) {
                 yearLabels << QString::number(StartForecastYear+time);
             }
-            item = new QStandardItem(QString::number(ForecastBiomass[0](time,i),'f',3));
+            valueWithComma = locale.toString(ForecastBiomass[0](time,i),'f',3);
+            item = new QStandardItem(valueWithComma);
+//          item = new QStandardItem(QString::number(ForecastBiomass[0](time,i),'f',3));
             item->setTextAlignment(Qt::AlignCenter);
             smodel->setItem(time, i, item);
         }
@@ -6348,10 +6368,14 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     smodel->setHorizontalHeaderLabels(SpeciesOrGuildList);
     OutputBiomassTV->setModel(smodel);
 
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::showForecastChart Updating Output->Data table");
+
     // Update Output->Data table
     smodel2 = new QStandardItemModel( RunLength, 1 );
     for (int time=0; time<=RunLength; ++time) {
-        item = new QStandardItem(QString::number(ForecastBiomass[0](time,SpeciesNum),'f',3));
+        valueWithComma = locale.toString(ForecastBiomass[0](time,SpeciesNum),'f',3);
+        item = new QStandardItem(valueWithComma);
+//      item = new QStandardItem(QString::number(ForecastBiomass[0](time,SpeciesNum),'f',3));
         item->setTextAlignment(Qt::AlignCenter);
         smodel2->setItem(time, 0, item);
     }
@@ -6359,7 +6383,10 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     SpeciesOrGuildAbbrevList << SpeciesOrGuildList[SpeciesNum];
     smodel2->setHorizontalHeaderLabels(SpeciesOrGuildAbbrevList);
     m_UI->MSSPMOutputTV->setModel(smodel2);
+    m_UI->MSSPMOutputTV->resizeColumnsToContents();
     m_UI->MSSPMOutputTV->show();
+
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::showForecastChart start");
 
     return true;
 }
@@ -6728,6 +6755,8 @@ nmfMainWindow::loadSummaryStatisticsModel(
     double value;
     QStandardItem* item = nullptr;
     std::vector<std::vector<double> > stats;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     if (isMohnsRhoBool) {
         stats = statStruct.mohnsRhoParameters;
@@ -6746,7 +6775,9 @@ nmfMainWindow::loadSummaryStatisticsModel(
             if (value >= nmfConstantsMSSPM::ValueToStartEE) {
                 item = new QStandardItem(QString::number(value,'G',4));
             } else {
-                item = new QStandardItem(QString::number(value,'f',3));
+                valueWithComma = locale.toString(QString::number(value,'f',3).toDouble());
+                item = new QStandardItem(valueWithComma);
+//              item = new QStandardItem(QString::number(value,'f',3));
             }
             item->setTextAlignment(Qt::AlignCenter);
             smodel->setItem(j, i+1, item);
@@ -6756,7 +6787,9 @@ nmfMainWindow::loadSummaryStatisticsModel(
         if (value >= nmfConstantsMSSPM::ValueToStartEE) {
             item = new QStandardItem(QString::number(value,'G',4));
         } else {
-            item = new QStandardItem(QString::number(value,'f',3));
+            valueWithComma = locale.toString(QString::number(value,'f',3).toDouble());
+            item = new QStandardItem(valueWithComma);
+//          item = new QStandardItem(QString::number(value,'f',3));
         }
         item->setTextAlignment(Qt::AlignCenter);
         smodel->setItem(j, NumSpeciesOrGuilds+1, item);
@@ -6856,6 +6889,8 @@ nmfMainWindow::showChartTableVsTime(
     std::string FishingLegendAve  = "Ave F Rate";
     std::string FishingLegend     = (isAMultiRun) ? FishingLegendAve : FishingLegendNorm;
     std::string passedInLabel;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     ChartMSYData.resize(RunLength+1,1);
     ChartMSYData.clear();
@@ -6927,8 +6962,9 @@ nmfMainWindow::showChartTableVsTime(
                         value = Harvest(time,species);
                         ChartLineData(time,0) = value;
                     }
-                    valueStr = std::to_string(value);
-                    item = new QStandardItem(QString::fromStdString(valueStr));
+                    valueWithComma = locale.toString(value);
+                    //valueStr = std::to_string(value);
+                    item = new QStandardItem(valueWithComma);
                     item->setTextAlignment(Qt::AlignCenter);
                     smodel->setItem(time, 0, item);
                     RowLabelsForBars << QString::number(StartYear+time);
@@ -7032,6 +7068,7 @@ nmfMainWindow::showChartTableVsTime(
     smodel->setHorizontalHeaderLabels(SpeciesNames);
     smodel->setVerticalHeaderLabels(Years);
     m_UI->MSSPMOutputTV->setModel(smodel);
+    m_UI->MSSPMOutputTV->resizeColumnsToContents();
 }
 
 void
@@ -7374,6 +7411,8 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
     std::vector<bool> GridLines = {true,true}; // Replace with checkbox values
     QStringList HoverLabels;
     QList<QString> formattedUncertaintyData;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     ChartType = "Line";
     MainTitle = ChartTitle + " for: " + OutputSpecies.toStdString();
@@ -7406,7 +7445,9 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
                     legendCode = (isMonteCarloSimulation) ? "Monte Carlo Sim "+std::to_string(time+1) : "Forecast Biomass";
                     Years << QString::number(StartForecastYear+time);
                     ChartLineData(time,line) = Biomass[line](time,species)/ScaleVal;
-                    item = new QStandardItem(QString::fromStdString(value));
+                    valueWithComma = locale.toString(ChartLineData(time,line));
+//                  valueWithComma = locale.toString(std::stod(value));
+                    item = new QStandardItem(valueWithComma);
                     item->setTextAlignment(Qt::AlignCenter);
                     smodel->setItem(time, line, item);
                 }
@@ -7470,6 +7511,7 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
     smodel->setHorizontalHeaderLabels(SpeciesNames);
     smodel->setVerticalHeaderLabels(Years);
     m_UI->MSSPMOutputTV->setModel(smodel);
+    m_UI->MSSPMOutputTV->resizeColumnsToContents();
     m_UI->MSSPMOutputTV->show();
 }
 
@@ -7673,6 +7715,8 @@ nmfMainWindow::showChartBiomassVsTime(
     QStringList SpeciesNames;
     QStringList Years;
     QStandardItemModel *smodel = new QStandardItemModel( RunLength+1, 1 );
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
     std::string ChartType;
     std::string MainTitle;
     std::string XLabel;
@@ -7730,7 +7774,9 @@ nmfMainWindow::showChartBiomassVsTime(
                     Years << QString::number(StartYear+time);
                     value = OutputBiomass[line](time,species);
                     ChartLineData(time,line) = value/ScaleVal;
-                    item = new QStandardItem(QString::number(value,'f',6));
+                    valueWithComma = locale.toString(value,'f',6);
+                    item = new QStandardItem(valueWithComma);
+//                  item = new QStandardItem(QString::number(value,'f',6));
                     item->setTextAlignment(Qt::AlignCenter);
                     smodel->setItem(time, 0, item);
                     RowLabelsForBars << QString::number(StartYear+time);
@@ -7838,6 +7884,7 @@ nmfMainWindow::showChartBiomassVsTime(
     smodel->setHorizontalHeaderLabels(SpeciesNames);
     smodel->setVerticalHeaderLabels(Years);
     m_UI->MSSPMOutputTV->setModel(smodel);
+    m_UI->MSSPMOutputTV->resizeColumnsToContents();
 }
 
 void
@@ -8090,6 +8137,8 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
     double YMinVal = nmfConstants::NoValueDouble;
     double YMaxVal = nmfConstants::NoValueDouble;
     QStringList HoverLabels;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     if (NumSpecies == 0) {
         m_ChartWidget->removeAllSeries();
@@ -8107,7 +8156,8 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
             LineColors.append(LINE_COLORS[i % LINE_COLORS.size()]);
             for (int j=0; j<=RunLength; ++j) {
                 SelectedSpeciesCalculatedBiomassData(j,iprime) = m_SpeciesCalculatedBiomassData(j,i);
-                item = new QStandardItem(QString::number(SelectedSpeciesCalculatedBiomassData(j,iprime),'f',3));
+                valueWithComma = locale.toString(SelectedSpeciesCalculatedBiomassData(j,iprime),'f',3);
+                item = new QStandardItem(valueWithComma);
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel->setItem(j, iprime, item);
             }
@@ -8150,6 +8200,7 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
     // Load ChartData into Output table view
     smodel->setHorizontalHeaderLabels(ColumnLabelsForLegend);
     m_UI->MSSPMOutputTV->setModel(smodel);
+    m_UI->MSSPMOutputTV->resizeColumnsToContents();
     m_UI->MSSPMOutputTV->show();
 }
 
@@ -9364,6 +9415,9 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     double ScaleVal = 1.0;
     QString ScaleStr = "";
     double YMinSliderValue = Output_Controls_ptr->getYMinSliderVal();
+
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::callback_RunForecast start");
+
     
     if (! okToRunForecast()) {
         QMessageBox::warning(this, "Error",
@@ -9393,7 +9447,6 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     if (dataMap["ForecastName"].size() != 0) {
         RunLength          = std::stoi(dataMap["RunLength"][0]);
         StartYear          = std::stoi(dataMap["StartYear"][0]);
-        EndYear            = std::stoi(dataMap["EndYear"][0]);
         Algorithm          = dataMap["Algorithm"][0];
         Minimizer          = dataMap["Minimizer"][0];
         ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
@@ -9404,6 +9457,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
         PredationForm      = dataMap["PredationForm"][0];
         NumRuns            = std::stoi(dataMap["NumRuns"][0]);
     }
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::callback_RunForecast: Found Forecast Info");
 
     isAggProd    = (CompetitionForm == "AGG-PROD");
     isAggProdStr = (isAggProd) ? "1" : "0";
@@ -9424,11 +9478,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     if (GenerateBiomass) {
         callback_SaveOutputBiomassData(ForecastName);
     }
-//  if (! updateOK) {
-//      QApplication::restoreOverrideCursor();
-//      Forecast_Tab4_ptr->enableRunButton(true);
-//      return;
-//  }
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::callback_RunForecast: Setting Chart Type to Forecast");
 
     // Set Chart Type to Forecast
     if (! showForecastChart(isAggProd,ForecastName,StartYear,
@@ -9452,6 +9502,8 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
 
     // Assure Output tab is set to Chart
     setCurrentOutputTab("Chart");
+
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::callback_RunForecast end");
 
 } // end callback_RunForecast
 
