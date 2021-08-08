@@ -339,19 +339,13 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)/surveyQ[i];
-//std::cout << "EBS(0," << i << "): " << EstBiomassSpecies(0,i) << ", " <<
-//         NLoptDataStruct.ObservedBiomassBySpecies(0,i) << ", " <<
-//         surveyQ[i] << std::endl;
     }
-
 
     // RSK - Remember there's only initial guild biomass data
     // Multiply by guild surveyQ data when you have it
     for (int i=0; i<NumGuilds; ++i) {
         EstBiomassGuilds(0,i)  = NLoptDataStruct.ObservedBiomassByGuilds(0,i);
-
     }
-
 
     if (NLoptGrowthForm == nullptr) {
         incrementObjectiveFunctionCounter(MSSPMName,-1.0,NLoptDataStruct);

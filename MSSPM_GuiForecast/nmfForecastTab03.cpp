@@ -19,6 +19,7 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_ProjectDir  = projectDir;
     m_ModelName.clear();
     m_ProjectName.clear();
+    m_NumSignificantDigits = -1;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab3::nmfForecast_Tab3");
 
@@ -272,6 +273,10 @@ nmfForecast_Tab3::readSettings()
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
+    settings->endGroup();
+
     delete settings;
 }
 
@@ -320,6 +325,7 @@ nmfForecast_Tab3::loadWidgets()
     std::string ForecastName = Forecast_Tab1_NameLE->text().toStdString();
     std::vector<QString> param;
     bool uncertaintyDataAvailable = false;
+    QString valueWithComma;
 
     readSettings();
 
@@ -398,7 +404,9 @@ nmfForecast_Tab3::loadWidgets()
             param.emplace_back(QString::fromStdString(dataMap["SurveyQ"][m]));
             param.emplace_back(QString::fromStdString(dataMap["Harvest"][m]));
             for (int j=0; j<NumParameters; ++j) {
-                item = new QStandardItem(param[j]);
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            param[j].toDouble(),m_NumSignificantDigits,2);
+                item = new QStandardItem(valueWithComma);
                 item->setTextAlignment(Qt::AlignCenter);
                 m_SModel->setItem(i, j, item);
             }

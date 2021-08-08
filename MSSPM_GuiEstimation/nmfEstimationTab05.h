@@ -49,6 +49,7 @@ class nmfEstimation_Tab5: public QObject
     std::string         m_ProjectName;
     std::string         m_ModelName;
     bool                m_IsDark;
+    int                 m_NumSignificantDigits;
     QStandardItemModel* m_SModelAbsoluteBiomass;
     QStandardItemModel* m_SModelRelativeBiomass;
     QStandardItemModel* m_SModelCovariates;

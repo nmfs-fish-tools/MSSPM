@@ -21,6 +21,7 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
     m_SModelCovariates      = nullptr;
     // assuming that the default is light.
     m_IsDark = false;
+    m_NumSignificantDigits = -1;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::nmfEstimation_Tab5");
 
@@ -303,7 +304,7 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     QString msg;
     QString valueWithoutComma;
 
-    if ((m_SModelAbsoluteBiomass == NULL)||(m_SModelCovariates == NULL)) {
+    if ((m_SModelAbsoluteBiomass == NULL) || (m_SModelCovariates == NULL)) {
         return false;
     }
     SpeciesKMin.clear();
@@ -314,7 +315,8 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int species=0; species<NumSpecies; ++species) {
-        SpeciesKMin.push_back(std::stod(dataMap["SpeciesKMin"][species]));
+        valueWithoutComma = QString::fromStdString(dataMap["SpeciesKMin"][species]).remove(",");
+        SpeciesKMin.push_back(valueWithoutComma.toDouble());
         SpeNames.push_back(dataMap["SpeName"][species]);
     }
 
@@ -589,6 +591,10 @@ nmfEstimation_Tab5::readSettings()
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
+    settings->endGroup();
+
     delete settings;
 }
 
@@ -706,9 +712,9 @@ nmfEstimation_Tab5::loadTableValuesFromDatabase(
         for (int j=0; j<NumSpecies; ++j) {
             for (int i=0; i<=RunLength; ++i) {
                 if ((m < NumRecords) && (SpeciesNames[j] == dataMap["SpeName"][m])) {
-                    valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',6);
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,6);
                     item = new QStandardItem(valueWithComma);
-//                  item = new QStandardItem(QString::number(std::stod(dataMap["Value"][m++]),'f',6));
                 } else {
                     item = new QStandardItem(QString(""));
                 }

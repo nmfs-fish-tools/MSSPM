@@ -51,6 +51,7 @@ private:
     std::string         m_ModelName;
     std::string         m_ProjectDir;
     std::string         m_ProjectName;
+    int                 m_NumSignificantDigits;
     QStandardItemModel* m_SModel;
 
     QTabWidget*     Forecast_Tabs;

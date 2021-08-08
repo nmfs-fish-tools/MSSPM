@@ -17,6 +17,7 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     m_ProjectDir  = projectDir;
     m_ModelName.clear();
     m_ProjectName.clear();
+    m_NumSignificantDigits = -1;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::nmfEstimation_Tab2");
 
@@ -325,6 +326,10 @@ nmfEstimation_Tab2::readSettings()
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
+    settings->endGroup();
+
     delete settings;
 }
 
@@ -397,9 +402,9 @@ nmfEstimation_Tab2::loadWidgets()
     for (int j=0; j<NumSpecies; ++j) {
         for (int i=0; i<=RunLength; ++i) {
             if ((m < NumRecords) && (SpeciesNames[j].toStdString() == dataMap["SpeName"][m])) {
-                valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]));
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,2);
                 item = new QStandardItem(valueWithComma);
-//              item = new QStandardItem(QString::fromStdString(dataMap["Value"][m++]));
             } else {
                 item = new QStandardItem(QString(""));
             }

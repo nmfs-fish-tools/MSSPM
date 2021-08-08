@@ -39,16 +39,14 @@ SOURCES += \
     TableNamesDialog.cpp \
     main.cpp \
     nmfMainWindow.cpp \
-    ClearOutputDialog.cpp \
-    PreferencesDialog.cpp
+    ClearOutputDialog.cpp
 
 HEADERS  += \
     SimulatedBiomassDialog.h \
     TableNamesDialog.h \
     mainpage.h \
     nmfMainWindow.h \
-    ClearOutputDialog.h \
-    PreferencesDialog.h
+    ClearOutputDialog.h
 
 FORMS += \
     nmfMainWindow.ui

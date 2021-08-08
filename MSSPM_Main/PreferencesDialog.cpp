@@ -11,6 +11,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent,
 
     MainLT    = new QVBoxLayout();
     BtnLT     = new QHBoxLayout();
+    SigDigLT  = new QHBoxLayout();
     StyleLT   = new QHBoxLayout();
     MShot1LT  = new QHBoxLayout();
     MShot2LT  = new QHBoxLayout();
@@ -25,11 +26,15 @@ PreferencesDialog::PreferencesDialog(QWidget *parent,
     MShot3SB  = new QSpinBox();
     CancelPB  = new QPushButton("Cancel");
     OkPB      = new QPushButton("OK");
+    SigDigCB  = new QCheckBox("Significant digits:");
+    SigDigSB  = new QSpinBox();
 
 
     OkPB->setToolTip("Save Preferences and Close");
     OkPB->setStatusTip("Save Preferences and Close");
 
+    SigDigLT->addWidget(SigDigCB);
+    SigDigLT->addWidget(SigDigSB);
     StyleLT->addWidget(StyleLBL);
     StyleLT->addWidget(StyleCMB);
     StyleLT->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -39,6 +44,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent,
     MShot2LT->addWidget(MShot2SB);
     MShot3LT->addWidget(MShot3LBL);
     MShot3LT->addWidget(MShot3SB);
+    MainLT->addLayout(SigDigLT);
     MainLT->addLayout(StyleLT);
     MainLT->addLayout(MShot1LT);
     MainLT->addLayout(MShot2LT);

@@ -38,6 +38,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_ProgressChartTimer = nullptr;
     m_MModeViewerWidget = nullptr;
     m_ViewerWidget = nullptr;
+    m_NumSignificantDigits = -1;
 
     m_ProjectDir.clear();
     m_ProjectDatabase.clear();
@@ -232,11 +233,13 @@ nmfMainWindow::initializePreferencesDlg()
     m_PreferencesWidget = loader.load(&file,this);
     file.close();
 
-    QSpinBox*    numRowsSB    = m_PreferencesWidget->findChild<QSpinBox*>("PrefNumRowsSB");
-    QSpinBox*    numColumnsSB = m_PreferencesWidget->findChild<QSpinBox*>("PrefNumColumnsSB");
-    QComboBox*   styleCMB     = m_PreferencesWidget->findChild<QComboBox*>("PrefAppStyleCMB");
+    QSpinBox*    numRowsSB    = m_PreferencesWidget->findChild<QSpinBox   *>("PrefNumRowsSB");
+    QSpinBox*    numColumnsSB = m_PreferencesWidget->findChild<QSpinBox   *>("PrefNumColumnsSB");
+    QComboBox*   styleCMB     = m_PreferencesWidget->findChild<QComboBox  *>("PrefAppStyleCMB");
     QPushButton* cancelPB     = m_PreferencesWidget->findChild<QPushButton*>("PrefCancelPB");
     QPushButton* okPB         = m_PreferencesWidget->findChild<QPushButton*>("PrefOkPB");
+    QCheckBox*   sigdigCB     = m_PreferencesWidget->findChild<QCheckBox  *>("PrefSignificantDigitsCB");
+    QSpinBox*    sigdigSB     = m_PreferencesWidget->findChild<QSpinBox   *>("PrefSignificantDigitsSB");
 
     QVBoxLayout* layt = new QVBoxLayout();
     layt->addWidget(m_PreferencesWidget);
@@ -250,6 +253,8 @@ nmfMainWindow::initializePreferencesDlg()
             this,             SLOT(callback_PreferencesSetStyleSheet(QString)));
     connect(okPB,             SIGNAL(clicked()),
             this,             SLOT(callback_PreferencesMShotOkPB()));
+    connect(sigdigCB,         SIGNAL(stateChanged(int)),
+            this,             SLOT(callback_PreferencesSigDigCB(int)));
     connect(cancelPB,         SIGNAL(clicked()),
             m_PreferencesDlg, SLOT(close()));
 }
@@ -1961,7 +1966,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.26 (beta)";
+    QString version = "MSSPM v0.9.27 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2051,6 +2056,25 @@ nmfMainWindow::menu_preferences()
     m_PreferencesDlg->show();
 }
 
+bool
+nmfMainWindow::isSignificantDigitsEnabled()
+{
+    return (m_NumSignificantDigits >= 0);
+}
+
+void
+nmfMainWindow::menu_toggleSignificantDigits()
+{
+    QSpinBox*  sigdigSB = m_PreferencesWidget->findChild<QSpinBox *>("PrefSignificantDigitsSB");
+    QCheckBox* sigdigCB = m_PreferencesWidget->findChild<QCheckBox*>("PrefSignificantDigitsCB");
+
+    m_NumSignificantDigits = (m_UI->actionToggleSignificantDigits->isChecked()) ? sigdigSB->value() : -1;
+    sigdigCB->setChecked(m_NumSignificantDigits >= 0);
+
+    saveSettings();
+
+}
+
 void
 nmfMainWindow::menu_createSimulatedBiomass()
 {
@@ -2077,7 +2101,7 @@ nmfMainWindow::setupOutputModelFitSummaryWidgets()
     mainLayt->addWidget(SummaryGB);
 
     m_EstimatedParametersMap["Model Fit Summary"] = SummaryTV;
-    m_EstimatedParametersMap["Data"]              = m_UI->MSSPMOutputTV;
+    m_EstimatedParametersMap["Data"]              = m_UI->OutputDataTV;
 
     // Make the title bold
     QFont font = SummaryGB->font();
@@ -2277,6 +2301,21 @@ nmfMainWindow::menu_clear()
 void
 nmfMainWindow::menu_copy()
 {
+    QString msg;
+    QMessageBox::StandardButton reply;
+
+    if (isSignificantDigitsEnabled()) {
+        msg  = "\nSignificant digits are currently enabled. Toggle them ";
+        msg += "off if you want to copy the data at full precision.\n\n";
+        msg += "Continue with the Copy?\n";
+        reply = QMessageBox::question(this, tr("Warning"), tr(msg.toLatin1()),
+                                      QMessageBox::No|QMessageBox::Yes,
+                                      QMessageBox::Yes);
+        if (reply == QMessageBox::No) {
+            return;
+        }
+    }
+
     try {
         findTableInFocus();
         // RSK - this causes a hard crash if user copies cells one of which has a combobox
@@ -2302,6 +2341,21 @@ nmfMainWindow::menu_paste()
 void
 nmfMainWindow::menu_pasteAll()
 {
+    QString msg;
+    QMessageBox::StandardButton reply;
+
+    if (isSignificantDigitsEnabled()) {
+        msg  = "\nSignificant digits are currently enabled. Toggle them ";
+        msg += "off if you want to copy/paste the selected cell's data at full precision.\n\n";
+        msg += "Continue with the Paste All?\n";
+        reply = QMessageBox::question(this, tr("Warning"), tr(msg.toLatin1()),
+                                      QMessageBox::No|QMessageBox::Yes,
+                                      QMessageBox::Yes);
+        if (reply == QMessageBox::No) {
+            return;
+        }
+    }
+
     QString retv = nmfUtilsQt::pasteAll(qApp,findTableInFocus());
     if (! retv.isEmpty()) {
         QMessageBox::question(this,tr("Paste All"),retv,QMessageBox::Ok);
@@ -2458,7 +2512,7 @@ nmfMainWindow::clearOutputTables()
                            PredationHandlingTV, PredationExponentTV,
                            SurveyQTV,OutputBiomassTV, BMSYTV, MSYTV,
                            FMSYTV, SummaryTV, DiagnosticSummaryTV,
-                           m_UI->MSSPMOutputTV})
+                           m_UI->OutputDataTV})
     {
         tv->setModel(new QStandardItemModel(0,0));
     }
@@ -2486,18 +2540,10 @@ nmfMainWindow::callback_ReloadWidgets()
 }
 
 void
-nmfMainWindow::loadGuis()
+nmfMainWindow::loadAllWidgets()
 {
-std::cout << "Loading GUIs..." << std::endl;
-    if (m_LoadLastProject) {
-        QString filename = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(m_ProjectName));
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 
-        // RSK - Bug here....this causes loadGuis to get called an extra time!
-        if (! Setup_Tab2_ptr->loadProject(m_Logger,filename)) {
-            enableApplicationFeatures("SetupGroup",false);
-            enableApplicationFeatures("AllOtherGroups",false);
-        }
-    }
     Setup_Tab2_ptr->loadWidgets();
     Setup_Tab3_ptr->loadWidgets();
     Setup_Tab4_ptr->loadWidgets();
@@ -2516,6 +2562,92 @@ std::cout << "Loading GUIs..." << std::endl;
     Forecast_Tab2_ptr->loadWidgets();
     Forecast_Tab3_ptr->loadWidgets();
     Forecast_Tab4_ptr->loadWidgets();
+
+    refreshOutputTables();
+
+    QApplication::restoreOverrideCursor();
+}
+
+void
+nmfMainWindow::refreshOutputTables()
+{
+    QList<QTableView*> outputTablesNoEE =
+      {InitBiomassTV, GrowthRateTV, PredationRhoTV,
+       PredationHandlingTV, PredationExponentTV, SurveyQTV,
+       CarryingCapacityTV,  CatchabilityTV, BMSYTV,
+       MSYTV, FMSYTV, OutputBiomassTV, m_UI->OutputDataTV};
+    QList<QTableView*> outputTablesEE =
+      {CompetitionAlphaTV,CompetitionBetaSTV,CompetitionBetaGTV};
+    QList<QTableView*> outputTablesDiagnostic =
+      {SummaryTV,DiagnosticSummaryTV};
+    QList<QList<QTableView*> > allOutputTables = {outputTablesNoEE,outputTablesEE,outputTablesDiagnostic};
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
+    QString valueWithoutComma;
+    QStandardItemModel* smodel;
+    QStandardItem* item;
+    int numRows;
+    int numCols;
+    int numDecimals;
+    QString valStr;
+    int colStart;
+
+    for (QList<QTableView*> outputTableList : allOutputTables) {
+        for (QTableView* outputTable : outputTableList) {
+            // Encoding whether to show EE notation into the numDecimals variable
+            numDecimals = (outputTablesEE.indexOf(outputTable) >= 0) ? -6 : 6;
+            colStart    = (outputTablesDiagnostic.indexOf(outputTable) >= 0) ? 1 : 0;
+
+            if (outputTable != nullptr) {
+                smodel = qobject_cast<QStandardItemModel*>(outputTable->model());
+                if (smodel) {
+                    numRows = smodel->rowCount();
+                    numCols = smodel->columnCount();
+                    if ((numRows > 0) && (numCols > 0)) {
+                        for (int row=0; row<numRows; ++row) {
+                            for (int col=colStart; col<numCols; ++col) {
+                                valStr = smodel->index(row,col).data().toString();
+                                if ((std::fabs(valStr.toDouble()) < 0.001) &&
+                                    (outputTable == DiagnosticSummaryTV)) {
+                                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                                valStr.toDouble(),m_NumSignificantDigits,-3);
+                                } else if (valStr.contains('e') || valStr.contains('E')) {
+                                    valueWithComma = (valStr.toDouble() != 0) ? valStr : "0";
+                                } else {
+                                    valueWithoutComma = valStr.remove(",");;
+                                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                            valueWithoutComma.toDouble(),m_NumSignificantDigits,numDecimals);
+                                }
+
+                                item = new QStandardItem(valueWithComma);
+                                item->setTextAlignment(Qt::AlignCenter);
+                                smodel->setItem(row, col, item);
+                            }
+                        }
+                        outputTable->setModel(smodel);
+                        outputTable->resizeColumnsToContents();
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+void
+nmfMainWindow::loadGuis()
+{
+    if (m_LoadLastProject) {
+        QString filename = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(m_ProjectName));
+
+        // RSK - Bug here....this causes loadGuis to get called an extra time!
+        if (! Setup_Tab2_ptr->loadProject(m_Logger,filename)) {
+            enableApplicationFeatures("SetupGroup",false);
+            enableApplicationFeatures("AllOtherGroups",false);
+        }
+    }
+
+    loadAllWidgets();
 
     adjustProgressWidget();
     Output_Controls_ptr->loadSpeciesControlWidget();
@@ -2646,6 +2778,8 @@ nmfMainWindow::initConnections()
             this,                                                SLOT(menu_openCSVFile()));
     connect(m_UI->actionCreateSimulatedBiomass,                  SIGNAL(triggered()),
             this,                                                SLOT(menu_createSimulatedBiomass()));
+    connect(m_UI->actionToggleSignificantDigits,                 SIGNAL(triggered()),
+            this,                                                SLOT(menu_toggleSignificantDigits()));
 
     // Widget connections
     connect(NavigatorTree,   SIGNAL(itemSelectionChanged()),
@@ -2984,8 +3118,8 @@ nmfMainWindow::findTableInFocus()
     } else if (m_UI->ForecastDataInputTabWidget->findChild<QTableView *>("Forecast_Tab3_UncertaintyTV")->hasFocus()) {
         return m_UI->ForecastDataInputTabWidget->findChild<QTableView *>("Forecast_Tab3_UncertaintyTV");
 
-    } else if (m_UI->MSSPMOutputTabWidget->findChild<QTableView *>("MSSPMOutputTV")->hasFocus()) {
-        return m_UI->MSSPMOutputTabWidget->findChild<QTableView *>("MSSPMOutputTV");
+    } else if (m_UI->MSSPMOutputTabWidget->findChild<QTableView *>("OutputDataTV")->hasFocus()) {
+        return m_UI->MSSPMOutputTabWidget->findChild<QTableView *>("OutputDataTV");
     } else if (InitBiomassTV->hasFocus()) {
         return InitBiomassTV;
     } else if (GrowthRateTV->hasFocus()) {
@@ -5134,7 +5268,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         for (int line=0; line<NumLines; ++line) {
             for (int j=0; j<NumSpeciesOrGuilds; ++j) {
                 val = std::stod(dataMap["Value"][j]);
-                valueWithComma = locale.toString(val,'f',6);
+//              valueWithComma = locale.toString(val,'f',6);
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            val,m_NumSignificantDigits,6);
                 item = new QStandardItem(valueWithComma);
 //              item = new QStandardItem(QString::number(val,'f',6));
                 item->setTextAlignment(Qt::AlignCenter);
@@ -5238,7 +5374,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                 if (NumRecords == 0) {
                     item = new QStandardItem("");
                 } else {
-                    valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',5);
+//                  valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',5);
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,5);
                     item = new QStandardItem(valueWithComma);
 //                  val  = std::stod(dataMap["Value"][m++]);
 //                  item = new QStandardItem(QString::number(val,'f',5));
@@ -5289,7 +5427,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     smodel = new QStandardItemModel( RunLength, NumSpeciesOrGuilds );
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
         for (int time=0; time<=RunLength; ++time) {
-            valueWithComma = locale.toString(OutputBiomass[0](time,species),'f',6);
+//          valueWithComma = locale.toString(OutputBiomass[0](time,species),'f',6);
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        OutputBiomass[0](time,species),m_NumSignificantDigits,6);
             item = new QStandardItem(valueWithComma);
 //          item = new QStandardItem(QString::number(OutputBiomass[0](time,species),'f',6));
             item->setTextAlignment(Qt::AlignCenter);
@@ -6232,7 +6372,9 @@ nmfMainWindow::showDiagnosticsChart2d(const QString& ScaleStr,
         item->setTextAlignment(Qt::AlignCenter);
         smodel2->setItem(i, 0, item);
         // The fitness values
-        valueWithComma = locale.toString(DiagnosticsFitness(i,SpeciesNum),'f',6);
+//      valueWithComma = locale.toString(DiagnosticsFitness(i,SpeciesNum),'f',6);
+        valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                    DiagnosticsFitness(i,SpeciesNum),m_NumSignificantDigits,6);
         item = new QStandardItem(valueWithComma);
 //      item = new QStandardItem(QString::number(DiagnosticsFitness(i,SpeciesNum),'f',6));
         item->setTextAlignment(Qt::AlignCenter);
@@ -6240,9 +6382,9 @@ nmfMainWindow::showDiagnosticsChart2d(const QString& ScaleStr,
     }
 
     smodel2->setHorizontalHeaderLabels(ColHeadings);
-    m_UI->MSSPMOutputTV->setModel(smodel2);
-    m_UI->MSSPMOutputTV->resizeColumnsToContents();
-    m_UI->MSSPMOutputTV->show();
+    m_UI->OutputDataTV->setModel(smodel2);
+    m_UI->OutputDataTV->resizeColumnsToContents();
+    m_UI->OutputDataTV->show();
 
     return true;
 }
@@ -6357,7 +6499,9 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
             if (i == 0) {
                 yearLabels << QString::number(StartForecastYear+time);
             }
-            valueWithComma = locale.toString(ForecastBiomass[0](time,i),'f',3);
+//          valueWithComma = locale.toString(ForecastBiomass[0](time,i),'f',3);
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        ForecastBiomass[0](time,i),m_NumSignificantDigits,3);
             item = new QStandardItem(valueWithComma);
 //          item = new QStandardItem(QString::number(ForecastBiomass[0](time,i),'f',3));
             item->setTextAlignment(Qt::AlignCenter);
@@ -6373,7 +6517,9 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     // Update Output->Data table
     smodel2 = new QStandardItemModel( RunLength, 1 );
     for (int time=0; time<=RunLength; ++time) {
-        valueWithComma = locale.toString(ForecastBiomass[0](time,SpeciesNum),'f',3);
+//      valueWithComma = locale.toString(ForecastBiomass[0](time,SpeciesNum),'f',3);
+        valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                    ForecastBiomass[0](time,SpeciesNum),m_NumSignificantDigits,3);
         item = new QStandardItem(valueWithComma);
 //      item = new QStandardItem(QString::number(ForecastBiomass[0](time,SpeciesNum),'f',3));
         item->setTextAlignment(Qt::AlignCenter);
@@ -6382,9 +6528,9 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     smodel2->setVerticalHeaderLabels(yearLabels);
     SpeciesOrGuildAbbrevList << SpeciesOrGuildList[SpeciesNum];
     smodel2->setHorizontalHeaderLabels(SpeciesOrGuildAbbrevList);
-    m_UI->MSSPMOutputTV->setModel(smodel2);
-    m_UI->MSSPMOutputTV->resizeColumnsToContents();
-    m_UI->MSSPMOutputTV->show();
+    m_UI->OutputDataTV->setModel(smodel2);
+    m_UI->OutputDataTV->resizeColumnsToContents();
+    m_UI->OutputDataTV->show();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::showForecastChart start");
 
@@ -6775,7 +6921,9 @@ nmfMainWindow::loadSummaryStatisticsModel(
             if (value >= nmfConstantsMSSPM::ValueToStartEE) {
                 item = new QStandardItem(QString::number(value,'G',4));
             } else {
-                valueWithComma = locale.toString(QString::number(value,'f',3).toDouble());
+//              valueWithComma = locale.toString(QString::number(value,'f',3).toDouble());
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            value,m_NumSignificantDigits,3);
                 item = new QStandardItem(valueWithComma);
 //              item = new QStandardItem(QString::number(value,'f',3));
             }
@@ -6787,7 +6935,9 @@ nmfMainWindow::loadSummaryStatisticsModel(
         if (value >= nmfConstantsMSSPM::ValueToStartEE) {
             item = new QStandardItem(QString::number(value,'G',4));
         } else {
-            valueWithComma = locale.toString(QString::number(value,'f',3).toDouble());
+//          valueWithComma = locale.toString(QString::number(value,'f',3).toDouble());
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        value,m_NumSignificantDigits,3);
             item = new QStandardItem(valueWithComma);
 //          item = new QStandardItem(QString::number(value,'f',3));
         }
@@ -6962,8 +7112,9 @@ nmfMainWindow::showChartTableVsTime(
                         value = Harvest(time,species);
                         ChartLineData(time,0) = value;
                     }
-                    valueWithComma = locale.toString(value);
-                    //valueStr = std::to_string(value);
+//                  valueWithComma = locale.toString(value);
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                value,m_NumSignificantDigits,6);
                     item = new QStandardItem(valueWithComma);
                     item->setTextAlignment(Qt::AlignCenter);
                     smodel->setItem(time, 0, item);
@@ -7067,8 +7218,8 @@ nmfMainWindow::showChartTableVsTime(
     SpeciesNames << OutputSpecies;
     smodel->setHorizontalHeaderLabels(SpeciesNames);
     smodel->setVerticalHeaderLabels(Years);
-    m_UI->MSSPMOutputTV->setModel(smodel);
-    m_UI->MSSPMOutputTV->resizeColumnsToContents();
+    m_UI->OutputDataTV->setModel(smodel);
+    m_UI->OutputDataTV->resizeColumnsToContents();
 }
 
 void
@@ -7445,8 +7596,10 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
                     legendCode = (isMonteCarloSimulation) ? "Monte Carlo Sim "+std::to_string(time+1) : "Forecast Biomass";
                     Years << QString::number(StartForecastYear+time);
                     ChartLineData(time,line) = Biomass[line](time,species)/ScaleVal;
-                    valueWithComma = locale.toString(ChartLineData(time,line));
+//                  valueWithComma = locale.toString(ChartLineData(time,line));
 //                  valueWithComma = locale.toString(std::stod(value));
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                ChartLineData(time,line),m_NumSignificantDigits,6);
                     item = new QStandardItem(valueWithComma);
                     item->setTextAlignment(Qt::AlignCenter);
                     smodel->setItem(time, line, item);
@@ -7510,9 +7663,9 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
     SpeciesNames << OutputSpecies;
     smodel->setHorizontalHeaderLabels(SpeciesNames);
     smodel->setVerticalHeaderLabels(Years);
-    m_UI->MSSPMOutputTV->setModel(smodel);
-    m_UI->MSSPMOutputTV->resizeColumnsToContents();
-    m_UI->MSSPMOutputTV->show();
+    m_UI->OutputDataTV->setModel(smodel);
+    m_UI->OutputDataTV->resizeColumnsToContents();
+    m_UI->OutputDataTV->show();
 }
 
 std::string
@@ -7774,7 +7927,9 @@ nmfMainWindow::showChartBiomassVsTime(
                     Years << QString::number(StartYear+time);
                     value = OutputBiomass[line](time,species);
                     ChartLineData(time,line) = value/ScaleVal;
-                    valueWithComma = locale.toString(value,'f',6);
+//                  valueWithComma = locale.toString(value,'f',6);
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                value,m_NumSignificantDigits,6);
                     item = new QStandardItem(valueWithComma);
 //                  item = new QStandardItem(QString::number(value,'f',6));
                     item->setTextAlignment(Qt::AlignCenter);
@@ -7883,8 +8038,8 @@ nmfMainWindow::showChartBiomassVsTime(
     SpeciesNames << OutputSpecies;
     smodel->setHorizontalHeaderLabels(SpeciesNames);
     smodel->setVerticalHeaderLabels(Years);
-    m_UI->MSSPMOutputTV->setModel(smodel);
-    m_UI->MSSPMOutputTV->resizeColumnsToContents();
+    m_UI->OutputDataTV->setModel(smodel);
+    m_UI->OutputDataTV->resizeColumnsToContents();
 }
 
 void
@@ -8093,7 +8248,7 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
 //    SpeciesNames << OutputSpecies;
 //    smodel->setHorizontalHeaderLabels(SpeciesNames);
 //    smodel->setVerticalHeaderLabels(Years);
-//    m_UI->MSSPMOutputTV->setModel(smodel);
+//    m_UI->OutputDataTV->setModel(smodel);
 
 }
 
@@ -8156,7 +8311,9 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
             LineColors.append(LINE_COLORS[i % LINE_COLORS.size()]);
             for (int j=0; j<=RunLength; ++j) {
                 SelectedSpeciesCalculatedBiomassData(j,iprime) = m_SpeciesCalculatedBiomassData(j,i);
-                valueWithComma = locale.toString(SelectedSpeciesCalculatedBiomassData(j,iprime),'f',3);
+//              valueWithComma = locale.toString(SelectedSpeciesCalculatedBiomassData(j,iprime),'f',3);
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            SelectedSpeciesCalculatedBiomassData(j,iprime),m_NumSignificantDigits,3);
                 item = new QStandardItem(valueWithComma);
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel->setItem(j, iprime, item);
@@ -8199,9 +8356,9 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
     //
     // Load ChartData into Output table view
     smodel->setHorizontalHeaderLabels(ColumnLabelsForLegend);
-    m_UI->MSSPMOutputTV->setModel(smodel);
-    m_UI->MSSPMOutputTV->resizeColumnsToContents();
-    m_UI->MSSPMOutputTV->show();
+    m_UI->OutputDataTV->setModel(smodel);
+    m_UI->OutputDataTV->resizeColumnsToContents();
+    m_UI->OutputDataTV->show();
 }
 
 /*
@@ -8293,8 +8450,8 @@ nmfMainWindow::showChartBcVsTimeAllSpecies(
 
     // Load ChartData into Output table view
     smodel->setHorizontalHeaderLabels(ColumnLabelsForLegend);
-    m_UI->MSSPMOutputTV->setModel(smodel);
-    m_UI->MSSPMOutputTV->show();
+    m_UI->OutputDataTV->setModel(smodel);
+    m_UI->OutputDataTV->show();
 }
 
 
@@ -8385,8 +8542,8 @@ nmfMainWindow::showChartCatchVsBc(
     // Load ChartData into Output table view
     SpeciesNames << OutputSpecies;
     smodel->setHorizontalHeaderLabels(SpeciesNames);
-    m_UI->MSSPMOutputTV->setModel(smodel);
-    m_UI->MSSPMOutputTV->show();
+    m_UI->OutputDataTV->setModel(smodel);
+    m_UI->OutputDataTV->show();
 }
 */
 void
@@ -8803,13 +8960,35 @@ nmfMainWindow::callback_PreferencesSetStyleSheet(QString style)
 }
 
 void
+nmfMainWindow::callback_PreferencesSigDigCB(int state)
+{
+    QLabel*   sigdigLBL = m_PreferencesWidget->findChild<QLabel  *>("PrefSignificantDigitsLBL");
+    QSpinBox* sigdigSB  = m_PreferencesWidget->findChild<QSpinBox*>("PrefSignificantDigitsSB");
+    bool enable = (state != Qt::Unchecked);
+
+    sigdigLBL->setEnabled(enable);
+    sigdigSB->setEnabled(enable);
+
+    m_NumSignificantDigits = (enable) ? sigdigSB->value() : -1;
+}
+
+int
+nmfMainWindow::getNumSignificantDigits()
+{
+    return m_NumSignificantDigits;
+}
+
+void
 nmfMainWindow::callback_PreferencesMShotOkPB()
 {
-    QSpinBox* numRowsSB    = m_PreferencesWidget->findChild<QSpinBox*>("PrefNumRowsSB");
-    QSpinBox* numColumnsSB = m_PreferencesWidget->findChild<QSpinBox*>("PrefNumColumnsSB");
+    QSpinBox* numRowsSB    = m_PreferencesWidget->findChild<QSpinBox *>("PrefNumRowsSB");
+    QSpinBox* numColumnsSB = m_PreferencesWidget->findChild<QSpinBox *>("PrefNumColumnsSB");
+    QSpinBox* sigdigSB     = m_PreferencesWidget->findChild<QSpinBox *>("PrefSignificantDigitsSB");
 
     m_MShotNumRows = numRowsSB->value();
     m_MShotNumCols = numColumnsSB->value();
+
+    m_NumSignificantDigits = (sigdigSB->isEnabled()) ? sigdigSB->value() : -1;
 
     saveSettings();
     m_PreferencesDlg->close();
@@ -8871,6 +9050,7 @@ nmfMainWindow::readSettings(QString Name)
         settings->beginGroup("Preferences");
         m_MShotNumRows = settings->value("MShotNumRows",3).toInt();
         m_MShotNumCols = settings->value("MShotNumCols",4).toInt();
+        m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
         settings->endGroup();
     }
 
@@ -8930,7 +9110,11 @@ nmfMainWindow::readSettings()
     settings->beginGroup("Preferences");
     m_MShotNumRows = settings->value("MShotNumRows",3).toInt();
     m_MShotNumCols = settings->value("MShotNumCols",4).toInt();
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
     settings->endGroup();
+
+    m_UI->actionToggleSignificantDigits->setChecked(m_NumSignificantDigits >= 0);
+
 
     delete settings;
 
@@ -8951,6 +9135,7 @@ nmfMainWindow::saveSettings() {
     if (! m_SaveSettings) {
         return;
     }
+
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
     settings->setValue("DOCK_LOCATIONS",this->saveState());
 
@@ -8977,6 +9162,7 @@ nmfMainWindow::saveSettings() {
     settings->beginGroup("Preferences");
     settings->setValue("MShotNumRows", m_MShotNumRows);
     settings->setValue("MShotNumCols", m_MShotNumCols);
+    settings->setValue("NumSignificantDigits", m_NumSignificantDigits);
     settings->endGroup();
 
     // Save other pages' settings
@@ -8988,12 +9174,14 @@ nmfMainWindow::saveSettings() {
 
     settings->beginGroup("Output");
     int width = m_UI->MSSPMOutputControlsGB->size().width();
-//    int width = m_UI->MSSPMOutputTabWidget->width();
+//  int width = m_UI->MSSPMOutputTabWidget->width();
     settings->setValue("Width", width);
     //std::cout << "===> SAVING: " << width << std::endl;
     settings->endGroup();
 
     delete settings;
+
+    loadAllWidgets();
 }
 
 void
@@ -9175,11 +9363,12 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     QString multiRunSpeciesFilename;
     QString multiRunModelFilename;
     bool isAMultiRun = isAMultiOrMohnsRhoRun();
-std::cout << "====================== isAMultiRun: " << isAMultiRun << std::endl;
+
     saveSettings();
     readSettings();
 
     m_UI->OutputDockWidget->raise();
+
 
     if (isEstimationRunning()) {
         QMessageBox::information(this,
@@ -9200,6 +9389,7 @@ std::cout << "====================== isAMultiRun: " << isAMultiRun << std::endl;
         std::cout << "Run cancelled. LoadParameters returned: " << loadOK << std::endl;
         return;
     }
+
     if (isAMultiRun) {
         m_DatabasePtr->clearTable(m_Logger,"OutputBiomassEnsemble");
         if (! nmfUtilsQt::loadMultiRunData(m_DataStruct,MultiRunLines,TotalIndividualRuns)) {
@@ -9688,6 +9878,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                       boost::numeric::ublas::matrix<double>& EstHandling,
                                       boost::numeric::ublas::matrix<double>& EstBiomassSpecies)
 {
+    bool isAggProd;
     int RunLength;
     int InitialYear;
     int timeMinus1;
@@ -9710,13 +9901,11 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
     nmfHarvestForm*     harvestForm;
     nmfCompetitionForm* competitionForm;
     nmfPredationForm*   predationForm;
-    bool isAggProd      = (CompetitionForm == "AGG-PROD");
     QStringList SpeciesList;
     QStringList GuildList;
     std::vector<int>                GuildNum;
     std::map<int,std::vector<int> > GuildSpecies;
     boost::numeric::ublas::matrix<double> EstimatedBiomassByGuilds;
-//    QList<double> InitialBiomass;
     boost::numeric::ublas::matrix<double> ObservedBiomassByGuilds;
     boost::numeric::ublas::matrix<double> NullMatrix;
     boost::numeric::ublas::matrix<double> Catch;
@@ -9738,6 +9927,7 @@ std::cout << "Warning: nmfMainWindow::calculateSubRunBiomass possibly not using 
     harvestForm     = new nmfHarvestForm(HarvestForm);
     competitionForm = new nmfCompetitionForm(CompetitionForm);
     predationForm   = new nmfPredationForm(PredationForm);
+    isAggProd       = (CompetitionForm == "AGG-PROD");
 
     // Find Guilds and Species
     if (! m_DatabasePtr->getGuilds(m_Logger,NumGuilds,GuildList)) {
@@ -9757,11 +9947,12 @@ std::cout << "Warning: nmfMainWindow::calculateSubRunBiomass possibly not using 
     // Even though this is EstInitBiomass, if initial biomass wasn't estimated, it
     // should be the initial biomass.
     for (int j=0; j<int(EstInitBiomass.size()); ++j) {
-        EstBiomassSpecies(0,j) = EstInitBiomass[j];
+//std::cout << "---> EstSurveyQ[" << j << "]: " << EstSurveyQ[j] << std::endl;
+        EstBiomassSpecies(0,j) = EstInitBiomass[j]/EstSurveyQ[j];
     }
 
     // Get guild map
-    nmfUtils::initialize(EstimatedBiomassByGuilds, RunLength+1,NumGuilds);
+    nmfUtils::initialize(EstimatedBiomassByGuilds,RunLength+1,NumGuilds);
     if (! m_DatabasePtr->getGuildData(m_Logger,NumGuilds,RunLength,GuildList,GuildSpecies,GuildNum,ObservedBiomassByGuilds)) {
         return false;
     }
@@ -10170,7 +10361,6 @@ nmfMainWindow::callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
         Output_Controls_ptr->setForBiomassVsTime();
         Output_Controls_ptr->setForMohnsRho();
         updateDiagnosticSummaryStatistics();
-
     } else {
         // Calculate the average biomass and display the chart
         calculateAverageBiomass();
@@ -10180,6 +10370,8 @@ nmfMainWindow::callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
     }
     Diagnostic_Tab2_ptr->setIsMohnsRho(false);
     enableRunWidgets(true);
+
+    refreshOutputTables();
 
     QApplication::restoreOverrideCursor();
 }
@@ -12206,11 +12398,11 @@ nmfMainWindow::callback_SetChartView2d(bool setTo2d)
     if (setTo2d) {
         m_ChartView3d->hide();
         m_ChartView2d->show();
-        m_UI->MSSPMOutputTV->show();
+        m_UI->OutputDataTV->show();
     } else {
         m_ChartView2d->hide();
         m_ChartView3d->show();
-        m_UI->MSSPMOutputTV->hide();
+        m_UI->OutputDataTV->hide();
     }
 }
 

@@ -161,6 +161,7 @@ private:
     QWidget*                              m_ChartView3d;
     nmfDatabase*                          m_DatabasePtr;
     nmfStructsQt::ModelDataStruct         m_DataStruct;
+    int                                   m_NumSignificantDigits;
     int                                   m_DiagnosticsFontSize;
     int                                   m_DiagnosticsNumPoints;
     int                                   m_DiagnosticsVariation;
@@ -242,7 +243,6 @@ private:
     QTableView*              SummaryTV;
     QTableView*              DiagnosticSummaryTV;
     QTableView*              OutputBiomassTV;
-    QTableView*              OutputBiomassMSSPMTV;
     QVBoxLayout*             VChartLayt;
     QVBoxLayout*             OutputChartMainLayt;
     QWidget*                 NavigatorTreeWidget;
@@ -300,6 +300,7 @@ private:
             std::string& MonteCarloParametersTable);
     double convertUnitsStringToValue(QString& ScaleStr);
     bool   getOutputBiomassAveraged(boost::numeric::ublas::matrix<double>& AveBiomass);
+    int    getNumSignificantDigits();
     int    getNumDistinctRecords(const std::string& field,
                                  const std::string& table);
     void   loadBiomassByGroup(QString& GroupType);
@@ -571,6 +572,7 @@ private:
 //     * @return true or false
 //     */
 //    bool isMohnsRho();
+    bool isSignificantDigitsEnabled();
     bool isStopped(std::string &runName,
                    std::string &msg1,
                    std::string &msg2,
@@ -653,6 +655,8 @@ private:
     void readSettings(QString name);
     void readSettings();
     void readSettingsGuiOrientation(bool alsoResetPosition);
+    void loadAllWidgets();
+    void refreshOutputTables();
 //    void removeExistingMultiRuns();
     void runBeesAlgorithm(bool showDiagnosticsChart,
                           std::vector<QString>& MultiRunLines,
@@ -1260,6 +1264,11 @@ public slots:
      */
     void callback_SetOutputScenarioForecast();
     /**
+     * @brief Callback invoked when the user wants to change
+     * @param state : checked state of the checkbox
+     */
+    void callback_PreferencesSigDigCB(int state);
+    /**
      * @brief Callback invoked when user changes the application style from the Preferences dialog
      * @param style : style of application (Light or Dark)
      */
@@ -1460,6 +1469,8 @@ public slots:
     void menu_whatsThis();
     void menu_toggleManagerMode();
     void menu_toggleManagerModeViewer();
+    void menu_toggleSignificantDigits();
+
 
     void callback_PreferencesMShotOkPB();
     void callback_ErrorFound(std::string errorMsg);

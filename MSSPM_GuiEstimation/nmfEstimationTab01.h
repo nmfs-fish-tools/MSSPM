@@ -47,6 +47,7 @@ class nmfEstimation_Tab1: public QObject
     Q_OBJECT
 
     bool                 m_runFromModifySlider;
+    int                  m_NumSignificantDigits;
     nmfLogger*           m_Logger;
     nmfDatabase*         m_DatabasePtr;
     QStandardItemModel*  m_GuildModel;
@@ -108,6 +109,7 @@ class nmfEstimation_Tab1: public QObject
     void resetModifySlider();
     void resetSelection();
     void resetVisibleColumns();
+    bool savePopulationParameterSpeciesK();
     void showNoColumns(QTableView* tv);
     void showAllColumns(QTableView* tv);
     void showPrimaryColumns(QTableView* tv);
@@ -125,6 +127,7 @@ class nmfEstimation_Tab1: public QObject
                             QList<QString>& SpeciesGrowthRate,
                             QList<QString>& SpeciesK);
     bool savePopulationParametersGuilds(bool showPopup);
+    bool savePopulationParameterGuildK();
     bool saveGuildDataPrimary(bool showPopup);
     bool saveGuildDataSupplemental(bool showPopup);
     bool saveGuildDataRange(bool showPopup);

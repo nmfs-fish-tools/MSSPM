@@ -24,6 +24,7 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     m_SpeciesGuild.clear();
     m_ModelName = "";
     m_ProjectName = "";
+    m_NumSignificantDigits = -1;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::nmfEstimation_Tab1");
 
@@ -64,6 +65,11 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     QFont noBoldFont;
     noBoldFont.setBold(false);
     Estimation_Tab1_SpeciesPopulationTV->setFont(noBoldFont);
+
+    // Hide these for now. Maybe add them later.
+    Estimation_Tab1_ModifySL->hide();
+    Estimation_Tab1_ModifyRunPB->hide();
+    Estimation_Tab1_ModifyRunCB->hide();
 
     connect(Estimation_Tab1_PopulationTabW, SIGNAL(currentChanged(int)),
             this,                           SLOT(callback_CurrentTabChanged(int)));
@@ -180,6 +186,8 @@ nmfEstimation_Tab1::callback_ModifyMovingSL(int sliderValue)
     double origValue;
     QStandardItem *item;
     QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab1_SpeciesPopulationTV->model());
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
 
     sliderValue -= m_StartPosSL;
 
@@ -187,7 +195,9 @@ nmfEstimation_Tab1::callback_ModifyMovingSL(int sliderValue)
     foreach (const QModelIndex &index, m_selIndexes) {
         origValue  = m_originalValuesSelected[i++];
         tableValue = origValue + origValue*(sliderValue/50.0);
-        item = new QStandardItem(QString::number(tableValue,'f',2));
+        valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                    tableValue,m_NumSignificantDigits,2);
+        item = new QStandardItem(valueWithComma);
         item->setTextAlignment(Qt::AlignCenter);
         smodel->setItem(index.row(),index.column(),item);
 
@@ -261,13 +271,17 @@ void
 nmfEstimation_Tab1::callback_SelectionChangedTV(const QItemSelection& selection,
                                                 const QItemSelection& deselection)
 {
+    QString valueWithoutComma;
+
     // Store the selected indexes in class variable
     getSelectedIndexes();
 
     // Save the values of the selected indexes in case user wants to undo mods from last save
     m_originalValuesSelected.clear();
     foreach (const QModelIndex &index, m_selIndexes){
-        m_originalValuesSelected.push_back(index.data(Qt::DisplayRole).toDouble());
+        valueWithoutComma = index.data(Qt::DisplayRole).toString().remove(",");
+        m_originalValuesSelected.push_back(valueWithoutComma.toDouble());
+//      m_originalValuesSelected.push_back(index.data(Qt::DisplayRole).toDouble());
     }
 
 }
@@ -314,7 +328,9 @@ nmfEstimation_Tab1::callback_RestorePB()
     for (int i=0; i<numRows; ++i) {
         for (int j=0; j<numCols; ++j) {
             if (j > 0) {
-                valueWithComma = locale.toString(m_originalSpeciesValuesAll[m++].toDouble());
+//              valueWithComma = locale.toString(m_originalSpeciesValuesAll[m++].toDouble());
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            m_originalSpeciesValuesAll[m++].toDouble(),m_NumSignificantDigits,6);
                 item = new QStandardItem(valueWithComma);
             } else {
                 item = new QStandardItem(m_originalSpeciesValuesAll[m++]);
@@ -465,17 +481,18 @@ nmfEstimation_Tab1::callback_SavePB()
     if (reply == QMessageBox::No) {
         return;
     }
-
     if (onGuildTab()) {
         ok = savePopulationParametersGuilds(nmfConstantsMSSPM::ShowPopupError);
     } else { // if on Species tab
         ok = savePopulationParametersSpecies(nmfConstantsMSSPM::ShowPopupError);
+        if (ok) {
+            savePopulationParameterGuildK();
+        }
     }
     if (ok) {
         loadWidgets();
     }
     resetSelection();
-
 }
 
 void
@@ -738,17 +755,22 @@ nmfEstimation_Tab1::saveGuildDataRange(bool showPopup)
         index = m_GuildModel->index(i,3);
         GrowthRateMax = index.data().toString();
         cmd += "GrowthRateMax=" + GrowthRateMax + ",";
+
+        // This shouldn't be set here. It should be set automatically when user saves Species data.
         index = m_GuildModel->index(i,4);
         valueWithoutComma = index.data().toString().remove(",");
         GuildK = valueWithoutComma;
+
         index = m_GuildModel->index(i,5);
         valueWithoutComma = index.data().toString().remove(",");
         GuildKMin = valueWithoutComma;
         cmd += "GuildKMin=" + GuildKMin + ",";
+
         index = m_GuildModel->index(i,6);
         valueWithoutComma = index.data().toString().remove(",");
         GuildKMax = valueWithoutComma;
         cmd += "GuildKMax=" + GuildKMax;
+
         cmd += " WHERE GuildName = '" + GuildName + "'";
         if (nmfUtilsQt::emptyField({GuildName,GrowthRateMin,GrowthRateMax,GuildKMin,GuildKMax})) {
             checkAndShowEmptyFieldError(showPopup,"saveGuildDataRange");
@@ -935,6 +957,17 @@ nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin()
             return false;
         }
     }
+    return true;
+}
+
+bool
+nmfEstimation_Tab1::savePopulationParameterGuildK()
+{
+    // Calculate and save the guildk values and write them to the Guilds file
+    // Make sure the user can then save the Guild Parameters in Estimation Tab 1
+
+std::cout << "nmfEstimation_Tab1::savePopulationParameterGuildK tbd" << std::endl;
+
     return true;
 }
 
@@ -1586,6 +1619,8 @@ nmfEstimation_Tab1::setupHelpSpecies()
 bool
 nmfEstimation_Tab1::loadWidgets()
 {
+    readSettings();
+
     bool okSpecies = loadSpecies();
     bool okGuilds  = loadGuilds();
 
@@ -1596,6 +1631,11 @@ nmfEstimation_Tab1::loadWidgets()
     if (okGuilds) {
         setupHelpGuilds();
     }
+
+    if (Estimation_Tab1_SpeciesRangeSB->isEnabled()) {
+        callback_SpeciesRangeSB(Estimation_Tab1_SpeciesRangeSB->value());
+    }
+
     return true;
 }
 
@@ -1632,7 +1672,9 @@ nmfEstimation_Tab1::loadGuilds()
         col = 0;
         for (QString field : PopulationFieldList) {
             if (PopulationFieldList[col].contains("GuildK")) {
-                valueWithComma = locale.toString(field.toDouble());
+//              valueWithComma = locale.toString(field.toDouble());
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            field.toDouble(),m_NumSignificantDigits,6);
                 value = valueWithComma;
             } else {
                 value = QString::fromStdString(dataMap[field.toStdString()][row]);
@@ -1700,7 +1742,9 @@ nmfEstimation_Tab1::loadSpecies()
             m_originalSpeciesValuesAll.push_back(value);
             if ((fields[col].find("InitBiomass") != std::string::npos) ||
                 (fields[col].find("SpeciesK")    != std::string::npos)) {
-                valueWithComma = locale.toString(value.toDouble());
+//              valueWithComma = locale.toString(value.toDouble());
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            value.toDouble(),m_NumSignificantDigits,6);
                 item = new QStandardItem(valueWithComma);
             } else {
                 item = new QStandardItem(value);
@@ -1784,7 +1828,6 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
     int col;
     int row;
     double pctVal = double(pct)/100.0;
-    double parameterValue;
     QModelIndex index;
     std::set<int> selectedParameters;
     QStandardItem* minItem;
@@ -1793,6 +1836,10 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
     // Column number of parameters that have min/max values associated with them
     // Update this as necessary when implementing supplemental parameters.
     std::vector<int> parameters = {1,4,8,12,15};  // RSK - shouldn't be hard-coded.
+    QLocale locale(QLocale::English);
+    QString valueWithoutComma;
+    QString valueWithComma;
+    double newValue;
 
     QModelIndexList indexes = getSelectedVisibleCells();
 
@@ -1801,14 +1848,20 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
         for (int row=0; row<numRows; ++row) {
             for (int col : parameters) {
                 index    = m_SpeciesModel->index(row,col);
-                parameterValue = index.data().toDouble();
+                valueWithoutComma = index.data().toString().remove(",");
                 if ((rangeType == "min/max") || (rangeType == "min only")) {
-                    minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal),'f',6));
+                    newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                newValue,m_NumSignificantDigits,6);
+                    minItem = new QStandardItem(valueWithComma);
                     minItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col+1,minItem);
                 }
                 if ((rangeType == "min/max") || (rangeType == "max only")) {
-                    maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal),'f',6));
+                    newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                newValue,m_NumSignificantDigits,6);
+                    maxItem = new QStandardItem(valueWithComma);
                     maxItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col+2,maxItem);
                 }
@@ -1826,8 +1879,11 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                 case 13:
                 case 16:
                     index = m_SpeciesModel->index(row,col-1);
-                    parameterValue = index.data().toDouble();
-                    minItem = new QStandardItem(QString::number(parameterValue*(1.0-pctVal),'f',6));
+                    valueWithoutComma = index.data().toString().remove(",");
+                    newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                newValue,m_NumSignificantDigits,6);
+                    minItem = new QStandardItem(valueWithComma);
                     minItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col,minItem);
                     break;
@@ -1837,8 +1893,11 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                 case 14:
                 case 17:
                     index    = m_SpeciesModel->index(row,col-2);
-                    parameterValue = index.data().toDouble();
-                    maxItem = new QStandardItem(QString::number(parameterValue*(1.0+pctVal),'f',6));
+                    valueWithoutComma = index.data().toString().remove(",");
+                    newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                newValue,m_NumSignificantDigits,6);
+                    maxItem = new QStandardItem(valueWithComma);
                     maxItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col,maxItem);
                     break;
@@ -1848,11 +1907,14 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
         }
         reselectVisibleCells(indexes);
     }
+    Estimation_Tab1_SpeciesPopulationTV->resizeColumnsToContents();
 }
 
 void
 nmfEstimation_Tab1::readSettings()
 {
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::readSettings");
+
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
@@ -1861,6 +1923,10 @@ nmfEstimation_Tab1::readSettings()
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
     settings->endGroup();
 
     delete settings;

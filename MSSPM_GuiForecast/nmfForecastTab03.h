@@ -60,6 +60,7 @@ private:
     std::string         m_ModelName;
     QString             m_Rho;
     QStandardItemModel* m_SModel;
+    int                 m_NumSignificantDigits;
 
     QTabWidget*  Forecast_Tabs;
     QWidget*     Forecast_Tab3_Widget;

@@ -20,6 +20,7 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     m_ProjectDir             = projectDir;
     m_colLabelsSpecies.clear();
     m_colLabelsGuilds.clear();
+    m_NumSignificantDigits   = -1;
 
     readSettings();
 
@@ -133,6 +134,7 @@ nmfSetup_Tab3::callback_ReloadGuildsPB(bool showPopup)
 void
 nmfSetup_Tab3::callback_LoadPB()
 {
+    readSettings();
     callback_LoadPBNoEmit();
     emit LoadEstimation();
 }
@@ -443,7 +445,12 @@ nmfSetup_Tab3::callback_UpdateGuildTable(QList<QString> GuildNames,
         for (int row=0; row<GuildNames.size(); ++row) {
             item = new QTableWidgetItem();
             if (col == nmfConstantsMSSPM::Column_Guild_GuildK) {
-                valueWithComma = locale.toString(list[row].toDouble(),'f',6);
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            list[row].toDouble(),m_NumSignificantDigits,6);
+                item->setText(valueWithComma);
+            } else if (col == nmfConstantsMSSPM::Column_Guild_GrowthRate) {
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            list[row].toDouble(),m_NumSignificantDigits,3);
                 item->setText(valueWithComma);
             } else {
                 item->setText(list[row]);
@@ -485,7 +492,13 @@ nmfSetup_Tab3::callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
                 item = new QTableWidgetItem();
                 if ((col == nmfConstantsMSSPM::Column_Species_InitBiomass) ||
                     (col == nmfConstantsMSSPM::Column_Species_SpeciesK)) {
-                    valueWithComma = locale.toString(list[row].toDouble(),'f',6);
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                list[row].toDouble(),m_NumSignificantDigits,6);
+                    item->setText(valueWithComma);
+
+                } else if (col == nmfConstantsMSSPM::Column_Species_GrowthRate) {
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                list[row].toDouble(),m_NumSignificantDigits,3);
                     item->setText(valueWithComma);
                 } else {
                     item->setText(list[row]);
@@ -1122,9 +1135,14 @@ nmfSetup_Tab3::readSettings()
     settings->beginGroup("Settings");
     m_ModelName = settings->value("Name","").toString().toStdString();
     settings->endGroup();
+
     settings->beginGroup("SetupTab");
     m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
     settings->endGroup();
 
     delete settings;
@@ -1170,8 +1188,11 @@ nmfSetup_Tab3::loadGuilds()
         Setup_Tab3_NumGuildsSB->setValue(NumGuilds);
         for (int i=0; i<NumGuilds; ++i) {
             Setup_Tab3_GuildsTW->item(i,0)->setText(QString::fromStdString(dataMap["GuildName"][i]));
-            Setup_Tab3_GuildsTW->item(i,1)->setText(QString::fromStdString(dataMap["GrowthRate"][i]));
-            valueWithComma = locale.toString(std::stod(dataMap["GuildK"][i]),'f',6);
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        std::stod(dataMap["GrowthRate"][i]),m_NumSignificantDigits,3);
+            Setup_Tab3_GuildsTW->item(i,1)->setText(valueWithComma);
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        std::stod(dataMap["GuildK"][i]),m_NumSignificantDigits,6);
             Setup_Tab3_GuildsTW->item(i,2)->setText(valueWithComma);
         }
         Setup_Tab3_NumGuildsSB->setEnabled(false);
@@ -1218,10 +1239,14 @@ nmfSetup_Tab3::loadSpecies()
         for (int i=0; i<NumSpecies; ++i) {
             // Populate text fields
             Setup_Tab3_SpeciesTW->item(i,0)->setText(QString::fromStdString(dataMap["SpeName"][i]));
-            valueWithComma = locale.toString(std::stod(dataMap["InitBiomass"][i]),'f',6);
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        std::stod(dataMap["InitBiomass"][i]),m_NumSignificantDigits,6);
             Setup_Tab3_SpeciesTW->item(i,2)->setText(valueWithComma);
-            Setup_Tab3_SpeciesTW->item(i,3)->setText(QString::fromStdString(dataMap["GrowthRate"][i]));
-            valueWithComma = locale.toString(std::stod(dataMap["SpeciesK"][i]),'f',6);
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        std::stod(dataMap["GrowthRate"][i]),m_NumSignificantDigits,3);
+            Setup_Tab3_SpeciesTW->item(i,3)->setText(valueWithComma);
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        std::stod(dataMap["SpeciesK"][i]),m_NumSignificantDigits,6);
             Setup_Tab3_SpeciesTW->item(i,4)->setText(valueWithComma);
 
             // Set Guild combo box
@@ -1247,8 +1272,6 @@ nmfSetup_Tab3::loadWidgets()
 
     loadGuilds();
     loadSpecies();
-
-
 }
 
 

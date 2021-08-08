@@ -684,6 +684,11 @@ MSSPM_GuiOutputControls::setSpeciesNum(int speciesNum)
     OutputSpeciesCMB->setCurrentIndex(speciesNum);
 }
 
+bool
+MSSPM_GuiOutputControls::isSetToGuild()
+{
+    return (OutputSpeciesCMB->currentText() != "Species:");
+}
 
 bool
 MSSPM_GuiOutputControls::isSetToRetrospectiveAnalysis()

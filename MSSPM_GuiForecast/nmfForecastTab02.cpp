@@ -18,6 +18,7 @@ nmfForecast_Tab2::nmfForecast_Tab2(QTabWidget*  tabs,
     m_ProjectDir  = projectDir;
     m_ModelName.clear();
     m_ProjectName.clear();
+    m_NumSignificantDigits = -1;
 
     readSettings();
 
@@ -332,6 +333,10 @@ nmfForecast_Tab2::readSettings()
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
+    settings->endGroup();
+
     delete settings;
 }
 
@@ -494,7 +499,9 @@ nmfForecast_Tab2::loadWidgets()
             if ((NumRecords == 0) || RunLengthHasChanged) {
                 item = new QStandardItem(QString(""));
             } else {
-                valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',6);
+//              valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',6);
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,6);
                 item = new QStandardItem(valueWithComma);
 //              item = new QStandardItem(QString::number(std::stod(dataMap["Value"][m++]),'f',6));
             }

@@ -52,6 +52,7 @@ class PreferencesDialog : public QDialog
     QVBoxLayout* MainLT;
     QHBoxLayout* BtnLT;
     QHBoxLayout* StyleLT;
+    QHBoxLayout* SigDigLT;
     QHBoxLayout* MShot1LT;
     QHBoxLayout* MShot2LT;
     QHBoxLayout* MShot3LT;
@@ -65,6 +66,8 @@ class PreferencesDialog : public QDialog
     QComboBox*   MShot1CMB;
     QSpinBox*    MShot2SB;
     QSpinBox*    MShot3SB;
+    QCheckBox*   SigDigCB;
+    QSpinBox*    SigDigSB;
 
 signals:
     void SetStyleSheet(QString style);

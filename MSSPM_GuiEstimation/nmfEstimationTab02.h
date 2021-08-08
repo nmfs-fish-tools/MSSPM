@@ -50,6 +50,7 @@ class nmfEstimation_Tab2: public QObject
     std::string                       m_HarvestType;
     std::map<std::string,std::string> m_GroupBoxTitle;
     QStandardItemModel*               m_SModel;
+    int                               m_NumSignificantDigits;
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab2_Widget;

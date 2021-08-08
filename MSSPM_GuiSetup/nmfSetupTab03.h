@@ -47,6 +47,7 @@ class nmfSetup_Tab3: public QObject
 
     nmfLogger*          m_logger;
     nmfDatabase*        m_databasePtr;
+    int                 m_NumSignificantDigits;
     std::string         m_ProjectDir;
     std::string         m_ProjectName;
     std::string         m_ModelName;
@@ -139,6 +140,11 @@ public:
      * @brief Loads all of the widgets for this Setup page
      */
     void loadWidgets();
+
+    QString checkAndCalculateWithSignificantDigits(
+            const double& val,
+            const int& numSignificantDigits,
+            const int& numDecimalPlaces);
 
 signals:
     /**

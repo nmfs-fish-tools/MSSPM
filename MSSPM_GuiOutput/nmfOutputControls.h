@@ -155,6 +155,7 @@ public:
     bool            displaying3dChart();
     bool            isAveraged();
     void            enableControls(bool state);
+    bool            isSetToGuild();
     /**
      * @brief Get the brightness factor set by the Forecast Run Brightness slider widget
      * @return The brightness value desired for the stochastic Forecast plots
