@@ -128,47 +128,47 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     m_TableViewsTypeI.push_back(Estimation_Tab4_PredationMaxTV);
 
     m_TableViewsTypeII.clear();
-//    m_TableViewsTypeII.push_back(Estimation_Tab4_PredationTV);
-//    m_TableViewsTypeII.push_back(Estimation_Tab4_PredationMinTV);
-//    m_TableViewsTypeII.push_back(Estimation_Tab4_PredationMaxTV);
+//  m_TableViewsTypeII.push_back(Estimation_Tab4_PredationTV);
+//  m_TableViewsTypeII.push_back(Estimation_Tab4_PredationMinTV);
+//  m_TableViewsTypeII.push_back(Estimation_Tab4_PredationMaxTV);
     m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingTV);
     m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMinTV);
     m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMaxTV);
 
     m_TableViewsTypeIII.clear();
-//    m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationTV);
-//    m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationMinTV);
-//    m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationMaxTV);
-//    m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingTV);
-//    m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingMinTV);
-//    m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingMaxTV);
+//  m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationTV);
+//  m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationMinTV);
+//  m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationMaxTV);
+//  m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingTV);
+//  m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingMinTV);
+//  m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingMaxTV);
     m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentTV);
     m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMinTV);
     m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMaxTV);
 
     m_TableNamesTypeI.clear();
-    m_TableNamesTypeI.push_back("PredationRho");
-    m_TableNamesTypeI.push_back("PredationRhoMin");
-    m_TableNamesTypeI.push_back("PredationRhoMax");
+    m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TablePredationRho);
+    m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TablePredationRhoMin);
+    m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TablePredationRhoMax);
 
     m_TableNamesTypeII.clear();
-//    m_TableNamesTypeII.push_back("PredationRho");
-//    m_TableNamesTypeII.push_back("PredationRhoMin");
-//    m_TableNamesTypeII.push_back("PredationRhoMax");
-    m_TableNamesTypeII.push_back("PredationHandling");
-    m_TableNamesTypeII.push_back("PredationHandlingMin");
-    m_TableNamesTypeII.push_back("PredationHandlingMax");
+//  m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationRho);
+//  m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationRhoMin);
+//  m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationRhoMax);
+    m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandling);
+    m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandlingMin);
+    m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandlingMax);
 
     m_TableNamesTypeIII.clear();
-//    m_TableNamesTypeIII.push_back("PredationRho");
-//    m_TableNamesTypeIII.push_back("PredationRhoMin");
-//    m_TableNamesTypeIII.push_back("PredationRhoMax");
-//    m_TableNamesTypeIII.push_back("PredationHandling");
-//    m_TableNamesTypeIII.push_back("PredationHandlingMin");
-//    m_TableNamesTypeIII.push_back("PredationHandlingMax");
-    m_TableNamesTypeIII.push_back("PredationExponent");
-    m_TableNamesTypeIII.push_back("PredationExponentMin");
-    m_TableNamesTypeIII.push_back("PredationExponentMax");
+//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationRho);
+//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationRhoMin);
+//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationRhoMax);
+//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationHandling);
+//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationHandlingMin);
+//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationHandlingMax);
+    m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponent);
+    m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponentMin);
+    m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponentMax);
 
 
 
@@ -280,20 +280,20 @@ nmfEstimation_Tab4::callback_ImportPB()
     } else if (reply == QMessageBox::Yes) {
         loadCSVFiles(allTableNames);
     } else {
-        // if no, raise browser and have user select "PredationRho*.csv" file.
+        // if no, raise browser and have user select "predationrho*.csv" file.
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
-                    QObject::tr("Select PredationRho*.csv file"), inputDataPath,
-                    QObject::tr("Data Files (*.csv)"));
+                    QObject::tr("Select predationrho*.csv file"), inputDataPath,
+                    QObject::tr("Data Files (predationrho*.csv)"));
         QFileInfo fi(filename);
         if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
             for (int i=0; i<numTables; ++i) {
                 allTableNames[i] += "_"+tag.toStdString();
             }
             loadCSVFiles(allTableNames);
-        } else {
+        } else if (! filename.isEmpty()) {
             QMessageBox::information(Estimation_Tabs, "Predation CSV Import",
-                                     "\nPlease make sure to select the filename that begins with: PredationRho\n",
+                                     "\nPlease make sure to select the filename that begins with: predationrho\n",
                                      QMessageBox::Ok);
         }
     }
@@ -697,18 +697,18 @@ nmfEstimation_Tab4::callback_PredationFormChanged(QString predationForm)
     // Load table names
     m_TableNames1d.clear();
     if (isTypeIII()) {
-        m_TableNames1d.push_back("PredationExponent");
-        m_TableNames1d.push_back("PredationExponentMin");
-        m_TableNames1d.push_back("PredationExponentMax");
+        m_TableNames1d.push_back(nmfConstantsMSSPM::TablePredationExponent);
+        m_TableNames1d.push_back(nmfConstantsMSSPM::TablePredationExponentMin);
+        m_TableNames1d.push_back(nmfConstantsMSSPM::TablePredationExponentMax);
     }
     m_TableNames2d.clear();
-    m_TableNames2d.push_back("PredationRho");
-    m_TableNames2d.push_back("PredationRhoMin");
-    m_TableNames2d.push_back("PredationRhoMax");
+    m_TableNames2d.push_back(nmfConstantsMSSPM::TablePredationRho);
+    m_TableNames2d.push_back(nmfConstantsMSSPM::TablePredationRhoMin);
+    m_TableNames2d.push_back(nmfConstantsMSSPM::TablePredationRhoMax);
     if (isTypeII() || isTypeIII()) {
-        m_TableNames2d.push_back("PredationHandling");
-        m_TableNames2d.push_back("PredationHandlingMin");
-        m_TableNames2d.push_back("PredationHandlingMax");
+        m_TableNames2d.push_back(nmfConstantsMSSPM::TablePredationHandling);
+        m_TableNames2d.push_back(nmfConstantsMSSPM::TablePredationHandlingMin);
+        m_TableNames2d.push_back(nmfConstantsMSSPM::TablePredationHandlingMax);
     }
 }
 
@@ -746,7 +746,7 @@ nmfEstimation_Tab4::getForms(std::string& predationForm,
 
     // Get forms
     fields    = {"PredationForm","WithinGuildCompetitionForm"};
-    queryStr  = "SELECT PredationForm,WithinGuildCompetitionForm FROM Models WHERE ";
+    queryStr  = "SELECT PredationForm,WithinGuildCompetitionForm FROM " + nmfConstantsMSSPM::TableModels + " WHERE ";
     queryStr += " ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["PredationForm"].size() > 0) {
@@ -796,14 +796,14 @@ nmfEstimation_Tab4::loadWidgets()
     isAggProd = (competitionForm == "AGG-PROD");
 
     fields     = {"SpeName"};
-    queryStr   = "SELECT SpeName FROM Species";
+    queryStr   = "SELECT SpeName FROM " + nmfConstantsMSSPM::TableSpecies;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
     }
     fields     = {"GuildName"};
-    queryStr   = "SELECT GuildName FROM Guilds";
+    queryStr   = "SELECT GuildName FROM " + nmfConstantsMSSPM::TableGuilds;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds  = dataMap["GuildName"].size();
     for (int j=0; j<NumGuilds; ++j) {

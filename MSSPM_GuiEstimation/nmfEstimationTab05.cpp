@@ -131,21 +131,21 @@ void
 nmfEstimation_Tab5::importAbsoluteBiomass()
 {
     importTableData(nmfConstantsMSSPM::FirstLineReadOnly,"Absolute Biomass",
-                    "BiomassAbsolute",Estimation_Tab5_AbsoluteBiomassTV);
+                    nmfConstantsMSSPM::TableBiomassAbsolute,Estimation_Tab5_AbsoluteBiomassTV);
 }
 
 void
 nmfEstimation_Tab5::importRelativeBiomass()
 {
     importTableData(nmfConstantsMSSPM::FirstLineReadOnly,"Relative Biomass",
-                    "BiomassRelative",Estimation_Tab5_RelativeBiomassTV);
+                    nmfConstantsMSSPM::TableBiomassRelative,Estimation_Tab5_RelativeBiomassTV);
 }
 
 //void
 //nmfEstimation_Tab5::importScalarValues()
 //{
 //    importTableData(nmfConstantsMSSPM::FirstLineNotReadOnly,"Relative Biomass Scalars",
-//                    "BiomassRelativeScalars",Estimation_Tab5_Rel2AbsScalarTV);
+//                    nmfConstantsMSSPM::TableBiomassRelativeScalars,Estimation_Tab5_Rel2AbsScalarTV);
 //}
 
 void
@@ -171,7 +171,7 @@ nmfEstimation_Tab5::importTableData(const bool& firstLineReadOnly,
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr("Select "+type.toLatin1()+" file"), inputDataPath,
-                    QObject::tr("Data Files (*.csv)"));
+                    QObject::tr("Data Files (biomass*.csv)"));
         QFileInfo fi(filename);
         QString filenameNoPath = fi.baseName();
         loadCSVFile(firstLineReadOnly,filenameNoPath.toStdString(),tableView);
@@ -257,10 +257,10 @@ void
 nmfEstimation_Tab5::callback_ExportPB()
 {
     if (isAbsoluteBiomassChecked()) {
-        saveTableValuesToCSVFile("Absolute Biomass","BiomassAbsolute",m_SModelAbsoluteBiomass);
+        saveTableValuesToCSVFile("Absolute Biomass",nmfConstantsMSSPM::TableBiomassAbsolute,m_SModelAbsoluteBiomass);
     } else {
-//      saveTableValuesToCSVFile("Relative Biomass Scalars","BiomassRelativeScalars",m_SModelScalars);
-        saveTableValuesToCSVFile("Relative Biomass","BiomassRelative",m_SModelRelativeBiomass);
+//      saveTableValuesToCSVFile("Relative Biomass Scalars",nmfConstantsMSSPM::TableBiomassRelativeScalars,m_SModelScalars);
+        saveTableValuesToCSVFile("Relative Biomass",nmfConstantsMSSPM::TableBiomassRelative,m_SModelRelativeBiomass);
 //      matchTableColumnWidths();
     }
 }
@@ -311,7 +311,7 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
 
     // Get SpeciesKMin values for all Species
     fields     = {"SpeName","SpeciesKMin"};
-    queryStr   = "SELECT SpeName,SpeciesKMin from Species ORDER BY SpeName";
+    queryStr   = "SELECT SpeName,SpeciesKMin from " + nmfConstantsMSSPM::TableSpecies + " ORDER BY SpeName";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int species=0; species<NumSpecies; ++species) {
@@ -321,17 +321,17 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     }
 
     // Save Observed Biomass data to Database table
-    saveTableValuesToDatabase("BiomassAbsolute",m_SModelAbsoluteBiomass);
+    saveTableValuesToDatabase(nmfConstantsMSSPM::TableBiomassAbsolute,m_SModelAbsoluteBiomass);
 
 /*
     // Put when in when implement covariates
-    cmd = "DELETE FROM Covariate";
+    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableCovariate;
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab5::callback_SavePB: DELETE error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         QMessageBox::warning(Estimation_Tabs, "Error",
-                             "\nError in Save command.  Couldn't delete all records from CovariteTS table.\n",
+                             "\nError in Save command.  Couldn't delete all records from Covariate table.\n",
                              QMessageBox::Ok);
         Estimation_Tabs->setCursor(Qt::ArrowCursor);
         return false;
@@ -375,7 +375,7 @@ bool
 nmfEstimation_Tab5::saveRelativeBiomass()
 {
     // Save Relative Biomass data to Database table
-    bool ok = saveTableValuesToDatabase("BiomassRelative",m_SModelRelativeBiomass);
+    bool ok = saveTableValuesToDatabase(nmfConstantsMSSPM::TableBiomassRelative,m_SModelRelativeBiomass);
     return ok;
 }
 
@@ -385,7 +385,7 @@ nmfEstimation_Tab5::saveRelativeBiomass()
 //nmfEstimation_Tab5::saveScalarValues()
 //{
 //    // Save Relative Biomass Scalar data to database table
-//    saveTableValuesToDatabase("BiomassRelativeScalars",m_SModelScalars);
+//    saveTableValuesToDatabase(nmfConstantsMSSPM::TableBiomassRelativeScalars,m_SModelScalars);
 //}
 
 bool
@@ -450,7 +450,7 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
         return false;
     }
 
-    if (tableName == "BiomassRelativeScalars") {
+    if (tableName == nmfConstantsMSSPM::TableBiomassRelativeScalars) {
         std::string type1 = "Scalar";
         cmd = "INSERT INTO " + tableName + " (ProjectName,ModelName,SpeName,Type,Value) VALUES ";
         for (int species=0; species<NumSpecies; ++species) {
@@ -492,13 +492,12 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
         return false;
     }
 
-    if (tableName == "BiomassAbsolute") {
+    if (tableName == nmfConstantsMSSPM::TableBiomassAbsolute) {
         // Need to also update the Species table with the initial Biomass values
         for (int species=0; species<NumSpecies; ++species) {
             index = smodel->index(0,species);
             valueWithoutComma = index.data().toString().remove(",");
-            cmd  = "UPDATE Species SET InitBiomass = " + QString::number(valueWithoutComma.toDouble(),'f',6).toStdString();  // value.toStdString();
-//          cmd  = "UPDATE Species SET InitBiomass = " + QString::number(index.data().toDouble(),'f',6).toStdString();  // value.toStdString();
+            cmd  = "UPDATE " + nmfConstantsMSSPM::TableSpecies + " SET InitBiomass = " + QString::number(valueWithoutComma.toDouble(),'f',6).toStdString();
             cmd += " WHERE SpeName = '" + SpeNames[species] + "'";
             errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
             if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -653,8 +652,8 @@ nmfEstimation_Tab5::loadAbsoluteBiomass(const int& RunLength,
                                         QStringList& VerticalList)
 {
     loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,ModelName,SpeciesNames,
-                                SpeciesList,VerticalList,"BiomassAbsolute",m_SModelAbsoluteBiomass,
-                                Estimation_Tab5_AbsoluteBiomassTV);
+                                SpeciesList,VerticalList,nmfConstantsMSSPM::TableBiomassAbsolute,
+                                m_SModelAbsoluteBiomass,Estimation_Tab5_AbsoluteBiomassTV);
 }
 
 void
@@ -668,8 +667,8 @@ nmfEstimation_Tab5::loadRelativeBiomass(const int& RunLength,
 {
     VerticalList.clear();
     loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,ModelName,SpeciesNames,
-                                SpeciesList,VerticalList,"BiomassRelative",m_SModelRelativeBiomass,
-                                Estimation_Tab5_RelativeBiomassTV);
+                                SpeciesList,VerticalList,nmfConstantsMSSPM::TableBiomassRelative,
+                                m_SModelRelativeBiomass,Estimation_Tab5_RelativeBiomassTV);
 }
 
 
@@ -761,9 +760,9 @@ void
 nmfEstimation_Tab5::callback_UpdateInitialObservedBiomass(QString obsBiomassType)
 {
     if (obsBiomassType == "Absolute") {
-        updateInitialObservedBiomass("BiomassAbsolute",Estimation_Tab5_AbsoluteBiomassTV);
+        updateInitialObservedBiomass(nmfConstantsMSSPM::TableBiomassAbsolute,Estimation_Tab5_AbsoluteBiomassTV);
     } else {
-        updateInitialObservedBiomass("BiomassAbsolute",Estimation_Tab5_RelativeBiomassTV);
+        updateInitialObservedBiomass(nmfConstantsMSSPM::TableBiomassAbsolute,Estimation_Tab5_RelativeBiomassTV);
     }
 }
 
@@ -786,10 +785,10 @@ nmfEstimation_Tab5::updateInitialObservedBiomass(const std::string& tableName,
 
     m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear);
 
-    // Populate first row of Observed Absolute Biomass with Init Absolute Biomass from Species.
-    // Populate first row of Observed Relative Biomass with product of Init SurveyQ and Init Absolute Biomass from Species.
+    // Populate first row of Observed Absolute Biomass with Init Absolute Biomass from nmfConstantsMSSPM::TableSpecies.
+    // Populate first row of Observed Relative Biomass with product of Init SurveyQ and Init Absolute Biomass from nmfConstantsMSSPM::TableSpecies.
     fields     = {"SpeName","InitBiomass","SurveyQ"};
-    queryStr   = "SELECT SpeName,InitBiomass,SurveyQ FROM Species";
+    queryStr   = "SELECT SpeName,InitBiomass,SurveyQ FROM " + nmfConstantsMSSPM::TableSpecies;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
 
@@ -803,7 +802,7 @@ nmfEstimation_Tab5::updateInitialObservedBiomass(const std::string& tableName,
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
         initAbsBiomass = std::stod(dataMap["InitBiomass"][j]);
         initSurveyQ    = std::stod(dataMap["SurveyQ"][j]);
-        initObsBiomassValue = (tableName == "BiomassAbsolute") ? initAbsBiomass : initSurveyQ*initAbsBiomass;
+        initObsBiomassValue = (tableName == nmfConstantsMSSPM::TableBiomassAbsolute) ? initAbsBiomass : initSurveyQ*initAbsBiomass;
         item = new QStandardItem(QString::number(initObsBiomassValue));
         item->setTextAlignment(Qt::AlignCenter);
         smodel->setItem(0, j, item);
@@ -832,7 +831,7 @@ nmfEstimation_Tab5::loadCovariates(const int& RunLength,
 
     // Get data from database table
     fields     = {"Year","Value"};
-    queryStr   = "SELECT Year,Value FROM Covariate";
+    queryStr   = "SELECT Year,Value FROM " + nmfConstantsMSSPM::TableCovariate;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Year"].size();
 

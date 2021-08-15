@@ -59,6 +59,10 @@ class MSSPM_GuiOutputControls: public QObject
     QHash<QString,int>  m_SpeciesHash;
     QStringListModel*   m_SpeciesOrGuildModel;
     bool                m_IsAveraged;
+    int                 m_NumSignificantDigits;
+    double              m_MSY_Value;
+    double              m_FMSY_Value;
+    double              m_BMSY_Value;
 
     QLabel*      OutputChartTypeLBL;
     QComboBox*   OutputGroupTypeCMB;
@@ -322,6 +326,10 @@ public:
      * @param value : QString value of the MSY value to display (as read-only) to the user
      */
     void            setTextOutputMSY(QString text);
+    void            resetTextOutputMSY();
+    void            resetTextOutputBMSY();
+    void            resetTextOutputFMSY();
+    void            resetMSYWidgets();
     /**
      * @brief Sets the FMSY line edit widget to the passed value
      * @param value : QString value of the FMSY value to display (as read-only) to the user

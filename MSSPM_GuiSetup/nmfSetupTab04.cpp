@@ -369,8 +369,8 @@ nmfSetup_Tab4::loadModel()
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
     queryStr  += "GradMaxIterations,GradMaxLineSearches,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
-    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter FROM Models ";
-    queryStr  += "WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
+    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter FROM " + nmfConstantsMSSPM::TableModels;
+    queryStr  += " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ModelName"].size() == 0) {
         m_logger->logMsg(nmfConstants::Error,"nmfSetupTab3::callback_Setup_Tab4_LoadPB: No data found in Models table");
@@ -433,7 +433,7 @@ nmfSetup_Tab4::loadModel()
     std::string cmd;
     std::string errorMsg;
 
-    cmd  = "UPDATE Models SET";
+    cmd  = "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
     cmd += "  Algorithm = '"          + data.Algorithm + "'";
     cmd += ", Minimizer = '"          + data.Minimizer + "'";
     cmd += ", ObjectiveCriterion = '" + data.ObjectiveCriterion + "'";
@@ -499,7 +499,7 @@ nmfSetup_Tab4::calculateSystemCarryingCapacity()
 
     if (isAggProd()) {
         fields     = {"GuildName","GuildK"};
-        queryStr   = "SELECT GuildName,GuildK FROM Guilds";
+        queryStr   = "SELECT GuildName,GuildK FROM " + nmfConstantsMSSPM::TableGuilds;
         dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["GuildName"].size();
         for (int i=0; i<NumRecords; ++i) {
@@ -507,7 +507,7 @@ nmfSetup_Tab4::calculateSystemCarryingCapacity()
         }
     } else {
         fields     = {"SpeName","SpeciesK"};
-        queryStr   = "SELECT SpeName,SpeciesK FROM Species";
+        queryStr   = "SELECT SpeName,SpeciesK FROM " + nmfConstantsMSSPM::TableSpecies;
         dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
         for (int i=0; i<NumRecords; ++i) {
@@ -770,11 +770,11 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
 
     // Check if Model exists, if so Update else REPLACE
     fields   = {"ProjectName","ModelName"};
-    queryStr = "SELECT ProjectName,ModelName from Models where ProjectName = '" + m_ProjectName +
+    queryStr = "SELECT ProjectName,ModelName from " + nmfConstantsMSSPM::TableModels + " where ProjectName = '" + m_ProjectName +
                "' AND ModelName = '" + currentModelName + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ModelName"].size() != 0) { // This means the model name exists so do an update
-        cmd  = "UPDATE Models SET";
+        cmd  = "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
         cmd += "   ProjectName = '"                + m_ProjectName +
                "', ModelName = '"                  + currentModelName +
                "', CarryingCapacity = "            + SystemK +
@@ -789,7 +789,7 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
                " WHERE ModelName = '"              + currentModelName +
                "' AND ProjectName = '"             + m_ProjectName + "'";
     } else { // This means the system name does not exist so do a replace
-        cmd  = "REPLACE INTO Models (ProjectName,ModelName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,";
+        cmd  = "REPLACE INTO " + nmfConstantsMSSPM::TableModels + " (ProjectName,ModelName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,";
         cmd += "WithinGuildCompetitionForm,StartYear,RunLength,NumberOfParameters) ";
         cmd += "VALUES ('" +
                 m_ProjectName                      + "','"  +
@@ -864,7 +864,7 @@ nmfSetup_Tab4::loadWidgets()
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
     queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter ";
-    queryStr  += "FROM Models where ModelName = '";
+    queryStr  += "FROM " + nmfConstantsMSSPM::TableModels + " where ModelName = '";
     queryStr  += m_ModelName + "' AND ProjectName = '" + m_ProjectName + "'";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ModelName"].size();
@@ -1205,7 +1205,7 @@ nmfSetup_Tab4::populateNewModel()
     int StartYear;
     int NumSpeciesOrGuilds;
     std::string queryStr;
-    std::string harvestTableName;
+    std::string harvestTableName = "";
     std::string obsBiomassTableName;
     std::string obsBiomassType;
     std::string projectModel;
@@ -1222,14 +1222,15 @@ nmfSetup_Tab4::populateNewModel()
     // Get Harvest table name
     std::string HarvestForm = getHarvestFormCMB()->currentText().toStdString();
     if (HarvestForm == nmfConstantsMSSPM::HarvestCatch.toStdString()) {
-        harvestTableName = "HarvestCatch";
+        harvestTableName = nmfConstantsMSSPM::TableHarvestCatch;
     } else if (HarvestForm == nmfConstantsMSSPM::HarvestEffort.toStdString()) {
-        harvestTableName = "HarvestEffort";
+        harvestTableName = nmfConstantsMSSPM::TableHarvestEffort;
     }
 
     // Get data from other models in current project
     fields    = {"ProjectName","ModelName","HarvestForm","ObsBiomassType"};
-    queryStr  = "SELECT ProjectName,ModelName,HarvestForm,ObsBiomassType FROM Models WHERE ProjectName = '" + m_ProjectName + "'";
+    queryStr  = "SELECT ProjectName,ModelName,HarvestForm,ObsBiomassType FROM " +
+                nmfConstantsMSSPM::TableModels + " WHERE ProjectName = '" + m_ProjectName + "'";
     queryStr += " AND ModelName != '" + m_ModelName + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     int NumModels = (int)dataMap["ModelName"].size();
@@ -1327,7 +1328,8 @@ nmfSetup_Tab4::modelExists(QString ModelName)
     std::string queryStr;
 
     fields   = {"ProjectName","ModelName"};
-    queryStr = "SELECT ProjectName,ModelName FROM Models WHERE ProjectName = '" + m_ProjectName +
+    queryStr = "SELECT ProjectName,ModelName FROM " + nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
                "' AND ModelName = '" + ModelName.toStdString() + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
 

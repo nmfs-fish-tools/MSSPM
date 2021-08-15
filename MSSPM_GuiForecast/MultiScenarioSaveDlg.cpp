@@ -227,7 +227,7 @@ MultiScenarioSaveDlg::getForecastData(
 
     // Find number of years in forecast
     fields     = {"ForecastName","RunLength"};
-    queryStr   = "SELECT ForecastName,RunLength FROM Forecasts";
+    queryStr   = "SELECT ForecastName,RunLength FROM " + nmfConstantsMSSPM::TableForecasts;
     queryStr  += "  WHERE ProjectName = '" + m_ProjectName +
                  "' AND ForecastName = '" + forecastName + "'";
     queryStr  += "  AND Algorithm = '" + Algorithm +
@@ -246,7 +246,7 @@ MultiScenarioSaveDlg::getForecastData(
 
     // Find number of species in forecast
     fields     = {"ForecastName","isAggProd","SpeName","Year","Value"};
-    queryStr   = "SELECT ForecastName,isAggProd,SpeName,Year,Value FROM ForecastBiomass";
+    queryStr   = "SELECT ForecastName,isAggProd,SpeName,Year,Value FROM " + nmfConstantsMSSPM::TableForecastBiomass;
     queryStr  += " WHERE ProjectName = '" + m_ProjectName +
                  "' AND ForecastName = '" + forecastName + "'";
     queryStr  += "  AND Algorithm = '" + Algorithm +
@@ -295,8 +295,9 @@ MultiScenarioSaveDlg::callback_SetOrderPB()
 
     for (int sortOrder=0; sortOrder<ForecastLabelLW->count(); ++sortOrder) {
         // Update database table to reflect new sort order
-        cmd = "UPDATE ForecastBiomassMultiScenario SET SortOrder = " + std::to_string(sortOrder) +
-              "  WHERE ScenarioName = '" + getScenarioName() +
+        cmd = "UPDATE " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
+              " SET SortOrder = " + std::to_string(sortOrder) +
+              " WHERE ScenarioName = '" + getScenarioName() +
               "' AND ForecastLabel = '" + ForecastLabelLW->item(sortOrder)->text().toStdString() + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -356,7 +357,7 @@ MultiScenarioSaveDlg::callback_OkPB()
    // Check that current Scenario and Forecast doesn't already exist.
    // If it does, ask user if they want to overwrite it.
    fields     = {"ScenarioName","ForecastLabel","SpeName","Year","Value"};
-   queryStr   = "SELECT ScenarioName,ForecastLabel,SpeName,Year,Value FROM ForecastBiomassMultiScenario";
+   queryStr   = "SELECT ScenarioName,ForecastLabel,SpeName,Year,Value FROM " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
    queryStr  += " WHERE ScenarioName = '" + Scenario +
                 "' AND ForecastLabel = '" + Forecast + "'";
    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -372,7 +373,7 @@ MultiScenarioSaveDlg::callback_OkPB()
 
    if (okToWriteFile)
    {
-       cmd  = "DELETE FROM ForecastBiomassMultiScenario";
+       cmd  = "DELETE FROM " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
        cmd += "  WHERE ScenarioName = '" + Scenario +
               "' AND ForecastLabel = '" + Forecast + "'";
        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
@@ -382,8 +383,9 @@ MultiScenarioSaveDlg::callback_OkPB()
            return;
        }
 
-       cmd = "INSERT INTO ForecastBiomassMultiScenario (ScenarioName,SortOrder,ForecastLabel,SpeName,Year,Value) VALUES ";
-       for (int i=0; i<NumSpecies; ++i) { // Species
+       cmd = "INSERT INTO " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
+             " (ScenarioName,SortOrder,ForecastLabel,SpeName,Year,Value) VALUES ";
+       for (int i=0; i<NumSpecies; ++i) {   // Species
            for (int j=0; j<NumYears; ++j) { // Time in years
                cmd += "('"   + Scenario +
                        "',"  + SortOrder +
@@ -453,7 +455,7 @@ MultiScenarioSaveDlg::callback_ScenarioNameCMB(QString scenario)
 
     if (m_OrderedForecastLabelsMap[scenario].isEmpty()) {
         fields     = {"ForecastLabel"};
-        queryStr   = "SELECT DISTINCT SortOrder,ForecastLabel FROM ForecastBiomassMultiScenario";
+        queryStr   = "SELECT DISTINCT SortOrder,ForecastLabel FROM " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
         queryStr  += " WHERE ScenarioName = '" + scenario.toStdString() + "' ORDER BY SortOrder,ForecastLabel";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["ForecastLabel"].size();
@@ -491,8 +493,8 @@ MultiScenarioSaveDlg::callback_DelScenarioPB()
                                   QMessageBox::No|QMessageBox::Yes,
                                   QMessageBox::Yes);
     if (reply == QMessageBox::Yes) {
-        cmd  = "DELETE FROM ForecastBiomassMultiScenario";
-        cmd += "  WHERE ScenarioName = '" + scenario + "'";
+        cmd  = "DELETE FROM " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
+        cmd += " WHERE ScenarioName = '" + scenario + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] MultiScenarioSaveDlg::callback_DelScenarioPB: DELETE error: " + errorMsg);
@@ -541,9 +543,9 @@ MultiScenarioSaveDlg::callback_DelForecastPB()
                                   QMessageBox::Yes);
     okToDelete = (reply == QMessageBox::Yes);
     if (okToDelete) {
-        cmd  = "DELETE FROM ForecastBiomassMultiScenario";
-        cmd += "  WHERE ScenarioName = '" + scenario +
-                "' AND ForecastLabel = '" + forecast + "'";
+        cmd  = "DELETE FROM " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
+        cmd += " WHERE ScenarioName = '" + scenario +
+               "' AND ForecastLabel = '" + forecast + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] MultiScenarioSaveDlg::callback_DelForecastPB: DELETE error: " + errorMsg);
@@ -615,8 +617,9 @@ MultiScenarioSaveDlg::renameScenarioName(QString oldScenario,
     std::string errorMsg;
 
     // Finally, update tables
-    cmd = "UPDATE ForecastBiomassMultiScenario SET ScenarioName='" + newScenario.toStdString() +
-          "' WHERE ScenarioName='" + oldScenario.toStdString() + "'";
+    cmd = "UPDATE " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
+          " SET ScenarioName = '"    + newScenario.toStdString() +
+          "' WHERE ScenarioName = '" + oldScenario.toStdString() + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] renameScenarioName: DELETE error: " + errorMsg);
@@ -635,7 +638,8 @@ MultiScenarioSaveDlg::renameForecastLabel(QString scenario,
     std::string errorMsg;
 
     // Second, update tables
-    cmd = "UPDATE ForecastBiomassMultiScenario SET ForecastLabel='" + newForecast.toStdString() +
+    cmd = "UPDATE " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
+          " SET ForecastLabel='" + newForecast.toStdString() +
           "' WHERE ScenarioName='" + scenario.toStdString() +
           "' AND ForecastLabel='" + oldForecast.toStdString() + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);

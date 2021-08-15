@@ -187,7 +187,7 @@ nmfForecast_Tab1::callback_SavePB()
 
     // Get forms
     fields    = {"GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength"};
-    queryStr  = "SELECT GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength FROM Models WHERE ";
+    queryStr  = "SELECT GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength FROM " + nmfConstantsMSSPM::TableModels + " WHERE ";
     queryStr += "ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["RunLength"].size();
@@ -215,7 +215,7 @@ nmfForecast_Tab1::callback_SavePB()
         }
     }
 
-    cmd = "DELETE FROM Forecasts WHERE ProjectName = '" + m_ProjectName +
+    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableForecasts + " WHERE ProjectName = '" + m_ProjectName +
           "' AND ForecastName = '" + ForecastName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -228,7 +228,7 @@ nmfForecast_Tab1::callback_SavePB()
         return;
     }
 
-    cmd  = "INSERT INTO Forecasts (ProjectName,ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
+    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableForecasts + " (ProjectName,ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     cmd += "GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,";
     cmd += "StartYear,EndYear,NumRuns,IsDeterministic,Seed) VALUES ";
     cmd += "('" + m_ProjectName + "','" + ForecastName +
@@ -294,7 +294,7 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
                  "RunLength","StartYear","EndYear","NumRuns","IsDeterministic","Seed"};
     queryStr  = "SELECT ProjectName,ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     queryStr += "GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,";
-    queryStr += "StartYear,EndYear,NumRuns,IsDeterministic,Seed from Forecasts WHERE ";
+    queryStr += "StartYear,EndYear,NumRuns,IsDeterministic,Seed FROM " + nmfConstantsMSSPM::TableForecasts + " WHERE ";
     queryStr += " ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + forecastToLoad + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() == 0) {
@@ -318,7 +318,7 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
 
     // Check that Forecast forms match System forms (if not, the Forecast may fail.)
     fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
-    queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm from Models WHERE ";
+    queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm FROM " + nmfConstantsMSSPM::TableModels + " WHERE ";
     queryStr += " ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ModelName"].size() == 0) {
@@ -373,67 +373,6 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
     emit ForecastLoaded(forecastToLoad);
 }
 
-/*
-void
-nmfForecast_Tab1::callback_PreviousRunCB(bool state)
-{
-    Forecast_Tab1_AlgorithmLBL->setEnabled(state);
-    Forecast_Tab1_MinimizerLBL->setEnabled(state);
-    Forecast_Tab1_ObjectiveCriterionLBL->setEnabled(state);
-    Forecast_Tab1_AlgorithmCMB->setEnabled(state);
-    Forecast_Tab1_MinimizerCMB->setEnabled(state);
-    Forecast_Tab1_ObjectiveCriterionCMB->setEnabled(state);
-}
-
-void
-nmfForecast_Tab1::callback_AlgorithmCMB(QString algorithm)
-{
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    QString minimizer;
-
-    // Read OutputGrowthRate to find all the Minimizer values for this algorithm value
-    fields    = {"Algorithm","Minimizer"};
-    queryStr  = "SELECT Algorithm,Minimizer from OutputGrowthRate WHERE ";
-    queryStr += "Algorithm = '" + algorithm.toStdString() + "'";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    Forecast_Tab1_MinimizerCMB->clear();
-    Forecast_Tab1_ObjectiveCriterionCMB->clear();
-    for (unsigned i=0; i<dataMap["Minimizer"].size(); ++i) {
-        minimizer = QString::fromStdString(dataMap["Minimizer"][i]);
-        if (Forecast_Tab1_MinimizerCMB->findText(minimizer) == -1) {
-            Forecast_Tab1_MinimizerCMB->addItem(minimizer);
-        }
-    }
-    minimizer = Forecast_Tab1_MinimizerCMB->currentText();
-    callback_MinimizerCMB(minimizer);
-}
-
-void
-nmfForecast_Tab1::callback_MinimizerCMB(QString minimizer)
-{
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    QString algorithm = Forecast_Tab1_AlgorithmCMB->currentText();
-    QString objectiveCriterion;
-
-    // Read OutputGrowthRate to find all the Minimizer values for this algorithm value
-    fields    = {"Algorithm","Minimizer","ObjectiveCriterion"};
-    queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion from OutputGrowthRate WHERE ";
-    queryStr += "Algorithm = '" + algorithm.toStdString() + "' AND ";
-    queryStr += "Minimizer = '" + minimizer.toStdString() + "'";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    Forecast_Tab1_ObjectiveCriterionCMB->clear();
-    for (unsigned i=0; i<dataMap["ObjectiveCriterion"].size(); ++i) {
-        objectiveCriterion = QString::fromStdString(dataMap["ObjectiveCriterion"][i]);
-        if (Forecast_Tab1_ObjectiveCriterionCMB->findText(objectiveCriterion) == -1) {
-            Forecast_Tab1_ObjectiveCriterionCMB->addItem(objectiveCriterion);
-        }
-    }
-}
-*/
 
 bool
 nmfForecast_Tab1::isValidForecastName()
@@ -481,7 +420,7 @@ nmfForecast_Tab1::loadWidgets()
 
     // Load years
     fields    = {"StartYear","RunLength"};
-    queryStr  = "SELECT StartYear,RunLength from Models WHERE ";
+    queryStr  = "SELECT StartYear,RunLength FROM " + nmfConstantsMSSPM::TableModels + " WHERE ";
     queryStr += "ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["StartYear"].size() == 0) {

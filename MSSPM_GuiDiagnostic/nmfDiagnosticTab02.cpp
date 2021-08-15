@@ -129,8 +129,9 @@ nmfDiagnostic_Tab2::loadWidgets(int NumPeels)
     clearWidgets();
 
     fields   = {"StartYear","RunLength"};
-    queryStr = "SELECT StartYear,RunLength from Models WHERE ProjectName = '" + m_ProjectName +
-               "' AND  ModelName = '" + m_ModelName + "'";
+    queryStr = "SELECT StartYear,RunLength from " + nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["StartYear"].size() != 0) {
         StartYear = std::stoi(dataMap["StartYear"][0]);

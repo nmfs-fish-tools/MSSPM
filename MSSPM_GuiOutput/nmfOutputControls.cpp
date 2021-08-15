@@ -10,14 +10,18 @@ MSSPM_GuiOutputControls::MSSPM_GuiOutputControls(
         nmfDatabase* databasePtr,
         std::string& projectDir)
 {
-    m_Logger              = logger;
-    m_DatabasePtr         = databasePtr;
-    m_ProjectDir          = projectDir;
-    m_SpeciesOrGuildModel = new QStringListModel();
-    m_IsAveraged          = nmfConstantsMSSPM::IsNotAveraged;
+    m_Logger               = logger;
+    m_DatabasePtr          = databasePtr;
+    m_ProjectDir           = projectDir;
+    m_SpeciesOrGuildModel  = new QStringListModel();
+    m_IsAveraged           = nmfConstantsMSSPM::IsNotAveraged;
+    m_NumSignificantDigits = -1;
     m_ProjectName.clear();
     m_ModelName.clear();
     m_SortedForecastLabelsMap.clear();
+    m_MSY_Value            = -1;
+    m_FMSY_Value           = -1;
+    m_BMSY_Value           = -1;
 
     OutputLineBrightnessSL   = nullptr;
     OutputParametersZScoreCB = nullptr;
@@ -446,7 +450,8 @@ MSSPM_GuiOutputControls::callback_LoadScenariosWidget()
     std::string queryStr;
 
     fields   = {"ScenarioName"};
-    queryStr = "SELECT DISTINCT ScenarioName from ForecastBiomassMultiScenario ORDER BY ScenarioName";
+    queryStr = "SELECT DISTINCT ScenarioName from " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
+               " ORDER BY ScenarioName";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
 
     OutputScenariosCMB->blockSignals(true);
@@ -468,6 +473,7 @@ MSSPM_GuiOutputControls::callback_LoadScenariosWidget()
 void
 MSSPM_GuiOutputControls::loadWidgets()
 {
+    readSettings();
     loadSortedForecastLabels();
     loadSpeciesControlWidget();
     callback_LoadScenariosWidget();
@@ -557,7 +563,7 @@ MSSPM_GuiOutputControls::getSpecies(int&         NumSpecies,
     SpeciesList.clear();
 
     fields     = {"SpeName"};
-    queryStr   = "SELECT SpeName from Species ORDER BY SpeName";
+    queryStr   = "SELECT SpeName from " + nmfConstantsMSSPM::TableSpecies + " ORDER BY SpeName";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     if (NumSpecies == 0) {
@@ -583,7 +589,7 @@ MSSPM_GuiOutputControls::getGuilds(int&         NumGuilds,
     GuildList.clear();
 
     fields    = {"GuildName"};
-    queryStr  = "SELECT GuildName from Guilds ORDER BY GuildName";
+    queryStr  = "SELECT GuildName from " + nmfConstantsMSSPM::TableGuilds + " ORDER BY GuildName";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds = dataMap["GuildName"].size();
     if (NumGuilds == 0) {
@@ -840,7 +846,7 @@ MSSPM_GuiOutputControls::refreshScenarios()
     std::string queryStr;
 
     fields     = {"ScenarioName"};
-    queryStr   = "SELECT DISTINCT ScenarioName FROM ForecastBiomassMultiScenario";
+    queryStr   = "SELECT DISTINCT ScenarioName FROM " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ScenarioName"].size();
 
@@ -1172,8 +1178,10 @@ MSSPM_GuiOutputControls::isEnabledOutputFMSY()
 void
 MSSPM_GuiOutputControls::setTextOutputBMSY(QString text)
 {
+    m_BMSY_Value = (! text.isEmpty()) ? text.toDouble() : -1;
     QLocale locale(QLocale::English);
-    QString valueWithComma = locale.toString(text.toDouble());
+    QString valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                text.toDouble(),m_NumSignificantDigits,3);
 
     OutputShowBMSYLE->blockSignals(true);
     OutputShowBMSYLE->setText(valueWithComma);
@@ -1183,19 +1191,69 @@ MSSPM_GuiOutputControls::setTextOutputBMSY(QString text)
 void
 MSSPM_GuiOutputControls::setTextOutputMSY(QString text)
 {
+    m_MSY_Value = (! text.isEmpty()) ? text.toDouble() : -1;
     QLocale locale(QLocale::English);
-    QString valueWithComma = locale.toString(text.toDouble());
-
+    QString valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                text.toDouble(),m_NumSignificantDigits,3);
     OutputShowMSYLE->setText(valueWithComma);
 }
 
 void
 MSSPM_GuiOutputControls::setTextOutputFMSY(QString text)
 {
+    m_FMSY_Value = (! text.isEmpty()) ? text.toDouble() : -1;
     QLocale locale(QLocale::English);
-    QString valueWithComma = locale.toString(text.toDouble());
-
+    QString valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                text.toDouble(),m_NumSignificantDigits,3);
     OutputShowFMSYLE->setText(valueWithComma);
+}
+
+void
+MSSPM_GuiOutputControls::resetTextOutputBMSY()
+{
+    if (m_BMSY_Value < 0) {
+        return;
+    }
+    QLocale locale(QLocale::English);
+    QString valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                  m_BMSY_Value,m_NumSignificantDigits,3);
+
+    OutputShowBMSYLE->blockSignals(true);
+    OutputShowBMSYLE->setText(valueWithComma);
+    OutputShowBMSYLE->blockSignals(false);
+}
+
+void
+MSSPM_GuiOutputControls::resetTextOutputMSY()
+{
+    if (m_MSY_Value < 0) {
+        return;
+    }
+    QLocale locale(QLocale::English);
+    QString valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                  m_MSY_Value,m_NumSignificantDigits,3);
+    OutputShowMSYLE->setText(valueWithComma);
+}
+
+void
+MSSPM_GuiOutputControls::resetTextOutputFMSY()
+{
+    if (m_FMSY_Value < 0) {
+        return;
+    }
+    QLocale locale(QLocale::English);
+    QString valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                  m_FMSY_Value,m_NumSignificantDigits,3);
+    OutputShowFMSYLE->setText(valueWithComma);
+}
+
+void
+MSSPM_GuiOutputControls::resetMSYWidgets()
+{
+    readSettings();
+    resetTextOutputBMSY();
+    resetTextOutputMSY();
+    resetTextOutputFMSY();
 }
 
 void
@@ -1331,6 +1389,10 @@ MSSPM_GuiOutputControls::readSettings()
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
     settings->endGroup();
 
     settings->beginGroup("Output");

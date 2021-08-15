@@ -522,11 +522,12 @@ nmfEstimation_Tab6::adjustNumberOfParameters()
 
     // Update current ModelName in Models table
     fields   = {"ProjectName","ModelName"};
-    queryStr = "SELECT ProjectName,ModelName from Models WHERE ProjectName = '" + m_ProjectName +
-               "' AND  ModelName = '" + m_ModelName + "'";
+    queryStr = "SELECT ProjectName,ModelName from " + nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ModelName"].size() != 0) { // This means the model name exists so do an update
-        cmd  = "UPDATE Models SET";
+        cmd  = "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
         cmd += "   ProjectName = '" + m_ProjectName +
                "', ModelName = '" + m_ModelName +
                "', NumberOfParameters = " + std::to_string(numberOfParameters) +
@@ -754,7 +755,7 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
     std::string cmd;
     std::string errorMsg;
 
-    cmd  =  "UPDATE Models SET";
+    cmd  =  "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
     cmd +=  "   NumberOfRuns = "          + getBeesNumberOfRuns() +
             ",  TimeStep = 1"             + // std::to_string(Estimation_Tab6_TimeStepSB->value()) +
             ",  Algorithm = '"            + getCurrentAlgorithm() +
@@ -1830,7 +1831,7 @@ nmfEstimation_Tab6::loadWidgets()
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
     queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptNumberOfRuns ";
-    queryStr  += "FROM Models WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '";
+    queryStr  += "FROM " + nmfConstantsMSSPM::TableModels + " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '";
     queryStr  += m_ModelName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ModelName"].size();

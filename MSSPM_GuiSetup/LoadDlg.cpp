@@ -90,7 +90,8 @@ LoadDlg::reloadSystemsList()
     m_SettingNames.clear();
 
     fields     = {"ProjectName","ModelName"};
-    queryStr   = "SELECT ProjectName,ModelName FROM Models WHERE ProjectName='" + m_ProjectName + "'";
+    queryStr   = "SELECT ProjectName,ModelName FROM " + nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName='" + m_ProjectName + "'";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     for (unsigned int i=0; i<dataMap["ModelName"].size(); ++i) {
         name = dataMap["ModelName"][i];

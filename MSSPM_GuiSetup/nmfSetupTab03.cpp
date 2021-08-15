@@ -171,7 +171,7 @@ nmfSetup_Tab3::callback_ReloadSpeciesPB(bool showPopup)
 //void
 //nmfSetup_Tab3::callback_Setup_Tab3_DelGuildPB()
 //{
-// //  QList<QString> TablesToDeleteFrom = {"Guilds"};
+// //  QList<QString> TablesToDeleteFrom = {nmfConstantsMSSPM::TableGuilds};
 //    // Delete row(s) from table.  If the Species has been saved, this should happen automatically when
 //    // the Species are reloaded.  However, if the user is just entering the data and hasn't yet
 //    // saved and wants to delete a row, this statement is necessary.
@@ -188,7 +188,7 @@ nmfSetup_Tab3::callback_ReloadSpeciesPB(bool showPopup)
 //    int firstRow = firstSelRow;
 //    int numRowsToDelete = lastSelRow - firstSelRow + 1;
 //    for (int i=0; i<numRowsToDelete; ++i) {
-// //      removeFromTable("Guilds",Setup_Tab3_GuildsTW->item(firstRow,0),TablesToDeleteFrom); // Remove from database table
+// //      removeFromTable(nmfConstantsMSSPM::TableGuilds,Setup_Tab3_GuildsTW->item(firstRow,0),TablesToDeleteFrom); // Remove from database table
 //        Setup_Tab3_GuildsTW->removeRow(firstRow);// Remove from widget  (Refactor this with a model!!)
 //    }
 //    // Enable spin box if there are 0 rows left
@@ -405,7 +405,7 @@ nmfSetup_Tab3::guildDataIsSaved()
 
     // Get Guild data from database
     fields = {"GuildName","GrowthRate"};
-    queryStr  = "SELECT GuildName,GrowthRate FROM Guilds";
+    queryStr  = "SELECT GuildName,GrowthRate FROM " + nmfConstantsMSSPM::TableGuilds;
     dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds = dataMap["GuildName"].size();
 
@@ -609,7 +609,7 @@ nmfSetup_Tab3::saveGuildData()
     }
 
     // Delete current Guilds table
-    cmd = "DELETE FROM Guilds";
+    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableGuilds;
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::saveGuildData: DELETE error: " + errorMsg);
@@ -626,7 +626,7 @@ nmfSetup_Tab3::saveGuildData()
         GrowthRate        = Setup_Tab3_GuildsTW->item(i,1)->text().toStdString();
         valueWithoutComma = Setup_Tab3_GuildsTW->item(i,2)->text().remove(",");
         GuildK            = valueWithoutComma.toStdString();
-        cmd  = "INSERT INTO Guilds (GuildName,GrowthRate,GuildK) ";
+        cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableGuilds + " (GuildName,GrowthRate,GuildK) ";
         cmd += "VALUES ('" + GuildName + "'," + GrowthRate +  "," + GuildK + ");";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -683,7 +683,7 @@ nmfSetup_Tab3::saveSpeciesData()
         numCols = tw->columnCount();
         for (int i=0; i<NumSpeciesOrGuilds[tableNum]; ++i) {
             for (int j=0; j<numCols; ++j) {
-                if ((Tables[tableNum] == "Guilds") ||
+                if ((Tables[tableNum] == nmfConstantsMSSPM::TableGuilds) ||
                         ((Tables[tableNum] == "Species") && (j != 1))) // Skip the combobox in Species
                 {
                     value = tw->item(i,j)->text();
@@ -742,7 +742,7 @@ nmfSetup_Tab3::saveSpeciesData()
 
         guildKMap[GuildName] += std::stod(SpeciesK);
         systemK += std::stod(SpeciesK);
-        cmd  = "INSERT INTO Species (";
+        cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableSpecies + " (";
         cmd += "SpeName,GuildName,InitBiomass,GrowthRate,SpeciesK) ";
         cmd += " VALUES ('" + SpeciesName + "', '" + GuildName +
                 "', "+ InitBiomass + ", " + GrowthRate + ", " + SpeciesK + ") ";
@@ -762,7 +762,7 @@ nmfSetup_Tab3::saveSpeciesData()
         }
 
         // Need to also update the BiomassAbsolute table with the Initial Absolute Biomass values
-        cmd  = "REPLACE INTO BiomassAbsolute (";
+        cmd  = "REPLACE INTO " + nmfConstantsMSSPM::TableBiomassAbsolute + " (";
         cmd += "ProjectName,ModelName,SpeName,Year,Value) ";
         cmd += "VALUES ('" + m_ProjectName + "','" + m_ModelName + "','" +
                 SpeciesName + "', 0, "+ InitBiomass + ");";
@@ -867,13 +867,13 @@ nmfSetup_Tab3::pruneTablesForGuilds(std::vector<std::string>& Guilds)
     std::string list = "(";
     std::vector<std::string> GuildATables =
     {
-        "BetweenGuildsInteractionCoeff"
+        nmfConstantsMSSPM::TableBetweenGuildsInteractionCoeff
     };
     std::vector<std::string> GuildNameTables =
     {
-        "CompetitionBetaGuildsMax",
-        "CompetitionBetaGuildsMin",
-        "OutputCompetitionBetaGuilds"
+        nmfConstantsMSSPM::TableCompetitionBetaGuildsMax,
+        nmfConstantsMSSPM::TableCompetitionBetaGuildsMin,
+        nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds
     };
 
     // Build list string that lists the valid Guilds names
@@ -913,54 +913,54 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
     std::string list = "(";
     std::vector<std::string> SpeciesATables =
     {
-        "CompetitionAlpha",
-        "CompetitionAlphaMax",
-        "CompetitionAlphaMin",
-        "CompetitionBetaSpeciesMax",
-        "CompetitionBetaSpeciesMin",
-        "PredationHandling",
-        "PredationHandlingMax",
-        "PredationHandlingMin",
-        "OutputCompetitionAlpha",
-        "OutputCompetitionBetaSpecies",
-        "OutputPredationHandling",
-        "OutputPredationRho",
-        "PredationRhoMax",
-        "PredationRhoMin",
-        "PredationRho",
-        "SpatialOverlap"
+        nmfConstantsMSSPM::TableCompetitionAlpha,
+        nmfConstantsMSSPM::TableCompetitionAlphaMax,
+        nmfConstantsMSSPM::TableCompetitionAlphaMin,
+        nmfConstantsMSSPM::TableCompetitionBetaSpeciesMax,
+        nmfConstantsMSSPM::TableCompetitionBetaSpeciesMin,
+        nmfConstantsMSSPM::TablePredationHandling,
+        nmfConstantsMSSPM::TablePredationHandlingMax,
+        nmfConstantsMSSPM::TablePredationHandlingMin,
+        nmfConstantsMSSPM::TableOutputCompetitionAlpha,
+        nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies,
+        nmfConstantsMSSPM::TableOutputPredationHandling,
+        nmfConstantsMSSPM::TableOutputPredationRho,
+        nmfConstantsMSSPM::TablePredationRhoMax,
+        nmfConstantsMSSPM::TablePredationRhoMin,
+        nmfConstantsMSSPM::TablePredationRho,
+        nmfConstantsMSSPM::TableSpatialOverlap
     };
     std::vector<std::string> SpeNameTables =
     {
-        "HarvestCatch",
-        "CompetitionBetaGuildsMax",
-        "CompetitionBetaGuildsMin",
-        "DiagnosticCarryingCapacity",
-        "DiagnosticSurface",
-        "DiagnosticGrowthRate",
-        "HarvestEffort",
-        "HarvestExploitation",
-        "ForecastBiomass",
-        "ForecastBiomassMonteCarlo",
-        "ForecastBiomassMultiScenario",
-        "ForecastHarvestCatch",
-        "ForecastHarvestEffort",
-        "ForecastHarvestExploitation",
-        "ForecastUncertainty",
-        "BiomassAbsolute",
-        "BiomassRelative",
-        "BiomassRelativeScalars",
-        "OutputBiomass",
-        "OutputCarryingCapacity",
-        "OutputCatchability",
-        "OutputCompetitionBetaGuilds",
-        "OutputPredationExponent",
-        "OutputGrowthRate",
-        "OutputMSY",
-        "OutputMSYBiomass",
-        "OutputMSYFishing",
-        "PredationExponentMax",
-        "PredationExponentMin"};
+        nmfConstantsMSSPM::TableHarvestCatch,
+        nmfConstantsMSSPM::TableCompetitionBetaGuildsMax,
+        nmfConstantsMSSPM::TableCompetitionBetaGuildsMin,
+        nmfConstantsMSSPM::TableDiagnosticCarryingCapacity,
+        nmfConstantsMSSPM::TableDiagnosticSurface,
+        nmfConstantsMSSPM::TableDiagnosticGrowthRate,
+        nmfConstantsMSSPM::TableHarvestEffort,
+        nmfConstantsMSSPM::TableHarvestExploitation,
+        nmfConstantsMSSPM::TableForecastBiomass,
+        nmfConstantsMSSPM::TableForecastBiomassMonteCarlo,
+        nmfConstantsMSSPM::TableForecastBiomassMultiScenario,
+        nmfConstantsMSSPM::TableForecastHarvestCatch,
+        nmfConstantsMSSPM::TableForecastHarvestEffort,
+        nmfConstantsMSSPM::TableForecastHarvestExploitation,
+        nmfConstantsMSSPM::TableForecastUncertainty,
+        nmfConstantsMSSPM::TableBiomassAbsolute,
+        nmfConstantsMSSPM::TableBiomassRelative,
+        nmfConstantsMSSPM::TableBiomassRelativeScalars,
+        nmfConstantsMSSPM::TableOutputBiomass,
+        nmfConstantsMSSPM::TableOutputCarryingCapacity,
+        nmfConstantsMSSPM::TableOutputCatchability,
+        nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds,
+        nmfConstantsMSSPM::TableOutputPredationExponent,
+        nmfConstantsMSSPM::TableOutputGrowthRate,
+        nmfConstantsMSSPM::TableOutputMSY,
+        nmfConstantsMSSPM::TableOutputMSYBiomass,
+        nmfConstantsMSSPM::TableOutputMSYFishing,
+        nmfConstantsMSSPM::TablePredationExponentMax,
+        nmfConstantsMSSPM::TablePredationExponentMin};
 
     // Build list string that lists the valid Species names
     for (std::string species : Species) {
@@ -1021,7 +1021,7 @@ nmfSetup_Tab3::populateARowSpecies(int row, int ncols)
 
     // Get Guild data from database
     fields    = {"GuildName"};
-    queryStr  = "SELECT GuildName FROM Guilds";
+    queryStr  = "SELECT GuildName FROM " + nmfConstantsMSSPM::TableGuilds;
     dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds = dataMap["GuildName"].size();
     for (int i=0; i<NumGuilds; ++i) {
@@ -1174,7 +1174,7 @@ nmfSetup_Tab3::loadGuilds()
     GuildColumns << "GuildName" << "GrowthRate" << "GuildK";
     // Get Guild data from database
     fields = {"GuildName","GrowthRate","GuildK"};
-    queryStr   = "SELECT GuildName,GrowthRate,GuildK FROM Guilds";
+    queryStr   = "SELECT GuildName,GrowthRate,GuildK FROM " + nmfConstantsMSSPM::TableGuilds;
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds  = dataMap["GuildName"].size();
     if (NumGuilds == 0) {
@@ -1221,7 +1221,7 @@ nmfSetup_Tab3::loadSpecies()
     clearSpeciesWidgets();
 
     fields = {"SpeName","GuildName","InitBiomass","GrowthRate","SpeciesK"};
-    queryStr   = "SELECT SpeName,GuildName,InitBiomass,GrowthRate,SpeciesK FROM Species";
+    queryStr   = "SELECT SpeName,GuildName,InitBiomass,GrowthRate,SpeciesK FROM " + nmfConstantsMSSPM::TableSpecies;
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     if (NumSpecies == 0) {

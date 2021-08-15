@@ -71,8 +71,8 @@ private:
     std::string  m_ProjectDir;
     std::string  m_ProjectName;
     std::string  m_ModelName;
-    std::map<QString,QString> m_OutputTableName;
-    std::map<QString,QString> m_DiagnosticTableName;
+    std::map<std::string,std::string> m_OutputTableName;
+    std::map<std::string,std::string> m_DiagnosticTableName;
 
     double calculateFitness(const int& SpeciesOrGuildNum,
                             const std::vector<std::pair<QString,double> >& ParameterData);
@@ -143,9 +143,9 @@ private:
             const std::string&   ObjectCriterion,
             const std::string&   Scaling,
             std::vector<double>& Parameters);
-    void parameterToTableName(const std::string whichTable,
-                              const QString& parameter,
-                                    QString& tableName);
+    void parameterToTableName(const std::string  whichTable,
+                              const QString&     parameter,
+                                    std::string& tableName);
     /**
      * @brief Reads the program settings file and sets appropriate class variables
      */

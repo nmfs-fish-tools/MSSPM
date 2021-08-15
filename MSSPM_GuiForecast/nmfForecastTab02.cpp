@@ -13,7 +13,7 @@ nmfForecast_Tab2::nmfForecast_Tab2(QTabWidget*  tabs,
 
     m_Logger      = logger;
     m_DatabasePtr = databasePtr;
-    m_HarvestType = "ForecastHarvestCatch";
+    m_HarvestType = nmfConstantsMSSPM::TableForecastHarvestCatch;
     m_SModel      = nullptr;
     m_ProjectDir  = projectDir;
     m_ModelName.clear();
@@ -357,13 +357,13 @@ nmfForecast_Tab2::restoreData(int minRow, int minCol, int maxRow, int maxCol)
 
     // Find species info
     fields = {"SpeName"};
-    queryStr   = "SELECT SpeName FROM Species";
+    queryStr   = "SELECT SpeName FROM " + nmfConstantsMSSPM::TableSpecies;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
 
     // Find Forecast info
     fields     = {"ForecastName","RunLength","StartYear","EndYear"};
-    queryStr   = "SELECT ForecastName,RunLength,StartYear,EndYear FROM Forecasts where ";
+    queryStr   = "SELECT ForecastName,RunLength,StartYear,EndYear FROM " + nmfConstantsMSSPM::TableForecasts + " where ";
     queryStr  += "ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
@@ -443,7 +443,7 @@ nmfForecast_Tab2::loadWidgets()
     // Get latest harvest form. RSK Need to change this once user can select a run which wasn't the last run
     fields     = {"GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
     queryStr   = "SELECT GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm";
-    queryStr  += " FROM Models WHERE ProjectName = '" + m_ProjectName + "' AND ModelName='" + m_ModelName + "'";
+    queryStr  += " FROM " + nmfConstantsMSSPM::TableModels + " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName='" + m_ModelName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["GrowthForm"].size();
     if (NumRecords == 0) {
@@ -452,16 +452,16 @@ nmfForecast_Tab2::loadWidgets()
     }
     harvestForm = dataMap["HarvestForm"][0];
     if (harvestForm == "Catch") {
-        m_HarvestType = "ForecastHarvestCatch";
+        m_HarvestType = nmfConstantsMSSPM::TableForecastHarvestCatch;
     } else if (harvestForm == "Exploitation (F)") {
-        m_HarvestType = "ForecastHarvestExploitation";
+        m_HarvestType = nmfConstantsMSSPM::TableForecastHarvestExploitation;
     } else if (harvestForm == "Effort (qE)") {
-        m_HarvestType = "ForecastHarvestEffort";
+        m_HarvestType = nmfConstantsMSSPM::TableForecastHarvestEffort;
     }
 
     // Find species info
     fields = {"SpeName"};
-    queryStr   = "SELECT SpeName FROM Species";
+    queryStr   = "SELECT SpeName FROM " + nmfConstantsMSSPM::TableSpecies;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
@@ -470,7 +470,7 @@ nmfForecast_Tab2::loadWidgets()
 
     // Find Forecast info
     fields     = {"ForecastName","RunLength","StartYear","EndYear"};
-    queryStr   = "SELECT ForecastName,RunLength,StartYear,EndYear FROM Forecasts where ";
+    queryStr   = "SELECT ForecastName,RunLength,StartYear,EndYear FROM " + nmfConstantsMSSPM::TableForecasts + " where ";
     queryStr  += "ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {

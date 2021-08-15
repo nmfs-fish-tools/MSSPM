@@ -28,18 +28,18 @@ nmfEstimation_Tab3::nmfEstimation_Tab3(QTabWidget*  tabs,
 
     Estimation_Tabs = tabs;
 
-    m_AlphaTables.push_back("CompetitionAlpha");
-    m_AlphaTables.push_back("CompetitionAlphaMin");
-    m_AlphaTables.push_back("CompetitionAlphaMax");
-    m_BetaSpeciesTables.push_back("CompetitionBetaSpecies");
-    m_BetaSpeciesTables.push_back("CompetitionBetaSpeciesMin");
-    m_BetaSpeciesTables.push_back("CompetitionBetaSpeciesMax");
-    m_BetaGuildsTables.push_back("CompetitionBetaGuilds");
-    m_BetaGuildsTables.push_back("CompetitionBetaGuildsMin");
-    m_BetaGuildsTables.push_back("CompetitionBetaGuildsMax");
-    m_BetaGuildsGuildsTables.push_back("CompetitionBetaGuildsGuilds");
-    m_BetaGuildsGuildsTables.push_back("CompetitionBetaGuildsGuildsMin");
-    m_BetaGuildsGuildsTables.push_back("CompetitionBetaGuildsGuildsMax");
+    m_AlphaTables.push_back(nmfConstantsMSSPM::TableCompetitionAlpha);
+    m_AlphaTables.push_back(nmfConstantsMSSPM::TableCompetitionAlphaMin);
+    m_AlphaTables.push_back(nmfConstantsMSSPM::TableCompetitionAlphaMax);
+    m_BetaSpeciesTables.push_back(nmfConstantsMSSPM::TableCompetitionBetaSpecies);
+    m_BetaSpeciesTables.push_back(nmfConstantsMSSPM::TableCompetitionBetaSpeciesMin);
+    m_BetaSpeciesTables.push_back(nmfConstantsMSSPM::TableCompetitionBetaSpeciesMax);
+    m_BetaGuildsTables.push_back(nmfConstantsMSSPM::TableCompetitionBetaGuilds);
+    m_BetaGuildsTables.push_back(nmfConstantsMSSPM::TableCompetitionBetaGuildsMin);
+    m_BetaGuildsTables.push_back(nmfConstantsMSSPM::TableCompetitionBetaGuildsMax);
+    m_BetaGuildsGuildsTables.push_back(nmfConstantsMSSPM::TableCompetitionBetaGuildsGuilds);
+    m_BetaGuildsGuildsTables.push_back(nmfConstantsMSSPM::TableCompetitionBetaGuildsGuildsMin);
+    m_BetaGuildsGuildsTables.push_back(nmfConstantsMSSPM::TableCompetitionBetaGuildsGuildsMax);
 
     m_ProjectDir = projectDir;
 
@@ -397,24 +397,24 @@ nmfEstimation_Tab3::callback_ImportPB()
     } else if (reply == QMessageBox::Yes) {
         loadCSVFiles(allTableNames);
     } else {
-        QString filePrefix = (isNoK()) ? "CompetitionAlpha" :
-                                         (isMsProd()) ? "CompetitionBetaSpecies" :
-                                                        "CompetitionBetaGuildsGuilds";
+        std::string filePrefix = (isNoK()) ? nmfConstantsMSSPM::TableCompetitionAlpha :
+                                         (isMsProd()) ? nmfConstantsMSSPM::TableCompetitionBetaSpecies :
+                                                        nmfConstantsMSSPM::TableCompetitionBetaGuildsGuilds;
         // if no, raise browser and have user select appropriate file.
-        selectMsg = "Select "+filePrefix+"*.csv file";
+        selectMsg = "Select "+QString::fromStdString(filePrefix)+"*.csv file";
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr(selectMsg.toLatin1()), inputDataPath,
-                    QObject::tr("Data Files (*.csv)"));
+                    QObject::tr("Data Files (competition*.csv)"));
         QFileInfo fi(filename);
         if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
             for (int i=0; i<numTables; ++i) {
                 allTableNames[i] += "_"+tag.toStdString();
             }
             loadCSVFiles(allTableNames);
-        } else {
+        } else if (! filename.isEmpty()){
             QMessageBox::information(Estimation_Tabs, "Competition CSV Import",
-                                     "\nPlease make sure to select the filename that begins with:\n" + filePrefix + "\n",
+                                     "\nPlease make sure to select the filename that begins with:\n" + QString::fromStdString(filePrefix) + "\n",
                                      QMessageBox::Ok);
         }
     }

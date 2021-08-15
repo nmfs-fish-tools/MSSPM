@@ -438,8 +438,13 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
     };
 
     bool loadOK = nmfUtilsQt::loadGuildsSpeciesTableview(
-                Estimation_Tabs, Estimation_Tab1_SpeciesPopulationTV,
-                "Species", inputDataPath, tableName, SpeciesGuilds, errorMsg);
+                Estimation_Tabs,
+                Estimation_Tab1_SpeciesPopulationTV,
+                "Species",
+                inputDataPath,
+                tableName,
+                SpeciesGuilds,
+                errorMsg);
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return;
@@ -703,7 +708,7 @@ nmfEstimation_Tab1::saveGuildDataSupplemental(bool showPopup)
 
     // Save Guild supplemental fields
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
-        cmd  = "UPDATE Guilds SET ";
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableGuilds) + " SET ";
         index = m_GuildModel->index(i,0);
         GuildName = index.data().toString();
         index = m_GuildModel->index(i,7);
@@ -744,7 +749,7 @@ nmfEstimation_Tab1::saveGuildDataRange(bool showPopup)
 
     // Save Guild range fields
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
-        cmd  = "UPDATE Guilds SET ";
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableGuilds) + " SET ";
         index = m_GuildModel->index(i,0);
         GuildName = index.data().toString();
         index = m_GuildModel->index(i,1);
@@ -809,7 +814,7 @@ nmfEstimation_Tab1::saveGuildDataSupplementalAndRange(bool showPopup)
 
     // Save the range and supplemental fields
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
-        cmd  = "UPDATE Guilds SET ";
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableGuilds) + " SET ";
         index = m_GuildModel->index(i,0);
         GuildName = index.data().toString();
         index = m_GuildModel->index(i,7);
@@ -858,7 +863,7 @@ nmfEstimation_Tab1::saveGuildDataPrimary(bool showPopup)
 
     // Save the default (i.e. non-range and non-supplemental) data
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
-        cmd  = "UPDATE Guilds SET ";
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableGuilds) + " SET ";
         index = m_GuildModel->index(i,0);
         GuildName = index.data().toString();
         index = m_GuildModel->index(i,1);
@@ -983,7 +988,7 @@ nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
     QString valueWithoutComma;
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
-        cmd  = "UPDATE Species SET ";
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
         index = m_SpeciesModel->index(i,0);
         SpeName = index.data().toString();
         index = m_SpeciesModel->index(i,1);
@@ -1030,7 +1035,7 @@ nmfEstimation_Tab1::saveSpeciesDataSupplemental(bool showPopup)
     QModelIndex index;
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
-        cmd  = "UPDATE Species SET ";
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
         index = m_SpeciesModel->index(i,0);
         SpeName = index.data().toString();
         index = m_SpeciesModel->index(i,7);
@@ -1078,7 +1083,7 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
     QString valueWithoutComma;
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
-        cmd  = "UPDATE Species SET ";
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
         index = m_SpeciesModel->index(i,0);
         SpeName = index.data().toString();
         index = m_SpeciesModel->index(i,1);
@@ -1172,7 +1177,7 @@ nmfEstimation_Tab1::saveSpeciesDataSupplementalAndRange(bool showPopup)
     QModelIndex index;
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
-        cmd  = "UPDATE Species SET ";
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
         index = m_SpeciesModel->index(i,0);
         SpeName = index.data().toString();
         index = m_SpeciesModel->index(i,12);
@@ -1284,7 +1289,7 @@ nmfEstimation_Tab1::updateBiomassAbsoluteTable()
         initBiomass = valueWithoutComma.toStdString();
 
         // Need to also update the BiomassAbsolute table with the initial Biomass values
-        cmd  = "REPLACE INTO BiomassAbsolute (";
+        cmd  = "REPLACE INTO " + nmfConstantsMSSPM::TableBiomassAbsolute + " (";
         cmd += "ProjectName,ModelName,SpeName,Year,Value) ";
         cmd += "VALUES ('" + m_ProjectName + "','" + m_ModelName + "','" +
                 species + "', 0, " + initBiomass + ");";
@@ -1292,8 +1297,8 @@ nmfEstimation_Tab1::updateBiomassAbsoluteTable()
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (BiomassAbsolute): Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            QMessageBox::warning(Estimation_Tabs,"Warning",
-                                 "\nCouldn't REPLACE INTO BiomassAbsolute table.\n",
+            QMessageBox::warning(Estimation_Tabs,"Warning", "\nCouldn't REPLACE INTO " +
+                                 QString::fromStdString(nmfConstantsMSSPM::TableBiomassAbsolute) + " table.\n",
                                  QMessageBox::Ok);
             return;
         }
@@ -1307,7 +1312,9 @@ nmfEstimation_Tab1::callback_ExportPB()
 {
     bool isValidFilename;
     bool isGuildVisible = onGuildTab();
-    QString tableName = (isGuildVisible) ? "Guilds" : "Species";
+    std::string tableName = (isGuildVisible) ? nmfConstantsMSSPM::TableGuilds :
+                                               nmfConstantsMSSPM::TableSpecies;
+    QString tableNameStr = QString::fromStdString(tableName);
     QList<QString> GuildName;
     QList<QString> GuildGrowthRate;
     QList<QString> GuildK;
@@ -1317,13 +1324,13 @@ nmfEstimation_Tab1::callback_ExportPB()
     QList<QString> SpeciesGrowthRate;
     QList<QString> SpeciesK;
 
-    isValidFilename = getCSVFileName(tableName);
+    isValidFilename = getCSVFileName(tableNameStr);
     if (isValidFilename) {
         if (isGuildVisible) {
-            saveGuildsCSVFile(tableName,GuildName,GuildGrowthRate,GuildK);
+            saveGuildsCSVFile(tableNameStr,GuildName,GuildGrowthRate,GuildK);
         } else {
             emit LoadSpeciesGuild();
-            saveSpeciesCSVFile(tableName,SpeciesName,m_SpeciesGuild,
+            saveSpeciesCSVFile(tableNameStr,SpeciesName,m_SpeciesGuild,
                                SpeciesInitialBiomass,SpeciesGrowthRate,SpeciesK);
         }
     }
@@ -1343,7 +1350,7 @@ nmfEstimation_Tab1::callback_SaveSpeciesCSVFile(
         QList<QString> SpeciesGrowthRate,
         QList<QString> SpeciesK)
 {
-    QString tableName = "Species";
+    QString tableName = QString::fromStdString(nmfConstantsMSSPM::TableSpecies);
     bool isValidFilename = getCSVFileName(tableName);
 
     if (isValidFilename) {
@@ -1358,7 +1365,7 @@ nmfEstimation_Tab1::callback_SaveGuildsCSVFile(
         QList<QString> GrowthRate,
         QList<QString> GuildK)
 {
-    QString tableName = "Guilds";
+    QString tableName = QString::fromStdString(nmfConstantsMSSPM::TableGuilds);
     bool isValidFilename = getCSVFileName(tableName);
 
     if (isValidFilename) {
@@ -1660,7 +1667,7 @@ nmfEstimation_Tab1::loadGuilds()
     fields = {"GuildName","GrowthRate","GrowthRateMin","GrowthRateMax",
               "GuildK","GuildKMin","GuildKMax","Catchability","CatchabilityMin","CatchabilityMax"};
     queryStr   = "SELECT GuildName,GrowthRate,GrowthRateMin,GrowthRateMax,"
-                 "GuildK,GuildKMin,GuildKMax,Catchability,CatchabilityMin,CatchabilityMax FROM Guilds";
+                 "GuildK,GuildKMin,GuildKMax,Catchability,CatchabilityMin,CatchabilityMax FROM " + nmfConstantsMSSPM::TableGuilds;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields, nmfConstantsMSSPM::ShowBlankFields);
     NumGuilds = dataMap["GuildName"].size();
     QStringList PopulationFieldList = {"GuildName","GrowthRate","GrowthRateMin","GrowthRateMax",
@@ -1723,7 +1730,7 @@ nmfEstimation_Tab1::loadSpecies()
     queryStr  += "GrowthRate,GrowthRateMin,GrowthRateMax,GrowthRateCovarCoeff,";
     queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,SpeciesKCovarCoeff,";
     queryStr  += "SurveyQ,SurveyQMin,SurveyQMax,Catchability,CatchabilityMin,";
-    queryStr  += "CatchabilityMax FROM Species";
+    queryStr  += "CatchabilityMax FROM " + nmfConstantsMSSPM::TableSpecies;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields, nmfConstantsMSSPM::ShowBlankFields);
     NumSpecies = dataMap["SpeName"].size();
     QStringList fieldList;

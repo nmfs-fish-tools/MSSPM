@@ -23,9 +23,9 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
 
     Estimation_Tabs = tabs;
 
-    m_GroupBoxTitle["Catch"]        = "Catch";
-    m_GroupBoxTitle["Effort"]       = "Effort";
-    m_GroupBoxTitle["Exploitation"] = nmfConstantsMSSPM::OutputChartExploitation.toStdString();
+    m_GroupBoxTitle[nmfConstantsMSSPM::TableHarvestCatch]        = "Catch:";
+    m_GroupBoxTitle[nmfConstantsMSSPM::TableHarvestEffort]       = "Effort:";
+    m_GroupBoxTitle[nmfConstantsMSSPM::TableHarvestExploitation] = nmfConstantsMSSPM::OutputChartExploitation.toStdString()+":";
 
     // Load ui as a widget from disk
     QFile file(":/forms/Estimation/Estimation_Tab02.ui");
@@ -45,6 +45,7 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     Estimation_Tab2_ImportPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ImportPB");
     Estimation_Tab2_ExportPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ExportPB");
     Estimation_Tab2_HarvestLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab2_HarvestLBL");
+    Estimation_Tab2_HarvestLBL->hide();
 
     connect(Estimation_Tab2_PrevPB,   SIGNAL(clicked(bool)),
             this,                     SLOT(callback_PrevPB()));
@@ -126,7 +127,7 @@ nmfEstimation_Tab2::callback_ImportPB()
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr("Select Harvest file"), inputDataPath,
-                    QObject::tr("Data Files (*.csv)"));
+                    QObject::tr("Data Files (harvestcatch*.csv)"));
         if (filename.contains("_")) {
             QFileInfo fi(filename);
             if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
@@ -137,7 +138,7 @@ nmfEstimation_Tab2::callback_ImportPB()
                                          "\nPlease make sure to select the Harvest file containing the desired tag\n",
                                          QMessageBox::Ok);
             }
-        } else {
+        } else if (!filename.isEmpty()){
             QMessageBox::critical(Estimation_Tabs, "Harvest CSV Import",
                                   "\nError: No tag found in filename\n",
                                   QMessageBox::Ok);
@@ -369,7 +370,7 @@ nmfEstimation_Tab2::loadWidgets()
     Estimation_Tab2_HarvestGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_HarvestType]));
 
     fields   = {"RunLength","StartYear"};
-    queryStr = "SELECT RunLength,StartYear FROM Models where ProjectName = '" + m_ProjectName +
+    queryStr = "SELECT RunLength,StartYear FROM " + nmfConstantsMSSPM::TableModels + " where ProjectName = '" + m_ProjectName +
                "' AND ModelName = '" + m_ModelName + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["RunLength"].size() == 0)  {
@@ -380,7 +381,7 @@ nmfEstimation_Tab2::loadWidgets()
     StartYear = std::stoi(dataMap["StartYear"][0]);
 
     fields = {"SpeName"};
-    queryStr   = "SELECT SpeName FROM Species";
+    queryStr   = "SELECT SpeName FROM " + nmfConstantsMSSPM::TableSpecies;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
@@ -417,7 +418,7 @@ nmfEstimation_Tab2::loadWidgets()
     m_SModel->setHorizontalHeaderLabels(SpeciesNames);
     Estimation_Tab2_HarvestTV->setModel(m_SModel);
     Estimation_Tab2_HarvestTV->resizeColumnsToContents();
-    Estimation_Tab2_HarvestLBL->setText(QString::fromStdString(m_HarvestType+":").replace("Harvest",""));
+    //Estimation_Tab2_HarvestLBL->setText(QString::fromStdString(m_HarvestType+":").replace("Harvest",""));
 
     return true;
 }
@@ -425,7 +426,15 @@ nmfEstimation_Tab2::loadWidgets()
 void
 nmfEstimation_Tab2::setHarvestType(std::string harvestType)
 {
-    m_HarvestType = "Harvest"+(QString::fromStdString(harvestType).split(" ")[0]).toStdString();
+    std::string type = (QString::fromStdString(harvestType).split(" ")[0]).toLower().toStdString();
+    if (type == "catch") {
+        m_HarvestType = nmfConstantsMSSPM::TableHarvestCatch;
+    } else if (type == "effort") {
+        m_HarvestType = nmfConstantsMSSPM::TableHarvestEffort;
+    } else if (type == "exploitation") {
+        m_HarvestType = nmfConstantsMSSPM::TableHarvestExploitation;
+    }
+    //m_HarvestType = "Harvest"+(QString::fromStdString(harvestType).split(" ")[0]).toStdString();
 }
 
 void

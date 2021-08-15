@@ -51,6 +51,7 @@
 #include "nmfOutputChart3D.h"
 #include "nmfSimulatedData.h"
 #include "SimulatedBiomassDialog.h"
+#include "nmfMessageWithDontShowDialog.h"
 
 #include "Bees_Estimator.h"
 #include "NLopt_Estimator.h"
@@ -161,6 +162,7 @@ private:
     QWidget*                              m_ChartView3d;
     nmfDatabase*                          m_DatabasePtr;
     nmfStructsQt::ModelDataStruct         m_DataStruct;
+    bool                                  m_ShowSignificantDigitsDlg;
     int                                   m_NumSignificantDigits;
     int                                   m_DiagnosticsFontSize;
     int                                   m_DiagnosticsNumPoints;
@@ -405,7 +407,7 @@ private:
     void closeEvent(QCloseEvent *event);
     void completeApplicationInitialization();
     QString createEstimatedFile();
-    std::pair<bool,QString> dataAdequateForCurrentModel(QStringList estParamNames);
+    std::pair<bool,std::string> dataAdequateForCurrentModel(QStringList estParamNames);
 //    bool deleteAllMohnsRho(const std::string& TableName);
 //    bool deleteAllOutputMohnsRho();
     /**
@@ -629,7 +631,7 @@ private:
                            const bool& isRho,
                            const bool& isHandling,
                            QList<QTableView*>& TableViews,
-                           QList<QString>& TableNames);
+                           std::vector<std::string>& TableNames);
     bool loadUncertaintyData(const bool&          isMonteCarlo,
                              const int&           NumSpecies,
                              const std::string&   ForecastName,
@@ -666,7 +668,7 @@ private:
                            int& TotalIndividualRuns);
     void saveRemoraDataFile(QString filename);
     bool saveScreenshot(QString &outputfile, QPixmap &pm);
-    void saveSettings();
+    void saveSettings(bool loadWidgets=true);
     bool scaleTimeSeriesIfMonteCarlo(const bool& isMonteCarlo,
                                      const std::vector<double>&             Uncertainty,
                                      boost::numeric::ublas::matrix<double>& HarvestMatrix,

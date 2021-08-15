@@ -21,17 +21,17 @@ nmfDiagnostic_Tab1::nmfDiagnostic_Tab1(QTabWidget*  tabs,
     m_ProjectName.clear();
     m_ModelName.clear();
 
-    m_OutputTableName["Growth Rate (r)"]       = "OutputGrowthRate";
-    m_OutputTableName["Carrying Capacity (K)"] = "OutputCarryingCapacity";
-    m_OutputTableName["Initial Biomass (B₀)"]  = "OutputInitBiomass";
-    m_OutputTableName["Catchability (q)"]      = "OutputCatchability";
-    m_OutputTableName["SurveyQ"]               = "OutputSurveyQ";
+    m_OutputTableName["Growth Rate (r)"]           = nmfConstantsMSSPM::TableOutputGrowthRate;
+    m_OutputTableName["Carrying Capacity (K)"]     = nmfConstantsMSSPM::TableOutputCarryingCapacity;
+    m_OutputTableName["Initial Biomass (B₀)"]      = nmfConstantsMSSPM::TableOutputInitBiomass;
+    m_OutputTableName["Catchability (q)"]          = nmfConstantsMSSPM::TableOutputCatchability;
+    m_OutputTableName["SurveyQ"]                   = nmfConstantsMSSPM::TableOutputSurveyQ;
 
-    m_DiagnosticTableName["Growth Rate (r)"]       = "DiagnosticGrowthRate";
-    m_DiagnosticTableName["Carrying Capacity (K)"] = "DiagnosticCarryingCapacity";
-    m_DiagnosticTableName["Initial Biomass (B₀)"]  = "DiagnosticInitBiomass";
-    m_DiagnosticTableName["Catchability (q)"]      = "DiagnosticCatchability";
-    m_DiagnosticTableName["SurveyQ"]               = "DiagnosticSurveyQ";
+    m_DiagnosticTableName["Growth Rate (r)"]       = nmfConstantsMSSPM::TableDiagnosticGrowthRate;
+    m_DiagnosticTableName["Carrying Capacity (K)"] = nmfConstantsMSSPM::TableDiagnosticCarryingCapacity;
+    m_DiagnosticTableName["Initial Biomass (B₀)"]  = nmfConstantsMSSPM::TableDiagnosticInitBiomass;
+    m_DiagnosticTableName["Catchability (q)"]      = nmfConstantsMSSPM::TableDiagnosticCatchability;
+    m_DiagnosticTableName["SurveyQ"]               = nmfConstantsMSSPM::TableDiagnosticSurveyQ;
 
     // Load ui as a widget from disk
     QFile file(":/forms/Diagnostic/Diagnostic_Tab01.ui");
@@ -152,11 +152,11 @@ nmfDiagnostic_Tab1::setNumPoints(int numPoints)
 std::string
 nmfDiagnostic_Tab1::getTableName(QString paramName)
 {
-    QString tableName;
+    std::string tableName;
 
     parameterToTableName("output",paramName,tableName);
 
-    return tableName.toStdString();
+    return tableName;
 }
 
 
@@ -178,19 +178,19 @@ nmfDiagnostic_Tab1::loadEstimatedParameter(const std::string& Algorithm,
                                            std::vector<double>& EstParameter)
 {
     int NumSpecies;
-    QString tableName="";
+    std::string tableName="";
     std::string queryStr;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
 
     parameterToTableName("input",parameterName, tableName);
-    if (tableName.isEmpty()) {
+    if (tableName.empty()) {
         return false;
     }
 
     EstParameter.clear();
     fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " + tableName.toStdString();
+    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " + tableName;
     queryStr  += " WHERE Algorithm='" + Algorithm + "' AND Minimizer = '" + Minimizer;
     queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
     queryStr  += "' AND Scaling = '" + Scaling;
@@ -204,15 +204,15 @@ nmfDiagnostic_Tab1::loadEstimatedParameter(const std::string& Algorithm,
 }
 
 void
-nmfDiagnostic_Tab1::parameterToTableName(const std::string whichTable,
-                                         const QString&    parameter,
-                                               QString&    tableName)
+nmfDiagnostic_Tab1::parameterToTableName(const std::string  whichTable,
+                                         const QString&     parameter,
+                                               std::string& tableName)
 {
     tableName = "";
     if (whichTable == "input") {
-        tableName = m_OutputTableName[parameter];
+        tableName = m_OutputTableName[parameter.toStdString()];
     } else if (whichTable == "output") {
-        tableName = m_DiagnosticTableName[parameter];
+        tableName = m_DiagnosticTableName[parameter.toStdString()];
     }
 }
 
@@ -224,7 +224,7 @@ nmfDiagnostic_Tab1::getGuildInfo(int& NumGuilds, QStringList& GuildNames)
     std::string queryStr;
 
     fields    = {"GuildName"};
-    queryStr  = "SELECT GuildName from Guilds ORDER by GuildName";
+    queryStr  = "SELECT GuildName from " + nmfConstantsMSSPM::TableGuilds + " ORDER by GuildName";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumGuilds = dataMap["GuildName"].size();
     for (int i=0; i<NumGuilds; ++i) {
@@ -241,7 +241,7 @@ nmfDiagnostic_Tab1::getSpeciesInfo(int& NumSpecies, QStringList& SpeciesNames)
     std::string queryStr;
 
     fields = {"SpeName"};
-    queryStr   = "SELECT SpeName FROM Species";
+    queryStr   = "SELECT SpeName FROM " + nmfConstantsMSSPM::TableSpecies;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int j=0; j<NumSpecies; ++j) {
@@ -265,7 +265,7 @@ nmfDiagnostic_Tab1::isAggProd(std::string Algorithm,
                   "WithinGuildCompetitionForm","Algorithm","Minimizer","ObjectiveCriterion","Scaling"};
     queryStr   = "SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,";
     queryStr  += "WithinGuildCompetitionForm,Algorithm,Minimizer,ObjectiveCriterion,Scaling ";
-    queryStr  += "FROM Models WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName;
+    queryStr  += "FROM " + nmfConstantsMSSPM::TableModels + " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName;
     queryStr  += "' AND Algorithm = '" + Algorithm;
     queryStr  += "' AND Minimizer = '" + Minimizer;
     queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
@@ -430,6 +430,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
             QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
             progressDlg->close();
             emit EnableRunButtons(true);
+            m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
 
@@ -455,6 +456,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
                     QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
                     progressDlg->close();
                     emit EnableRunButtons(true);
+                    m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
                     return;
                 }
 
@@ -462,6 +464,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
                     m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
                     progressDlg->close();
                     emit EnableRunButtons(true);
+                    m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
                     return;
                 }
                 aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[i],
@@ -621,12 +624,16 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     isAggProdStr = std::to_string(isAggProd);
 
     // Load up parameters
-    loadOutputParameters("OutputInitBiomass",NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,initBiomassParameters);
+    loadOutputParameters(nmfConstantsMSSPM::TableOutputInitBiomass,NumSpeciesOrGuilds,
+                         Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
+                         initBiomassParameters);
     loadGrowthParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,growthParameters);
     loadHarvestParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,harvestParameters);
     loadCompetitionParameters(isAggProd,NumSpecies,NumGuilds,NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,competitionParameters);
     loadPredationParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,predationParameters);
-    loadOutputParameters("OutputSurveyQ",NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,surveyQParameters);
+    loadOutputParameters(nmfConstantsMSSPM::TableOutputSurveyQ,NumSpeciesOrGuilds,
+                         Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
+                         surveyQParameters);
 
     nmfUtils::append(initBiomassParameters,parameters);
     nmfUtils::append(growthParameters,parameters);
@@ -735,17 +742,17 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    QStringList tableNames = {};
+    std::vector<std::string> tableNames = {};
 
     if (m_DataStruct.GrowthForm == "Linear") {
-        tableNames << "OutputGrowthRate";
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputGrowthRate);
     } else if (m_DataStruct.GrowthForm == "Logistic") {
-        tableNames << "OutputGrowthRate";
-        tableNames << "OutputCarryingCapacity";
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputGrowthRate);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputCarryingCapacity);
     }
-    for (QString table : tableNames) {
+    for (std::string table : tableNames) {
         fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + table.toStdString();
+        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + table;
         queryStr  += "  WHERE Algorithm = '" + Algorithm;
         queryStr  += "' AND Minimizer = '" + Minimizer;
         queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
@@ -755,13 +762,13 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab1::loadGrowthParameters: No records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab1::loadGrowthParameters: No records found in " + table + " table.");
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         if (NumRecords != NumSpeciesOrGuilds) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfDiagnostic_Tab1::loadGrowthParameters: Found " + std::to_string(NumRecords) +
-                             " record(s) in " + table.toStdString() + ", expecting " + std::to_string(NumSpeciesOrGuilds));
+                             " record(s) in " + table + ", expecting " + std::to_string(NumSpeciesOrGuilds));
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
@@ -784,14 +791,14 @@ nmfDiagnostic_Tab1::loadHarvestParameters(
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    QStringList tableNames = {};
+    std::vector<std::string> tableNames = {};
 
     if (m_DataStruct.HarvestForm == "Effort (qE)") {
-        tableNames << "OutputCatchability";
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputCatchability);
     }
-    for (QString table : tableNames) {
+    for (std::string table : tableNames) {
         fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};
-        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " + table.toStdString();
+        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " + table;
         queryStr  += " WHERE Algorithm = '" + Algorithm;
         queryStr  += "' AND Minimizer = '" + Minimizer;
         queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
@@ -800,12 +807,12 @@ nmfDiagnostic_Tab1::loadHarvestParameters(
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
-            m_Logger->logMsg(nmfConstants::Error,"Error: No records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,"Error: No records found in " + table + " table.");
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         if (NumRecords != NumSpeciesOrGuilds) {
-            m_Logger->logMsg(nmfConstants::Error,"Error 1: nmfDiagnostic_Tab1::loadHarvestParameters: Incorrect number of records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,"Error 1: nmfDiagnostic_Tab1::loadHarvestParameters: Incorrect number of records found in " + table + " table.");
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
@@ -835,26 +842,26 @@ nmfDiagnostic_Tab1::loadCompetitionParameters(
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    QStringList tableNames = {};
+    std::vector<std::string> tableNames = {};
     std::string OrderBy="";
     std::string msg;
     std::string isAggProdStr = (isAggProd) ? "1" : "0";
 
     if (m_DataStruct.CompetitionForm == "NO_K") {
-        tableNames << "OutputCompetitionAlpha";
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionAlpha);
     } else if (m_DataStruct.CompetitionForm == "MS-PROD") {
-        tableNames << "OutputCompetitionBetaGuilds";
-        tableNames << "OutputCompetitionBetaSpecies";
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies);
     } else if (m_DataStruct.CompetitionForm == "AGG-PROD") {
-        tableNames << "OutputCompetitionBetaGuilds";
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds);
     }
-    for (QString table : tableNames) {
+    for (std::string tableName : tableNames) {
         fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
-        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + table.toStdString();
+        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + tableName;
         OrderBy    = " ORDER BY SpeciesA,SpeciesB";
-        if (table == "OutputCompetitionBetaGuilds") {
+        if (tableName == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) {
             fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Guild","Value"};
-            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " + table.toStdString();
+            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " + tableName;
             OrderBy    = " ORDER BY SpeName,Guild";
         }
         queryStr  += "  WHERE Algorithm = '" + Algorithm;
@@ -866,7 +873,7 @@ nmfDiagnostic_Tab1::loadCompetitionParameters(
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
-            msg = "[Error 1] nmfDiagnostic_Tab1::loadCompetitionParameters: No records found in " + table.toStdString() + " table.";
+            msg = "[Error 1] nmfDiagnostic_Tab1::loadCompetitionParameters: No records found in " + tableName + " table.";
             m_Logger->logMsg(nmfConstants::Error,msg);
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
@@ -874,14 +881,14 @@ nmfDiagnostic_Tab1::loadCompetitionParameters(
 
         NumSpecies = NumSpeciesOrGuilds;
         NumGuilds  = NumSpeciesOrGuilds;
-        if ((table == "OutputCompetitionBetaGuilds") && (! isAggProd)) {
+        if ((tableName == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) && (! isAggProd)) {
             NumSpecies = theNumSpecies;
             NumGuilds  = theNumGuilds;
         }
         if (NumRecords != NumSpecies*NumGuilds) {
             msg  = "[Error 2] nmfDiagnostic_Tab1::loadCompetitionParameters: Found " + std::to_string(NumRecords);
             msg += " records. Expecting: " + std::to_string(NumSpecies*NumGuilds);
-            msg += " records, in " + table.toStdString() + " table.";
+            msg += " records, in " + tableName + " table.";
             m_Logger->logMsg(nmfConstants::Error,msg);
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
@@ -912,28 +919,28 @@ nmfDiagnostic_Tab1::loadPredationParameters(
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    QStringList tableNames = {};
+    std::vector<std::string> tableNames = {};
     std::string OrderBy;
     std::string isAggProdStr = (isAggProd(Algorithm,Minimizer,ObjectiveCriterion,Scaling)) ? "1" : "0";
 
     if (m_DataStruct.PredationForm == "Type I") {
-        tableNames << "OutputPredationRho";
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputPredationRho);
     } else if (m_DataStruct.PredationForm == "Type II") {
-        tableNames << "OutputPredationRho";
-        tableNames << "OutputPredationHandling";
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputPredationRho);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputPredationHandling);
     } else if (m_DataStruct.PredationForm == "Type III") {
-        tableNames << "OutputPredationRho";
-        tableNames << "OutputPredationHandling";
-        tableNames << "OutputPredationExponent";
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputPredationRho);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputPredationHandling);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputPredationExponent);
     }
-    for (QString table : tableNames) {
-        isExponent = (table == "OutputPredationExponent");
+    for (std::string table : tableNames) {
+        isExponent = (table == nmfConstantsMSSPM::TableOutputPredationExponent);
         fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
-        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + table.toStdString();
+        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + table;
         OrderBy    = " ORDER BY SpeciesA,SpeciesB";
         if (isExponent) {
             fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + table.toStdString();
+            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + table;
             OrderBy    = " ORDER BY SpeName";
         }
         queryStr  += " WHERE Algorithm = '" + Algorithm;
@@ -945,13 +952,13 @@ nmfDiagnostic_Tab1::loadPredationParameters(
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab1::loadPredationParameters: No records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfDiagnostic_Tab1::loadPredationParameters: No records found in " + table + " table.");
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         TotalRecords = (isExponent) ? NumSpeciesOrGuilds : NumSpeciesOrGuilds*NumSpeciesOrGuilds;
         if (NumRecords != TotalRecords) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfDiagnostic_Tab1::loadPredationParameters: Incorrect number of records found in " + table.toStdString() + " table.");
+            m_Logger->logMsg(nmfConstants::Error,"[Error 2] nmfDiagnostic_Tab1::loadPredationParameters: Incorrect number of records found in " + table + " table.");
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
@@ -990,16 +997,16 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
                                          std::vector<DiagnosticTuple>& DiagnosticTupleVector)
 {
    int m;
-   QString TableName;
+   std::string TableName;
    std::string cmd;
    std::string errorMsg;
 
    parameterToTableName("output", ParameterName, TableName);
-   if (TableName.isEmpty()) {
+   if (TableName.empty()) {
        return;
    }
 
-   cmd = "DELETE FROM " + TableName.toStdString() +
+   cmd = "DELETE FROM " + TableName +
            "  WHERE Algorithm = '" + Algorithm +
            "' AND Minimizer = '" + Minimizer +
            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
@@ -1011,9 +1018,9 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
        return;
    }
-std::cout << "Updating parameter table: " << TableName.toStdString() << std::endl;
+std::cout << "Updating parameter table: " + TableName << std::endl;
    m = 0;
-   cmd = "INSERT INTO " + TableName.toStdString() + " (Algorithm, Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Offset,Value,Fitness) VALUES ";
+   cmd = "INSERT INTO " + TableName + " (Algorithm, Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Offset,Value,Fitness) VALUES ";
    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
        for (int j=0; j<=NumPoints; ++j) {
            cmd += "('" + Algorithm + "','" + Minimizer +
@@ -1053,7 +1060,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
    std::string cmd;
    std::string errorMsg;
 
-   cmd = "DELETE FROM DiagnosticSurface WHERE Algorithm = '" + Algorithm +
+   cmd = "DELETE FROM " + nmfConstantsMSSPM::TableDiagnosticSurface + " WHERE Algorithm = '" + Algorithm +
            "' AND Minimizer = '" + Minimizer +
            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
            "' AND Scaling = '"   + Scaling +
@@ -1067,7 +1074,8 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
    }
 
    m = 0;
-   cmd = "INSERT INTO DiagnosticSurface (Algorithm, Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Type,parameter1PctVar,parameter2PctVar,Fitness) VALUES ";
+   cmd = "INSERT INTO " + nmfConstantsMSSPM::TableDiagnosticSurface +
+         " (Algorithm, Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Type,parameter1PctVar,parameter2PctVar,Fitness) VALUES ";
    for (unsigned j=0; j<DiagnosticTupleVector.size(); ++j) {
        cmd += "('"   + Algorithm +
                "','" + Minimizer +
