@@ -181,8 +181,8 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
 
             val = lastYearBiomass + simGrowthValue - simHarvestValue - simCompetitionValue - simPredationValue;
 
-std::cout << "sim year: " << time << ", val = " << lastYearBiomass << " + " << simGrowthValue << " - " << simHarvestValue << " - "
-          << simCompetitionValue << " - " << simPredationValue <<  " = " << val << std::endl;
+//std::cout << "sim year: " << time << ", val = " << lastYearBiomass << " + " << simGrowthValue << " - " << simHarvestValue << " - "
+//          << simCompetitionValue << " - " << simPredationValue <<  " = " << val << std::endl;
 
             addError(val,errorPct);
             SimulatedBiomass(time,species) = (val < 0) ? 0 : val;

@@ -12,7 +12,7 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
     QDialog(parent)
 {
     QString msg;
-    QString defaultName = "BiomassAbsolute_Sim.csv";
+    QString defaultName = "biomassabsolute_sim.csv";
 
     m_ProjectDir  = projectDir;
     m_ProjectName = projectName;
@@ -88,7 +88,7 @@ SimulatedBiomassDialog::callback_ContinuePB()
     QString msg;
     nmfSimulatedData SimulatedData(m_ProjectName,m_ModelName,m_Database,m_Logger);
     QString filenameWithPath;
-    QString filename = getFilename();
+    QString filename = getFilename().toLower();
     int errorPct = getErrorPct();
 
     if (filename.isEmpty()) {
@@ -98,6 +98,7 @@ SimulatedBiomassDialog::callback_ContinuePB()
 
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
     filenameWithPath = QDir(inputDataPath).filePath(filename);
+    m_Logger->logMsg(nmfConstants::Normal,"Writing to: "+filenameWithPath.toStdString());
     bool ok = SimulatedData.createSimulatedBiomass(filenameWithPath,errorPct);
     close();
 
