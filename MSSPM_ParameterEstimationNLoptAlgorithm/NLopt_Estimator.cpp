@@ -821,6 +821,10 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                     emit RunCompleted(bestFitnessStr,NLoptStruct.showDiagnosticChart);
                 }
 
+                if (stoppedByUser()) {
+                    emit UserHaltedRun();
+                    return;
+                }
             }
             catch (nlopt::forced_stop &e) {
                 std::cout << "User terminated application: " << e.what() << std::endl;
@@ -843,6 +847,22 @@ std::cout << elapsedTimeStr << std::endl;
 
     stopRun(elapsedTimeStr,bestFitnessStr);
 
+}
+
+bool
+NLopt_Estimator::stoppedByUser()
+{
+    bool retv = false;
+    std::string runName = "";
+    std::string stopRunFile = nmfConstantsMSSPM::MSSPMStopRunFile;
+    std::string state = "";
+    std::string msg1,msg2;
+
+    retv = nmfUtils::isStopped(runName,msg1,msg2,stopRunFile,state);
+
+    m_Quit = true;
+
+    return retv;
 }
 
 void

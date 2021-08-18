@@ -1139,14 +1139,16 @@ nmfMainWindow::menu_screenShot()
                 nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,"Estimated Parameters",
                                                currentSubTabName.toStdString(),
                                                m_EstimatedParametersMap[currentSubTabName],
-                                               nmfConstantsMSSPM::Query_User_For_Filename,"");
+                                               nmfConstantsMSSPM::Query_User_For_Filename,
+                                               nmfConstantsMSSPM::RemoveCommas,"");
             } else if ((currentTabName == "Data") ||
                        (currentTabName == "Model Fit Summary"))
             {
                 nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,"Summary Data",
                                                currentTabName.toStdString(),
                                                m_EstimatedParametersMap[currentTabName],
-                                               nmfConstantsMSSPM::Query_User_For_Filename,"");
+                                               nmfConstantsMSSPM::Query_User_For_Filename,
+                                               nmfConstantsMSSPM::RemoveCommas,"");
             }
             return;
         }
@@ -1842,7 +1844,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.29 (beta)";
+    QString version = "MSSPM v0.9.30 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2011,31 +2013,6 @@ nmfMainWindow::setupOutputDiagnosticSummaryWidgets()
     m_UI->MSSPMOutputDiagnosticSummaryTab->setLayout(mainLayt);
 }
 
-bool
-nmfMainWindow::isStopped(std::string& runName,
-                         std::string& msg1,
-                         std::string& msg2,
-                         std::string& stopRunFile,
-                         std::string& state)
-{
-    std::string cmd;
-    std::ifstream inputFile(stopRunFile);
-    if (inputFile) {
-        std::getline(inputFile,cmd);
-        std::getline(inputFile,runName);
-        std::getline(inputFile,msg1);
-        std::getline(inputFile,msg2);
-    }
-    inputFile.close();
-
-    state = cmd;
-
-    return ((cmd == "Stop")           ||
-            (cmd == "StopAllOk")      ||
-            (cmd == "StopIncomplete") ||
-            (cmd == "StoppedByUser"));
-
-} // end isStoppedAndComplete
 
 void
 nmfMainWindow::callback_ReadProgressChartDataFile()
@@ -2067,7 +2044,7 @@ nmfMainWindow::callback_ReadProgressChartDataFile(bool validPointsOnly,
     }
 
 
-    if (isStopped(runName,msg1,msg2,stopRunFile,state))
+    if (nmfUtils::isStopped(runName,msg1,msg2,stopRunFile,state))
     {
         QApplication::setOverrideCursor(Qt::WaitCursor);
         m_isRunning = false;
@@ -5323,11 +5300,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     smodel = new QStandardItemModel( RunLength, NumSpeciesOrGuilds );
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
         for (int time=0; time<=RunLength; ++time) {
-//          valueWithComma = locale.toString(OutputBiomass[0](time,species),'f',6);
             valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                         OutputBiomass[0](time,species),m_NumSignificantDigits,6);
             item = new QStandardItem(valueWithComma);
-//          item = new QStandardItem(QString::number(OutputBiomass[0](time,species),'f',6));
             item->setTextAlignment(Qt::AlignCenter);
             smodel->setItem(time, species, item);
         }
@@ -9590,6 +9565,8 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
 //            this,              SLOT(callback_InitializeSubRuns(std::string,int)));
     connect(m_Estimator_NLopt, SIGNAL(AllSubRunsCompleted(std::string,std::string)),
             this,              SLOT(callback_AllSubRunsCompleted(std::string,std::string)));
+    connect(m_Estimator_NLopt, SIGNAL(UserHaltedRun()),
+            this,              SLOT(callback_UserHaltedRun()));
 
 //    // Do some multi run setup
 //    if (isAMultiRun) {
@@ -10258,7 +10235,8 @@ std::cout << "FIX this in nmfMainWindow::calculateAverageBiomass" << std::endl;
                                AvePredationHandling,
                                m_AveBiomass);
     }
-    updateOutputBiomassTableWithAverageBiomass(m_AveBiomass);
+    updateOutputBiomassDatabaseTableWithAverageBiomass(m_AveBiomass);
+    updateOutputBiomassOutputTableWithAveragedBiomass(m_AveBiomass);
 
     updateOutputTables(aveAlgorithmStr,
                        aveAlgorithmStr,
@@ -10297,6 +10275,7 @@ std::cout << "FIX this in nmfMainWindow::calculateAverageBiomass" << std::endl;
 
     m_OutputBiomassEnsemble.clear();
     getOutputBiomassEnsemble(m_AveBiomass.size1(),m_AveBiomass.size2(),m_OutputBiomassEnsemble);
+    // zzz
 
 }
 
@@ -10669,9 +10648,9 @@ nmfMainWindow::getOutputBiomassEnsemble(
 }
 
 void
-nmfMainWindow::updateOutputBiomassTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass)
+nmfMainWindow::updateOutputBiomassDatabaseTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass)
 {
-std::cout << "\nupdateOutputBiomassTableWithAverageBiomass " << std::endl;
+std::cout << "updateOutputBiomassTableWithAverageBiomass " << std::endl;
 
     int NumSpecies;
     int RunLength = AveragedBiomass.size1();
@@ -10719,6 +10698,46 @@ std::cout << "\nupdateOutputBiomassTableWithAverageBiomass " << std::endl;
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
     }
+}
+
+
+void
+nmfMainWindow::updateOutputBiomassOutputTableWithAveragedBiomass(
+        boost::numeric::ublas::matrix<double>& AveragedBiomass)
+{
+std::cout << "updateOutputBiomassOutputTableWithAveragedBiomass " << std::endl;
+
+    int NumSpecies;
+    int StartYear;
+    int RunLength = AveragedBiomass.size1();
+    QStringList SpeciesList;
+    QStringList YearLabels;
+    QString speciesName;
+    QString valueWithComma;
+    QStandardItem* item;
+    QStandardItemModel* smodel;
+
+    getInitialYear(StartYear,RunLength);
+
+    if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList))
+        return;
+
+    smodel = new QStandardItemModel(RunLength, NumSpecies);
+    for (int i=0; i<NumSpecies; ++i) {
+        for (int time=0; time<=RunLength; ++time) {
+            if (i == 0) {
+                YearLabels << QString::number(StartYear+time);
+            }
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        AveragedBiomass(time,i),m_NumSignificantDigits,3);
+            item = new QStandardItem(valueWithComma);
+            item->setTextAlignment(Qt::AlignCenter);
+            smodel->setItem(time, i, item);
+        }
+    }
+    smodel->setVerticalHeaderLabels(YearLabels);
+    smodel->setHorizontalHeaderLabels(SpeciesList);
+    OutputBiomassTV->setModel(smodel);
 }
 
 void
@@ -12901,3 +12920,10 @@ nmfMainWindow::callback_LoadSpeciesGuild()
                 Setup_Tab3_ptr->getSpeciesGuild());
 }
 
+void
+nmfMainWindow::callback_UserHaltedRun()
+{
+    QString msg = "\nUser halted run.\n";
+    QMessageBox::information(this,tr("Run Stopped"),
+                             tr(msg.toLatin1()),QMessageBox::Ok);
+}

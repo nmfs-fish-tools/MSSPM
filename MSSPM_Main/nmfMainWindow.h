@@ -306,7 +306,8 @@ private:
     int    getNumDistinctRecords(const std::string& field,
                                  const std::string& table);
     void   loadBiomassByGroup(QString& GroupType);
-    void   updateOutputBiomassTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
+    void   updateOutputBiomassDatabaseTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
+    void   updateOutputBiomassOutputTableWithAveragedBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
     void   setupLogWidget();
     QString getFormGrowth();
     QString getFormHarvest();
@@ -1480,6 +1481,7 @@ public slots:
     void callback_AddToReview();
     void callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct modeReview);
     void callback_EnableRunButtons(bool state);
+    void callback_UserHaltedRun();
 
 //  /**
 //   * @brief Copy TestData into OutputGrowthRate

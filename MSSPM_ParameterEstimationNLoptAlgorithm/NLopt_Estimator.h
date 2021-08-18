@@ -175,6 +175,8 @@ signals:
                          std::string multiRunModelFilename,
                          double fitness);
 
+    void UserHaltedRun();
+
 
 public:
     /**
@@ -368,6 +370,8 @@ public:
             double&      BestFitness,
             std::string& ObjectiveCriterion,
             int&         NumGensSinceBestFit);
+
+    bool stoppedByUser();
 
 public slots:
     /**

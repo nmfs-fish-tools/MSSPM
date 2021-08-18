@@ -190,7 +190,9 @@ nmfEstimation_Tab7::callback_ExportPB()
 
     if (! fileName.isEmpty()) {
         nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,"Model Review","",Estimation_Tab7_ModelReviewTV,
-                                       nmfConstantsMSSPM::Dont_Query_User_For_Filename,fileName);
+                                       nmfConstantsMSSPM::Dont_Query_User_For_Filename,
+                                       nmfConstantsMSSPM::DontRemoveCommas,
+                                       fileName);
     }
 }
 
