@@ -671,7 +671,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>The number of times points (i.e., bees) are distributed and assigned to sites\nwith the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Max Generations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of times points (i.e., bees) are distributed and assigned to sites with the non-assigned bees being assigned to random positions.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Max Generations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of times points (i.e., bees) are distributed and assigned to sites with the non-assigned bees being assigned to random positions.&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Max Generations:</string>
@@ -712,7 +712,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>The number of times points (i.e., bees) are distributed and assigned to sites\nwith the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Max Generations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of times points (i.e., bees) are distributed and assigned to sites with the non-assigned bees being assigned to random positions.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Max Generations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of times points (i.e., bees) are distributed and assigned to sites with the non-assigned bees being assigned to random positions.&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -778,7 +778,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>The number of points in parameter space to explore within an Elite Site.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within an Elite Site.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within an Elite Site.&lt;/p&gt;&lt;p&gt;A good starting value is: 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Num Elite Bees:</string>
@@ -818,7 +818,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>The number of points in parameter space to explore within an Elite Site.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within an Elite Site.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within an Elite Site.&lt;/p&gt;&lt;p&gt;A good starting value is: 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -827,7 +827,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <number>99999</number>
                     </property>
                     <property name="value">
-                     <number>30</number>
+                     <number>20</number>
                     </property>
                    </widget>
                   </item>
@@ -868,7 +868,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>Total number of bees (i.e., samples) in parameter space. (Must be &gt; Num Best Sites).</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The total number of points in parameter space being explored at any one time. (Must be &amp;gt; Num Best Sites.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The total number of points in parameter space being explored at any one time. (Must be &amp;gt; Num Best Sites.)&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Num Bees:</string>
@@ -908,7 +908,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>The total number of points in parameter space being explored at any one time. (Must be &gt; Num Best Sites.)</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The total number of points in parameter space being explored at any one time. (Must be &amp;gt; Num Best Sites.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The total number of points in parameter space being explored at any one time. (Must be &amp;gt; Num Best Sites.)&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -974,7 +974,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>The number of points in parameter space to explore within the Best Sites that aren't Elite Sites.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Other Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within the Best Sites that aren't Elite Sites.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Other Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within the Best Sites that aren't Elite Sites.&lt;/p&gt;&lt;p&gt;A good starting value is: 10&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Num Other Bees:</string>
@@ -1014,7 +1014,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>The number of points in parameter space to explore within the Best Sites that aren't Elite Sites.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Other Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within the Best Sites that aren't Elite Sites.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Other Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within the Best Sites that aren't Elite Sites.&lt;/p&gt;&lt;p&gt;A good starting value is: 10&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -1064,7 +1064,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Best Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Best Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)&lt;/p&gt;&lt;p&gt;A good starting value is: 8&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Num Best Sites:</string>
@@ -1104,7 +1104,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Best Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Best Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)&lt;/p&gt;&lt;p&gt;A good starting value is: 8&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -1170,7 +1170,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>Neighborhood size as % of parameter space for bees to explore.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Neighborhood Size (%)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The length of a site as a percentage of the total parameter space.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Neighborhood Size (%)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The length of a site as a percentage of the total parameter space.&lt;/p&gt;&lt;p&gt;A good starting value is: 1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Neighborhood Size (%):</string>
@@ -1210,7 +1210,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>The length of a site as a percentage of the total parameter space.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Neighborhood Size (%)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The length of a site as a percentage of the total parameter space.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Neighborhood Size (%)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The length of a site as a percentage of the total parameter space.&lt;/p&gt;&lt;p&gt;A good starting value is: 1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -1219,7 +1219,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <number>99999</number>
                     </property>
                     <property name="value">
-                     <number>10</number>
+                     <number>1</number>
                     </property>
                    </widget>
                   </item>
@@ -1260,7 +1260,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string> The number of Best Sites to explore with Num Elite Bees. (They're a subset of Num Best Sites.)</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of Best Sites to explore with Num Elite Bees. (They're a subset of Num Best Sites.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of Best Sites to explore with Num Elite Bees. (They're a subset of Num Best Sites.)&lt;/p&gt;&lt;p&gt;A good starting value is: 1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Num Elite Sites:</string>
@@ -1300,7 +1300,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string> The number of Best Sites to explore with Num Elite Bees. (They're a subset of Num Best Sites.)</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of Best Sites to explore with Num Elite Bees. (They're a subset of Num Best Sites.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of Best Sites to explore with Num Elite Bees. (They're a subset of Num Best Sites.)&lt;/p&gt;&lt;p&gt;A good starting value is: 1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -1365,6 +1365,9 @@ with the non-assigned bees being assigned to random positions.</string>
                     <property name="statusTip">
                      <string>Number of times to run the model.</string>
                     </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Number of Sub Runs&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the number of times the Bees run should be (stochastically) repeated. Since there is inherent stochasticity in the Bees algorithm, running the Bees algorithm more than once is advisable. The best run will be selected for the parameter estimation.&lt;/p&gt;&lt;p&gt;Each run may be visualized on the Progress Chart. The user will easily see the difference in sub runs and judge for themselves the number of sub runs (based upon time of each run) is desired.&lt;/p&gt;&lt;p&gt;A good starting value is: 3&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
                     <property name="text">
                      <string>Number of Sub Runs:</string>
                     </property>
@@ -1402,11 +1405,17 @@ with the non-assigned bees being assigned to random positions.</string>
                     <property name="statusTip">
                      <string>Number of times to run the model.</string>
                     </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Number of Sub Runs&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the number of times the Bees run should be (stochastically) repeated. Since there is inherent stochasticity in the Bees algorithm, running the Bees algorithm more than once is advisable. The best run will be selected for the parameter estimation.&lt;/p&gt;&lt;p&gt;Each run may be visualized on the Progress Chart. The user will easily see the difference in sub runs and judge for themselves the number of sub runs (based upon time of each run) is desired.&lt;/p&gt;&lt;p&gt;A good starting value is: 3&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
                     <property name="minimum">
                      <number>1</number>
                     </property>
                     <property name="maximum">
                      <number>10000</number>
+                    </property>
+                    <property name="value">
+                     <number>3</number>
                     </property>
                    </widget>
                   </item>
