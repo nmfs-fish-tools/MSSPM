@@ -87,8 +87,7 @@ private:
 
 
     std::string returnCode(int result);
-    void stopRun(const std::string &elapsedTimeStr,
-                 const std::string &fitnessStr);
+
     void createOutputStr(
             const int&         numEstParameters,
             const int&         numTotalParameters,
@@ -184,6 +183,9 @@ public:
      */
     NLopt_Estimator();
    ~NLopt_Estimator();
+
+    void stopRun(const std::string &elapsedTimeStr,
+                 const std::string &fitnessStr);
 
 //    /**
 //     * @brief Counts the number of run iterations
@@ -378,7 +380,7 @@ public slots:
      * @brief Callback invoked when the user stops the Estimation run
      */
     void callback_StopTheOptimizer();
-
+    void callback_StopAllRuns();
 };
 
 

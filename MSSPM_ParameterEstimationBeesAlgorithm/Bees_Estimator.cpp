@@ -36,7 +36,7 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     bool foundOneBeesRun = false;
     bool ok=false;
     bool isAggProd   = (beeStruct.CompetitionForm == "AGG-PROD");
-    bool isAMultiRun = (beeStruct.NLoptNumberOfRuns > 1);
+    bool isAMultiRun = (beeStruct.NLoptNumberOfRuns > 1) && (MultiRunLines.size() > 0);
     int startPos = 0;
     int NumSpecies = beeStruct.NumSpecies;
     int NumGuilds  = beeStruct.NumGuilds;
@@ -89,7 +89,6 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
 //    startTimeSpecies = nmfUtils::startTimer();
 std::cout << "Bees num estimate boxes: " << beeStruct.EstimateRunBoxes.size() << std::endl;
 std::cout << "Bees: isAMultiRun: " << isAMultiRun << std::endl;
-
     if (isAMultiRun) {
         NumMultiRuns = int(MultiRunLines.size());
     }
@@ -99,7 +98,6 @@ std::cout << "Bees: isAMultiRun: " << isAMultiRun << std::endl;
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         m_InitialCarryingCapacities.push_back(beeStruct.CarryingCapacity[i]);
     }
-
 
     for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
 
@@ -152,7 +150,8 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 if (wasStoppedByUser()) {
                     std::cout << "Bees_Estimator StoppedByUser" << std::endl;
                     ok = false;
-                    break;
+//                  break;
+                    return;
                 }
             }
 
@@ -228,7 +227,7 @@ Bees_Estimator::wasStoppedByUser()
     }
     inputFile.close();
 
-    return (cmd == "StoppedByUser");
+    return (QString::fromStdString(cmd).contains("Stop")); // cmd == "StoppedByUser");
 }
 
 void
@@ -285,13 +284,13 @@ Bees_Estimator::createOutputStr(
     }
 
     if ((predationForm == "Type I")  ||
-            (predationForm == "Type II") ||
-            (predationForm == "Type III"))
+        (predationForm == "Type II") ||
+        (predationForm == "Type III"))
     {
         bestFitnessStr += convertValues2DToOutputStr("Predation (rho):",m_EstPredation);
     }
     if ((predationForm == "Type II") ||
-            (predationForm == "Type III"))
+        (predationForm == "Type III"))
     {
         bestFitnessStr += convertValues2DToOutputStr("Handling:       ",m_EstHandling);
     }

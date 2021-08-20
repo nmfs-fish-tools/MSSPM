@@ -761,6 +761,7 @@ for (int i=0; i< NumEstParameters; ++i) {
         foundOneNLoptRun = true;
 
         for (int run=0; run<NumSubRuns; ++run) {
+            m_Quit = false;
 
             if (NLoptStruct.isMohnsRho) {
                 m_MohnsRhoOffset = run;
@@ -785,11 +786,13 @@ for (int i=0; i< NumEstParameters; ++i) {
                     std::cout << "Optimizer return code: " << returnCode(result) << std::endl;
                 } catch (const std::exception& e) {
                     std::cout << "Exception thrown: " << e.what() << std::endl;
+                    return;
                 } catch (...) {
                     std::cout << "Error: Unknown error from NLopt_Estimator::estimateParameters m_Optimizer.optimize()" << std::endl;
+                    return;
                 }
 
-std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
+//std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                 //for (unsigned i=0; i<m_Parameters.size(); ++i) {
                 //    std::cout << "  Est Param[" << i << "]: " << m_Parameters[i] << std::endl;
                 //}
@@ -822,7 +825,6 @@ std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
                 }
 
                 if (stoppedByUser()) {
-                    emit UserHaltedRun();
                     return;
                 }
             }
@@ -864,6 +866,15 @@ NLopt_Estimator::stoppedByUser()
 
     return retv;
 }
+
+
+void
+NLopt_Estimator::callback_StopAllRuns()
+{
+std::cout << "Stopping all runs" << std::endl;
+   m_Quit = true;
+}
+
 
 void
 NLopt_Estimator::callback_StopTheOptimizer()

@@ -1009,7 +1009,7 @@ nmfMainWindow::getOutputCompetition(std::vector<double> &EstCompetition)
 void
 nmfMainWindow::menu_stopRun()
 {
-    m_ProgressWidget->StopRun();
+    m_ProgressWidget->writeToStopRunFile();
     enableRunWidgets(true);
 }
 
@@ -1844,7 +1844,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.30 (beta)";
+    QString version = "MSSPM v0.9.31 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2064,7 +2064,7 @@ std::cout << "### Was it stopped: " << m_ProgressWidget->wasStopped() << std::en
         } else {
             outputMsg = "<br>" + QString::fromStdString(msg1);
             Estimation_Tab6_ptr->appendOutputTE(outputMsg);
-            m_ProgressWidget->callback_stopPB(true);
+//            m_ProgressWidget->callback_stopPB(true);
         }
         QApplication::restoreOverrideCursor();
     }
@@ -9561,12 +9561,13 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
             this,              SLOT(callback_RunCompleted(std::string,bool)));
     connect(m_Estimator_NLopt, SIGNAL(SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)),
             this,              SLOT(callback_SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)));
-//    connect(m_Estimator_NLopt, SIGNAL(InitializeSubRuns(std::string,int)),
-//            this,              SLOT(callback_InitializeSubRuns(std::string,int)));
+//  connect(m_Estimator_NLopt, SIGNAL(InitializeSubRuns(std::string,int)),
+//          this,              SLOT(callback_InitializeSubRuns(std::string,int)));
     connect(m_Estimator_NLopt, SIGNAL(AllSubRunsCompleted(std::string,std::string)),
             this,              SLOT(callback_AllSubRunsCompleted(std::string,std::string)));
-    connect(m_Estimator_NLopt, SIGNAL(UserHaltedRun()),
-            this,              SLOT(callback_UserHaltedRun()));
+    connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
+            this,              SLOT(callback_StopAllRuns()));
+
 
 //    // Do some multi run setup
 //    if (isAMultiRun) {
@@ -9607,6 +9608,18 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     // Show Progress Chart
     m_UI->ProgressDockWidget->show();
     m_UI->ProgressWidget->setMinimumHeight(250);
+}
+
+void
+nmfMainWindow::callback_StopAllRuns()
+{
+//    if (m_isRunning) {
+        m_Estimator_NLopt->callback_StopAllRuns();
+        m_Estimator_NLopt->stopRun("--:--:--","n/a");
+        m_ProgressWidget->stopTimer();
+        m_ProgressWidget->updateTime();
+        m_isRunning = false;
+//    }
 }
 
 void
@@ -12918,12 +12931,4 @@ nmfMainWindow::callback_LoadSpeciesGuild()
 {
     Estimation_Tab1_ptr->setSpeciesGuild(
                 Setup_Tab3_ptr->getSpeciesGuild());
-}
-
-void
-nmfMainWindow::callback_UserHaltedRun()
-{
-    QString msg = "\nUser halted run.\n";
-    QMessageBox::information(this,tr("Run Stopped"),
-                             tr(msg.toLatin1()),QMessageBox::Ok);
 }
