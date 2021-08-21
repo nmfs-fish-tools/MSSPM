@@ -287,7 +287,8 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //std::cout << "NLopt_Estimator::objectiveFunction - start" << std::endl;
 
     if (m_Quit) {
-       throw nlopt::forced_stop();
+//       throw nlopt::forced_stop();
+        nlopt::forced_stop();
     }
 
     if (isAggProd) {
@@ -830,11 +831,16 @@ for (int i=0; i< NumEstParameters; ++i) {
             }
             catch (nlopt::forced_stop &e) {
                 std::cout << "User terminated application: " << e.what() << std::endl;
+                return;
             }
             catch (std::exception &e) {
                 std::cout << "NLopt_Estimator::estimateParameters nlopt failed: " << e.what() << std::endl;
+                return;
             }
-
+            catch (...) {
+                std::cout << "NLopt_Estimator::estimateParameters stopped" << std::endl;
+                return;
+            }
         } // end of sub run loop
 
     }

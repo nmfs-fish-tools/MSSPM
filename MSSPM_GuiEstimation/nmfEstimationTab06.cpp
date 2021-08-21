@@ -800,7 +800,11 @@ void
 nmfEstimation_Tab6::enableRunButton(bool state)
 {
     Estimation_Tab6_RunPB->setEnabled(state);
-    setRunButtonLabel("Run");
+//    if (state) {
+        setRunButtonLabel("Run");
+//    } else {
+//        setRunButtonLabel("Running...");
+//    }
 }
 
 void
@@ -1876,7 +1880,7 @@ nmfEstimation_Tab6::loadWidgets()
     // RSK Hack to set the CMB correctly. Remove after implementing all of the disabled items in the 3 algorithm CMB's.
     Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(QString::fromStdString(dataMap["ObjectiveCriterion"][0]));
 
-    enableRunButton(true);
+//    enableRunButton(true);
 
     return true;
 }

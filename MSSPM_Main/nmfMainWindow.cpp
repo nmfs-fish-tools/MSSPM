@@ -1009,8 +1009,9 @@ nmfMainWindow::getOutputCompetition(std::vector<double> &EstCompetition)
 void
 nmfMainWindow::menu_stopRun()
 {
-    m_ProgressWidget->writeToStopRunFile();
-    enableRunWidgets(true);
+    m_ProgressWidget->stopAllRuns(true);
+//  m_ProgressWidget->writeToStopRunFile();
+//  enableRunWidgets(true);
 }
 
 void
@@ -9085,8 +9086,8 @@ nmfMainWindow::setOutputControlsWidth()
 void
 nmfMainWindow::closeEvent(QCloseEvent *event)
 {
-    menu_stopRun();
-    m_ProgressWidget->stopTimer();
+    m_ProgressWidget->stopAllRuns(false);
+    //m_ProgressWidget->stopTimer();
     disconnect(m_ProgressWidget,0,0,0);
     if (m_ProgressChartTimer != nullptr) {
         delete m_ProgressChartTimer;
@@ -9613,13 +9614,15 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
 void
 nmfMainWindow::callback_StopAllRuns()
 {
-//    if (m_isRunning) {
+    if (m_Estimator_NLopt != nullptr) {
         m_Estimator_NLopt->callback_StopAllRuns();
         m_Estimator_NLopt->stopRun("--:--:--","n/a");
+    }
+    if (m_ProgressWidget != nullptr) {
         m_ProgressWidget->stopTimer();
         m_ProgressWidget->updateTime();
-        m_isRunning = false;
-//    }
+    }
+    m_isRunning = false;
 }
 
 void
@@ -10757,10 +10760,22 @@ void
 nmfMainWindow::callback_RunCompleted(std::string output,
                                      bool showDiagnosticChart)
 {
+    std::string runName = "";
+    std::string stopRunFile = nmfConstantsMSSPM::MSSPMStopRunFile;
+    std::string state = "";
+    std::string msg1,msg2;
+
+    m_isRunning = false;
+
+    if (nmfUtils::isStopped(runName,msg1,msg2,stopRunFile,state))
+    {
+        m_Logger->logMsg(nmfConstants::Normal,"Run Stopped by User");
+        return;
+    }
+
 std::cout << "=====>>>>> Run Completed" << std::endl;
     m_Logger->logMsg(nmfConstants::Normal,"Run Completed");
 
-    m_isRunning = false;
 
     Output_Controls_ptr->setOutputType(nmfConstantsMSSPM::OutputChartBiomass);
 
