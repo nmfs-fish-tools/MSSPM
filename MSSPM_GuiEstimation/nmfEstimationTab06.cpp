@@ -65,7 +65,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_Bees_NumEliteSitesSB       = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumEliteSitesSB");
     Estimation_Tab6_Bees_NumBestSitesSB        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumBestSitesSB");
     Estimation_Tab6_Bees_NumEliteBeesSB        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumEliteBeesSB");
-    Estimation_Tab6_Bees_NumBestBeesSB         = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumOtherBeesSB");
+//  Estimation_Tab6_Bees_NumBestBeesSB         = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NumOtherBeesSB");
     Estimation_Tab6_Bees_MaxGenerationsSB      = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_MaxGenerationsSB");
     Estimation_Tab6_Bees_NeighborhoodSizeSB    = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_Bees_NeighborhoodSizeSB");
     Estimation_Tab6_ScalingLBL                 = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_ScalingLBL");
@@ -108,8 +108,11 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_EnsembleUsingPctPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleUsingPctPB");
     Estimation_Tab6_SetDeterministicCB            = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_SetDeterministicCB");
     Estimation_Tab6_EnsembleSetDeterministicCB    = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EnsembleSetDeterministicCB");
+    Estimation_Tab6_BeesSetDeterministicCB        = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_BeesSetDeterministicCB");
     Estimation_Tab6_AddToReviewPB                 = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_AddToReviewPB");
     Estimation_Tab6_NL_TimeUnitsLockPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_NL_TimeUnitsLockPB");
+    Estimation_Tab6_BeesDetStoTypeLBL             = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_BeesDetStoTypeLBL");
+    Estimation_Tab6_BeesSetDeterministicLBL       = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab6_BeesSetDeterministicLBL");
 
     Estimation_Tab6_AddToReviewPB->setEnabled(false);
 
@@ -676,6 +679,11 @@ nmfEstimation_Tab6::getEnsembleFilename()
     return m_EnsembleFilename;
 }
 
+bool
+nmfEstimation_Tab6::getFixedSeedBees()
+{
+    return Estimation_Tab6_BeesSetDeterministicCB->isChecked();
+}
 
 std::vector<nmfStructsQt::EstimateRunBox>
 nmfEstimation_Tab6::getEstimateRunBoxes()
@@ -721,17 +729,59 @@ nmfEstimation_Tab6::callback_SaveSettings()
     saveSystem(false);
 }
 
+bool
+nmfEstimation_Tab6::runBeesCheck(QString& errorMsg)
+{
+    bool allChecksOK  = true;
+    int numBees       = Estimation_Tab6_Bees_NumBeesSB->value();
+    int numBestSites  = Estimation_Tab6_Bees_NumBestSitesSB->value();
+    int numEliteSites = Estimation_Tab6_Bees_NumEliteSitesSB->value();
+    int numEliteBees  = Estimation_Tab6_Bees_NumEliteBeesSB->value();
+    int numOtherBees  = Estimation_Tab6_Bees_NumOtherBeesSB->value();
+
+    errorMsg = "\n";
+    if (numBestSites > numBees) {
+        errorMsg += "• numBestSites must be less than numBees\n";
+        allChecksOK = false;
+    }
+    if (numEliteSites > numBestSites) {
+        errorMsg += "• numEliteSites must be less than numBestSites\n";
+        allChecksOK = false;
+    }
+    if (numEliteBees > numBees) {
+        errorMsg += "• numEliteBees must be less than numBees\n";
+        allChecksOK = false;
+    }
+    if (numOtherBees > numBees) {
+        errorMsg += "• numOtherBees must be less than numBees\n";
+        allChecksOK = false;
+    }
+
+    return allChecksOK;
+}
+
 void
 nmfEstimation_Tab6::saveSystem(bool RunChecks)
 {
+    bool ok;
     bool okToSave = true;
     std::string msg;
     std::string ModelName;
+    QString errorMsg="";
 
     readSettings();
     ModelName = m_ModelName;
 
     if (RunChecks) {
+        if (Estimation_Tab6_Bees_ParametersGB->isVisible()) {
+            ok = runBeesCheck(errorMsg);
+            if (!ok) {
+                QMessageBox::warning(Estimation_Tabs, "Error in Bees Parameters",
+                                     "\nPlease make sure Bees parameters are all within their appropriate limits. Found the following error(s):\n"+errorMsg,
+                                     QMessageBox::Ok);
+                return;
+            }
+        }
         msg = "\nOK to save current settings as: " + ModelName + " ?";
         QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Save"),
                                                                   tr(msg.c_str()),
@@ -998,7 +1048,9 @@ nmfEstimation_Tab6::callback_EstimationAlgorithmCMB(QString algorithm)
         return;
     }
 
-
+    Estimation_Tab6_BeesSetDeterministicCB->setEnabled(isBeesAlgorithm);
+    Estimation_Tab6_BeesDetStoTypeLBL->setEnabled(isBeesAlgorithm);
+    Estimation_Tab6_BeesSetDeterministicLBL->setEnabled(isBeesAlgorithm);
     Estimation_Tab6_Bees_ParametersGB->hide();
     Estimation_Tab6_NL_ParametersGB->hide();
     Estimation_Tab6_MinimizerAlgorithmCMB->setEnabled(enableMinimizer);
@@ -1810,9 +1862,15 @@ nmfEstimation_Tab6::loadWidgets()
     if (algorithm == "Bees Algorithm") {
         Estimation_Tab6_Bees_ParametersGB->show();
         Estimation_Tab6_Bees_ParametersGB->setVisible(true);
+        Estimation_Tab6_BeesSetDeterministicCB->setEnabled(true);
+        Estimation_Tab6_BeesDetStoTypeLBL->setEnabled(true);
+        Estimation_Tab6_BeesSetDeterministicLBL->setEnabled(true);
     } else if (algorithm == "NLopt Algorithm") {
         Estimation_Tab6_NL_ParametersGB->show();
         Estimation_Tab6_NL_ParametersGB->setVisible(true);
+        Estimation_Tab6_BeesSetDeterministicCB->setEnabled(false);
+        Estimation_Tab6_BeesDetStoTypeLBL->setEnabled(false);
+        Estimation_Tab6_BeesSetDeterministicLBL->setEnabled(false);
     }
 
     readSettings();
@@ -1856,7 +1914,7 @@ nmfEstimation_Tab6::loadWidgets()
     Estimation_Tab6_Bees_NumEliteSitesSB->setValue(std::stoi(dataMap["BeesNumEliteSites"][0]));
     Estimation_Tab6_Bees_NumBestSitesSB->setValue(std::stoi(dataMap["BeesNumBestSites"][0]));
     Estimation_Tab6_Bees_NumEliteBeesSB->setValue(std::stoi(dataMap["BeesNumElite"][0]));
-    Estimation_Tab6_Bees_NumBestBeesSB->setValue(std::stoi(dataMap["BeesNumOther"][0]));
+    Estimation_Tab6_Bees_NumOtherBeesSB->setValue(std::stoi(dataMap["BeesNumOther"][0]));
     Estimation_Tab6_Bees_NumberOfRunsSB->setValue(std::stoi(dataMap["BeesNumRepetitions"][0]));
     Estimation_Tab6_Bees_MaxGenerationsSB->setValue(std::stoi(dataMap["BeesMaxGenerations"][0]));
     Estimation_Tab6_Bees_NeighborhoodSizeSB->setValue(std::stof(dataMap["BeesNeighborhoodSize"][0]));
@@ -1866,7 +1924,8 @@ nmfEstimation_Tab6::loadWidgets()
     Estimation_Tab6_NL_StopAfterTimeCB->setChecked(dataMap["NLoptUseStopAfterTime"][0] == "1");
     Estimation_Tab6_NL_StopAfterIterCB->setChecked(dataMap["NLoptUseStopAfterIter"][0] == "1");
     Estimation_Tab6_NL_StopAfterValueLE->setText(QString::fromStdString(dataMap["NLoptStopVal"][0]));
-    Estimation_Tab6_NL_StopAfterTimeSB->setValue(convertToAppropriateUnits(std::stoi(dataMap["NLoptStopAfterTime"][0])));
+//  Estimation_Tab6_NL_StopAfterTimeSB->setValue(convertToAppropriateUnits(std::stoi(dataMap["NLoptStopAfterTime"][0])));
+    Estimation_Tab6_NL_StopAfterTimeSB->setValue(std::stoi(dataMap["NLoptStopAfterTime"][0]));
     Estimation_Tab6_NL_StopAfterIterSB->setValue(std::stoi(dataMap["NLoptStopAfterIter"][0]));
 //  Estimation_Tab6_EnsembleTotalRunsSB->setValue(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
 

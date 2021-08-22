@@ -4,7 +4,6 @@
 
 
 Bees_Estimator::Bees_Estimator() {
-
 }
 
 
@@ -48,6 +47,7 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     int usecDelay = 300000;
     int NumSubRuns;
 //  int TotalIndividualRuns = 0;
+    long seed;
     double totStdDev;
     double bestFitness;
     double fitnessStdDev   = 0;
@@ -121,6 +121,8 @@ std::cout << "Skipping: " <<  MultiRunLines[multiRun].toStdString() << std::endl
 std::cout << "subRunNum: " << subRunNum << std::endl;
                 // Initialize main class ptr
                 beesAlg   = std::make_unique<BeesAlgorithm>(beeStruct,nmfConstantsMSSPM::VerboseOn);
+                seed      = (beeStruct.useFixedSeedBees) ? run*NumSubRuns+subRunNum : -1;
+                beesAlg->setSeed(seed);
                 beesStats = std::make_unique<BeesStats>(beeStruct.TotalNumberParameters,NumRepetitions);
                 beesAlg->initializeParameterRangesAndPatchSizes(beeStruct);
 
@@ -148,7 +150,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
 
                 // Break out if user has stopped the run
                 if (wasStoppedByUser()) {
-                    std::cout << "Bees_Estimator StoppedByUser" << std::endl;
+                    std::cout << "=== === ===> Bees_Estimator StoppedByUser" << std::endl;
                     ok = false;
 //                  break;
                     return;
@@ -184,6 +186,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 numTotalParameters = EstParameters.size();
                 createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,
                                 bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
+//   std::cout << "1 Emitting RunCompleted" << std::endl;
                 emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
 
             }
@@ -191,6 +194,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
         } // end for run
 
         if (isAMultiRun) {
+//std::cout << "2 Emitting SubRunCompleted" << std::endl;
             emit SubRunCompleted(RunNumber++,
                                  TotalIndividualRuns,
                                  beeStruct.EstimationAlgorithm,
@@ -200,12 +204,14 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                                  beeStruct.MultiRunModelFilename,
                                  bestFitness);
         } else {
-            emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
+//std::cout << "2 Emitting RunCompleted" << std::endl;
+//            emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
         }
 
     } // end for multiRun
 
     if (isAMultiRun && foundOneBeesRun) {
+//std::cout << "3 Emitting AllSubRunsCompleted" << std::endl;
         emit AllSubRunsCompleted(beeStruct.MultiRunSpeciesFilename,
                                  beeStruct.MultiRunModelFilename);
     }
@@ -365,73 +371,73 @@ Bees_Estimator::stopRun(const std::string &elapsedTimeStr,
 }
 
 void
-Bees_Estimator::getEstimatedInitBiomass(std::vector<double> &estInitBiomass)
+Bees_Estimator::getEstInitBiomass(std::vector<double> &estInitBiomass)
 {
     estInitBiomass = m_EstInitBiomass;
 }
 
 void
-Bees_Estimator::getEstimatedGrowthRates(std::vector<double> &estGrowthRates)
+Bees_Estimator::getEstGrowthRates(std::vector<double> &estGrowthRates)
 {
     estGrowthRates = m_EstGrowthRates;
 }
 
 void
-Bees_Estimator::getEstimatedCarryingCapacities(std::vector<double> &estCarryingCapacities)
+Bees_Estimator::getEstCarryingCapacities(std::vector<double> &estCarryingCapacities)
 {
     estCarryingCapacities = m_EstCarryingCapacities;
 }
 
 void
-Bees_Estimator::getEstimatedCatchability(std::vector<double> &estCatchability)
+Bees_Estimator::getEstCatchability(std::vector<double> &estCatchability)
 {
     estCatchability = m_EstCatchability;
 }
 
 void
-Bees_Estimator::getEstimatedSurveyQ(std::vector<double> &estSurveyQ)
+Bees_Estimator::getEstSurveyQ(std::vector<double> &estSurveyQ)
 {
     estSurveyQ = m_EstSurveyQ;
 }
 
 void
-Bees_Estimator::getEstimatedCompetitionAlpha(boost::numeric::ublas::matrix<double> &estInteraction)
+Bees_Estimator::getEstCompetitionAlpha(boost::numeric::ublas::matrix<double> &estInteraction)
 {
     estInteraction = m_EstAlpha;
 }
 
 void
-Bees_Estimator::getEstimatedCompetitionBetaSpecies(boost::numeric::ublas::matrix<double> &estCompSpecies)
+Bees_Estimator::getEstCompetitionBetaSpecies(boost::numeric::ublas::matrix<double> &estCompSpecies)
 {
     estCompSpecies = m_EstBetaSpecies;
 }
 
 void
-Bees_Estimator::getEstimatedCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &estCompGuilds)
+Bees_Estimator::getEstCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &estCompGuilds)
 {
     estCompGuilds = m_EstBetaGuilds;
 }
 
 void
-Bees_Estimator::getEstimatedCompetitionBetaGuildsGuilds(boost::numeric::ublas::matrix<double> &estCompGuildsGuilds)
+Bees_Estimator::getEstCompetitionBetaGuildsGuilds(boost::numeric::ublas::matrix<double> &estCompGuildsGuilds)
 {
     estCompGuildsGuilds = m_EstBetaGuildsGuilds;
 }
 
 void
-Bees_Estimator::getEstimatedPredation(boost::numeric::ublas::matrix<double> &estPredation)
+Bees_Estimator::getEstPredation(boost::numeric::ublas::matrix<double> &estPredation)
 {
     estPredation = m_EstPredation;
 }
 
 void
-Bees_Estimator::getEstimatedHandling(boost::numeric::ublas::matrix<double> &estHandling)
+Bees_Estimator::getEstHandling(boost::numeric::ublas::matrix<double> &estHandling)
 {
     estHandling = m_EstHandling;
 }
 
 void
-Bees_Estimator::getEstimatedExponent(std::vector<double> &estExponent)
+Bees_Estimator::getEstExponent(std::vector<double> &estExponent)
 {
     estExponent = m_EstExponent;
 }

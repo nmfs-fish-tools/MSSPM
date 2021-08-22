@@ -1011,7 +1011,7 @@ nmfMainWindow::menu_stopRun()
 {
     m_ProgressWidget->stopAllRuns(true);
 //  m_ProgressWidget->writeToStopRunFile();
-//  enableRunWidgets(true);
+    enableRunWidgets(true);
 }
 
 void
@@ -3171,7 +3171,18 @@ nmfMainWindow::createEstimatedFile()
         m_Estimator_NLopt->getEstExponent(EstExponent);
         m_Estimator_NLopt->getEstSurveyQ(EstSurveyQ);
     } else if ((Algorithm == "Bees Algorithm") && m_Estimator_Bees) {
-std::cout << "RSK todo - put Bees gets here" << std::endl;
+        m_Estimator_Bees->getEstInitBiomass(EstInitBiomass);
+        m_Estimator_Bees->getEstGrowthRates(EstGrowthRates);
+        m_Estimator_Bees->getEstCarryingCapacities(EstCarryingCapacities);
+        m_Estimator_Bees->getEstCatchability(EstCatchability);
+        m_Estimator_Bees->getEstCompetitionAlpha(EstCompetitionAlpha);
+        m_Estimator_Bees->getEstCompetitionBetaSpecies(EstCompetitionBetaSpecies);
+        m_Estimator_Bees->getEstCompetitionBetaGuilds(EstCompetitionBetaGuilds);
+        m_Estimator_Bees->getEstCompetitionBetaGuildsGuilds(EstCompetitionBetaGuildsGuilds);
+        m_Estimator_Bees->getEstPredation(EstPredation);
+        m_Estimator_Bees->getEstHandling(EstHandling);
+        m_Estimator_Bees->getEstExponent(EstExponent);
+        m_Estimator_Bees->getEstSurveyQ(EstSurveyQ);
     }
 
     QFile file(fullPath);
@@ -3402,29 +3413,29 @@ std::cout << "\nSaving current run... " << std::endl;
         }
     } else if ((Algorithm == "Bees Algorithm") && m_Estimator_Bees) {
 
-        m_Estimator_Bees->getEstimatedInitBiomass(EstInitBiomass);
-        m_Estimator_Bees->getEstimatedGrowthRates(EstGrowthRates);
-        m_Estimator_Bees->getEstimatedCarryingCapacities(EstCarryingCapacities);
-        m_Estimator_Bees->getEstimatedCatchability(EstCatchability);
-        m_Estimator_Bees->getEstimatedExponent(EstExponent);
+        m_Estimator_Bees->getEstInitBiomass(EstInitBiomass);
+        m_Estimator_Bees->getEstGrowthRates(EstGrowthRates);
+        m_Estimator_Bees->getEstCarryingCapacities(EstCarryingCapacities);
+        m_Estimator_Bees->getEstCatchability(EstCatchability);
+        m_Estimator_Bees->getEstExponent(EstExponent);
         if (isCompetitionAlpha) {
-            m_Estimator_Bees->getEstimatedCompetitionAlpha(EstCompetitionAlpha);
+            m_Estimator_Bees->getEstCompetitionAlpha(EstCompetitionAlpha);
         } else if (isCompetitionMSPROD) {
-            m_Estimator_Bees->getEstimatedCompetitionBetaSpecies(EstCompetitionBetaSpecies);
-            m_Estimator_Bees->getEstimatedCompetitionBetaGuilds(EstCompetitionBetaGuilds);
+            m_Estimator_Bees->getEstCompetitionBetaSpecies(EstCompetitionBetaSpecies);
+            m_Estimator_Bees->getEstCompetitionBetaGuilds(EstCompetitionBetaGuilds);
         } else if (isCompetitionAGGPROD) {
-            m_Estimator_Bees->getEstimatedCompetitionBetaGuilds(EstCompetitionBetaGuildsGuilds);
+            m_Estimator_Bees->getEstCompetitionBetaGuilds(EstCompetitionBetaGuildsGuilds);
         }
         if (isPredation) {
-            m_Estimator_Bees->getEstimatedPredation(EstPredation);
+            m_Estimator_Bees->getEstPredation(EstPredation);
         } else if (isHandling) {
-            m_Estimator_Bees->getEstimatedPredation(EstPredation);
-            m_Estimator_Bees->getEstimatedHandling(EstHandling);
+            m_Estimator_Bees->getEstPredation(EstPredation);
+            m_Estimator_Bees->getEstHandling(EstHandling);
         }
         if (isExponent) {
-            m_Estimator_Bees->getEstimatedExponent(EstExponent);
+            m_Estimator_Bees->getEstExponent(EstExponent);
         }
-        m_Estimator_Bees->getEstimatedSurveyQ(EstSurveyQ);
+        m_Estimator_Bees->getEstSurveyQ(EstSurveyQ);
         updateOutputTables(Algorithm,Minimizer,
                            ObjectiveCriterion,Scaling,
                            isCompetitionAGGPROD,
@@ -9480,14 +9491,16 @@ nmfMainWindow::runBeesAlgorithm(bool showDiagnosticChart,
 
     // Set up connections
     disconnect(m_Estimator_Bees, 0, 0, 0);
-    connect(m_Estimator_Bees, SIGNAL(RunCompleted(std::string,bool)),
-            this,             SLOT(callback_RunCompleted(std::string,bool)));
-    connect(m_Estimator_Bees, SIGNAL(RepetitionRunCompleted(int,int,int)),
-            this,             SLOT(callback_RepetitionRunCompleted(int,int,int)));
-    connect(m_Estimator_Bees, SIGNAL(ErrorFound(std::string)),
-            this,             SLOT(callback_ErrorFound(std::string)));
-    connect(m_Estimator_Bees, SIGNAL(AllSubRunsCompleted(std::string,std::string)),
-            this,             SLOT(callback_AllSubRunsCompleted(std::string,std::string)));
+    connect(m_Estimator_Bees,  SIGNAL(RunCompleted(std::string,bool)),
+            this,              SLOT(callback_RunCompleted(std::string,bool)));
+    connect(m_Estimator_Bees,  SIGNAL(RepetitionRunCompleted(int,int,int)),
+            this,              SLOT(callback_RepetitionRunCompleted(int,int,int)));
+    connect(m_Estimator_Bees,  SIGNAL(ErrorFound(std::string)),
+            this,              SLOT(callback_ErrorFound(std::string)));
+    connect(m_Estimator_Bees,  SIGNAL(AllSubRunsCompleted(std::string,std::string)),
+            this,              SLOT(callback_AllSubRunsCompleted(std::string,std::string)));
+    connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
+            this,              SLOT(callback_StopAllRuns()));
 
 //    // Set up progress widget to show fitness vs generation
 //    m_ProgressWidget->startTimer(100);
@@ -9541,7 +9554,7 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     bool isSetToDeterministic = Estimation_Tab6_ptr->isSetToDeterministic();
 
     // Force isSetToDeterministic to be true if running Mohns Rho
-    m_DataStruct.useFixedSeed = isAMohnsRhoMultiRun();
+    m_DataStruct.useFixedSeedNLopt = isAMohnsRhoMultiRun();
 
     Output_Controls_ptr->setAveraged(isAMultiRun);
     m_DataStruct.showDiagnosticChart = showDiagnosticChart;
@@ -9562,8 +9575,6 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
             this,              SLOT(callback_RunCompleted(std::string,bool)));
     connect(m_Estimator_NLopt, SIGNAL(SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)),
             this,              SLOT(callback_SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)));
-//  connect(m_Estimator_NLopt, SIGNAL(InitializeSubRuns(std::string,int)),
-//          this,              SLOT(callback_InitializeSubRuns(std::string,int)));
     connect(m_Estimator_NLopt, SIGNAL(AllSubRunsCompleted(std::string,std::string)),
             this,              SLOT(callback_AllSubRunsCompleted(std::string,std::string)));
     connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
@@ -9616,12 +9627,13 @@ nmfMainWindow::callback_StopAllRuns()
 {
     if (m_Estimator_NLopt != nullptr) {
         m_Estimator_NLopt->callback_StopAllRuns();
-        m_Estimator_NLopt->stopRun("--:--:--","n/a");
+//      m_Estimator_NLopt->stopRun("--:--:--","n/a");
     }
     if (m_ProgressWidget != nullptr) {
         m_ProgressWidget->stopTimer();
         m_ProgressWidget->updateTime();
     }
+    enableRunWidgets(true);
     m_isRunning = false;
 }
 
@@ -10767,7 +10779,8 @@ nmfMainWindow::callback_RunCompleted(std::string output,
 
     m_isRunning = false;
 
-    if (nmfUtils::isStopped(runName,msg1,msg2,stopRunFile,state))
+    nmfUtils::isStopped(runName,msg1,msg2,stopRunFile,state);
+    if (state == "StoppedByUser")
     {
         m_Logger->logMsg(nmfConstants::Normal,"Run Stopped by User");
         return;
@@ -11085,6 +11098,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.ScalingAlgorithm.clear();
     dataStruct.EstimateRunBoxes.clear();
 
+    dataStruct.useFixedSeedBees    = Estimation_Tab6_ptr->getFixedSeedBees();
     dataStruct.EstimationAlgorithm = Estimation_Tab6_ptr->getCurrentAlgorithm();
     dataStruct.ObjectiveCriterion  = Estimation_Tab6_ptr->getCurrentObjectiveCriterion();
     dataStruct.MinimizerAlgorithm  = Estimation_Tab6_ptr->getCurrentMinimizer();

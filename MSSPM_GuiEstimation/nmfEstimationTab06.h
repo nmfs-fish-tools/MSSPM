@@ -95,7 +95,7 @@ class nmfEstimation_Tab6: public QObject
     QSpinBox*    Estimation_Tab6_Bees_NumEliteSitesSB;
     QSpinBox*    Estimation_Tab6_Bees_NumBestSitesSB;
     QSpinBox*    Estimation_Tab6_Bees_NumEliteBeesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumBestBeesSB;
+//  QSpinBox*    Estimation_Tab6_Bees_NumBestBeesSB;
     QSpinBox*    Estimation_Tab6_Bees_NumOtherBeesSB;
     QSpinBox*    Estimation_Tab6_Bees_MaxGenerationsSB;
     QSpinBox*    Estimation_Tab6_Bees_NeighborhoodSizeSB;
@@ -139,8 +139,11 @@ class nmfEstimation_Tab6: public QObject
     QPushButton* Estimation_Tab6_EnsembleUsingPctPB;
     QCheckBox*   Estimation_Tab6_SetDeterministicCB;
     QCheckBox*   Estimation_Tab6_EnsembleSetDeterministicCB;
+    QCheckBox*   Estimation_Tab6_BeesSetDeterministicCB;
     QPushButton* Estimation_Tab6_AddToReviewPB;
     QPushButton* Estimation_Tab6_NL_TimeUnitsLockPB;
+    QLabel*      Estimation_Tab6_BeesDetStoTypeLBL;
+    QLabel*      Estimation_Tab6_BeesSetDeterministicLBL;
 
     void readSettings();
     bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
@@ -323,6 +326,7 @@ public:
     void setEnsembleUsingBy(QString usingBy);
     void setEnsembleUsingAmountValue(QString usingAmount);
     void setEnsembleUsingPct(bool isUsingPct);
+    bool runBeesCheck(QString& errorMsg);
 
     /**
      * @brief Sets the font for the output text edit widget
@@ -335,6 +339,7 @@ public:
      */
     void setOutputTE(QString msg);
     void clearWidgets();
+    bool getFixedSeedBees();
 
 signals:
     /**
@@ -344,6 +349,8 @@ signals:
     void AddToReview();
     void DimScalarBiomassControls(bool dim);
     void EnableRunButtons(bool state);
+    void BeesSetDeterministic(bool state);
+
     /**
      * @brief Signal sent after the user checks the Mono Font box. It causes
      * the displayed output edit widget to use a monospaced font.
@@ -521,6 +528,7 @@ public Q_SLOTS:
                                 const bool checked);
     void callback_EstimateSurveyQCB(int state);
     void callback_TimeUnitsLockPB(bool isChecked);
+
 };
 
 #endif // NMFESTIMATIONTAB6_H

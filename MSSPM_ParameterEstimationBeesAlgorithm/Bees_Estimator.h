@@ -181,62 +181,62 @@ public:
      * @brief Gets the estimated carrying capacity values per species
      * @param EstCarryingCapacity : vector of carrying capacities per species
      */
-    void getEstimatedCarryingCapacities(std::vector<double> &EstCarryingCapacity);
+    void getEstCarryingCapacities(std::vector<double> &EstCarryingCapacity);
     /**
      * @brief Gets the estimated catchability values per species
      * @param EstCatchability : vector of catchability values per species
      */
-    void getEstimatedCatchability(std::vector<double> &EstCatchability);
+    void getEstCatchability(std::vector<double> &EstCatchability);
     /**
      * @brief Gets the estimated alpha interaction values per species
      * @param EstInteraction : vector of alpha interaction values per species
      */
-    void getEstimatedCompetitionAlpha(boost::numeric::ublas::matrix<double> &EstInteraction);
+    void getEstCompetitionAlpha(boost::numeric::ublas::matrix<double> &EstInteraction);
     /**
      * @brief Gets the estimated beta competition values per species-guild
      * @param EstCompGuilds : vector of beta competition values per species-guild
      */
-    void getEstimatedCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &EstCompGuilds);
+    void getEstCompetitionBetaGuilds(boost::numeric::ublas::matrix<double> &EstCompGuilds);
     /**
      * @brief Gets the estimated beta competition values per guild-guild
      * @param EstCompGuildsGuilds : vector of beta competition values per guild-guild
      */
-    void getEstimatedCompetitionBetaGuildsGuilds(boost::numeric::ublas::matrix<double> &EstCompGuildsGuilds);
+    void getEstCompetitionBetaGuildsGuilds(boost::numeric::ublas::matrix<double> &EstCompGuildsGuilds);
     /**
      * @brief Gets the estimated beta competition values per species
      * @param EstCompSpecies : vector of beta competition values per species
      */
-    void getEstimatedCompetitionBetaSpecies(boost::numeric::ublas::matrix<double> &EstCompSpecies);
+    void getEstCompetitionBetaSpecies(boost::numeric::ublas::matrix<double> &EstCompSpecies);
     /**
      * @brief Gets the estimated exponent values per species
      * @param EstExponent : vector of exponent values per species
      */
-    void getEstimatedExponent(std::vector<double> &EstExponent);
+    void getEstExponent(std::vector<double> &EstExponent);
     /**
      * @brief Gets the estimated growth rate values per species
      * @param EstGrowthRates : vector of growth rate values per species
      */
-    void getEstimatedGrowthRates(std::vector<double> &EstGrowthRates);
+    void getEstGrowthRates(std::vector<double> &EstGrowthRates);
     /**
      * @brief Gets the estimated handling values per species
      * @param EstHandling : vector of handling values per species
      */
-    void getEstimatedHandling(boost::numeric::ublas::matrix<double> &EstHandling);
+    void getEstHandling(boost::numeric::ublas::matrix<double> &EstHandling);
     /**
      * @brief Gets the estimated initial biomass values per species
      * @param EstInitBiomass : vector of initial biomass values per species
      */
-    void getEstimatedInitBiomass(std::vector<double> &EstInitBiomass);
+    void getEstInitBiomass(std::vector<double> &EstInitBiomass);
     /**
      * @brief Gets the estimated predation values per species
      * @param EstPredation : vector of predation values per species
      */
-    void getEstimatedPredation(boost::numeric::ublas::matrix<double> &EstPredation);
+    void getEstPredation(boost::numeric::ublas::matrix<double> &EstPredation);
     /**
      * @brief Gets the estimated SurveyQ values per species
      * @param EstSurveyQ : vector of SurveyQ values per species
      */
-    void getEstimatedSurveyQ(std::vector<double> &EstSurveyQ);
+    void getEstSurveyQ(std::vector<double> &EstSurveyQ);
 };
 
 

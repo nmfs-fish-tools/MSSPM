@@ -296,6 +296,99 @@
                    </widget>
                   </item>
                   <item>
+                   <widget class="QLabel" name="Estimation_Tab6_BeesDetStoTypeLBL">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>15</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>15</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>The Bees algorithm is a stochastic algorithm</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The Bees algorithm is a stochastic algorithm</string>
+                    </property>
+                    <property name="text">
+                     <string>(s)</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="Estimation_Tab6_BeesSetDeterministicCB">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>15</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Check to seed Bees algorithm for reproducibility</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Check to seed Bees algorithm for reproducibility</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Estimation_Tab6_BeesSetDeterministicLBL">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>47</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>47</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>The Bees algorithm is a global search algorithm</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The Bees algorithm is a global search algorithm</string>
+                    </property>
+                    <property name="text">
+                     <string>global</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <spacer name="horizontalSpacer_2">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -408,6 +501,18 @@
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>15</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>15</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="toolTip">
                      <string>(d) - deterministic algorithm, (s) - stochastic algorithm</string>
                     </property>
@@ -420,10 +525,19 @@
                     <property name="text">
                      <string>(d)</string>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
                    </widget>
                   </item>
                   <item>
                    <widget class="QCheckBox" name="Estimation_Tab6_SetDeterministicCB">
+                    <property name="minimumSize">
+                     <size>
+                      <width>15</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="toolTip">
                      <string>Check to seed stochastic algorithms for reproducibility</string>
                     </property>
@@ -434,7 +548,7 @@
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Stochastic Seed&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The stochastic Minimizer algorithms use a seed based upon the system time and so each stochastic run will be different from a previous. If the user wants to be able to reproduce stochastic algorithm runs, then this box should be checked. This box will cause the same set of seeds to be generated each time each group of multi-runs is run (i.e., for each line in the multi-run run list).&lt;/p&gt;&lt;p&gt;N.B. This is a duplicate of the below Ensemble checkbox. It's repeated here for convenience.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LeftToRight</enum>
                     </property>
                     <property name="text">
                      <string/>
@@ -489,6 +603,19 @@
                      </property>
                     </item>
                    </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </item>
@@ -629,6 +756,15 @@
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>Input parameters for the Bees Algorithm</string>
+               </property>
+               <property name="statusTip">
+                <string>Input parameters for the Bees Algorithm</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Bees Algorithm Parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Click the whatsThis help over each parameter for more detailed parameter information. Here are some good initial values to start off the Bees algorithm with:&lt;/p&gt;&lt;pre style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'monospace';&quot;&gt;Max Generations: 100 	Num Elite Bees: 20&lt;br/&gt;Num Bees: 100 		Num Other Bees: 10&lt;br/&gt;Num Best Sites: 8 		Neighborhood Size (%): 1&lt;br/&gt;Num Elite Sites: 1 &amp;#9;&amp;#9;Number of Sub Runs: 3&lt;/span&gt;&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="title">
                 <string>Parameters:</string>

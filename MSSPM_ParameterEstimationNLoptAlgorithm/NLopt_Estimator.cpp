@@ -287,8 +287,9 @@ NLopt_Estimator::objectiveFunction(unsigned n,
 //std::cout << "NLopt_Estimator::objectiveFunction - start" << std::endl;
 
     if (m_Quit) {
-//       throw nlopt::forced_stop();
+//      throw nlopt::forced_stop();
         nlopt::forced_stop();
+        throw "user stopped";
     }
 
     if (isAggProd) {
@@ -772,7 +773,7 @@ for (int i=0; i< NumEstParameters; ++i) {
             m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
 
             // Set Parameter Bounds, Objective Function, and Stopping Criteria
-            setSeed(isSetToDeterministic,NLoptStruct.useFixedSeed);
+            setSeed(isSetToDeterministic,NLoptStruct.useFixedSeedNLopt);
             setParameterBounds(NLoptStruct,ParameterRanges,NumEstParameters);
             setObjectiveFunction(NLoptStruct,MaxOrMin);
             setStoppingCriteria(NLoptStruct);
@@ -879,6 +880,8 @@ NLopt_Estimator::callback_StopAllRuns()
 {
 std::cout << "Stopping all runs" << std::endl;
    m_Quit = true;
+   nlopt::forced_stop();
+
 }
 
 

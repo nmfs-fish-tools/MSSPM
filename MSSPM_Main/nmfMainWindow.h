@@ -1481,7 +1481,6 @@ public slots:
     void callback_AddToReview();
     void callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct modeReview);
     void callback_EnableRunButtons(bool state);
-
     void callback_StopAllRuns();
 
 //  /**
