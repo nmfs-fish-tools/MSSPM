@@ -90,15 +90,14 @@ class nmfEstimation_Tab6: public QObject
     QComboBox*   Estimation_Tab6_FontSizeCMB;
     QCheckBox*   Estimation_Tab6_MonoCB;
     QComboBox*   Estimation_Tab6_EstimationAlgorithmCMB;
-    QSpinBox*    Estimation_Tab6_Bees_NumberOfRunsSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumBeesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumEliteSitesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumBestSitesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumEliteBeesSB;
-//  QSpinBox*    Estimation_Tab6_Bees_NumBestBeesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumOtherBeesSB;
     QSpinBox*    Estimation_Tab6_Bees_MaxGenerationsSB;
+    QSpinBox*    Estimation_Tab6_Bees_NumBeesSB;
+    QSpinBox*    Estimation_Tab6_Bees_NumBestSitesSB;
+    QSpinBox*    Estimation_Tab6_Bees_NumEliteSitesSB;
+    QSpinBox*    Estimation_Tab6_Bees_NumEliteBeesSB;
+    QSpinBox*    Estimation_Tab6_Bees_NumOtherBeesSB;
     QSpinBox*    Estimation_Tab6_Bees_NeighborhoodSizeSB;
+    QSpinBox*    Estimation_Tab6_Bees_NumberOfRunsSB;
     QLabel*      Estimation_Tab6_ScalingLBL;
     QComboBox*   Estimation_Tab6_ScalingCMB;
     QCheckBox*   Estimation_Tab6_NL_StopAfterValueCB;
@@ -178,6 +177,7 @@ public:
                            const int& totalNumberOfRunsDesired,
                            QString& filename);
     void clearMohnsRhoFile();
+    void setBeesDeterministicCB(int state);
 
     /**
      * @brief Append the passed message to the output text edit widget
@@ -210,7 +210,8 @@ public:
     void setEnsembleRuns(int value);
     void setEnsembleRunsSet(int value);
     bool isAMultiRun();
-    bool isSetToDeterministic();
+    bool isSetToDeterministicBees();
+    bool isSetToDeterministicNLopt();
     void enableAddToReview(bool enable);
     void enableMultiRunControls(bool enable);
     void enableRunButton(bool enableRun);
@@ -218,6 +219,23 @@ public:
     bool isStopAfterValue();
     bool isStopAfterTime();
     bool isStopAfterIter();
+    int getMaxGenerations();
+    int getNumBees();
+    int getNumBestSites();
+    int getNumEliteSites();
+    int getNumEliteBees();
+    int getNumOtherBees();
+    int getNeighborhoodSize();
+    int getNumSubRuns();
+    void setMaxGenerations(int value);
+    void setNumBees(int value);
+    void setNumBestSites(int value);
+    void setNumEliteSites(int value);
+    void setNumEliteBees(int value);
+    void setNumOtherBees(int value);
+    void setNeighborhoodSize(int value);
+    void setNumSubRuns(int value);
+
     /**
      * @brief Gets the current Algorithm selected from the GUI
      * @return Returns the algorithm chosen

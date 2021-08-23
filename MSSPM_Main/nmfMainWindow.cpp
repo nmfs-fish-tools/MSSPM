@@ -9551,7 +9551,7 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     QString multiRunModelFilename;
 
     bool isAMultiRun          = isAMultiOrMohnsRhoRun();
-    bool isSetToDeterministic = Estimation_Tab6_ptr->isSetToDeterministic();
+    bool isSetToDeterministic = Estimation_Tab6_ptr->isSetToDeterministicNLopt();
 
     // Force isSetToDeterministic to be true if running Mohns Rho
     m_DataStruct.useFixedSeedNLopt = isAMohnsRhoMultiRun();
@@ -12729,48 +12729,58 @@ nmfMainWindow::callback_AddToReview()
     rowItems << ""; // Notes go here                                                             // 13
 
     // From here on out, the following columns will be hidden
-    rowItems << QString::number(Estimation_Tab6_ptr->isSetToDeterministic());                    // 14
-    rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterValue());                        // 15
-    rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterValue());                // 16
-    rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterTime());                         // 17
-    rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterTime());                 // 18
-    rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterIter());                         // 19
-    rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterIter());                 // 20
+    rowItems << QString::number(Estimation_Tab6_ptr->isSetToDeterministicBees());                // 14
+    rowItems << QString::number(Estimation_Tab6_ptr->getMaxGenerations());                       // 15
+    rowItems << QString::number(Estimation_Tab6_ptr->getNumBees());                              // 16
+    rowItems << QString::number(Estimation_Tab6_ptr->getNumBestSites());                         // 17
+    rowItems << QString::number(Estimation_Tab6_ptr->getNumEliteSites());                        // 18
+    rowItems << QString::number(Estimation_Tab6_ptr->getNumEliteBees());                         // 19
+    rowItems << QString::number(Estimation_Tab6_ptr->getNumOtherBees());                         // 20
+    rowItems << QString::number(Estimation_Tab6_ptr->getNeighborhoodSize());                     // 21
+    rowItems << QString::number(Estimation_Tab6_ptr->getNumSubRuns());                           // 22
 
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstInitialBiomassEnabled());              // 21
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstInitialBiomassChecked());              // 22
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstGrowthRateEnabled());                  // 23
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstGrowthRateChecked());                  // 24
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCarryingCapacityEnabled());            // 25
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCarryingCapacityChecked());            // 26
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCatchabilityEnabled());                // 27
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCatchabilityChecked());                // 28
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionAlphaEnabled());            // 29
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionAlphaChecked());            // 30
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesEnabled());      // 31
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesChecked());      // 32
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsEnabled());       // 33
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsChecked());       // 34
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsEnabled()); // 35
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsChecked()); // 36
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationRhoEnabled());                // 37
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationRhoChecked());                // 38
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationHandlingEnabled());           // 39
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationHandlingChecked());           // 40
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationExponentEnabled());           // 41
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationExponentChecked());           // 42
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstSurveyQEnabled());                     // 43
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstSurveyQChecked());                     // 44
+    rowItems << QString::number(Estimation_Tab6_ptr->isSetToDeterministicNLopt());               // 23
+    rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterValue());                        // 24
+    rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterValue());                // 25
+    rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterTime());                         // 26
+    rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterTime());                 // 27
+    rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterIter());                         // 28
+    rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterIter());                 // 29
 
-    rowItems << QString::number(isAMultiOrMohnsRhoRun());                                        // 45
-    rowItems << Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm();                            // 46
-    rowItems << Estimation_Tab6_ptr->getEnsembleAverageBy();                                     // 47
-    rowItems << Estimation_Tab6_ptr->getEnsembleUsingBy();                                       // 48
-    rowItems << QString::number(Estimation_Tab6_ptr->getEnsembleUsingAmountValue());             // 49
-    rowItems << QString::number(Estimation_Tab6_ptr->isEnsembleUsingPct());                      // 50
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstInitialBiomassEnabled());              // 30
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstInitialBiomassChecked());              // 31
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstGrowthRateEnabled());                  // 32
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstGrowthRateChecked());                  // 33
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCarryingCapacityEnabled());            // 34
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCarryingCapacityChecked());            // 35
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCatchabilityEnabled());                // 36
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCatchabilityChecked());                // 37
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionAlphaEnabled());            // 38
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionAlphaChecked());            // 39
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesEnabled());      // 40
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesChecked());      // 41
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsEnabled());       // 42
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsChecked());       // 43
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsEnabled()); // 44
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsChecked()); // 45
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationRhoEnabled());                // 46
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationRhoChecked());                // 47
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationHandlingEnabled());           // 48
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationHandlingChecked());           // 49
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationExponentEnabled());           // 50
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationExponentChecked());           // 51
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstSurveyQEnabled());                     // 52
+    rowItems << QString::number(Estimation_Tab6_ptr->isEstSurveyQChecked());                     // 53
 
-    rowItems << Estimation_Tab6_ptr->createEnsembleFile();                                       // 49
-    rowItems << createEstimatedFile();                                                           // 50
+    rowItems << QString::number(isAMultiOrMohnsRhoRun());                                        // 54
+    rowItems << Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm();                            // 55
+    rowItems << Estimation_Tab6_ptr->getEnsembleAverageBy();                                     // 56
+    rowItems << Estimation_Tab6_ptr->getEnsembleUsingBy();                                       // 57
+    rowItems << QString::number(Estimation_Tab6_ptr->getEnsembleUsingAmountValue());             // 58
+    rowItems << QString::number(Estimation_Tab6_ptr->isEnsembleUsingPct());                      // 59
+
+    rowItems << Estimation_Tab6_ptr->createEnsembleFile();                                       // 60
+    rowItems << createEstimatedFile();                                                           // 61
 
     Estimation_Tab7_ptr->updateReviewList(rowItems);
 }
@@ -12840,10 +12850,22 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
 
     enableRunWidgets(true);
 
-    // 3. Reset Deterministic state
-    int state = (modelReview.setToDeterministic=="1") ? Qt::Checked : Qt::Unchecked;
-    Estimation_Tab6_ptr->callback_SetDeterministicCB(state);
-    Estimation_Tab6_ptr->callback_EnsembleSetDeterministicCB(state);
+    // 3. Reset Deterministic states
+    int stateNLopt = (modelReview.setToDeterministicNLopt == "1") ? Qt::Checked : Qt::Unchecked;
+    int stateBees  = (modelReview.setToDeterministicBees  == "1") ? Qt::Checked : Qt::Unchecked;
+    Estimation_Tab6_ptr->callback_SetDeterministicCB(stateNLopt);
+    Estimation_Tab6_ptr->callback_EnsembleSetDeterministicCB(stateNLopt);
+    Estimation_Tab6_ptr->setBeesDeterministicCB(stateBees);
+
+    // 4. Reset Bees widgets
+//    Estimation_Tab6_ptr->setMaxGenerations(modelReview.maxGenerations);
+//    Estimation_Tab6_ptr->setNumBees(modelReview.numBees);
+//    Estimation_Tab6_ptr->setNumBestSites(modelReview.numBestSites);
+//    Estimation_Tab6_ptr->setNumEliteSites(modelReview.numEliteSites);
+//    Estimation_Tab6_ptr->setNumEliteBees(modelReview.numEliteBees);
+//    Estimation_Tab6_ptr->setNumOtherBees(modelReview.numOtherBees);
+//    Estimation_Tab6_ptr->setNeighborhoodSize(modelReview.neighborhoodSize);
+//    Estimation_Tab6_ptr->setNumSubRuns(modelReview.numSubRuns);
 
     QApplication::restoreOverrideCursor();
 }

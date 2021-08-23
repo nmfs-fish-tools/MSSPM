@@ -471,9 +471,111 @@ nmfEstimation_Tab6::isEstCompetitionBetaGuildsGuildsChecked()
 }
 
 bool
-nmfEstimation_Tab6::isSetToDeterministic()
+nmfEstimation_Tab6::isSetToDeterministicNLopt()
 {
     return Estimation_Tab6_SetDeterministicCB->isChecked();
+}
+
+bool
+nmfEstimation_Tab6::isSetToDeterministicBees()
+{
+    return Estimation_Tab6_BeesSetDeterministicCB->isChecked();
+}
+
+int
+nmfEstimation_Tab6::getMaxGenerations()
+{
+    return Estimation_Tab6_Bees_MaxGenerationsSB->value();
+}
+
+int
+nmfEstimation_Tab6::getNumBees()
+{
+    return Estimation_Tab6_Bees_NumBeesSB->value();
+}
+
+int
+nmfEstimation_Tab6::getNumBestSites()
+{
+    return Estimation_Tab6_Bees_NumBestSitesSB->value();
+}
+
+int
+nmfEstimation_Tab6::getNumEliteSites()
+{
+    return Estimation_Tab6_Bees_NumEliteSitesSB->value();
+}
+
+int
+nmfEstimation_Tab6::getNumEliteBees()
+{
+    return Estimation_Tab6_Bees_NumEliteBeesSB->value();
+}
+
+int
+nmfEstimation_Tab6::getNumOtherBees()
+{
+    return Estimation_Tab6_Bees_NumOtherBeesSB->value();
+}
+
+int
+nmfEstimation_Tab6::getNeighborhoodSize()
+{
+    return Estimation_Tab6_Bees_NeighborhoodSizeSB->value();
+}
+
+int
+nmfEstimation_Tab6::getNumSubRuns()
+{
+    return Estimation_Tab6_Bees_NumberOfRunsSB->value();
+}
+
+void
+nmfEstimation_Tab6::setMaxGenerations(int value)
+{
+    Estimation_Tab6_Bees_MaxGenerationsSB->setValue(value);
+}
+
+void
+nmfEstimation_Tab6::setNumBees(int value)
+{
+    Estimation_Tab6_Bees_NumBeesSB->setValue(value);
+}
+
+void
+nmfEstimation_Tab6::setNumBestSites(int value)
+{
+    Estimation_Tab6_Bees_NumBestSitesSB->setValue(value);
+}
+
+void
+nmfEstimation_Tab6::setNumEliteSites(int value)
+{
+    Estimation_Tab6_Bees_NumEliteSitesSB->setValue(value);
+}
+
+void
+nmfEstimation_Tab6::setNumEliteBees(int value)
+{
+    Estimation_Tab6_Bees_NumEliteBeesSB->setValue(value);
+}
+
+void
+nmfEstimation_Tab6::setNumOtherBees(int value)
+{
+    Estimation_Tab6_Bees_NumOtherBeesSB->setValue(value);
+}
+
+void
+nmfEstimation_Tab6::setNeighborhoodSize(int value)
+{
+    Estimation_Tab6_Bees_NeighborhoodSizeSB->setValue(value);
+}
+
+void
+nmfEstimation_Tab6::setNumSubRuns(int value)
+{
+    Estimation_Tab6_Bees_NumberOfRunsSB->setValue(value);
 }
 
 void
@@ -1675,6 +1777,12 @@ nmfEstimation_Tab6::callback_EnsembleUsingAmountCMB(QString value)
         Estimation_Tab6_EnsembleUsingAmountSB->setEnabled(true);
         Estimation_Tab6_EnsembleUsingPctPB->setEnabled(true);
     }
+}
+
+void
+nmfEstimation_Tab6::setBeesDeterministicCB(int state)
+{
+    Estimation_Tab6_BeesSetDeterministicCB->setChecked(state==Qt::Checked);
 }
 
 void
