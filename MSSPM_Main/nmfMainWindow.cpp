@@ -12454,6 +12454,7 @@ nmfMainWindow::callback_ModelLoaded()
 
     // Reset output controls
     Output_Controls_ptr->loadSpeciesControlWidget();
+    Output_TableWidgets_ptr->loadWidgets();
 
     // Enable Navigator Tree
     NavigatorTree->setEnabled(true);

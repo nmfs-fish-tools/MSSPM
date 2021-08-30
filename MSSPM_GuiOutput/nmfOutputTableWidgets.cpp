@@ -46,6 +46,12 @@ nmfOutputTableWidgets::readSettings()
 }
 
 void
+nmfOutputTableWidgets::loadWidgets()
+{
+    readSettings();
+}
+
+void
 nmfOutputTableWidgets::saveSettings()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
@@ -56,13 +62,16 @@ nmfOutputTableWidgets::saveSettings()
 void
 nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView)
 {
-    int NumRows;
-    int NumCols;
+    int j;
     int NumFields;
+    int NumDatabaseTableRows;
+    int NumGuiTableCols;
+    int NumGuiTableRows = nmfConstantsMSSPM::StatisticNames.size();
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     std::string species;
+    std::string val;
     QStandardItemModel* smodel;
     QStandardItem* item;
     QString valueStr;
@@ -78,53 +87,44 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView)
     queryStr += " WHERE ProjectName='" + m_ProjectName + "' AND ModelName='" + m_ModelName + "'";
     queryStr += " ORDER BY SpeciesName";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRows   = (int)dataMap["SpeciesName"].size();
+    NumDatabaseTableRows = (int)dataMap["SpeciesName"].size();
     NumFields = (int)fields.size();
 
     // Load horizontal header
     header << "Statistic";
-    for (int row=0; row<NumRows; ++row) {
+    for (int row=0; row<NumDatabaseTableRows; ++row) {
         species = dataMap["SpeciesName"][row];
         if ((species != "Statistic") && (species != "Model")) {
             header << QString::fromStdString(species);
         }
     }
     header << "Model";
-    NumCols = (int)header.size();
+    NumGuiTableCols = (int)header.size();
 
     // Set size of table
-    smodel = new QStandardItemModel(nmfConstantsMSSPM::StatisticNames.size(), header.size());
+    smodel = new QStandardItemModel(NumGuiTableRows, NumGuiTableCols);
 
-    // Load table
-    int i;
-    for (QString headerTitle : header) {
-        i = 0;
-        for (int row=0; row<NumRows; ++row) {
-            species = dataMap["SpeciesName"][row];
-            if ((species != "Statistic") && (species != "Model")) {
-                valueStr = nmfConstantsMSSPM::StatisticNames[i];
-                item = new QStandardItem(valueStr);
-                item->setTextAlignment(Qt::AlignCenter);
-                item->setFlags(item->flags() & ~Qt::ItemIsEditable); // read-only
-                smodel->setItem(i,0,item);
-                ++i;
-            }
-        }
+    // Load first column of table
+    for (int row=0; row<NumGuiTableRows; ++row) {
+        valueStr = nmfConstantsMSSPM::StatisticNames[row];
+        item = new QStandardItem(valueStr);
+        item->setTextAlignment(Qt::AlignCenter);
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable); // read-only
+        smodel->setItem(row,0,item);
     }
 
-    std::string val;
-    int j;
+    // Load rest of columns of table
     for (int k=3; k<NumFields;++k) {
         j = 1;
-        for (int row=0; row<NumRows; ++row) {
+        for (int row=0; row<NumDatabaseTableRows; ++row) {
             species = dataMap["SpeciesName"][row];
-            if (species != "Statistic") { // && (species != "Model")) {
+            if (species != "Statistic") {
                 valueStr = QString::fromStdString(dataMap[fields[k]][row]);
                 item = new QStandardItem(valueStr);
                 item->setTextAlignment(Qt::AlignCenter);
                 item->setFlags(item->flags() & ~Qt::ItemIsEditable); // read-only
                 if (species == "Model") {
-                    smodel->setItem(k-3,NumFields-2,item);
+                    smodel->setItem(k-3,NumGuiTableCols-1,item);
                 } else {
                     smodel->setItem(k-3,j++,item);
                 }
@@ -132,13 +132,10 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView)
         }
     }
 
-
-//          valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-//                     valueStr,m_NumSignificantDigits,6);
-
     smodel->setHorizontalHeaderLabels(header);
     tableView->setModel(smodel);
     tableView->resizeColumnsToContents();
+    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 void
@@ -180,6 +177,7 @@ nmfOutputTableWidgets::importSummaryTable(QTableView* tableView)
     }
 
     tableView->resizeColumnsToContents();
+    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 void

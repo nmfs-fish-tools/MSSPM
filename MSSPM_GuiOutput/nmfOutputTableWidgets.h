@@ -78,6 +78,7 @@ public:
     void loadSummaryTable(QTableView* tableView);
     void exportSummaryTable(QTableView* tableView);
     void importSummaryTable(QTableView* tableView);
+    void loadWidgets();
 
 signals:
 
