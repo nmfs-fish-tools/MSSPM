@@ -38,12 +38,15 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     m_DatabasePtr  = databasePtr;
     m_ProjectDir   = projectDir;
     m_NumColumns   = horizontalHeaders.size();
+    m_NumSignificantDigits = -1;
     m_ModelName.clear();
     m_ProjectName.clear();
-    m_SModel = new QStandardItemModel(0,m_NumColumns);
-    m_SModel->setHorizontalHeaderLabels(horizontalHeaders);
 
     readSettings();
+    m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableModelReview,m_ProjectName);
+
+    m_SModel = new QStandardItemModel(0,m_NumColumns);
+    m_SModel->setHorizontalHeaderLabels(horizontalHeaders);
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab7::nmfEstimation_Tab7");
 
@@ -59,12 +62,14 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tabs->addTab(Estimation_Tab7_Widget, tr("7. Model Review"));
 
     Estimation_Tab7_ModelReviewTV     = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab7_ModelReviewTV");
-    Estimation_Tab7_LoadPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_LoadPB");
+    Estimation_Tab7_LoadModelPB       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_LoadModelPB");
     Estimation_Tab7_ImportPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_ImportPB");
     Estimation_Tab7_ExportPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_ExportPB");
     Estimation_Tab7_GenerateSummaryPB = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_GenerateSummaryPB");
     Estimation_Tab7_PrevPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_PrevPB");
     Estimation_Tab7_DeletePB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_DeletePB");
+    Estimation_Tab7_LoadPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_LoadPB");
+    Estimation_Tab7_SavePB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_SavePB");
     Estimation_Tab7_ShowHiddenCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_ShowHiddenCB");
 
     Estimation_Tab7_ModelReviewTV->setModel(m_SModel);
@@ -73,16 +78,20 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
 
     resizeColumns();
 
-    connect(Estimation_Tab7_PrevPB,   SIGNAL(clicked()),
-            this,                     SLOT(callback_PrevPB()));
-    connect(Estimation_Tab7_DeletePB, SIGNAL(clicked()),
-            this,                     SLOT(callback_DeletePB()));
-    connect(Estimation_Tab7_LoadPB,   SIGNAL(clicked()),
-            this,                     SLOT(callback_LoadPB()));
-    connect(Estimation_Tab7_ImportPB, SIGNAL(clicked()),
-            this,                     SLOT(callback_ImportPB()));
-    connect(Estimation_Tab7_ExportPB, SIGNAL(clicked()),
-            this,                     SLOT(callback_ExportPB()));
+    connect(Estimation_Tab7_PrevPB,            SIGNAL(clicked()),
+            this,                              SLOT(callback_PrevPB()));
+    connect(Estimation_Tab7_DeletePB,          SIGNAL(clicked()),
+            this,                              SLOT(callback_DeletePB()));
+    connect(Estimation_Tab7_LoadPB,            SIGNAL(clicked()),
+            this,                              SLOT(callback_LoadPB()));
+    connect(Estimation_Tab7_SavePB,            SIGNAL(clicked()),
+            this,                              SLOT(callback_SavePB()));
+    connect(Estimation_Tab7_LoadModelPB,       SIGNAL(clicked()),
+            this,                              SLOT(callback_LoadModelPB()));
+    connect(Estimation_Tab7_ImportPB,          SIGNAL(clicked()),
+            this,                              SLOT(callback_ImportPB()));
+    connect(Estimation_Tab7_ExportPB,          SIGNAL(clicked()),
+            this,                              SLOT(callback_ExportPB()));
     connect(Estimation_Tab7_GenerateSummaryPB, SIGNAL(clicked()),
             this,                              SLOT(callback_GenerateSummaryPB()));
     connect(Estimation_Tab7_ShowHiddenCB,      SIGNAL(stateChanged(int)),
@@ -116,14 +125,14 @@ nmfEstimation_Tab7::callback_ShowHiddenCB(int state)
 {
     bool hideField;
     for (int i=0; i<Estimation_Tab7_ModelReviewTV->model()->columnCount(); ++i) {
-        hideField = (state==Qt::Unchecked && i>nmfConstantsMSSPM::Last_Review_Column_Visible);
+        hideField = (state==Qt::Unchecked && i>nmfConstantsMSSPM::Model_Review_Column_Last_Visible);
         Estimation_Tab7_ModelReviewTV->setColumnHidden(i,hideField);
     }
     resizeColumns();
 }
 
 void
-nmfEstimation_Tab7::callback_LoadPB()
+nmfEstimation_Tab7::callback_LoadModelPB()
 {
     int row;
     QModelIndexList indexes = Estimation_Tab7_ModelReviewTV->selectionModel()->selectedRows();
@@ -160,13 +169,14 @@ nmfEstimation_Tab7::callback_ImportPB()
 {
     int numRows = 0;
     QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    QString filePath = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::ModelReviewFilename));
+    QString filePath = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameModelReview));
     QString fileName = QFileDialog::getOpenFileName(Estimation_Tabs, tr("Import Model Review File"),
                                filePath,tr("data (*.csv)"));
 
     if (! fileName.isEmpty()) {
-        bool loadOK = nmfUtilsQt::loadModelFromCSVFile(m_ProjectDir,"Model Review",Estimation_Tab7_ModelReviewTV,fileName,numRows);
-        if (loadOK && numRows>2) {
+        bool loadOK = nmfUtilsQt::loadModelFromCSVFile(m_ProjectDir,"Model Review",Estimation_Tab7_ModelReviewTV,
+                                                       fileName,numRows,m_NumSignificantDigits);
+        if (loadOK && (numRows > 2)) {
             callback_ShowHiddenCB(Estimation_Tab7_ShowHiddenCB->checkState());
         } else if (numRows < 2) {
             QMessageBox::warning(Estimation_Tabs, "Warning",
@@ -188,7 +198,7 @@ void
 nmfEstimation_Tab7::callback_ExportPB()
 {
     QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    QString filePath = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::ModelReviewFilename));
+    QString filePath = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameModelReview));
     QString fileName = QFileDialog::getSaveFileName(Estimation_Tabs, tr("Export Model Review File"),
                                filePath,tr("data (*.csv)"));
 
@@ -196,7 +206,8 @@ nmfEstimation_Tab7::callback_ExportPB()
         nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,"Model Review","",Estimation_Tab7_ModelReviewTV,
                                        nmfConstantsMSSPM::Dont_Query_User_For_Filename,
                                        nmfConstantsMSSPM::RemoveCommas,
-                                       fileName);
+                                       fileName,
+                                       nmfConstantsMSSPM::VerboseOn);
     }
 }
 
@@ -226,6 +237,8 @@ nmfEstimation_Tab7::callback_DeletePB()
             Estimation_Tab7_ModelReviewTV->model()->removeRows(0,totalNumRows);
         }
     }
+
+    saveModelReviewTable();
 }
 
 QString
@@ -319,6 +332,20 @@ std::cout << "fp: " << fullPath.toStdString() << std::endl;
     }
 
     return retv;
+}
+
+
+void
+nmfEstimation_Tab7::callback_LoadPB()
+{
+    loadWidgets();
+    callback_ShowHiddenCB(Estimation_Tab7_ShowHiddenCB->checkState());
+}
+
+void
+nmfEstimation_Tab7::callback_SavePB()
+{
+    saveModelReviewTable();
 }
 
 void
@@ -420,12 +447,84 @@ nmfEstimation_Tab7::callback_GenerateSummaryPB()
 }
 
 void
+nmfEstimation_Tab7::updateModelReviewTable(const QStringList& rowList)
+{
+    int row;
+    int NumRows;
+    int NumCols = (int)rowList.size();
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string cmd;
+    std::string errorMsg;
+    QString valueStr;
+
+    // Find out how many rows are currently in the modelreview table
+    queryStr = "SELECT ModelName FROM " + nmfConstantsMSSPM::TableModelReview +
+               " WHERE ProjectName = '" + m_ProjectName + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, {"ModelName"});
+    NumRows  = (int)dataMap["ModelName"].size();
+
+    // Save Qt table data to database table
+    row  = NumRows + 1;
+    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableModelReview +
+            " (ProjectName,ModelNumber,ModelName,rSquared,SSResiduals,AIC," +
+            "GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns," +
+            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,Notes," +
+            "isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites," +
+            "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
+            "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
+            "StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked," +
+            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstCarryingCapacityEnabled," +
+            "isEstCarryingCapacityChecked,isEstCatchabilityEnabled,isEstCatchabilityChecked," +
+            "isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled," +
+            "isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked," +
+            "isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled," +
+            "isEstPredRhoChecked,isEstPredHandlingEnabled,isEstPredHandlingChecked," +
+            "isEstPredExponentEnabled,isEstPredExponentChecked,isEstSurveyQEnabled," +
+            "isEstSurveyQChecked,isAMultiRun,AveAlg,HowToAverage,UsingWhat,UsingNumber,isUsingPct," +
+            "EnsembleFile,EstimatedParametersFile) VALUES ";
+        cmd += "('" + m_ProjectName + "','" + std::to_string(row) + "'";
+        for (int col=0; col<NumCols; ++col) {
+            if ((col == nmfConstantsMSSPM::Model_Review_Column_rSquared)    ||
+                (col == nmfConstantsMSSPM::Model_Review_Column_SSResiduals) ||
+                (col == nmfConstantsMSSPM::Model_Review_Column_AIC)) {
+                valueStr = rowList[col];
+std::cout << "valueStr: " << valueStr.toStdString() << std::endl;
+                valueStr.replace(",","");
+                cmd += ","  + std::to_string(valueStr.toDouble());
+            } else {
+                cmd += ",'" + rowList[col].toStdString() + "'";
+            }
+        }
+        cmd += "),";
+    cmd = cmd.substr(0,cmd.size()-1);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab7::saveModelReviewTable: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        return;
+    }
+}
+
+void
 nmfEstimation_Tab7::updateReviewList(const QStringList& rowList)
 {
     bool hideField;
     QList<QStandardItem* > itemList;
     int numCols = rowList.size();
     QString itemStr;
+    QStringList HeaderLabels;
+
+//    loadWidgets();
+
+    for (std::string field : m_ModelReviewFields) {
+        if (field == "rSquared") {
+            HeaderLabels << "r²";
+        } else {
+            HeaderLabels << QString::fromStdString(field);
+        }
+    }
 
     for (int col=0; col<numCols; ++col) {
         itemStr = rowList[col].trimmed();
@@ -437,11 +536,247 @@ nmfEstimation_Tab7::updateReviewList(const QStringList& rowList)
     }
     m_SModel->appendRow(itemList);
     for (int i=0; i<numCols; ++i) {
-        hideField = (! showHiddenFields()) && (i>nmfConstantsMSSPM::Last_Review_Column_Visible);
+        hideField = (! showHiddenFields()) && (i>nmfConstantsMSSPM::Model_Review_Column_Last_Visible);
         Estimation_Tab7_ModelReviewTV->setColumnHidden(i,hideField);
     }
+    m_SModel->setHorizontalHeaderLabels(HeaderLabels);
     Estimation_Tab7_ModelReviewTV->horizontalHeader()->show();
     resizeColumns();
+
+    saveModelReviewTable();
+}
+
+
+void
+nmfEstimation_Tab7::saveModelReviewTable()
+{
+    int NumRows;
+    int NumCols;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string cmd;
+    std::string errorMsg;
+    QString valueStr;
+
+    if (m_SModel == nullptr) {
+        return;
+    }
+    m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+    NumRows = m_SModel->rowCount();
+    NumCols = m_SModel->columnCount();
+    if (NumRows == 0) {
+        return;
+    }
+
+    m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableModelReview,m_ProjectName);
+
+
+//    // Turn off significant digits in order to save with highest precision
+//    bool flippedSignificantDigits = false;
+//    int remNumSignificantDigits = 0;
+//    if (m_NumSignificantDigits >= 0) {
+//        remNumSignificantDigits = m_NumSignificantDigits;
+//        m_NumSignificantDigits = -1;
+//        flippedSignificantDigits = true;
+//        loadWidgets();
+//    }
+
+    // Save Qt table data to database table
+    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableModelReview +
+            " (ProjectName,ModelNumber,ModelName,rSquared,SSResiduals,AIC," +
+            "GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns," +
+            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,Notes," +
+            "isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites," +
+            "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
+            "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
+            "StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked," +
+            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstCarryingCapacityEnabled," +
+            "isEstCarryingCapacityChecked,isEstCatchabilityEnabled,isEstCatchabilityChecked," +
+            "isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled," +
+            "isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked," +
+            "isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled," +
+            "isEstPredRhoChecked,isEstPredHandlingEnabled,isEstPredHandlingChecked," +
+            "isEstPredExponentEnabled,isEstPredExponentChecked,isEstSurveyQEnabled," +
+            "isEstSurveyQChecked,isAMultiRun,AveAlg,HowToAverage,UsingWhat,UsingNumber,isUsingPct," +
+            "EnsembleFile,EstimatedParametersFile) VALUES ";
+    for (int row=0; row<NumRows; ++row) {
+        cmd += "('" + m_ProjectName + "','" + std::to_string(row) + "'";
+        for (int col=0; col<NumCols; ++col) {
+            if ((col == nmfConstantsMSSPM::Model_Review_Column_rSquared)    ||
+                (col == nmfConstantsMSSPM::Model_Review_Column_SSResiduals) ||
+                (col == nmfConstantsMSSPM::Model_Review_Column_AIC)) {
+                valueStr = m_SModel->index(row, col).data().toString().replace(",","");
+                cmd += ","  + std::to_string(valueStr.toDouble());
+            } else {
+                cmd += ",'" + m_SModel->index(row, col).data().toString().toStdString() + "'";
+            }
+        }
+        cmd += "),";
+    }
+    cmd = cmd.substr(0,cmd.size()-1);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab7::saveModelReviewTable: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        return;
+    }
+
+//    // Turn on significant digits if they were turned off previously in this method
+//    if (flippedSignificantDigits) {
+//        m_NumSignificantDigits = remNumSignificantDigits;
+//        loadWidgets();
+//    }
+}
+
+void
+nmfEstimation_Tab7::loadWidgets()
+{
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    int NumColumns = m_ModelReviewFields.size();
+    QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    QString fileName = QDir(dataPath).filePath("_TempFileJustForRefreshing.csv");
+    QString valueStr;
+    QString valueWithComma;
+    QStandardItem *item;
+    QStringList HeaderLabels;
+
+    for (std::string field : m_ModelReviewFields) {
+        if (field == "rSquared") {
+            HeaderLabels << "r²";
+        } else {
+            HeaderLabels << QString::fromStdString(field);
+        }
+    }
+
+    readSettings();
+
+    queryStr = "SELECT ModelName,rSquared,SSResiduals,AIC,\
+GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns,\
+ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,Notes,\
+isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites,\
+numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt,\
+isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter,\
+StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked,\
+isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstCarryingCapacityEnabled,\
+isEstCarryingCapacityChecked,isEstCatchabilityEnabled,isEstCatchabilityChecked,\
+isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled,\
+isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked,\
+isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled,\
+isEstPredRhoChecked,isEstPredHandlingEnabled,isEstPredHandlingChecked,\
+isEstPredExponentEnabled,isEstPredExponentChecked,isEstSurveyQEnabled,\
+isEstSurveyQChecked,isAMultiRun,AveAlg,HowToAverage,UsingWhat,UsingNumber,isUsingPct,\
+EnsembleFile,EstimatedParametersFile FROM " +
+            nmfConstantsMSSPM::TableModelReview + " WHERE ProjectName = '" + m_ProjectName + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, m_ModelReviewFields);
+    int NumRecords = dataMap["ModelName"].size();
+
+    if (m_SModel != nullptr) {
+        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+    } else {
+        return;
+    }
+    m_SModel->clear();
+    m_SModel->setRowCount(NumRecords);
+    m_SModel->setColumnCount(NumColumns);
+
+    if (NumRecords == 0)  {
+        return;
+    }
+
+    for (int row=0; row<NumRecords; ++row) {
+        for (int col=0; col<NumColumns; ++col) {
+            valueStr = QString::fromStdString(dataMap[m_ModelReviewFields[col]][row]);
+            if ((col == nmfConstantsMSSPM::Model_Review_Column_rSquared) ||
+                (col == nmfConstantsMSSPM::Model_Review_Column_AIC)) {
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            valueStr.toDouble(),m_NumSignificantDigits,3);
+                valueStr = valueWithComma;
+            } else if (col == nmfConstantsMSSPM::Model_Review_Column_SSResiduals) {
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            valueStr.toDouble(),m_NumSignificantDigits,-3);
+                valueStr = valueWithComma;
+            }
+            item = new QStandardItem(valueStr);
+            item->setTextAlignment(Qt::AlignCenter);
+            m_SModel->setItem(row,col,item);
+        }
+    }
+    m_SModel->setHorizontalHeaderLabels(HeaderLabels);
+    Estimation_Tab7_ModelReviewTV->setModel(m_SModel);
+    Estimation_Tab7_ModelReviewTV->resizeColumnsToContents();
+}
+
+void
+nmfEstimation_Tab7::loadWidgetsNoSignificantDigits()
+{
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    int NumColumns = m_ModelReviewFields.size();
+    QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    QString fileName = QDir(dataPath).filePath("_TempFileJustForRefreshing.csv");
+    QString valueStr;
+    QString valueWithComma;
+    QStandardItem *item;
+    QStringList HeaderLabels;
+
+    for (std::string field : m_ModelReviewFields) {
+        if (field == "rSquared") {
+            HeaderLabels << "r²";
+        } else {
+            HeaderLabels << QString::fromStdString(field);
+        }
+    }
+
+    readSettings();
+
+    queryStr = "SELECT ModelName,rSquared,SSResiduals,AIC,\
+GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns,\
+ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,Notes,\
+isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites,\
+numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt,\
+isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter,\
+StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked,\
+isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstCarryingCapacityEnabled,\
+isEstCarryingCapacityChecked,isEstCatchabilityEnabled,isEstCatchabilityChecked,\
+isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled,\
+isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked,\
+isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled,\
+isEstPredRhoChecked,isEstPredHandlingEnabled,isEstPredHandlingChecked,\
+isEstPredExponentEnabled,isEstPredExponentChecked,isEstSurveyQEnabled,\
+isEstSurveyQChecked,isAMultiRun,AveAlg,HowToAverage,UsingWhat,UsingNumber,isUsingPct,\
+EnsembleFile,EstimatedParametersFile FROM " +
+            nmfConstantsMSSPM::TableModelReview + " WHERE ProjectName = '" + m_ProjectName + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, m_ModelReviewFields);
+    int NumRecords = dataMap["ModelName"].size();
+
+    if (m_SModel != nullptr) {
+        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+    } else {
+        return;
+    }
+    m_SModel->clear();
+    m_SModel->setRowCount(NumRecords);
+    m_SModel->setColumnCount(NumColumns);
+
+    if (NumRecords == 0)  {
+        return;
+    }
+
+    for (int row=0; row<NumRecords; ++row) {
+        for (int col=0; col<NumColumns; ++col) {
+            valueStr = QString::fromStdString(dataMap[m_ModelReviewFields[col]][row]);
+            item = new QStandardItem(valueStr);
+            item->setTextAlignment(Qt::AlignCenter);
+            m_SModel->setItem(row,col,item);
+        }
+    }
+    m_SModel->setHorizontalHeaderLabels(HeaderLabels);
+    Estimation_Tab7_ModelReviewTV->setModel(m_SModel);
+    Estimation_Tab7_ModelReviewTV->resizeColumnsToContents();
 }
 
 void
@@ -494,8 +829,13 @@ nmfEstimation_Tab7::readSettings()
     m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
+
     settings->beginGroup("Settings");
     m_ModelName = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
     settings->endGroup();
 
     delete settings;

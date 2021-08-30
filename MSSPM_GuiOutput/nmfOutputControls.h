@@ -29,8 +29,8 @@
  *
  */
 
-#ifndef MSSPM_GUIOUTPUTCONTROLS_H
-#define MSSPM_GUIOUTPUTCONTROLS_H
+#ifndef NMFOUTPUTCONTROLS_H
+#define NMFOUTPUTCONTROLS_H
 
 #include <QStringListModel>
 #include <QMessageBox>
@@ -45,7 +45,7 @@
  * This class contains the widgets and callback functionality for the MSSPM
  * Output charts and controls.
  */
-class MSSPM_GuiOutputControls: public QObject
+class nmfOutputControls: public QObject
 {
 
     Q_OBJECT
@@ -118,11 +118,11 @@ public:
      * @param databasePtr : pointer to the application database
      * @param projectDir : the project directory
      */
-    MSSPM_GuiOutputControls(QGroupBox*   controlsGroupBox,
+    nmfOutputControls(QGroupBox*   controlsGroupBox,
                             nmfLogger*   logger,
                             nmfDatabase* databasePtr,
                             std::string& projectDir);
-    virtual ~MSSPM_GuiOutputControls();
+    virtual ~nmfOutputControls();
 
     /**
      * @brief Clears the Biomass Maximum Sustained Yield line edit widget
@@ -545,4 +545,4 @@ public slots:
 
 
 
-#endif // MSSPM_GUIOUTPUTCONTROLS_H
+#endif // NMFOUTPUTCONTROLS_H

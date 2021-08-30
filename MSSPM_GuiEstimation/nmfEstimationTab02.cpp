@@ -293,13 +293,10 @@ nmfEstimation_Tab2::callback_ExportPB()
 void
 nmfEstimation_Tab2::saveCSVFile(std::string& tableName)
 {
-    bool okSave;
-    QString tableNameWithPath;
-
     // Save time series data to a .csv file
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
-    okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,m_SModel,inputDataPath,tableNameWithPath);
+    QString inputDataPath     = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QString tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
+    bool okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,m_SModel,inputDataPath,tableNameWithPath);
 
     if (okSave) {
         QMessageBox::information(Estimation_Tabs, "Harvest File Saved",

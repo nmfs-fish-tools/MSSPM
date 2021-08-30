@@ -128,20 +128,11 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     m_TableViewsTypeI.push_back(Estimation_Tab4_PredationMaxTV);
 
     m_TableViewsTypeII.clear();
-//  m_TableViewsTypeII.push_back(Estimation_Tab4_PredationTV);
-//  m_TableViewsTypeII.push_back(Estimation_Tab4_PredationMinTV);
-//  m_TableViewsTypeII.push_back(Estimation_Tab4_PredationMaxTV);
     m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingTV);
     m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMinTV);
     m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMaxTV);
 
     m_TableViewsTypeIII.clear();
-//  m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationTV);
-//  m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationMinTV);
-//  m_TableViewsTypeIII.push_back(Estimation_Tab4_PredationMaxTV);
-//  m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingTV);
-//  m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingMinTV);
-//  m_TableViewsTypeIII.push_back(Estimation_Tab4_HandlingMaxTV);
     m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentTV);
     m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMinTV);
     m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMaxTV);
@@ -152,29 +143,14 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TablePredationRhoMax);
 
     m_TableNamesTypeII.clear();
-//  m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationRho);
-//  m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationRhoMin);
-//  m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationRhoMax);
     m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandling);
     m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandlingMin);
     m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandlingMax);
 
     m_TableNamesTypeIII.clear();
-//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationRho);
-//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationRhoMin);
-//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationRhoMax);
-//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationHandling);
-//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationHandlingMin);
-//  m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationHandlingMax);
     m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponent);
     m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponentMin);
     m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponentMax);
-
-
-
-
-    //  RSK remove this!!!!!
-
 
     // Create models and attach to view
     int NumSpecies = getNumSpecies();
@@ -560,12 +536,18 @@ nmfEstimation_Tab4::getAllTableViews()
 {
     std::vector<QTableView*> allTableViews;
 
-    for (std::vector<QTableView*> tables : {m_TableViews1d, m_TableViews2d}) {
-        for (QTableView* tableView : tables) {
-            if (tableView->width() > 0) { // ignore hidden tables
-                allTableViews.push_back(tableView);
-            }
-        }
+    allTableViews.push_back(Estimation_Tab4_PredationTV);
+    allTableViews.push_back(Estimation_Tab4_PredationMinTV);
+    allTableViews.push_back(Estimation_Tab4_PredationMaxTV);
+    if (isTypeII() || isTypeIII()) {
+        allTableViews.push_back(Estimation_Tab4_HandlingTV);
+        allTableViews.push_back(Estimation_Tab4_HandlingMinTV);
+        allTableViews.push_back(Estimation_Tab4_HandlingMaxTV);
+    }
+    if (isTypeIII()) {
+        allTableViews.push_back(Estimation_Tab4_ExponentTV);
+        allTableViews.push_back(Estimation_Tab4_ExponentMinTV);
+        allTableViews.push_back(Estimation_Tab4_ExponentMaxTV);
     }
 
     return allTableViews;

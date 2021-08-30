@@ -4,7 +4,7 @@
 #include "nmfUtilsQt.h"
 #include "nmfConstants.h"
 
-MSSPM_GuiOutputControls::MSSPM_GuiOutputControls(
+nmfOutputControls::nmfOutputControls(
         QGroupBox*   controlsGroupBox,
         nmfLogger*   logger,
         nmfDatabase* databasePtr,
@@ -34,31 +34,31 @@ MSSPM_GuiOutputControls::MSSPM_GuiOutputControls(
     loadWidgets();
 }
 
-MSSPM_GuiOutputControls::~MSSPM_GuiOutputControls()
+nmfOutputControls::~nmfOutputControls()
 {
 
 }
 
 void
-MSSPM_GuiOutputControls::enableControls(bool state)
+nmfOutputControls::enableControls(bool state)
 {
     ControlsGroupBox->setEnabled(state);
 }
 
 bool
-MSSPM_GuiOutputControls::isAveraged()
+nmfOutputControls::isAveraged()
 {
     return m_IsAveraged;
 }
 
 void
-MSSPM_GuiOutputControls::setAveraged(bool isAveraged)
+nmfOutputControls::setAveraged(bool isAveraged)
 {
     m_IsAveraged = isAveraged;
 }
 
 void
-MSSPM_GuiOutputControls::initWidgets()
+nmfOutputControls::initWidgets()
 {
     QModelIndex index;
     QVariant vNull(0);
@@ -387,19 +387,19 @@ The ZScore value is calculated by the following formula: \
 }
 
 bool
-MSSPM_GuiOutputControls::isShadowShown()
+nmfOutputControls::isShadowShown()
 {
     return OutputShowShadowCB->isChecked();
 }
 
 void
-MSSPM_GuiOutputControls::setCurrentSpecies(QString species)
+nmfOutputControls::setCurrentSpecies(QString species)
 {
     OutputSpeciesCMB->setCurrentText(species);
 }
 
 void
-MSSPM_GuiOutputControls::initConnections()
+nmfOutputControls::initConnections()
 {
     connect(OutputChartTypeCMB,     SIGNAL(currentIndexChanged(QString)),
             this,                   SLOT(callback_OutputChartTypeCMB(QString)));
@@ -442,7 +442,7 @@ MSSPM_GuiOutputControls::initConnections()
 }
 
 void
-MSSPM_GuiOutputControls::callback_LoadScenariosWidget()
+nmfOutputControls::callback_LoadScenariosWidget()
 {
     int currentIndex = OutputScenariosCMB->currentIndex();
     std::vector<std::string> fields;
@@ -471,7 +471,7 @@ MSSPM_GuiOutputControls::callback_LoadScenariosWidget()
 
 
 void
-MSSPM_GuiOutputControls::loadWidgets()
+nmfOutputControls::loadWidgets()
 {
     readSettings();
     loadSortedForecastLabels();
@@ -482,13 +482,13 @@ MSSPM_GuiOutputControls::loadWidgets()
 
 
 void
-MSSPM_GuiOutputControls::loadSortedForecastLabels()
+nmfOutputControls::loadSortedForecastLabels()
 {
     m_DatabasePtr->createScenarioMap(m_SortedForecastLabelsMap);
 }
 
 void
-MSSPM_GuiOutputControls::loadSpeciesControlWidget()
+nmfOutputControls::loadSpeciesControlWidget()
 {
     int NumSpecies;
     int NumGuilds;
@@ -546,14 +546,14 @@ MSSPM_GuiOutputControls::loadSpeciesControlWidget()
 }
 
 int
-MSSPM_GuiOutputControls::getSpeciesNumFromName(QString SpeciesName)
+nmfOutputControls::getSpeciesNumFromName(QString SpeciesName)
 {
     return m_SpeciesHash[SpeciesName];
 }
 
 
 bool
-MSSPM_GuiOutputControls::getSpecies(int&         NumSpecies,
+nmfOutputControls::getSpecies(int&         NumSpecies,
                                     QStringList& SpeciesList)
 {
     std::vector<std::string> fields;
@@ -579,7 +579,7 @@ MSSPM_GuiOutputControls::getSpecies(int&         NumSpecies,
 }
 
 bool
-MSSPM_GuiOutputControls::getGuilds(int&         NumGuilds,
+nmfOutputControls::getGuilds(int&         NumGuilds,
                                    QStringList& GuildList)
 {
     std::vector<std::string> fields;
@@ -606,7 +606,7 @@ MSSPM_GuiOutputControls::getGuilds(int&         NumGuilds,
 
 
 void
-MSSPM_GuiOutputControls::callback_OutputLineBrightnessSL(int value)
+nmfOutputControls::callback_OutputLineBrightnessSL(int value)
 {
     double brightnessFactor = value/(double)OutputLineBrightnessSL->maximum(); // 0 .. 1
 
@@ -615,7 +615,7 @@ MSSPM_GuiOutputControls::callback_OutputLineBrightnessSL(int value)
 
 
 int
-MSSPM_GuiOutputControls::getYMinSliderVal()
+nmfOutputControls::getYMinSliderVal()
 {
     return OutputYAxisMinSL->value();
 //    return OutputYAxisMinSB->value();
@@ -629,39 +629,39 @@ MSSPM_GuiOutputControls::getYMinSliderVal()
 //}
 
 void
-MSSPM_GuiOutputControls::callback_OutputYAxisMinSL(int value)
+nmfOutputControls::callback_OutputYAxisMinSL(int value)
 {
     updateChart();
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputYAxisMinSB(int value)
+nmfOutputControls::callback_OutputYAxisMinSB(int value)
 {
     updateChart();
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputYAxisMaxSB(int value)
+nmfOutputControls::callback_OutputYAxisMaxSB(int value)
 {
     updateChart();
 }
 
 
 void
-MSSPM_GuiOutputControls::callback_OutputParametersCenterPB()
+nmfOutputControls::callback_OutputParametersCenterPB()
 {
     emit SelectCenterSurfacePoint();
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputParametersMinimumPB()
+nmfOutputControls::callback_OutputParametersMinimumPB()
 {
     emit SelectMinimumSurfacePoint();
 }
 
 
 void
-MSSPM_GuiOutputControls::enableMSYWidgets(bool state)
+nmfOutputControls::enableMSYWidgets(bool state)
 {
     OutputShowBMSYCB->setEnabled(state);
     OutputShowBMSYLE->setEnabled(state);
@@ -672,38 +672,38 @@ MSSPM_GuiOutputControls::enableMSYWidgets(bool state)
 }
 
 void
-MSSPM_GuiOutputControls::enableBrightnessWidgets(bool state)
+nmfOutputControls::enableBrightnessWidgets(bool state)
 {
     OutputLineBrightnessLBL->setEnabled(state);
     OutputLineBrightnessSL->setEnabled(state);
 }
 
 int
-MSSPM_GuiOutputControls::getNumberSpecies()
+nmfOutputControls::getNumberSpecies()
 {
     return OutputSpeciesCMB->count();
 }
 
 void
-MSSPM_GuiOutputControls::setSpeciesNum(int speciesNum)
+nmfOutputControls::setSpeciesNum(int speciesNum)
 {
     OutputSpeciesCMB->setCurrentIndex(speciesNum);
 }
 
 bool
-MSSPM_GuiOutputControls::isSetToGuild()
+nmfOutputControls::isSetToGuild()
 {
     return (OutputSpeciesCMB->currentText() != "Species:");
 }
 
 bool
-MSSPM_GuiOutputControls::isSetToRetrospectiveAnalysis()
+nmfOutputControls::isSetToRetrospectiveAnalysis()
 {
     return OutputMethodsCMB->currentText() == "Retrospective Analysis";
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
+nmfOutputControls::callback_OutputChartTypeCMB(QString outputType)
 {
     bool isParameterProfiles = (OutputMethodsCMB->currentText() == "Parameter Profiles");
     bool speciesLVFlag;
@@ -812,7 +812,7 @@ MSSPM_GuiOutputControls::callback_OutputChartTypeCMB(QString outputType)
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputGroupTypeCMB(QString outputGroupType)
+nmfOutputControls::callback_OutputGroupTypeCMB(QString outputGroupType)
 {
     if (outputGroupType == "Species:" ) {
         loadSpeciesControlWidget();
@@ -827,7 +827,7 @@ MSSPM_GuiOutputControls::callback_OutputGroupTypeCMB(QString outputGroupType)
 }
 
 void
-MSSPM_GuiOutputControls::refresh()
+nmfOutputControls::refresh()
 {
     int currentIndex = OutputChartTypeCMB->currentIndex();
 
@@ -838,7 +838,7 @@ MSSPM_GuiOutputControls::refresh()
 }
 
 void
-MSSPM_GuiOutputControls::refreshScenarios()
+nmfOutputControls::refreshScenarios()
 {
     int NumRecords;
     std::vector<std::string> fields;
@@ -858,7 +858,7 @@ MSSPM_GuiOutputControls::refreshScenarios()
 
 
 void
-MSSPM_GuiOutputControls::callback_OutputSpeciesCMB(QString outputSpecies)
+nmfOutputControls::callback_OutputSpeciesCMB(QString outputSpecies)
 {
 
     QString scenario  = getOutputScenario();
@@ -880,7 +880,7 @@ MSSPM_GuiOutputControls::callback_OutputSpeciesCMB(QString outputSpecies)
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputMethodsCMB(QString method)
+nmfOutputControls::callback_OutputMethodsCMB(QString method)
 {
     OutputParametersCMB->setEnabled(true);
     OutputParametersLBL->setEnabled(true);
@@ -909,7 +909,7 @@ MSSPM_GuiOutputControls::callback_OutputMethodsCMB(QString method)
 }
 
 void
-MSSPM_GuiOutputControls::setForMohnsRho()
+nmfOutputControls::setForMohnsRho()
 {
     OutputChartTypeCMB->setCurrentText("Diagnostics");
     OutputMethodsCMB->setCurrentText("Retrospective Analysis");
@@ -922,13 +922,13 @@ MSSPM_GuiOutputControls::setForMohnsRho()
 }
 
 void
-MSSPM_GuiOutputControls::setForBiomassVsTime()
+nmfOutputControls::setForBiomassVsTime()
 {
   OutputChartTypeCMB->setCurrentText(nmfConstantsMSSPM::OutputChartBiomass);
 }
 
 void
-MSSPM_GuiOutputControls::displayMohnsRho()
+nmfOutputControls::displayMohnsRho()
 {
     OutputMethodsLBL->setEnabled(true);
     OutputMethodsCMB->setEnabled(true);
@@ -943,13 +943,13 @@ MSSPM_GuiOutputControls::displayMohnsRho()
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputParametersCMB(QString unused)
+nmfOutputControls::callback_OutputParametersCMB(QString unused)
 {
     emit ShowChart("",""); //,m_IsAveraged);
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputScenariosCMB(QString scenario)
+nmfOutputControls::callback_OutputScenariosCMB(QString scenario)
 {
     std::string msg;
 
@@ -966,7 +966,7 @@ MSSPM_GuiOutputControls::callback_OutputScenariosCMB(QString scenario)
 }
 
 void
-MSSPM_GuiOutputControls::callback_SetOutputScenario(QString scenario)
+nmfOutputControls::callback_SetOutputScenario(QString scenario)
 {
     if (scenario.isEmpty()) {
         return;
@@ -975,7 +975,7 @@ MSSPM_GuiOutputControls::callback_SetOutputScenario(QString scenario)
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputParameters2d3dPB()
+nmfOutputControls::callback_OutputParameters2d3dPB()
 {
     QString currentText = OutputParameters2d3dPB->text();
     bool stateIs3d      = (currentText == "3d");
@@ -1001,25 +1001,25 @@ MSSPM_GuiOutputControls::callback_OutputParameters2d3dPB()
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputParametersZScoreCB(int state)
+nmfOutputControls::callback_OutputParametersZScoreCB(int state)
 {
     emit ShowChart("","");
 }
 
 bool
-MSSPM_GuiOutputControls::displaying3dChart()
+nmfOutputControls::displaying3dChart()
 {
     return (OutputParameters2d3dPB->text() == "2d");
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputShowShadowCB(int dummy)
+nmfOutputControls::callback_OutputShowShadowCB(int dummy)
 {
     emit ShowChart("",""); //,m_IsAveraged);
 }
 
 void
-MSSPM_GuiOutputControls::updateChart()
+nmfOutputControls::updateChart()
 {
     QString outputGroupType = getOutputGroupType();
 
@@ -1033,25 +1033,25 @@ MSSPM_GuiOutputControls::updateChart()
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputBMSYCB(int val)
+nmfOutputControls::callback_OutputBMSYCB(int val)
 {
     updateChart();
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputMSYCB(int val)
+nmfOutputControls::callback_OutputMSYCB(int val)
 {
     updateChart();
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputFMSYCB(int val)
+nmfOutputControls::callback_OutputFMSYCB(int val)
 {
     updateChart();
 }
 
 void
-MSSPM_GuiOutputControls::callback_OutputScaleCMB(QString scale)
+nmfOutputControls::callback_OutputScaleCMB(QString scale)
 {
     QString scenario = getOutputScenario();
     QString chartType = getOutputChartType();
@@ -1066,7 +1066,7 @@ MSSPM_GuiOutputControls::callback_OutputScaleCMB(QString scale)
 }
 
 void
-MSSPM_GuiOutputControls::callback_ResetOutputWidgetsForAggProd()
+nmfOutputControls::callback_ResetOutputWidgetsForAggProd()
 {
     int NumSpecies;
     int NumGuilds;
@@ -1098,7 +1098,7 @@ MSSPM_GuiOutputControls::callback_ResetOutputWidgetsForAggProd()
 }
 
 bool
-MSSPM_GuiOutputControls::isAggProd()
+nmfOutputControls::isAggProd()
 {
     std::string Algorithm;
     std::string Minimizer;
@@ -1115,31 +1115,31 @@ MSSPM_GuiOutputControls::isAggProd()
 }
 
 void
-MSSPM_GuiOutputControls::clearOutputBMSY()
+nmfOutputControls::clearOutputBMSY()
 {
     OutputShowBMSYLE->clear();
 }
 
 void
-MSSPM_GuiOutputControls::clearOutputMSY()
+nmfOutputControls::clearOutputMSY()
 {
     OutputShowMSYLE->clear();
 }
 
 void
-MSSPM_GuiOutputControls::clearOutputFMSY()
+nmfOutputControls::clearOutputFMSY()
 {
     OutputShowFMSYLE->clear();
 }
 
 bool
-MSSPM_GuiOutputControls::isSurfaceTypeZScore()
+nmfOutputControls::isSurfaceTypeZScore()
 {
     return OutputParametersZScoreCB->isChecked();
 }
 
 bool
-MSSPM_GuiOutputControls::isCheckedOutputBMSY()
+nmfOutputControls::isCheckedOutputBMSY()
 {
     bool isChecked;
 
@@ -1151,32 +1151,32 @@ MSSPM_GuiOutputControls::isCheckedOutputBMSY()
 }
 
 bool
-MSSPM_GuiOutputControls::isCheckedOutputMSY()
+nmfOutputControls::isCheckedOutputMSY()
 {
     return OutputShowMSYCB->isChecked();
 }
 
 bool
-MSSPM_GuiOutputControls::isEnabledOutputMSY()
+nmfOutputControls::isEnabledOutputMSY()
 {
     return OutputShowMSYCB->isEnabled();
 }
 
 bool
-MSSPM_GuiOutputControls::isCheckedOutputFMSY()
+nmfOutputControls::isCheckedOutputFMSY()
 {
     return OutputShowFMSYCB->isChecked();
 }
 
 
 bool
-MSSPM_GuiOutputControls::isEnabledOutputFMSY()
+nmfOutputControls::isEnabledOutputFMSY()
 {
     return OutputShowFMSYCB->isEnabled();
 }
 
 void
-MSSPM_GuiOutputControls::setTextOutputBMSY(QString text)
+nmfOutputControls::setTextOutputBMSY(QString text)
 {
     m_BMSY_Value = (! text.isEmpty()) ? text.toDouble() : -1;
     QLocale locale(QLocale::English);
@@ -1189,7 +1189,7 @@ MSSPM_GuiOutputControls::setTextOutputBMSY(QString text)
 }
 
 void
-MSSPM_GuiOutputControls::setTextOutputMSY(QString text)
+nmfOutputControls::setTextOutputMSY(QString text)
 {
     m_MSY_Value = (! text.isEmpty()) ? text.toDouble() : -1;
     QLocale locale(QLocale::English);
@@ -1199,7 +1199,7 @@ MSSPM_GuiOutputControls::setTextOutputMSY(QString text)
 }
 
 void
-MSSPM_GuiOutputControls::setTextOutputFMSY(QString text)
+nmfOutputControls::setTextOutputFMSY(QString text)
 {
     m_FMSY_Value = (! text.isEmpty()) ? text.toDouble() : -1;
     QLocale locale(QLocale::English);
@@ -1209,7 +1209,7 @@ MSSPM_GuiOutputControls::setTextOutputFMSY(QString text)
 }
 
 void
-MSSPM_GuiOutputControls::resetTextOutputBMSY()
+nmfOutputControls::resetTextOutputBMSY()
 {
     if (m_BMSY_Value < 0) {
         return;
@@ -1224,7 +1224,7 @@ MSSPM_GuiOutputControls::resetTextOutputBMSY()
 }
 
 void
-MSSPM_GuiOutputControls::resetTextOutputMSY()
+nmfOutputControls::resetTextOutputMSY()
 {
     if (m_MSY_Value < 0) {
         return;
@@ -1236,7 +1236,7 @@ MSSPM_GuiOutputControls::resetTextOutputMSY()
 }
 
 void
-MSSPM_GuiOutputControls::resetTextOutputFMSY()
+nmfOutputControls::resetTextOutputFMSY()
 {
     if (m_FMSY_Value < 0) {
         return;
@@ -1248,7 +1248,7 @@ MSSPM_GuiOutputControls::resetTextOutputFMSY()
 }
 
 void
-MSSPM_GuiOutputControls::resetMSYWidgets()
+nmfOutputControls::resetMSYWidgets()
 {
     readSettings();
     resetTextOutputBMSY();
@@ -1257,7 +1257,7 @@ MSSPM_GuiOutputControls::resetMSYWidgets()
 }
 
 void
-MSSPM_GuiOutputControls::setForecastLabels(
+nmfOutputControls::setForecastLabels(
         std::map<QString,QStringList>& SortedForecastLabelsMap)
 {
     m_SortedForecastLabelsMap = SortedForecastLabelsMap;
@@ -1265,63 +1265,63 @@ MSSPM_GuiOutputControls::setForecastLabels(
 }
 
 QString
-MSSPM_GuiOutputControls::getOutputChartType()
+nmfOutputControls::getOutputChartType()
 {
     return OutputChartTypeCMB->currentText();
 }
 
 QString
-MSSPM_GuiOutputControls::getOutputGroupType()
+nmfOutputControls::getOutputGroupType()
 {
 
     return OutputGroupTypeCMB->currentText().replace(":","");
 }
 
 QString
-MSSPM_GuiOutputControls::getOutputSpecies()
+nmfOutputControls::getOutputSpecies()
 {
     return OutputSpeciesCMB->currentText();
 }
 
 QString
-MSSPM_GuiOutputControls::getOutputDiagnostics()
+nmfOutputControls::getOutputDiagnostics()
 {
     return OutputMethodsCMB->currentText();
 }
 
 int
-MSSPM_GuiOutputControls::getOutputSpeciesIndex()
+nmfOutputControls::getOutputSpeciesIndex()
 {
     return OutputSpeciesCMB->currentIndex();
 }
 
 QString
-MSSPM_GuiOutputControls::getOutputScenario()
+nmfOutputControls::getOutputScenario()
 {
     return OutputScenariosCMB->currentText();
 }
 
 void
-MSSPM_GuiOutputControls::setOutputParameters2d3dPB(QString chartType)
+nmfOutputControls::setOutputParameters2d3dPB(QString chartType)
 {
     OutputParameters2d3dPB->setText(chartType);
     callback_OutputParameters2d3dPB();
 }
 
 void
-MSSPM_GuiOutputControls::setOutputSpecies(QString species)
+nmfOutputControls::setOutputSpecies(QString species)
 {
     OutputSpeciesCMB->setCurrentText(species);
 }
 
 void
-MSSPM_GuiOutputControls::setOutputSpeciesIndex(int index)
+nmfOutputControls::setOutputSpeciesIndex(int index)
 {
     OutputSpeciesCMB->setCurrentIndex(index);
 }
 
 void
-MSSPM_GuiOutputControls::setOutputType(QString type)
+nmfOutputControls::setOutputType(QString type)
 {
     // This forces an update if the user needs to
     // refresh the same setting.
@@ -1332,13 +1332,13 @@ MSSPM_GuiOutputControls::setOutputType(QString type)
 }
 
 void
-MSSPM_GuiOutputControls::setOutputGroupType(QString groupType)
+nmfOutputControls::setOutputGroupType(QString groupType)
 {
     OutputGroupTypeCMB->setCurrentText(groupType);
 }
 
 void
-MSSPM_GuiOutputControls::setOutputDiagnostics(QString method)
+nmfOutputControls::setOutputDiagnostics(QString method)
 {
     // This forces an update if the user needs to
     // refresh the same setting.
@@ -1349,37 +1349,37 @@ MSSPM_GuiOutputControls::setOutputDiagnostics(QString method)
 
 
 QString
-MSSPM_GuiOutputControls::getOutputParameter()
+nmfOutputControls::getOutputParameter()
 {
     return OutputParametersCMB->currentText();
 }
 
 QString
-MSSPM_GuiOutputControls::getOutputScale()
+nmfOutputControls::getOutputScale()
 {
     return OutputScaleCMB->currentText();
 }
 
 double
-MSSPM_GuiOutputControls::getOutputBrightnessFactor()
+nmfOutputControls::getOutputBrightnessFactor()
 {
     return OutputLineBrightnessSL->value()/(double)OutputLineBrightnessSL->maximum();
 }
 
 QWidget*
-MSSPM_GuiOutputControls::getListViewViewport()
+nmfOutputControls::getListViewViewport()
 {
     return OutputSpeListLV->viewport();
 }
 
 QModelIndexList
-MSSPM_GuiOutputControls::getListViewSelectedIndexes()
+nmfOutputControls::getListViewSelectedIndexes()
 {
     return OutputSpeListLV->selectionModel()->selectedIndexes();
 }
 
 void
-MSSPM_GuiOutputControls::readSettings()
+nmfOutputControls::readSettings()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
@@ -1405,7 +1405,7 @@ MSSPM_GuiOutputControls::readSettings()
 }
 
 void
-MSSPM_GuiOutputControls::saveSettings()
+nmfOutputControls::saveSettings()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
@@ -1417,7 +1417,7 @@ MSSPM_GuiOutputControls::saveSettings()
 }
 
 void
-MSSPM_GuiOutputControls::callback_UpdateDiagnosticParameterChoices()
+nmfOutputControls::callback_UpdateDiagnosticParameterChoices()
 {
     m_DatabasePtr->loadEstimatedVectorParameters(m_Logger,
                                                  m_ProjectName,
@@ -1426,7 +1426,7 @@ MSSPM_GuiOutputControls::callback_UpdateDiagnosticParameterChoices()
 }
 
 void
-MSSPM_GuiOutputControls::callback_CheckMSYBoxes(bool state)
+nmfOutputControls::callback_CheckMSYBoxes(bool state)
 {
     OutputShowBMSYCB->setChecked(state);
     OutputShowMSYCB->setChecked(state);

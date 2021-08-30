@@ -26,7 +26,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     m_PredationForm   = "";
     m_EnsembleDialog  = new EnsembleDialog(tabs,m_ProjectDir);
     m_EnsembleDialog->hide();
-    m_EnsembleFilename = nmfConstantsMSSPM::MultiRunFilename;
+    m_EnsembleFilename = nmfConstantsMSSPM::FilenameMultiRun;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::nmfEstimation_Tab6");
 
@@ -754,13 +754,13 @@ nmfEstimation_Tab6::getEnsembleAveragingAlgorithm()
 QString
 nmfEstimation_Tab6::createEnsembleFile()
 {
-    QString ensembleFilename = QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename);
+    QString ensembleFilename = QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun);
     QString filePath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
     QString fullCurrentEnsembleFilename = QDir(filePath).filePath(ensembleFilename);
 
     if (isAMultiRun()) {
         // Derive the new ensemble file name
-        QStringList parts     = QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename).split(".");
+        QStringList parts     = QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun).split(".");
         std::string timestamp = m_Logger->getTimestamp(nmfConstants::TimestampWithUnderscore);
         if (parts.size() == 2) {
             ensembleFilename = parts[0]+"_"+QString::fromStdString(timestamp)+"."+parts[1];
@@ -1410,7 +1410,7 @@ nmfEstimation_Tab6::addToMultiRunFile(const int& numRunsToAdd,
     QString msg;
     if (fullPath.isEmpty()) { // Means it's not a Mohn's Rho multi-run
         fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-        fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename));
+        fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun));
     }
     QFile file(fullPath);
 
@@ -1563,20 +1563,20 @@ nmfEstimation_Tab6::clearEnsembleFile()
     Estimation_Tab6_EnsembleRunsSetLE->setText("0");
 
     QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename));
+    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun));
     QFile file(fullPath);
     file.remove();
 
     m_EnsembleDialog->clear();
     enableEnsembleWidgets(true);
-    m_EnsembleFilename = nmfConstantsMSSPM::MultiRunFilename;
+    m_EnsembleFilename = nmfConstantsMSSPM::FilenameMultiRun;
 }
 
 void
 nmfEstimation_Tab6::clearMohnsRhoFile()
 {
     QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::MohnsRhoRunFilename));
+    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
     QFile file(fullPath);
     file.remove();
 }
@@ -1761,7 +1761,7 @@ nmfEstimation_Tab6::callback_EnsembleControlsGB(bool isChecked)
     enableEnsembleWidgets(! isChecked);
 
     if (isChecked) {
-        loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename),
+        loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun),
                          nmfConstantsMSSPM::VerboseOff);
     }
 }
@@ -1827,7 +1827,7 @@ nmfEstimation_Tab6::callback_EnsembleUsingPctPB()
 void
 nmfEstimation_Tab6::callback_EnsembleLoadPB()
 {
-    loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::MultiRunFilename),
+    loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun),
                      nmfConstantsMSSPM::VerboseOn);
 }
 
@@ -2047,7 +2047,7 @@ nmfEstimation_Tab6::loadWidgets()
     // RSK Hack to set the CMB correctly. Remove after implementing all of the disabled items in the 3 algorithm CMB's.
     Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(QString::fromStdString(dataMap["ObjectiveCriterion"][0]));
 
-//    enableRunButton(true);
+//  enableRunButton(true);
 
     return true;
 }

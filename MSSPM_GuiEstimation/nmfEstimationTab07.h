@@ -61,11 +61,31 @@ class nmfEstimation_Tab7: public QObject
     std::string   m_ProjectName;
     std::string   m_ModelName;
     QStandardItemModel* m_SModel;
+    int                 m_NumSignificantDigits;
+    std::vector<std::string> m_ModelReviewFields = {
+        "ModelName","rSquared","SSResiduals","AIC",
+        "GrowthForm","HarvestForm","CompetitonForm","PredationForm","numRuns",
+        "ObjectiveCriterion","EstimationAlgorithm","Minimizer","Scaling","Notes",
+        "isDeterministicBees","maxGenerations","numBees","numBestSites","numEliteSites",
+        "numEliteBees","numOtherBees","neighborhoodSize","numSubRuns","isDeterministicNLopt",
+        "isStopAfterValue","StopAfterValue","isStopAfterTime","StopAfterTime","isStopAfterIter",
+        "StopAfterIter","isEstInitBiomassEnabled","isEstInitBiomassChecked",
+        "isEstGrowthRateEnabled","isEstGrowthRateChecked","isEstCarryingCapacityEnabled",
+        "isEstCarryingCapacityChecked","isEstCatchabilityEnabled","isEstCatchabilityChecked",
+        "isEstCompAlphaEnabled","isEstCompAlphaChecked","isEstCompBetaSpeciesEnabled",
+        "isEstCompBetaSpeciesChecked","isEstCompBetaGuildsEnabled","isEstCompBetaGuildsChecked",
+        "isEstCompBetaGuildsGuildsEnabled","isEstCompBetaGuildsGuildsChecked","isEstPredRhoEnabled",
+        "isEstPredRhoChecked","isEstPredHandlingEnabled","isEstPredHandlingChecked",
+        "isEstPredExponentEnabled","isEstPredExponentChecked","isEstSurveyQEnabled",
+        "isEstSurveyQChecked","isAMultiRun","AveAlg","HowToAverage","UsingWhat","UsingNumber","isUsingPct",
+        "EnsembleFile","EstimatedParametersFile"};
 
     QTabWidget*   Estimation_Tabs;
     QWidget*      Estimation_Tab7_Widget;
     QTableView*   Estimation_Tab7_ModelReviewTV;
+    QPushButton*  Estimation_Tab7_LoadModelPB;
     QPushButton*  Estimation_Tab7_LoadPB;
+    QPushButton*  Estimation_Tab7_SavePB;
     QPushButton*  Estimation_Tab7_GenerateSummaryPB;
     QPushButton*  Estimation_Tab7_PrevPB;
     QPushButton*  Estimation_Tab7_DeletePB;
@@ -83,6 +103,8 @@ class nmfEstimation_Tab7: public QObject
     void adjustColumnsForReadOnly();
     QStandardItem* createNewModelReviewItem(const int& col,
                                             const QString& value);
+    void saveModelReviewTable();
+
 public:
     /**
      * @brief nmfEstimation_Tab7 : class constructor for the Model Review GUI page
@@ -98,7 +120,14 @@ public:
     virtual ~nmfEstimation_Tab7();
 
     void updateReviewList(const QStringList& rowList);
-
+    void updateModelReviewTable(const QStringList& rowList);
+    /**
+     * @brief This function is used to reload the model review table. If the user changes their
+     * significant digits preference, this table needs to be redrawn so as to accurately reflect that
+     * preference. This method does an export and then an import (using a temp file) to accomplish this.
+     */
+    void loadWidgets();
+    void loadWidgetsNoSignificantDigits();
     /**
      * @brief Saves the current application settings to the Qt settings file
      */
@@ -128,7 +157,9 @@ public Q_SLOTS:
      */
     void callback_GenerateSummaryPB();
     void callback_ShowHiddenCB(int state);
+    void callback_LoadModelPB();
     void callback_LoadPB();
+    void callback_SavePB();
     void callback_ImportPB();
     void callback_ExportPB();
 

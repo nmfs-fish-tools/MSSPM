@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>721</width>
+    <width>1051</width>
     <height>360</height>
    </rect>
   </property>
@@ -81,15 +81,46 @@
      </item>
      <item>
       <widget class="QPushButton" name="Estimation_Tab7_LoadPB">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
-         <width>65</width>
+         <width>50</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>65</width>
+         <width>50</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Reloads the above table</string>
+       </property>
+       <property name="statusTip">
+        <string>Reloads the above table</string>
+       </property>
+       <property name="text">
+        <string>Load</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Estimation_Tab7_LoadModelPB">
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>80</width>
          <height>16777215</height>
         </size>
        </property>
@@ -100,7 +131,7 @@
         <string>Loads the currently selected model</string>
        </property>
        <property name="text">
-        <string>Load</string>
+        <string>Load Model</string>
        </property>
       </widget>
      </item>
@@ -201,6 +232,37 @@
        </property>
        <property name="text">
         <string>Export...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Estimation_Tab7_SavePB">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>50</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Saves the above table with any new Notes inputted</string>
+       </property>
+       <property name="statusTip">
+        <string>Saves the above table with any new Notes inputted</string>
+       </property>
+       <property name="text">
+        <string>Save</string>
        </property>
       </widget>
      </item>

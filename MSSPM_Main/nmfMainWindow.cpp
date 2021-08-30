@@ -68,6 +68,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_Graph3D           = nullptr;
     OutputChartMainLayt = nullptr;
     Output_Controls_ptr = nullptr;
+    Output_TableWidgets_ptr = nullptr;
     Remora_ptr          = nullptr;
     m_PreferencesDlg    = new QDialog(this);
     m_PreferencesWidget = nullptr;
@@ -145,13 +146,15 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     // Setup Output
     setupOutputChartWidgets();
     setupOutputEstimateParametersWidgets();
-    setupOutputModelFitSummaryWidgets();
+//    setupOutputModelFitSummaryWidgets();
     setupOutputDiagnosticSummaryWidgets();
     setupOutputViewerWidget();
     setupProgressChart();
 
     // Load GUIs and Connections
     initGUIs();
+    setupOutputModelFitSummaryWidgets();
+
     initConnections();
     m_SaveSettings = false; // RSK - fix this hack.  Inside completeInit the LoadProject() does a SaveSettings which causes issues with floating windows being displayed properly from the settings
     if (checkIfTablesAlreadyCreated()) {
@@ -1141,7 +1144,8 @@ nmfMainWindow::menu_screenShot()
                                                currentSubTabName.toStdString(),
                                                m_EstimatedParametersMap[currentSubTabName],
                                                nmfConstantsMSSPM::Query_User_For_Filename,
-                                               nmfConstantsMSSPM::RemoveCommas,"");
+                                               nmfConstantsMSSPM::RemoveCommas,"",
+                                               nmfConstantsMSSPM::VerboseOn);
             } else if ((currentTabName == "Data") ||
                        (currentTabName == "Model Fit Summary"))
             {
@@ -1149,7 +1153,8 @@ nmfMainWindow::menu_screenShot()
                                                currentTabName.toStdString(),
                                                m_EstimatedParametersMap[currentTabName],
                                                nmfConstantsMSSPM::Query_User_For_Filename,
-                                               nmfConstantsMSSPM::RemoveCommas,"");
+                                               nmfConstantsMSSPM::RemoveCommas,"",
+                                               nmfConstantsMSSPM::VerboseOn);
             }
             return;
         }
@@ -1845,7 +1850,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.31 (beta)";
+    QString version = "MSSPM v0.9.32 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -1973,9 +1978,26 @@ nmfMainWindow::setupOutputModelFitSummaryWidgets()
 {
     QVBoxLayout* mainLayt    = new QVBoxLayout();
     QVBoxLayout* summaryLayt = new QVBoxLayout();
+    QHBoxLayout* buttonLayt  = new QHBoxLayout();
+    QPushButton* loadPB      = new QPushButton("Load");
+    QPushButton* importPB    = new QPushButton("Import...");
+    QPushButton* exportPB    = new QPushButton("Export...");
     SummaryGB                = new QGroupBox("Summary Statistics:");
     SummaryTV                = new QTableView();
+    buttonLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    buttonLayt->addWidget(loadPB);
+    buttonLayt->addWidget(importPB);
+    buttonLayt->addWidget(exportPB);
+    buttonLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    loadPB->setToolTip("Reloads the above table from the saved database table");
+    loadPB->setStatusTip("Reloads the above table from the saved database table");
+    importPB->setToolTip("Import a previously exported CSV file");
+    importPB->setStatusTip("Import a previously exported CSV file");
+    exportPB->setToolTip("Export the current table to a CSV file");
+    exportPB->setStatusTip("Export the current table to a CSV file");
+
     summaryLayt->addWidget(SummaryTV);
+    summaryLayt->addLayout(buttonLayt);
     SummaryGB->setLayout(summaryLayt);
     mainLayt->addWidget(SummaryGB);
 
@@ -1988,10 +2010,72 @@ nmfMainWindow::setupOutputModelFitSummaryWidgets()
     SummaryGB->setFont(font);
     font.setBold(false);
     SummaryTV->setFont(font);
+    loadPB->setFont(font);
+    importPB->setFont(font);
+    exportPB->setFont(font);
+
+    connect(loadPB,   SIGNAL(clicked()),
+            this,     SLOT(callback_SummaryLoadPB()));
+    connect(exportPB, SIGNAL(clicked()),
+            this,     SLOT(callback_SummaryExportPB()));
+    connect(importPB, SIGNAL(clicked()),
+            this,     SLOT(callback_SummaryImportPB()));
 
     m_UI->MSSPMOutputModelFitSummaryTab->setLayout(mainLayt);
 }
 
+bool
+nmfMainWindow::saveSigDigState()
+{
+    // If user selected significant digits, temporarily turn them off so the highest
+    // precision of the values will be saved.  Then turn them on later.
+    bool isSigDigChecked = m_UI->actionToggleSignificantDigits->isChecked();
+    m_UI->actionToggleSignificantDigits->setChecked(false);
+    menu_toggleSignificantDigits();
+
+    return isSigDigChecked;
+}
+
+void
+nmfMainWindow::restoreSigDigState(bool state)
+{
+    // If the significant digits were just turned off a few lines up, turn
+    // them back on.  This is so the highest precision of values will be saved which
+    // is necessary so as not to lose an numerical precision when toggling between
+    // significant digits on and off.
+    m_UI->actionToggleSignificantDigits->setChecked(state);
+    menu_toggleSignificantDigits();
+}
+
+void
+nmfMainWindow::callback_SummaryExportPB()
+{
+    bool isSigDigChecked = saveSigDigState();
+
+    Output_TableWidgets_ptr->exportSummaryTable(SummaryTV);
+
+    restoreSigDigState(isSigDigChecked);
+}
+
+void
+nmfMainWindow::callback_SummaryImportPB()
+{
+    bool isSigDigChecked = saveSigDigState();
+
+    Output_TableWidgets_ptr->importSummaryTable(SummaryTV);
+
+    restoreSigDigState(isSigDigChecked);
+}
+
+void
+nmfMainWindow::callback_SummaryLoadPB()
+{
+    bool isSigDigChecked = saveSigDigState();
+
+    Output_TableWidgets_ptr->loadSummaryTable(SummaryTV);
+
+    restoreSigDigState(isSigDigChecked);
+}
 
 void
 nmfMainWindow::setupOutputDiagnosticSummaryWidgets()
@@ -2425,6 +2509,7 @@ nmfMainWindow::loadAllWidgets()
     Estimation_Tab4_ptr->loadWidgets();
     Estimation_Tab5_ptr->loadWidgets();
     Estimation_Tab6_ptr->loadWidgets();
+    Estimation_Tab7_ptr->loadWidgets();
 
     Diagnostic_Tab1_ptr->loadWidgets();
     Diagnostic_Tab2_ptr->loadWidgets();
@@ -2444,26 +2529,28 @@ nmfMainWindow::loadAllWidgets()
 void
 nmfMainWindow::refreshOutputTables()
 {
+    int numRows;
+    int numCols;
+    int numDecimals;
+    int colStart;
     QList<QTableView*> outputTablesNoEE =
       {InitBiomassTV, GrowthRateTV, PredationRhoTV,
        PredationHandlingTV, PredationExponentTV, SurveyQTV,
        CarryingCapacityTV,  CatchabilityTV, BMSYTV,
        MSYTV, FMSYTV, OutputBiomassTV, m_UI->OutputDataTV};
-    QList<QTableView*> outputTablesEE =
-      {CompetitionAlphaTV,CompetitionBetaSTV,CompetitionBetaGTV};
-    QList<QTableView*> outputTablesDiagnostic =
-      {SummaryTV,DiagnosticSummaryTV};
-    QList<QList<QTableView*> > allOutputTables = {outputTablesNoEE,outputTablesEE,outputTablesDiagnostic};
+    QList<QTableView*> outputTablesEE          = {CompetitionAlphaTV, CompetitionBetaSTV, CompetitionBetaGTV};
+    QList<QTableView*> outputTablesDiagnostic  = {SummaryTV, DiagnosticSummaryTV};
+    QList<QList<QTableView*> > allOutputTables = {outputTablesNoEE, outputTablesEE, outputTablesDiagnostic};
     QLocale locale(QLocale::English);
+    QString valStr;
     QString valueWithComma;
     QString valueWithoutComma;
     QStandardItemModel* smodel;
     QStandardItem* item;
-    int numRows;
-    int numCols;
-    int numDecimals;
-    QString valStr;
-    int colStart;
+
+    if (SummaryTV->model() != nullptr) {
+        Output_TableWidgets_ptr->loadSummaryTable(SummaryTV);
+    }
 
     for (QList<QTableView*> outputTableList : allOutputTables) {
         for (QTableView* outputTable : outputTableList) {
@@ -3142,7 +3229,7 @@ nmfMainWindow::createEstimatedFile()
     }
 
     // Derive the new Estimated Parameter CSV file name
-    QStringList parts     = QString::fromStdString(nmfConstantsMSSPM::EstimatedParametersFilename).split(".");
+    QStringList parts     = QString::fromStdString(nmfConstantsMSSPM::FilenameEstimatedParameters).split(".");
     std::string timestamp = m_Logger->getTimestamp(nmfConstants::TimestampWithUnderscore);
     if (parts.size() == 2) {
         fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
@@ -5916,6 +6003,10 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm;
     bool isAggProd = (CompetitionForm == "AGG-PROD");
 
+    // Always updated these to the highest precision
+//    int remNumSignificantDigits = m_NumSignificantDigits;
+//    m_NumSignificantDigits = -1;
+
     m_DatabasePtr->getAlgorithmIdentifiers(
                 this,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
@@ -5944,8 +6035,11 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
         item->setToolTip(tooltips[i]);
         item->setStatusTip(tooltips[i]);
         item->setTextAlignment(Qt::AlignCenter);
+        item->setFlags(item->flags() &  ~Qt::ItemIsEditable); // read-only
         smodel->setItem(i, 0, item);
     }
+
+    bool isSigDigChecked = saveSigDigState();
 
     calculateSummaryStatistics(smodel,isAggProd,Algorithm,Minimizer,
                                ObjectiveCriterion,Scaling,
@@ -5956,6 +6050,10 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     smodel->setHorizontalHeaderLabels(vLabels);
     SummaryTV->setModel(smodel);
     SummaryTV->resizeColumnsToContents();
+
+    saveSummaryModelFitTable(smodel);
+
+    restoreSigDigState(isSigDigChecked);
 
     QString msg = "";
     msg += "<p style = \"font-family:monospace;\">";
@@ -5981,7 +6079,56 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     SummaryTV->setWhatsThis(msg);
     SummaryTV->setToolTip("For a detailed description of these statistics,\nclick the WhatsThis? icon and click over the table.");
     SummaryTV->setStatusTip("For a detailed description of these statistics,\nclick the WhatsThis? icon and click over the table.");
+
+//    m_NumSignificantDigits = remNumSignificantDigits;
+
 }
+
+void
+nmfMainWindow::saveSummaryModelFitTable(QStandardItemModel *smodel)
+{
+    int numRows;
+    int numCols;
+    int numSpecies;
+    std::string cmd;
+    std::string errorMsg;
+    QString valueStr;
+    QStandardItem* item;
+    QStringList SpeciesList;
+
+    if (smodel) {
+        m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableSummaryModelFit,m_ProjectName);
+        numRows = smodel->rowCount();
+        numCols = smodel->columnCount(); // Species: Statistics, Cod, ..., Flounder, Model (first and last "species" aren't really species)
+        numSpecies = numCols - 2;
+        // Get species names
+        for (int col=0; col<numCols; ++col) {
+            SpeciesList << smodel->horizontalHeaderItem(col)->text();
+        }
+
+        cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableSummaryModelFit +
+                " (ProjectName,ModelName,SpeciesName,SSResiduals,SSDeviations,SSTotals," +
+                "rSquared,rCorrelationCoeff,AkaikeInfoCriterion,RootMeanSquareError," +
+                "ReliabilityIndex,AverageError,AverageAbsError,ModelingEfficiency) VALUES ";
+        for (int col=0; col<numCols; ++col) { // -1 because the first column is the StatisticName
+            cmd += "('" + m_ProjectName + "','" + m_ModelName + "','" + SpeciesList[col].toStdString() + "'";
+            for (int row=0; row<numRows; ++row) {
+                valueStr = smodel->index(row,col).data().toString().replace(",",""); // -1 because the first column is the StatisticName
+                cmd += ",'" + valueStr.toStdString() + "'";
+            }
+            cmd += "),";
+        }
+        cmd = cmd.substr(0,cmd.size()-1);
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+        if (nmfUtilsQt::isAnError(errorMsg)) {
+            m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::saveSummaryModelFitTable: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            return;
+        }
+
+    }
+}
+
 
 void
 nmfMainWindow::updateDiagnosticSummaryStatistics()
@@ -6024,8 +6171,11 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
         item->setToolTip(tooltips[i]);
         item->setStatusTip(tooltips[i]);
         item->setTextAlignment(Qt::AlignCenter);
+        item->setFlags(item->flags() &  ~Qt::ItemIsEditable); // read-only
         smodel->setItem(i, 0, item);
     }
+
+    bool isSigDigChecked = saveSigDigState();
 
     calculateSummaryStatistics(smodel,isAggProd,Algorithm,Minimizer,
                                ObjectiveCriterion,Scaling,
@@ -6036,6 +6186,8 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
     smodel->setHorizontalHeaderLabels(vLabels);
     DiagnosticSummaryTV->setModel(smodel);
     DiagnosticSummaryTV->resizeColumnsToContents();
+
+    restoreSigDigState(isSigDigChecked);
 
     QString msg = "";
     msg += "<p style = \"font-family:monospace;\">";
@@ -6810,13 +6962,12 @@ nmfMainWindow::loadSummaryStatisticsModel(
             if (value >= nmfConstantsMSSPM::ValueToStartEE) {
                 item = new QStandardItem(QString::number(value,'G',4));
             } else {
-//              valueWithComma = locale.toString(QString::number(value,'f',3).toDouble());
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                             value,m_NumSignificantDigits,3);
                 item = new QStandardItem(valueWithComma);
-//              item = new QStandardItem(QString::number(value,'f',3));
             }
             item->setTextAlignment(Qt::AlignCenter);
+            item->setFlags(item->flags() &  ~Qt::ItemIsEditable); // read-only
             smodel->setItem(j, i+1, item);
         }
         // Load the model (i.e., last column) stats
@@ -6824,13 +6975,12 @@ nmfMainWindow::loadSummaryStatisticsModel(
         if (value >= nmfConstantsMSSPM::ValueToStartEE) {
             item = new QStandardItem(QString::number(value,'G',4));
         } else {
-//          valueWithComma = locale.toString(QString::number(value,'f',3).toDouble());
             valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                         value,m_NumSignificantDigits,3);
             item = new QStandardItem(valueWithComma);
-//          item = new QStandardItem(QString::number(value,'f',3));
         }
         item->setTextAlignment(Qt::AlignCenter);
+        item->setFlags(item->flags() &  ~Qt::ItemIsEditable); // read-only
         smodel->setItem(j, NumSpeciesOrGuilds+1, item);
     }
 }
@@ -8803,8 +8953,8 @@ nmfMainWindow::initGUIs()
     Forecast_Tab3_ptr   = new nmfForecast_Tab3(m_UI->ForecastDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
     Forecast_Tab4_ptr   = new nmfForecast_Tab4(m_UI->ForecastDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
 
-    Output_Controls_ptr = new MSSPM_GuiOutputControls(m_UI->MSSPMOutputControlsGB,
-                                                      m_Logger,m_DatabasePtr,m_ProjectDir);
+    Output_Controls_ptr     = new nmfOutputControls(m_UI->MSSPMOutputControlsGB,m_Logger,m_DatabasePtr,m_ProjectDir);
+    Output_TableWidgets_ptr = new nmfOutputTableWidgets(m_UI->OutputDockWidget, m_Logger,m_DatabasePtr,m_ProjectDir);
 
     // Select first item in Navigator Tree
     callback_SetupTabChanged(0);
@@ -10872,7 +11022,7 @@ nmfMainWindow::callback_RunDiagnosticEstimation(
 
     // 1. Create Mohns Rhos multi-run filename
     QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::MohnsRhoRunFilename));
+    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
 
     // 2. Create the multi-run file
     int numRunsToAdd             = MohnsRhoRanges.size();
@@ -11108,7 +11258,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     // MultiRun Run definitions
     QString fullPath     = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
     QString multiRunFile = (Diagnostic_Tab2_ptr->isAMohnsRhoRun()) ?
-                QString::fromStdString(nmfConstantsMSSPM::MohnsRhoRunFilename) :
+                QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun) :
                 QString::fromStdString(Estimation_Tab6_ptr->getEnsembleFilename());
     fullPath = QDir(fullPath).filePath(multiRunFile);
     dataStruct.MultiRunSetupFilename = fullPath.toStdString();
@@ -12708,6 +12858,7 @@ nmfMainWindow::callback_AddToReview()
     rowItems << indexRSquared.data().toString();    // 1
     rowItems << indexSSResiduals.data().toString(); // 2
     rowItems << indexAIC.data().toString();         // 3
+std::cout << "==> AIC: " << indexAIC.data().toString().toStdString() << std::endl;
 
     rowItems << getFormGrowth();                    // 4
     rowItems << getFormHarvest();                   // 5
@@ -12782,7 +12933,8 @@ nmfMainWindow::callback_AddToReview()
     rowItems << Estimation_Tab6_ptr->createEnsembleFile();                                       // 60
     rowItems << createEstimatedFile();                                                           // 61
 
-    Estimation_Tab7_ptr->updateReviewList(rowItems);
+//  Estimation_Tab7_ptr->updateReviewList(rowItems);
+    Estimation_Tab7_ptr->updateModelReviewTable(rowItems);
 }
 
 void

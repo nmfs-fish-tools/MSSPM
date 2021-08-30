@@ -83,6 +83,7 @@
 #include "nmfForecastTab04.h"
 
 #include "nmfOutputControls.h"
+#include "nmfOutputTableWidgets.h"
 #include "nmfViewerWidget.h"
 #include "TableNamesDialog.h"
 
@@ -265,7 +266,8 @@ private:
     nmfForecast_Tab2*        Forecast_Tab2_ptr;
     nmfForecast_Tab3*        Forecast_Tab3_ptr;
     nmfForecast_Tab4*        Forecast_Tab4_ptr;
-    MSSPM_GuiOutputControls* Output_Controls_ptr;
+    nmfOutputControls*       Output_Controls_ptr;
+    nmfOutputTableWidgets*   Output_TableWidgets_ptr;
     REMORA_UI*               Remora_ptr;
     nmfSetup_Tab1*           Setup_Tab1_ptr;
     nmfSetup_Tab2*           Setup_Tab2_ptr;
@@ -320,6 +322,8 @@ private:
     void   initializeMMode();
     void   initializeMModeMain();
     void   initializeMModeViewer();
+    bool   saveSigDigState();
+    void   restoreSigDigState(bool state);
     bool   runningREMORA();
     void   getOutputBiomassEnsemble(
             const int& NumRows,
@@ -991,6 +995,7 @@ public:
      */
     bool isStartUpOK();
     bool okToRunForecast();
+    void saveSummaryModelFitTable(QStandardItemModel *smodel);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);
@@ -1482,6 +1487,9 @@ public slots:
     void callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct modeReview);
     void callback_EnableRunButtons(bool state);
     void callback_StopAllRuns();
+    void callback_SummaryLoadPB();
+    void callback_SummaryExportPB();
+    void callback_SummaryImportPB();
 
 //  /**
 //   * @brief Copy TestData into OutputGrowthRate
