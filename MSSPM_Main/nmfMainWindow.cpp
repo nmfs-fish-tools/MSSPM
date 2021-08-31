@@ -2611,6 +2611,7 @@ nmfMainWindow::loadGuis()
 
     adjustProgressWidget();
     Output_Controls_ptr->loadSpeciesControlWidget();
+    Output_TableWidgets_ptr->loadWidgets();
 
     // Reset settings variables in GUIs
     Setup_Tab4_ptr->setFontSize(m_SetupFontSize);
@@ -8863,8 +8864,9 @@ nmfMainWindow::callback_LoadProject()
 {
   readSettings();
   loadDatabase();
-
-  disconnect(Setup_Tab2_ptr, SIGNAL(LoadProject()),
+std::cout << "New Project Dir : " << m_ProjectDir << std::endl;
+std::cout << "New Project Name: " << m_ProjectName << std::endl;
+    disconnect(Setup_Tab2_ptr, SIGNAL(LoadProject()),
              this,           SLOT(callback_LoadProject()));
 
   loadGuis();

@@ -18,9 +18,7 @@ nmfOutputTableWidgets::nmfOutputTableWidgets(
     m_ProjectName.clear();
     m_ModelName.clear();
 
-
     readSettings();
-
 }
 
 void
@@ -33,13 +31,12 @@ nmfOutputTableWidgets::readSettings()
     settings->endGroup();
 
     settings->beginGroup("SetupTab");
+    m_ProjectDir  = settings->value("ProjectDir", "").toString().toStdString();
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Preferences");
     m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
-    settings->endGroup();
-
     settings->endGroup();
 
     delete settings;
@@ -142,9 +139,9 @@ void
 nmfOutputTableWidgets::importSummaryTable(QTableView* tableView)
 {
     int numRows = 0;
-    QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
     QString fileName;
     QString filePath;
+    QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
 
     // Load default CSV files
     std::string msg = "\nLoad default Summary Model Fit .csv file?";

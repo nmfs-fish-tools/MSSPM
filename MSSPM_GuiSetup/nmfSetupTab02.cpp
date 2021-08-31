@@ -1621,8 +1621,6 @@ nmfSetup_Tab2::loadProject(nmfLogger *logger, QString fileName)
     emit LoadProject();
     readSettings();
 
-//    initDatabase(m_ProjectDatabase);
-
     logger->logMsg(nmfConstants::Normal,"loadProject end");
 
     return true;
