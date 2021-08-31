@@ -12849,8 +12849,10 @@ nmfMainWindow::callback_AddToReview()
 {
     QStringList rowItems;
     bool isAMultiRun = isAMultiOrMohnsRhoRun();
-
+    bool isSigDigChecked = saveSigDigState();
     QStandardItemModel* statisticsModel = qobject_cast<QStandardItemModel*>(SummaryTV->model());
+    restoreSigDigState(isSigDigChecked);
+
     int lastColumn = statisticsModel->columnCount() - 1;
     QModelIndex indexSSResiduals = statisticsModel->index(0,lastColumn);
     QModelIndex indexRSquared    = statisticsModel->index(3,lastColumn);
@@ -12861,8 +12863,6 @@ nmfMainWindow::callback_AddToReview()
     rowItems << indexRSquared.data().toString();    // 1
     rowItems << indexSSResiduals.data().toString(); // 2
     rowItems << indexAIC.data().toString();         // 3
-std::cout << "==> AIC: " << indexAIC.data().toString().toStdString() << std::endl;
-
     rowItems << getFormGrowth();                    // 4
     rowItems << getFormHarvest();                   // 5
     rowItems << getFormCompetition();               // 6
