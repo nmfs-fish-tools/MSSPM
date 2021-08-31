@@ -490,7 +490,6 @@ nmfEstimation_Tab7::updateModelReviewTable(const QStringList& rowList)
                 (col == nmfConstantsMSSPM::Model_Review_Column_SSResiduals) ||
                 (col == nmfConstantsMSSPM::Model_Review_Column_AIC)) {
                 valueStr = rowList[col];
-std::cout << "valueStr: " << valueStr.toStdString() << std::endl;
                 valueStr.replace(",","");
                 cmd += ","  + std::to_string(valueStr.toDouble());
             } else {
@@ -505,6 +504,7 @@ std::cout << "valueStr: " << valueStr.toStdString() << std::endl;
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
     }
+    callback_LoadPB();
 }
 
 void
@@ -701,6 +701,9 @@ EnsembleFile,EstimatedParametersFile FROM " +
             }
             item = new QStandardItem(valueStr);
             item->setTextAlignment(Qt::AlignCenter);
+            if (col != nmfConstantsMSSPM::Model_Review_Column_Last_Visible) {
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable); // read-only
+            }
             m_SModel->setItem(row,col,item);
         }
     }
