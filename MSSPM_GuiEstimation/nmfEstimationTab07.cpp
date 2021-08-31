@@ -696,7 +696,7 @@ EnsembleFile,EstimatedParametersFile FROM " +
                 valueStr = valueWithComma;
             } else if (col == nmfConstantsMSSPM::Model_Review_Column_SSResiduals) {
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                            valueStr.toDouble(),m_NumSignificantDigits,-3);
+                            valueStr.toDouble(),m_NumSignificantDigits,-4);
                 valueStr = valueWithComma;
             }
             item = new QStandardItem(valueStr);
