@@ -709,6 +709,7 @@ EnsembleFile,EstimatedParametersFile FROM " +
     }
     m_SModel->setHorizontalHeaderLabels(HeaderLabels);
     Estimation_Tab7_ModelReviewTV->setModel(m_SModel);
+    Estimation_Tab7_ModelReviewTV->horizontalHeader()->show();
     Estimation_Tab7_ModelReviewTV->resizeColumnsToContents();
 }
 
