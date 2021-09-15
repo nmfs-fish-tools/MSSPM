@@ -212,8 +212,10 @@ nmfEstimation_Tab2::callback_SavePB()
 
     for (std::string projectModel : modelsInProject)
     {
-        cmd = "DELETE FROM " + m_HarvestType + " WHERE ProjectName = '" + m_ProjectName +
-                "' AND ModelName = '" + projectModel + "'";
+        cmd = "DELETE FROM " +
+               m_HarvestType +
+              " WHERE ProjectName = '" + m_ProjectName +
+              "' AND ModelName = '"    + projectModel  + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab2::callback_SavePB: DELETE error: " + errorMsg);
@@ -367,8 +369,10 @@ nmfEstimation_Tab2::loadWidgets()
     Estimation_Tab2_HarvestGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_HarvestType]));
 
     fields   = {"RunLength","StartYear"};
-    queryStr = "SELECT RunLength,StartYear FROM " + nmfConstantsMSSPM::TableModels + " where ProjectName = '" + m_ProjectName +
-               "' AND ModelName = '" + m_ModelName + "'";
+    queryStr = "SELECT RunLength,StartYear FROM " +
+                nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["RunLength"].size() == 0)  {
         m_Logger->logMsg(nmfConstants::Warning,"No records found in Models table.");
@@ -386,8 +390,10 @@ nmfEstimation_Tab2::loadWidgets()
     }
 
     fields   = {"ProjectName","ModelName","SpeName","Year","Value"};
-    queryStr = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " + m_HarvestType +
-               " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName +
+    queryStr = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " +
+                m_HarvestType +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '"    + m_ModelName   +
                "' ORDER BY SpeName,Year ";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();

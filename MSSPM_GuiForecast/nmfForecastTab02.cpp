@@ -157,7 +157,7 @@ nmfForecast_Tab2::callback_MultiplierChangedDSB(double multiplier)
     {
         for (int index=0; index<listSize; ++index) {
             if (index < cellsPerRow) { // means at first row in col
-                colStartValues.push_back(indexList[index].data().toDouble());
+                colStartValues.push_back(indexList[index].data().toString().replace(",","").toDouble());
             } else {
                 newValue = colStartValues[index%cellsPerRow] * multiplier;
                 m_SModel->setData(indexList[index],QString::number(newValue,'f',6));
@@ -166,7 +166,7 @@ nmfForecast_Tab2::callback_MultiplierChangedDSB(double multiplier)
     } else if (Forecast_Tab2_MultiplierCMB->currentText() == "Variable") {
         for (int index=0; index<listSize; ++index) {
             if (index < cellsPerRow) { // means at first row in col
-                colStartValues.push_back(indexList[index].data().toDouble());
+                colStartValues.push_back(indexList[index].data().toString().replace(",","").toDouble());
             } else {
                 newValue = colStartValues[index%cellsPerRow] * multiplier;
                 m_SModel->setData(indexList[index],QString::number(newValue,'f',6));
@@ -262,7 +262,9 @@ nmfForecast_Tab2::saveHarvestData(bool verbose)
         SpeNames.push_back(m_SModel->horizontalHeaderItem(j)->text().toStdString());
     }
 
-    cmd = "DELETE FROM " + m_HarvestType + " WHERE ProjectName = '" + m_ProjectName +
+    cmd = "DELETE FROM " + m_HarvestType +
+          " WHERE ProjectName = '" + m_ProjectName +
+          "' AND ModelName = '"    + m_ModelName + "'";
           "' AND ForecastName = '" + ForecastName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -276,17 +278,20 @@ nmfForecast_Tab2::saveHarvestData(bool verbose)
         return;
     }
 
-    cmd = "INSERT INTO " + m_HarvestType + " (ProjectName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value) VALUES ";
+    cmd = "INSERT INTO " + m_HarvestType +
+          " (ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value) VALUES ";
     for (int j=0; j<m_SModel->columnCount(); ++j) { // Species
         for (int i=0; i<m_SModel->rowCount(); ++i) { // Time
             index = m_SModel->index(i,j);
             valueWithoutComma = index.data().toString().remove(",");
             value = valueWithoutComma.toStdString();
-            cmd += "('" + m_ProjectName + "','" + ForecastName +
+            cmd += "('"   + m_ProjectName +
+                    "','" + m_ModelName +
+                    "','" + ForecastName +
                     "','" + Algorithm + "','" + Minimizer +
                     "','" + ObjectiveCriterion + "','" + Scaling +
                     "','" + SpeNames[j] + "'," + std::to_string(i) +
-                    ", " + value + "),";
+                    ", "  + value + "),";
         }
     }
     cmd = cmd.substr(0,cmd.size()-1);
@@ -347,7 +352,6 @@ nmfForecast_Tab2::restoreData(int minRow, int minCol, int maxRow, int maxCol)
     int m;
     int NumSpecies;
     int RunLength=0;
-//  int StartYear=nmfConstantsMSSPM::Start_Year;
     int NumRecords;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -362,18 +366,23 @@ nmfForecast_Tab2::restoreData(int minRow, int minCol, int maxRow, int maxCol)
     NumSpecies = dataMap["SpeName"].size();
 
     // Find Forecast info
-    fields     = {"ForecastName","RunLength","StartYear","EndYear"};
-    queryStr   = "SELECT ForecastName,RunLength,StartYear,EndYear FROM " + nmfConstantsMSSPM::TableForecasts + " where ";
-    queryStr  += "ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
+    fields     = {"ProjectName","ModelName","ForecastName","RunLength","StartYear","EndYear"};
+    queryStr   = "SELECT ProjectName,ModelName,ForecastName,RunLength,StartYear,EndYear FROM " +
+                  nmfConstantsMSSPM::TableForecasts +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName   +
+                 "' AND ForecastName = '" + ForecastName  + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         RunLength  = std::stoi(dataMap["RunLength"][0]);
-//      StartYear  = std::stoi(dataMap["StartYear"][0]);
     }
 
-    fields     = {"ForecastName","SpeName","Year","Value"};
-    queryStr   = "SELECT ForecastName,SpeName,Year,Value FROM " + m_HarvestType + " where ";
-    queryStr  += "ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
+    fields     = {"ProjectName","ModelName","ForecastName","SpeName","Year","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,ForecastName,SpeName,Year,Value FROM " +
+                  m_HarvestType +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' AND ForecastName = '" + ForecastName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
 
@@ -443,7 +452,9 @@ nmfForecast_Tab2::loadWidgets()
     // Get latest harvest form. RSK Need to change this once user can select a run which wasn't the last run
     fields     = {"GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
     queryStr   = "SELECT GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm";
-    queryStr  += " FROM " + nmfConstantsMSSPM::TableModels + " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName='" + m_ModelName + "'";
+    queryStr  += " FROM " + nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName = '" + m_ProjectName  +
+                 "' AND ModelName='" + m_ModelName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["GrowthForm"].size();
     if (NumRecords == 0) {
@@ -469,18 +480,24 @@ nmfForecast_Tab2::loadWidgets()
     }
 
     // Find Forecast info
-    fields     = {"ForecastName","RunLength","StartYear","EndYear"};
-    queryStr   = "SELECT ForecastName,RunLength,StartYear,EndYear FROM " + nmfConstantsMSSPM::TableForecasts + " where ";
-    queryStr  += "ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
+    fields     = {"ProjectName","ModelName","ForecastName","RunLength","StartYear","EndYear"};
+    queryStr   = "SELECT ProjectName,ModelName,ForecastName,RunLength,StartYear,EndYear FROM " +
+                  nmfConstantsMSSPM::TableForecasts +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' AND ForecastName = '" + ForecastName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         RunLength  = std::stoi(dataMap["RunLength"][0]);
         StartYear  = std::stoi(dataMap["StartYear"][0]);
     }
 
-    fields     = {"ForecastName","SpeName","Year","Value"};
-    queryStr   = "SELECT ForecastName,SpeName,Year,Value FROM " + m_HarvestType + " where ";
-    queryStr  += "ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
+    fields     = {"ProjectName","ModelName","ForecastName","SpeName","Year","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,ForecastName,SpeName,Year,Value FROM " +
+                  m_HarvestType +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName   +
+                 "' AND ForecastName = '" + ForecastName  + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
     bool RunLengthHasChanged = (NumRecords != NumSpecies*(RunLength+1));
@@ -499,11 +516,9 @@ nmfForecast_Tab2::loadWidgets()
             if ((NumRecords == 0) || RunLengthHasChanged) {
                 item = new QStandardItem(QString(""));
             } else {
-//              valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',6);
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                             std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,6);
                 item = new QStandardItem(valueWithComma);
-//              item = new QStandardItem(QString::number(std::stod(dataMap["Value"][m++]),'f',6));
             }
             item->setTextAlignment(Qt::AlignCenter);
             m_SModel->setItem(i, j, item);

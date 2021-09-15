@@ -194,9 +194,12 @@ nmfForecast_Tab3::callback_SavePB()
     }
 
     // Get Alg, Min, ObjCrit
-    fields     = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling"};
-    queryStr   = "SELECT ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling FROM " + nmfConstantsMSSPM::TableForecasts + " where ";
-    queryStr  += "ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
+    fields     = {"ProjectName","ModelName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling"};
+    queryStr   = "SELECT ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling FROM " +
+                  nmfConstantsMSSPM::TableForecasts +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' AND ForecastName = '" + ForecastName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
     if (NumRecords == 0) {
@@ -211,7 +214,9 @@ nmfForecast_Tab3::callback_SavePB()
 
     // Clear previous entry in ForecastUncertainty table
     cmd = "DELETE FROM " + nmfConstantsMSSPM::TableForecastUncertainty +
-          " WHERE ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
+          " WHERE ProjectName = '" + m_ProjectName +
+          "' AND ModelName = '"    + m_ModelName +
+          "' AND ForecastName = '" + ForecastName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"nmfForecast_Tab3::callback_SavePB: DELETE error: " + errorMsg);
@@ -224,13 +229,19 @@ nmfForecast_Tab3::callback_SavePB()
     }
 
     // Update ForecastUncertainty table
-    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableForecastUncertainty + " (" ;
-    cmd += "SpeName,ProjectName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-    cmd += "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies,";
-    cmd += "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest) VALUES ";
+    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableForecastUncertainty + " (" +
+           "SpeName,ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling," +
+           "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies," +
+           "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest) VALUES ";
     for (int i=0; i<m_SModel->rowCount(); ++i) { // Species
-            cmd += "('" + SpeNames[i] + "','" + m_ProjectName + "','" + ForecastName + "','" + Algorithm +
-                    "','" + Minimizer + "','" + ObjectiveCriterion + "','" + Scaling + "'";
+            cmd += "('"  + SpeNames[i] +
+                   "','" + m_ProjectName +
+                   "','" + m_ModelName +
+                   "','" + ForecastName +
+                   "','" + Algorithm +
+                   "','" + Minimizer +
+                   "','" + ObjectiveCriterion +
+                   "','" + Scaling + "'";
             for (int j=0; j<m_SModel->columnCount(); ++j) { // Parameters
                 index = m_SModel->index(i,j);
                 cmd  += "," + index.data().toString().toStdString();
@@ -331,9 +342,12 @@ nmfForecast_Tab3::loadWidgets()
     readSettings();
 
     // Get Forms to be used later
-    fields    = {"ForecastName","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
-    queryStr  = "SELECT ForecastName,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm FROM " + nmfConstantsMSSPM::TableForecasts + " where ";
-    queryStr += "ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
+    fields    = {"ProjectName","ModelName","ForecastName","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
+    queryStr  = "SELECT ProjectName,ModelName,ForecastName,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm FROM " +
+                nmfConstantsMSSPM::TableForecasts +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName +
+                "' AND ForecastName = '" + ForecastName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         m_GrowthForm      = dataMap["GrowthForm"][0];
@@ -374,15 +388,17 @@ nmfForecast_Tab3::loadWidgets()
     bool ForecastNameExists = ! ForecastName.empty();
     if (ForecastNameExists) {
         // Find Forecast info
-        fields     = {"SpeName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
+        fields     = {"ProjectName","ModelName","SpeName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
                       "InitBiomass","GrowthRate","CarryingCapacity","Catchability",
                       "CompetitionAlpha","CompetitionBetaSpecies","CompetitionBetaGuilds","CompetitionBetaGuildsGuilds",
                       "PredationRho","PredationHandling","PredationExponent","SurveyQ","Harvest"};
-        queryStr   = "SELECT SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
+        queryStr   = "SELECT ProjectName,ModelName,SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
         queryStr  += "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies,";
         queryStr  += "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest FROM " +
-                      nmfConstantsMSSPM::TableForecastUncertainty + " where ";
-        queryStr  += "ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + ForecastName + "'";
+                      nmfConstantsMSSPM::TableForecastUncertainty +
+                      " WHERE ProjectName = '" + m_ProjectName +
+                      "' AND ModelName = '"    + m_ModelName +
+                      "' AND ForecastName = '" + ForecastName + "'";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["ForecastName"].size();
         uncertaintyDataAvailable = (NumRecords == NumSpeciesOrGuilds);

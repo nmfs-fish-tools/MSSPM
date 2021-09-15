@@ -187,6 +187,7 @@ public:
     void stopRun(const std::string &elapsedTimeStr,
                  const std::string &fitnessStr);
 
+    void initialize(nmfStructsQt::ModelDataStruct &NLoptStruct);
 //    /**
 //     * @brief Counts the number of run iterations
 //     */

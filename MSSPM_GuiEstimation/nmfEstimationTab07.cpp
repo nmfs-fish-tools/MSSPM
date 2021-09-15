@@ -174,8 +174,10 @@ nmfEstimation_Tab7::callback_ImportPB()
                                filePath,tr("data (*.csv)"));
 
     if (! fileName.isEmpty()) {
-        bool loadOK = nmfUtilsQt::loadModelFromCSVFile(m_ProjectDir,"Model Review",Estimation_Tab7_ModelReviewTV,
-                                                       fileName,numRows,m_NumSignificantDigits);
+        int noSigDig = -1;
+        bool loadOK = nmfUtilsQt::loadModelFromCSVFile(m_Logger,m_ProjectDir,
+                                                       "Model Review",Estimation_Tab7_ModelReviewTV,
+                                                       fileName,numRows,noSigDig);
         if (loadOK && (numRows > 2)) {
             callback_ShowHiddenCB(Estimation_Tab7_ShowHiddenCB->checkState());
         } else if (numRows < 2) {
@@ -356,22 +358,22 @@ nmfEstimation_Tab7::loadModel(QStandardItemModel* smodel, const int& row)
     modelReview.ModelName                               = smodel->index(row, 0).data().toString().trimmed(); // Reload this model
 
     modelReview.setToDeterministicBees                  = smodel->index(row,14).data().toString().trimmed();
-    modelReview.maxGenerations                          = smodel->index(row,15).data().toInt();
-    modelReview.numBees                                 = smodel->index(row,16).data().toInt();
-    modelReview.numBestSites                            = smodel->index(row,17).data().toInt();
-    modelReview.numEliteSites                           = smodel->index(row,18).data().toInt();
-    modelReview.numEliteBees                            = smodel->index(row,19).data().toInt();
-    modelReview.numOtherBees                            = smodel->index(row,20).data().toInt();
-    modelReview.neighborhoodSize                        = smodel->index(row,21).data().toInt();
-    modelReview.numSubRuns                              = smodel->index(row,22).data().toInt();
+    modelReview.maxGenerations                          = smodel->index(row,15).data().toString().remove(",").toInt();
+    modelReview.numBees                                 = smodel->index(row,16).data().toString().remove(",").toInt();
+    modelReview.numBestSites                            = smodel->index(row,17).data().toString().remove(",").toInt();
+    modelReview.numEliteSites                           = smodel->index(row,18).data().toString().remove(",").toInt();
+    modelReview.numEliteBees                            = smodel->index(row,19).data().toString().remove(",").toInt();
+    modelReview.numOtherBees                            = smodel->index(row,20).data().toString().remove(",").toInt();
+    modelReview.neighborhoodSize                        = smodel->index(row,21).data().toString().remove(",").toInt();
+    modelReview.numSubRuns                              = smodel->index(row,22).data().toString().remove(",").toInt();
 
-    modelReview.setToDeterministicNLopt                 = smodel->index(row,23).data().toString().trimmed();
-    modelReview.isStopAfterValue                        = smodel->index(row,24).data().toString().trimmed();
-    modelReview.stopAfterValue                          = smodel->index(row,25).data().toString().trimmed();
-    modelReview.isStopAfterTime                         = smodel->index(row,26).data().toString().trimmed();
-    modelReview.stopAfterTime                           = smodel->index(row,27).data().toString().trimmed();
-    modelReview.isStopAfterIter                         = smodel->index(row,28).data().toString().trimmed();
-    modelReview.stopAfterIter                           = smodel->index(row,29).data().toString().trimmed();
+    modelReview.setToDeterministicNLopt                 = smodel->index(row,23).data().toString().remove(",").trimmed();
+    modelReview.isStopAfterValue                        = smodel->index(row,24).data().toString().remove(",").trimmed();
+    modelReview.stopAfterValue                          = smodel->index(row,25).data().toString().remove(",").trimmed();
+    modelReview.isStopAfterTime                         = smodel->index(row,26).data().toString().remove(",").trimmed();
+    modelReview.stopAfterTime                           = smodel->index(row,27).data().toString().remove(",").trimmed();
+    modelReview.isStopAfterIter                         = smodel->index(row,28).data().toString().remove(",").trimmed();
+    modelReview.stopAfterIter                           = smodel->index(row,29).data().toString().remove(",").trimmed();
 
     modelReview.isEstInitialBiomassEnabled              = smodel->index(row,30).data().toString().trimmed();
     modelReview.isEstInitialBiomassChecked              = smodel->index(row,31).data().toString().trimmed();
@@ -395,15 +397,17 @@ nmfEstimation_Tab7::loadModel(QStandardItemModel* smodel, const int& row)
     modelReview.isEstPredationHandlingChecked           = smodel->index(row,49).data().toString().trimmed();
     modelReview.isEstPredationExponentEnabled           = smodel->index(row,50).data().toString().trimmed();
     modelReview.isEstPredationExponentChecked           = smodel->index(row,51).data().toString().trimmed();
+    modelReview.isEstSurveyQEnabled                     = smodel->index(row,52).data().toString().trimmed();
+    modelReview.isEstSurveyQChecked                     = smodel->index(row,53).data().toString().trimmed();
 
-    modelReview.isAMultiRun                             = smodel->index(row,52).data().toString().trimmed();
-    modelReview.ensembleAveragingAlgorithm              = smodel->index(row,53).data().toString().trimmed();
-    modelReview.ensembleAverageBy                       = smodel->index(row,54).data().toString().trimmed();
-    modelReview.ensembleUsingBy                         = smodel->index(row,55).data().toString().trimmed();
-    modelReview.ensembleUsingAmountValue                = smodel->index(row,56).data().toString().trimmed();
-    modelReview.isEnsembleUsingPct                      = smodel->index(row,57).data().toString().trimmed();
-    modelReview.ensembleFilename                        = smodel->index(row,58).data().toString().trimmed();
-
+    modelReview.isAMultiRun                             = smodel->index(row,54).data().toString().trimmed();
+    modelReview.ensembleAveragingAlgorithm              = smodel->index(row,55).data().toString().trimmed();
+    modelReview.ensembleAverageBy                       = smodel->index(row,56).data().toString().trimmed();
+    modelReview.ensembleUsingBy                         = smodel->index(row,57).data().toString().trimmed();
+    modelReview.ensembleUsingAmountValue                = smodel->index(row,58).data().toString().trimmed();
+    modelReview.isEnsembleUsingPct                      = smodel->index(row,59).data().toString().trimmed();
+    modelReview.ensembleFilename                        = smodel->index(row,60).data().toString().trimmed();
+std::cout << "===> modelReview.isAMultiRun: " << modelReview.isAMultiRun.toStdString() << std::endl;
     emit LoadFromModelReview(modelReview);
 }
 

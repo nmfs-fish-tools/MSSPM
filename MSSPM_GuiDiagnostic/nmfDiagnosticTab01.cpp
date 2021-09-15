@@ -18,6 +18,8 @@ nmfDiagnostic_Tab1::nmfDiagnostic_Tab1(QTabWidget*  tabs,
     m_ProjectDir      = projectDir;
     m_NumPoints       = 1;
     m_PctVariation    = 1;
+    m_IsMultiRun      = false;
+    m_MultiRunType.clear();
     m_ProjectName.clear();
     m_ModelName.clear();
 
@@ -40,11 +42,13 @@ nmfDiagnostic_Tab1::nmfDiagnostic_Tab1(QTabWidget*  tabs,
     m_Diagnostic_Tab1_Widget->setObjectName("Diagnostic_Tab1_Widget");
     file.close();
 
-    Diagnostic_Tab1_SurfaceParameter1CMB = m_Diagnostic_Tabs->findChild<QComboBox   *>("Diagnostic_Tab1_SurfaceParameter1CMB");
-    Diagnostic_Tab1_SurfaceParameter2CMB = m_Diagnostic_Tabs->findChild<QComboBox   *>("Diagnostic_Tab1_SurfaceParameter2CMB");
-    m_Diagnostic_Tab1_PctVarSB           = m_Diagnostic_Tabs->findChild<QSpinBox    *>("Diagnostic_Tab1_PctVarSB");
-    m_Diagnostic_Tab1_NumPtsSB           = m_Diagnostic_Tabs->findChild<QSpinBox    *>("Diagnostic_Tab1_NumPtsSB");
-    m_Diagnostic_Tab1_RunPB              = m_Diagnostic_Tabs->findChild<QPushButton *>("Diagnostic_Tab1_RunPB");
+    Diagnostic_Tab1_SurfaceParameter1CMB = m_Diagnostic_Tabs->findChild<QComboBox    *>("Diagnostic_Tab1_SurfaceParameter1CMB");
+    Diagnostic_Tab1_SurfaceParameter2CMB = m_Diagnostic_Tabs->findChild<QComboBox    *>("Diagnostic_Tab1_SurfaceParameter2CMB");
+    m_Diagnostic_Tab1_PctVarSB           = m_Diagnostic_Tabs->findChild<QSpinBox     *>("Diagnostic_Tab1_PctVarSB");
+    m_Diagnostic_Tab1_NumPtsSB           = m_Diagnostic_Tabs->findChild<QSpinBox     *>("Diagnostic_Tab1_NumPtsSB");
+    m_Diagnostic_Tab1_RunPB              = m_Diagnostic_Tabs->findChild<QPushButton  *>("Diagnostic_Tab1_RunPB");
+    m_Diagnostic_Tab1_UseLastSingleRunRB = m_Diagnostic_Tabs->findChild<QRadioButton *>("Diagnostic_Tab1_UseLastSingleRunRB");
+    m_Diagnostic_Tab1_UseLastMultiRunRB  = m_Diagnostic_Tabs->findChild<QRadioButton *>("Diagnostic_Tab1_UseLastMultiRunRB");
 
     // Add the loaded widget as the new tabbed page
     m_Diagnostic_Tabs->addTab(m_Diagnostic_Tab1_Widget, tr("1. Parameter Profiles"));
@@ -52,7 +56,12 @@ nmfDiagnostic_Tab1::nmfDiagnostic_Tab1(QTabWidget*  tabs,
     // Setup connections
     connect(m_Diagnostic_Tab1_RunPB, SIGNAL(clicked()),
             this,                    SLOT(callback_RunPB()));
+    connect(m_Diagnostic_Tab1_UseLastSingleRunRB, SIGNAL(clicked()),
+            this,                                 SLOT(callback_UseLastSingleRunRB()));
+    connect(m_Diagnostic_Tab1_UseLastMultiRunRB,  SIGNAL(clicked()),
+            this,                                 SLOT(callback_UseLastMultiRunRB()));
 
+    saveSettings();
     readSettings();
 
     Diagnostic_Tab1_SurfaceParameter1CMB->addItems(nmfConstantsMSSPM::VectorParameterNames);
@@ -72,6 +81,49 @@ nmfDiagnostic_Tab1::enableRunButton(bool state)
     m_Diagnostic_Tab1_RunPB->setEnabled(state);
     m_Diagnostic_Tab1_RunPB->setText(label);
 }
+
+void
+nmfDiagnostic_Tab1::setSingleRunRBState(bool isEnabled,
+                                        bool isChecked)
+{
+    m_Diagnostic_Tab1_UseLastSingleRunRB->setEnabled(isEnabled);
+    m_Diagnostic_Tab1_UseLastSingleRunRB->setChecked(isChecked);
+}
+
+void
+nmfDiagnostic_Tab1::setMultiRunRBState(bool isEnabled,
+                                       bool isChecked)
+{
+    m_Diagnostic_Tab1_UseLastMultiRunRB->setEnabled(isEnabled);
+    m_Diagnostic_Tab1_UseLastMultiRunRB->setChecked(isChecked);
+}
+
+void
+nmfDiagnostic_Tab1::setSingleRunRBEnabled(bool isEnabled)
+{
+    m_Diagnostic_Tab1_UseLastSingleRunRB->setEnabled(isEnabled);
+}
+
+void
+nmfDiagnostic_Tab1::setMultiRunRBEnabled(bool isEnabled)
+{
+    m_Diagnostic_Tab1_UseLastMultiRunRB->setEnabled(isEnabled);
+}
+
+void
+nmfDiagnostic_Tab1::callback_UseLastSingleRunRB()
+{
+    m_IsMultiRun = false;
+    saveSettings();
+}
+
+void
+nmfDiagnostic_Tab1::callback_UseLastMultiRunRB()
+{
+    m_IsMultiRun = true;
+    saveSettings();
+}
+
 
 void
 nmfDiagnostic_Tab1::callback_UpdateDiagnosticParameterChoices()
@@ -100,6 +152,11 @@ nmfDiagnostic_Tab1::readSettings()
     m_PctVariation = settings->value("Variation","").toInt();
     settings->endGroup();
 
+    settings->beginGroup("Runtime");
+    m_IsMultiRun    = settings->value("IsMultiRun",false).toBool();
+    m_MultiRunType  = settings->value("MultiRunType","").toString().toStdString();
+    settings->endGroup();
+
     delete settings;
 }
 
@@ -111,6 +168,10 @@ nmfDiagnostic_Tab1::saveSettings()
     settings->beginGroup("Diagnostics");
     settings->setValue("Variation", m_Diagnostic_Tab1_PctVarSB->value());
     settings->setValue("NumPoints", m_Diagnostic_Tab1_NumPtsSB->value());
+    settings->endGroup();
+
+    settings->beginGroup("Runtime");
+    settings->setValue("IsMultiRun", m_IsMultiRun);
     settings->endGroup();
 
     delete settings;
@@ -189,12 +250,17 @@ nmfDiagnostic_Tab1::loadEstimatedParameter(const std::string& Algorithm,
     }
 
     EstParameter.clear();
-    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " + tableName;
-    queryStr  += " WHERE Algorithm='" + Algorithm + "' AND Minimizer = '" + Minimizer;
-    queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
-    queryStr  += "' AND Scaling = '" + Scaling;
-    queryStr  += "' ORDER BY SpeName";
+    fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " +
+                  tableName +
+                 " WHERE ProjectName = '"       + m_ProjectName +
+                 "' AND ModelName = '"          + m_ModelName +
+                 "' AND Algorithm ='"           + Algorithm +
+                 "' AND Minimizer = '"          + Minimizer +
+                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                 "' AND Scaling = '"            + Scaling +
+                 "' ORDER BY SpeName";
+//std::cout << "q1: " << queryStr << std::endl;
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int i=0; i<NumSpecies; ++i) {
@@ -265,15 +331,17 @@ nmfDiagnostic_Tab1::isAggProd(std::string Algorithm,
                   "WithinGuildCompetitionForm","Algorithm","Minimizer","ObjectiveCriterion","Scaling"};
     queryStr   = "SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,";
     queryStr  += "WithinGuildCompetitionForm,Algorithm,Minimizer,ObjectiveCriterion,Scaling ";
-    queryStr  += "FROM " + nmfConstantsMSSPM::TableModels + " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName;
-    queryStr  += "' AND Algorithm = '" + Algorithm;
-    queryStr  += "' AND Minimizer = '" + Minimizer;
-    queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
-    queryStr  += "' AND Scaling = '" + Scaling + "' ";
+    queryStr  += "FROM " + nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName = '"       + m_ProjectName +
+                 "' AND ModelName = '"          + m_ModelName +
+                 "' AND Algorithm = '"          + Algorithm +
+                 "' AND Minimizer = '"          + Minimizer +
+                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                 "' AND Scaling = '"            + Scaling + "' ";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ModelName"].size();
     if (NumRecords == 0) {
-        std::cout << "Error: No records found in Models" << std::endl;
+        std::cout << "Error nmfDiagnostic_Tab1::isAggProd: No records found in Models" << std::endl;
         std::cout << queryStr << std::endl;
         return false;
     }
@@ -292,6 +360,52 @@ QString
 nmfDiagnostic_Tab1::getParameter2Name()
 {
     return Diagnostic_Tab1_SurfaceParameter2CMB->currentText();
+}
+
+
+void
+nmfDiagnostic_Tab1::checkAlgorithmIdentifiersForMultiRun(
+        std::string& Algorithm,
+        std::string& Minimizer,
+        std::string& ObjectiveCriterion,
+        std::string& Scaling)
+{
+    readSettings();
+    if (useMultiRunEstimatedParameters())
+    {
+        Algorithm          = m_MultiRunType;
+        Minimizer          = m_MultiRunType;
+        ObjectiveCriterion = m_MultiRunType;
+        Scaling            = m_MultiRunType;
+    }
+}
+
+bool
+nmfDiagnostic_Tab1::isSingleRunRBChecked()
+{
+    return m_Diagnostic_Tab1_UseLastSingleRunRB->isChecked();
+}
+bool
+nmfDiagnostic_Tab1::isSingleRunRBEnabled()
+{
+    return m_Diagnostic_Tab1_UseLastSingleRunRB->isEnabled();
+}
+bool
+nmfDiagnostic_Tab1::isMultiRunRBChecked()
+{
+    return m_Diagnostic_Tab1_UseLastMultiRunRB->isChecked();
+}
+bool
+nmfDiagnostic_Tab1::isMultiRunRBEnabled()
+{
+    return m_Diagnostic_Tab1_UseLastMultiRunRB->isEnabled();
+}
+
+bool
+nmfDiagnostic_Tab1::useMultiRunEstimatedParameters()
+{
+    return (m_IsMultiRun && m_Diagnostic_Tab1_UseLastMultiRunRB->isEnabled() &&
+                            m_Diagnostic_Tab1_UseLastMultiRunRB->isChecked());
 }
 
 void
@@ -342,7 +456,6 @@ nmfDiagnostic_Tab1::callback_RunPB()
     std::string isAggProdStr;
     bool isAggProdBool;
     QString msg;
-    bool thereIsCarryingCapacity = false;
     std::pair<QString,double> parameterItem;
     std::pair<QString,double> parameterItem1;
     std::pair<QString,double> parameterItem2;
@@ -383,6 +496,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
         progressDlg->close();
         return;
     }
+
     isAggProdBool = isAggProd(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
     isAggProdStr  = (isAggProdBool) ? "1" : "0";
     if (! m_DatabasePtr->getModelFormData(
@@ -392,7 +506,6 @@ nmfDiagnostic_Tab1::callback_RunPB()
         progressDlg->close();
         return;
     }
-    thereIsCarryingCapacity = (GrowthForm == "Logistic");
 
     getSpeciesInfo(NumSpecies,SpeciesNames);
     getGuildInfo(NumGuilds,GuildNames);
@@ -415,6 +528,14 @@ nmfDiagnostic_Tab1::callback_RunPB()
 
     m_Diagnostic_Tabs->setCursor(Qt::WaitCursor);
 
+    checkAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+    if (useMultiRunEstimatedParameters()) {
+        m_Logger->logMsg(nmfConstants::Normal,"Using Estimated Parameters from last Multi Run: " + Algorithm);
+    } else {
+        m_Logger->logMsg(nmfConstants::Normal,"Using Estimated Parameters from last Single Run");
+    }
+
+
     for (QString parameterName : vectorParameterNames) {
 
         nmfUtilsQt::updateProgressDlg(m_Logger,progressDlg,"Processing parameter: "+parameterName.toStdString(),pInc);
@@ -424,8 +545,8 @@ nmfDiagnostic_Tab1::callback_RunPB()
 
         // Get estimated parameter from appropriate table for all species and load into EstParameter
         if (! loadEstimatedParameter(Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                               parameterName,EstParameter)) {
-            msg = "No estimated parameters found. Please run an Estimation prior to running this Diagnostic.";
+                                     parameterName,EstParameter)) {
+            msg = "Warning (1): No estimated parameters found. Please run an Estimation prior to running this Diagnostic.";
             m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
             QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
             progressDlg->close();
@@ -451,7 +572,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
                     parameterItem = std::make_pair(parameterName,diagnosticParameterValue);
                     fitness = calculateFitness(i,{parameterItem});
                 } catch (...) {
-                    msg = "Please run an Estimation prior to running this Diagnostic.";
+                    msg = "Warning (2): Please run an Estimation prior to running this Diagnostic.";
                     m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
                     QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
                     progressDlg->close();
@@ -614,7 +735,7 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
                 m_Diagnostic_Tabs,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
-
+    checkAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
     emit LoadDataStruct();
 
     NumSpecies = m_DataStruct.NumSpecies;
@@ -630,7 +751,7 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     loadGrowthParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,growthParameters);
     loadHarvestParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,harvestParameters);
     loadCompetitionParameters(isAggProd,NumSpecies,NumGuilds,NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,competitionParameters);
-    loadPredationParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,predationParameters);
+    loadPredationParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,predationParameters);
     loadOutputParameters(nmfConstantsMSSPM::TableOutputSurveyQ,NumSpeciesOrGuilds,
                          Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
                          surveyQParameters);
@@ -669,14 +790,20 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
         parameters[offset+SpeciesOrGuildNum] = ParameterItem.second;
     }
 
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                m_Diagnostic_Tabs,m_Logger,m_ProjectName,m_ModelName,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+
     if (Algorithm == "Bees Algorithm") {
         std::unique_ptr<BeesAlgorithm> beesAlg = std::make_unique<BeesAlgorithm>(m_DataStruct,nmfConstantsMSSPM::VerboseOff);
         retv = beesAlg->evaluateObjectiveFunction(parameters);
     } else if (Algorithm == "NLopt Algorithm") {
         std::unique_ptr<NLopt_Estimator> nlopt_Estimator = std::make_unique<NLopt_Estimator>();
+        nlopt_Estimator->initialize(m_DataStruct);
         retv = nlopt_Estimator->objectiveFunction(unused1,&parameters[0],unused2,&m_DataStruct);
         if (retv == -1) {
-            msg = "Please run an Estimation prior to running this Diagnostic.";
+            msg = "Warning (3): Please run an Estimation prior to running this Diagnostic.";
             m_Logger->logMsg(nmfConstants::Warning,msg);
             QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),tr("\n"+QString::fromStdString(msg).toLatin1()),QMessageBox::Ok);
         }
@@ -702,14 +829,17 @@ nmfDiagnostic_Tab1::loadOutputParameters(
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
 
-    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + TableName;
-    queryStr  += "  WHERE Algorithm = '" + Algorithm;
-    queryStr  += "' AND Minimizer = '" + Minimizer;
-    queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
-    queryStr  += "' AND Scaling = '" + Scaling;
-    queryStr  += "' AND isAggProd = " + isAggProd;
-    queryStr  += "  ORDER BY SpeName";
+    fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                  TableName +
+                 "  WHERE ProjectName = '"      + m_ProjectName +
+                 "' AND ModelName = '"          + m_ModelName +
+                 "' AND Algorithm = '"          + Algorithm +
+                 "' AND Minimizer = '"          + Minimizer +
+                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                 "' AND Scaling = '"            + Scaling +
+                 "' AND isAggProd = "           + isAggProd +
+                 "  ORDER BY SpeName";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Algorithm"].size();
     if (NumRecords == 0) {
@@ -751,14 +881,17 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
         tableNames.push_back(nmfConstantsMSSPM::TableOutputCarryingCapacity);
     }
     for (std::string table : tableNames) {
-        fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + table;
-        queryStr  += "  WHERE Algorithm = '" + Algorithm;
-        queryStr  += "' AND Minimizer = '" + Minimizer;
-        queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
-        queryStr  += "' AND Scaling = '" + Scaling;
-        queryStr  += "' AND isAggProd = " + isAggProd;
-        queryStr  += "  ORDER BY SpeName";
+        fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+        queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                      table +
+                     "  WHERE ProjectName = '"      + m_ProjectName +
+                     "' AND ModelName = '"          + m_ModelName +
+                     "' AND Algorithm = '"          + Algorithm +
+                     "' AND Minimizer = '"          + Minimizer +
+                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                     "' AND Scaling = '"            + Scaling +
+                     "' AND isAggProd = "           + isAggProd +
+                     "  ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
@@ -797,22 +930,25 @@ nmfDiagnostic_Tab1::loadHarvestParameters(
         tableNames.push_back(nmfConstantsMSSPM::TableOutputCatchability);
     }
     for (std::string table : tableNames) {
-        fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};
-        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " + table;
-        queryStr  += " WHERE Algorithm = '" + Algorithm;
-        queryStr  += "' AND Minimizer = '" + Minimizer;
-        queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
-        queryStr  += "' AND Scaling = '" + Scaling;
-        queryStr  += "' ORDER BY SpeName";
+        fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};
+        queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " +
+                      table +
+                     " WHERE ProjectName = '"       + m_ProjectName +
+                     "' AND ModelName = '"          + m_ModelName +
+                     "' AND Algorithm = '"          + Algorithm +
+                     "' AND Minimizer = '"          + Minimizer +
+                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                     "' AND Scaling = '"            + Scaling +
+                     "' ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
-            m_Logger->logMsg(nmfConstants::Error,"Error: No records found in " + table + " table.");
+            m_Logger->logMsg(nmfConstants::Error,"Error(1) nmfDiagnostic_Tab1::loadHarvestParameters: No records found in " + table + " table.");
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
         if (NumRecords != NumSpeciesOrGuilds) {
-            m_Logger->logMsg(nmfConstants::Error,"Error 1: nmfDiagnostic_Tab1::loadHarvestParameters: Incorrect number of records found in " + table + " table.");
+            m_Logger->logMsg(nmfConstants::Error,"Error(2) nmfDiagnostic_Tab1::loadHarvestParameters: Incorrect number of records found in " + table + " table.");
             m_Logger->logMsg(nmfConstants::Error,queryStr);
             return;
         }
@@ -856,20 +992,24 @@ nmfDiagnostic_Tab1::loadCompetitionParameters(
         tableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds);
     }
     for (std::string tableName : tableNames) {
-        fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
-        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + tableName;
+        fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
+        queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " +
+                      tableName;
         OrderBy    = " ORDER BY SpeciesA,SpeciesB";
         if (tableName == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) {
-            fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Guild","Value"};
-            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " + tableName;
+            fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Guild","Value"};
+            queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " +
+                          tableName;
             OrderBy    = " ORDER BY SpeName,Guild";
         }
-        queryStr  += "  WHERE Algorithm = '" + Algorithm;
-        queryStr  += "' AND Minimizer = '" + Minimizer;
-        queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
-        queryStr  += "' AND Scaling = '" + Scaling;
-        queryStr  += "' AND isAggProd = " + isAggProdStr;
-        queryStr  += "  " + OrderBy;
+        queryStr  += "  WHERE ProjectName = '"      + m_ProjectName +
+                     "' AND ModelName = '"          + m_ModelName +
+                     "' AND Algorithm = '"          + Algorithm +
+                     "' AND Minimizer = '"          + Minimizer +
+                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                     "' AND Scaling = '"            + Scaling +
+                     "' AND isAggProd = "           + isAggProdStr +
+                     "  "                           + OrderBy;
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
@@ -910,6 +1050,7 @@ nmfDiagnostic_Tab1::loadPredationParameters(
         const std::string&   Minimizer,
         const std::string&   ObjectiveCriterion,
         const std::string&   Scaling,
+        const std::string&   isAggProdStr,
         std::vector<double>& Parameters)
 {
     bool isExponent;
@@ -921,7 +1062,6 @@ nmfDiagnostic_Tab1::loadPredationParameters(
     std::string queryStr;
     std::vector<std::string> tableNames = {};
     std::string OrderBy;
-    std::string isAggProdStr = (isAggProd(Algorithm,Minimizer,ObjectiveCriterion,Scaling)) ? "1" : "0";
 
     if (m_DataStruct.PredationForm == "Type I") {
         tableNames.push_back(nmfConstantsMSSPM::TableOutputPredationRho);
@@ -935,20 +1075,24 @@ nmfDiagnostic_Tab1::loadPredationParameters(
     }
     for (std::string table : tableNames) {
         isExponent = (table == nmfConstantsMSSPM::TableOutputPredationExponent);
-        fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
-        queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + table;
+        fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
+        queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " +
+                      table;
         OrderBy    = " ORDER BY SpeciesA,SpeciesB";
         if (isExponent) {
-            fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + table;
+            fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+            queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                          table;
             OrderBy    = " ORDER BY SpeName";
         }
-        queryStr  += " WHERE Algorithm = '" + Algorithm;
-        queryStr  += "' AND Minimizer = '" + Minimizer;
-        queryStr  += "' AND ObjectiveCriterion = '" + ObjectiveCriterion;
-        queryStr  += "' AND Scaling = '" + Scaling;
-        queryStr  += "' AND isAggProd = " + isAggProdStr;
-        queryStr  += "  " + OrderBy;
+        queryStr  += " WHERE ProjectName = '"       + m_ProjectName +
+                     "' AND ModelName = '"          + m_ModelName +
+                     "' AND Algorithm = '"          + Algorithm +
+                     "' AND Minimizer = '"          + Minimizer +
+                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                     "' AND Scaling = '"            + Scaling +
+                     "' AND isAggProd = "           + isAggProdStr +
+                     "  "                           + OrderBy;
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["Algorithm"].size();
         if (NumRecords == 0) {
@@ -1007,11 +1151,13 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
    }
 
    cmd = "DELETE FROM " + TableName +
-           "  WHERE Algorithm = '" + Algorithm +
-           "' AND Minimizer = '" + Minimizer +
-           "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-           "' AND Scaling = '" + Scaling +
-           "' AND isAggProd = " + isAggProd;
+         "  WHERE ProjectName = '"      + m_ProjectName +
+         "' AND ModelName = '"          + m_ModelName +
+         "' AND Algorithm = '"          + Algorithm +
+         "' AND Minimizer = '"          + Minimizer +
+         "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+         "' AND Scaling = '"            + Scaling +
+         "' AND isAggProd = "           + isAggProd;
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
    if (nmfUtilsQt::isAnError(errorMsg)) {
        m_Logger->logMsg(nmfConstants::Error,"[Error 1] UpdateParameterTable: DELETE error: " + errorMsg);
@@ -1020,10 +1166,15 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
    }
 std::cout << "Updating parameter table: " + TableName << std::endl;
    m = 0;
-   cmd = "INSERT INTO " + TableName + " (Algorithm, Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Offset,Value,Fitness) VALUES ";
+   cmd = "INSERT INTO " +
+          TableName +
+         " (ProjectName,ModelName,Algorithm, Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Offset,Value,Fitness) VALUES ";
    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
        for (int j=0; j<=NumPoints; ++j) {
-           cmd += "('" + Algorithm + "','" + Minimizer +
+           cmd += "('"   + m_ProjectName +
+                   "','" + m_ModelName +
+                   "','" + Algorithm +
+                   "','" + Minimizer +
                    "','" + ObjectiveCriterion +
                    "','" + Scaling +
                    "',"  + isAggProd +
@@ -1031,7 +1182,6 @@ std::cout << "Updating parameter table: " + TableName << std::endl;
                    "',"  + std::to_string(std::get<1>(DiagnosticTupleVector[m])) +
                    ","   + std::to_string(std::get<2>(DiagnosticTupleVector[m])) +
                    ","   + std::to_string(std::get<3>(DiagnosticTupleVector[m])) + "),";
-//                 ","   + std::to_string(std::log(std::get<3>(DiagnosticTupleVector[m]))) + "),";
            ++m;
        }
    }
@@ -1060,12 +1210,15 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
    std::string cmd;
    std::string errorMsg;
 
-   cmd = "DELETE FROM " + nmfConstantsMSSPM::TableDiagnosticSurface + " WHERE Algorithm = '" + Algorithm +
-           "' AND Minimizer = '" + Minimizer +
+   cmd = "DELETE FROM " + nmfConstantsMSSPM::TableDiagnosticSurface +
+           " WHERE ProjectName = '"       + m_ProjectName +
+           "' AND ModelName = '"          + m_ModelName +
+           "' AND Algorithm = '"          + Algorithm +
+           "' AND Minimizer = '"          + Minimizer +
            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-           "' AND Scaling = '"   + Scaling +
-           "' AND isAggProd = "  + isAggProd +
-           "  AND Type = '"      + SurfaceType + "'";
+           "' AND Scaling = '"            + Scaling +
+           "' AND isAggProd = "           + isAggProd +
+           "  AND Type = '"               + SurfaceType + "'";
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
    if (nmfUtilsQt::isAnError(errorMsg)) {
        m_Logger->logMsg(nmfConstants::Error,"[Error 1a] UpdateParameterTable: DELETE error: " + errorMsg);
@@ -1075,9 +1228,11 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
 
    m = 0;
    cmd = "INSERT INTO " + nmfConstantsMSSPM::TableDiagnosticSurface +
-         " (Algorithm, Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Type,parameter1PctVar,parameter2PctVar,Fitness) VALUES ";
+         " (ProjectName,ModelName,Algorithm, Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Type,parameter1PctVar,parameter2PctVar,Fitness) VALUES ";
    for (unsigned j=0; j<DiagnosticTupleVector.size(); ++j) {
-       cmd += "('"   + Algorithm +
+       cmd += "('"   + m_ProjectName +
+               "','" + m_ModelName +
+               "','" + Algorithm +
                "','" + Minimizer +
                "','" + ObjectiveCriterion +
                "','" + Scaling +
@@ -1087,7 +1242,6 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
                "',"  + std::to_string(std::get<1>(DiagnosticTupleVector[m])) +
                ","   + std::to_string(std::get<2>(DiagnosticTupleVector[m])) +
                ","   + std::to_string(std::get<3>(DiagnosticTupleVector[m])) + "),";
-      //       ","   + std::to_string(std::log(std::get<3>(DiagnosticTupleVector[m]))) + "),";
        ++m;
    }
    cmd = cmd.substr(0,cmd.size()-1);

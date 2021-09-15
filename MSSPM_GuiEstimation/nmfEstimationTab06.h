@@ -68,7 +68,10 @@ class nmfEstimation_Tab6: public QObject
     std::string     m_CompetitionForm;
     std::string     m_PredationForm;
     EnsembleDialog* m_EnsembleDialog;
-    std::string     m_EnsembleFilename;
+    std::string     m_EnsembleDefaultFilename;
+    std::string     m_EnsembleTimeStampedFilename;
+    bool            m_IsMultiRun;
+    std::string     m_MultiRunType;
 
     QWidget*     Estimation_Tab6_Widget;
     QGroupBox*   Estimation_Tab6_ModelAlgorithmsGB;
@@ -156,6 +159,11 @@ class nmfEstimation_Tab6: public QObject
     bool queryUserIfOkToClearMultiRunFile();
     void runEnsemble();
     bool passRunChecks(std::string& msg);
+    void checkAlgorithmIdentifiersForMultiRun(
+            std::string& Algorithm,
+            std::string& Minimizer,
+            std::string& ObjectiveCriterion,
+            std::string& Scaling);
 
 public:
     /**
@@ -204,7 +212,7 @@ public:
     std::string getBeesNumOtherBees();
     std::string getBeesNeighborhoodSize();
     std::string getBeesNumberOfRuns();
-    std::string getEnsembleFilename();
+    std::string getEnsembleTimeStampedFilename();
     bool loadEnsembleFile(QString ensembleFile,
                           const bool& verbose);
     void setEnsembleRuns(int value);
@@ -286,7 +294,7 @@ public:
     QString getEnsembleAverageBy();
     QString getEnsembleAveragingAlgorithm();
     QString getEnsembleUsingBy();
-    QString createEnsembleFile();
+    QString createTimeStampedEnsembleFile();
 
     bool isEstInitialBiomassEnabled();
     bool isEstInitialBiomassChecked();
@@ -399,7 +407,7 @@ public Q_SLOTS:
     /**
      * @brief Callback invoked when the user clicks the Load button
      */
-    void callback_LoadPB();
+    void callback_ReloadPB();
     /**
      * @brief Callback invoked when the user clicks the Save button
      */

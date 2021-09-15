@@ -225,10 +225,13 @@ private:
     nmfUtilsStatisticsMohnsRho*           m_MohnsRhoData;
     boost::numeric::ublas::matrix<double> m_AveBiomass;
     std::vector<boost::numeric::ublas::matrix<double> > m_OutputBiomassEnsemble;
+    bool                                  m_IsMultiRun;
+    std::string                           m_MultiRunType;
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
     QGroupBox*               SummaryGB;
+    QGroupBox*               DiagnosticSummaryGB;
     QTableView*              InitBiomassTV;
     QTableView*              GrowthRateTV;
     QTableView*              CompetitionAlphaTV;
@@ -291,16 +294,18 @@ private:
     int getTabIndex(QTabWidget* tabWidget, QString tabName);
     void calculateAverageBiomass();
     void displayAverageBiomass();
+    void checkForPreviousEstimations(bool& thereWasASingleRun,
+                                     bool& thereWasAMultiRun);
     void clearOutputData(std::string algorithm,
                          std::string minimizer,
                          std::string objectiveCriterion,
                          std::string scaling);
     bool clearMonteCarloParametersTable(
             std::string& ForecastName,
-            std::string& Algorithm,
-            std::string& Minimizer,
-            std::string& ObjectiveCriterion,
-            std::string& Scaling,
+            std::string  Algorithm,
+            std::string  Minimizer,
+            std::string  ObjectiveCriterion,
+            std::string  Scaling,
             std::string& MonteCarloParametersTable);
     double convertUnitsStringToValue(QString& ScaleStr);
     bool   getOutputBiomassAveraged(boost::numeric::ublas::matrix<double>& AveBiomass);
@@ -394,6 +399,16 @@ private:
             StatStruct&         statStruct);
     bool calculateSummaryStatisticsStructMohnsRho(StatStruct& statStruct);
     bool calculateSummaryStatisticsMohnsRhoBiomass(std::vector<double>& mohnsRhoEstimatedBiomass);
+    void checkDiagnosticAlgorithmIdentifiersForMultiRun(
+            std::string& Algorithm,
+            std::string& Minimizer,
+            std::string& ObjectiveCriterion,
+            std::string& Scaling);
+    void checkForecastAlgorithmIdentifiersForMultiRun(
+            std::string& Algorithm,
+            std::string& Minimizer,
+            std::string& ObjectiveCriterion,
+            std::string& Scaling);
     void checkGuildRanges(
             const int& NumGuilds,
             const nmfStructsQt::ModelDataStruct& dataStruct);
@@ -402,10 +417,10 @@ private:
                      std::vector<std::string>& fields);
     bool checkIfTablesAlreadyCreated();
     bool clearOutputBiomassTable(std::string& ForecastName,
-                                 std::string& Algorithm,
-                                 std::string& Minimizer,
-                                 std::string& ObjectiveCriterion,
-                                 std::string& Scaling,
+                                 std::string  Algorithm,
+                                 std::string  Minimizer,
+                                 std::string  ObjectiveCriterion,
+                                 std::string  Scaling,
                                  std::string& isAggProd,
                                  std::string& BiomassTable);
     void clearOutputTables();
@@ -514,6 +529,7 @@ private:
             const int& RunLength,
             const std::string& type);
     bool getOutputInitialBiomass(
+            const std::string& ForecastName,
             QList<double> &OutputInitBiomass);
     std::string getObservedBiomassTableName(bool isPreEstimation);
     std::vector<boost::numeric::ublas::matrix<double> >
@@ -640,10 +656,10 @@ private:
     bool loadUncertaintyData(const bool&          isMonteCarlo,
                              const int&           NumSpecies,
                              const std::string&   ForecastName,
-                             const std::string&   Algorithm,
-                             const std::string&   Minimizer,
-                             const std::string&   ObjectiveCriterion,
-                             const std::string&   Scaling,
+                             std::string          Algorithm,
+                             std::string          Minimizer,
+                             std::string          ObjectiveCriterion,
+                             std::string          Scaling,
                              std::vector<double>& InitBiomassUncertainty,
                              std::vector<double>& GrowthRateUncertainty,
                              std::vector<double>& CarryingCapacityUncertainty,
@@ -682,6 +698,8 @@ private:
     void setVisibilityToolbarButtons(bool isVisible);
     void setDefaultDockWidgetsVisibility();
     void setNumLines(int numLines);
+    void setDiagnosticLastRunType();
+    void setForecastLastRunType();
     void setPage(const QString& section,
                  const int& page);
     void setup2dChart();
@@ -849,6 +867,8 @@ private:
                          double& harvestValue);
     bool simulatePredation(const std::string& PredationForm,
                            double& competitionValue);
+    void showOutputChart(bool show);
+    bool thereIsOutputBiomass();
     void updateDiagnosticSummaryStatistics();
     bool updateObservedBiomassAndEstSurveyQTable(
             const QStringList& Species,
@@ -859,10 +879,10 @@ private:
                                   int&         RunLength,
                                   bool&        isMonteCarlo,
                                   int&         RunNum,
-                                  std::string& Algorithm,
-                                  std::string& Minimizer,
-                                  std::string& ObjectiveCriterion,
-                                  std::string& Scaling,
+                                  std::string  Algorithm,
+                                  std::string  Minimizer,
+                                  std::string  ObjectiveCriterion,
+                                  std::string  Scaling,
                                   std::string& isAggProdStr,
                                   std::string& GrowthForm,
                                   std::string& HarvestForm,
@@ -873,7 +893,7 @@ private:
                                   std::string& CarryingCapacityTable,
                                   std::string& CatchabilityTable,
                                   std::string& SurveyQTable,
-                                  std::string& BiomassTable);
+                                  std::string& OutputBiomassTable);
     void updateProgressChartAnnotation(double xMin, double xMax, double xInc);
     void updateOutputTables(
         std::string                                 &Algorithm,
@@ -911,6 +931,7 @@ private:
      */
     void updateWindowTitle();
     bool setFirstRowEstimatedBiomass(
+            const std::string& ForecastName,
             const int& NumSpeciesOrGuilds,
             const QList<double>& InitialBiomass,
             boost::numeric::ublas::matrix<double>& EstimatedBiomassBySpecies);
@@ -996,6 +1017,7 @@ public:
     bool isStartUpOK();
     bool okToRunForecast();
     void saveSummaryModelFitTable(QStandardItemModel *smodel);
+    void saveSummaryDiagnosticTable(QStandardItemModel *smodel);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);
@@ -1159,7 +1181,7 @@ public slots:
      * @brief Callback invoked when user runs Estimations as part of a Retrospective Analysis Diagnostics run
      * @param ranges : year ranges for current run
      */
-    void callback_RunDiagnosticEstimation(std::vector<std::pair<int,int> > ranges);
+    void callback_RunRetrospectiveAnalysisEstimation(std::vector<std::pair<int,int> > ranges);
     /**
      * @brief Callback invoked with user runs an Estimation
      * @param showDiagnosticsChart : boolean that when true will show the Diagnostics Chart in the OutputDockWidget
@@ -1180,7 +1202,7 @@ public slots:
      * @brief Callback invoked when user wants to save the output biomass data when generating a forecast
      * @param ForecastName : name of Forecast that's currently being run
      */
-    void callback_SaveOutputBiomassData(std::string ForecastName);
+    void callback_SaveForecastOutputBiomassData(std::string ForecastName);
     /**
      * @brief Callback invoked when user saves a new Model
      */
@@ -1487,6 +1509,9 @@ public slots:
     void callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct modeReview);
     void callback_EnableRunButtons(bool state);
     void callback_StopAllRuns();
+    void callback_SummaryLoadDiagnosticPB();
+    void callback_SummaryExportDiagnosticPB();
+    void callback_SummaryImportDiagnosticPB();
     void callback_SummaryLoadPB();
     void callback_SummaryExportPB();
     void callback_SummaryImportPB();

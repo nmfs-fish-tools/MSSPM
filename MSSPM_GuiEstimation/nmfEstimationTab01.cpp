@@ -710,9 +710,9 @@ nmfEstimation_Tab1::saveGuildDataSupplemental(bool showPopup)
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
         cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableGuilds) + " SET ";
         index = m_GuildModel->index(i,0);
-        GuildName = index.data().toString();
+        GuildName = index.data().toString().remove(",");
         index = m_GuildModel->index(i,7);
-        Catchability = index.data().toString();
+        Catchability = index.data().toString().remove(",");
         cmd += "Catchability=" + Catchability;
         cmd += " WHERE GuildName = '" + GuildName + "'";
         if (nmfUtilsQt::emptyField({GuildName,Catchability})) {
@@ -751,14 +751,14 @@ nmfEstimation_Tab1::saveGuildDataRange(bool showPopup)
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
         cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableGuilds) + " SET ";
         index = m_GuildModel->index(i,0);
-        GuildName = index.data().toString();
+        GuildName = index.data().toString().remove(",");
         index = m_GuildModel->index(i,1);
-        GrowthRate = index.data().toString();
+        GrowthRate = index.data().toString().remove(",");
         index = m_GuildModel->index(i,2);
-        GrowthRateMin = index.data().toString();
+        GrowthRateMin = index.data().toString().remove(",");
         cmd += "GrowthRateMin=" + GrowthRateMin + ",";
         index = m_GuildModel->index(i,3);
-        GrowthRateMax = index.data().toString();
+        GrowthRateMax = index.data().toString().remove(",");
         cmd += "GrowthRateMax=" + GrowthRateMax + ",";
 
         // This shouldn't be set here. It should be set automatically when user saves Species data.
@@ -816,14 +816,14 @@ nmfEstimation_Tab1::saveGuildDataSupplementalAndRange(bool showPopup)
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
         cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableGuilds) + " SET ";
         index = m_GuildModel->index(i,0);
-        GuildName = index.data().toString();
+        GuildName = index.data().toString().remove(",");
         index = m_GuildModel->index(i,7);
-        Catchability = index.data().toString();
+        Catchability = index.data().toString().remove(",");
         index = m_GuildModel->index(i,8);
-        CatchabilityMin = index.data().toString();
+        CatchabilityMin = index.data().toString().remove(",");
         cmd += "CatchabilityMin=" + CatchabilityMin + ",";
         index = m_GuildModel->index(i,9);
-        CatchabilityMax = index.data().toString();
+        CatchabilityMax = index.data().toString().remove(",");
         cmd += "CatchabilityMax=" + CatchabilityMax;
         cmd += " WHERE GuildName = '" + GuildName + "'";
         if (nmfUtilsQt::emptyField({GuildName,CatchabilityMin,CatchabilityMax})) {
@@ -865,9 +865,9 @@ nmfEstimation_Tab1::saveGuildDataPrimary(bool showPopup)
     for (int i=0; i<m_GuildModel->rowCount(); ++i) {
         cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableGuilds) + " SET ";
         index = m_GuildModel->index(i,0);
-        GuildName = index.data().toString();
+        GuildName = index.data().toString().remove(",");
         index = m_GuildModel->index(i,1);
-        GrowthRate = index.data().toString();
+        GrowthRate = index.data().toString().remove(",");
         cmd += "GrowthRate=" + GrowthRate + ",";
         index = m_GuildModel->index(i,4);
         valueWithoutComma = index.data().toString().remove(",");
@@ -944,7 +944,7 @@ nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin()
     // Check that InitBiomass < the SpeciesKMin value in the Species table
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         index = m_SpeciesModel->index(i,0);
-        SpeName = index.data().toString();
+        SpeName = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,1);
         valueWithoutComma = index.data().toString().remove(",");
         InitBiomass = valueWithoutComma.toDouble();
@@ -990,13 +990,13 @@ nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
         index = m_SpeciesModel->index(i,0);
-        SpeName = index.data().toString();
+        SpeName = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,1);
         valueWithoutComma = index.data().toString().remove(",");
         InitBiomass = valueWithoutComma;
         cmd += "InitBiomass=" + InitBiomass + ",";
         index = m_SpeciesModel->index(i,4);
-        GrowthRate = index.data().toString();
+        GrowthRate = index.data().toString().remove(",");
         cmd += "GrowthRate=" + GrowthRate + ",";
         index = m_SpeciesModel->index(i,8);
         valueWithoutComma = index.data().toString().remove(",");
@@ -1037,18 +1037,18 @@ nmfEstimation_Tab1::saveSpeciesDataSupplemental(bool showPopup)
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
         index = m_SpeciesModel->index(i,0);
-        SpeName = index.data().toString();
+        SpeName = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,7);
-        GrowthRateCovarCoeff = index.data().toString();
+        GrowthRateCovarCoeff = index.data().toString().remove(",");
         cmd += "GrowthRateCovarCoeff=" + GrowthRateCovarCoeff + ",";
         index = m_SpeciesModel->index(i,11);
-        SpeciesKCovarCoeff = index.data().toString();
+        SpeciesKCovarCoeff = index.data().toString().remove(",");
         cmd += "SpeciesKCovarCoeff=" + SpeciesKCovarCoeff + ",";
         index = m_SpeciesModel->index(i,12);
-        SurveyQ = index.data().toString();
+        SurveyQ = index.data().toString().remove(",");
         cmd += "SurveyQ=" + SurveyQ + ",";
         index = m_SpeciesModel->index(i,15);
-        Catchability = index.data().toString();
+        Catchability = index.data().toString().remove(",");
         cmd += "Catchability=" + Catchability;
         cmd += " WHERE SpeName = '" + SpeName + "'";
         if (nmfUtilsQt::emptyField({SpeName,GrowthRateCovarCoeff,SpeciesKCovarCoeff,SurveyQ,Catchability})) {
@@ -1085,7 +1085,7 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
         index = m_SpeciesModel->index(i,0);
-        SpeName = index.data().toString();
+        SpeName = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,1);
         valueWithoutComma = index.data().toString().remove(",");
         InitBiomass = valueWithoutComma;
@@ -1098,12 +1098,12 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
         InitBiomassMax = valueWithoutComma;
         cmd += "InitBiomassMax=" + QString::number(InitBiomassMax.toDouble(),'f',6) + ",";
         index = m_SpeciesModel->index(i,4);
-        GrowthRate = index.data().toString();
+        GrowthRate = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,5);
-        GrowthRateMin = index.data().toString();
+        GrowthRateMin = index.data().toString().remove(",");
         cmd += "GrowthRateMin=" + GrowthRateMin + ",";
         index = m_SpeciesModel->index(i,6);
-        GrowthRateMax = index.data().toString();
+        GrowthRateMax = index.data().toString().remove(",");
         cmd += "GrowthRateMax=" + GrowthRateMax + ",";
         index = m_SpeciesModel->index(i,8);
         valueWithoutComma = index.data().toString().remove(",");
@@ -1152,7 +1152,7 @@ nmfEstimation_Tab1::surveyQValid(bool showPopup)
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         index = m_SpeciesModel->index(i,12);
-        surveyQ = index.data().toString().toDouble();
+        surveyQ = index.data().toString().remove(",").toDouble();
         if (surveyQ == 0) {
             if (showPopup) {
                 QMessageBox::warning(Estimation_Tabs, "Error",
@@ -1179,22 +1179,22 @@ nmfEstimation_Tab1::saveSpeciesDataSupplementalAndRange(bool showPopup)
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
         index = m_SpeciesModel->index(i,0);
-        SpeName = index.data().toString();
+        SpeName = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,12);
-        SurveyQ = index.data().toString();
+        SurveyQ = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,13);
-        SurveyQMin = index.data().toString();
+        SurveyQMin = index.data().toString().remove(",");
         cmd += "SurveyQMin=" + SurveyQMin + ",";
         index = m_SpeciesModel->index(i,14);
-        SurveyQMax = index.data().toString();
+        SurveyQMax = index.data().toString().remove(",");
         cmd += "SurveyQMax=" + SurveyQMax + ",";
         index = m_SpeciesModel->index(i,15);
-        Catchability = index.data().toString();
+        Catchability = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,16);
-        CatchabilityMin = index.data().toString();
+        CatchabilityMin = index.data().toString().remove(",");
         cmd += "CatchabilityMin=" + CatchabilityMin + ",";
         index = m_SpeciesModel->index(i,17);
-        CatchabilityMax = index.data().toString();
+        CatchabilityMax = index.data().toString().remove(",");
         cmd += "CatchabilityMax=" + CatchabilityMax;
         cmd += " WHERE SpeName = '" + SpeName + "'";
         if (nmfUtilsQt::emptyField({SpeName,SurveyQMin,SurveyQMax,CatchabilityMin,CatchabilityMax})) {
@@ -1283,16 +1283,18 @@ nmfEstimation_Tab1::updateBiomassAbsoluteTable()
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
         index = m_SpeciesModel->index(i,0);
-        species = index.data().toString().toStdString();
+        species = index.data().toString().remove(",").toStdString();
         index = m_SpeciesModel->index(i,1);
         valueWithoutComma = index.data().toString().remove(",");
         initBiomass = valueWithoutComma.toStdString();
 
         // Need to also update the BiomassAbsolute table with the initial Biomass values
         cmd  = "REPLACE INTO " + nmfConstantsMSSPM::TableBiomassAbsolute + " (";
-        cmd += "ProjectName,ModelName,SpeName,Year,Value) ";
-        cmd += "VALUES ('" + m_ProjectName + "','" + m_ModelName + "','" +
-                species + "', 0, " + initBiomass + ");";
+        cmd += "ProjectName,ModelName,SpeName,Year,Value) VALUES ('" +
+                m_ProjectName + "','" +
+                m_ModelName   + "','" +
+                species       + "', 0, " +
+                initBiomass   + ");";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (BiomassAbsolute): Write table error: " + errorMsg);

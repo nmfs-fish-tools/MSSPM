@@ -715,22 +715,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Setup_Tab3_ExportPB">
-       <property name="toolTip">
-        <string>Export data to a CSV file</string>
-       </property>
-       <property name="statusTip">
-        <string>Export data to a CSV file</string>
-       </property>
-       <property name="whatsThis">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Export&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Saves the above data to a .csv file for easy transfer between applications. The user may choose the default .csv file name or enter a tag for a customized file name.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="text">
-        <string>Export...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="Setup_Tab3_ImportPB">
        <property name="toolTip">
         <string>Import data from a CSV file</string>
@@ -743,6 +727,22 @@
        </property>
        <property name="text">
         <string>Import...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Setup_Tab3_ExportPB">
+       <property name="toolTip">
+        <string>Export data to a CSV file</string>
+       </property>
+       <property name="statusTip">
+        <string>Export data to a CSV file</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Export&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Saves the above data to a .csv file for easy transfer between applications. The user may choose the default .csv file name or enter a tag for a customized file name.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Export...</string>
        </property>
       </widget>
      </item>

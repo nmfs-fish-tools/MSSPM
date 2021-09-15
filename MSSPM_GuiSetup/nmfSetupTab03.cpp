@@ -884,7 +884,10 @@ nmfSetup_Tab3::pruneTablesForGuilds(std::vector<std::string>& Guilds)
     list += ")";
 
     for (std::string tableName : GuildNameTables) {
-        cmd = "DELETE FROM " + tableName + " WHERE Guild NOT IN " + list;
+        cmd = "DELETE FROM " + tableName +
+              " WHERE ProjectName = '" + m_ProjectName +
+              "' AND ModelName = '"    + m_ModelName +
+              "' AND Guild NOT IN "    + list;
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::pruneTablesForGuilds(1): Delete record error: " + errorMsg);
@@ -894,7 +897,10 @@ nmfSetup_Tab3::pruneTablesForGuilds(std::vector<std::string>& Guilds)
     }
 
     for (std::string tableName : GuildATables) {
-        cmd = "DELETE FROM " + tableName + " WHERE GuildA NOT IN " + list;
+        cmd = "DELETE FROM " + tableName +
+              " WHERE ProjectName = '" + m_ProjectName +
+              "' AND ModelName = '"    + m_ModelName +
+              "' AND GuildA NOT IN "   + list;
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::pruneTablesForGuilds(2): Delete record error: " + errorMsg);
@@ -916,8 +922,12 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
         nmfConstantsMSSPM::TableCompetitionAlpha,
         nmfConstantsMSSPM::TableCompetitionAlphaMax,
         nmfConstantsMSSPM::TableCompetitionAlphaMin,
+        nmfConstantsMSSPM::TableCompetitionBetaSpecies,
         nmfConstantsMSSPM::TableCompetitionBetaSpeciesMax,
         nmfConstantsMSSPM::TableCompetitionBetaSpeciesMin,
+        nmfConstantsMSSPM::TablePredationRho,
+        nmfConstantsMSSPM::TablePredationRhoMax,
+        nmfConstantsMSSPM::TablePredationRhoMin,
         nmfConstantsMSSPM::TablePredationHandling,
         nmfConstantsMSSPM::TablePredationHandlingMax,
         nmfConstantsMSSPM::TablePredationHandlingMin,
@@ -925,19 +935,17 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
         nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies,
         nmfConstantsMSSPM::TableOutputPredationHandling,
         nmfConstantsMSSPM::TableOutputPredationRho,
-        nmfConstantsMSSPM::TablePredationRhoMax,
-        nmfConstantsMSSPM::TablePredationRhoMin,
-        nmfConstantsMSSPM::TablePredationRho,
         nmfConstantsMSSPM::TableSpatialOverlap
     };
     std::vector<std::string> SpeNameTables =
     {
-        nmfConstantsMSSPM::TableHarvestCatch,
+        nmfConstantsMSSPM::TableCompetitionBetaGuilds,
         nmfConstantsMSSPM::TableCompetitionBetaGuildsMax,
         nmfConstantsMSSPM::TableCompetitionBetaGuildsMin,
         nmfConstantsMSSPM::TableDiagnosticCarryingCapacity,
         nmfConstantsMSSPM::TableDiagnosticSurface,
         nmfConstantsMSSPM::TableDiagnosticGrowthRate,
+        nmfConstantsMSSPM::TableHarvestCatch,
         nmfConstantsMSSPM::TableHarvestEffort,
         nmfConstantsMSSPM::TableHarvestExploitation,
         nmfConstantsMSSPM::TableForecastBiomass,
@@ -959,6 +967,7 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
         nmfConstantsMSSPM::TableOutputMSY,
         nmfConstantsMSSPM::TableOutputMSYBiomass,
         nmfConstantsMSSPM::TableOutputMSYFishing,
+        nmfConstantsMSSPM::TablePredationExponent,
         nmfConstantsMSSPM::TablePredationExponentMax,
         nmfConstantsMSSPM::TablePredationExponentMin};
 
@@ -970,8 +979,10 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
     list += ")";
 
     for (std::string tableName : SpeNameTables) {
-        cmd = "DELETE FROM " + tableName + " WHERE SpeName NOT IN " + list;
-//std::cout << "cmd: " << cmd << std::endl;
+        cmd = "DELETE FROM " + tableName +
+              " WHERE ProjectName = '" + m_ProjectName +
+              "' AND ModelName = '"    + m_ModelName +
+              "' AND SpeName NOT IN " + list;
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::pruneTablesForSpecies(1): Delete record error: " + errorMsg);
@@ -981,8 +992,10 @@ nmfSetup_Tab3::pruneTablesForSpecies(std::vector<std::string>& Species)
     }
 
     for (std::string tableName : SpeciesATables) {
-        cmd = "DELETE FROM " + tableName + " WHERE SpeciesA NOT IN " + list;
-//std::cout << "cmd: " << cmd << std::endl;
+        cmd = "DELETE FROM " + tableName +
+              " WHERE ProjectName = '" + m_ProjectName +
+              "' AND ModelName = '"    + m_ModelName +
+              "' AND SpeciesA NOT IN " + list;
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3::pruneTablesForSpecies(2): Delete record error: " + errorMsg);

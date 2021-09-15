@@ -26,7 +26,10 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     m_PredationForm   = "";
     m_EnsembleDialog  = new EnsembleDialog(tabs,m_ProjectDir);
     m_EnsembleDialog->hide();
-    m_EnsembleFilename = nmfConstantsMSSPM::FilenameMultiRun;
+    m_EnsembleDefaultFilename     = nmfConstantsMSSPM::FilenameMultiRun;
+    m_EnsembleTimeStampedFilename = nmfConstantsMSSPM::FilenameMultiRun;
+    m_IsMultiRun = false;
+    m_MultiRunType.clear();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::nmfEstimation_Tab6");
 
@@ -138,7 +141,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     connect(Estimation_Tab6_SavePB,                 SIGNAL(clicked()),
             this,                                   SLOT(callback_SavePB()));
     connect(Estimation_Tab6_ReloadPB,               SIGNAL(clicked()),
-            this,                                   SLOT(callback_LoadPB()));
+            this,                                   SLOT(callback_ReloadPB()));
     connect(Estimation_Tab6_FontSizeCMB,            SIGNAL(currentTextChanged(QString)),
             this,                                   SLOT(callback_Estimation_Tab6_FontSizeCMB(QString)));
     connect(Estimation_Tab6_MonoCB,                 SIGNAL(stateChanged(int)),
@@ -238,6 +241,24 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
 nmfEstimation_Tab6::~nmfEstimation_Tab6()
 {
 }
+
+void
+nmfEstimation_Tab6::checkAlgorithmIdentifiersForMultiRun(
+        std::string& Algorithm,
+        std::string& Minimizer,
+        std::string& ObjectiveCriterion,
+        std::string& Scaling)
+{
+    readSettings();
+
+    if (m_IsMultiRun) {
+        Algorithm          = m_MultiRunType;
+        Minimizer          = m_MultiRunType;
+        ObjectiveCriterion = m_MultiRunType;
+        Scaling            = m_MultiRunType;
+    }
+}
+
 
 void
 nmfEstimation_Tab6::initializeDetStoMap()
@@ -627,16 +648,18 @@ nmfEstimation_Tab6::adjustNumberOfParameters()
 
     // Update current ModelName in Models table
     fields   = {"ProjectName","ModelName"};
-    queryStr = "SELECT ProjectName,ModelName from " + nmfConstantsMSSPM::TableModels +
+    queryStr = "SELECT ProjectName,ModelName from " +
+                nmfConstantsMSSPM::TableModels +
                " WHERE ProjectName = '" + m_ProjectName +
                "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ModelName"].size() != 0) { // This means the model name exists so do an update
         cmd  = "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
         cmd += "   ProjectName = '" + m_ProjectName +
-               "', ModelName = '" + m_ModelName +
+               "', ModelName = '"   + m_ModelName +
                "', NumberOfParameters = " + std::to_string(numberOfParameters) +
-               " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
+               " WHERE ProjectName = '"   + m_ProjectName +
+               "' AND ModelName = '"      + m_ModelName + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"nmfSetup_Tab4::SaveSettingsConfiguration: Write table error: " + errorMsg);
@@ -752,33 +775,33 @@ nmfEstimation_Tab6::getEnsembleAveragingAlgorithm()
 }
 
 QString
-nmfEstimation_Tab6::createEnsembleFile()
+nmfEstimation_Tab6::createTimeStampedEnsembleFile()
 {
-    QString ensembleFilename = QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun);
+    QString ensembleTimeStampedFilename = QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun);
     QString filePath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    QString fullCurrentEnsembleFilename = QDir(filePath).filePath(ensembleFilename);
+    QString defaultEnsembleFilename = QDir(filePath).filePath(ensembleTimeStampedFilename);
 
     if (isAMultiRun()) {
         // Derive the new ensemble file name
         QStringList parts     = QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun).split(".");
         std::string timestamp = m_Logger->getTimestamp(nmfConstants::TimestampWithUnderscore);
         if (parts.size() == 2) {
-            ensembleFilename = parts[0]+"_"+QString::fromStdString(timestamp)+"."+parts[1];
+            ensembleTimeStampedFilename = parts[0]+"_"+QString::fromStdString(timestamp)+"."+parts[1];
         }
-        QString fullNewEnsembleFilename = QDir(filePath).filePath(ensembleFilename);
-        QFile::copy(fullCurrentEnsembleFilename,fullNewEnsembleFilename);
+        QString timestampedEnsembleFilename = QDir(filePath).filePath(ensembleTimeStampedFilename);
+        QFile::copy(defaultEnsembleFilename,timestampedEnsembleFilename);
     } else {
-        ensembleFilename.clear();
+        ensembleTimeStampedFilename.clear();
     }
-    m_EnsembleFilename = ensembleFilename.toStdString();
+    m_EnsembleTimeStampedFilename = ensembleTimeStampedFilename.toStdString();
 
-    return ensembleFilename;
+    return ensembleTimeStampedFilename;
 }
 
 std::string
-nmfEstimation_Tab6::getEnsembleFilename()
+nmfEstimation_Tab6::getEnsembleTimeStampedFilename()
 {
-    return m_EnsembleFilename;
+    return m_EnsembleTimeStampedFilename;
 }
 
 bool
@@ -809,7 +832,7 @@ nmfEstimation_Tab6::getEstimateRunBoxes()
 }
 
 void
-nmfEstimation_Tab6::callback_LoadPB()
+nmfEstimation_Tab6::callback_ReloadPB()
 {
     if (loadWidgets()) {
         QMessageBox::information(Estimation_Tabs, "Run Settings Load",
@@ -821,6 +844,7 @@ nmfEstimation_Tab6::callback_LoadPB()
 void
 nmfEstimation_Tab6::callback_SavePB()
 {
+    createTimeStampedEnsembleFile();
     saveSystem(true);
     enableRunButton(true);
 }
@@ -908,29 +932,48 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
     std::string errorMsg;
 
     cmd  =  "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
-    cmd +=  "   NumberOfRuns = "          + getBeesNumberOfRuns() +
-            ",  TimeStep = 1"             + // std::to_string(Estimation_Tab6_TimeStepSB->value()) +
-            ",  Algorithm = '"            + getCurrentAlgorithm() +
-            "', Minimizer = '"            + getCurrentMinimizer() +
-            "', ObjectiveCriterion = '"   + getCurrentObjectiveCriterion() +
-            "', Scaling = '"              + getCurrentScaling() +
-            "', BeesMaxGenerations = "    + getBeesMaxGenerations() +
-            ",  BeesNumTotal = "          + getBeesNumBees() +
-            ",  BeesNumBestSites = "      + getBeesNumBestSites() +
-            ",  BeesNumEliteSites = "     + getBeesNumEliteSites()  +
-            ",  BeesNumElite = "          + getBeesNumEliteBees() +
-            ",  BeesNumOther = "          + getBeesNumOtherBees() +
-            ",  BeesNeighborhoodSize = "  + getBeesNeighborhoodSize() +
-            ",  BeesNumRepetitions = "    + getBeesNumberOfRuns() +
-            ",  NLoptUseStopVal = "       + std::to_string(isStopAfterValue() ? 1 : 0) +
-            ",  NLoptUseStopAfterTime = " + std::to_string(isStopAfterTime()  ? 1 : 0) +
-            ",  NLoptUseStopAfterIter = " + std::to_string(isStopAfterIter()  ? 1 : 0) +
-            ",  NLoptStopVal = "          + std::to_string(getCurrentStopAfterValue()) +
-            ",  NLoptStopAfterTime = "    + std::to_string(getCurrentStopAfterTime()) +
-            ",  NLoptStopAfterIter = "    + std::to_string(getCurrentStopAfterIter()) +
-            ",  NLoptNumberOfRuns = "     + std::to_string(Estimation_Tab6_EnsembleTotalRunsSB->value()) +
-            "   WHERE ProjectName = '"    + m_ProjectName +
-            "'  AND ModelName = '"        + currentModelName + "'";
+    cmd +=  "   NumberOfRuns = "                    + getBeesNumberOfRuns() +
+            ",  TimeStep = 1"                       + // std::to_string(Estimation_Tab6_TimeStepSB->value()) +
+            ",  Algorithm = '"                      + getCurrentAlgorithm() +
+            "', Minimizer = '"                      + getCurrentMinimizer() +
+            "', ObjectiveCriterion = '"             + getCurrentObjectiveCriterion() +
+            "', Scaling = '"                        + getCurrentScaling() +
+            "', BeesMaxGenerations = "              + getBeesMaxGenerations() +
+            ",  BeesNumTotal = "                    + getBeesNumBees() +
+            ",  BeesNumBestSites = "                + getBeesNumBestSites() +
+            ",  BeesNumEliteSites = "               + getBeesNumEliteSites()  +
+            ",  BeesNumElite = "                    + getBeesNumEliteBees() +
+            ",  BeesNumOther = "                    + getBeesNumOtherBees() +
+            ",  BeesNeighborhoodSize = "            + getBeesNeighborhoodSize() +
+            ",  BeesNumRepetitions = "              + getBeesNumberOfRuns() +
+            ",  NLoptUseStopVal = "                 + std::to_string(isStopAfterValue() ? 1 : 0) +
+            ",  NLoptUseStopAfterTime = "           + std::to_string(isStopAfterTime()  ? 1 : 0) +
+            ",  NLoptUseStopAfterIter = "           + std::to_string(isStopAfterIter()  ? 1 : 0) +
+            ",  NLoptStopVal = "                    + std::to_string(getCurrentStopAfterValue()) +
+            ",  NLoptStopAfterTime = "              + std::to_string(getCurrentStopAfterTime()) +
+            ",  NLoptStopAfterIter = "              + std::to_string(getCurrentStopAfterIter()) +
+            ",  NLoptNumberOfRuns = "               + std::to_string(Estimation_Tab6_EnsembleTotalRunsSB->value()) +
+            ",  EstimateInitialBiomass = "          + std::to_string(isEstInitialBiomassChecked()) +
+            ",  EstimateGrowthRate = "              + std::to_string(isEstGrowthRateChecked()) +
+            ",  EstimateCarryingCapacity = "        + std::to_string(isEstCarryingCapacityChecked()) +
+            ",  EstimateCatchability = "            + std::to_string(isEstCatchabilityChecked()) +
+            ",  EstimateCompetition = "             + std::to_string(isEstCompetitionAlphaChecked()) +
+            ",  EstimateCompetitionSpecies = "      + std::to_string(isEstCompetitionBetaSpeciesChecked()) +
+            ",  EstimateCompetitionGuilds = "       + std::to_string(isEstCompetitionBetaGuildsChecked()) +
+            ",  EstimateCompetitionGuildsGuilds = " + std::to_string(isEstCompetitionBetaGuildsGuildsChecked()) +
+            ",  EstimatePredation = "               + std::to_string(isEstPredationRhoChecked()) +
+            ",  EstimatePredationHandling = "       + std::to_string(isEstPredationHandlingChecked()) +
+            ",  EstimatePredationExponent = "       + std::to_string(isEstPredationExponentChecked()) +
+            ",  EstimateSurveyQ = "                 + std::to_string(isEstSurveyQChecked()) +
+            ",  EnsembleIsBoxChecked = "            + std::to_string(isAMultiRun()) +
+            ",  EnsembleAverageAlg = '"             + getEnsembleAveragingAlgorithm().toStdString() +
+            "', EnsembleAverageBy = '"              + getEnsembleAverageBy().toStdString() +
+            "', EnsembleUsingWhat = '"              + getEnsembleUsingBy().toStdString() +
+            "', EnsembleUsingValue = "              + std::to_string(getEnsembleUsingAmountValue()) +
+            ",  EnsembleIsUsingPct = "              + std::to_string(isEnsembleUsingPct()) +
+            ",  EnsembleFile = '"                   + m_EnsembleTimeStampedFilename + // getEnsembleFilename() +
+            "'  WHERE ProjectName = '"              + m_ProjectName +
+            "'  AND ModelName = '"                  + currentModelName + "'";
 
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -1261,11 +1304,7 @@ nmfEstimation_Tab6::getCurrentAlgorithm()
 std::string
 nmfEstimation_Tab6::getCurrentMinimizer()
 {
-    if (Estimation_Tab6_MinimizerAlgorithmCMB->isEnabled()) {
-        return Estimation_Tab6_MinimizerAlgorithmCMB->currentText().toStdString();
-    } else {
-        return "";
-    }
+    return Estimation_Tab6_MinimizerAlgorithmCMB->currentText().toStdString();
 }
 
 std::string
@@ -1277,11 +1316,11 @@ nmfEstimation_Tab6::getCurrentObjectiveCriterion()
 std::string
 nmfEstimation_Tab6::getCurrentScaling()
 {
-    if (Estimation_Tab6_ScalingCMB->isEnabled()) {
+//    if (Estimation_Tab6_ScalingCMB->isEnabled()) {
         return Estimation_Tab6_ScalingCMB->currentText().toStdString();
-    } else {
-        return "";
-    }
+//    } else {
+//        return "";
+//    }
 }
 
 double
@@ -1425,14 +1464,6 @@ nmfEstimation_Tab6::addToMultiRunFile(const int& numRunsToAdd,
     EstimateCheckBoxes = getAllEstimateCheckboxes();
     int NumEstimatedCheckboxes = EstimateCheckBoxes.size();
 
-//    if ((currentNumberOfRuns == 0) && (file.exists())) {
-//        if (! queryUserIfOkToClearMultiRunFile()) {
-//            Estimation_Tab6_EnsembleRunsSetLE->setText("0");
-//            return;
-//        }
-//        Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(numRunsToAdd));
-//    }
-
     if (! file.exists()) {
         if (file.open(QIODevice::WriteOnly)) {
             QTextStream stream(&file);
@@ -1451,13 +1482,20 @@ nmfEstimation_Tab6::addToMultiRunFile(const int& numRunsToAdd,
     }
 
     if (file.open(QIODevice::Append)) {
+        std::string ObjectiveCriterion = getCurrentObjectiveCriterion();
+        std::string Algorithm          = getCurrentAlgorithm();
+        std::string Minimizer          = getCurrentMinimizer();
+        std::string Scaling            = getCurrentScaling();
+//      checkAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+
         QTextStream stream(&file);
 
         stream << numRunsToAdd;
-        stream << "," << QString::fromStdString(getCurrentObjectiveCriterion());
-        stream << "," << QString::fromStdString(getCurrentAlgorithm());
-        stream << "," << QString::fromStdString(getCurrentMinimizer());
-        stream << "," << QString::fromStdString(getCurrentScaling());
+
+        stream << "," << QString::fromStdString(ObjectiveCriterion);
+        stream << "," << QString::fromStdString(Algorithm);
+        stream << "," << QString::fromStdString(Minimizer);
+        stream << "," << QString::fromStdString(Scaling);
         stream << "," << QString::fromStdString(getBeesMaxGenerations());
         stream << "," << QString::fromStdString(getBeesNumBees());
         stream << "," << QString::fromStdString(getBeesNumBestSites());
@@ -1528,7 +1566,7 @@ nmfEstimation_Tab6::callback_EnsembleAddPB()
     if (tmpSum <= totalNumberOfRunsDesired) {
         Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(tmpSum));
         addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,totalNumberOfRunsDesired,fullPath);
-        m_EnsembleDialog->loadWidgets(QString::fromStdString(m_EnsembleFilename));
+        m_EnsembleDialog->loadWidgets(QString::fromStdString(m_EnsembleDefaultFilename));
     } else {
         QMessageBox::warning(Estimation_Tabs, "Multi-Run/Ensemble Complete",
                              "\nAttempting to add too many runs into the Multi-Run/Ensemble file.\n",
@@ -1569,7 +1607,7 @@ nmfEstimation_Tab6::clearEnsembleFile()
 
     m_EnsembleDialog->clear();
     enableEnsembleWidgets(true);
-    m_EnsembleFilename = nmfConstantsMSSPM::FilenameMultiRun;
+    m_EnsembleDefaultFilename = nmfConstantsMSSPM::FilenameMultiRun;
 }
 
 void
@@ -1584,7 +1622,7 @@ nmfEstimation_Tab6::clearMohnsRhoFile()
 void
 nmfEstimation_Tab6::callback_EnsembleViewPB()
 {
-    if (m_EnsembleDialog->loadWidgets(QString::fromStdString(m_EnsembleFilename))) {
+    if (m_EnsembleDialog->loadWidgets(QString::fromStdString(m_EnsembleDefaultFilename))) {
         m_EnsembleDialog->show();
     }
 }
@@ -1844,7 +1882,7 @@ std::cout << "Loading: " << ensembleFilename.toStdString() << std::endl;
     fullPath = QDir(fullPath).filePath(ensembleFilename);
     QFile file(fullPath);
 
-    m_EnsembleFilename = ensembleFilename.toStdString();
+    m_EnsembleDefaultFilename = ensembleFilename.toStdString();
 
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream inStream(&file);
@@ -1940,7 +1978,7 @@ nmfEstimation_Tab6::callback_EnsembleSetAllPB()
 
     if (addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,totalNumberOfRunsDesired,fullPath)) {
         Estimation_Tab6_EnsembleRunsSetLE->setText(QString::number(Estimation_Tab6_EnsembleTotalRunsSB->value()));
-        m_EnsembleDialog->loadWidgets(QString::fromStdString(m_EnsembleFilename));
+        m_EnsembleDialog->loadWidgets(QString::fromStdString(m_EnsembleDefaultFilename));
         if (numRunsToAdd+currentNumberOfRuns == totalNumberOfRunsDesired) {
             QString msg = "\nSaved Mult-Run Parameter File to:\n\n" + fullPath + "\n";
             QMessageBox::information(Estimation_Tabs, "MultiRun Parameter File Save",
@@ -1993,16 +2031,29 @@ nmfEstimation_Tab6::loadWidgets()
                   "BeesNumEliteSites","BeesNumBestSites","BeesNumRepetitions",
                   "BeesMaxGenerations","BeesNeighborhoodSize",
                   "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter",
-                  "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptNumberOfRuns"};
-    queryStr   = "SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,";
-    queryStr  += "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-    queryStr  += "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence,";
-    queryStr  += "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions,";
-    queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
-    queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
-    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptNumberOfRuns ";
-    queryStr  += "FROM " + nmfConstantsMSSPM::TableModels + " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '";
-    queryStr  += m_ModelName + "'";
+                  "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptNumberOfRuns",
+                  "EstimateInitialBiomass","EstimateGrowthRate","EstimateCarryingCapacity",
+                  "EstimateCatchability","EstimateCompetition","EstimateCompetitionSpecies",
+                  "EstimateCompetitionGuilds","EstimateCompetitionGuildsGuilds","EstimatePredation",
+                  "EstimatePredationHandling","EstimatePredationExponent","EstimateSurveyQ",
+                  "EnsembleIsBoxChecked","EnsembleAverageAlg","EnsembleAverageBy","EnsembleUsingWhat",
+                  "EnsembleUsingValue","EnsembleIsUsingPct","EnsembleFile"};
+    queryStr   = std::string("SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,") +
+                 "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer,ObjectiveCriterion,Scaling," +
+                 "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence," +
+                 "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions," +
+                 "BeesMaxGenerations,BeesNeighborhoodSize," +
+                 "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter," +
+                 "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptNumberOfRuns," +
+                 "EstimateInitialBiomass,EstimateGrowthRate,EstimateCarryingCapacity," +
+                 "EstimateCatchability,EstimateCompetition,EstimateCompetitionSpecies," +
+                 "EstimateCompetitionGuilds,EstimateCompetitionGuildsGuilds,EstimatePredation," +
+                 "EstimatePredationHandling,EstimatePredationExponent,EstimateSurveyQ," +
+                 "EnsembleIsBoxChecked,EnsembleAverageAlg,EnsembleAverageBy,EnsembleUsingWhat," +
+                 "EnsembleUsingValue,EnsembleIsUsingPct,EnsembleFile FROM " +
+                  nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName   + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ModelName"].size();
     if (NumRecords == 0) {
@@ -2037,6 +2088,30 @@ nmfEstimation_Tab6::loadWidgets()
     Estimation_Tab6_NL_StopAfterIterSB->setValue(std::stoi(dataMap["NLoptStopAfterIter"][0]));
 //  Estimation_Tab6_EnsembleTotalRunsSB->setValue(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
 
+    Estimation_Tab6_EstimateInitialBiomassCB->setChecked(dataMap["EstimateInitialBiomass"][0] == "1");
+    Estimation_Tab6_EstimateGrowthRateCB->setChecked(dataMap["EstimateGrowthRate"][0] == "1");
+    Estimation_Tab6_EstimateCarryingCapacityCB->setChecked(dataMap["EstimateCarryingCapacity"][0] == "1");
+    Estimation_Tab6_EstimateCatchabilityCB->setChecked(dataMap["EstimateCatchability"][0] == "1");
+    Estimation_Tab6_EstimateCompetitionAlphaCB->setChecked(dataMap["EstimateCompetition"][0] == "1");
+    Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB->setChecked(dataMap["EstimateCompetitionSpecies"][0] == "1");
+    Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB->setChecked(dataMap["EstimateCompetitionGuilds"][0] == "1");
+    Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB->setChecked(dataMap["EstimateCompetitionGuildsGuilds"][0] == "1");
+    Estimation_Tab6_EstimatePredationRhoCB->setChecked(dataMap["EstimatePredation"][0] == "1");
+    Estimation_Tab6_EstimatePredationHandlingCB->setChecked(dataMap["EstimatePredationHandling"][0] == "1");
+    Estimation_Tab6_EstimatePredationExponentCB->setChecked(dataMap["EstimatePredationExponent"][0] == "1");
+    Estimation_Tab6_EstimateSurveyQCB->setChecked(dataMap["EstimateSurveyQ"][0] == "1");
+
+    Estimation_Tab6_EnsembleAveragingAlgorithmCMB->setCurrentText(QString::fromStdString(dataMap["EnsembleAverageAlg"][0]));
+    Estimation_Tab6_EnsembleAverageByCMB->setCurrentText(QString::fromStdString(dataMap["EnsembleAverageBy"][0]));
+    Estimation_Tab6_EnsembleUsingByCMB->setCurrentText(QString::fromStdString(dataMap["EnsembleUsingWhat"][0]));
+    Estimation_Tab6_EnsembleUsingAmountSB->setValue(std::stoi(dataMap["EnsembleUsingValue"][0]));
+    if (dataMap["EnsembleIsUsingPct"][0] == "1") {
+        Estimation_Tab6_EnsembleUsingPctPB->setText("%");
+    }
+    // Not necessary since file is loaded during callback_EnsembleControlsGB.
+    // And that's done when Model is loaded.
+    //loadEnsembleFile(QString::fromStdString(dataMap["EnsembleFile"][0]),false);
+
     callback_EnsembleTotalRunsSB(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
     callback_EstimationAlgorithmCMB(QString::fromStdString(dataMap["Algorithm"][0]));
 
@@ -2048,6 +2123,14 @@ nmfEstimation_Tab6::loadWidgets()
     Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(QString::fromStdString(dataMap["ObjectiveCriterion"][0]));
 
 //  enableRunButton(true);
+
+    m_IsMultiRun   = (dataMap["EnsembleIsBoxChecked"][0] == "1");
+    m_MultiRunType =  dataMap["EnsembleAverageAlg"][0];
+    Estimation_Tab6_EnsembleControlsGB->setChecked(m_IsMultiRun);
+    callback_EnsembleControlsGB(m_IsMultiRun);
+
+    saveSettings();
+
 
     return true;
 }
@@ -2075,6 +2158,11 @@ nmfEstimation_Tab6::readSettings()
     m_IsMonospaced         = settings->value("Monospace",0).toString().toInt();
     settings->endGroup();
 
+    settings->beginGroup("Runtime");
+    m_IsMultiRun    = settings->value("IsMultiRun",false).toBool();
+    m_MultiRunType  = settings->value("MultiRunType","").toString().toStdString();
+    settings->endGroup();
+
     delete settings;
 
     index = Estimation_Tab6_FontSizeCMB->findText(QString::number(m_FontSize));
@@ -2090,6 +2178,11 @@ nmfEstimation_Tab6::saveSettings()
     settings->setValue("FontSize",   Estimation_Tab6_FontSizeCMB->currentText());
     settings->setValue("FontSize",   Estimation_Tab6_FontSizeCMB->currentText());
     settings->setValue("Monospace",  (int)Estimation_Tab6_MonoCB->isChecked());
+    settings->endGroup();
+
+    settings->beginGroup("Runtime");
+    settings->setValue("IsMultiRun",   isAMultiRun());
+    settings->setValue("MultiRunType", getEnsembleAveragingAlgorithm());
     settings->endGroup();
 
     delete settings;

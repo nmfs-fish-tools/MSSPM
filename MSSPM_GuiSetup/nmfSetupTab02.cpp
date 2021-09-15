@@ -274,10 +274,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(GuildA       varchar(50) NOT NULL,";
+    cmd += "(ProjectName  varchar(50) NOT NULL,";
+    cmd += " ModelName    varchar(50) NOT NULL,";
+    cmd += " GuildA       varchar(50) NOT NULL,";
     cmd += " GuildB       varchar(50) NOT NULL,";
     cmd += " Value        int(11) NOT NULL,";
-    cmd += " PRIMARY KEY (GuildA,GuildB))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,GuildA,GuildB))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 1] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -498,9 +500,11 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(Year       int(11) NOT NULL,";
-    cmd += " Value      float NOT NULL,";
-    cmd += " PRIMARY KEY (Year))";
+    cmd += "(ProjectName varchar(50) NOT NULL,";
+    cmd += " ModelName   varchar(50) NOT NULL,";
+    cmd += " Year        int(11) NOT NULL,";
+    cmd += " Value       float NOT NULL,";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 8] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -518,9 +522,11 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(RunNumber   int(11) NOT NULL,";
+    cmd += "(ProjectName varchar(50) NOT NULL,";
+    cmd += " ModelName   varchar(50) NOT NULL,";
+    cmd += " RunNumber   int(11) NOT NULL,";
     cmd += " Value       float NOT NULL,";
-    cmd += " PRIMARY KEY (RunNumber))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,RunNumber))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 9] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -566,7 +572,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(Algorithm           varchar(50) NOT NULL,";
+    cmd += "(ProjectName         varchar(50) NOT NULL,";
+    cmd += " ModelName           varchar(50) NOT NULL,";
+    cmd += " Algorithm           varchar(50) NOT NULL,";
     cmd += " Minimizer           varchar(50) NOT NULL,";
     cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
     cmd += " Scaling             varchar(50) NOT NULL,";
@@ -574,7 +582,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " SpeName             varchar(50) NOT NULL,";
     cmd += " Year                int(11)     NOT NULL,";
     cmd += " Value               double      NOT NULL,";
-    cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 11] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -589,7 +597,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
 
     // 28 of 71: OutputCompetitionAlpha
     // 29 of 71: OutputCompetitionBetaSpecies
-    // 30 of 71: OutputPredation
+    // 30 of 71: OutputPredationRho
     // 31 of 71: OutputPredationHandling
     for (std::string tableName : {nmfConstantsMSSPM::TableOutputCompetitionAlpha,
                                   nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies,
@@ -599,7 +607,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(Algorithm           varchar(50) NOT NULL,";
+        cmd += "(ProjectName         varchar(50) NOT NULL,";
+        cmd += " ModelName           varchar(50) NOT NULL,";
+        cmd += " Algorithm           varchar(50) NOT NULL,";
         cmd += " Minimizer           varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
         cmd += " Scaling             varchar(50) NOT NULL,";
@@ -607,7 +617,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " SpeciesA            varchar(50) NOT NULL,";
         cmd += " SpeciesB            varchar(50) NOT NULL,";
         cmd += " Value               double      NULL,";
-        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 12] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -627,7 +637,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(Algorithm           varchar(50) NOT NULL,";
+        cmd += "(ProjectName         varchar(50) NOT NULL,";
+        cmd += " ModelName           varchar(50) NOT NULL,";
+        cmd += " Algorithm           varchar(50) NOT NULL,";
         cmd += " Minimizer           varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
         cmd += " Scaling             varchar(50) NOT NULL,";
@@ -635,7 +647,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " SpeName             varchar(50) NOT NULL,";
         cmd += " Guild               varchar(50) NOT NULL,";
         cmd += " Value               double      NULL,";
-        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 13] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -655,7 +667,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(Algorithm           varchar(50) NOT NULL,";
+        cmd += "(ProjectName         varchar(50) NOT NULL,";
+        cmd += " ModelName           varchar(50) NOT NULL,";
+        cmd += " Algorithm           varchar(50) NOT NULL,";
         cmd += " Minimizer           varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
         cmd += " Scaling             varchar(50) NOT NULL,";
@@ -663,7 +677,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " GuildA              varchar(50) NOT NULL,";
         cmd += " GuildB              varchar(50) NOT NULL,";
         cmd += " Value               double      NULL,";
-        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 13.1] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -699,14 +713,16 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(Algorithm           varchar(50) NOT NULL,";
+        cmd += "(ProjectName         varchar(50) NOT NULL,";
+        cmd += " ModelName           varchar(50) NOT NULL,";
+        cmd += " Algorithm           varchar(50) NOT NULL,";
         cmd += " Minimizer           varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
         cmd += " Scaling             varchar(50) NOT NULL,";
         cmd += " isAggProd           int(11)     NOT NULL,";
         cmd += " SpeName             varchar(50) NOT NULL,";
         cmd += " Value               double      NOT NULL,";
-        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 14] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -726,10 +742,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(SpeciesA            varchar(50) NOT NULL,";
+        cmd += "(ProjectName         varchar(50) NOT NULL,";
+        cmd += " ModelName           varchar(50) NOT NULL,";
+        cmd += " SpeciesA            varchar(50) NOT NULL,";
         cmd += " SpeciesB            varchar(50) NOT NULL,";
         cmd += " Value               float NULL,";
-        cmd += " PRIMARY KEY (SpeciesA,SpeciesB))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,SpeciesA,SpeciesB))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 15] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -827,6 +845,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
     cmd += "(ProjectName        varchar(50) NOT NULL,";
+    cmd += " ModelName          varchar(50) NOT NULL,";
     cmd += " ForecastName       varchar(50) NOT NULL,";
     cmd += " PreviousRun        int(11)     NOT NULL,";
     cmd += " Algorithm          varchar(50) NOT NULL,";
@@ -843,7 +862,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " NumRuns            int(11)     NOT NULL,";
     cmd += " IsDeterministic    int(11)     NOT NULL,";
     cmd += " Seed               int(11)     NOT NULL,";
-    cmd += " PRIMARY KEY (ProjectName,ForecastName))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,ForecastName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 19] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -867,6 +886,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
         cmd += "(ProjectName        varchar(50) NOT NULL,";
+        cmd += " ModelName          varchar(50) NOT NULL,";
         cmd += " ForecastName       varchar(50) NOT NULL,";
         cmd += " Algorithm          varchar(50) NOT NULL,";
         cmd += " Minimizer          varchar(50) NOT NULL,";
@@ -875,7 +895,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " SpeName            varchar(50) NOT NULL,";
         cmd += " Year               int(11)     NOT NULL,";
         cmd += " Value              double      NOT NULL,";
-        cmd += " PRIMARY KEY (ProjectName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 20] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -895,6 +915,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
     cmd += "(ProjectName        varchar(50) NOT NULL,";
+    cmd += " ModelName          varchar(50) NOT NULL,";
     cmd += " ForecastName       varchar(50) NOT NULL,";
     cmd += " Algorithm          varchar(50) NOT NULL,";
     cmd += " Minimizer          varchar(50) NOT NULL,";
@@ -904,7 +925,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " SpeName            varchar(50) NOT NULL,";
     cmd += " Year               int(11)     NOT NULL,";
     cmd += " Value              float       NOT NULL,";
-    cmd += " PRIMARY KEY (ProjectName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 22] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -923,6 +944,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
     cmd += "(ProjectName  varchar(50) NOT NULL,";
+    cmd += " ModelName    varchar(50) NOT NULL,";
     cmd += " ForecastName varchar(50) NOT NULL,";
     cmd += " RunNum       int(11)     NOT NULL,";
     cmd += " Algorithm    varchar(50) NOT NULL,";
@@ -933,7 +955,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " SpeName      varchar(50) NOT NULL,";
     cmd += " Year         int(11)     NOT NULL,";
     cmd += " Value        float       NOT NULL,";
-    cmd += " PRIMARY KEY (ProjectName,ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 21] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -952,6 +974,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
     cmd += "(ProjectName                 varchar(50) NOT NULL,";
+    cmd += " ModelName                   varchar(50) NOT NULL,";
     cmd += " ForecastName                varchar(50) NOT NULL,";
     cmd += " RunNum                      int(11)     NOT NULL,";
     cmd += " Algorithm                   varchar(50) NOT NULL,";
@@ -970,7 +993,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " Predation                   float       NULL,";
     cmd += " Handling                    float       NULL,";
     cmd += " Harvest                     double      NULL,";
-    cmd += " PRIMARY KEY (ProjectName,ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 21.1] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -988,13 +1011,15 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(ScenarioName  varchar(50) NOT NULL,";
+    cmd += "(ProjectName   varchar(50) NOT NULL,";
+    cmd += " ModelName     varchar(50) NOT NULL,";
+    cmd += " ScenarioName  varchar(50) NOT NULL,";
     cmd += " SortOrder     int(11)     NOT NULL,"; // Because user may not want default sort order for ForecastLabel
     cmd += " ForecastLabel varchar(50) NOT NULL,";
     cmd += " SpeName       varchar(50) NOT NULL,";
     cmd += " Year          int(11)     NOT NULL,";
     cmd += " Value         float       NOT NULL,";
-    cmd += " PRIMARY KEY (ScenarioName,SortOrder,ForecastLabel,SpeName,Year))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,ScenarioName,SortOrder,ForecastLabel,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 22] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -1013,6 +1038,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
     cmd += "(ProjectName                 varchar(50) NOT NULL,";
+    cmd += " ModelName                   varchar(50) NOT NULL,";
     cmd += " ForecastName                varchar(50) NOT NULL,";
     cmd += " SpeName                     varchar(50) NOT NULL,";
     cmd += " Algorithm                   varchar(50) NOT NULL,";
@@ -1032,7 +1058,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " PredationExponent           float       NOT NULL,";
     cmd += " SurveyQ                     float       NOT NULL,";
     cmd += " Harvest                     float       NOT NULL,";
-    cmd += " PRIMARY KEY (ProjectName,ForecastName,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,ForecastName,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 23] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -1059,7 +1085,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(Algorithm          varchar(50) NOT NULL,";
+        cmd += "(ProjectName        varchar(50) NOT NULL,";
+        cmd += " ModelName          varchar(50) NOT NULL,";
+        cmd += " Algorithm          varchar(50) NOT NULL,";
         cmd += " Minimizer          varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion varchar(50) NOT NULL,";
         cmd += " Scaling            varchar(50) NOT NULL,";
@@ -1068,7 +1096,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Offset             double      NOT NULL,";
         cmd += " Value              double      NOT NULL,";
         cmd += " Fitness            double      NULL,";
-        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Offset))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Offset))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 24] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -1088,7 +1116,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(Algorithm          varchar(50) NOT NULL,";
+        cmd += "(ProjectName        varchar(50) NOT NULL,";
+        cmd += " ModelName          varchar(50) NOT NULL,";
+        cmd += " Algorithm          varchar(50) NOT NULL,";
         cmd += " Minimizer          varchar(50) NOT NULL,";
         cmd += " ObjectiveCriterion varchar(50) NOT NULL,";
         cmd += " Scaling            varchar(50) NOT NULL,";
@@ -1098,7 +1128,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " parameter1PctVar   double      NOT NULL,";
         cmd += " parameter2PctVar   double      NOT NULL,";
         cmd += " Fitness            double      NULL,";
-        cmd += " PRIMARY KEY (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Type,parameter1PctVar,parameter2PctVar))";
+        cmd += " PRIMARY KEY (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Type,parameter1PctVar,parameter2PctVar))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             nmfUtils::printError("[Error 25] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -1118,55 +1148,78 @@ nmfSetup_Tab2::createTables(QString databaseName)
         ExistingTableNames.push_back(tableName);
         fullTableName = db + "." + tableName;
         cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-        cmd += "(ProjectName                 varchar(50)  NOT NULL,";
-        cmd += " ModelName                   varchar(50)  NOT NULL,";
-        cmd += " CarryingCapacity            double       NULL,";
-        cmd += " ObsBiomassType              varchar(50)  NULL,";
-        cmd += " Units                       varchar(50)  NULL,";
-        cmd += " GrowthForm                  varchar(25)  NULL,";
-        cmd += " PredationForm               varchar(25)  NULL,";
-        cmd += " HarvestForm                 varchar(25)  NULL,";
-        cmd += " WithinGuildCompetitionForm  varchar(25)  NULL,";
-        cmd += " BetweenGuildCompetitionForm varchar(25)  NULL,";
-        cmd += " NumberOfParameters          int(11)      NULL,";
-        cmd += " StochasticGrowth            varchar(25)  NULL,";
-        cmd += " StochasticCatch             varchar(25)  NULL,";
-        cmd += " AssessmentType              varchar(50)  NULL,";
-        cmd += " CVAssessment                float        NULL,";
-        cmd += " IndicatorSpecies            int(11)      NULL,";
-        cmd += " ACLBuffer                   float        NULL,";
-        cmd += " AssessmentInterval          int(11)      NULL,";
-        cmd += " NumberOfRuns                int(11)      NULL,";
-        cmd += " HistoricalEnd               int(11)      NULL,";
-        cmd += " StartYear                   int(11)      NULL,";
-        cmd += " RunLength                   int(11)      NULL,";
-        cmd += " TimeStep                    float        NULL,";
-        cmd += " Algorithm                   varchar(50)  NULL,";
-        cmd += " Minimizer                   varchar(50)  NULL,";
-        cmd += " ObjectiveCriterion          varchar(50)  NULL,";
-        cmd += " Scaling                     varchar(50)  NULL,";
-        cmd += " OutputType                  varchar(50)  NULL,";
-        cmd += " GAGenerations               int(11)      NULL,";
-        cmd += " GAPopulationSize            int(11)      NULL,";
-        cmd += " GAMutationRate              float        NULL,";
-        cmd += " GAConvergence               int(11)      NULL,";
-        cmd += " BeesNumTotal                int(11)      NULL,";
-        cmd += " BeesNumElite                int(11)      NULL,";
-        cmd += " BeesNumOther                int(11)      NULL,";
-        cmd += " BeesNumEliteSites           int(11)      NULL,";
-        cmd += " BeesNumBestSites            int(11)      NULL,";
-        cmd += " BeesNumRepetitions          int(11)      NULL,";
-        cmd += " BeesMaxGenerations          int(11)      NULL,";
-        cmd += " BeesNeighborhoodSize        float        NULL,";
-        cmd += " GradMaxIterations           int(11)      NULL,";
-        cmd += " GradMaxLineSearches         int(11)      NULL,";
-        cmd += " NLoptNumberOfRuns           int(11)      NULL,";
-        cmd += " NLoptUseStopVal             int(11)      NULL,";
-        cmd += " NLoptUseStopAfterTime       int(11)      NULL,";
-        cmd += " NLoptUseStopAfterIter       int(11)      NULL,";
-        cmd += " NLoptStopVal                double       NULL,";
-        cmd += " NLoptStopAfterTime          int(11)      NULL,";
-        cmd += " NLoptStopAfterIter          int(11)      NULL,";
+        cmd += "(ProjectName                     varchar(50)  NOT NULL,";
+        cmd += " ModelName                       varchar(50)  NOT NULL,";
+        cmd += " CarryingCapacity                double       NULL,";
+        cmd += " ObsBiomassType                  varchar(50)  NULL,";
+        cmd += " Units                           varchar(50)  NULL,";
+        cmd += " GrowthForm                      varchar(25)  NULL,";
+        cmd += " PredationForm                   varchar(25)  NULL,";
+        cmd += " HarvestForm                     varchar(25)  NULL,";
+        cmd += " WithinGuildCompetitionForm      varchar(25)  NULL,";
+        cmd += " BetweenGuildCompetitionForm     varchar(25)  NULL,";
+        cmd += " NumberOfParameters              int(11)      NULL,";
+        cmd += " StochasticGrowth                varchar(25)  NULL,";
+        cmd += " StochasticCatch                 varchar(25)  NULL,";
+        cmd += " AssessmentType                  varchar(50)  NULL,";
+        cmd += " CVAssessment                    float        NULL,";
+        cmd += " IndicatorSpecies                int(11)      NULL,";
+        cmd += " ACLBuffer                       float        NULL,";
+        cmd += " AssessmentInterval              int(11)      NULL,";
+        cmd += " NumberOfRuns                    int(11)      NULL,";
+        cmd += " HistoricalEnd                   int(11)      NULL,";
+        cmd += " StartYear                       int(11)      NULL,";
+        cmd += " RunLength                       int(11)      NULL,";
+        cmd += " TimeStep                        float        NULL,";
+        cmd += " Algorithm                       varchar(50)  NULL,";
+        cmd += " Minimizer                       varchar(50)  NULL,";
+        cmd += " ObjectiveCriterion              varchar(50)  NULL,";
+        cmd += " Scaling                         varchar(50)  NULL,";
+        cmd += " OutputType                      varchar(50)  NULL,";
+        cmd += " GAGenerations                   int(11)      NULL,";
+        cmd += " GAPopulationSize                int(11)      NULL,";
+        cmd += " GAMutationRate                  float        NULL,";
+        cmd += " GAConvergence                   int(11)      NULL,";
+        cmd += " BeesNumTotal                    int(11)      NULL,";
+        cmd += " BeesNumElite                    int(11)      NULL,";
+        cmd += " BeesNumOther                    int(11)      NULL,";
+        cmd += " BeesNumEliteSites               int(11)      NULL,";
+        cmd += " BeesNumBestSites                int(11)      NULL,";
+        cmd += " BeesNumRepetitions              int(11)      NULL,";
+        cmd += " BeesMaxGenerations              int(11)      NULL,";
+        cmd += " BeesNeighborhoodSize            float        NULL,";
+        cmd += " GradMaxIterations               int(11)      NULL,";
+        cmd += " GradMaxLineSearches             int(11)      NULL,";
+        cmd += " NLoptNumberOfRuns               int(11)      NULL,";
+        cmd += " NLoptUseStopVal                 int(11)      NULL,";
+        cmd += " NLoptUseStopAfterTime           int(11)      NULL,";
+        cmd += " NLoptUseStopAfterIter           int(11)      NULL,";
+        cmd += " NLoptStopVal                    double       NULL,";
+        cmd += " NLoptStopAfterTime              int(11)      NULL,";
+        cmd += " NLoptStopAfterIter              int(11)      NULL,";
+
+        cmd += " EstimateInitialBiomass          int(11)      NULL,";
+        cmd += " EstimateGrowthRate              int(11)      NULL,";
+        cmd += " EstimateCarryingCapacity        int(11)      NULL,";
+        cmd += " EstimateCatchability            int(11)      NULL,";
+        cmd += " EstimateCompetition             int(11)      NULL,";
+        cmd += " EstimateCompetitionSpecies      int(11)      NULL,";
+        cmd += " EstimateCompetitionGuilds       int(11)      NULL,";
+        cmd += " EstimateCompetitionGuildsGuilds int(11)      NULL,";
+        cmd += " EstimatePredation               int(11)      NULL,";
+        cmd += " EstimatePredationHandling       int(11)      NULL,";
+        cmd += " EstimatePredationExponent       int(11)      NULL,";
+        cmd += " EstimateSurveyQ                 int(11)      NULL,";
+
+        cmd += " EnsembleIsBoxChecked            int(11)      NULL,";
+        cmd += " EnsembleAverageAlg              varchar(20)  NULL,";
+        cmd += " EnsembleAverageBy               varchar(20)  NULL,";
+        cmd += " EnsembleUsingWhat               varchar(20)  NULL,";
+        cmd += " EnsembleUsingValue              int(11)      NULL,";
+        cmd += " EnsembleIsUsingPct              int(11)      NULL,";
+        cmd += " EnsembleFile                    varchar(50)  NULL,";
+      //cmd += " EnsembleParametersFile          varchar(50)  NULL,";
+
         cmd += " PRIMARY KEY (ProjectName,ModelName))";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -1206,9 +1259,11 @@ nmfSetup_Tab2::createTables(QString databaseName)
     // 68 of 71: OutputBiomassEnsemble
     tableName = nmfConstantsMSSPM::TableOutputBiomassEnsemble;
     fullTableName = db + "." + tableName;
-    ExistingTableNames.push_back(tableName);
+    ExistingTableNames .push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(Label               varchar(50) NOT NULL,";
+    cmd += "(ProjectName         varchar(50) NOT NULL,";
+    cmd += " ModelName           varchar(50) NOT NULL,";
+    cmd += " Label               varchar(50) NOT NULL,";
     cmd += " RunNumber           int(11)     NOT NULL,";
     cmd += " Algorithm           varchar(50) NOT NULL,";
     cmd += " Minimizer           varchar(50) NOT NULL,";
@@ -1218,7 +1273,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " SpeName             varchar(50) NOT NULL,";
     cmd += " Year                int(11)     NOT NULL,";
     cmd += " Value               double      NOT NULL,";
-    cmd += " PRIMARY KEY (Label,RunNumber,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,Label,RunNumber,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 29] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -1346,18 +1401,18 @@ nmfSetup_Tab2::createTables(QString databaseName)
     }
 
     // 71 of 71: Mohn's Rho Diagnostics Summary
-    tableName = nmfConstantsMSSPM::TableSummaryMohnsRho;
+    tableName = nmfConstantsMSSPM::TableSummaryDiagnostic;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
     cmd += "(ProjectName         varchar(50)  NOT NULL,";
     cmd += " ModelName           varchar(50)  NOT NULL,";
     cmd += " SpeciesName         varchar(50)  NOT NULL,";
-    cmd += " InitialAbsBiomass   double       NOT NULL,";
-    cmd += " GrowthRate          double       NOT NULL,";
-    cmd += " CarryingCapacity    double       NOT NULL,";
-    cmd += " PredationEffect     double       NOT NULL,";
-    cmd += " EstimatedBiomass    double       NOT NULL,";
+    cmd += " InitialAbsBiomass   varchar(50)  NOT NULL,";
+    cmd += " GrowthRate          varchar(50)  NOT NULL,";
+    cmd += " CarryingCapacity    varchar(50)  NOT NULL,";
+    cmd += " PredationEffect     varchar(50)  NOT NULL,";
+    cmd += " EstimatedBiomass    varchar(50)  NOT NULL,";
     cmd += " PRIMARY KEY (ProjectName,ModelName,SpeciesName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {

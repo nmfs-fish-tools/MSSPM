@@ -51,6 +51,7 @@ private:
     std::vector<std::string> m_ForecastNames;
     nmfLogger*               m_Logger;
     std::string              m_ProjectName;
+    std::string              m_ModelName;
 
 public:
     /**
@@ -60,6 +61,7 @@ public:
      * @param logger : pointer to the application logger
      * @param databasePtr : pointer to the application database
      * @param projectName : name of the project
+     * @param modelName : name of the model
      * @param forecastName : name of Forecast
      * @param runLengthSB : Spin Box for the number of Years per Run
      * @param numRunsSB : Spin Box for the number of Runs in the current Forecast
@@ -69,6 +71,7 @@ public:
                           nmfLogger*   logger,
                           nmfDatabase* databasePtr,
                           const std::string& projectName,
+                          const std::string& modelName,
                           QLineEdit*   forecastName,
                           QSpinBox*    runLengthSB,
                           QSpinBox*    numRunsSB);

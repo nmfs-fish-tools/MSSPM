@@ -56,7 +56,12 @@ class nmfOutputTableWidgets: public QObject
     std::string         m_ProjectName;
     std::string         m_ModelName;
     QWidget*            m_Parent;
+//    QAction*            m_SigDigActn;
     int                 m_NumSignificantDigits;
+    QString             m_LastFileLoaded; // if empty, last loaded was from db, else from an import
+    QString             m_LastLabel;
+    QTableView*         m_LastTableView;
+    QStringList         m_LastStatisticNames;
 
     void readSettings();
     void saveSettings();
@@ -75,15 +80,26 @@ public:
                           std::string& projectDir);
     virtual ~nmfOutputTableWidgets() {}
 
-    void loadSummaryTable(QTableView* tableView);
-    void exportSummaryTable(QTableView* tableView);
-    void importSummaryTable(QTableView* tableView);
+    void loadSummaryTable(QTableView* tableView,
+                          const QString& label,
+                          const QStringList& statisticNames);
+    void exportSummaryTable(QTableView* tableView,
+                            const QString& label,
+                            const std::string& defaultFilenameCSV);
+    void importSummaryTable(QTableView* tableView,
+                            const QString& label,
+                            const std::string& defaultFilenameCSV);
     void loadWidgets();
+    void reloadLast();
+    void setLastVariables(QTableView* tableView,
+                          const QString& label,
+                          const QStringList& statisticNames);
 
 signals:
-
+    void ToggleSignificantDigits();
 
 public slots:
+
 
 };
 

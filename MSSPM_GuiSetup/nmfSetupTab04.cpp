@@ -41,10 +41,10 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     m_ModelPresets["MS-PROD"]              = {"Logistic", "Type I", "Exploitation (F)", "MS-PROD"};
     m_ModelPresets["AGG-PROD"]             = {"Logistic", "Type I", "Exploitation (F)", "AGG-PROD"};
 
-    Setup_Tab4_ModelNameLE              = Setup_Tabs->findChild<QLineEdit *>("Setup_Tab4_ModelNameLE");
-    Setup_Tab4_SystemCarryingCapacityLE = Setup_Tabs->findChild<QLineEdit *>("Setup_Tab4_SystemCarryingCapacityLE");
-    Setup_Tab4_ModelEquationTE          = Setup_Tabs->findChild<QTextEdit *>("Setup_Tab4_ModelEquationTE");
-    Setup_Tab4_FontSizeCMB              = Setup_Tabs->findChild<QComboBox *>("Setup_Tab4_FontSizeCMB");
+    Setup_Tab4_ModelNameLE              = Setup_Tabs->findChild<QLineEdit    *>("Setup_Tab4_ModelNameLE");
+    Setup_Tab4_SystemCarryingCapacityLE = Setup_Tabs->findChild<QLineEdit    *>("Setup_Tab4_SystemCarryingCapacityLE");
+    Setup_Tab4_ModelEquationTE          = Setup_Tabs->findChild<QTextEdit    *>("Setup_Tab4_ModelEquationTE");
+    Setup_Tab4_FontSizeCMB              = Setup_Tabs->findChild<QComboBox    *>("Setup_Tab4_FontSizeCMB");
     Setup_Tab4_GrowthHighlightPB        = Setup_Tabs->findChild<QPushButton  *>("GrowthHighlightPB");
     Setup_Tab4_HarvestHighlightPB       = Setup_Tabs->findChild<QPushButton  *>("HarvestHighlightPB");
     Setup_Tab4_PredationHighlightPB     = Setup_Tabs->findChild<QPushButton  *>("PredationHighlightPB");
@@ -73,8 +73,8 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tab4_SavePB->setEnabled(true);
     Setup_Tab4_PrevPB->setText("\u25C1--");
     Setup_Tab4_NextPB->setText("--\u25B7");
-//    Setup_Tab4_ModelNameLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
-//    Setup_Tab4_EndYearLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
+//  Setup_Tab4_ModelNameLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
+//  Setup_Tab4_EndYearLE->setStyleSheet(nmfUtilsQt::ReadOnlyLineEditBgColor);
 
     // Get and set the highlight colors
     setHighlightColors();
@@ -119,6 +119,17 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
             this,                              SLOT(callback_UpdateEndYear(int)));
     connect(Setup_Tab4_RunLengthSB,            SIGNAL(valueChanged(int)),
             this,                              SLOT(callback_UpdateEndYear(int)));
+
+    // Temporarily disable AGG-PROD - Fix this for v2.0
+    QStandardItemModel* model;
+    QStandardItem*      item;
+    model = qobject_cast<QStandardItemModel*>(Setup_Tab4_CompetitionFormCMB->model());
+    item  = model->item(3);
+    item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+    model = qobject_cast<QStandardItemModel*>(Setup_Tab4_ModelPresetsCMB->model());
+    item  = model->item(6);
+    item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+
 }
 
 nmfSetup_Tab4::~nmfSetup_Tab4()
@@ -369,8 +380,10 @@ nmfSetup_Tab4::loadModel()
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
     queryStr  += "GradMaxIterations,GradMaxLineSearches,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
-    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter FROM " + nmfConstantsMSSPM::TableModels;
-    queryStr  += " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName + "'";
+    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter FROM " +
+                  nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName + "'";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ModelName"].size() == 0) {
         m_logger->logMsg(nmfConstants::Error,"nmfSetupTab3::callback_Setup_Tab4_LoadPB: No data found in Models table");
@@ -454,6 +467,7 @@ nmfSetup_Tab4::loadModel()
     setEstimatedParameterNames();
 
     emit UpdateDiagnosticParameterChoices();
+
 }
 
 void
@@ -770,8 +784,10 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
 
     // Check if Model exists, if so Update else REPLACE
     fields   = {"ProjectName","ModelName"};
-    queryStr = "SELECT ProjectName,ModelName from " + nmfConstantsMSSPM::TableModels + " where ProjectName = '" + m_ProjectName +
-               "' AND ModelName = '" + currentModelName + "'";
+    queryStr = "SELECT ProjectName,ModelName from " +
+                nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName    +
+               "' AND ModelName = '"    + currentModelName + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ModelName"].size() != 0) { // This means the model name exists so do an update
         cmd  = "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
@@ -789,7 +805,8 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
                " WHERE ModelName = '"              + currentModelName +
                "' AND ProjectName = '"             + m_ProjectName + "'";
     } else { // This means the system name does not exist so do a replace
-        cmd  = "REPLACE INTO " + nmfConstantsMSSPM::TableModels + " (ProjectName,ModelName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,";
+        cmd  = "REPLACE INTO " + nmfConstantsMSSPM::TableModels +
+               " (ProjectName,ModelName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,";
         cmd += "WithinGuildCompetitionForm,StartYear,RunLength,NumberOfParameters) ";
         cmd += "VALUES ('" +
                 m_ProjectName                      + "','"  +
@@ -864,8 +881,9 @@ nmfSetup_Tab4::loadWidgets()
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
     queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter ";
-    queryStr  += "FROM " + nmfConstantsMSSPM::TableModels + " where ModelName = '";
-    queryStr  += m_ModelName + "' AND ProjectName = '" + m_ProjectName + "'";
+    queryStr  += "FROM " + nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName   + "'";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ModelName"].size();
     if (NumRecords == 0) {
@@ -1230,8 +1248,9 @@ nmfSetup_Tab4::populateNewModel()
     // Get data from other models in current project
     fields    = {"ProjectName","ModelName","HarvestForm","ObsBiomassType"};
     queryStr  = "SELECT ProjectName,ModelName,HarvestForm,ObsBiomassType FROM " +
-                nmfConstantsMSSPM::TableModels + " WHERE ProjectName = '" + m_ProjectName + "'";
-    queryStr += " AND ModelName != '" + m_ModelName + "'";
+                nmfConstantsMSSPM::TableModels +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName != '"   + m_ModelName + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     int NumModels = (int)dataMap["ModelName"].size();
     if (NumModels == 0) {
@@ -1330,7 +1349,7 @@ nmfSetup_Tab4::modelExists(QString ModelName)
     fields   = {"ProjectName","ModelName"};
     queryStr = "SELECT ProjectName,ModelName FROM " + nmfConstantsMSSPM::TableModels +
                " WHERE ProjectName = '" + m_ProjectName +
-               "' AND ModelName = '" + ModelName.toStdString() + "'";
+               "' AND ModelName = '"    + ModelName.toStdString() + "'";
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
 
     return (dataMap["ModelName"].size() > 0);

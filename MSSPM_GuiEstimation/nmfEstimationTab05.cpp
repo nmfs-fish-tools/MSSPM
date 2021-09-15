@@ -311,7 +311,7 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
 
     // Get SpeciesKMin values for all Species
     fields     = {"SpeName","SpeciesKMin"};
-    queryStr   = "SELECT SpeName,SpeciesKMin from " + nmfConstantsMSSPM::TableSpecies + " ORDER BY SpeName";
+    queryStr   = "SELECT SpeName,SpeciesKMin FROM " + nmfConstantsMSSPM::TableSpecies + " ORDER BY SpeName";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     for (int species=0; species<NumSpecies; ++species) {
@@ -462,7 +462,6 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
                         "','" + SpeNames[species] +
                         "','" + type1 +
                         "', " + QString::number(valueWithoutComma.toDouble(),'f',6).toStdString() + "),";
-//                      "', " + QString::number(index.data().toDouble(),'f',6).toStdString() + "),";
             }
         }
     } else {
@@ -476,7 +475,6 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
                         "','" + SpeNames[species] +
                         "',"  + std::to_string(time) +
                         ", "  + QString::number(valueWithoutComma.toDouble(),'f',6).toStdString() + "),";
-//                      ", "  + QString::number(index.data().toDouble(),'f',6).toStdString() + "),";
             }
         }
     }
@@ -693,9 +691,11 @@ nmfEstimation_Tab5::loadTableValuesFromDatabase(
 
     // Get data from database table
     fields     = {"ProjectName","ModelName","SpeName","Year","Value"};
-    queryStr   = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " + tableName +
-                 " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" +
-                 ModelName.toStdString() + "' ORDER BY SpeName,Year ";
+    queryStr   = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " +
+                  tableName +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + ModelName.toStdString() +
+                 "' ORDER BY SpeName,Year ";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();
     Qt::ItemFlags flags;
@@ -831,7 +831,10 @@ nmfEstimation_Tab5::loadCovariates(const int& RunLength,
 
     // Get data from database table
     fields     = {"Year","Value"};
-    queryStr   = "SELECT Year,Value FROM " + nmfConstantsMSSPM::TableCovariate;
+    queryStr   = "SELECT Year,Value FROM " +
+                  nmfConstantsMSSPM::TableCovariate +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName   + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Year"].size();
 

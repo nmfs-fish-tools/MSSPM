@@ -18,6 +18,7 @@ nmfForecast_Tab1::nmfForecast_Tab1(QTabWidget*  tabs,
     m_ProjectDir  = projectDir;
     m_ModelName.clear();
     m_ProjectName.clear();
+    m_UseLastSingleRun = true;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab1::nmfForecast_Tab1");
 
@@ -32,24 +33,26 @@ nmfForecast_Tab1::nmfForecast_Tab1(QTabWidget*  tabs,
     // Add the loaded widget as the new tabbed page
     Forecast_Tabs->addTab(Forecast_Tab1_Widget, tr("1. Setup"));
 
-    Forecast_Tab1_SetNamePB             = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab1_SetNamePB");
-    Forecast_Tab1_LoadPB                = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab1_ReloadPB");
-    Forecast_Tab1_SavePB                = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab1_SavePB");
-    Forecast_Tab1_NextPB                = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab1_NextPB");
-    Forecast_Tab1_PreviousRunGB         = Forecast_Tabs->findChild<QGroupBox *>("Forecast_Tab1_PreviousRunGB");
-    Forecast_Tab1_AlgorithmLBL          = Forecast_Tabs->findChild<QLabel    *>("Forecast_Tab1_AlgorithmLBL");
-    Forecast_Tab1_MinimizerLBL          = Forecast_Tabs->findChild<QLabel    *>("Forecast_Tab1_MinimizerLBL");
-    Forecast_Tab1_ObjectiveCriterionLBL = Forecast_Tabs->findChild<QLabel    *>("Forecast_Tab1_ObjectiveCriterionLBL");
-    Forecast_Tab1_AlgorithmCMB          = Forecast_Tabs->findChild<QComboBox *>("Forecast_Tab1_AlgorithmCMB");
-    Forecast_Tab1_MinimizerCMB          = Forecast_Tabs->findChild<QComboBox *>("Forecast_Tab1_MinimizerCMB");
-    Forecast_Tab1_ObjectiveCriterionCMB = Forecast_Tabs->findChild<QComboBox *>("Forecast_Tab1_ObjectiveCriterionCMB");
-    Forecast_Tab1_StartYearLE           = Forecast_Tabs->findChild<QLineEdit *>("Forecast_Tab1_StartYearLE");
-    Forecast_Tab1_EndYearLE             = Forecast_Tabs->findChild<QLineEdit *>("Forecast_Tab1_EndYearLE");
-    Forecast_Tab1_RunLengthSB           = Forecast_Tabs->findChild<QSpinBox  *>("Forecast_Tab1_RunLengthSB");
-    Forecast_Tab1_NameLE                = Forecast_Tabs->findChild<QLineEdit *>("Forecast_Tab1_NameLE");
-    Forecast_Tab1_NumRunsSB             = Forecast_Tabs->findChild<QSpinBox  *>("Forecast_Tab1_NumRunsSB");
-    Forecast_Tab1_DeterministicCB       = Forecast_Tabs->findChild<QCheckBox *>("Forecast_Tab1_DeterministicCB");
-    Forecast_Tab1_DeterministicSB       = Forecast_Tabs->findChild<QSpinBox  *>("Forecast_Tab1_DeterministicSB");
+    Forecast_Tab1_SetNamePB             = Forecast_Tabs->findChild<QPushButton  *>("Forecast_Tab1_SetNamePB");
+    Forecast_Tab1_LoadPB                = Forecast_Tabs->findChild<QPushButton  *>("Forecast_Tab1_ReloadPB");
+    Forecast_Tab1_SavePB                = Forecast_Tabs->findChild<QPushButton  *>("Forecast_Tab1_SavePB");
+    Forecast_Tab1_NextPB                = Forecast_Tabs->findChild<QPushButton  *>("Forecast_Tab1_NextPB");
+    Forecast_Tab1_PreviousRunGB         = Forecast_Tabs->findChild<QGroupBox    *>("Forecast_Tab1_PreviousRunGB");
+    Forecast_Tab1_AlgorithmLBL          = Forecast_Tabs->findChild<QLabel       *>("Forecast_Tab1_AlgorithmLBL");
+    Forecast_Tab1_MinimizerLBL          = Forecast_Tabs->findChild<QLabel       *>("Forecast_Tab1_MinimizerLBL");
+    Forecast_Tab1_ObjectiveCriterionLBL = Forecast_Tabs->findChild<QLabel       *>("Forecast_Tab1_ObjectiveCriterionLBL");
+    Forecast_Tab1_AlgorithmCMB          = Forecast_Tabs->findChild<QComboBox    *>("Forecast_Tab1_AlgorithmCMB");
+    Forecast_Tab1_MinimizerCMB          = Forecast_Tabs->findChild<QComboBox    *>("Forecast_Tab1_MinimizerCMB");
+    Forecast_Tab1_ObjectiveCriterionCMB = Forecast_Tabs->findChild<QComboBox    *>("Forecast_Tab1_ObjectiveCriterionCMB");
+    Forecast_Tab1_StartYearLE           = Forecast_Tabs->findChild<QLineEdit    *>("Forecast_Tab1_StartYearLE");
+    Forecast_Tab1_EndYearLE             = Forecast_Tabs->findChild<QLineEdit    *>("Forecast_Tab1_EndYearLE");
+    Forecast_Tab1_RunLengthSB           = Forecast_Tabs->findChild<QSpinBox     *>("Forecast_Tab1_RunLengthSB");
+    Forecast_Tab1_NameLE                = Forecast_Tabs->findChild<QLineEdit    *>("Forecast_Tab1_NameLE");
+    Forecast_Tab1_NumRunsSB             = Forecast_Tabs->findChild<QSpinBox     *>("Forecast_Tab1_NumRunsSB");
+    Forecast_Tab1_DeterministicCB       = Forecast_Tabs->findChild<QCheckBox    *>("Forecast_Tab1_DeterministicCB");
+    Forecast_Tab1_DeterministicSB       = Forecast_Tabs->findChild<QSpinBox     *>("Forecast_Tab1_DeterministicSB");
+    Forecast_Tab1_UseLastSingleRunRB    = Forecast_Tabs->findChild<QRadioButton *>("Forecast_Tab1_UseLastSingleRunRB");
+    Forecast_Tab1_UseLastMultiRunRB     = Forecast_Tabs->findChild<QRadioButton *>("Forecast_Tab1_UseLastMultiRunRB");
 
     connect(Forecast_Tab1_SetNamePB,       SIGNAL(clicked()),
             this,                          SLOT(callback_SetNamePB()));
@@ -59,19 +62,25 @@ nmfForecast_Tab1::nmfForecast_Tab1(QTabWidget*  tabs,
             this,                          SLOT(callback_LoadPB()));
     connect(Forecast_Tab1_SavePB,          SIGNAL(clicked()),
             this,                          SLOT(callback_SavePB()));
-//    connect(Forecast_Tab1_AlgorithmCMB,    SIGNAL(activated(QString)),
-//            this,                          SLOT(callback_AlgorithmCMB(QString)));
-//    connect(Forecast_Tab1_MinimizerCMB,    SIGNAL(activated(QString)),
-//            this,                          SLOT(callback_MinimizerCMB(QString)));
+//  connect(Forecast_Tab1_AlgorithmCMB,    SIGNAL(activated(QString)),
+//          this,                          SLOT(callback_AlgorithmCMB(QString)));
+//  connect(Forecast_Tab1_MinimizerCMB,    SIGNAL(activated(QString)),
+//          this,                          SLOT(callback_MinimizerCMB(QString)));
     connect(Forecast_Tab1_RunLengthSB,     SIGNAL(valueChanged(int)),
             this,                          SLOT(callback_RunLengthSB(int)));
     connect(Forecast_Tab1_DeterministicCB, SIGNAL(stateChanged(int)),
             this,                          SLOT(callback_DeterministicCB(int)));
+    connect(Forecast_Tab1_UseLastSingleRunRB, SIGNAL(clicked(bool)),
+            this,                             SLOT(callback_UseLastSingleRunRB(bool)));
+    connect(Forecast_Tab1_UseLastMultiRunRB,  SIGNAL(clicked(bool)),
+            this,                             SLOT(callback_UseLastMultiRunRB(bool)));
+
 
     Forecast_Tab1_NextPB->setText("--\u25B7");
     Forecast_Tab1_NameLE->setClearButtonEnabled(true);
 
     readSettings();
+    saveSettings();
 
     // Temporarily turn this off
     Forecast_Tab1_PreviousRunGB->setVisible(false);
@@ -136,6 +145,7 @@ nmfForecast_Tab1::callback_LoadPB()
                                                       m_Logger,
                                                       m_DatabasePtr,
                                                       m_ProjectName,
+                                                      m_ModelName,
                                                       Forecast_Tab1_NameLE,
                                                       Forecast_Tab1_RunLengthSB,
                                                       Forecast_Tab1_NumRunsSB);
@@ -215,7 +225,9 @@ nmfForecast_Tab1::callback_SavePB()
         }
     }
 
-    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableForecasts + " WHERE ProjectName = '" + m_ProjectName +
+    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableForecasts +
+          " WHERE ProjectName = '" + m_ProjectName +
+          "' AND ModelName = '"    + m_ModelName +
           "' AND ForecastName = '" + ForecastName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -228,11 +240,14 @@ nmfForecast_Tab1::callback_SavePB()
         return;
     }
 
-    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableForecasts + " (ProjectName,ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-    cmd += "GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,";
-    cmd += "StartYear,EndYear,NumRuns,IsDeterministic,Seed) VALUES ";
-    cmd += "('" + m_ProjectName + "','" + ForecastName +
-            "'," + std::to_string(isPreviousRun) + ",'" +
+    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableForecasts +
+            " (ProjectName,ModelName,ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling," +
+            "GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength," +
+            "StartYear,EndYear,NumRuns,IsDeterministic,Seed) VALUES ";
+    cmd += "('"   + m_ProjectName +
+            "','" + m_ModelName +
+            "','" + ForecastName +
+            "',"  + std::to_string(isPreviousRun) + ",'" +
             Algorithm + "','" + Minimizer + "','" +
             ObjectiveCriterion + "','" +
             Scaling + "','" +
@@ -289,13 +304,16 @@ nmfForecast_Tab1::loadForecast(std::string forecastToLoad)
 
     // Load Output Growth Rate Algorithm, Minimizer, ObjectiveCriterion, and Scaling from OutputGrowthRate
     // so that user can see what runs have already been done.
-    fields    = {"ProjectName","ForecastName","PreviousRun","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
+    fields    = {"ProjectName","ModelName","ForecastName","PreviousRun","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
                  "GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm",
                  "RunLength","StartYear","EndYear","NumRuns","IsDeterministic","Seed"};
-    queryStr  = "SELECT ProjectName,ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
+    queryStr  = "SELECT ProjectName,ModelName,ForecastName,PreviousRun,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
     queryStr += "GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,";
-    queryStr += "StartYear,EndYear,NumRuns,IsDeterministic,Seed FROM " + nmfConstantsMSSPM::TableForecasts + " WHERE ";
-    queryStr += " ProjectName = '" + m_ProjectName + "' AND ForecastName = '" + forecastToLoad + "'";
+    queryStr += "StartYear,EndYear,NumRuns,IsDeterministic,Seed FROM " +
+                 nmfConstantsMSSPM::TableForecasts +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' AND ForecastName = '" + forecastToLoad + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() == 0) {
         m_Logger->logMsg(nmfConstants::Error,"No records found in table Forecasts for forecast: "+forecastToLoad);
@@ -389,6 +407,44 @@ nmfForecast_Tab1::callback_RunLengthSB(int duration)
     Forecast_Tab1_EndYearLE->setText(QString::number(endYear));
 }
 
+bool
+nmfForecast_Tab1::useMultiRunEstimatedParameters()
+{
+    return (Forecast_Tab1_UseLastMultiRunRB->isEnabled() &&
+            Forecast_Tab1_UseLastMultiRunRB->isChecked());
+}
+
+void
+nmfForecast_Tab1::setSingleRunRBState(bool isEnabled,
+                                      bool isChecked)
+{
+    Forecast_Tab1_UseLastSingleRunRB->setEnabled(isEnabled);
+    Forecast_Tab1_UseLastSingleRunRB->setChecked(isChecked);
+    m_UseLastSingleRun = isChecked;
+    saveSettings();
+}
+
+void
+nmfForecast_Tab1::setSingleRunRBEnabled(bool isEnabled)
+{
+    Forecast_Tab1_UseLastSingleRunRB->setEnabled(isEnabled);
+}
+
+void
+nmfForecast_Tab1::setMultiRunRBEnabled(bool isEnabled)
+{
+    Forecast_Tab1_UseLastMultiRunRB->setEnabled(isEnabled);
+}
+
+void
+nmfForecast_Tab1::setMultiRunRBState(bool isEnabled,
+                                     bool isChecked)
+{
+    Forecast_Tab1_UseLastMultiRunRB->setEnabled(isEnabled);
+    Forecast_Tab1_UseLastMultiRunRB->setChecked(isChecked);
+    m_UseLastSingleRun = ! isChecked;
+    saveSettings();
+}
 
 void
 nmfForecast_Tab1::callback_DeterministicCB(int checked)
@@ -444,6 +500,21 @@ nmfForecast_Tab1::callback_UpdateForecastYears()
 }
 
 void
+nmfForecast_Tab1::callback_UseLastSingleRunRB(bool checked)
+{
+    m_UseLastSingleRun = checked;
+    saveSettings();
+}
+
+void
+nmfForecast_Tab1::callback_UseLastMultiRunRB(bool checked)
+{
+    m_UseLastSingleRun = ! checked;
+    saveSettings();
+}
+
+
+void
 nmfForecast_Tab1::readSettings()
 {
     std::string ForecastName;
@@ -472,6 +543,10 @@ nmfForecast_Tab1::saveSettings()
 
     settings->beginGroup("Forecast");
     settings->setValue("Name", Forecast_Tab1_NameLE->text());
+    settings->endGroup();
+
+    settings->beginGroup("Runtime");
+    settings->setValue("LastRunTypeForecast", m_UseLastSingleRun);
     settings->endGroup();
 
     delete settings;

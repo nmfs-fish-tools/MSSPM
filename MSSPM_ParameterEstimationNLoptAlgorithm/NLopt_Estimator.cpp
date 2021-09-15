@@ -238,10 +238,10 @@ NLopt_Estimator::myExp(double value)
 }
 
 double
-NLopt_Estimator::objectiveFunction(unsigned n,
+NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                                    const double* EstParameters,
-                                   double* gradient,
-                                   void* dataPtr)
+                                   double*       gradientUnused,
+                                   void*         dataPtr)
 {
     const int DefaultFitness = 99999;
     nmfStructsQt::ModelDataStruct NLoptDataStruct = *((nmfStructsQt::ModelDataStruct *)dataPtr);
@@ -684,7 +684,14 @@ NLopt_Estimator::setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
     NLoptStruct.Parameters = m_Parameters;
 }
 
-
+void
+NLopt_Estimator::initialize(nmfStructsQt::ModelDataStruct &NLoptStruct)
+{
+    NLoptGrowthForm      = std::make_unique<nmfGrowthForm>(     NLoptStruct.GrowthForm);
+    NLoptHarvestForm     = std::make_unique<nmfHarvestForm>(    NLoptStruct.HarvestForm);
+    NLoptCompetitionForm = std::make_unique<nmfCompetitionForm>(NLoptStruct.CompetitionForm);
+    NLoptPredationForm   = std::make_unique<nmfPredationForm>(  NLoptStruct.PredationForm);
+}
 
 void
 NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
@@ -713,10 +720,12 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     NumSubRuns  =  NLoptStruct.BeesNumRepetitions; // RSK fix this
 
     // Define forms
-    NLoptGrowthForm      = std::make_unique<nmfGrowthForm>(     NLoptStruct.GrowthForm);
-    NLoptHarvestForm     = std::make_unique<nmfHarvestForm>(    NLoptStruct.HarvestForm);
-    NLoptCompetitionForm = std::make_unique<nmfCompetitionForm>(NLoptStruct.CompetitionForm);
-    NLoptPredationForm   = std::make_unique<nmfPredationForm>(  NLoptStruct.PredationForm);
+//    if (NLoptGrowthForm == nullptr) {
+        NLoptGrowthForm      = std::make_unique<nmfGrowthForm>(     NLoptStruct.GrowthForm);
+        NLoptHarvestForm     = std::make_unique<nmfHarvestForm>(    NLoptStruct.HarvestForm);
+        NLoptCompetitionForm = std::make_unique<nmfCompetitionForm>(NLoptStruct.CompetitionForm);
+        NLoptPredationForm   = std::make_unique<nmfPredationForm>(  NLoptStruct.PredationForm);
+//    }
 
     // Load parameter ranges
     loadInitBiomassParameterRanges(           ParameterRanges, NLoptStruct);
@@ -762,6 +771,10 @@ for (int i=0; i< NumEstParameters; ++i) {
         m_Seed = 0;
         foundOneNLoptRun = true;
 
+//if (NLoptStruct.isMohnsRho && isAMultiRun) {
+// std::cout << "---> Is a MohnsRho AND a MultiRun <---" << std::endl;
+//}
+
         for (int run=0; run<NumSubRuns; ++run) {
             m_Quit = false;
 
@@ -793,11 +806,6 @@ for (int i=0; i< NumEstParameters; ++i) {
                     std::cout << "Error: Unknown error from NLopt_Estimator::estimateParameters m_Optimizer.optimize()" << std::endl;
                     return;
                 }
-
-//std::cout << "Found " + MaxOrMin + " fitness of: " << fitness << std::endl;
-                //for (unsigned i=0; i<m_Parameters.size(); ++i) {
-                //    std::cout << "  Est Param[" << i << "]: " << m_Parameters[i] << std::endl;
-                //}
 
                 extractParameters(NLoptStruct, &m_Parameters[0],
                         m_EstInitBiomass,

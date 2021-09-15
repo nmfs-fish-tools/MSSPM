@@ -50,27 +50,30 @@ private:
     std::string         m_ProjectName;
     std::string         m_ModelName;
     QStandardItemModel* m_SModel;
+    bool                m_UseLastSingleRun;
 
-    QTabWidget*  Forecast_Tabs;
-    QWidget*     Forecast_Tab1_Widget;
-    QPushButton* Forecast_Tab1_SetNamePB;
-    QPushButton* Forecast_Tab1_NextPB;
-    QPushButton* Forecast_Tab1_LoadPB;
-    QPushButton* Forecast_Tab1_SavePB;
-    QGroupBox*   Forecast_Tab1_PreviousRunGB;
-    QLabel*      Forecast_Tab1_AlgorithmLBL;
-    QLabel*      Forecast_Tab1_MinimizerLBL;
-    QLabel*      Forecast_Tab1_ObjectiveCriterionLBL;
-    QComboBox*   Forecast_Tab1_AlgorithmCMB;
-    QComboBox*   Forecast_Tab1_MinimizerCMB;
-    QComboBox*   Forecast_Tab1_ObjectiveCriterionCMB;
-    QLineEdit*   Forecast_Tab1_StartYearLE;
-    QLineEdit*   Forecast_Tab1_EndYearLE;
-    QSpinBox*    Forecast_Tab1_RunLengthSB;
-    QLineEdit*   Forecast_Tab1_NameLE;
-    QSpinBox*    Forecast_Tab1_NumRunsSB;
-    QSpinBox*    Forecast_Tab1_DeterministicSB;
-    QCheckBox*   Forecast_Tab1_DeterministicCB;
+    QTabWidget*   Forecast_Tabs;
+    QWidget*      Forecast_Tab1_Widget;
+    QPushButton*  Forecast_Tab1_SetNamePB;
+    QPushButton*  Forecast_Tab1_NextPB;
+    QPushButton*  Forecast_Tab1_LoadPB;
+    QPushButton*  Forecast_Tab1_SavePB;
+    QGroupBox*    Forecast_Tab1_PreviousRunGB;
+    QLabel*       Forecast_Tab1_AlgorithmLBL;
+    QLabel*       Forecast_Tab1_MinimizerLBL;
+    QLabel*       Forecast_Tab1_ObjectiveCriterionLBL;
+    QComboBox*    Forecast_Tab1_AlgorithmCMB;
+    QComboBox*    Forecast_Tab1_MinimizerCMB;
+    QComboBox*    Forecast_Tab1_ObjectiveCriterionCMB;
+    QLineEdit*    Forecast_Tab1_StartYearLE;
+    QLineEdit*    Forecast_Tab1_EndYearLE;
+    QSpinBox*     Forecast_Tab1_RunLengthSB;
+    QLineEdit*    Forecast_Tab1_NameLE;
+    QSpinBox*     Forecast_Tab1_NumRunsSB;
+    QSpinBox*     Forecast_Tab1_DeterministicSB;
+    QCheckBox*    Forecast_Tab1_DeterministicCB;
+    QRadioButton* Forecast_Tab1_UseLastSingleRunRB;
+    QRadioButton* Forecast_Tab1_UseLastMultiRunRB;
 
     void loadForecast(std::string forecastToLoad);
     void readSettings();
@@ -133,6 +136,13 @@ public:
      * @param isDeterministic : boolean describing deterministic state
      */
     void setDeterministic(bool isDeterministic);
+    void setSingleRunRBState(bool isEnabled,
+                             bool isChecked);
+    void setMultiRunRBState(bool isEnabled,
+                            bool isChecked);
+    bool useMultiRunEstimatedParameters();
+    void setSingleRunRBEnabled(bool isEnabled);
+    void setMultiRunRBEnabled(bool isEnabled);
 
 signals:
     /**
@@ -190,6 +200,10 @@ public Q_SLOTS:
      * from the Setup -> Model Setup page
      */
     void callback_UpdateForecastYears();
+
+    void callback_UseLastSingleRunRB(bool checked);
+    void callback_UseLastMultiRunRB(bool checked);
+
 };
 
 #endif // NMFFORECASTTAB1_H

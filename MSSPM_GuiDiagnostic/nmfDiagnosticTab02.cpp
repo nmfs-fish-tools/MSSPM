@@ -17,8 +17,10 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
     m_DatabasePtr     = databasePtr;
     m_ProjectDir      = projectDir;
     m_isMohnsRhoRun   = false;
+    m_IsMultiRun      = false;
     m_ProjectName.clear();
     m_ModelName.clear();
+    m_MultiRunType.clear();
 
     // Load ui as a widget from disk
     QFile file(":/forms/Diagnostic/Diagnostic_Tab02.ui");
@@ -90,6 +92,11 @@ nmfDiagnostic_Tab2::readSettings()
 
     settings->beginGroup("Diagnostics");
     m_Diagnostic_Tab2_NumPeelsSB->setValue(settings->value("YearsPeeled",1).toInt());
+    settings->endGroup();
+
+    settings->beginGroup("Runtime");
+    m_IsMultiRun    = settings->value("IsMultiRun",false).toBool();
+    m_MultiRunType  = settings->value("MultiRunType","").toString().toStdString();
     settings->endGroup();
 
     delete settings;
@@ -264,18 +271,45 @@ nmfDiagnostic_Tab2::callback_PeelPositionCMB(QString position)
 void
 nmfDiagnostic_Tab2::callback_RunPB()
 {
+    QString msg;
+    QMessageBox::StandardButton reply;
+    int NumPeeledYears = getNumPeels();
+
     m_Logger->logMsg(nmfConstants::Normal,"");
     m_Logger->logMsg(nmfConstants::Normal,"Start Retrospective");
+
+    readSettings();
+
+    if (m_IsMultiRun) {
+QMessageBox::information(m_Diagnostic_Tabs, tr("Feature Unavailable"),
+                         tr("\nFeature not yet available.\n\nRetrospective Analysis on a Multi Run is currently in development.\n"),
+                         QMessageBox::Ok);
+return;
+
+
+
+        msg  = "\nWarning: The previous run was a multi-run.\n\nRunning a retrospective analysis on ";
+        msg += "a multi-run will cause the multi-run to run multiple times (i.e. one time per peel). ";
+        msg += "In this case, the last multi-run would run " + QString::number(NumPeeledYears);
+        msg += " times. Also, the multi-run should be deterministic.";
+        msg += "\n\nAre you sure you want to continue with this Retrospective Analysis?\n";
+        reply = QMessageBox::question(m_Diagnostic_Tabs, tr("Warning"),
+                                      tr(msg.toStdString().c_str()),
+                                      QMessageBox::Cancel|QMessageBox::Yes,
+                                      QMessageBox::Cancel);
+        if (reply == QMessageBox::Cancel) {
+            return;
+        }
+    }
 
     emit EnableRunButtons(false);
 
     // Calculate Mohn's Rho
     int StartYear      = getStartYearLE();
-    int NumPeeledYears = getNumPeels();
     int EndYear        = NumPeeledYears + getEndYearLE();
     std::vector<std::pair<int,int> > ranges;
-    QString msg;
 
+    // Check for a proper time range
     if ((EndYear < 0) || (StartYear >= EndYear)) {
         msg = "Invalid Year Range for Retrospective. Reload System: Setup -> Model Setup -> Load...";
         m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());

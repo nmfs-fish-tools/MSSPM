@@ -450,8 +450,11 @@ nmfOutputControls::callback_LoadScenariosWidget()
     std::string queryStr;
 
     fields   = {"ScenarioName"};
-    queryStr = "SELECT DISTINCT ScenarioName from " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
-               " ORDER BY ScenarioName";
+    queryStr = "SELECT DISTINCT ScenarioName from " +
+                nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '"    + m_ModelName   +
+               "' ORDER BY ScenarioName";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
 
     OutputScenariosCMB->blockSignals(true);
@@ -484,7 +487,10 @@ nmfOutputControls::loadWidgets()
 void
 nmfOutputControls::loadSortedForecastLabels()
 {
-    m_DatabasePtr->createScenarioMap(m_SortedForecastLabelsMap);
+    m_DatabasePtr->createScenarioMap(
+                m_ProjectName,
+                m_ModelName,
+                m_SortedForecastLabelsMap);
 }
 
 void
@@ -830,8 +836,11 @@ void
 nmfOutputControls::refresh()
 {
     int currentIndex = OutputChartTypeCMB->currentIndex();
-
-    OutputChartTypeCMB->setCurrentIndex(0);
+    if (currentIndex == 0) {
+        OutputChartTypeCMB->setCurrentIndex(1);
+    } else {
+        OutputChartTypeCMB->setCurrentIndex(0);
+    }
     OutputChartTypeCMB->setCurrentIndex(currentIndex);
 
     refreshScenarios();
@@ -846,7 +855,10 @@ nmfOutputControls::refreshScenarios()
     std::string queryStr;
 
     fields     = {"ScenarioName"};
-    queryStr   = "SELECT DISTINCT ScenarioName FROM " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
+    queryStr   = "SELECT DISTINCT ScenarioName FROM " +
+                  nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ScenarioName"].size();
 

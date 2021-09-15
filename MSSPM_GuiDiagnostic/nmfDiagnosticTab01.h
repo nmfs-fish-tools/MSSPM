@@ -65,12 +65,16 @@ private:
     QSpinBox*    m_Diagnostic_Tab1_PctVarSB;
     QSpinBox*    m_Diagnostic_Tab1_NumPtsSB;
     QPushButton* m_Diagnostic_Tab1_RunPB;
+    QRadioButton* m_Diagnostic_Tab1_UseLastSingleRunRB;
+    QRadioButton* m_Diagnostic_Tab1_UseLastMultiRunRB;
     nmfLogger*   m_Logger;
+    int          m_IsMultiRun;
     int          m_NumPoints;
     int          m_PctVariation;
     std::string  m_ProjectDir;
     std::string  m_ProjectName;
     std::string  m_ModelName;
+    std::string  m_MultiRunType;
     std::map<std::string,std::string> m_OutputTableName;
     std::map<std::string,std::string> m_DiagnosticTableName;
 
@@ -142,6 +146,7 @@ private:
             const std::string&   Minimizer,
             const std::string&   ObjectCriterion,
             const std::string&   Scaling,
+            const std::string&   isAggProdStr,
             std::vector<double>& Parameters);
     void parameterToTableName(const std::string  whichTable,
                               const QString&     parameter,
@@ -166,7 +171,11 @@ private:
                               const std::string& isAggProd,
                               const std::string& SurfaceType,
                               std::vector<DiagnosticTuple>& DiagnosticTupleVector);
-
+    void checkAlgorithmIdentifiersForMultiRun(
+            std::string& Algorithm,
+            std::string& Minimizer,
+            std::string& ObjectiveCriterion,
+            std::string& Scaling);
 
 public:
     /**
@@ -242,6 +251,15 @@ public:
     void        setDataStruct(nmfStructsQt::ModelDataStruct& theDataStruct);
     QString getParameter1Name();
     QString getParameter2Name();
+    void setSingleRunRBState(bool isEnabled, bool isChecked);
+    void setMultiRunRBState(bool isEnabled, bool isChecked);
+    void setSingleRunRBEnabled(bool isEnabled);
+    void setMultiRunRBEnabled(bool isEnabled);
+    bool useMultiRunEstimatedParameters();
+    bool isSingleRunRBChecked();
+    bool isSingleRunRBEnabled();
+    bool isMultiRunRBChecked();
+    bool isMultiRunRBEnabled();
 
 signals:
     /**
@@ -270,6 +288,9 @@ public slots:
      * @brief Callback loads the parameter check boxes after the user clicks Save on the Model Setup Tab 4
      */
     void callback_UpdateDiagnosticParameterChoices();
+
+    void callback_UseLastSingleRunRB();
+    void callback_UseLastMultiRunRB();
 
 };
 

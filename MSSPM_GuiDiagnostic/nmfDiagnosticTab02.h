@@ -64,6 +64,8 @@ private:
     std::string  m_ModelName;
     int          m_RunLength;
     bool         m_isMohnsRhoRun;
+    int          m_IsMultiRun;
+    std::string  m_MultiRunType;
 
     void clearWidgets();
     int  getEndYearLE();

@@ -14,6 +14,10 @@ nmfOutputTableWidgets::nmfOutputTableWidgets(
     m_Logger               = logger;
     m_DatabasePtr          = databasePtr;
     m_ProjectDir           = projectDir;
+    m_LastFileLoaded       = "";
+    m_LastLabel            = "";
+    m_LastTableView        = nullptr;
+    m_LastStatisticNames.clear();
     m_NumSignificantDigits = -1;
     m_ProjectName.clear();
     m_ModelName.clear();
@@ -57,13 +61,48 @@ nmfOutputTableWidgets::saveSettings()
 }
 
 void
-nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView)
+nmfOutputTableWidgets::reloadLast()
+{
+    if ((m_LastTableView == nullptr) &&
+         m_LastLabel.isEmpty()       &&
+         m_LastStatisticNames.isEmpty()) {
+            return;
+    }
+
+    if (m_LastFileLoaded.isEmpty()) { // Re-load table from database
+        loadSummaryTable(m_LastTableView,m_LastLabel,m_LastStatisticNames);
+
+    } else {                          // Re-load last imported file
+        int numRows = 0;
+        nmfUtilsQt::loadModelFromCSVFile(m_Logger,m_ProjectDir,
+                                         m_LastLabel.toStdString(),m_LastTableView,
+                                         m_LastFileLoaded,numRows,m_NumSignificantDigits);
+        m_LastTableView->resizeColumnsToContents();
+        m_LastTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    }
+}
+
+void
+nmfOutputTableWidgets::setLastVariables(QTableView* tableView,
+                                        const QString& label,
+                                        const QStringList& statisticNames)
+{
+    m_LastFileLoaded     = "";
+    m_LastLabel          = label;
+    m_LastTableView      = tableView;
+    m_LastStatisticNames = statisticNames;
+}
+
+void
+nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView,
+                                        const QString& label,
+                                        const QStringList& statisticNames)
 {
     int j;
     int NumFields;
     int NumDatabaseTableRows;
     int NumGuiTableCols;
-    int NumGuiTableRows = nmfConstantsMSSPM::StatisticNames.size();
+    int NumGuiTableRows = statisticNames.size();
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -75,13 +114,28 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView)
     QString valueWithComma;
     QStringList header;
 
-    fields    = {"ProjectName","ModelName","SpeciesName","SSResiduals","SSDeviations","SSTotals",
-                 "rSquared","rCorrelationCoeff","AkaikeInfoCriterion","RootMeanSquareError",
-                 "ReliabilityIndex","AverageError","AverageAbsError","ModelingEfficiency"};
-    queryStr  = "SELECT ProjectName,ModelName,SpeciesName,SSResiduals,SSDeviations,SSTotals,rSquared,";
-    queryStr += "rCorrelationCoeff,AkaikeInfoCriterion,RootMeanSquareError,ReliabilityIndex,AverageError,";
-    queryStr += "AverageAbsError,ModelingEfficiency FROM " + nmfConstantsMSSPM::TableSummaryModelFit;
-    queryStr += " WHERE ProjectName='" + m_ProjectName + "' AND ModelName='" + m_ModelName + "'";
+    m_LastFileLoaded     = "";
+    m_LastLabel          = label;
+    m_LastTableView      = tableView;
+    m_LastStatisticNames = statisticNames;
+
+    if (label == "Summary Model Fit") {
+        fields    = {"ProjectName","ModelName","SpeciesName","SSResiduals","SSDeviations","SSTotals",
+                     "rSquared","rCorrelationCoeff","AkaikeInfoCriterion","RootMeanSquareError",
+                     "ReliabilityIndex","AverageError","AverageAbsError","ModelingEfficiency"};
+        queryStr  = "SELECT ProjectName,ModelName,SpeciesName,SSResiduals,SSDeviations,SSTotals,rSquared,";
+        queryStr += "rCorrelationCoeff,AkaikeInfoCriterion,RootMeanSquareError,ReliabilityIndex,AverageError,";
+        queryStr += "AverageAbsError,ModelingEfficiency FROM " +
+                     nmfConstantsMSSPM::TableSummaryModelFit;
+    } else {
+        fields    = {"ProjectName","ModelName","SpeciesName","InitialAbsBiomass","GrowthRate",
+                     "CarryingCapacity","PredationEffect","EstimatedBiomass"};
+        queryStr  = "SELECT ProjectName,ModelName,SpeciesName,InitialAbsBiomass,GrowthRate,";
+        queryStr += "CarryingCapacity,PredationEffect,EstimatedBiomass FROM " +
+                     nmfConstantsMSSPM::TableSummaryDiagnostic;
+    }
+    queryStr += " WHERE ProjectName='" + m_ProjectName +
+                "' AND ModelName='"    + m_ModelName   + "'";
     queryStr += " ORDER BY SpeciesName";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumDatabaseTableRows = (int)dataMap["SpeciesName"].size();
@@ -103,7 +157,7 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView)
 
     // Load first column of table
     for (int row=0; row<NumGuiTableRows; ++row) {
-        valueStr = nmfConstantsMSSPM::StatisticNames[row];
+        valueStr = statisticNames[row];
         item = new QStandardItem(valueStr);
         item->setTextAlignment(Qt::AlignCenter);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable); // read-only
@@ -136,41 +190,47 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView)
 }
 
 void
-nmfOutputTableWidgets::importSummaryTable(QTableView* tableView)
+nmfOutputTableWidgets::importSummaryTable(QTableView* tableView,
+                                          const QString& label,
+                                          const std::string& defaultFilenameCSV)
 {
     int numRows = 0;
     QString fileName;
     QString filePath;
     QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    QString title1 = "Default " + label + " CSV file";
+    QString title2 = "Select "  + label + " CSV file";
+
+    m_LastLabel     = label;
+    m_LastTableView = tableView;
 
     // Load default CSV files
-    std::string msg = "\nLoad default Summary Model Fit .csv file?";
+    std::string msg = "\nLoad default " + label.toStdString() + " .csv file?";
     QMessageBox::StandardButton reply = QMessageBox::question(
-                m_Parent, tr("Default Summary Model Fit CSV File"),
-                tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel, QMessageBox::Yes);
+                m_Parent, tr(title1.toLatin1()),
+                tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
+                QMessageBox::Yes);
     if (reply == QMessageBox::Cancel) {
         return;
     } else if (reply == QMessageBox::Yes) {
-        fileName = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameSummaryModelFit));
-//      fileName = QFileDialog::getOpenFileName(m_Parent, tr("Import Summary Model Fit File"),
-//                                              filePath,tr("data (*.csv)"));
+        fileName = QDir(dataPath).filePath(QString::fromStdString(defaultFilenameCSV));
     } else {
         fileName = QFileDialog::getOpenFileName(m_Parent,
-                    QObject::tr("Select Summary Model Fit CSV file"), dataPath,
+                    QObject::tr(title2.toLatin1()), dataPath,
                     QObject::tr("Data Files (*.csv)"));
     }
 
     if (! fileName.isEmpty()) {
-        bool loadOK = nmfUtilsQt::loadModelFromCSVFile(m_ProjectDir,
-                                                       "Summary Model Fit",tableView,
+        bool loadOK = nmfUtilsQt::loadModelFromCSVFile(m_Logger,m_ProjectDir,
+                                                       label.toStdString(),tableView,
                                                        fileName,numRows,m_NumSignificantDigits);
         if (numRows < 2) {
             QMessageBox::warning(m_Parent, "Warning",
-                                 "\nEmpty Summary Model Fit file.\n",
+                                 "\nEmpty Summary file found.\n",
                                  QMessageBox::Ok);
             return;
         }
-//      tableView->horizontalHeader()->show();
+        m_LastFileLoaded = fileName;
     }
 
     tableView->resizeColumnsToContents();
@@ -178,24 +238,27 @@ nmfOutputTableWidgets::importSummaryTable(QTableView* tableView)
 }
 
 void
-nmfOutputTableWidgets::exportSummaryTable(QTableView* tableView)
+nmfOutputTableWidgets::exportSummaryTable(QTableView* tableView,
+                                          const QString& label,
+                                          const std::string& defaultFilenameCSV)
 {
+    QString title = "Export " + label + " Table";
     if (tableView == nullptr) {
         QMessageBox::critical(m_Parent,
                               tr("No table found"),
-                              tr("\nThe SummaryTV tableview is not defined.\n"),
+                              tr("\nThe passed in summary tableview is not defined.\n"),
                               QMessageBox::Ok);
         return;
     }
     QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    QString filePath = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameSummaryModelFit));
-    QString fileName = QFileDialog::getSaveFileName(m_Parent, tr("Export Summary Model Fit Table"),
+    QString filePath = QDir(dataPath).filePath(QString::fromStdString(defaultFilenameCSV));
+    QString fileName = QFileDialog::getSaveFileName(m_Parent, tr(title.toLatin1()),
                                                     filePath,tr("data (*.csv)"));
 
     if (! fileName.isEmpty()) {
         nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,
-                                       "Summary Model Fit",
-                                       "Model Fit Summary",
+                                       label.toStdString(),
+                                       label.toStdString(),
                                        tableView,
                                        nmfConstantsMSSPM::Dont_Query_User_For_Filename,
                                        nmfConstantsMSSPM::RemoveCommas,

@@ -40,6 +40,9 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_MModeViewerWidget = nullptr;
     m_ViewerWidget = nullptr;
     m_NumSignificantDigits = -1;
+    m_IsMultiRun = false;
+    m_MultiRunType.clear();
+    m_Estimator_NLopt = nullptr;
 
     m_ProjectDir.clear();
     m_ProjectDatabase.clear();
@@ -146,14 +149,13 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     // Setup Output
     setupOutputChartWidgets();
     setupOutputEstimateParametersWidgets();
-//    setupOutputModelFitSummaryWidgets();
-    setupOutputDiagnosticSummaryWidgets();
     setupOutputViewerWidget();
     setupProgressChart();
 
     // Load GUIs and Connections
     initGUIs();
     setupOutputModelFitSummaryWidgets();
+    setupOutputDiagnosticSummaryWidgets();
 
     initConnections();
     m_SaveSettings = false; // RSK - fix this hack.  Inside completeInit the LoadProject() does a SaveSettings which causes issues with floating windows being displayed properly from the settings
@@ -305,7 +307,8 @@ void
 nmfMainWindow::queryUserPreviousDatabase()
 {
     QMessageBox::StandardButton reply;
-    std::string msg  = "\nLast Project worked on:  " + m_ProjectName + "\n\nContinue working with this Project?\n";
+    std::string msg  = "\nLast Project worked on:  " + m_ProjectName +
+                       "\n\nContinue working with this Project?\n";
     reply = QMessageBox::question(this, tr("Open"), tr(msg.c_str()),
                                   QMessageBox::No|QMessageBox::Yes,
                                   QMessageBox::Yes);
@@ -525,9 +528,11 @@ nmfMainWindow::getFinalObservedBiomass(QList<double> &FinalBiomass)
     boost::numeric::ublas::matrix<double> ObservedBiomass;
 
     // Get RunLength
-    fields     = {"ModelName","RunLength"};
-    queryStr   = "SELECT ModelName,RunLength from " + nmfConstantsMSSPM::TableModels;
-    queryStr  += " WHERE ModelName = '" +  m_ModelName + "'";
+    fields     = {"ProjectName","ModelName","RunLength"};
+    queryStr   = "SELECT ProjectName,ModelName,RunLength from " +
+                  nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName = '" +  m_ProjectName +
+                 "' AND ModelName = '"    +  m_ModelName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ModelName"].size();
     if (NumRecords == 0) {
@@ -555,7 +560,9 @@ nmfMainWindow::getFinalObservedBiomass(QList<double> &FinalBiomass)
 }
 
 bool
-nmfMainWindow::getOutputInitialBiomass(QList<double> &OutputInitBiomass)
+nmfMainWindow::getOutputInitialBiomass(
+        const std::string& ForecastName,
+        QList<double> &OutputInitBiomass)
 {
     int NumSpecies;
     std::vector<std::string> fields;
@@ -574,18 +581,28 @@ nmfMainWindow::getOutputInitialBiomass(QList<double> &OutputInitBiomass)
                 this,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+    if (ForecastName.empty()) {
+        checkDiagnosticAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+    } else {
+        checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+    }
+// RSK
 
-    fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-    queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + nmfConstantsMSSPM::TableOutputInitBiomass;
-    queryStr += " WHERE Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
+    fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+    queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                 nmfConstantsMSSPM::TableOutputInitBiomass;
+    queryStr += " WHERE ProjectName = '"       + m_ProjectName +
+                "' AND ModelName = '"          + m_ModelName +
+                "' AND Algorithm = '"          + Algorithm +
+                "' AND Minimizer = '"          + Minimizer +
                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' AND isAggProd = " + std::to_string(isAggProd());
+                "' AND Scaling = '"            + Scaling +
+                "' AND isAggProd = "           + std::to_string(isAggProd());
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     if (NumSpecies == 0) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] getOutputInitialBiomass: No species found in table Species");
+        m_Logger->logMsg(nmfConstants::Error,queryStr);
         return false;
     }
     for (int i=0; i<NumSpecies; ++i) {
@@ -605,7 +622,9 @@ nmfMainWindow::getInitialObservedBiomass(QList<double> &InitBiomass)
     std::string queryStr;
 
     fields     = {"SpeName","InitBiomass"};
-    queryStr   = "SELECT SpeName,InitBiomass from " + nmfConstantsMSSPM::TableSpecies + " ORDER BY SpeName";
+    queryStr   = "SELECT SpeName,InitBiomass from " +
+                  nmfConstantsMSSPM::TableSpecies +
+                 " ORDER BY SpeName";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     if (NumSpecies == 0) {
@@ -674,13 +693,16 @@ nmfMainWindow::getDiagnosticsData(
     DiagnosticsFitness.clear();
 
     // Load Diagnostics data
-    fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value","Fitness"};
-    queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value,Fitness FROM " + TableName;
-    queryStr += "  WHERE Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
+    fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value","Fitness"};
+    queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value,Fitness FROM " +
+                 TableName +
+                "  WHERE ProjectName = '"      + m_ProjectName +
+                "' AND ModelName = '"          + m_ModelName +
+                "' AND Algorithm = '"          + Algorithm +
+                "' AND Minimizer = '"          + Minimizer +
                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' AND isAggProd = " + isAggProd +
+                "' AND Scaling = '"            + Scaling +
+                "' AND isAggProd = "           + isAggProd +
                 "  ORDER BY SpeName,Value";
     dataMap = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();
@@ -716,7 +738,9 @@ nmfMainWindow::getNumDistinctRecords(const std::string& field,
     std::string queryStr;
 
     fields     = {field};
-    queryStr   = "SELECT DISTINCT " + field + " FROM " + table;
+    queryStr   = "SELECT DISTINCT " + field + " FROM " + table +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     return dataMap[field].size();
 }
@@ -745,8 +769,12 @@ nmfMainWindow::getMultiScenarioBiomass(
     NumYears   = getNumDistinctRecords("Year",   nmfConstantsMSSPM::TableForecastBiomassMultiScenario);
 
     fields     = {"ForecastLabel"};
-    queryStr   = "SELECT DISTINCT ForecastLabel FROM " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
-    queryStr  += " WHERE ScenarioName = '" + ScenarioName + "' ORDER BY ForecastLabel";
+    queryStr   = "SELECT DISTINCT ForecastLabel FROM " +
+                  nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName   +
+                 "' AND ScenarioName = '" + ScenarioName  +
+                 "' ORDER BY ForecastLabel";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastLabel"].size();
     for (int i=0; i<NumRecords; ++i) {
@@ -761,11 +789,14 @@ nmfMainWindow::getMultiScenarioBiomass(
     for (QString ForecastLabel : ForecastLabels) {
 
         // Load Forecast Biomass data (ie, calculated from estimated parameters r and alpha)
-        fields     = {"ScenarioName","ForecastLabel","SpeName","Year","Value"};
-        queryStr   = "SELECT ScenarioName,ForecastLabel,SpeName,Year,Value FROM " + nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
-        queryStr  += " WHERE ScenarioName = '" + ScenarioName +
-                "' AND ForecastLabel = '" + ForecastLabel.toStdString() +
-                "' ORDER BY SpeName,Year";
+        fields     = {"ProjectName","ModelName","ScenarioName","ForecastLabel","SpeName","Year","Value"};
+        queryStr   = "SELECT ProjectName,ModelName,ScenarioName,ForecastLabel,SpeName,Year,Value FROM " +
+                      nmfConstantsMSSPM::TableForecastBiomassMultiScenario +
+                     " WHERE ProjectName = '"  + m_ProjectName +
+                     "' AND ModelName = '"     + m_ModelName +
+                     "' AND ScenarioName = '"  + ScenarioName +
+                     "' AND ForecastLabel = '" + ForecastLabel.toStdString() +
+                     "' ORDER BY SpeName,Year";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
         if (NumRecords == 0) {
@@ -830,40 +861,44 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
     }
 
     // Load Calculated Biomass data (ie, calculated from estimated parameters r and alpha)
-    fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
-    queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value FROM " + nmfConstantsMSSPM::TableOutputBiomass;
+    fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
+    queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value FROM " +
+                 nmfConstantsMSSPM::TableOutputBiomass;
     if ((NumLines == 1) && (! isAtLeastOneFilterPressed())) {
-        queryStr += " WHERE Algorithm    = '" + Algorithm +
-                    "' AND Minimizer     = '" + Minimizer +
+        queryStr += " WHERE ProjectName       = '" + m_ProjectName +
+                    "' AND ModelName          = '" + m_ModelName +
+                    "' AND Algorithm          = '" + Algorithm +
+                    "' AND Minimizer          = '" + Minimizer +
                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                    "' AND Scaling       = '" + Scaling +
-                    "' AND isAggProd     = "  + isAggProd;
+                    "' AND Scaling            = '" + Scaling +
+                    "' AND isAggProd          = "  + isAggProd;
     } else {
         filterStr = getFilterButtonsResult();
-        if (filterStr.empty()) {
+        if (filterStr.empty()) { // This will never be empty. Fix when implement AggProd fixes.
             queryStr += " WHERE isAggProd = " + isAggProd;
         } else {
             queryStr += filterStr;
         }
     }
     queryStr += " ORDER BY Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year";
-//std::cout << "-> q: " << queryStr << std::endl;
     dataMapCalculatedBiomass = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMapCalculatedBiomass["SpeName"].size();
+
     if (NumRecords == 0) {
-//        std::string mlabel = std::to_string(Diagnostic_Tab2_ptr->getStartYearLBL()) + "-" +
-//                             std::to_string(Diagnostic_Tab2_ptr->getEndYearLBL());
-        fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
-        queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value FROM " + nmfConstantsMSSPM::TableOutputBiomass;
+        fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
+        queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value FROM " +
+                     nmfConstantsMSSPM::TableOutputBiomass;
         if ((NumLines == 1) && (! isAtLeastOneFilterPressed())) {
-            queryStr += " WHERE Algorithm = '" + Algorithm +
-                        "' AND Minimizer = '" + Minimizer +
+            queryStr += " WHERE ProjectName       = '" + m_ProjectName +
+                        "' AND ModelName          = '" + m_ModelName +
+                        "' AND Algorithm          = '" + Algorithm +
+                        "' AND Minimizer          = '" + Minimizer +
                         "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                        "' AND Scaling = '" + Scaling +
-                        "' AND isAggProd = " + isAggProd;
+                        "' AND Scaling            = '" + Scaling +
+                        "' AND isAggProd          = "  + isAggProd;
         } else {
             filterStr = getFilterButtonsResult();
-            if (filterStr.empty()) {
+            if (filterStr.empty()) { // This will never be empty. Fix when implement AggProd fixes.
                 queryStr += " WHERE isAggProd = " + isAggProd;
             } else {
                 queryStr += filterStr;
@@ -873,23 +908,27 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
         dataMapCalculatedBiomass = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMapCalculatedBiomass["SpeName"].size();
 
-        m_Logger->logMsg(nmfConstants::Normal,"q2: "+queryStr);
-        m_Logger->logMsg(nmfConstants::Normal,"2NumRecords = "+std::to_string(NumRecords));
+        // m_Logger->logMsg(nmfConstants::Normal,"q2: "+queryStr);
+        // m_Logger->logMsg(nmfConstants::Normal,"2NumRecords = "+std::to_string(NumRecords));
 
     }
-    if (NumRecords == 0) {
-        errorMsg  = "[Error 1] getOutputBiomass: No records found in table OutputBiomass";
-        m_Logger->logMsg(nmfConstants::Error,errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,queryStr);
-        return false;
-    }
-    if (NumRecords != NumLines*NumSpecies*(RunLength+1)) {
-        errorMsg  = "[Warning 2] getOutputBiomass: Number of records found (" + std::to_string(NumRecords) + ") in ";
-        errorMsg += "table OutputBiomass does not equal number of NumLines*NumSpecies*(RunLength+1) (";
-        errorMsg += std::to_string(NumLines) + " * " + std::to_string(NumSpecies) + "*" + std::to_string((RunLength+1)) + "=";
-        errorMsg += std::to_string(NumLines*NumSpecies*(RunLength+1)) + ") records";
-        errorMsg += "\n" + queryStr;
-        m_Logger->logMsg(nmfConstants::Error,errorMsg);
+    if (! isAMohnsRhoMultiRun()) {
+        if (NumRecords == 0) {
+            errorMsg  = "[Error 1] getOutputBiomass: No records found in table OutputBiomass";
+            m_Logger->logMsg(nmfConstants::Error,errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,queryStr);
+            return false;
+        }
+        if (NumRecords != NumLines*NumSpecies*(RunLength+1)) {
+            errorMsg  = "[Warning 2] getOutputBiomass: Number of records found (" + std::to_string(NumRecords) + ") in ";
+            errorMsg += "table OutputBiomass does not equal number of NumLines*NumSpecies*(RunLength+1) (";
+            errorMsg += std::to_string(NumLines) + " * " + std::to_string(NumSpecies) + "*" + std::to_string((RunLength+1)) + "=";
+            errorMsg += std::to_string(NumLines*NumSpecies*(RunLength+1)) + ") records";
+            errorMsg += "\n" + queryStr;
+            m_Logger->logMsg(nmfConstants::Error,errorMsg);
+            return false;
+        }
+    } else {
         return false;
     }
 
@@ -949,13 +988,14 @@ nmfMainWindow::getOutputParameterVector(
         return;
     }
 
-    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " + tableName;
-    queryStr  += " WHERE Algorithm = '"  + Algorithm +
-                 "' AND Minimizer = '" + Minimizer +
+    fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Value FROM " + tableName;
+    queryStr  += " WHERE ProjectName = '"       + m_ProjectName +
+                 "' AND ModelName = '"          + m_ModelName +
+                 "' AND Algorithm = '"          + Algorithm +
+                 "' AND Minimizer = '"          + Minimizer +
                  "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                 "' AND Scaling = '" + Scaling + "'";
-
+                 "' AND Scaling = '"            + Scaling + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     int NumRecords = dataMap["Value"].size();
     for (int i=0; i<NumRecords; ++i) {
@@ -988,12 +1028,15 @@ nmfMainWindow::getOutputCompetition(std::vector<double> &EstCompetition)
     if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList))
         return;
 
-    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeciesA","SpeciesB","Value"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeciesA,SpeciesB,Value FROM " + nmfConstantsMSSPM::TableOutputCompetitionAlpha;
-    queryStr  += " WHERE Algorithm = '"  + Algorithm +
-                 "' AND Minimizer = '" + Minimizer +
+    fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeciesA","SpeciesB","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeciesA,SpeciesB,Value FROM " +
+                  nmfConstantsMSSPM::TableOutputCompetitionAlpha;
+    queryStr  += " WHERE ProjectName = '"       + m_ProjectName +
+                 "' AND ModelName = '"          + m_ModelName +
+                 "' AND Algorithm = '"          + Algorithm +
+                 "' AND Minimizer = '"          + Minimizer +
                  "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                 "' AND Scaling = '" + Scaling + "'";
+                 "' AND Scaling = '"            + Scaling + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (int(dataMap["Algorithm"].size()) != NumSpecies*NumSpecies) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] GetOutputCompetition: Incorrect number of records found in OutputCompetitionAlpha");
@@ -1287,7 +1330,9 @@ nmfMainWindow::menu_importDatabase()
 
         // Query user to select the desired project
         fields   = {"ProjectName"};
-        queryStr = "SELECT DISTINCT ProjectName from " + nmfConstantsMSSPM::TableModels + " ORDER BY ProjectName";
+        queryStr = "SELECT DISTINCT ProjectName from " +
+                    nmfConstantsMSSPM::TableModels +
+                   " ORDER BY ProjectName";
         dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         for (int i=0; i<(int)dataMap["ProjectName"].size(); ++i) {
             items << QString::fromStdString(dataMap["ProjectName"][i]);
@@ -1454,10 +1499,13 @@ nmfMainWindow::getForecastInitialData(
     numYearsPerRun     = 0;
     numRunsPerForecast = 0;
 
-    fields     = {"ForecastName","RunLength","NumRuns","GrowthForm","HarvestForm"};
-    queryStr   = "SELECT ForecastName,RunLength,NumRuns,GrowthForm,HarvestForm FROM " + nmfConstantsMSSPM::TableForecasts;
+    fields     = {"ProjectName","ModelName","ForecastName","RunLength","NumRuns","GrowthForm","HarvestForm"};
+    queryStr   = "SELECT ProjectName,ModelName,ForecastName,RunLength,NumRuns,GrowthForm,HarvestForm FROM " +
+                  nmfConstantsMSSPM::TableForecasts +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName + "'";
     if (! forecastName.isEmpty()) {
-        queryStr  += " WHERE ForecastName = '" + forecastName.toStdString() + "'";
+        queryStr  += " AND ForecastName = '" + forecastName.toStdString() + "'";
     }
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ForecastName"].size();
@@ -1492,9 +1540,11 @@ nmfMainWindow::getForecastInitialData(
     // Make sure there's data for the selected forecast
     for (std::string tableName : {nmfConstantsMSSPM::TableForecastBiomass,
                                   nmfConstantsMSSPM::TableForecastBiomassMonteCarlo}) {
-        fields     = {"ForecastName"};
-        queryStr   = "SELECT ForecastName FROM " + tableName +
-                     " WHERE ForecastName = '"   + forecastName.toStdString() + "'";
+        fields     = {"ProjectName","ModelName","ForecastName"};
+        queryStr   = "SELECT ProjectName,ModelName,ForecastName FROM " + tableName +
+                     " WHERE ProjectName = '" + m_ProjectName +
+                     "' AND ModelName = '"    + m_ModelName +
+                     "' AND ForecastName = '" + forecastName.toStdString() + "'";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["ForecastName"].size();
         if (NumRecords == 0) {
@@ -1710,22 +1760,24 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
 
     // Find Forecast info
     if (! m_DatabasePtr->getForecastInfo(
-         TableName,m_ProjectName,ForecastName.toStdString(),RunLength,StartForecastYear,
+         TableName,m_ProjectName,m_ModelName,ForecastName.toStdString(),RunLength,StartForecastYear,
          Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
             return;
     }
 
     // Get ForecastBiomass data
     if (! m_DatabasePtr->getForecastBiomass(
-                this,m_Logger,m_ProjectName,ForecastName.toStdString(),NumSpecies,RunLength,
+                this,m_Logger,m_ProjectName,m_ModelName,ForecastName.toStdString(),NumSpecies,RunLength,
                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,ForecastBiomass)) {
         return;
     }
 
     // Get ForecastHarvest data
     if (! m_DatabasePtr->getForecastHarvest(
-                this,m_Logger,m_ProjectName,ForecastName.toStdString(),NumSpecies,RunLength,
-                Algorithm,Minimizer,ObjectiveCriterion,Scaling,harvestForm.toStdString(),
+                this,m_Logger,m_ProjectName,m_ModelName,
+                ForecastName.toStdString(),NumSpecies,RunLength,
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                harvestForm.toStdString(),
                 ForecastHarvest)) {
         return;
     }
@@ -1850,7 +1902,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.32 (beta)";
+    QString version = "MSSPM v0.9.33 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -1976,6 +2028,8 @@ nmfMainWindow::menu_createTables()
 void
 nmfMainWindow::setupOutputModelFitSummaryWidgets()
 {
+//    Output_TableWidgets_ptr->setupSummaryWidgets(m_UI->MSSPMOutputModelFitSummaryTab);
+
     QVBoxLayout* mainLayt    = new QVBoxLayout();
     QVBoxLayout* summaryLayt = new QVBoxLayout();
     QHBoxLayout* buttonLayt  = new QHBoxLayout();
@@ -2024,6 +2078,57 @@ nmfMainWindow::setupOutputModelFitSummaryWidgets()
     m_UI->MSSPMOutputModelFitSummaryTab->setLayout(mainLayt);
 }
 
+
+void
+nmfMainWindow::setupOutputDiagnosticSummaryWidgets()
+{
+    QVBoxLayout* mainLayt    = new QVBoxLayout();
+    QVBoxLayout* summaryLayt = new QVBoxLayout();
+    QHBoxLayout* buttonLayt  = new QHBoxLayout();
+    QPushButton* loadPB      = new QPushButton("Load");
+    QPushButton* importPB    = new QPushButton("Import...");
+    QPushButton* exportPB    = new QPushButton("Export...");
+    DiagnosticSummaryGB      = new QGroupBox("Mohn's Rho Summary Statistics:");
+    DiagnosticSummaryTV      = new QTableView();
+
+    summaryLayt->addWidget(DiagnosticSummaryTV);
+    summaryLayt->addLayout(buttonLayt);
+    DiagnosticSummaryGB->setLayout(summaryLayt);
+    mainLayt->addWidget(DiagnosticSummaryGB);
+
+    buttonLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    buttonLayt->addWidget(loadPB);
+    buttonLayt->addWidget(importPB);
+    buttonLayt->addWidget(exportPB);
+    buttonLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    loadPB->setToolTip("Reloads the above table from the saved database table");
+    loadPB->setStatusTip("Reloads the above table from the saved database table");
+    importPB->setToolTip("Import a previously exported CSV file");
+    importPB->setStatusTip("Import a previously exported CSV file");
+    exportPB->setToolTip("Export the current table to a CSV file");
+    exportPB->setStatusTip("Export the current table to a CSV file");
+
+    // Make the title bold
+    QFont font = DiagnosticSummaryGB->font();
+    font.setBold(true);
+    DiagnosticSummaryGB->setFont(font);
+    font.setBold(false);
+    DiagnosticSummaryTV->setFont(font);
+    loadPB->setFont(font);
+    importPB->setFont(font);
+    exportPB->setFont(font);
+
+    connect(loadPB,   SIGNAL(clicked()),
+            this,     SLOT(callback_SummaryLoadDiagnosticPB()));
+    connect(exportPB, SIGNAL(clicked()),
+            this,     SLOT(callback_SummaryExportDiagnosticPB()));
+    connect(importPB, SIGNAL(clicked()),
+            this,     SLOT(callback_SummaryImportDiagnosticPB()));
+
+    m_UI->MSSPMOutputDiagnosticSummaryTab->setLayout(mainLayt);
+}
+
+
 bool
 nmfMainWindow::saveSigDigState()
 {
@@ -2048,12 +2153,32 @@ nmfMainWindow::restoreSigDigState(bool state)
 }
 
 void
+nmfMainWindow::callback_SummaryExportDiagnosticPB()
+{
+    bool isSigDigChecked = saveSigDigState();
+    Output_TableWidgets_ptr->exportSummaryTable(DiagnosticSummaryTV,
+                                                "Summary Diagnostic",
+                                                nmfConstantsMSSPM::FilenameSummaryDiagnostic);
+    restoreSigDigState(isSigDigChecked);
+}
+
+void
 nmfMainWindow::callback_SummaryExportPB()
 {
     bool isSigDigChecked = saveSigDigState();
+    Output_TableWidgets_ptr->exportSummaryTable(SummaryTV,
+                                                "Summary Model Fit",
+                                                nmfConstantsMSSPM::FilenameSummaryModelFit);
+    restoreSigDigState(isSigDigChecked);
+}
 
-    Output_TableWidgets_ptr->exportSummaryTable(SummaryTV);
-
+void
+nmfMainWindow::callback_SummaryImportDiagnosticPB()
+{
+    bool isSigDigChecked = saveSigDigState();
+    Output_TableWidgets_ptr->importSummaryTable(DiagnosticSummaryTV,
+                                                "Summary Diagnostic",
+                                                nmfConstantsMSSPM::FilenameSummaryDiagnostic);
     restoreSigDigState(isSigDigChecked);
 }
 
@@ -2061,9 +2186,19 @@ void
 nmfMainWindow::callback_SummaryImportPB()
 {
     bool isSigDigChecked = saveSigDigState();
+    Output_TableWidgets_ptr->importSummaryTable(SummaryTV,
+                                                "Summary Model Fit",
+                                                nmfConstantsMSSPM::FilenameSummaryModelFit);
+    restoreSigDigState(isSigDigChecked);
+}
 
-    Output_TableWidgets_ptr->importSummaryTable(SummaryTV);
-
+void
+nmfMainWindow::callback_SummaryLoadDiagnosticPB()
+{
+    bool isSigDigChecked = saveSigDigState();
+    Output_TableWidgets_ptr->loadSummaryTable(DiagnosticSummaryTV,
+                                              "Summary Diagnostic",
+                                              nmfConstantsMSSPM::SummaryDiagnosticStatisticNames);
     restoreSigDigState(isSigDigChecked);
 }
 
@@ -2071,39 +2206,16 @@ void
 nmfMainWindow::callback_SummaryLoadPB()
 {
     bool isSigDigChecked = saveSigDigState();
-
-    Output_TableWidgets_ptr->loadSummaryTable(SummaryTV);
-
+    Output_TableWidgets_ptr->loadSummaryTable(SummaryTV,
+                                              "Summary Model Fit",
+                                              nmfConstantsMSSPM::SummaryModelFitStatisticNames);
     restoreSigDigState(isSigDigChecked);
 }
-
-void
-nmfMainWindow::setupOutputDiagnosticSummaryWidgets()
-{
-    QVBoxLayout* mainLayt    = new QVBoxLayout();
-    QVBoxLayout* summaryLayt = new QVBoxLayout();
-    QGroupBox*   summaryGB   = new QGroupBox("Mohn's Rho Summary Statistics:");
-    DiagnosticSummaryTV      = new QTableView();
-    summaryLayt->addWidget(DiagnosticSummaryTV);
-    summaryGB->setLayout(summaryLayt);
-    mainLayt->addWidget(summaryGB);
-
-    // Make the title bold
-    QFont font = summaryGB->font();
-    font.setBold(true);
-    summaryGB->setFont(font);
-    font.setBold(false);
-    DiagnosticSummaryTV->setFont(font);
-
-    m_UI->MSSPMOutputDiagnosticSummaryTab->setLayout(mainLayt);
-}
-
 
 void
 nmfMainWindow::callback_ReadProgressChartDataFile()
 {
     bool validPointsOnly = m_ProgressWidget->readValidPointsOnly();
-
     callback_ReadProgressChartDataFile(validPointsOnly,false);
 }
 
@@ -2185,7 +2297,10 @@ nmfMainWindow::setupProgressChart()
 
     // Load RunLength
     fields     = {"GAGenerations"};
-    queryStr   = "SELECT GAGenerations FROM " + nmfConstantsMSSPM::TableModels + " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr   = "SELECT GAGenerations FROM " +
+                  nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["GAGenerations"].size();
     if (NumRecords == 0) {
@@ -2394,11 +2509,12 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
                                            nmfConstantsMSSPM::TableOutputMSY,
                                            nmfConstantsMSSPM::TableOutputMSYBiomass,
                                            nmfConstantsMSSPM::TableOutputMSYFishing,
+                                           nmfConstantsMSSPM::TableDiagnosticInitBiomass,
+                                           nmfConstantsMSSPM::TableDiagnosticGrowthRate,
                                            nmfConstantsMSSPM::TableDiagnosticCarryingCapacity,
                                            nmfConstantsMSSPM::TableDiagnosticCatchability,
-                                           nmfConstantsMSSPM::TableDiagnosticSurface,
                                            nmfConstantsMSSPM::TableDiagnosticSurveyQ,
-                                           nmfConstantsMSSPM::TableDiagnosticGrowthRate,
+                                           nmfConstantsMSSPM::TableDiagnosticSurface,
                                            nmfConstantsMSSPM::TableForecastBiomass,
                                            nmfConstantsMSSPM::TableForecastBiomassMonteCarlo,
                                            nmfConstantsMSSPM::TableForecastHarvestCatch,
@@ -2426,7 +2542,9 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
     for (std::string tableName : TableNames) {
         cmd = "DELETE FROM " + tableName;
         if (Algorithm != "All") {
-            cmd += " WHERE Algorithm = '" + Algorithm + "'";
+            cmd += " WHERE ProjectName = '" + m_ProjectName +
+                   "' AND ModelName = '"    + m_ModelName   +
+                   "' AND Algorithm = '"    + Algorithm     + "'";
             if (Minimizer != "All") {
                 cmd += " AND Minimizer = '" + Minimizer + "'";
                 if (ObjectiveCriterion != "All") {
@@ -2450,12 +2568,20 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
     this->setCursor(Qt::ArrowCursor);
     QMessageBox::information(this, "Success", "\nOutput table(s) cleared successfully.", QMessageBox::Ok);
 
-
-    NavigatorTree->blockSignals(true);
-    NavigatorTree->setCurrentIndex(NavigatorTree->model()->index(0,0));
-    NavigatorTree->blockSignals(false);
+    // Set to Run Estimation tab
+    setPage(nmfConstantsMSSPM::SectionEstimation,5);
 
     menu_showAllSavedRuns();
+
+//    showOutputChart(false);
+
+}
+
+void
+nmfMainWindow::showOutputChart(bool show)
+{
+    m_ChartView2d->setVisible(show);
+    m_UI->OutputDataTV->setVisible(show);
 }
 
 void
@@ -2524,6 +2650,7 @@ nmfMainWindow::loadAllWidgets()
     refreshOutputTables();
 
     QApplication::restoreOverrideCursor();
+
 }
 
 void
@@ -2548,8 +2675,8 @@ nmfMainWindow::refreshOutputTables()
     QStandardItemModel* smodel;
     QStandardItem* item;
 
-    if (SummaryTV->model() != nullptr) {
-        Output_TableWidgets_ptr->loadSummaryTable(SummaryTV);
+    if ((SummaryTV != nullptr) && (DiagnosticSummaryTV != nullptr)) {
+        Output_TableWidgets_ptr->reloadLast();
     }
 
     for (QList<QTableView*> outputTableList : allOutputTables) {
@@ -2631,7 +2758,10 @@ nmfMainWindow::adjustProgressWidget()
     std::string queryStr;
 
     fields   = {"GAGenerations"};
-    queryStr = "SELECT GAGenerations FROM " + nmfConstantsMSSPM::TableModels + " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr = "SELECT GAGenerations FROM " +
+                nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '"    + m_ModelName   + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     MaxNumGenerations = dataMap["GAGenerations"].size();
     if (MaxNumGenerations == 0) {
@@ -2887,7 +3017,7 @@ nmfMainWindow::initConnections()
     connect(Diagnostic_Tab1_ptr, SIGNAL(SetChartType(std::string,std::string)),
             this,                SLOT(callback_SetChartType(std::string,std::string)));
     connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimation(std::vector<std::pair<int,int> >)),
-            this,                SLOT(callback_RunDiagnosticEstimation(std::vector<std::pair<int,int> >)));
+            this,                SLOT(callback_RunRetrospectiveAnalysisEstimation(std::vector<std::pair<int,int> >)));
     connect(Diagnostic_Tab1_ptr, SIGNAL(EnableRunButtons(bool)),
             this,                SLOT(callback_EnableRunButtons(bool)));
     connect(Diagnostic_Tab1_ptr, SIGNAL(CheckMSYBoxes(bool)),
@@ -2935,7 +3065,7 @@ nmfMainWindow::initConnections()
     connect(this,                SIGNAL(MouseReleased(QMouseEvent*)),
             Remora_ptr,          SLOT(callback_MouseReleased(QMouseEvent*)));
     connect(Remora_ptr,          SIGNAL(SaveOutputBiomassData(std::string)),
-            this,                SLOT(callback_SaveOutputBiomassData(std::string)));
+            this,                SLOT(callback_SaveForecastOutputBiomassData(std::string)));
     connect(Remora_ptr,          SIGNAL(UpdateSeedValue(int)),
             this,                SLOT(callback_UpdateSeedValue(int)));
 
@@ -3178,9 +3308,10 @@ nmfMainWindow::menu_showAllSavedRuns()
         return;
 
     // Load Calculated Biomass data (ie, calculated from estimated parameters r and alpha)
-    fields     = {"SpeName","Value"};
-    queryStr   = "SELECT isAggProd,SpeName,Value FROM " + nmfConstantsMSSPM::TableOutputGrowthRate + " ";
-    queryStr  += getFilterButtonsResult();
+    fields     = {"ProjectName","ModelName","isAggProd","SpeName","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,isAggProd,SpeName,Value FROM " +
+                  nmfConstantsMSSPM::TableOutputGrowthRate +
+                  getFilterButtonsResult();
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();
     setNumLines(NumRecords/NumSpecies);
@@ -3404,12 +3535,12 @@ std::cout << "\nSaving current run... " << std::endl;
     std::string HarvestForm;
     std::string CompetitionForm;
     std::string PredationForm;
-    std::string InitBiomassTable      = nmfConstantsMSSPM::TableOutputInitBiomass;
-    std::string GrowthRateTable       = nmfConstantsMSSPM::TableOutputGrowthRate;
-    std::string CarryingCapacityTable = nmfConstantsMSSPM::TableOutputCarryingCapacity;
-    std::string CatchabilityTable     = nmfConstantsMSSPM::TableOutputCatchability;
-    std::string SurveyQTable          = nmfConstantsMSSPM::TableOutputSurveyQ;
-    std::string BiomassTable          = nmfConstantsMSSPM::TableOutputBiomass;
+    std::string OutputInitBiomassTable      = nmfConstantsMSSPM::TableOutputInitBiomass;
+    std::string OutputGrowthRateTable       = nmfConstantsMSSPM::TableOutputGrowthRate;
+    std::string OutputCarryingCapacityTable = nmfConstantsMSSPM::TableOutputCarryingCapacity;
+    std::string OutputCatchabilityTable     = nmfConstantsMSSPM::TableOutputCatchability;
+    std::string OutputSurveyQTable          = nmfConstantsMSSPM::TableOutputSurveyQ;
+    std::string OutputBiomassTable          = nmfConstantsMSSPM::TableOutputBiomass;
     std::string ForecastName = "";
     QStringList SpeciesList;
     std::string isAggProd;
@@ -3490,12 +3621,12 @@ std::cout << "\nSaving current run... " << std::endl;
                            EstSurveyQ);
         clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,
                                 ObjectiveCriterion,Scaling,
-                                isAggProd,BiomassTable);
+                                isAggProd,OutputBiomassTable);
         updateOutputBiomassTable(ForecastName,StartYear,RunLength,isMonteCarlo,RunNum,
                                  Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,
                                  GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                                 InitBiomassTable,GrowthRateTable,CarryingCapacityTable,
-                                 CatchabilityTable,SurveyQTable,BiomassTable);
+                                 OutputInitBiomassTable,OutputGrowthRateTable,OutputCarryingCapacityTable,
+                                 OutputCatchabilityTable,OutputSurveyQTable,OutputBiomassTable);
         if (m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName)) {
             updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,EstSurveyQ);
         }
@@ -3542,12 +3673,12 @@ std::cout << "\nSaving current run... " << std::endl;
                            EstSurveyQ);
         clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,
                                 ObjectiveCriterion,Scaling,
-                                isAggProd,BiomassTable);
+                                isAggProd,OutputBiomassTable);
         updateOutputBiomassTable(ForecastName,StartYear,RunLength,isMonteCarlo,RunNum,
                                  Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,
                                  GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                                 InitBiomassTable,GrowthRateTable,CarryingCapacityTable,
-                                 CatchabilityTable,SurveyQTable,BiomassTable);
+                                 OutputInitBiomassTable,OutputGrowthRateTable,OutputCarryingCapacityTable,
+                                 OutputCatchabilityTable,OutputSurveyQTable,OutputBiomassTable);
         if (m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName)) {
             updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,EstSurveyQ);
         }
@@ -3675,36 +3806,38 @@ nmfMainWindow::updateOutputTables(
     //
     // Clear and then load output data tables...
     //
-    QList<std::string> TableNames  = {nmfConstantsMSSPM::TableOutputCatchability,
-                                      nmfConstantsMSSPM::TableOutputInitBiomass,
-                                      nmfConstantsMSSPM::TableOutputGrowthRate,
-                                      nmfConstantsMSSPM::TableOutputPredationExponent,
-                                      nmfConstantsMSSPM::TableOutputCarryingCapacity,
-                                      nmfConstantsMSSPM::TableOutputMSYBiomass,
-                                      nmfConstantsMSSPM::TableOutputMSY,
-                                      nmfConstantsMSSPM::TableOutputMSYFishing,
-                                      nmfConstantsMSSPM::TableOutputSurveyQ};
+    QList<std::string> OutputTableNames  = {nmfConstantsMSSPM::TableOutputCatchability,
+                                            nmfConstantsMSSPM::TableOutputInitBiomass,
+                                            nmfConstantsMSSPM::TableOutputGrowthRate,
+                                            nmfConstantsMSSPM::TableOutputPredationExponent,
+                                            nmfConstantsMSSPM::TableOutputCarryingCapacity,
+                                            nmfConstantsMSSPM::TableOutputMSYBiomass,
+                                            nmfConstantsMSSPM::TableOutputMSY,
+                                            nmfConstantsMSSPM::TableOutputMSYFishing,
+                                            nmfConstantsMSSPM::TableOutputSurveyQ};
 
-    for (std::string tableName : TableNames)
+    for (std::string tableName : OutputTableNames)
     {
         SpeciesNum = 0;
         cmd = "DELETE FROM " + tableName +
-                "  WHERE Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
-                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' AND isAggProd = " + isAggProd;
+              "  WHERE ProjectName = '"      + m_ProjectName +
+              "' AND ModelName = '"          + m_ModelName +
+              "' AND Algorithm = '"          + Algorithm +
+              "' AND Minimizer = '"          + Minimizer +
+              "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+              "' AND Scaling = '"            + Scaling +
+              "' AND isAggProd = "           + isAggProd;
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] UpdateOutputTables: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            msg = "\n[Error 2] updateOutputTables:  Couldn't delete all records from " + QString::fromStdString(tableName) + " table.\n";
+            msg = "\n[Error 2] nmfMainWindow::updateOutputTables:  Couldn't delete all records from " + QString::fromStdString(tableName) + " table.\n";
             QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
             return;
         }
 
         cmd = "REPLACE INTO " + tableName +
-                " (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value) VALUES ";
+                " (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value) VALUES ";
 
         for (int i=0; i<SpeciesList.size(); ++i) {
             value = 0;
@@ -3754,7 +3887,9 @@ nmfMainWindow::updateOutputTables(
                     value = EstGrowthRates[SpeciesNum++]/2.0;
                 }
             }
-            cmd += "('"   + Algorithm +
+            cmd += "('"   + m_ProjectName +
+                    "','" + m_ModelName +
+                    "','" + Algorithm +
                     "','" + Minimizer +
                     "','" + ObjectiveCriterion +
                     "','" + Scaling +
@@ -3768,7 +3903,7 @@ nmfMainWindow::updateOutputTables(
             m_Logger->logMsg(nmfConstants::Error,"[Error 3] UpdateOutputTables: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
-                                 "\n[Error 4] updateOutputTables:  Check that all cells are populated.\n",
+                                 "\n[Error 4] nmfMainWindow::updateOutputTables:  Check that all cells are populated.\n",
                                  QMessageBox::Ok);
             return;
         }
@@ -3777,34 +3912,38 @@ nmfMainWindow::updateOutputTables(
     //
     // Load the Output Interaction and Predation tables (they're matrices)
     //
-    QList<std::string> TableNames2  = {nmfConstantsMSSPM::TableOutputCompetitionAlpha,
-                                       nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies,
-                                       nmfConstantsMSSPM::TableOutputPredationRho,
-                                       nmfConstantsMSSPM::TableOutputPredationHandling};
-    QList<bool> Skip = {EstCompetitionAlpha.size1()  == 0,
+    QList<std::string> OutputTableNames2  = {nmfConstantsMSSPM::TableOutputCompetitionAlpha,
+                                             nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies,
+                                             nmfConstantsMSSPM::TableOutputPredationRho,
+                                             nmfConstantsMSSPM::TableOutputPredationHandling};
+    QList<bool> Skip = {EstCompetitionAlpha.size1()       == 0,
                         EstCompetitionBetaSpecies.size1() == 0,
-                        EstPredationRho.size1()      == 0,
-                        EstPredationHandling.size1() == 0};
+                        EstPredationRho.size1()           == 0,
+                        EstPredationHandling.size1()      == 0};
     int i = 0;
-    for (std::string tableName : TableNames2)
+    for (std::string tableName : OutputTableNames2)
     {
         if (Skip[i++])
             continue;
         cmd = "DELETE FROM " + tableName +
-                "  WHERE Algorithm='" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
-                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' AND isAggProd = " + isAggProd;
+              "  WHERE ProjectName = '"      + m_ProjectName +
+              "' AND ModelName = '"          + m_ModelName +
+              "' AND Algorithm = '"          + Algorithm +
+              "' AND Minimizer = '"          + Minimizer +
+              "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+              "' AND Scaling = '"            + Scaling +
+              "' AND isAggProd = "           + isAggProd;
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 5] UpdateOutputTables: DELETE error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 5] nmfMainWindow::updateOutputTables: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            msg = "\n[Error 6] updateOutputTables: Couldn't delete all records from " + QString::fromStdString(tableName) + " table.\n",
+            msg = "\n[Error 6] nmfMainWindow::updateOutputTables: Couldn't delete all records from " + QString::fromStdString(tableName) + " table.\n",
                     QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
             return;
         }
-        cmd = "REPLACE INTO " + tableName + " (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value) VALUES ";
+        cmd = "REPLACE INTO " +
+               tableName +
+              " (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value) VALUES ";
         for (int row=0; row<SpeciesList.size(); ++row) {
             for (int col=0; col<SpeciesList.size(); ++col) {
                 if (tableName == nmfConstantsMSSPM::TableOutputCompetitionAlpha) {
@@ -3820,7 +3959,9 @@ nmfMainWindow::updateOutputTables(
                     value = 0;
                 std::ostringstream val;
                 val << value;
-                cmd += "('"  + Algorithm +
+                cmd += "('"  + m_ProjectName +
+                       "','" + m_ModelName +
+                       "','" + Algorithm +
                        "','" + Minimizer +
                        "','" + ObjectiveCriterion +
                        "','" + Scaling +
@@ -3833,10 +3974,10 @@ nmfMainWindow::updateOutputTables(
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 7] UpdateOutputTables: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 7] nmfMainWindow::updateOutputTables: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
-                                 "\n[Error 8] in updateOutputTables command.  Check that all cells are populated.\n",
+                                 "\n[Error 8] nmfMainWindow::updateOutputTables: Check that all cells are populated.\n",
                                  QMessageBox::Ok);
             return;
         }
@@ -3845,29 +3986,33 @@ nmfMainWindow::updateOutputTables(
     //
     // Load the output OutputCompetitionBetaGuilds table
     //
-    QList<std::string> TableNames3 = {nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds};
+    QList<std::string> OutputTableNames3 = {nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds};
     Skip.clear();
     Skip.push_back(EstCompetitionBetaGuilds.size1() == 0);
     i = 0;
-    for (std::string tableName : TableNames3)
+    for (std::string tableName : OutputTableNames3)
     {
         if (Skip[i++])
             continue;
-        cmd = "DELETE FROM " + tableName +
-                "  WHERE Algorithm='" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
-                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' AND isAggProd = " + isAggProd;
+        cmd = "DELETE FROM "                 + tableName +
+              "  WHERE ProjectName ='"       + m_ProjectName +
+              "' AND ModelName = '"          + m_ModelName +
+              "' AND Algorithm = '"          + Algorithm +
+              "' AND Minimizer = '"          + Minimizer +
+              "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+              "' AND Scaling = '"            + Scaling +
+              "' AND isAggProd = "           + isAggProd;
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 9] UpdateOutputTables: DELETE error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 9] nmfMainWindow::updateOutputTables: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            msg = "\n[Error 10] updateOutputTables: Couldn't delete all records from " + QString::fromStdString(tableName) + " table.\n",
+            msg = "\n[Error 10] nmfMainWindow::updateOutputTables: Couldn't delete all records from " + QString::fromStdString(tableName) + " table.\n",
                     QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
             return;
         }
-        cmd = "REPLACE INTO " + tableName + " (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value) VALUES ";
+        cmd = "REPLACE INTO " +
+               tableName +
+              " (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value) VALUES ";
         for (int row=0; row<SpeciesList.size(); ++row) {
             for (int col=0; col<GuildList.size(); ++col) {
                 if (tableName == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) {
@@ -3877,7 +4022,9 @@ nmfMainWindow::updateOutputTables(
                     value = 0;
                 std::ostringstream val;
                 val << value;
-                cmd += "('"  + Algorithm +
+                cmd += "('"  + m_ProjectName +
+                       "','" + m_ModelName +
+                       "','" + Algorithm +
                        "','" + Minimizer +
                        "','" + ObjectiveCriterion +
                        "','" + Scaling +
@@ -3890,10 +4037,10 @@ nmfMainWindow::updateOutputTables(
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 11] UpdateOutputTables: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 11] nmfMainWindow::updateOutputTables: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
-                                 "\n[Error 12] in updateOutputTables command.  Check that all cells are populated.\n",
+                                 "\n[Error 12] nmfMainWindow::updateOutputTables: Check that all cells are populated.\n",
                                  QMessageBox::Ok);
             return;
         }
@@ -3902,29 +4049,33 @@ nmfMainWindow::updateOutputTables(
     //
     // Load the output OutputCompetitionBetaGuildsGuilds table
     //
-    QList<std::string> TableNames4 = {nmfConstantsMSSPM::TableOutputCompetitionBetaGuildsGuilds};
+    QList<std::string> OutputTableNames4 = {nmfConstantsMSSPM::TableOutputCompetitionBetaGuildsGuilds};
     Skip.clear();
     Skip.push_back(EstCompetitionBetaGuildsGuilds.size1() == 0);
     i = 0;
-    for (std::string tableName : TableNames4)
+    for (std::string tableName : OutputTableNames4)
     {
         if (Skip[i++])
             continue;
-        cmd = "DELETE FROM " + tableName +
-                "  WHERE Algorithm='" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
-                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' AND isAggProd = " + isAggProd;
+        cmd = "DELETE FROM "                 + tableName +
+              "  WHERE ProjectName = '"      + m_ProjectName +
+              "' AND ModelName = '"          + m_ModelName +
+              "' AND Algorithm = '"          + Algorithm +
+              "' AND Minimizer = '"          + Minimizer +
+              "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+              "' AND Scaling = '"            + Scaling +
+              "' AND isAggProd = "           + isAggProd;
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 10] UpdateOutputTables: DELETE error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 10] nmfMainWindow::updateOutputTables: DELETE error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-            msg = "\n[Error 10] updateOutputTables: Couldn't delete all records from " + QString::fromStdString(tableName) + " table.\n",
+            msg = "\n[Error 10] nmfMainWindow::updateOutputTables: Couldn't delete all records from " + QString::fromStdString(tableName) + " table.\n",
                     QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
             return;
         }
-        cmd = "REPLACE INTO " + tableName + " (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB,Value) VALUES ";
+        cmd = "REPLACE INTO " +
+               tableName +
+              " (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB,Value) VALUES ";
         for (int row=0; row<GuildList.size(); ++row) {
             for (int col=0; col<GuildList.size(); ++col) {
                 value = EstCompetitionBetaGuildsGuilds(row,col);
@@ -3933,7 +4084,9 @@ nmfMainWindow::updateOutputTables(
                 }
                 std::ostringstream val;
                 val << value;
-                cmd += "('"  + Algorithm +
+                cmd += "('"  + m_ProjectName +
+                       "','" + m_ModelName +
+                       "','" + Algorithm +
                        "','" + Minimizer +
                        "','" + ObjectiveCriterion +
                        "','" + Scaling +
@@ -3946,10 +4099,10 @@ nmfMainWindow::updateOutputTables(
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 12] UpdateOutputTables: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"[Error 12] nmfMainWindow::updateOutputTables: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
             QMessageBox::warning(this, "Error",
-                                 "\n[Error 13] in updateOutputTables command.  Check that all cells are populated.\n",
+                                 "\n[Error 13] nmfMainWindow::updateOutputTables: Check that all cells are populated.\n",
                                  QMessageBox::Ok);
             return;
         }
@@ -3962,10 +4115,10 @@ bool
 nmfMainWindow::loadUncertaintyData(const bool&          isMonteCarlo,
                                    const int&           NumSpecies,
                                    const std::string&   ForecastName,
-                                   const std::string&   Algorithm,
-                                   const std::string&   Minimizer,
-                                   const std::string&   ObjectiveCriterion,
-                                   const std::string&   Scaling,
+                                   std::string          Algorithm,
+                                   std::string          Minimizer,
+                                   std::string          ObjectiveCriterion,
+                                   std::string          Scaling,
                                    std::vector<double>& InitBiomassUncertainty,
                                    std::vector<double>& GrowthRateUncertainty,
                                    std::vector<double>& CarryingCapacityUncertainty,
@@ -3985,6 +4138,7 @@ nmfMainWindow::loadUncertaintyData(const bool&          isMonteCarlo,
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     std::string msg;
+    std::string CompetitionForm;
 
     // Clear data structures
     InitBiomassUncertainty.clear();
@@ -4001,25 +4155,34 @@ nmfMainWindow::loadUncertaintyData(const bool&          isMonteCarlo,
     SurveyQUncertainty.clear();
     HarvestUncertainty.clear();
 
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectName,m_ModelName,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+
     if (isMonteCarlo) {
-        fields     = {"ForecastName","SpeName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
+        fields     = {"ProjectName","ModelName","ForecastName","SpeName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
                       "InitBiomass","GrowthRate","CarryingCapacity","Predation","Competition",
                       "BetaSpecies","BetaGuilds","BetaGuildsGuilds","Handling","Exponent","Catchability","SurveyQ","Harvest"};
-        queryStr   = "SELECT ForecastName,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
+        queryStr   = "SELECT ProjectName,ModelName,ForecastName,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
         queryStr  += "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies,";
-        queryStr  += "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest FROM " + nmfConstantsMSSPM::TableForecastUncertainty + " ";
-        queryStr  += " WHERE ForecastName = '" + ForecastName +
-                    "' AND Algorithm = '" + Algorithm +
-                    "' AND Minimizer = '" + Minimizer +
-                    "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                    "' AND Scaling = '" + Scaling +
-                    "' ORDER BY SpeName";
+        queryStr  += "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest FROM " +
+                      nmfConstantsMSSPM::TableForecastUncertainty +
+                      " WHERE ProjectName = '"       + m_ProjectName +
+                      "' AND ModelName = '"          + m_ModelName +
+                      "' AND ForecastName = '"       + ForecastName +
+                      "' AND Algorithm = '"          + Algorithm +
+                      "' AND Minimizer = '"          + Minimizer +
+                      "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                      "' AND Scaling = '"            + Scaling +
+                      "' ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
         if (NumRecords != NumSpecies) {
-            msg  = "[Error 1] loadUncertaintyData: Incorrect number of records found in table: ForecastUncertainty. ";
+            msg  = "[Error 1] nmfMainWindow::loadUncertaintyData: Incorrect number of records found in table: ForecastUncertainty. ";
             msg += "Found " + std::to_string(NumRecords) + " records expecting " + std::to_string(NumSpecies)+".";
             m_Logger->logMsg(nmfConstants::Error,msg);
+//            m_Logger->logMsg(nmfConstants::Error,queryStr);
             QMessageBox::warning(this, "Error",
                                  "\nMissing Forecast data. Please check tabs:\nForecast->Harvest Data and Forecast->Uncertainty Parameters\nand re-save.",
                                  QMessageBox::Ok);
@@ -4110,23 +4273,25 @@ nmfMainWindow::calculateMonteCarloValue(const double& uncertainty,
 bool
 nmfMainWindow::clearMonteCarloParametersTable(
         std::string& ForecastName,
-        std::string& Algorithm,
-        std::string& Minimizer,
-        std::string& ObjectiveCriterion,
-        std::string& Scaling,
+        std::string  Algorithm,
+        std::string  Minimizer,
+        std::string  ObjectiveCriterion,
+        std::string  Scaling,
         std::string& MonteCarloParametersTable)
 {
     std::string cmd="";
     std::string errorMsg;
 
     if (! ForecastName.empty()) {
+        checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
         cmd = "DELETE FROM " + MonteCarloParametersTable +
-                " WHERE ForecastName = '" + ForecastName +
-                "' AND Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
-                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling   = '" + Scaling +
-                "'";
+              " WHERE ProjectName = '"       + m_ProjectName +
+              "' AND ModelName = '"          + m_ModelName +
+              "' AND ForecastName = '"       + ForecastName +
+              "' AND Algorithm = '"          + Algorithm +
+              "' AND Minimizer = '"          + Minimizer +
+              "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+              "' AND Scaling   = '"          + Scaling + "'";
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] clearMonteCarloParametersTable: DELETE error: " + errorMsg);
@@ -4149,10 +4314,10 @@ nmfMainWindow::clearMonteCarloParametersTable(
 //
 bool
 nmfMainWindow::clearOutputBiomassTable(std::string& ForecastName,
-                                       std::string& Algorithm,
-                                       std::string& Minimizer,
-                                       std::string& ObjectiveCriterion,
-                                       std::string& Scaling,
+                                       std::string  Algorithm,
+                                       std::string  Minimizer,
+                                       std::string  ObjectiveCriterion,
+                                       std::string  Scaling,
                                        std::string& isAggProd,
                                        std::string& BiomassTable)
 {
@@ -4161,18 +4326,25 @@ nmfMainWindow::clearOutputBiomassTable(std::string& ForecastName,
     QString msg;
 
     if (ForecastName.empty()) {
-        cmd = "DELETE FROM " + BiomassTable + " WHERE Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
+        cmd = "DELETE FROM " + BiomassTable +
+                " WHERE ProjectName = '"       + m_ProjectName +
+                "' AND ModelName = '"          + m_ModelName +
+                "' AND Algorithm = '"          + Algorithm +
+                "' AND Minimizer = '"          + Minimizer +
                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling   = '" + Scaling +
-                "' AND isAggProd = " + isAggProd;
+                "' AND Scaling   = '"          + Scaling +
+                "' AND isAggProd = "           + isAggProd;
     } else {
-        cmd = "DELETE FROM " + BiomassTable + " WHERE ForecastName = '" + ForecastName +
-                "' AND Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
+        checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+        cmd = "DELETE FROM " + BiomassTable +
+                " WHERE ProjectName = '"       + m_ProjectName +
+                "' AND ModelName = '"          + m_ModelName +
+                "' AND ForecastName = '"       + ForecastName +
+                "' AND Algorithm = '"          + Algorithm +
+                "' AND Minimizer = '"          + Minimizer +
                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling   = '" + Scaling +
-                "' AND isAggProd = " + isAggProd;
+                "' AND Scaling   = '"          + Scaling +
+                "' AND isAggProd = "           + isAggProd;
     }
 
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
@@ -4190,6 +4362,7 @@ nmfMainWindow::clearOutputBiomassTable(std::string& ForecastName,
 
 bool
 nmfMainWindow::setFirstRowEstimatedBiomass(
+        const std::string& ForecastName,
         const int& NumSpeciesOrGuilds,
         const QList<double>& InitialBiomass,
         boost::numeric::ublas::matrix<double>& EstimatedBiomassBySpecies)
@@ -4204,7 +4377,7 @@ nmfMainWindow::setFirstRowEstimatedBiomass(
     }
     bool isCheckedEstimateInitBiomass = nmfUtils::isEstimateParameterChecked(dataStruct,"InitBiomass");
     if (isCheckedEstimateInitBiomass) {
-        getOutputInitialBiomass(OutputInitBiomass);
+        getOutputInitialBiomass(ForecastName,OutputInitBiomass);
         if (OutputInitBiomass.size() == NumSpeciesOrGuilds) {
             for (int SpeciesNum=0; SpeciesNum<NumSpeciesOrGuilds; ++SpeciesNum) {
                 EstimatedBiomassBySpecies(0,SpeciesNum) = OutputInitBiomass[SpeciesNum];
@@ -4242,9 +4415,11 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     int m=0;
 
     // Read BiomassRelative data from table
-    fields    = {"ModelName","SpeName","Year","Value"};
-    queryStr  = "SELECT ModelName,SpeName,Year,Value FROM " + nmfConstantsMSSPM::TableBiomassRelative;
-    queryStr += " WHERE ProjectName = '" + m_ProjectName + "' AND ModelName = '" + m_ModelName +
+    fields    = {"ProjectName","ModelName","SpeName","Year","Value"};
+    queryStr  = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " +
+                 nmfConstantsMSSPM::TableBiomassRelative +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName +
                 "' ORDER BY SpeName,Year";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Value"].size();
@@ -4259,7 +4434,10 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     }
 
     // Clear BiomassRelativeDividedByEstSurveyQ table
-    std::string cmd = "DELETE FROM " + nmfConstantsMSSPM::TableBiomassRelativeDividedByEstSurveyQ;
+    std::string cmd = "DELETE FROM " +
+                       nmfConstantsMSSPM::TableBiomassRelativeDividedByEstSurveyQ +
+                      " WHERE ProjectName = '" + m_ProjectName +
+                      "' AND ModelName = '"    + m_ModelName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::updateObservedBiomassAndEstSurveyQTable: DELETE error: " + errorMsg);
@@ -4271,7 +4449,9 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     }
 
     // Write to BiomassRelativeDividedByEstSurveyQ table
-    cmd = "INSERT INTO " + nmfConstantsMSSPM::TableBiomassRelativeDividedByEstSurveyQ + " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
+    cmd = "INSERT INTO " +
+           nmfConstantsMSSPM::TableBiomassRelativeDividedByEstSurveyQ +
+          " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
     for (int speciesNum=0; speciesNum<NumSpecies; ++speciesNum) {
         estSurveyQ = (int(EstSurveyQ.size()) == NumSpecies) ? EstSurveyQ[speciesNum] : 0;
         if (nmfUtils::isNearlyZero(estSurveyQ)) {
@@ -4305,6 +4485,41 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     return true;
 }
 
+void
+nmfMainWindow::checkDiagnosticAlgorithmIdentifiersForMultiRun(
+        std::string& Algorithm,
+        std::string& Minimizer,
+        std::string& ObjectiveCriterion,
+        std::string& Scaling)
+{
+    readSettings("Runtime");
+
+    if ( m_IsMultiRun && Diagnostic_Tab1_ptr->useMultiRunEstimatedParameters())
+    {
+        Algorithm          = m_MultiRunType;
+        Minimizer          = m_MultiRunType;
+        ObjectiveCriterion = m_MultiRunType;
+        Scaling            = m_MultiRunType;
+    }
+}
+
+void
+nmfMainWindow::checkForecastAlgorithmIdentifiersForMultiRun(
+        std::string& Algorithm,
+        std::string& Minimizer,
+        std::string& ObjectiveCriterion,
+        std::string& Scaling)
+{
+    readSettings("Runtime");
+
+    if (m_IsMultiRun && Forecast_Tab1_ptr->useMultiRunEstimatedParameters())
+    {
+        Algorithm          = m_MultiRunType;
+        Minimizer          = m_MultiRunType;
+        ObjectiveCriterion = m_MultiRunType;
+        Scaling            = m_MultiRunType;
+    }
+}
 
 bool
 nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
@@ -4312,25 +4527,25 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                         int&         RunLength,
                                         bool&        isMonteCarlo,
                                         int&         RunNum,
-                                        std::string& Algorithm,
-                                        std::string& Minimizer,
-                                        std::string& ObjectiveCriterion,
-                                        std::string& Scaling,
+                                        std::string  Algorithm,
+                                        std::string  Minimizer,
+                                        std::string  ObjectiveCriterion,
+                                        std::string  Scaling,
                                         std::string& isAggProdStr,
                                         std::string& GrowthForm,
                                         std::string& HarvestForm,
                                         std::string& CompetitionForm,
                                         std::string& PredationForm,
-                                        std::string& InitBiomassTable,
-                                        std::string& GrowthRateTable,
-                                        std::string& CarryingCapacityTable,
-                                        std::string& CatchabilityTable,
-                                        std::string& SurveyQTable,
-                                        std::string& BiomassTable)
+                                        std::string& OutputInitBiomassTable,
+                                        std::string& OutputGrowthRateTable,
+                                        std::string& OutputCarryingCapacityTable,
+                                        std::string& OutputCatchabilityTable,
+                                        std::string& OutputSurveyQTable,
+                                        std::string& OutputOrForecastBiomassTable)
 {
     bool   loadOK;
     bool   isCarryingCapacity = (GrowthForm      == "Logistic");
-    bool   isCatchability     = (HarvestForm     == nmfConstantsMSSPM::HarvestEffort.toStdString());
+    bool   isCatchability     = (HarvestForm     ==  nmfConstantsMSSPM::HarvestEffort.toStdString());
     bool   isAggProd          = (CompetitionForm == "AGG-PROD");
     bool   isAlpha            = (CompetitionForm == "NO_K");
     bool   isBetaSpecies      = (CompetitionForm == "MS-PROD");
@@ -4413,7 +4628,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     std::vector<double> CatchabilityUncertainty;
     std::vector<double> SurveyQUncertainty;
     std::vector<double> HarvestUncertainty;
-    std::vector<std::string> TableNames;
+    std::vector<std::string> OutputTableNames;
     nmfGrowthForm*      growthForm      = new nmfGrowthForm(GrowthForm);
     nmfHarvestForm*     harvestForm     = new nmfHarvestForm(HarvestForm);
     nmfCompetitionForm* competitionForm = new nmfCompetitionForm(CompetitionForm);
@@ -4435,6 +4650,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     catchabilityRate.clear();
     HarvestRandomValues.clear();
     SurveyQRandomValues.clear();
+
+    readSettings();
 
     // Find Guilds and Species
     if (! m_DatabasePtr->getGuilds(m_Logger,NumGuilds,GuildList)) {
@@ -4470,30 +4687,39 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         return false;
     }
 
-    // Load appropriate r and K (for given Algorithm, Minimizer, and Objective Criterion)
-    TableNames.clear();
-    TableNames.push_back(InitBiomassTable);
-    TableNames.push_back(GrowthRateTable);
-    TableNames.push_back(CarryingCapacityTable);
-    if (isCatchability)
-        TableNames.push_back(CatchabilityTable);
-    if (isExponent)
-        TableNames.push_back(nmfConstantsMSSPM::TableOutputPredationExponent);
-    TableNames.push_back(SurveyQTable);
+    if (ForecastName.empty()) {
+        checkDiagnosticAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+    } else {
+        checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+    }
 
-    for (unsigned j=0; j<TableNames.size(); ++j) {
-        fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-        queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + TableNames[j];
-        queryStr += " WHERE Algorithm = '" + Algorithm +
-                    "' AND Minimizer = '" + Minimizer +
+    // Load appropriate r and K (for given Algorithm, Minimizer, and Objective Criterion)
+    OutputTableNames.clear();
+    OutputTableNames.push_back(OutputInitBiomassTable);
+    OutputTableNames.push_back(OutputGrowthRateTable);
+    OutputTableNames.push_back(OutputCarryingCapacityTable);
+    if (isCatchability)
+        OutputTableNames.push_back(OutputCatchabilityTable);
+    if (isExponent)
+        OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputPredationExponent);
+    OutputTableNames.push_back(OutputSurveyQTable);
+
+    for (unsigned j=0; j<OutputTableNames.size(); ++j) {
+        fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+        queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                    OutputTableNames[j] +
+                    " WHERE ProjectName = '"       + m_ProjectName +
+                    "' AND ModelName = '"          + m_ModelName +
+                    "' AND Algorithm = '"          + Algorithm +
+                    "' AND Minimizer = '"          + Minimizer +
                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                    "' AND Scaling = '" + Scaling +
-                    "' AND isAggProd = " + isAggProdStr +
+                    "' AND Scaling = '"            + Scaling +
+                    "' AND isAggProd = "           + isAggProdStr +
                     " ORDER BY SpeName";
         dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
         if (NumRecords != NumSpeciesOrGuilds) {
-            errorMsg  = "Run failed. Incorrect number of records found in " + TableNames[j] + ". ";
+            errorMsg  = "Run failed. Incorrect number of records found in " + OutputTableNames[j] + ". ";
             errorMsg += "Found " + std::to_string(NumRecords) + " expecting " + std::to_string(NumSpeciesOrGuilds) + ".";
             errorMsg += "\n\nPlease ensure an estimation has been run.";
             m_Logger->logMsg(nmfConstants::Error, "[Error 4] " + errorMsg);
@@ -4503,7 +4729,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             return false;
         }
 
-        if (TableNames[j] == InitBiomassTable) {
+        if (OutputTableNames[j] == OutputInitBiomassTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 MonteCarloValue = calculateMonteCarloValue(InitBiomassUncertainty[i],
                                                            std::stod(dataMap["Value"][i]),
@@ -4511,7 +4737,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 EstInitBiomass.push_back(MonteCarloValue);
                 InitBiomassRandomValues.push_back(randomValue);
             }
-        } else if (TableNames[j] == GrowthRateTable) {
+        } else if (OutputTableNames[j] == OutputGrowthRateTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 MonteCarloValue = calculateMonteCarloValue(GrowthRateUncertainty[i],
                                                            std::stod(dataMap["Value"][i]),
@@ -4519,7 +4745,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 EstGrowthRates.push_back(MonteCarloValue);
                 GrowthRandomValues.push_back(randomValue);
             }
-        } else if (TableNames[j] == CarryingCapacityTable) {
+        } else if (OutputTableNames[j] == OutputCarryingCapacityTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 if (isCarryingCapacity) {
                     MonteCarloValue = calculateMonteCarloValue(CarryingCapacityUncertainty[i],
@@ -4532,7 +4758,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                     CarryingCapacityRandomValues.push_back(0);
                 }
             }
-        } else if (TableNames[j] == CatchabilityTable) {
+        } else if (OutputTableNames[j] == OutputCatchabilityTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 MonteCarloValue = calculateMonteCarloValue(CatchabilityUncertainty[i],
                                                            std::stod(dataMap["Value"][i]),
@@ -4541,7 +4767,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 EstCatchabilityRates.push_back(MonteCarloValue);
                 CatchabilityRandomValues.push_back(randomValue);
             }
-        } else if (TableNames[j] == nmfConstantsMSSPM::TableOutputPredationExponent) {
+        } else if (OutputTableNames[j] == nmfConstantsMSSPM::TableOutputPredationExponent) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 MonteCarloValue = calculateMonteCarloValue(ExponentUncertainty[i],
                                                            std::stod(dataMap["Value"][i]),
@@ -4549,7 +4775,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 EstExponent.push_back(MonteCarloValue);
                 PredationExponentRandomValues.push_back(randomValue);
             }
-        } else if (TableNames[j] == nmfConstantsMSSPM::TableOutputSurveyQ) {
+        } else if (OutputTableNames[j] == nmfConstantsMSSPM::TableOutputSurveyQ) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
                 MonteCarloValue = calculateMonteCarloValue(SurveyQUncertainty[i],
                                                            std::stod(dataMap["Value"][i]),
@@ -4562,40 +4788,42 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     // Load data from OutputCompetitionAlpha, OutputCompetitionBetaSpecies,
     // OutputPredationRho, and OutputPredationHandling
-    TableNames.clear();
+    OutputTableNames.clear();
     if (isAlpha) {
-        TableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionAlpha);
+        OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionAlpha);
     }
     if (isBetaSpecies) {
-        TableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies);
+        OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies);
     }
     if (isPredation) {
-        TableNames.push_back(nmfConstantsMSSPM::TableOutputPredationRho);
+        OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputPredationRho);
     }
     if (isHandling) {
-        TableNames.push_back(nmfConstantsMSSPM::TableOutputPredationHandling);
+        OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputPredationHandling);
     }
 
     nmfUtils::initialize(EstCompetitionAlpha,      NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(EstCompetitionBetaSpecies,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(EstPredation,             NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(EstHandling,              NumSpeciesOrGuilds,NumSpeciesOrGuilds);
-    for (unsigned i=0; i<TableNames.size(); ++i) {
+    for (unsigned i=0; i<OutputTableNames.size(); ++i) {
 
-        fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
-        queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + TableNames[i];
-        queryStr += " WHERE Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
-                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' AND isAggProd = " + isAggProdStr +
-                "  ORDER BY SpeciesA,SpeciesB";
-
+        fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
+        queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " +
+                     OutputTableNames[i] +
+                    " WHERE ProjectName = '"       + m_ProjectName +
+                    "' AND ModelName = '"          + m_ModelName +
+                    "' AND Algorithm = '"          + Algorithm +
+                    "' AND Minimizer = '"          + Minimizer +
+                    "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                    "' AND Scaling = '"            + Scaling +
+                    "' AND isAggProd = "           + isAggProdStr +
+                    "  ORDER BY SpeciesA,SpeciesB";
         dataMap = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeciesA"].size();
         if (NumRecords != NumSpeciesOrGuilds*NumSpeciesOrGuilds) {
             m_Logger->logMsg(nmfConstants::Error,
-                           "[Error 5] UpdateOutputBiomassTable: Incorrect number of records found in " + TableNames[i] + ". Found " +
+                           "[Error 5] UpdateOutputBiomassTable: Incorrect number of records found in " + OutputTableNames[i] + ". Found " +
                            std::to_string(NumRecords) + " expecting " + std::to_string(NumSpeciesOrGuilds*NumSpeciesOrGuilds) + ".");
             m_Logger->logMsg(nmfConstants::Error, queryStr);
             return false;
@@ -4604,25 +4832,25 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         m = 0;
         for (int row=0; row<NumSpeciesOrGuilds; ++row) {
             for (int col=0; col<NumSpeciesOrGuilds; ++col) {
-                if (TableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionAlpha) {
+                if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionAlpha) {
                     EstCompetitionAlpha(row,col) = calculateMonteCarloValue(
                                 CompetitionUncertainty[col],
                                 std::stod(dataMap["Value"][m]),
                                 randomValue);
                     CompetitionAlphaRandomValues.push_back(randomValue);
-                } else if (TableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies) {
+                } else if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies) {
                     EstCompetitionBetaSpecies(row,col) = calculateMonteCarloValue(
                                 BetaSpeciesUncertainty[col],
                                 std::stod(dataMap["Value"][m]),
                                 randomValue);
                     CompetitionBetaSpeciesRandomValues.push_back(randomValue);
-                } else if (TableNames[i] == nmfConstantsMSSPM::TableOutputPredationRho) {
+                } else if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputPredationRho) {
                     EstPredation(row,col) = calculateMonteCarloValue(
                                 PredationUncertainty[col],
                                 std::stod(dataMap["Value"][m]),
                                 randomValue);
                     PredationRhoRandomValues.push_back(randomValue);
-                } else if (TableNames[i] == nmfConstantsMSSPM::TableOutputPredationHandling) {
+                } else if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputPredationHandling) {
                     EstHandling(row,col) = calculateMonteCarloValue(
                                 HandlingUncertainty[col],
                                 std::stod(dataMap["Value"][m]),
@@ -4634,25 +4862,28 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         }
     }
 
-    TableNames.clear();
+    OutputTableNames.clear();
     if (isBetaGuilds) {
-        TableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds);
+        OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds);
     }
     nmfUtils::initialize(EstCompetitionBetaGuilds,NumSpeciesOrGuilds,NumGuilds);
-    for (unsigned i=0; i<TableNames.size(); ++i) {
-        fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Guild","Value"};
-        queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " + TableNames[i];
-        queryStr += " WHERE Algorithm = '" + Algorithm +
-                    "' AND Minimizer = '" + Minimizer +
+    for (unsigned i=0; i<OutputTableNames.size(); ++i) {
+        fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Guild","Value"};
+        queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " +
+                     OutputTableNames[i] +
+                    " WHERE ProjectName = '"       + m_ProjectName +
+                    "' AND ModelName = '"          + m_ModelName +
+                    "' AND Algorithm = '"          + Algorithm +
+                    "' AND Minimizer = '"          + Minimizer +
                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                    "' AND Scaling = '" + Scaling +
-                    "' AND isAggProd = " + isAggProdStr +
+                    "' AND Scaling = '"            + Scaling +
+                    "' AND isAggProd = "           + isAggProdStr +
                     " ORDER BY SpeName,Guild";
         dataMap = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
         if (NumRecords != NumSpeciesOrGuilds*NumGuilds) {
             m_Logger->logMsg(nmfConstants::Error,
-                           "[Error 6] UpdateOutputBiomassTable: Incorrect number of records found in " + TableNames[i] + ". Found " +
+                           "[Error 6] UpdateOutputBiomassTable: Incorrect number of records found in " + OutputTableNames[i] + ". Found " +
                            std::to_string(NumRecords) + " expecting " + std::to_string(NumSpeciesOrGuilds*NumGuilds) + ".");
             m_Logger->logMsg(nmfConstants::Error, queryStr);
             return false;
@@ -4661,7 +4892,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         m = 0;
         for (int row=0; row<NumSpeciesOrGuilds; ++row) {
             for (int col=0; col<NumGuilds; ++col) {
-                if (TableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) {
+                if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) {
                     EstCompetitionBetaGuilds(row,col) = calculateMonteCarloValue(
                             BetaGuildsUncertainty[row],
                             std::stod(dataMap["Value"][m]),
@@ -4673,25 +4904,28 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         }
     }
 
-    TableNames.clear();
+    OutputTableNames.clear();
     if (isBetaGuildsGuilds) {
-        TableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaGuildsGuilds);
+        OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaGuildsGuilds);
     }
     nmfUtils::initialize(EstCompetitionBetaGuildsGuilds,NumGuilds,NumGuilds);
-    for (unsigned i=0; i<TableNames.size(); ++i) {
-        fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","GuildA","GuildB","Value"};
-        queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB,Value FROM " + TableNames[i];
-        queryStr += " WHERE Algorithm = '" + Algorithm +
-                    "' AND Minimizer = '" + Minimizer +
+    for (unsigned i=0; i<OutputTableNames.size(); ++i) {
+        fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","GuildA","GuildB","Value"};
+        queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,GuildA,GuildB,Value FROM " +
+                     OutputTableNames[i] +
+                    " WHERE ProjectName = '"       + m_ProjectName +
+                    "' AND ModelName = '"          + m_ModelName +
+                    "' AND Algorithm = '"          + Algorithm +
+                    "' AND Minimizer = '"          + Minimizer +
                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                    "' AND Scaling = '" + Scaling +
-                    "' AND isAggProd = " + isAggProdStr +
+                    "' AND Scaling = '"            + Scaling +
+                    "' AND isAggProd = "           + isAggProdStr +
                     " ORDER BY GuildA,GuildB";
         dataMap = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["GuildA"].size();
         if (NumRecords != NumGuilds*NumGuilds) {
             m_Logger->logMsg(nmfConstants::Error,
-                           "[Error 6.1] UpdateOutputBiomassTable: Incorrect number of records found in " + TableNames[i] + ". Found " +
+                           "[Error 6.1] UpdateOutputBiomassTable: Incorrect number of records found in " + OutputTableNames[i] + ". Found " +
                            std::to_string(NumRecords) + " expecting " + std::to_string(NumGuilds*NumGuilds) + ".");
             m_Logger->logMsg(nmfConstants::Error, queryStr);
             return false;
@@ -4700,7 +4934,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         m = 0;
         for (int row=0; row<NumGuilds; ++row) {
             for (int col=0; col<NumGuilds; ++col) {
-                if (TableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) {
+                if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) {
                     EstCompetitionBetaGuildsGuilds(row,col) = calculateMonteCarloValue(
                             BetaGuildsGuildsUncertainty[row],
                             std::stod(dataMap["Value"][m]),
@@ -4769,7 +5003,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     // Update the Forecast Monte Carlo Parameters table
     if (! m_DatabasePtr->updateForecastMonteCarloParameters(
-                0,m_Logger,m_ProjectName,
+                0,m_Logger,m_ProjectName,m_ModelName,
                 ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                 SpeciesList,RunNum,
                 GrowthRandomValues,CarryingCapacityRandomValues,CatchabilityRandomValues,
@@ -4795,7 +5029,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     // Use estimated initial biomass if it was checked to be estimated
     nmfUtils::initialize(EstimatedBiomassBySpecies,RunLength+1,NumSpeciesOrGuilds);
-    if (! setFirstRowEstimatedBiomass(NumSpeciesOrGuilds,InitialBiomass,EstimatedBiomassBySpecies)) {
+    if (! setFirstRowEstimatedBiomass(ForecastName,NumSpeciesOrGuilds,InitialBiomass,EstimatedBiomassBySpecies)) {
         return false;
     }
 
@@ -4834,11 +5068,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                     GuildCarryingCapacity += EstCarryingCapacities[GuildSpecies[guildNum][j]];
                 }
             }
-//if (species == 0) {
-//    for (int i=0;i<EstCatchabilityRates.size();++i) {
-//        std::cout << "i: " << i << ", EstCC: " << EstCatchabilityRates[i] << std::endl;
-//    }
-//}
+
             EstimatedBiomassTimeMinus1  = EstimatedBiomassBySpecies(timeMinus1,species);
             growthTerm      = growthForm->evaluate(species,EstimatedBiomassTimeMinus1,
                                                    EstGrowthRates,EstCarryingCapacities);
@@ -4889,13 +5119,17 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     m = 0;
     if (ForecastName == "") {
-        cmd = "REPLACE INTO " + BiomassTable + " (Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
+        cmd = "REPLACE INTO " +
+               OutputOrForecastBiomassTable +
+              " (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
         for (int species=0; species<NumSpeciesOrGuilds; ++ species) { // Species
             for (int time=StartYear; time<=RunLength; ++time) { // Time in years
                 if (std::isnan(EstimatedBiomassBySpecies(time,species))) {
                     EstimatedBiomassBySpecies(time,species) = -1;
                 }
-                cmd += "('"   + Algorithm +
+                cmd += "('"   + m_ProjectName +
+                        "','" + m_ModelName +
+                        "','" + Algorithm +
                         "','" + Minimizer +
                         "','" + ObjectiveCriterion +
                         "','" + Scaling +
@@ -4907,7 +5141,9 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         }
     } else {
         if (isMonteCarlo) {
-            cmd = "INSERT INTO " + BiomassTable + " (ProjectName,ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
+            checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+            cmd = "INSERT INTO " + OutputOrForecastBiomassTable +
+                  " (ProjectName,ModelName,ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
             for (int species=0; species<NumSpeciesOrGuilds; ++ species) { // Species
                 for (int time=0; time<=RunLength; ++time) { // Time in years
                     if (std::isnan(EstimatedBiomassBySpecies(time,species)) ||
@@ -4916,6 +5152,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                         EstimatedBiomassBySpecies(time,species) = -1;
                     }
                     cmd += "('"   + m_ProjectName +
+                            "','" + m_ModelName +
                             "','" + ForecastName +
                             "',"  + std::to_string(RunNum) +
                             ",'"  + Algorithm +
@@ -4929,7 +5166,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 }
             }
         } else {
-            cmd = "INSERT INTO " + BiomassTable + " (ProjectName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
+            cmd = "INSERT INTO " + OutputOrForecastBiomassTable +
+                  " (ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
             for (int species=0; species<NumSpeciesOrGuilds; ++ species) { // Species
                 for (int time=0; time<=RunLength; ++time) { // Time in years
                     if (std::isnan(EstimatedBiomassBySpecies(time,species)) ||
@@ -4938,6 +5176,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                         EstimatedBiomassBySpecies(time,species) = -1;
                     }
                     cmd += "('"   + m_ProjectName +
+                            "','" + m_ModelName +
                             "','" + ForecastName +
                             "','" + Algorithm +
                             "','" + Minimizer +
@@ -5004,11 +5243,14 @@ nmfMainWindow::isAtLeastOneFilterPressed()
 std::string
 nmfMainWindow::getFilterButtonsResult()
 {
-    std::string queryStr = " WHERE ";
+    std::string queryStr = "";
     std::string conj = "";
 
+    queryStr += " WHERE ProjectName = '" + m_ProjectName +
+                "' AND  ModelName = '"   + m_ModelName   + "' ";
+
     if (m_isPressedBeesButton || m_isPressedNLoptButton) {
-        queryStr += "(";
+        queryStr += " AND (";
     }
     if (m_isPressedBeesButton) {
         queryStr += " Algorithm = 'Bees Algorithm' ";
@@ -5131,8 +5373,10 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
     // Get Models data
     fields     = {"ObsBiomassType","RunLength","StartYear","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
-    queryStr   = "SELECT ObsBiomassType,RunLength,StartYear,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm";
-    queryStr  += " FROM " + nmfConstantsMSSPM::TableModels + " WHERE ModelName='" + m_ModelName + "'";
+    queryStr   = "SELECT ObsBiomassType,RunLength,StartYear,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm FROM " +
+                  nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName='" + m_ProjectName +
+                 "' AND ModelName = '"  + m_ModelName   + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["RunLength"].size();
     if (NumRecords == 0) {
@@ -5178,17 +5422,17 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     }
 
     // Load various tables
-    std::vector<std::string> TableNames = {nmfConstantsMSSPM::TableOutputInitBiomass,
-                                           nmfConstantsMSSPM::TableOutputGrowthRate,
-                                           nmfConstantsMSSPM::TableOutputCarryingCapacity,
-                                           nmfConstantsMSSPM::TableOutputCatchability,
-                                           nmfConstantsMSSPM::TableOutputMSYBiomass,
-                                           nmfConstantsMSSPM::TableOutputMSY,
-                                           nmfConstantsMSSPM::TableOutputMSYFishing,
-                                           nmfConstantsMSSPM::TableOutputPredationExponent,
-                                           nmfConstantsMSSPM::TableOutputSurveyQ};
+    std::vector<std::string> OutputTableNames = {nmfConstantsMSSPM::TableOutputInitBiomass,
+                                                 nmfConstantsMSSPM::TableOutputGrowthRate,
+                                                 nmfConstantsMSSPM::TableOutputCarryingCapacity,
+                                                 nmfConstantsMSSPM::TableOutputCatchability,
+                                                 nmfConstantsMSSPM::TableOutputMSYBiomass,
+                                                 nmfConstantsMSSPM::TableOutputMSY,
+                                                 nmfConstantsMSSPM::TableOutputMSYFishing,
+                                                 nmfConstantsMSSPM::TableOutputPredationExponent,
+                                                 nmfConstantsMSSPM::TableOutputSurveyQ};
     if (isExponent) {
-      TableNames.push_back(nmfConstantsMSSPM::TableOutputPredationExponent);
+      OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputPredationExponent);
     }
     QList<QString>     TableLabels = {"B₀","r","K","q","BMSY","MSY","FMSY","b","Q"};
     QList<QTableView*> TableViews  = {InitBiomassTV,
@@ -5207,31 +5451,35 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
     // Load 1d tables
     m = 0;
-    for (int i=0; i<(int)TableNames.size(); ++i) {
+    for (int i=0; i<(int)OutputTableNames.size(); ++i) {
         hLabels.clear();
         smodel = new QStandardItemModel( NumSpeciesOrGuilds, 1 );
         if ((NumLines == 1) && (! isAtLeastOneFilterPressed()))  {
-            fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
-                         TableNames[i];
-            queryStr  += " WHERE Algorithm = '" + Algorithm +
-                        "' AND Minimizer = '"   + Minimizer +
-                        "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                        "' AND Scaling = '"     + Scaling +
-                        "' AND isAggProd = "    + isAggProdStr +
-                        " ORDER by SpeName";
+            fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+            queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                          OutputTableNames[i] +
+                         " WHERE ProjectName = '"       + m_ProjectName +
+                         "' AND ModelName = '"          + m_ModelName +
+                         "' AND Algorithm = '"          + Algorithm +
+                         "' AND Minimizer = '"          + Minimizer +
+                         "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                         "' AND Scaling = '"            + Scaling +
+                         "' AND isAggProd = "           + isAggProdStr +
+                         " ORDER by SpeName";
         } else {
-            fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + TableNames[i];
+            fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+            queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                          OutputTableNames[i];
             queryStr  += getFilterButtonsResult();
             queryStr  += " ORDER by Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName";
         }
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
         if (NumRecords == 0) {
-            m_Logger->logMsg(nmfConstants::Error, queryStr);
-            msg = "\n[nmfMainWindow::callback_ShowChart] No data found in: " + TableNames[i] + " for current configuration.\n\n";
+            msg = "\n[nmfMainWindow::callback_ShowChart] No data found in: " + OutputTableNames[i] + " for current configuration.\n\n";
             msg += "Please run an Estimation with the current algorithm configuration.";
+            m_Logger->logMsg(nmfConstants::Error, "nmfMainWindow::callback_ShowChart: No data found in: " + OutputTableNames[i]);
+            m_Logger->logMsg(nmfConstants::Error, queryStr);
             QMessageBox::information(this,
                                      tr("No Output Data"),
                                      tr(msg.c_str()),
@@ -5248,14 +5496,14 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                 item = new QStandardItem(valueWithComma);
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel->setItem(j, 0, item);
-                if (TableNames[i] == nmfConstantsMSSPM::TableOutputMSYBiomass) {
+                if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputMSYBiomass) {
                     BMSYValues.append(std::stod(dataMap["Value"][j+line*NumSpeciesOrGuilds]));
-                } else if (TableNames[i] == nmfConstantsMSSPM::TableOutputMSY) {
+                } else if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputMSY) {
                     MSYValues.append(std::stod(dataMap["Value"][j+line*NumSpeciesOrGuilds]));
-                } else if (TableNames[i] == nmfConstantsMSSPM::TableOutputMSYFishing) {
+                } else if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputMSYFishing) {
                     FMSYValues.append(std::stod(dataMap["Value"][j+line*NumSpeciesOrGuilds]));
                 }
-                if (TableNames[i] == nmfConstantsMSSPM::TableOutputCatchability) {
+                if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputCatchability) {
                     EstCatchability.push_back(val);
                 }
             }
@@ -5268,24 +5516,26 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         TableViews[i]->resizeColumnsToContents();
     }
 
-    loadVisibleTables(isAlpha,isMsProd,isAggProd,isRho,isHandling,TableViews,TableNames);
+    loadVisibleTables(isAlpha,isMsProd,isAggProd,isRho,isHandling,TableViews,OutputTableNames);
     QList<bool> isData = {isAlpha,isMsProd,isRho,isHandling};
-    for (int ii=0; ii<(int)TableNames.size(); ++ii) {
+    for (int ii=0; ii<(int)OutputTableNames.size(); ++ii) {
         if (! isData[ii])
             continue;
         smodel    = new QStandardItemModel( NumSpeciesOrGuilds, NumSpeciesOrGuilds );
-        fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
-        queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + TableNames[ii];
-        queryStr += " WHERE Algorithm = '" + Algorithm +
-                    "' AND Minimizer  = '" + Minimizer +
+        fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
+        queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value FROM " + OutputTableNames[ii];
+        queryStr += " WHERE ProjectName = '"       + m_ProjectName +
+                    "' AND ModelName  = '"         + m_ModelName +
+                    "' AND Algorithm  = '"         + Algorithm +
+                    "' AND Minimizer  = '"         + Minimizer +
                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                    "' AND Scaling   = '" + Scaling +
-                    "' AND isAggProd = " + isAggProdStr +
+                    "' AND Scaling   = '"          + Scaling +
+                    "' AND isAggProd = "           + isAggProdStr +
                     " ORDER by SpeciesA,SpeciesB";
         dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeciesA"].size();
         if ((NumRecords != NumSpeciesOrGuilds*NumSpeciesOrGuilds) && (NumRecords != 0)) {
-            msg = "[Error 2] nmfMainWindow::showChart: Incorrect number of records found in table " + TableNames[ii] +
+            msg = "[Error 2] nmfMainWindow::showChart: Incorrect number of records found in table " + OutputTableNames[ii] +
                     ", Found " + std::to_string(NumRecords) + " expecting " + std::to_string(NumSpeciesOrGuilds*NumSpeciesOrGuilds) + ".";
             m_Logger->logMsg(nmfConstants::Error, msg);
             m_Logger->logMsg(nmfConstants::Error, queryStr);
@@ -5315,26 +5565,29 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
     TableViews.clear();
     TableViews.append(CompetitionBetaGTV);
-    TableNames.clear();
-    TableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds);
+    OutputTableNames.clear();
+    OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds);
     isData.clear();
     isData.append(isMsProd || isAggProd);
-    for (int ii=0; ii<(int)TableNames.size(); ++ii) {
+    for (int ii=0; ii<(int)OutputTableNames.size(); ++ii) {
         if (! isData[ii])
             continue;
         smodel    = new QStandardItemModel( NumSpeciesOrGuilds, NumGuilds );
-        fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Guild","Value"};
-        queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " + TableNames[ii];
-        queryStr += " WHERE Algorithm = '" + Algorithm +
-                    "' AND Minimizer = '" + Minimizer +
+        fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Guild","Value"};
+        queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " +
+                     OutputTableNames[ii];
+        queryStr += " WHERE ProjectName = '"       + m_ProjectName +
+                    "' AND ModelName = '"          + m_ModelName +
+                    "' AND Algorithm = '"          + Algorithm +
+                    "' AND Minimizer = '"          + Minimizer +
                     "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                    "' AND Scaling = '" + Scaling +
-                    "' AND isAggProd = " + isAggProdStr +
+                    "' AND Scaling = '"            + Scaling +
+                    "' AND isAggProd = "           + isAggProdStr +
                     " ORDER by SpeName,Guild";
         dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
         if ((NumRecords != NumSpeciesOrGuilds*NumGuilds) && (NumRecords != 0)) {
-            msg  = "[Error 3] nmfMainWindow::showChart: Incorrect number of records found in table " + TableNames[ii] + ". ";
+            msg  = "[Error 3] nmfMainWindow::showChart: Incorrect number of records found in table " + OutputTableNames[ii] + ". ";
             msg += "Found " + std::to_string(NumRecords) + " expecting " + std::to_string(NumSpeciesOrGuilds*NumGuilds) + ".";
             m_Logger->logMsg(nmfConstants::Error, msg);
             m_Logger->logMsg(nmfConstants::Error, queryStr);
@@ -5347,12 +5600,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                 if (NumRecords == 0) {
                     item = new QStandardItem("");
                 } else {
-//                  valueWithComma = locale.toString(std::stod(dataMap["Value"][m++]),'f',5);
                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                                 std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,5);
                     item = new QStandardItem(valueWithComma);
-//                  val  = std::stod(dataMap["Value"][m++]);
-//                  item = new QStandardItem(QString::number(val,'f',5));
                 }
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel->setItem(i, j, item);
@@ -5393,8 +5643,8 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     }
     TableViews.clear();
     TableViews.append(OutputBiomassTV);
-    TableNames.clear();
-    TableNames.push_back(nmfConstantsMSSPM::TableOutputBiomass);
+    OutputTableNames.clear();
+    OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputBiomass);
 
     m = 0;
     smodel = new QStandardItemModel( RunLength, NumSpeciesOrGuilds );
@@ -5631,10 +5881,10 @@ nmfMainWindow::getMSYData(bool isAveraged,
     std::string queryStr;
     std::string CompetitionForm;
     std::map<std::string, std::vector<std::string> > dataMap;
-    std::vector<std::string> MSYTableNames = {nmfConstantsMSSPM::TableOutputMSYBiomass,
-                                              nmfConstantsMSSPM::TableOutputMSY,
-                                              nmfConstantsMSSPM::TableOutputMSYFishing};
-    std::string MSYTableName;
+    std::vector<std::string> OutputMSYTableNames = {nmfConstantsMSSPM::TableOutputMSYBiomass,
+                                                    nmfConstantsMSSPM::TableOutputMSY,
+                                                    nmfConstantsMSSPM::TableOutputMSYFishing};
+    std::string OutputMSYTableName;
     std::string isAggProdStr = "0";
     QList<double> tmpBMSYValues;
     QList<double> tmpMSYValues;
@@ -5669,30 +5919,32 @@ nmfMainWindow::getMSYData(bool isAveraged,
                     Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     }
 
-    for (int i=0; i<(int)MSYTableNames.size(); ++i) {
-        MSYTableName = MSYTableNames[i];
+    for (int i=0; i<(int)OutputMSYTableNames.size(); ++i) {
+        OutputMSYTableName = OutputMSYTableNames[i];
         if ((NumLines == 1) && (! isAtLeastOneFilterPressed()))  {
-            fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
-                          MSYTableName;
-            queryStr  += " WHERE Algorithm = '" + Algorithm +
-                    "' AND Minimizer = '" + Minimizer +
-                    "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                    "' AND Scaling = '" + Scaling +
-                    "' AND isAggProd = " + isAggProdStr +
-                    " ORDER by SpeName";
+            fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+            queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                          OutputMSYTableName;
+            queryStr  += " WHERE ProjectName = '"       + m_ProjectName +
+                         "' AND ModelName = '"          + m_ModelName +
+                         "' AND Algorithm = '"          + Algorithm +
+                         "' AND Minimizer = '"          + Minimizer +
+                         "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                         "' AND Scaling = '"            + Scaling +
+                         "' AND isAggProd = "           + isAggProdStr +
+                         " ORDER by SpeName";
         } else {
-            fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
-            queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " + MSYTableName;
-            queryStr  += getFilterButtonsResult();
-            queryStr  += " ORDER by Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName";
+            fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
+            queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
+                          OutputMSYTableName +
+                          getFilterButtonsResult() +
+                         " ORDER by Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName";
         }
-
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumSpecies = dataMap["SpeName"].size();
         if (NumSpecies == 0) {
             m_Logger->logMsg(nmfConstants::Error, queryStr);
-            msg = "\n[nmfMainWindow::getMSYData] No data found in: " + MSYTableName + " for current configuration.\n\n";
+            msg = "\n[nmfMainWindow::getMSYData] No data found in: " + OutputMSYTableName + " for current configuration.\n\n";
             msg += "Please run an Estimation with the current algorithm configuration.";
             QMessageBox::information(this,
                                      tr("No Output Data"),
@@ -5701,32 +5953,31 @@ nmfMainWindow::getMSYData(bool isAveraged,
             return false;
         }
 
-
         for (int line=0; line<NumLines; ++line) {
             for (int j=0; j<NumSpecies; ++j) {
                 Species = QString::fromStdString(dataMap["SpeName"][j]);
                 if (group == "Species") {
-                    if (MSYTableName == nmfConstantsMSSPM::TableOutputMSYBiomass) {
+                    if (OutputMSYTableName == nmfConstantsMSSPM::TableOutputMSYBiomass) {
                         tmpBMSYValues.append(std::stod(dataMap["Value"][j]));
-                    } else if (MSYTableName == nmfConstantsMSSPM::TableOutputMSY) {
+                    } else if (OutputMSYTableName == nmfConstantsMSSPM::TableOutputMSY) {
                         tmpMSYValues.append( std::stod(dataMap["Value"][j]));
-                    } else if (MSYTableName == nmfConstantsMSSPM::TableOutputMSYFishing) {
+                    } else if (OutputMSYTableName == nmfConstantsMSSPM::TableOutputMSYFishing) {
                         tmpFMSYValues.append(std::stod(dataMap["Value"][j]));
                     }
                 } else if (group == "Guild") {
-                    if (MSYTableName == nmfConstantsMSSPM::TableOutputMSYBiomass) {
+                    if (OutputMSYTableName == nmfConstantsMSSPM::TableOutputMSYBiomass) {
                         BMSYMap[GuildMap[Species]] += std::stod(dataMap["Value"][j]);
-                    } else if (MSYTableName == nmfConstantsMSSPM::TableOutputMSY) {
+                    } else if (OutputMSYTableName == nmfConstantsMSSPM::TableOutputMSY) {
                         MSYMap[GuildMap[Species]]  += std::stod(dataMap["Value"][j]);
-                    } else if (MSYTableName == nmfConstantsMSSPM::TableOutputMSYFishing) {
+                    } else if (OutputMSYTableName == nmfConstantsMSSPM::TableOutputMSYFishing) {
                         FMSYMap[GuildMap[Species]] += std::stod(dataMap["Value"][j]);
                     }
                 } else if (group == "System") {
-                    if (MSYTableName == nmfConstantsMSSPM::TableOutputMSYBiomass) {
+                    if (OutputMSYTableName == nmfConstantsMSSPM::TableOutputMSYBiomass) {
                         tmpBMSYValues.append(std::stod(dataMap["Value"][j]));
-                    } else if (MSYTableName == nmfConstantsMSSPM::TableOutputMSY) {
+                    } else if (OutputMSYTableName == nmfConstantsMSSPM::TableOutputMSY) {
                         tmpMSYValues.append( std::stod(dataMap["Value"][j]));
-                    } else if (MSYTableName == nmfConstantsMSSPM::TableOutputMSYFishing) {
+                    } else if (OutputMSYTableName == nmfConstantsMSSPM::TableOutputMSYFishing) {
                         tmpFMSYValues.append(std::stod(dataMap["Value"][j]));
                     }
                 }
@@ -5824,6 +6075,7 @@ nmfMainWindow::callback_ShowChartBy(QString GroupType,
                         Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
             m_DatabasePtr->getEstimatedParameter(nmfConstantsMSSPM::TableOutputSurveyQ,
+                                                 m_ProjectName, m_ModelName,
                                                  Algorithm,Minimizer,ObjectiveCriterion,
                                                  Scaling,isAggProdStr,EstSurveyQ);
             if (EstSurveyQ.size() == 0) {
@@ -5980,8 +6232,10 @@ nmfMainWindow::getInitialYear(int& InitialYear,
 
     // Find Original Start and end years
     fields   = {"StartYear","RunLength"};
-    queryStr = "SELECT StartYear,RunLength from " + nmfConstantsMSSPM::TableModels + " where ModelName = '" +
-            QString::fromStdString(m_ModelName).split("__")[0].toStdString() + "'";
+    queryStr = "SELECT StartYear,RunLength from " +
+                nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '"    + m_ModelName + "'"; //QString::fromStdString(m_ModelName).split("__")[0].toStdString() + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["StartYear"].size() != 0) {
         InitialYear = std::stoi(dataMap["StartYear"][0]);
@@ -5997,16 +6251,14 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     int NumSpeciesOrGuilds;
     int RunLength;
     int StartYear;
+    int NumStatistics = nmfConstantsMSSPM::SummaryModelFitStatisticNames.size();
     QStandardItemModel *smodel;
     QStandardItem* item;
+    QString tooltip;
     QStringList vLabels;
     QStringList SpeciesList;
     std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm;
     bool isAggProd = (CompetitionForm == "AGG-PROD");
-
-    // Always updated these to the highest precision
-//    int remNumSignificantDigits = m_NumSignificantDigits;
-//    m_NumSignificantDigits = -1;
 
     m_DatabasePtr->getAlgorithmIdentifiers(
                 this,m_Logger,m_ProjectName,m_ModelName,
@@ -6018,23 +6270,12 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
 
     m_Logger->logMsg(nmfConstants::Normal,"Calculating Summary Statistics for Run of length: "+std::to_string(RunLength));
 
-    QList<QString> statistics = {"SSresiduals","SSdeviations","SStotals",
-                                       QString("r")+QChar(0x00B2), "r",
-                                       "AIC","RMSE","RI","AE","AAE","MEF"};
-    int NumStatistics = statistics.size();
-
-    QList<QString> tooltips = {"Sum of Squared Residuals", "Sum of Squared Deviations",
-                               "Total Sum of Squares",     "Determination Coefficient",
-                               "Correlation Coefficient",  "Akaike Information Criterion",
-                               "Root Mean Square Error",   "Reliability Index",
-                               "Average Error",            "Average Absolute Error",
-                               "Model Efficiency"};
-
     smodel = new QStandardItemModel( NumStatistics, 1+NumSpeciesOrGuilds+1 );
     for (int i=0; i<NumStatistics; ++i) {
-        item = new QStandardItem(statistics[i]);
-        item->setToolTip(tooltips[i]);
-        item->setStatusTip(tooltips[i]);
+        tooltip = nmfConstantsMSSPM::SummaryModelFitStatisticTooltips[i];
+        item    = new QStandardItem(nmfConstantsMSSPM::SummaryModelFitStatisticNames[i]);
+        item->setToolTip(tooltip);
+        item->setStatusTip(tooltip);
         item->setTextAlignment(Qt::AlignCenter);
         item->setFlags(item->flags() &  ~Qt::ItemIsEditable); // read-only
         smodel->setItem(i, 0, item);
@@ -6080,9 +6321,6 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     SummaryTV->setWhatsThis(msg);
     SummaryTV->setToolTip("For a detailed description of these statistics,\nclick the WhatsThis? icon and click over the table.");
     SummaryTV->setStatusTip("For a detailed description of these statistics,\nclick the WhatsThis? icon and click over the table.");
-
-//    m_NumSignificantDigits = remNumSignificantDigits;
-
 }
 
 void
@@ -6114,7 +6352,7 @@ nmfMainWindow::saveSummaryModelFitTable(QStandardItemModel *smodel)
         for (int col=0; col<numCols; ++col) { // -1 because the first column is the StatisticName
             cmd += "('" + m_ProjectName + "','" + m_ModelName + "','" + SpeciesList[col].toStdString() + "'";
             for (int row=0; row<numRows; ++row) {
-                valueStr = smodel->index(row,col).data().toString().replace(",",""); // -1 because the first column is the StatisticName
+                valueStr = smodel->index(row,col).data().toString().replace(",","");
                 cmd += ",'" + valueStr.toStdString() + "'";
             }
             cmd += "),";
@@ -6127,6 +6365,56 @@ nmfMainWindow::saveSummaryModelFitTable(QStandardItemModel *smodel)
             return;
         }
 
+        Output_TableWidgets_ptr->setLastVariables(SummaryTV,
+                                                 "Summary Model Fit",
+                                                  nmfConstantsMSSPM::SummaryModelFitStatisticNames);
+    }
+}
+
+void
+nmfMainWindow::saveSummaryDiagnosticTable(QStandardItemModel* smodel)
+{
+    int numRows;
+    int numCols;
+    int numSpecies;
+    std::string cmd;
+    std::string errorMsg;
+    QString valueStr;
+    QStandardItem* item;
+    QStringList SpeciesList;
+
+    if (smodel) {
+        m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableSummaryDiagnostic,m_ProjectName);
+        numRows = smodel->rowCount();
+        numCols = smodel->columnCount(); // Species: Statistics, Cod, ..., Flounder, Model (first and last "species" aren't really species)
+        numSpecies = numCols - 2;
+        // Get species names
+        for (int col=0; col<numCols; ++col) {
+            SpeciesList << smodel->horizontalHeaderItem(col)->text();
+        }
+
+        cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableSummaryDiagnostic +
+                " (ProjectName,ModelName,SpeciesName,InitialAbsBiomass,GrowthRate," +
+                "CarryingCapacity,PredationEffect,EstimatedBiomass) VALUES ";
+        for (int col=0; col<numCols; ++col) { // -1 because the first column is the StatisticName
+            cmd += "('" + m_ProjectName + "','" + m_ModelName + "','" + SpeciesList[col].toStdString() + "'";
+            for (int row=0; row<numRows; ++row) {
+                valueStr = smodel->index(row,col).data().toString().replace(",","");
+                cmd += ",\"" + valueStr.toStdString() + "\"";
+            }
+            cmd += "),";
+        }
+        cmd = cmd.substr(0,cmd.size()-1);
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+        if (nmfUtilsQt::isAnError(errorMsg)) {
+            m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::saveSummaryDiagnosticTable: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+            return;
+        }
+
+        Output_TableWidgets_ptr->setLastVariables(DiagnosticSummaryTV,
+                                                 "Summary Diagnostic",
+                                                  nmfConstantsMSSPM::SummaryDiagnosticStatisticNames);
     }
 }
 
@@ -6143,6 +6431,7 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
     QStandardItem* item;
     QStringList vLabels;
     QStringList SpeciesList;
+    std::string errorMsg;
     std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling,CompetitionForm;
     bool isAggProd = (CompetitionForm == "AGG-PROD");
 
@@ -6157,12 +6446,25 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
     std::vector<QString> statistics;
     std::vector<QString> tooltips;
 
+    int i=0;
+    QString statisticName;
     for (QString name : EstParamNames) {
-        statistics.push_back("Mohn's Rho ("+name+")");
-        tooltips.push_back("Mohn's Rho ("+name+")");
+        statisticName = nmfConstantsMSSPM::SummaryDiagnosticStatisticNames[i];
+        if (statisticName != "Mohn's Rho ("+name+")") {
+            errorMsg  = "nmfMainWindow::updateDiagnosticSummaryStatistics: Mismatch with Statistic name";
+            errorMsg += ", \"" + nmfConstantsMSSPM::SummaryDiagnosticStatisticNames[i].toStdString() +
+                        "\" != \"Mohn's Rho ("+name.toStdString()+")\"";
+            m_Logger->logMsg(nmfConstants::Error,errorMsg);
+            return;
+        } else {
+            statistics.push_back(statisticName);
+            tooltips.push_back(statisticName);
+        }
+        ++i;
     }
-    statistics.push_back("Mohn's Rho (Estimated Biomass)");
-    tooltips.push_back("Mohn's Rho (Estimated Biomass)");
+    statisticName = nmfConstantsMSSPM::SummaryDiagnosticStatisticNames[i];
+    statistics.push_back(statisticName);
+    tooltips.push_back(statisticName);
 
     int NumStatistics = statistics.size();
 
@@ -6187,6 +6489,8 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
     smodel->setHorizontalHeaderLabels(vLabels);
     DiagnosticSummaryTV->setModel(smodel);
     DiagnosticSummaryTV->resizeColumnsToContents();
+
+    saveSummaryDiagnosticTable(smodel);
 
     restoreSigDigState(isSigDigChecked);
 
@@ -6359,6 +6663,7 @@ nmfMainWindow::showDiagnosticsChart2d(const QString& ScaleStr,
                 this,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+    checkDiagnosticAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
 
     // Find guild info
     if (! m_DatabasePtr->getGuilds(m_Logger,NumGuilds,GuildList)) {
@@ -6392,7 +6697,6 @@ nmfMainWindow::showDiagnosticsChart2d(const QString& ScaleStr,
     }
 
     showDiagnosticsFitnessVsParameter(NumPoints,ParameterName,
-//                                    "log(Fitness Value)",
                                       "Fitness Value",
                                       NumSpeciesOrGuilds,OutputSpecies,
                                       SpeciesNum,
@@ -6411,11 +6715,9 @@ nmfMainWindow::showDiagnosticsChart2d(const QString& ScaleStr,
         item->setTextAlignment(Qt::AlignCenter);
         smodel2->setItem(i, 0, item);
         // The fitness values
-//      valueWithComma = locale.toString(DiagnosticsFitness(i,SpeciesNum),'f',6);
         valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                     DiagnosticsFitness(i,SpeciesNum),m_NumSignificantDigits,6);
         item = new QStandardItem(valueWithComma);
-//      item = new QStandardItem(QString::number(DiagnosticsFitness(i,SpeciesNum),'f',6));
         item->setTextAlignment(Qt::AlignCenter);
         smodel2->setItem(i, 1, item);
     }
@@ -6466,8 +6768,6 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     QLocale locale(QLocale::English);
     QString valueWithComma;
 
-//    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::showForecastChart start");
-
     // Find guild info
     if (! m_DatabasePtr->getGuilds(m_Logger,NumGuilds,GuildList))
         return false;
@@ -6484,15 +6784,16 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
 
     // Find Forecast info
     if (! m_DatabasePtr->getForecastInfo(
-         TableName,m_ProjectName,ForecastName,RunLength,StartForecastYear,
+         TableName,m_ProjectName,m_ModelName,ForecastName,RunLength,StartForecastYear,
          Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
             return false;
     }
+    checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
 
     // Plot ForecastBiomassMonteCarlo data
     if (NumRuns > 0) {
         if (! m_DatabasePtr->getForecastBiomassMonteCarlo(this,m_Logger,
-              m_ProjectName,ForecastName,NumSpeciesOrGuilds,RunLength,NumRuns,
+              m_ProjectName,m_ModelName,ForecastName,NumSpeciesOrGuilds,RunLength,NumRuns,
               Algorithm,Minimizer,ObjectiveCriterion,Scaling,
               ForecastBiomassMonteCarlo)) {
             m_ChartView2d->hide();
@@ -6514,9 +6815,10 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     }
 
     // Plot ForecastBiomass data
-    if (! m_DatabasePtr->getForecastBiomass(this,m_Logger,m_ProjectName,ForecastName,NumSpeciesOrGuilds,RunLength,
-                             Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                             ForecastBiomass)) {
+    if (! m_DatabasePtr->getForecastBiomass(this,m_Logger,m_ProjectName,m_ModelName,
+                                            ForecastName,NumSpeciesOrGuilds,RunLength,
+                                            Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                                            ForecastBiomass)) {
         return false;
     }
     ColumnLabelsForLegend << "Forecast Biomass";
@@ -6538,11 +6840,9 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
             if (i == 0) {
                 yearLabels << QString::number(StartForecastYear+time);
             }
-//          valueWithComma = locale.toString(ForecastBiomass[0](time,i),'f',3);
             valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                         ForecastBiomass[0](time,i),m_NumSignificantDigits,3);
             item = new QStandardItem(valueWithComma);
-//          item = new QStandardItem(QString::number(ForecastBiomass[0](time,i),'f',3));
             item->setTextAlignment(Qt::AlignCenter);
             smodel->setItem(time, i, item);
         }
@@ -6551,16 +6851,12 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     smodel->setHorizontalHeaderLabels(SpeciesOrGuildList);
     OutputBiomassTV->setModel(smodel);
 
-//    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::showForecastChart Updating Output->Data table");
-
     // Update Output->Data table
     smodel2 = new QStandardItemModel( RunLength, 1 );
     for (int time=0; time<=RunLength; ++time) {
-//      valueWithComma = locale.toString(ForecastBiomass[0](time,SpeciesNum),'f',3);
         valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                     ForecastBiomass[0](time,SpeciesNum),m_NumSignificantDigits,3);
         item = new QStandardItem(valueWithComma);
-//      item = new QStandardItem(QString::number(ForecastBiomass[0](time,SpeciesNum),'f',3));
         item->setTextAlignment(Qt::AlignCenter);
         smodel2->setItem(time, 0, item);
     }
@@ -6570,8 +6866,6 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     m_UI->OutputDataTV->setModel(smodel2);
     m_UI->OutputDataTV->resizeColumnsToContents();
     m_UI->OutputDataTV->show();
-
-//    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::showForecastChart start");
 
     return true;
 }
@@ -6588,8 +6882,10 @@ nmfMainWindow::getObservedBiomassTableName(bool isPreEstimation)
                 nmfConstantsMSSPM::TableBiomassRelativeDividedByEstSurveyQ;
 
     fields    = {"ObsBiomassType"};
-    queryStr  = "SELECT ObsBiomassType";
-    queryStr += " FROM " + nmfConstantsMSSPM::TableModels + " WHERE ModelName='" + m_ModelName + "'";
+    queryStr  = "SELECT ObsBiomassType FROM " +
+                 nmfConstantsMSSPM::TableModels +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName   + ",";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     int NumRecords = dataMap["ObsBiomassType"].size();
     if (NumRecords == 0) {
@@ -6665,7 +6961,10 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
 
     // Get NumParameters value used in AIC calculation below
     fields    = {"NumberOfParameters"};
-    queryStr  = "SELECT NumberOfParameters FROM " + nmfConstantsMSSPM::TableModels + " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr  = "SELECT NumberOfParameters FROM " +
+                 nmfConstantsMSSPM::TableModels +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName   + "'";
     dataMap = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["NumberOfParameters"].size() == 0) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 26] nmfMainWindow: Couldn't find record in Models");
@@ -6735,7 +7034,7 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
         meanEstimated.push_back(meanVal);
     }
 
-std::cout << "N.B.: Add matrix parameters to this map" << std::endl;
+std::cout << "Warning: TBD nmfMainWindow::calculateSummaryStatisticsStruct: Add matrix parameters to this map" << std::endl;
     // RSK move this later
     std::map<QString,std::string> mapParameterNameToTableName;
     mapParameterNameToTableName["Growth Rate"]              = nmfConstantsMSSPM::TableOutputGrowthRate;
@@ -6859,11 +7158,11 @@ std::cout << "N.B.: Add matrix parameters to this map" << std::endl;
 bool
 nmfMainWindow::calculateSummaryStatisticsStructMohnsRho(StatStruct& statStruct)
 {
+    m_Logger->logMsg(nmfConstants::Normal,"calculateSummaryStatisticsStructMohnsRho from: "+m_ModelName);
+
     QList<std::vector<double> > stats;
     std::vector<double> mohnsRhoEstimatedBiomass;
     std::vector<std::vector<double> > MohnsRhoVectors;
-
-    m_Logger->logMsg(nmfConstants::Normal,"calculateSummaryStatisticsStructMohnsRho from: "+m_ModelName);
 
     QStringList EstParamNames = Setup_Tab4_ptr->getEstimatedParameterNames();
 
@@ -6903,10 +7202,14 @@ nmfMainWindow::calculateSummaryStatistics(QStandardItemModel* smodel,
     boost::numeric::ublas::matrix<double> EstimatedBiomass;
     statStruct.title = "Summary Statistics:";
     std::string theAlgorithm = Algorithm;
-    SummaryGB->show();
 
+    // Thought might want to only allow user to view appropriate GB after an appropriate
+    // estimation run or diagnostic run...re-thinking this logic.
+    // SummaryGB->show();
+    // DiagnosticSummaryGB->hide();
     if (isMohnsRhoBool) {
-        SummaryGB->hide();
+        // SummaryGB->hide();
+        // DiagnosticSummaryGB->show();
         ok = calculateSummaryStatisticsStructMohnsRho(statStruct);
     } else {
         // Get the Estimated Biomass
@@ -6915,8 +7218,11 @@ nmfMainWindow::calculateSummaryStatistics(QStandardItemModel* smodel,
             std::string isAggProd = "0";
             std::string AverageType = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm().toStdString();
             theAlgorithm = AverageType;
-            if (! m_DatabasePtr->getEstimatedBiomass(NumSpeciesOrGuilds,RunLength,nmfConstantsMSSPM::TableOutputBiomass,
-                                                     AverageType,AverageType,AverageType,AverageType,isAggProd,EstimatedBiomass)) {
+            if (! m_DatabasePtr->getEstimatedBiomass(NumSpeciesOrGuilds,RunLength,
+                                                     nmfConstantsMSSPM::TableOutputBiomass,
+                                                     m_ProjectName, m_ModelName,
+                                                     AverageType,AverageType,AverageType,AverageType,
+                                                     isAggProd,EstimatedBiomass)) {
                 QMessageBox::warning(this, "Error",
                                      "\nmfMainWindow::calculateSummaryStatistics: Error reading OutputBiomass with Algorithm: "+QString::fromStdString(AverageType)+"\n",
                                      QMessageBox::Ok);
@@ -7070,8 +7376,6 @@ nmfMainWindow::showChartTableVsTime(
     bool xAxisIsInteger = true;
     QString colorName;
     QStringList HoverLabels;
-//    std::string FishingLabelNorm  = nmfConstantsMSSPM::OutputChartExploitationCatchTitle.toStdString();
-//    std::string FishingLabelAve   = nmfConstantsMSSPM::OutputChartExploitationCatchAverageTitle.toStdString();
     std::string FishingLabelNorm  = nmfConstantsMSSPM::OutputChartExploitation.toStdString();
     std::string FishingLabelAve   = nmfConstantsMSSPM::OutputChartExploitation.toStdString() + " (Ave)";
     std::string FishingLabel      = (isAMultiRun) ? FishingLabelAve : FishingLabelNorm;
@@ -7515,7 +7819,7 @@ nmfMainWindow::getMonteCarloUncertaintyData(
     std::string str;
 
     if (! m_DatabasePtr->getForecastInfo(
-         TableName,m_ProjectName,ForecastName,RunLength,StartForecastYear,
+         TableName,m_ProjectName,m_ModelName,ForecastName,RunLength,StartForecastYear,
          Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
             return;
     }
@@ -7523,8 +7827,11 @@ nmfMainWindow::getMonteCarloUncertaintyData(
     fields    = {"ForecastName","RunNum","SpeName","Algorithm","Minimzer",
                  "ObjectiveCriterion","Scaling","GrowthRate",
                  "CarryingCapacity","Harvest"};
-    queryStr  = "SELECT ForecastName,RunNum,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthRate,CarryingCapacity,Harvest ";
-    queryStr += "FROM " + nmfConstantsMSSPM::TableForecastMonteCarloParameters + " WHERE ForecastName = '" + ForecastName +
+    queryStr  = "SELECT ForecastName,RunNum,SpeName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthRate,CarryingCapacity,Harvest FROM " +
+                 nmfConstantsMSSPM::TableForecastMonteCarloParameters +
+                " WHERE ProjectName = '"       + m_ProjectName +
+                "' AND ModelName = '"          + m_ModelName +
+                "' AND ForecastName = '"       + ForecastName +
                 "' AND SpeName = '"            + Species.toStdString() +
                 "' AND Algorithm = '"          + Algorithm +
                 "' AND Minimizer = '"          + Minimizer +
@@ -8823,16 +9130,18 @@ nmfMainWindow::callback_NavigatorSelectionChanged()
         m_UI->DiagnosticsDataInputTabWidget->hide();
         m_UI->ForecastDataInputTabWidget->hide();
 
-        if ((itemSelected == nmfConstantsMSSPM::SectionSetup) || (parentStr == nmfConstantsMSSPM::SectionSetup)) {
+        if ((itemSelected == nmfConstantsMSSPM::SectionSetup) ||
+            (parentStr    == nmfConstantsMSSPM::SectionSetup)) {
             m_UI->SetupInputTabWidget->show();
             if (pageNum > 0) {
                 m_UI->SetupInputTabWidget->blockSignals(true);
                 m_UI->SetupInputTabWidget->setCurrentIndex(pageNum-1);
                 m_UI->SetupInputTabWidget->blockSignals(false);
             }
-        } else if ((itemSelected == "Simulation Data Input") || (parentStr == "Simulation Data Input") ||
-                   (itemSelected == nmfConstantsMSSPM::SectionEstimation) || (parentStr == nmfConstantsMSSPM::SectionEstimation))
-        {
+        } else if ((itemSelected == "Simulation Data Input")              ||
+                   (parentStr    == "Simulation Data Input")              ||
+                   (itemSelected == nmfConstantsMSSPM::SectionEstimation) ||
+                   (parentStr    == nmfConstantsMSSPM::SectionEstimation)) {
                 m_UI->EstimationDataInputTabWidget->show();
                 // Select appropriate tab
                 if (pageNum > 0) {
@@ -8840,22 +9149,108 @@ nmfMainWindow::callback_NavigatorSelectionChanged()
                     m_UI->EstimationDataInputTabWidget->setCurrentIndex(pageNum-1);
                     m_UI->EstimationDataInputTabWidget->blockSignals(false);
                 }
-        } else if ((itemSelected == nmfConstantsMSSPM::SectionDiagnostic) || (parentStr == nmfConstantsMSSPM::SectionDiagnostic)) {
+        } else if ((itemSelected == nmfConstantsMSSPM::SectionDiagnostic) ||
+                   (parentStr    == nmfConstantsMSSPM::SectionDiagnostic)) {
             m_UI->DiagnosticsDataInputTabWidget->show();
             if (pageNum > 0) {
                 m_UI->DiagnosticsDataInputTabWidget->blockSignals(true);
                 m_UI->DiagnosticsDataInputTabWidget->setCurrentIndex(pageNum-1);
                 m_UI->DiagnosticsDataInputTabWidget->blockSignals(false);
+                if (pageNum == 1) {
+                    setDiagnosticLastRunType();
+                }
             }
-        } else if ((itemSelected == nmfConstantsMSSPM::SectionForecast) || (parentStr == nmfConstantsMSSPM::SectionForecast)) {
+        } else if ((itemSelected == nmfConstantsMSSPM::SectionForecast) ||
+                   (parentStr    == nmfConstantsMSSPM::SectionForecast)) {
             m_UI->ForecastDataInputTabWidget->show();
             if (pageNum > 0) {
                 m_UI->ForecastDataInputTabWidget->blockSignals(true);
                 m_UI->ForecastDataInputTabWidget->setCurrentIndex(pageNum-1);
                 m_UI->ForecastDataInputTabWidget->blockSignals(false);
             }
+            if (pageNum == 1) {
+                setForecastLastRunType();
+            }
         }
     }
+}
+
+void
+nmfMainWindow::setDiagnosticLastRunType()
+{
+    bool thereWasASingleRun;
+    bool thereWasAMultiRun;
+
+    checkForPreviousEstimations(thereWasASingleRun,thereWasAMultiRun);
+
+    if (thereWasASingleRun) {
+        if (thereWasAMultiRun) {
+            // Update the enabled-ness of the radio buttons but
+            // leave checked whichever was checked.
+            Diagnostic_Tab1_ptr->setSingleRunRBEnabled(true);
+            Diagnostic_Tab1_ptr->setMultiRunRBEnabled(true);
+        } else {
+            Diagnostic_Tab1_ptr->setMultiRunRBState(false,false);
+            Diagnostic_Tab1_ptr->setSingleRunRBState(true,true);
+        }
+    } else {
+        Diagnostic_Tab1_ptr->setSingleRunRBState(false,false);
+        Diagnostic_Tab1_ptr->setMultiRunRBState(thereWasAMultiRun,thereWasAMultiRun);
+    }
+}
+
+void
+nmfMainWindow::setForecastLastRunType()
+{
+    bool thereWasASingleRun;
+    bool thereWasAMultiRun;
+
+    checkForPreviousEstimations(thereWasASingleRun,thereWasAMultiRun);
+
+    if (thereWasASingleRun) {
+        if (thereWasAMultiRun) {
+            // Update the enabled-ness of the radio buttons but
+            // leave checked whichever was checked.
+            Forecast_Tab1_ptr->setSingleRunRBEnabled(true);
+            Forecast_Tab1_ptr->setMultiRunRBEnabled(true);
+        } else {
+            Forecast_Tab1_ptr->setMultiRunRBState(false,false);
+            Forecast_Tab1_ptr->setSingleRunRBState(true,true);
+        }
+    } else {
+        Forecast_Tab1_ptr->setSingleRunRBState(false,false);
+        Forecast_Tab1_ptr->setMultiRunRBState(thereWasAMultiRun,thereWasAMultiRun);
+    }
+}
+
+void
+nmfMainWindow::checkForPreviousEstimations(bool& thereWasASingleRun,
+                                           bool& thereWasAMultiRun)
+{
+    std::string cmd;
+    std::string errorMsg;
+    std::string queryStr;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+
+    // Check to see if a single run has been done
+    fields   = {"Algorithm"};
+    queryStr = "SELECT DISTINCT Algorithm FROM " +
+            nmfConstantsMSSPM::TableOutputBiomass +
+          " WHERE (Algorithm != 'Unweighted' AND Algorithm != 'AIC Weighted')" +
+          " AND ProjectName = '" + m_ProjectName +
+          "' AND ModelName = '"  + m_ModelName   + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    thereWasASingleRun = (dataMap["Algorithm"].size() > 0);
+
+    // Check to see if a multi run has been done
+    queryStr = "SELECT DISTINCT Algorithm FROM " +
+            nmfConstantsMSSPM::TableOutputBiomass +
+          " WHERE (Algorithm = 'Unweighted' OR Algorithm = 'AIC Weighted')" +
+          " AND ProjectName = '" + m_ProjectName +
+          "' AND ModelName = '"  + m_ModelName   + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    thereWasAMultiRun = (dataMap["Algorithm"].size() > 0);
 }
 
 
@@ -9093,6 +9488,11 @@ nmfMainWindow::readSettings(QString Name)
         m_MShotNumCols = settings->value("MShotNumCols",4).toInt();
         m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
         settings->endGroup();
+    } else if (Name == "Runtime") {
+        settings->beginGroup("Runtime");
+        m_IsMultiRun    = settings->value("IsMultiRun",false).toBool();
+        m_MultiRunType  = settings->value("MultiRunType","").toString().toStdString();
+        settings->endGroup();
     }
 
     delete settings;
@@ -9146,6 +9546,11 @@ nmfMainWindow::readSettings()
 
     settings->beginGroup("Forecast");
     m_ForecastFontSize = settings->value("FontSize",9).toInt();
+    settings->endGroup();
+
+    settings->beginGroup("Runtime");
+    m_IsMultiRun    = settings->value("IsMultiRun",false).toBool();
+    m_MultiRunType  = settings->value("MultiRunType","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Preferences");
@@ -9202,6 +9607,11 @@ nmfMainWindow::saveSettings(bool loadWidgets) {
     settings->setValue("FontSize", Setup_Tab4_ptr->getFontSize());
     settings->endGroup();
 
+    settings->beginGroup("Runtime");
+    settings->setValue("IsMultiRun",   isAMultiRun());
+    settings->setValue("MultiRunType", Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm());
+    settings->endGroup();
+
     settings->beginGroup("Preferences");
     settings->setValue("MShotNumRows", m_MShotNumRows);
     settings->setValue("MShotNumCols", m_MShotNumCols);
@@ -9218,9 +9628,7 @@ nmfMainWindow::saveSettings(bool loadWidgets) {
 
     settings->beginGroup("Output");
     int width = m_UI->MSSPMOutputControlsGB->size().width();
-//  int width = m_UI->MSSPMOutputTabWidget->width();
     settings->setValue("Width", width);
-    //std::cout << "===> SAVING: " << width << std::endl;
     settings->endGroup();
 
     delete settings;
@@ -9249,6 +9657,11 @@ nmfMainWindow::setOutputControlsWidth()
 void
 nmfMainWindow::closeEvent(QCloseEvent *event)
 {
+    // Don't save in REMORA mode
+    if (runningREMORA()) {
+        menu_toggleManagerMode();
+    }
+
     m_ProgressWidget->stopAllRuns(false);
     //m_ProgressWidget->stopTimer();
     disconnect(m_ProgressWidget,0,0,0);
@@ -9280,6 +9693,7 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     std::vector<QString> MultiRunLines = {};
     QString multiRunSpeciesFilename;
     QString multiRunModelFilename;
+    QString msg;
     bool isAMultiRun = isAMultiOrMohnsRhoRun();
 
     saveSettings();
@@ -9311,7 +9725,12 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     if (isAMultiRun) {
         m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableOutputBiomassEnsemble);
         if (! nmfUtilsQt::loadMultiRunData(m_DataStruct,MultiRunLines,TotalIndividualRuns)) {
+            QApplication::restoreOverrideCursor();
             std::cout << "Error: Couldn't open: " << m_DataStruct.MultiRunSetupFilename << std::endl;
+            msg = "\nError: Couldn't run multi-run.\n\nProblem opening: " +
+                    QString::fromStdString(m_DataStruct.MultiRunSetupFilename) +
+                    "\n\nPlease make sure that the multi-run has been properly configured and set.\n";
+            QMessageBox::critical(this, "Error", msg, QMessageBox::Ok);
             return;
         }
     }
@@ -9321,7 +9740,6 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     callback_InitializeSubRuns(m_DataStruct.MultiRunModelFilename,TotalIndividualRuns);
 
     m_ProgressWidget->clearRunBoxes();
-
 
     if (isAMultiRun) {
         m_ProgressWidget->setRunBoxes(1,0,m_DataStruct.NLoptNumberOfRuns);
@@ -9390,7 +9808,7 @@ nmfMainWindow::callback_ForecastLoaded(std::string ForecastName)
 }
 
 void
-nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
+nmfMainWindow::callback_SaveForecastOutputBiomassData(std::string ForecastName)
 {
     bool updateOK = true;
     bool isMonteCarlo;
@@ -9399,9 +9817,7 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     int RunLength = 0;
-//  int StartYear = nmfConstantsMSSPM::Start_Year;
     int NullStartYear = 0;
-//  int EndYear = StartYear;
     int NumRuns = 0;
     int RunNum = 0;
     std::string Algorithm;
@@ -9413,24 +9829,26 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     std::string CompetitionForm;
     std::string PredationForm;
     std::string isAggProdStr;
-    std::string InitBiomassTable          = nmfConstantsMSSPM::TableOutputInitBiomass;
-    std::string GrowthRateTable           = nmfConstantsMSSPM::TableOutputGrowthRate;
-    std::string CarryingCapacityTable     = nmfConstantsMSSPM::TableOutputCarryingCapacity;
-    std::string CatchabilityTable         = nmfConstantsMSSPM::TableOutputCatchability;
-    std::string SurveyQTable              = nmfConstantsMSSPM::TableOutputSurveyQ;
-    std::string BiomassTable              = nmfConstantsMSSPM::TableForecastBiomass;
-    std::string BiomassMonteCarloTable    = nmfConstantsMSSPM::TableForecastBiomassMonteCarlo;
-    std::string MonteCarloParametersTable = nmfConstantsMSSPM::TableForecastMonteCarloParameters;
+    std::string OutputInitBiomassTable            = nmfConstantsMSSPM::TableOutputInitBiomass;
+    std::string OutputGrowthRateTable             = nmfConstantsMSSPM::TableOutputGrowthRate;
+    std::string OutputCarryingCapacityTable       = nmfConstantsMSSPM::TableOutputCarryingCapacity;
+    std::string OutputCatchabilityTable           = nmfConstantsMSSPM::TableOutputCatchability;
+    std::string OutputSurveyQTable                = nmfConstantsMSSPM::TableOutputSurveyQ;
+    std::string ForecastBiomassTable              = nmfConstantsMSSPM::TableForecastBiomass;
+    std::string ForecastBiomassMonteCarloTable    = nmfConstantsMSSPM::TableForecastBiomassMonteCarlo;
+    std::string ForecastMonteCarloParametersTable = nmfConstantsMSSPM::TableForecastMonteCarloParameters;
+    bool isRunningREMORA = runningREMORA();
 
     // Find Forecast info
-    fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
-    queryStr  = "SELECT ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,StartYear,EndYear,NumRuns FROM " + nmfConstantsMSSPM::TableForecasts + " where ";
-    queryStr += "ForecastName = '" + ForecastName + "'";
+    fields    = {"ProjectName","ModelName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
+    queryStr  = "SELECT ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,StartYear,EndYear,NumRuns FROM " +
+                 nmfConstantsMSSPM::TableForecasts +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName +
+                "' AND ForecastName = '" + ForecastName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         RunLength          = std::stoi(dataMap["RunLength"][0]);
-//      StartYear          = std::stoi(dataMap["StartYear"][0]);
-//      EndYear            = std::stoi(dataMap["EndYear"][0]);
         Algorithm          = dataMap["Algorithm"][0];
         Minimizer          = dataMap["Minimizer"][0];
         ObjectiveCriterion = dataMap["ObjectiveCriterion"][0];
@@ -9443,20 +9861,23 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     }
     isAggProd = (CompetitionForm == "AGG-PROD");
     isAggProdStr = (isAggProd) ? "1" : "0";
+    checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
 
     // Calculate Monte Carlo simulations
     isMonteCarlo = true;
     clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                            isAggProdStr,BiomassMonteCarloTable);
+                            isAggProdStr,ForecastBiomassMonteCarloTable);
     clearMonteCarloParametersTable(ForecastName,Algorithm,Minimizer,
                                    ObjectiveCriterion,Scaling,
-                                   MonteCarloParametersTable);
+                                   ForecastMonteCarloParametersTable);
+    m_Logger->logMsg(nmfConstants::Normal,"Calculating Monte Carlo Forecasts (i.e., with Uncertainty)");
     for (RunNum=0; RunNum<NumRuns; ++RunNum) {
         updateOK = updateOutputBiomassTable(ForecastName,NullStartYear,RunLength,isMonteCarlo,RunNum,
                                             Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
                                             GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                                            InitBiomassTable,GrowthRateTable,CarryingCapacityTable,CatchabilityTable,
-                                            SurveyQTable,BiomassMonteCarloTable);
+                                            OutputInitBiomassTable,OutputGrowthRateTable,
+                                            OutputCarryingCapacityTable,OutputCatchabilityTable,
+                                            OutputSurveyQTable,ForecastBiomassMonteCarloTable);
         if (! updateOK) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 1] callback_SaveOutputBiomassData: Problem with Monte Carlo simulation");
             QApplication::restoreOverrideCursor();
@@ -9468,12 +9889,25 @@ nmfMainWindow::callback_SaveOutputBiomassData(std::string ForecastName)
     // ensure it appears superimposed over Monte Carlo simulations
     isMonteCarlo = false;
     clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                            isAggProdStr,BiomassTable);
+                            isAggProdStr,ForecastBiomassTable);
+    m_Logger->logMsg(nmfConstants::Normal,"Calculating Forecast with no Uncertainty");
     updateOK = updateOutputBiomassTable(ForecastName,NullStartYear,RunLength,isMonteCarlo,NumRuns,
                                         Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
                                         GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                                        InitBiomassTable,GrowthRateTable,CarryingCapacityTable,CatchabilityTable,
-                                        SurveyQTable,BiomassTable);
+                                        OutputInitBiomassTable,OutputGrowthRateTable,
+                                        OutputCarryingCapacityTable,OutputCatchabilityTable,
+                                        OutputSurveyQTable,ForecastBiomassTable);
+
+
+    // Need to reset the visibility for REMORA
+//    menu_toggleManagerMode();
+    m_UI->OutputDockWidget->setVisible(!isRunningREMORA);
+    m_UI->NavigatorDockWidget->setVisible(!isRunningREMORA);
+    m_UI->ProgressDockWidget->setVisible(!isRunningREMORA);
+    m_UI->LogDockWidget->setVisible(!isRunningREMORA);
+    m_UI->centralWidget->setVisible(!isRunningREMORA);
+    MModeDockWidget->setVisible(isRunningREMORA);
+
 }
 
 void
@@ -9548,9 +9982,12 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     Forecast_Tab4_ptr->setOutputTE(QString("<b>Summary:<\b>"));
 
     // Find Forecast info
-    fields    = {"ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
-    queryStr  = "SELECT ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,StartYear,EndYear,NumRuns FROM " + nmfConstantsMSSPM::TableForecasts + " where ";
-    queryStr += "ForecastName = '" + ForecastName + "'";
+    fields    = {"ProjectName","ModelName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm","RunLength","StartYear","EndYear","NumRuns"};
+    queryStr  = "SELECT ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,StartYear,EndYear,NumRuns FROM " +
+                 nmfConstantsMSSPM::TableForecasts +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName +
+                "' AND ForecastName = '" + ForecastName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         RunLength          = std::stoi(dataMap["RunLength"][0]);
@@ -9564,27 +10001,31 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
         CompetitionForm    = dataMap["WithinGuildCompetitionForm"][0];
         PredationForm      = dataMap["PredationForm"][0];
         NumRuns            = std::stoi(dataMap["NumRuns"][0]);
+        EndYear            = StartYear + RunLength;
     }
+    checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+    std::string suffix = (m_IsMultiRun) ? " Average" : "";
+
     m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::callback_RunForecast: Found Forecast Info");
 
     isAggProd    = (CompetitionForm == "AGG-PROD");
     isAggProdStr = (isAggProd) ? "1" : "0";
+    std::string temp;
 
-    Forecast_Tab4_ptr->appendOutputTE(QString("<br>Run Length (years): ") + QString::number(RunLength));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Year Range: ")             + QString::number(StartYear) +
-                                      QString(" to ")                     + QString::number(EndYear));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Number of Runs: ")         + QString::number(NumRuns));
-    Forecast_Tab4_ptr->appendOutputTE(QString("<br>Algorithm: ")          + QString::fromStdString(Algorithm));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Minimizer: ")              + QString::fromStdString(Minimizer));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Objective Criterion: ")    + QString::fromStdString(ObjectiveCriterion));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Scaling Algorithm: ")      + QString::fromStdString(Scaling));
-    Forecast_Tab4_ptr->appendOutputTE(QString("<br>Growth Form: ")        + QString::fromStdString(GrowthForm));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Harvest Form: ")           + QString::fromStdString(HarvestForm));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Competition Form: ")       + QString::fromStdString(CompetitionForm));
-    Forecast_Tab4_ptr->appendOutputTE(QString("Predation Form: ")         + QString::fromStdString(PredationForm));
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("<br>Run Length:&#9;&nbsp;"  + std::to_string(RunLength) + " year(s)").trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Year Range:&#9;&nbsp;"      + std::to_string(StartYear) + " to " + std::to_string(EndYear)).trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Num Runs:&#9;&nbsp;"        + std::to_string(NumRuns)).trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("<br>Algorithm:&#9;&nbsp;"   + Algorithm + suffix).trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Minimizer:&#9;&nbsp;"       + Minimizer + suffix).trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Obj Criterion:&#9;&nbsp;"   + ObjectiveCriterion + suffix).trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Scaling Alg:&#9;&nbsp;"     + Scaling + suffix).trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("<br>Growth Form:&#9;&nbsp;" + GrowthForm).trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Harvest Form:&#9;&nbsp;"    + HarvestForm).trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Comp'n Form:&#9;&nbsp;"     + CompetitionForm).trimmed());
+    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Pred'n Form:&#9;&nbsp;"     + PredationForm).trimmed());
 
     if (GenerateBiomass) {
-        callback_SaveOutputBiomassData(ForecastName);
+        callback_SaveForecastOutputBiomassData(ForecastName);
     }
     m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::callback_RunForecast: Setting Chart Type to Forecast");
 
@@ -9712,7 +10153,9 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     m_DataStruct.showDiagnosticChart = showDiagnosticChart;
 
     // Create the NLopt Estimator object
-    m_Estimator_NLopt = new NLopt_Estimator();
+    if (m_Estimator_NLopt == nullptr) {
+        m_Estimator_NLopt = new NLopt_Estimator();
+    }
 
     // Set up connections
     disconnect(m_ProgressWidget, 0, 0, 0);
@@ -9732,20 +10175,6 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
             this,              SLOT(callback_StopAllRuns()));
 
-
-//    // Do some multi run setup
-//    if (isAMultiRun) {
-//        m_ProgressWidget->setRunBoxes(1,0,m_DataStruct.NLoptNumberOfRuns);
-//        QueryUserForMultiRunFilenames(multiRunSpeciesFilename,
-//                                      multiRunModelFilename);
-//        m_DataStruct.MultiRunSpeciesFilename = multiRunSpeciesFilename.toStdString();
-//        m_DataStruct.MultiRunModelFilename   = multiRunModelFilename.toStdString();
-//    }
-
-//    // Start and initialize the Progress chart
-//    m_ProgressWidget->startTimer(100);
-//    m_ProgressWidget->startRun();
-//    m_ProgressWidget->clearRunBoxes();
 
     updateProgressChartAnnotation(0,(double)m_DataStruct.NLoptStopAfterIter,5.0);
 
@@ -9847,7 +10276,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
     boost::numeric::ublas::matrix<double> Catch;
     boost::numeric::ublas::matrix<double> Effort;
     boost::numeric::ublas::matrix<double> Exploitation;
-std::cout << "Warning: nmfMainWindow::calculateSubRunBiomass possibly not using SurveyQ or Observed Biomass" << std::endl;
+
     //
     // continue here.....
     // RSK try calling    updateOutputBiomassTable(...nmfConstantsMSSPM::TableOutputBiomassEnsemble) instead of doing this....seems like there's repetitive code here
@@ -10239,12 +10668,15 @@ nmfMainWindow::updateBiomassEnsembleTable(
         return;
 
     // Delete previous run's data prior to writing the data for the same run
-    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableOutputBiomassEnsemble + " WHERE Label = '" + Label +
-          "' AND RunNumber = "  + std::to_string(RunNumber) +
-          "  AND Algorithm = '" + Algorithm +
-          "' AND Minimizer = '" + Minimizer +
-          "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-          "' AND Scaling = '"  + Scaling + "'";
+    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableOutputBiomassEnsemble +
+            " WHERE ProjectName = '"       + m_ProjectName +
+            "' AND ModelName = '"          + m_ModelName +
+            "' AND Label = '"              + Label +
+            "' AND RunNumber = "           + std::to_string(RunNumber) +
+            "  AND Algorithm = '"          + Algorithm +
+            "' AND Minimizer = '"          + Minimizer +
+            "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+            "' AND Scaling = '"            + Scaling + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] updateBiomassEnsembleTable: DELETE error: " + errorMsg);
@@ -10255,10 +10687,13 @@ nmfMainWindow::updateBiomassEnsembleTable(
     }
 
     // Store Calculated Biomass data in: OutputBiomassEnsemble
-    cmd = "INSERT INTO " + nmfConstantsMSSPM::TableOutputBiomassEnsemble + " (Label,RunNumber,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
+    cmd = "INSERT INTO " + nmfConstantsMSSPM::TableOutputBiomassEnsemble +
+          " (ProjectName,ModelName,Label,RunNumber,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
     for (int species=0; species<NumSpecies; ++species) {
         for (int time=0; time<RunLength; ++time) {
-            cmd += "('"   + Label +
+            cmd += "('"   + m_ProjectName +
+                    "','" + m_ModelName +
+                    "','" + Label +
                     "',"  + std::to_string(RunNumber) +
                     ",'"  + Algorithm +
                     "','" + Minimizer +
@@ -10375,7 +10810,7 @@ nmfMainWindow::calculateAverageBiomass()
         return;
     }
     bool isCompetitionAGGPROD = (CompetitionForm == "AGG-PROD"); // RSK - incorrect since we're talking about averages here
-std::cout << "FIX this in nmfMainWindow::calculateAverageBiomass" << std::endl;
+std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic here" << std::endl;
     int usingTopValue = 100;
     if (Estimation_Tab6_ptr->getEnsembleUsingBy() == "using Top:") {
         usingTopValue = Estimation_Tab6_ptr->getEnsembleUsingAmountValue();
@@ -10455,7 +10890,6 @@ std::cout << "FIX this in nmfMainWindow::calculateAverageBiomass" << std::endl;
 
     m_OutputBiomassEnsemble.clear();
     getOutputBiomassEnsemble(m_AveBiomass.size1(),m_AveBiomass.size2(),m_OutputBiomassEnsemble);
-    // zzz
 
 }
 
@@ -10493,9 +10927,7 @@ nmfMainWindow::updateOutputTableViews(
                                                   nmfConstantsMSSPM::TableOutputCatchability,
                                                   nmfConstantsMSSPM::TableOutputPredationExponent,
                                                   nmfConstantsMSSPM::TableOutputSurveyQ};
-//                                      nmfConstantsMSSPM::TableOutputMSYBiomass,
-//                                      nmfConstantsMSSPM::TableOutputMSY,
-//                                      nmfConstantsMSSPM::TableOutputMSYFishing};
+
     QList<QString>     VectorTableLabels = {"B₀","r","K","q","b","Q","BMSY","MSY","FMSY"};
     QList<QTableView*> VectorTableViews  =
         {InitBiomassTV,GrowthRateTV,CarryingCapacityTV,CatchabilityTV,
@@ -10505,18 +10937,12 @@ nmfMainWindow::updateOutputTableViews(
         {EstPredationRho,EstPredationHandling,
          EstCompetitionAlpha,EstCompetitionBetaSpecies,
          EstCompetitionBetaGuilds,EstCompetitionBetaGuildsGuilds};
-//    std::vector<std::string>    MatrixTableNames  =
-//        {nmfConstantsMSSPM::TableEstPredationRho,
-//         nmfConstantsMSSPM::TableEstPredationHandling,
-//         nmfConstantsMSSPM::TableEstCompetitionAlpha,
-//         nmfConstantsMSSPM::TableEstCompetitionBetaSpecies,
-//         nmfConstantsMSSPM::TableEstCompetitionBetaGuilds,
-//         nmfConstantsMSSPM::TableEstCompetitionBetaGuildsGuilds};
+
     QList<QTableView*> MatrixTableViews =
         {PredationRhoTV,PredationHandlingTV,
          CompetitionAlphaTV,CompetitionBetaSTV,
          CompetitionBetaGTV};
-std::cout << "Error: nmfMainWindow::updateOutputTableViews - add CompetitionBetaGGTV" << std::endl;
+std::cout << "Warning: TBD nmfMainWindow::updateOutputTableViews - add CompetitionBetaGGTV" << std::endl;
     // Load Vector tableviews
     for (int i=0; i<(int)VectorTableNames.size(); ++i) {
         hLabels.clear();
@@ -10579,7 +11005,11 @@ nmfMainWindow::getOutputBiomassEnsembleLineLabels(QList<QString>& lineLabels)
     lineLabels.clear();
 
     fields   = {"RunNumber","Minimizer","ObjectiveCriterion","Scaling"};
-    queryStr = "SELECT DISTINCT RunNumber,Minimizer,ObjectiveCriterion,Scaling FROM " + nmfConstantsMSSPM::TableOutputBiomassEnsemble + " ORDER BY RunNumber";
+    queryStr = "SELECT DISTINCT RunNumber,Minimizer,ObjectiveCriterion,Scaling FROM " +
+                 nmfConstantsMSSPM::TableOutputBiomassEnsemble +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName  +
+                "' ORDER BY RunNumber";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     for (int i=0; i<int(dataMap["RunNumber"].size()); ++i) {
         min = dataMap["Minimizer"][i];
@@ -10769,11 +11199,15 @@ nmfMainWindow::getOutputBiomassAveraged(
     }
     ++RunLength; // Needed as it's 1 less than what's needed here
 
-    fields   = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Year","Value"};
-    queryStr = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value FROM " + nmfConstantsMSSPM::TableOutputBiomass + " WHERE Algorithm = '" + AveragingAlgorithm +
-               "' AND Minimizer = '" + AveragingAlgorithm +
+    fields   = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Year","Value"};
+    queryStr = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value FROM " +
+                nmfConstantsMSSPM::TableOutputBiomass +
+               " WHERE ProjectName = '" +       m_ProjectName +
+               "' AND ModelName = '" +          m_ModelName +
+               "' AND Algorithm = '" +          AveragingAlgorithm +
+               "' AND Minimizer = '" +          AveragingAlgorithm +
                "' AND ObjectiveCriterion = '" + AveragingAlgorithm +
-               "' AND Scaling = '" + AveragingAlgorithm + "' ORDER BY SpeName,Year";
+               "' AND Scaling = '" +            AveragingAlgorithm + "' ORDER BY SpeName,Year";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     int NumRecords = dataMap["Value"].size();
 
@@ -10807,8 +11241,12 @@ nmfMainWindow::getOutputBiomassEnsemble(
     std::string queryStr;
     boost::numeric::ublas::matrix<double> aMatrix;
 
-    fields     = {"RunNumber","SpeName","Year","Value"};
-    queryStr   = "SELECT RunNumber,SpeName,Year,Value FROM " + nmfConstantsMSSPM::TableOutputBiomassEnsemble + " ORDER BY RunNumber,SpeName,Year";
+    fields     = {"ProjectName","ModelName","RunNumber","SpeName","Year","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,RunNumber,SpeName,Year,Value FROM " +
+                  nmfConstantsMSSPM::TableOutputBiomassEnsemble +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' ORDER BY RunNumber,SpeName,Year";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     int NumRecords = dataMap["Value"].size();
     int NumRuns = NumRecords / NumValuesPerRun;
@@ -10849,8 +11287,11 @@ std::cout << "updateOutputBiomassTableWithAverageBiomass " << std::endl;
 
     // Clear OutputBiomass table with same Algorithm, Minimizer, ObjectiveCriterion, and Scaling
     // and then load OutputBiomass table
-    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableOutputBiomass + " WHERE Algorithm = '" + Algorithm +
-          "' AND Minimizer = '" + Minimizer +
+    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableOutputBiomass +
+          " WHERE ProjectName = '" +       m_ProjectName +
+          "' AND ModelName = '" +          m_ModelName +
+          "' AND Algorithm = '" +          Algorithm +
+          "' AND Minimizer = '" +          Minimizer +
           "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
           "' AND Scaling = '" + Scaling + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
@@ -10860,12 +11301,17 @@ std::cout << "updateOutputBiomassTableWithAverageBiomass " << std::endl;
         return;
     }
 
-    cmd = "INSERT INTO " + nmfConstantsMSSPM::TableOutputBiomass + " (isAggProd,Algorithm, Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value) VALUES ";
+    cmd = "INSERT INTO " + nmfConstantsMSSPM::TableOutputBiomass +
+          " (isAggProd,ProjectName,ModelName,Algorithm, Minimizer,ObjectiveCriterion,Scaling,SpeName,Year,Value) VALUES ";
     for (int species=0; species<NumSpecies; ++species) { // Species
         for (int time=0; time<RunLength; ++time) { // Time in years
             cmd += "("  + isAggProd +
-                    ",'" + Algorithm + "','" + Minimizer +
-                    "','" + ObjectiveCriterion + "','" + Scaling +
+                    ",'"  + m_ProjectName +
+                    "','" + m_ModelName +
+                    "','" + Algorithm +
+                    "','" + Minimizer +
+                    "','" + ObjectiveCriterion +
+                    "','" + Scaling +
                     "','" + SpeciesList[species].toStdString() +
                     "',"  + std::to_string(time) +
                     ","   + std::to_string(AveragedBiomass(time,species)) + "),";
@@ -10980,6 +11426,7 @@ std::cout << "=====>>>>> Run Completed" << std::endl;
     Diagnostic_Tab2_ptr->setIsMohnsRho(false);
 
     enableRunWidgets(true);
+
 }
 
 void
@@ -11016,11 +11463,11 @@ nmfMainWindow::callback_ErrorFound(std::string errorMsg)
 }
 
 void
-nmfMainWindow::callback_RunDiagnosticEstimation(
+nmfMainWindow::callback_RunRetrospectiveAnalysisEstimation(
         std::vector<std::pair<int,int> > MohnsRhoRanges)
 {
     // Ensure that the user is not running a Multi-Run
-    Estimation_Tab6_ptr->enableMultiRunControls(false);
+//  Estimation_Tab6_ptr->enableMultiRunControls(false);
 
     // 1. Create Mohns Rhos multi-run filename
     QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
@@ -11036,6 +11483,10 @@ nmfMainWindow::callback_RunDiagnosticEstimation(
 
     // 3. Run the Mohns Rho runs
     Estimation_Tab6_ptr->runEstimation();
+
+    // Add logic if it's a Mohn's Rho AND a Multi Run
+    // Run multiple multi-runs, each with different year range and save average
+    // RSK todo
 
 }
 
@@ -11079,13 +11530,16 @@ nmfMainWindow::calculateSummaryStatisticsMohnsRhoBiomass(
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     isAggProd = (CompetitionForm == "AGG-PROD") ? "1" : "0";
 
-    fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
-    queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value FROM " + nmfConstantsMSSPM::TableOutputBiomassEnsemble;
-    queryStr += " WHERE Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
+    fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
+    queryStr  = "SELECT Projectname,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value FROM " +
+                 nmfConstantsMSSPM::TableOutputBiomassEnsemble;
+    queryStr += " WHERE ProjectName = '"       + m_ProjectName +
+                "' AND ModelName = '"          + m_ModelName +
+                "' AND Algorithm = '"          + Algorithm +
+                "' AND Minimizer = '"          + Minimizer +
                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' AND isAggProd = " + isAggProd;
+                "' AND Scaling = '"            + Scaling +
+                "' AND isAggProd = "           + isAggProd;
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Algorithm"].size();
     if (NumRecords == 0) {
@@ -11261,7 +11715,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     QString fullPath     = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
     QString multiRunFile = (Diagnostic_Tab2_ptr->isAMohnsRhoRun()) ?
                 QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun) :
-                QString::fromStdString(Estimation_Tab6_ptr->getEnsembleFilename());
+                QString::fromStdString(Estimation_Tab6_ptr->getEnsembleTimeStampedFilename());
     fullPath = QDir(fullPath).filePath(multiRunFile);
     dataStruct.MultiRunSetupFilename = fullPath.toStdString();
     dataStruct.EstimateRunBoxes = Estimation_Tab6_ptr->getEstimateRunBoxes();
@@ -11285,8 +11739,10 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     queryStr  += "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions,";
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,Scaling,GAGenerations,GAConvergence,";
     queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
-    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptNumberOfRuns ";
-    queryStr  += "FROM " + nmfConstantsMSSPM::TableModels + " WHERE ModelName='" + m_ModelName + "'";
+    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptNumberOfRuns FROM " +
+                  nmfConstantsMSSPM::TableModels +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
 
     obsBiomassType                   = dataMap["ObsBiomassType"][0];
@@ -11378,7 +11834,9 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
         fields     = {"GuildName","GrowthRateMin","GrowthRateMax","GuildK","GuildKMin",
                       "GuildKMax","CatchabilityMin","CatchabilityMax"};
         queryStr   = "SELECT GuildName,GrowthRateMin,GrowthRateMax,GuildK,GuildKMin,";
-        queryStr  += "GuildKMax,CatchabilityMin,CatchabilityMax from " + nmfConstantsMSSPM::TableGuilds + " ORDER BY GuildName";
+        queryStr  += "GuildKMax,CatchabilityMin,CatchabilityMax from " +
+                      nmfConstantsMSSPM::TableGuilds +
+                     " ORDER BY GuildName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumGuilds  = dataMap["GuildName"].size();
         nmfUtils::initialize(dataStruct.InitBiomass,        NumGuilds);
@@ -11409,7 +11867,9 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
             dataStruct.GuildNum.push_back(GuildNum);
         }
         fields     = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax"};
-        queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax from " + nmfConstantsMSSPM::TableSpecies + " ORDER BY SpeName";
+        queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax from " +
+                      nmfConstantsMSSPM::TableSpecies +
+                     " ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumSpecies = dataMap["SpeName"].size();
         for (int species=0; species<NumSpecies; ++species) {
@@ -11425,8 +11885,9 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         fields     = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax","GrowthRate","GrowthRateMin","GrowthRateMax",
                       "SpeciesK","SpeciesKMin","SpeciesKMax","Catchability","CatchabilityMin","CatchabilityMax","SurveyQ","SurveyQMin","SurveyQMax"};
         queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax,GrowthRate,GrowthRateMin,GrowthRateMax,";
-        queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SurveyQ,SurveyQMin,SurveyQMax from " + nmfConstantsMSSPM::TableSpecies + " ORDER BY SpeName";
-//std::cout << "qqq: " << queryStr << std::endl;
+        queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SurveyQ,SurveyQMin,SurveyQMax from " +
+                      nmfConstantsMSSPM::TableSpecies +
+                     " ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumSpecies = dataMap["SpeName"].size();
         dataStruct.NumSpecies = NumSpecies;
@@ -11698,8 +12159,10 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
     fields      = {"ModelName","SpeName","Value"};
 
     // Get Init data
-    queryStr    = "SELECT ModelName,SpeName,Value FROM " + InitTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ModelName,SpeName,Value FROM " +
+                   InitTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMapInit = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapInit["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds) {
@@ -11711,8 +12174,10 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
     }
 
     // Get Min data
-    queryStr    = "SELECT ModelName,SpeName,Value FROM " + MinTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ModelName,SpeName,Value FROM " +
+                   MinTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMapMin  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapMin["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds) {
@@ -11724,8 +12189,10 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
     }
 
     // Get Max data
-    queryStr    = "SELECT ModelName,SpeName,Value FROM " + MaxTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ModelName,SpeName,Value FROM " +
+                   MaxTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMapMax  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapMax["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds) {
@@ -11779,11 +12246,13 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
     std::vector<double> MaxRow;
 
     NumInteractionParameters = 0;
-    fields      = {"ModelName","SpeciesA","SpeciesB","Value"};
+    fields      = {"ProjectName","ModelName","SpeciesA","SpeciesB","Value"};
 
     // Get data from the init table
-    queryStr    = "SELECT ModelName,SpeciesA,SpeciesB,Value FROM " + InitTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ProjectName,ModelName,SpeciesA,SpeciesB,Value FROM " +
+                   InitTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMapInit = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapInit["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds*NumSpeciesOrGuilds) {
@@ -11795,8 +12264,10 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
     }
 
     // Get data from the min table
-    queryStr    = "SELECT ModelName,SpeciesA,SpeciesB,Value FROM " + MinTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ProjectName,ModelName,SpeciesA,SpeciesB,Value FROM " +
+                   MinTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMapMin  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapMin["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds*NumSpeciesOrGuilds) {
@@ -11818,8 +12289,10 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
     }
 
     // Get data from the max table
-    queryStr    = "SELECT ModelName,SpeciesA,SpeciesB,Value FROM " + MaxTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ProjectName,ModelName,SpeciesA,SpeciesB,Value FROM " +
+                   MaxTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMapMax  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapMax["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds*NumSpeciesOrGuilds) {
@@ -11895,8 +12368,10 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
     fields      = {"ModelName","SpeName","Guild","Value"};
 
     // Load Init data
-    queryStr    = "SELECT ModelName,SpeName,Guild,Value FROM " + InitTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ModelName,SpeName,Guild,Value FROM " +
+                   InitTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND ModelName = '"    + m_ModelName   + "'";
     dataMapInit = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapInit["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds*NumGuilds) {
@@ -11912,8 +12387,10 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
     }
 
     // Load Min data
-    queryStr    = "SELECT ModelName,SpeName,Guild,Value FROM " + MinTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ModelName,SpeName,Guild,Value FROM " +
+                    MinTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND ModelName = '"    + m_ModelName   + "'";
     dataMapMin  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapMin["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds*NumGuilds) {
@@ -11929,8 +12406,10 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
     }
 
     // Load Max data
-    queryStr    = "SELECT ModelName,SpeName,Guild,Value FROM " + MaxTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ModelName,SpeName,Guild,Value FROM " +
+                   MaxTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND ModelName = '"    + m_ModelName   + "'";
     dataMapMax  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapMax["Value"].size();
     if (NumRecords != NumSpeciesOrGuilds*NumGuilds) {
@@ -12001,8 +12480,10 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
     fields      = {"ModelName","GuildA","GuildB","Value"};
 
     // Get Init data
-    queryStr    = "SELECT ModelName,GuildA,GuildB,Value FROM " + InitTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ModelName,GuildA,GuildB,Value FROM " +
+                   InitTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND ModelName = '"    + m_ModelName   + "'";
     dataMapInit = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapInit["Value"].size();
     if (NumRecords != NumGuilds*NumGuilds) {
@@ -12018,8 +12499,10 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
     }
 
     // Get Min data
-    queryStr    = "SELECT ModelName,GuildA,GuildB,Value FROM " + MinTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ModelName,GuildA,GuildB,Value FROM " +
+                   MinTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND ModelName = '"    + m_ModelName   + "'";
     dataMapMin  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapMin["Value"].size();
     if (NumRecords != NumGuilds*NumGuilds) {
@@ -12035,8 +12518,10 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
     }
 
     // Get Max data
-    queryStr    = "SELECT ModelName,GuildA,GuildB,Value FROM " + MaxTable;
-    queryStr   += " WHERE ModelName = '" + m_ModelName + "'";
+    queryStr    = "SELECT ModelName,GuildA,GuildB,Value FROM " +
+                   MaxTable +
+                  " WHERE ProjectName = '" + m_ProjectName +
+                  "' AND ModelName = '"    + m_ModelName   + "'";
     dataMapMax  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords  = dataMapMax["Value"].size();
     if (NumRecords != NumGuilds*NumGuilds) {
@@ -12225,7 +12710,6 @@ std::cout << "shadow quality: " << m_Graph3D->shadowQuality() << std::endl;
 bool
 nmfMainWindow::selectMinimumSurfacePoint()
 {
-    bool ok;
     int yMin = 0;
     int yMax = 0;
 
@@ -12241,7 +12725,7 @@ nmfMainWindow::selectMinimumSurfacePoint()
         boost::numeric::ublas::matrix<double> columnValues;
         boost::numeric::ublas::matrix<double> heightValues;
 
-        ok = getSurfaceData(rowValues,columnValues,heightValues,yMin,yMax);
+        bool ok = getSurfaceData(rowValues,columnValues,heightValues,yMin,yMax);
         if (ok) {
             nmfChartSurface surface(m_Graph3D,xLabel,yLabel,zLabel,
                                     xLabelFormat,zLabelFormat,
@@ -12325,7 +12809,6 @@ nmfMainWindow::getSurfaceData(
     std::string isAggProdStr;
     std::string SurfaceType;
     std::string currentSpecies = Output_Controls_ptr->getOutputSpecies().toStdString();
-//std::cout << "~~~~~~~~> NNumPoints: " << NumPoints << std::endl;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::vector<std::string> TableNames = {nmfConstantsMSSPM::TableDiagnosticSurface};
@@ -12334,21 +12817,26 @@ nmfMainWindow::getSurfaceData(
                 this,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+    checkDiagnosticAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+
     isAggProdStr = (CompetitionForm == "AGG-PROD") ? "1" : "0";
     SurfaceType = (Output_Controls_ptr->isSurfaceTypeZScore()) ? "ZScore" : "Absolute";
 
-    fields     = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd",
+    fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd",
                   "SpeName","Type","parameter1PctVar","parameter2PctVar","Fitness"};
-    queryStr   = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,";
-    queryStr  += "SpeName,Type,parameter1PctVar,parameter2PctVar,Fitness FROM " + TableNames[0];
-    queryStr  += "  WHERE SpeName = '" + currentSpecies +
-                "' AND Algorithm = '" + Algorithm +
-                "' AND Minimizer = '" + Minimizer +
-                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                "' AND Scaling = '" + Scaling +
-                "' AND isAggProd = " + isAggProdStr +
-                "  AND Type = '" + SurfaceType +
-                "' ORDER BY SpeName";
+    queryStr   = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,";
+    queryStr  += "SpeName,Type,parameter1PctVar,parameter2PctVar,Fitness FROM " +
+                  TableNames[0] +
+                 " WHERE ProjectName = '"       + m_ProjectName +
+                 "' AND ModelName = '"          + m_ModelName +
+                 "' AND SpeName = '"            + currentSpecies +
+                 "' AND Algorithm = '"          + Algorithm +
+                 "' AND Minimizer = '"          + Minimizer +
+                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                 "' AND Scaling = '"            + Scaling +
+                 "' AND isAggProd = "           + isAggProdStr +
+                 "  AND Type = '"               + SurfaceType +
+                 "' ORDER BY SpeName";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Algorithm"].size();
     if (NumRecords != nrows*ncols) {
@@ -12372,16 +12860,8 @@ nmfMainWindow::getSurfaceData(
             x = std::stod(dataMap["parameter1PctVar"][m]);
             y = std::stod(dataMap["Fitness"][m]);
             z = std::stod(dataMap["parameter2PctVar"][m]);
-//std::cout << "x,z: " << x << "," << z << std::endl;
-//            if (yMax > 0) {
-//                y = (y > yMax) ? yMax : y;
-//            }
-//            if (yMin < 9999999999) {
-//                y = (y < yMin) ? yMin : y;
-//            }
             theYMin = (y < theYMin) ? y : theYMin;
             theYMax = (y > theYMax) ? y : theYMax;
-
             rowValues(row,col)    = x;
             heightValues(row,col) = y;
             columnValues(row,col) = z;
@@ -12472,7 +12952,35 @@ nmfMainWindow::callback_ModelLoaded()
     // Update REMORA
     Remora_ptr->setModelName(m_ModelName);
 
+    if (thereIsOutputBiomass()) {
+        Output_Controls_ptr->refresh();
+        enableRunWidgets(true);
+    } else {
+        enableRunWidgets(false);
+    }
+
+    // Hack to get enable-ness correct on Tab6 widgets.  Should
+    // remove it and fix the logic.
+    Estimation_Tab6_ptr->loadWidgets();
+
     QApplication::restoreOverrideCursor();
+}
+
+bool
+nmfMainWindow::thereIsOutputBiomass()
+{
+    int NumRecords;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    fields   = {"Algorithm"};
+    queryStr = "SELECT DISTINCT Algorithm FROM " +
+                nmfConstantsMSSPM::TableOutputBiomass +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '"    + m_ModelName + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    return (dataMap["Algorithm"].size());
 }
 
 void
@@ -12603,9 +13111,12 @@ nmfMainWindow::callback_ForecastLineBrightnessChanged(double brightnessFactor)
     std::string ForecastName = Forecast_Tab1_ptr->getForecastName();
     double YMinSliderValue = Output_Controls_ptr->getYMinSliderVal();
 
-    fields    = {"ForecastName","StartYear"};
-    queryStr  = "SELECT ForecastName,StartYear FROM " + nmfConstantsMSSPM::TableForecasts + " where ";
-    queryStr += "ForecastName = '" + ForecastName + "'";
+    fields    = {"ProjectName","ModelName","ForecastName","StartYear"};
+    queryStr  = "SELECT ProjectName,ModelName,ForecastName,StartYear FROM " +
+                 nmfConstantsMSSPM::TableForecasts +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName +
+                "' AND ForecastName = '" + ForecastName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
         StartForecastYear  = std::stoi(dataMap["StartYear"][0]);
@@ -12659,7 +13170,7 @@ nmfMainWindow::callback_ClearEstimationTables()
 
 bool
 nmfMainWindow::areFieldsValid(std::string tableName,
-                              std::string system,
+                              std::string modelName,
                               std::vector<std::string> fields)
 {
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -12670,7 +13181,9 @@ nmfMainWindow::areFieldsValid(std::string tableName,
         queryStr += field + ",";
     }
     queryStr   = queryStr.substr(0,queryStr.size()-1); // strip last comma
-    queryStr  += " FROM " + tableName + " WHERE ModelName = \"" + system + "\"";
+    queryStr  += " FROM " + tableName +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + modelName     + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr,fields,nmfConstantsMSSPM::ShowBlankFields);
 
     return checkFields(tableName,dataMap,fields);
@@ -12690,6 +13203,10 @@ nmfMainWindow::areFieldsValid(std::string tableName,
     }
     queryStr   = queryStr.substr(0,queryStr.size()-1); // strip last comma
     queryStr  += " FROM " + tableName;
+    // These aren't needed yet as the nmfConstantsMSSPM::TableSpecies table does not
+    // yet have any ProjectName or ModelName fields.
+    //   " WHERE ProjectName = '" + m_ProjectName +
+    //   "' AND ModelName = '"    + m_ModelName   + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr,fields,nmfConstantsMSSPM::ShowBlankFields);
 
     return checkFields(tableName,dataMap,fields);
@@ -12747,24 +13264,28 @@ nmfMainWindow::dataAdequateForCurrentModel(QStringList estParamNames)
             return std::make_pair(false,"");
         }
     }
+
     if (estParamNames.contains("Growth Rate")) {
         // Check Species for valid r, r min, and r max values
         if (! areFieldsValid(nmfConstantsMSSPM::TableSpecies,{"SpeName","GrowthRate","GrowthRateMin","GrowthRateMax"})) {
             return std::make_pair(false,"");
         }
     }
+
     if (estParamNames.contains("Carrying Capacity")) {
         // Check Species for valid K, K min, and K max values
         if (! areFieldsValid(nmfConstantsMSSPM::TableSpecies,{"SpeName","SpeciesK","SpeciesKMin","SpeciesKMax"})) {
             return std::make_pair(false,"");
         }
     }
+
     if (estParamNames.contains("Catchability")) {
         // Check Species for valid q, q min, and q max values
         if (! areFieldsValid(nmfConstantsMSSPM::TableSpecies,{"SpeName","Catchability","CatchabilityMin","CatchabilityMax"})) {
             return std::make_pair(false,"");
         }
     }
+
     if (estParamNames.contains("SurveyQ")) {
         // Check Species for valid SurveyQ, SurveyQMin, and SurveyQMax values
         if (! areFieldsValid(nmfConstantsMSSPM::TableSpecies,{"SpeName","SurveyQ","SurveyQMin","SurveyQMax"})) {
@@ -12829,19 +13350,17 @@ nmfMainWindow::callback_CheckAllEstimationTablesAndRun()
 
     if (dataCheck.first) {
         callback_RunEstimation(nmfConstantsMSSPM::DontShowDiagnosticsChart);
+        QApplication::restoreOverrideCursor();
     } else {
-//      msg  = "Invalid or missing data found in input Estimation table: " + dataCheck.second;
+        QApplication::restoreOverrideCursor();
         msg  = "Invalid or missing data found in one or more input Estimation tables. ";
         msg += "\nPerhaps you didn't enter all of the min/max values in the Species/Guilds tables.";
         m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
-//      msg  = "Invalid or missing data found in input Estimation table:\n\n" + dataCheck.second;
-//      msg += "\n\nPlease check this and all input tables for complete data.";
         msg += "\n\nPlease check all input tables for complete data.";
         QMessageBox::critical(this, "Error",
                               "\n"+msg+"\n", QMessageBox::Ok);
+        enableRunWidgets(false);
     }
-    QApplication::restoreOverrideCursor();
-
 }
 
 void
@@ -12933,7 +13452,7 @@ nmfMainWindow::callback_AddToReview()
     rowItems << QString::number(Estimation_Tab6_ptr->getEnsembleUsingAmountValue());             // 58
     rowItems << QString::number(Estimation_Tab6_ptr->isEnsembleUsingPct());                      // 59
 
-    rowItems << Estimation_Tab6_ptr->createEnsembleFile();                                       // 60
+    rowItems << QString::fromStdString(Estimation_Tab6_ptr->getEnsembleTimeStampedFilename());                  // 60
     rowItems << createEstimatedFile();                                                           // 61
 
 //  Estimation_Tab7_ptr->updateReviewList(rowItems);
@@ -12993,6 +13512,7 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
 
     // 2. Multi-Run/Ensemble Settings
     bool isAMultiRun = (modelReview.isAMultiRun == "1");
+std::cout << "~~~> isAMultiRun: " << isAMultiRun << std::endl;
     Estimation_Tab6_ptr->enableMultiRunControls(       isAMultiRun);
     Estimation_Tab6_ptr->setEnsembleAveragingAlgorithm(modelReview.ensembleAveragingAlgorithm);
     Estimation_Tab6_ptr->setEnsembleAverageBy(         modelReview.ensembleAverageBy);
