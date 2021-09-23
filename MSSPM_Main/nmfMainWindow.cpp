@@ -10768,7 +10768,6 @@ nmfMainWindow::callback_AllSubRunsCompleted()
     QMessageBox::information(this, tr("Multi-Run Completed"),
                              tr(msg.toLatin1()),QMessageBox::Ok);
 
-    Estimation_Tab6_ptr->enableAddToReview(true);
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -10786,6 +10785,7 @@ nmfMainWindow::callback_AllSubRunsCompleted()
     }
     Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
     enableRunWidgets(true);
+    Estimation_Tab6_ptr->enableAddToReview(true);
 
     refreshOutputTables();
 
@@ -11457,7 +11457,6 @@ std::cout << "=====>>>>> Run Completed" << std::endl;
     m_ProgressWidget->showLegend();
 
     Estimation_Tab1_ptr->checkIfRunFromModifySlider();
-    Estimation_Tab6_ptr->enableAddToReview(true);
 
     if (m_ProgressWidget->wasStopped()) {
         QString elapsedTime = QString::fromStdString(
@@ -11468,6 +11467,7 @@ std::cout << "=====>>>>> Run Completed" << std::endl;
     Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
 
     enableRunWidgets(true);
+    Estimation_Tab6_ptr->enableAddToReview(true);
 
 }
 
@@ -11520,8 +11520,8 @@ nmfMainWindow::callback_RunRetrospectiveAnalysisEstimation(
     int currentNumberOfRuns      = 0;
     int totalNumberOfRunsDesired = numRunsToAdd;
     Estimation_Tab6_ptr->clearMohnsRhoFile();
-    Estimation_Tab6_ptr->setMohnsRhoFileType("SingleRun");
-    Estimation_Tab6_ptr->setMohnsRhoFileHeader();
+//  Estimation_Tab6_ptr->setMohnsRhoFileType("SingleRun");
+//  Estimation_Tab6_ptr->setMohnsRhoFileHeader();
     Estimation_Tab6_ptr->addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,
                                            totalNumberOfRunsDesired,fullPath);
 
@@ -11548,8 +11548,8 @@ nmfMainWindow::callback_RunRetrospectiveAnalysisEstimationMultiRun(
     Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
 
     Estimation_Tab6_ptr->clearMohnsRhoFile();
-    Estimation_Tab6_ptr->setMohnsRhoFileType("MultiRun");
-    Estimation_Tab6_ptr->setMohnsRhoFileHeader();
+//  Estimation_Tab6_ptr->setMohnsRhoFileType("MultiRun");
+//  Estimation_Tab6_ptr->setMohnsRhoFileHeader();
     for (int i=0; i<numOfMultiRuns; ++i) {
         currentNumberOfRuns = i*numRunsPerMultiRun;
         Estimation_Tab6_ptr->addToMultiRunFile(numRunsPerMultiRun,
@@ -11557,8 +11557,8 @@ nmfMainWindow::callback_RunRetrospectiveAnalysisEstimationMultiRun(
                                                totalNumberOfRunsDesired,
                                                fullPath);
     }
-std::cout << "⬛⬛⬛ numOfMultiRuns: " << numOfMultiRuns << std::endl;
-std::cout << "⬛⬛⬛ fullPath: " << fullPath.toStdString() << std::endl;
+//std::cout << "⬛⬛⬛ numOfMultiRuns: " << numOfMultiRuns << std::endl;
+//std::cout << "⬛⬛⬛ fullPath: " << fullPath.toStdString() << std::endl;
 
     Estimation_Tab6_ptr->runEstimation();
 

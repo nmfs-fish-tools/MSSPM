@@ -845,8 +845,12 @@ void
 nmfEstimation_Tab6::callback_SavePB()
 {
     createTimeStampedEnsembleFile();
-    saveSystem(true);
-    enableRunButton(true);
+
+    bool wasSaved = saveSystem(true);
+    if (wasSaved) {
+        enableRunButton(true);
+        enableAddToReview(false);
+    }
 }
 
 void
@@ -886,7 +890,7 @@ nmfEstimation_Tab6::runBeesCheck(QString& errorMsg)
     return allChecksOK;
 }
 
-void
+bool
 nmfEstimation_Tab6::saveSystem(bool RunChecks)
 {
     bool ok;
@@ -905,7 +909,7 @@ nmfEstimation_Tab6::saveSystem(bool RunChecks)
                 QMessageBox::warning(Estimation_Tabs, "Error in Bees Parameters",
                                      "\nPlease make sure Bees parameters are all within their appropriate limits. Found the following error(s):\n"+errorMsg,
                                      QMessageBox::Ok);
-                return;
+                return false;
             }
         }
         msg = "\nOK to save current settings as: " + ModelName + " ?";
@@ -922,6 +926,8 @@ nmfEstimation_Tab6::saveSystem(bool RunChecks)
     }
 
     emit UpdateForecastYears();
+
+    return okToSave;
 }
 
 bool
@@ -995,6 +1001,7 @@ void
 nmfEstimation_Tab6::enableRunButton(bool state)
 {
     Estimation_Tab6_RunPB->setEnabled(state);
+
 //    if (state) {
         setRunButtonLabel("Run");
 //    } else {
@@ -1505,6 +1512,23 @@ nmfEstimation_Tab6::addToMultiRunFile(const int& numRunsToAdd,
     EstimateCheckBoxes = getAllEstimateCheckboxes();
     int NumEstimatedCheckboxes = EstimateCheckBoxes.size();
 
+    if (! file.exists()) {
+        if (file.open(QIODevice::WriteOnly)) {
+            QTextStream stream(&file);
+            stream << "Num Runs,Objective Criterion,Algorithm,Minimizer,Scaling";
+            stream << ",Bees Max Generations,Bees Total Num,Bees Num Best Sites,Bees Num Elite Sites";
+            stream << ",Bees Num Elite,Bees Num Other,Bees Neighborhood Size(%),Bees Num of SubRuns";
+            stream << ",NL Stop Condition,NL Checked,Value";
+            stream << ",NL Stop Condition,NL Checked,NL Num Seconds";
+            stream << ",NL Stop Condition,NL Checked,NL Num Evals";
+            for (int i=0; i<NumEstimatedCheckboxes; ++i) {
+                stream << ",Est Parameter,Enabled,Checked";
+            }
+            stream << "\n";
+            file.close();
+        }
+    }
+
     if (file.open(QIODevice::Append)) {
         std::string ObjectiveCriterion = getCurrentObjectiveCriterion();
         std::string Algorithm          = getCurrentAlgorithm();
@@ -1821,6 +1845,7 @@ nmfEstimation_Tab6::callback_EnsembleControlsGB(bool isChecked)
         loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun),
                          nmfConstantsMSSPM::VerboseOff);
     }
+
 }
 
 
@@ -1862,6 +1887,7 @@ void
 nmfEstimation_Tab6::callback_AddToReviewPB()
 {
     emit AddToReview();
+    enableRunButton(true);
 }
 
 bool
@@ -1930,11 +1956,14 @@ std::cout << "Loading: " << ensembleFilename.toStdString() << std::endl;
 void
 nmfEstimation_Tab6::enableEnsembleWidgets(bool enable)
 {
-    enableRunButton(! enable);
+//    enableRunButton(! enable);
     Estimation_Tab6_NL_ParametersGB->setEnabled(enable);
     Estimation_Tab6_Bees_ParametersGB->setEnabled(enable);
     Estimation_Tab6_EstParametersGB->setEnabled(enable);
     Estimation_Tab6_ModelAlgorithmsGB->setEnabled(enable);
+
+    enableRunButton(false);
+
 }
 
 void
@@ -2140,8 +2169,6 @@ nmfEstimation_Tab6::loadWidgets()
 
     // RSK Hack to set the CMB correctly. Remove after implementing all of the disabled items in the 3 algorithm CMB's.
     Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(QString::fromStdString(dataMap["ObjectiveCriterion"][0]));
-
-//  enableRunButton(true);
 
     m_IsMultiRun   = (dataMap["EnsembleIsBoxChecked"][0] == "1");
     m_MultiRunType =  dataMap["EnsembleAverageAlg"][0];

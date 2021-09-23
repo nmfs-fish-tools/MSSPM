@@ -343,8 +343,9 @@ public:
     /**
      * @brief Saves application settings but checking with user first
      * @param RunChecks : boolean checking to see if program should check with user prior to saving Model algorithm settings
+     * @return Returns true if the user acknowledged the Save
      */
-    void saveSystem(bool RunChecks);
+    bool saveSystem(bool RunChecks);
     /**
      * @brief Sets the current units to the passed string
      * @param units : current units to set the time units combo box to
