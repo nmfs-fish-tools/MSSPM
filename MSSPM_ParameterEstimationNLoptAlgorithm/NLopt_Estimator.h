@@ -130,11 +130,9 @@ private:
 signals:
     /**
      * @brief Signal emitted at the end of a multi-run set of runs
-     * @param multiRunSpeciesFilename : name of Multi-Run Species File
-     * @param multiRunModelFilename : name of Multi-Run Model File
      */
-    void AllSubRunsCompleted(std::string multiRunSpeciesFilename,
-                             std::string multiRunModelFilename);
+    void AllSubRunsCompleted();
+    void AMohnsRhoMultiRunCompleted();
     /**
      * @brief Signal emitted at the start of a multi-run set of runs
      * @param multiRunModelFilename : name of Multi-Run Model File

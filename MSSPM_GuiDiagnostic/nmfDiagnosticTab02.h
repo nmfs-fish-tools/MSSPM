@@ -63,7 +63,8 @@ private:
     std::string  m_ProjectName;
     std::string  m_ModelName;
     int          m_RunLength;
-    bool         m_isMohnsRhoRun;
+    bool         m_isMohnsRhoRunForMultiRun;
+    bool         m_isMohnsRhoRunForSingleRun;
     int          m_IsMultiRun;
     std::string  m_MultiRunType;
 
@@ -94,7 +95,8 @@ public:
      * @param state : boolean definin the Run button's enabled state
      */
     void enableRunButton(bool state);
-    void setIsMohnsRho(bool state);
+    void setMohnsRhoForSingleRun(bool state);
+    void setMohnsRhoForMultiRun(bool state);
     /**
      * @brief Gets the last year in the year range
      * @return The last year in the year range
@@ -124,7 +126,8 @@ public:
      * @brief Notifies the user if the run is a Mohns Rho run
      * @return Boolean signifying if the user just started a Mohns Rho run
      */
-    bool    isAMohnsRhoRun();
+    bool    isAMohnsRhoRunForSingleRun();
+    bool    isAMohnsRhoRunForMultiRun();
     /**
      * @brief Loads the GUI widgets without any peels.  It calls the overloaded loadWidgets with a -1.
      */
@@ -150,6 +153,7 @@ signals:
      * @param YearRanges : year ranges to run for Mohn's Rho analysis
      */
     void RunDiagnosticEstimation(std::vector<std::pair<int,int> > YearRanges);
+    void RunDiagnosticEstimationMultiRun(std::vector<std::pair<int,int> > YearRanges);
     void EnableRunButtons(bool state);
     void CheckMSYBoxes(bool state);
 

@@ -371,7 +371,7 @@ nmfDiagnostic_Tab1::checkAlgorithmIdentifiersForMultiRun(
         std::string& Scaling)
 {
     readSettings();
-    if (useMultiRunEstimatedParameters())
+    if (isSetLastRunMultiDiagnostics())
     {
         Algorithm          = m_MultiRunType;
         Minimizer          = m_MultiRunType;
@@ -402,10 +402,12 @@ nmfDiagnostic_Tab1::isMultiRunRBEnabled()
 }
 
 bool
-nmfDiagnostic_Tab1::useMultiRunEstimatedParameters()
+nmfDiagnostic_Tab1::isSetLastRunMultiDiagnostics()
 {
-    return (m_IsMultiRun && m_Diagnostic_Tab1_UseLastMultiRunRB->isEnabled() &&
-                            m_Diagnostic_Tab1_UseLastMultiRunRB->isChecked());
+    return (m_Diagnostic_Tab1_UseLastMultiRunRB->isEnabled() &&
+            m_Diagnostic_Tab1_UseLastMultiRunRB->isChecked());
+//    return (m_IsMultiRun && m_Diagnostic_Tab1_UseLastMultiRunRB->isEnabled() &&
+//                            m_Diagnostic_Tab1_UseLastMultiRunRB->isChecked());
 }
 
 void
@@ -529,7 +531,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
     m_Diagnostic_Tabs->setCursor(Qt::WaitCursor);
 
     checkAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
-    if (useMultiRunEstimatedParameters()) {
+    if (isSetLastRunMultiDiagnostics()) {
         m_Logger->logMsg(nmfConstants::Normal,"Using Estimated Parameters from last Multi Run: " + Algorithm);
     } else {
         m_Logger->logMsg(nmfConstants::Normal,"Using Estimated Parameters from last Single Run");

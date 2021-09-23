@@ -16,7 +16,8 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
     m_Logger          = logger;
     m_DatabasePtr     = databasePtr;
     m_ProjectDir      = projectDir;
-    m_isMohnsRhoRun   = false;
+    m_isMohnsRhoRunForSingleRun = false;
+    m_isMohnsRhoRunForMultiRun  = false;
     m_IsMultiRun      = false;
     m_ProjectName.clear();
     m_ModelName.clear();
@@ -233,15 +234,27 @@ nmfDiagnostic_Tab2::clearWidgets()
 }
 
 bool
-nmfDiagnostic_Tab2::isAMohnsRhoRun()
+nmfDiagnostic_Tab2::isAMohnsRhoRunForSingleRun()
 {
-    return m_isMohnsRhoRun;
+    return m_isMohnsRhoRunForSingleRun;
 }
 
 void
-nmfDiagnostic_Tab2::setIsMohnsRho(bool state)
+nmfDiagnostic_Tab2::setMohnsRhoForSingleRun(bool state)
 {
-    m_isMohnsRhoRun = state;
+    m_isMohnsRhoRunForSingleRun = state;
+}
+
+bool
+nmfDiagnostic_Tab2::isAMohnsRhoRunForMultiRun()
+{
+    return m_isMohnsRhoRunForMultiRun;
+}
+
+void
+nmfDiagnostic_Tab2::setMohnsRhoForMultiRun(bool state)
+{
+    m_isMohnsRhoRunForMultiRun = state;
 }
 
 void
@@ -285,9 +298,6 @@ QMessageBox::information(m_Diagnostic_Tabs, tr("Feature Unavailable"),
                          tr("\nFeature not yet available.\n\nRetrospective Analysis on a Multi Run is currently in development.\n"),
                          QMessageBox::Ok);
 return;
-
-
-
         msg  = "\nWarning: The previous run was a multi-run.\n\nRunning a retrospective analysis on ";
         msg += "a multi-run will cause the multi-run to run multiple times (i.e. one time per peel). ";
         msg += "In this case, the last multi-run would run " + QString::number(NumPeeledYears);
@@ -329,9 +339,16 @@ std::cout << "range: " << StartYear << ", " << EndYear << std::endl;
         --EndYear;
     }
 
-    m_isMohnsRhoRun = true;
     emit CheckMSYBoxes(false);
-    emit RunDiagnosticEstimation(ranges);
+//    if (m_IsMultiRun) {
+//        m_isMohnsRhoRunForMultiRun  = true;
+//        m_isMohnsRhoRunForSingleRun = false;
+//        emit RunDiagnosticEstimationMultiRun(ranges);
+//    } else {
+        m_isMohnsRhoRunForMultiRun  = false;
+        m_isMohnsRhoRunForSingleRun = true;
+        emit RunDiagnosticEstimation(ranges);
+//    }
 }
 
 void

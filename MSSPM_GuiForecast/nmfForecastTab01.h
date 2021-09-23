@@ -140,9 +140,12 @@ public:
                              bool isChecked);
     void setMultiRunRBState(bool isEnabled,
                             bool isChecked);
-    bool useMultiRunEstimatedParameters();
+    bool useSingleRunEstimatedParameters();
+    bool isSetLastRunMultiForecast();
+    bool isSetLastRunSingleForecast();
     void setSingleRunRBEnabled(bool isEnabled);
     void setMultiRunRBEnabled(bool isEnabled);
+
 
 signals:
     /**

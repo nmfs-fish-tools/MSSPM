@@ -387,6 +387,7 @@ nmfSetup_Tab4::loadModel()
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ModelName"].size() == 0) {
         m_logger->logMsg(nmfConstants::Error,"nmfSetupTab3::callback_Setup_Tab4_LoadPB: No data found in Models table");
+        m_logger->logMsg(nmfConstants::Error,queryStr);
         return;
     }
 

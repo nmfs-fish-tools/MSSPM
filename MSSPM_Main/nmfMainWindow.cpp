@@ -1902,7 +1902,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.33 (beta)";
+    QString version = "MSSPM v0.9.34 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3018,6 +3018,8 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_SetChartType(std::string,std::string)));
     connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimation(std::vector<std::pair<int,int> >)),
             this,                SLOT(callback_RunRetrospectiveAnalysisEstimation(std::vector<std::pair<int,int> >)));
+    connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimationMultiRun(std::vector<std::pair<int,int> >)),
+            this,                SLOT(callback_RunRetrospectiveAnalysisEstimationMultiRun(std::vector<std::pair<int,int> >)));
     connect(Diagnostic_Tab1_ptr, SIGNAL(EnableRunButtons(bool)),
             this,                SLOT(callback_EnableRunButtons(bool)));
     connect(Diagnostic_Tab1_ptr, SIGNAL(CheckMSYBoxes(bool)),
@@ -4494,7 +4496,7 @@ nmfMainWindow::checkDiagnosticAlgorithmIdentifiersForMultiRun(
 {
     readSettings("Runtime");
 
-    if ( m_IsMultiRun && Diagnostic_Tab1_ptr->useMultiRunEstimatedParameters())
+    if ( m_IsMultiRun && Diagnostic_Tab1_ptr->isSetLastRunMultiDiagnostics())
     {
         Algorithm          = m_MultiRunType;
         Minimizer          = m_MultiRunType;
@@ -4503,22 +4505,25 @@ nmfMainWindow::checkDiagnosticAlgorithmIdentifiersForMultiRun(
     }
 }
 
-void
+bool
 nmfMainWindow::checkForecastAlgorithmIdentifiersForMultiRun(
         std::string& Algorithm,
         std::string& Minimizer,
         std::string& ObjectiveCriterion,
         std::string& Scaling)
 {
+    bool retv = false;
     readSettings("Runtime");
 
-    if (m_IsMultiRun && Forecast_Tab1_ptr->useMultiRunEstimatedParameters())
+    if (m_IsMultiRun && Forecast_Tab1_ptr->isSetLastRunMultiForecast())
     {
         Algorithm          = m_MultiRunType;
         Minimizer          = m_MultiRunType;
         ObjectiveCriterion = m_MultiRunType;
         Scaling            = m_MultiRunType;
+        retv = true;
     }
+    return retv;
 }
 
 bool
@@ -7301,7 +7306,7 @@ nmfMainWindow::isAMohnsRhoMultiRun()
 
     QString NavigatorStr = NavigatorTree->currentItem()->text(0);
 
-    return ( Diagnostic_Tab2_ptr->isAMohnsRhoRun() ||
+    return ( Diagnostic_Tab2_ptr->isAMohnsRhoRunForSingleRun() ||
 
              (Output_Controls_ptr->getOutputChartType() == "Diagnostics" &&
               Output_Controls_ptr->isSetToRetrospectiveAnalysis() &&
@@ -9695,12 +9700,15 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     QString multiRunModelFilename;
     QString msg;
     bool isAMultiRun = isAMultiOrMohnsRhoRun();
+//std::cout << "⬛⬛⬛ isAMultiRun: "  << isAMultiRun << std::endl;
+
+//    bool isAMohnsRhoRunOfMultiRuns = Diagnostic_Tab2_ptr->isAMohnsRhoRunForMultiRun();
+//std::cout << "⬛⬛⬛ isAMohnsRhoRunOfMultiRuns: "  << isAMohnsRhoRunOfMultiRuns << std::endl;
 
     saveSettings();
     readSettings();
 
     m_UI->OutputDockWidget->raise();
-
 
     if (isEstimationRunning()) {
         QMessageBox::information(this,
@@ -9716,6 +9724,7 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     // Disable Monte Carlo Output Widgets
     Output_Controls_ptr->enableBrightnessWidgets(false);
 
+    // Load all run parameters here
     bool loadOK = loadParameters(m_DataStruct,nmfConstantsMSSPM::VerboseOn);
     if (! loadOK) {
         std::cout << "Run cancelled. LoadParameters returned: " << loadOK << std::endl;
@@ -9723,7 +9732,9 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     }
 
     if (isAMultiRun) {
+
         m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableOutputBiomassEnsemble);
+
         if (! nmfUtilsQt::loadMultiRunData(m_DataStruct,MultiRunLines,TotalIndividualRuns)) {
             QApplication::restoreOverrideCursor();
             std::cout << "Error: Couldn't open: " << m_DataStruct.MultiRunSetupFilename << std::endl;
@@ -9734,7 +9745,6 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
             return;
         }
     }
-
     Output_Controls_ptr->enableControls(false);
 
     callback_InitializeSubRuns(m_DataStruct.MultiRunModelFilename,TotalIndividualRuns);
@@ -9752,6 +9762,7 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     m_RunNumNLopt = 0;
     m_RunNumBees  = 1;
     if (isAMohnsRhoMultiRun() && isBeesAlgorithm()) {
+
         QApplication::restoreOverrideCursor();
         QMessageBox::warning(this, "Warning",
                              "\nMohns Rho not yet implemented for Bees Algorithm.\n",
@@ -9762,9 +9773,11 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
         return;
     }
     else if (isAMultiRun) {
+//std::cout << "⬛⬛⬛ MultiRunLines.size(): " << MultiRunLines.size() << std::endl;
+
         // To-do: Add Bees to regular multi-run
         //      runBeesAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);
-
+//std::cout << "----->>>> TotalIndividualRuns: " << TotalIndividualRuns << std::endl;
         runNLoptAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns); // Run through all runs and do NLopt, skipping over non-NLopt
     } else {
         if (Algorithm == "Bees Algorithm") {
@@ -9810,6 +9823,7 @@ nmfMainWindow::callback_ForecastLoaded(std::string ForecastName)
 void
 nmfMainWindow::callback_SaveForecastOutputBiomassData(std::string ForecastName)
 {
+    bool usingMultiRun=false;
     bool updateOK = true;
     bool isMonteCarlo;
     bool isAggProd;
@@ -9861,7 +9875,11 @@ nmfMainWindow::callback_SaveForecastOutputBiomassData(std::string ForecastName)
     }
     isAggProd = (CompetitionForm == "AGG-PROD");
     isAggProdStr = (isAggProd) ? "1" : "0";
-    checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+    usingMultiRun = checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+    std::string forecastType = (isRunningREMORA) ? "REMORA: " : "Forecast: ";
+    std::string msg = (usingMultiRun) ? "Using Estimated Parameters from the last Multi Run" :
+                                        "Using Estimated Parameters from the last Single Run";
+    m_Logger->logMsg(nmfConstants::Normal,forecastType+msg);
 
     // Calculate Monte Carlo simulations
     isMonteCarlo = true;
@@ -10012,17 +10030,27 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     isAggProdStr = (isAggProd) ? "1" : "0";
     std::string temp;
 
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("<br>Run Length:&#9;&nbsp;"  + std::to_string(RunLength) + " year(s)").trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Year Range:&#9;&nbsp;"      + std::to_string(StartYear) + " to " + std::to_string(EndYear)).trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Num Runs:&#9;&nbsp;"        + std::to_string(NumRuns)).trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("<br>Algorithm:&#9;&nbsp;"   + Algorithm + suffix).trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Minimizer:&#9;&nbsp;"       + Minimizer + suffix).trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Obj Criterion:&#9;&nbsp;"   + ObjectiveCriterion + suffix).trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Scaling Alg:&#9;&nbsp;"     + Scaling + suffix).trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("<br>Growth Form:&#9;&nbsp;" + GrowthForm).trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Harvest Form:&#9;&nbsp;"    + HarvestForm).trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Comp'n Form:&#9;&nbsp;"     + CompetitionForm).trimmed());
-    Forecast_Tab4_ptr->appendOutputTE(QString::fromStdString("Pred'n Form:&#9;&nbsp;"     + PredationForm).trimmed());
+    QString lastRunType = (Forecast_Tab1_ptr->isSetLastRunMultiForecast()) ? "Multi Run" : "Single Run";
+    QString summary = "<br><tt>";
+    summary += "<strong>Run Length:</strong>       " + QString::number(RunLength) + " year(s)<br>";
+    summary += "<strong>Year Range:</strong>       " + QString::number(StartYear) + " to " + QString::number(EndYear) + "<br>";
+    summary += "<strong>Num Runs:</strong>         " + QString::number(NumRuns) + "<br><br>";
+    summary += "<strong>Algorithm:</strong>        " + QString::fromStdString(Algorithm+suffix) + "<br>";
+    summary += "<strong>Minimizer:</strong>        " + QString::fromStdString(Minimizer+suffix) + "<br>";
+    summary += "<strong>Obj Criterion:</strong>    " + QString::fromStdString(ObjectiveCriterion+suffix) + "<br>";
+    if (Scaling.empty()) {
+        summary += "<strong>Scaling Alg:</strong>      " + QString::fromStdString(Scaling)        + "<br><br>";
+    } else {
+        summary += "<strong>Scaling Alg:</strong>      " + QString::fromStdString(Scaling+suffix) + "<br><br>";
+    }
+    summary += "<strong>Growth Form:</strong>      " + QString::fromStdString(GrowthForm) + "<br>";
+    summary += "<strong>Harvest Form:</strong>     " + QString::fromStdString(HarvestForm) + "<br>";
+    summary += "<strong>Competition Form:</strong> " + QString::fromStdString(CompetitionForm) + "<br>";
+    summary += "<strong>Predation Form:</strong>   " + QString::fromStdString(PredationForm) + "<br><br>";
+    summary += "<strong>Used Estimated Parameters from last:</strong> " + lastRunType + "<br>";
+    summary += "</tt>";
+    Forecast_Tab4_ptr->appendOutputTE(summary);
+    saveSettings(false);
 
     if (GenerateBiomass) {
         callback_SaveForecastOutputBiomassData(ForecastName);
@@ -10090,8 +10118,8 @@ nmfMainWindow::runBeesAlgorithm(bool showDiagnosticChart,
             this,              SLOT(callback_RepetitionRunCompleted(int,int,int)));
     connect(m_Estimator_Bees,  SIGNAL(ErrorFound(std::string)),
             this,              SLOT(callback_ErrorFound(std::string)));
-    connect(m_Estimator_Bees,  SIGNAL(AllSubRunsCompleted(std::string,std::string)),
-            this,              SLOT(callback_AllSubRunsCompleted(std::string,std::string)));
+    connect(m_Estimator_Bees,  SIGNAL(AllSubRunsCompleted()),
+            this,              SLOT(callback_AllSubRunsCompleted()));
     connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
             this,              SLOT(callback_StopAllRuns()));
 
@@ -10170,8 +10198,11 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
             this,              SLOT(callback_RunCompleted(std::string,bool)));
     connect(m_Estimator_NLopt, SIGNAL(SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)),
             this,              SLOT(callback_SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)));
-    connect(m_Estimator_NLopt, SIGNAL(AllSubRunsCompleted(std::string,std::string)),
-            this,              SLOT(callback_AllSubRunsCompleted(std::string,std::string)));
+    connect(m_Estimator_NLopt, SIGNAL(AllSubRunsCompleted()),
+            this,              SLOT(callback_AllSubRunsCompleted()));
+    connect(m_Estimator_NLopt, SIGNAL(AMohnsRhoMultiRunCompleted()),
+            this,              SLOT(callback_AMohnsRhoMultiRunCompleted()));
+
     connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
             this,              SLOT(callback_StopAllRuns()));
 
@@ -10567,7 +10598,10 @@ nmfMainWindow::callback_SubRunCompleted(int run,
                                  EstPredationHandling,CalculatedBiomass)) {
         return;
     }
-
+//for (int ii=0; ii<(int)EstGrowthRates.size(); ++ii) {
+//std::cout << "~~~~> EstGrowthRates[" << ii << "]: " << EstGrowthRates[ii] <<
+//             ", EstCarryingCapacities[" << ii << "]: " << EstCarryingCapacities[ii] << std::endl;
+//}
     updateBiomassEnsembleTable(run,EstimationAlgorithm,MinimizerAlgorithm,
                                ObjectiveCriterion,ScalingAlgorithm,CalculatedBiomass);
 
@@ -10714,9 +10748,17 @@ nmfMainWindow::updateBiomassEnsembleTable(
     }
 }
 
+
 void
-nmfMainWindow::callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
-                                            std::string multiRunModelFilename)
+nmfMainWindow::callback_AMohnsRhoMultiRunCompleted()
+{
+    // Save out biomass average to TableOutputBiomassMohnsRhoOfEnsembles
+std::cout << "callback_AMohnsRhoMultiRunCompleted" << std::endl;
+    // Check table
+
+}
+void
+nmfMainWindow::callback_AllSubRunsCompleted()
 {
 
     // Notify user the multi-run has completed
@@ -10742,7 +10784,7 @@ nmfMainWindow::callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
         callback_UpdateSummaryStatistics();
         Output_Controls_ptr->setForBiomassVsTime();
     }
-    Diagnostic_Tab2_ptr->setIsMohnsRho(false);
+    Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
     enableRunWidgets(true);
 
     refreshOutputTables();
@@ -11423,7 +11465,7 @@ std::cout << "=====>>>>> Run Completed" << std::endl;
         Estimation_Tab6_ptr->appendOutputTE(elapsedTime);
     }
 
-    Diagnostic_Tab2_ptr->setIsMohnsRho(false);
+    Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
 
     enableRunWidgets(true);
 
@@ -11478,18 +11520,50 @@ nmfMainWindow::callback_RunRetrospectiveAnalysisEstimation(
     int currentNumberOfRuns      = 0;
     int totalNumberOfRunsDesired = numRunsToAdd;
     Estimation_Tab6_ptr->clearMohnsRhoFile();
+    Estimation_Tab6_ptr->setMohnsRhoFileType("SingleRun");
+    Estimation_Tab6_ptr->setMohnsRhoFileHeader();
     Estimation_Tab6_ptr->addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,
                                            totalNumberOfRunsDesired,fullPath);
 
     // 3. Run the Mohns Rho runs
     Estimation_Tab6_ptr->runEstimation();
-
-    // Add logic if it's a Mohn's Rho AND a Multi Run
-    // Run multiple multi-runs, each with different year range and save average
-    // RSK todo
-
 }
 
+void
+nmfMainWindow::callback_RunRetrospectiveAnalysisEstimationMultiRun(
+        std::vector<std::pair<int,int> > MohnsRhoRanges)
+{
+    // 1. Create Mohns Rhos multi-run filename
+    QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
+
+   // 1. Run n averaged runs and write average biomass to output filename
+    int currentNumberOfRuns = 0;
+    int numOfMultiRuns      = MohnsRhoRanges.size();
+    int numRunsPerMultiRun  = Estimation_Tab6_ptr->getEnsembleNumberOfTotalRuns();
+    int totalNumberOfRunsDesired = numOfMultiRuns*numRunsPerMultiRun;
+
+    // 2.
+
+    Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
+
+    Estimation_Tab6_ptr->clearMohnsRhoFile();
+    Estimation_Tab6_ptr->setMohnsRhoFileType("MultiRun");
+    Estimation_Tab6_ptr->setMohnsRhoFileHeader();
+    for (int i=0; i<numOfMultiRuns; ++i) {
+        currentNumberOfRuns = i*numRunsPerMultiRun;
+        Estimation_Tab6_ptr->addToMultiRunFile(numRunsPerMultiRun,
+                                               currentNumberOfRuns,
+                                               totalNumberOfRunsDesired,
+                                               fullPath);
+    }
+std::cout << "⬛⬛⬛ numOfMultiRuns: " << numOfMultiRuns << std::endl;
+std::cout << "⬛⬛⬛ fullPath: " << fullPath.toStdString() << std::endl;
+
+    Estimation_Tab6_ptr->runEstimation();
+
+
+}
 
 void
 nmfMainWindow::setCurrentOutputTab(QString outputTab)
@@ -11623,6 +11697,32 @@ nmfMainWindow::callback_SetChartType(std::string type, std::string method)
 //} // end outputProgressData
 
 
+int
+nmfMainWindow::getNumMohnsRhoMultiRuns()
+{
+    int numLines = 0;
+    QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
+    QFile file(fullPath);
+//std::cout << "⬛⬛⬛ fullPath: " << fullPath.toStdString() << std::endl;
+    if (! file.open(QIODevice::ReadOnly)) {
+        QMessageBox::information(0, "Error", file.errorString());
+        return 0;
+    }
+
+    QString line;
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        line = in.readLine();
+        ++numLines;
+    }
+    numLines -= 2; // -2 for the 2 header lines
+//std::cout << "⬛⬛⬛ numLines: " << numLines << std::endl;
+    file.close();
+
+    return numLines;
+}
+
 bool
 nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
                               const bool& verbose)
@@ -11656,7 +11756,8 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     std::map<std::string,std::string> GuildSpeciesMap;
     std::string guildName;
 
-    dataStruct.isMohnsRho = Diagnostic_Tab2_ptr->isAMohnsRhoRun();
+//  dataStruct.NumMohnsRhoMultiRuns = getNumMohnsRhoMultiRuns();
+    dataStruct.isMohnsRho = Diagnostic_Tab2_ptr->isAMohnsRhoRunForSingleRun();
 
     initialGuildBiomass.clear();
     initialGuildBiomassMin.clear();
@@ -11712,11 +11813,15 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
 
     // Set the MultiRun Setup output file that will contain all of the
     // MultiRun Run definitions
-    QString fullPath     = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    QString multiRunFile = (Diagnostic_Tab2_ptr->isAMohnsRhoRun()) ?
+    QString fullPath     = "";
+    QString basePath     = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    QString multiRunFile = (Diagnostic_Tab2_ptr->isAMohnsRhoRunForSingleRun()) ?
                 QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun) :
                 QString::fromStdString(Estimation_Tab6_ptr->getEnsembleTimeStampedFilename());
-    fullPath = QDir(fullPath).filePath(multiRunFile);
+    fullPath = QDir(basePath).filePath(multiRunFile);
+    if (dataStruct.NumMohnsRhoMultiRuns > 0) {
+        fullPath = QDir(basePath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
+    }
     dataStruct.MultiRunSetupFilename = fullPath.toStdString();
     dataStruct.EstimateRunBoxes = Estimation_Tab6_ptr->getEstimateRunBoxes();
 //std::cout << "Parameters to estimate (there are " << dataStruct.EstimateRunBoxes.size() << " ): " << std::endl;
@@ -13512,7 +13617,7 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
 
     // 2. Multi-Run/Ensemble Settings
     bool isAMultiRun = (modelReview.isAMultiRun == "1");
-std::cout << "~~~> isAMultiRun: " << isAMultiRun << std::endl;
+//std::cout << "~~~> isAMultiRun: " << isAMultiRun << std::endl;
     Estimation_Tab6_ptr->enableMultiRunControls(       isAMultiRun);
     Estimation_Tab6_ptr->setEnsembleAveragingAlgorithm(modelReview.ensembleAveragingAlgorithm);
     Estimation_Tab6_ptr->setEnsembleAverageBy(         modelReview.ensembleAverageBy);

@@ -408,7 +408,14 @@ nmfForecast_Tab1::callback_RunLengthSB(int duration)
 }
 
 bool
-nmfForecast_Tab1::useMultiRunEstimatedParameters()
+nmfForecast_Tab1::isSetLastRunSingleForecast()
+{
+    return (Forecast_Tab1_UseLastSingleRunRB->isEnabled() &&
+            Forecast_Tab1_UseLastSingleRunRB->isChecked());
+}
+
+bool
+nmfForecast_Tab1::isSetLastRunMultiForecast()
 {
     return (Forecast_Tab1_UseLastMultiRunRB->isEnabled() &&
             Forecast_Tab1_UseLastMultiRunRB->isChecked());

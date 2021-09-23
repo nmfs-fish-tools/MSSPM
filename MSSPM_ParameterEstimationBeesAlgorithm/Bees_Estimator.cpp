@@ -186,7 +186,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 numTotalParameters = EstParameters.size();
                 createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,
                                 bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
-//   std::cout << "1 Emitting RunCompleted" << std::endl;
+   std::cout << "1 Emitting RunCompleted" << std::endl;
                 emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
 
             }
@@ -194,7 +194,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
         } // end for run
 
         if (isAMultiRun) {
-//std::cout << "2 Emitting SubRunCompleted" << std::endl;
+std::cout << "2 Emitting SubRunCompleted" << std::endl;
             emit SubRunCompleted(RunNumber++,
                                  TotalIndividualRuns,
                                  beeStruct.EstimationAlgorithm,
@@ -204,14 +204,14 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                                  beeStruct.MultiRunModelFilename,
                                  bestFitness);
         } else {
-//std::cout << "2 Emitting RunCompleted" << std::endl;
+std::cout << "2 Emitting RunCompleted" << std::endl;
 //            emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
         }
 
     } // end for multiRun
 
     if (isAMultiRun && foundOneBeesRun) {
-//std::cout << "3 Emitting AllSubRunsCompleted" << std::endl;
+std::cout << "3 Emitting AllSubRunsCompleted" << std::endl;
         emit AllSubRunsCompleted(beeStruct.MultiRunSpeciesFilename,
                                  beeStruct.MultiRunModelFilename);
     }

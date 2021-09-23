@@ -322,6 +322,9 @@ public:
     bool isEstSurveyQChecked();
     bool isEnsembleUsingPct();
     void setRunButtonLabel(QString label);
+    void setMohnsRhoFileType(const QString& runType);
+    void setMohnsRhoFileHeader();
+
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully

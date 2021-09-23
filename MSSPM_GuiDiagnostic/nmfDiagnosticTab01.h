@@ -255,7 +255,7 @@ public:
     void setMultiRunRBState(bool isEnabled, bool isChecked);
     void setSingleRunRBEnabled(bool isEnabled);
     void setMultiRunRBEnabled(bool isEnabled);
-    bool useMultiRunEstimatedParameters();
+    bool isSetLastRunMultiDiagnostics();
     bool isSingleRunRBChecked();
     bool isSingleRunRBEnabled();
     bool isMultiRunRBChecked();

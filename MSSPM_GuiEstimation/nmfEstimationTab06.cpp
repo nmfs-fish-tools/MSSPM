@@ -1440,6 +1440,47 @@ nmfEstimation_Tab6::callback_EnsembleRunsSB(int value)
     enableRunButton(false);
 }
 
+
+void
+nmfEstimation_Tab6::setMohnsRhoFileType(const QString& runType)
+{
+    QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
+    QFile file(fullPath);
+
+    if (file.open(QIODevice::Append)) {
+        QTextStream stream(&file);
+        stream << runType << "\n";
+        file.close();
+    }
+}
+
+void
+nmfEstimation_Tab6::setMohnsRhoFileHeader()
+{
+    QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    fullPath = QDir(fullPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
+    QFile file(fullPath);
+
+    QList<QCheckBox* > EstimateCheckBoxes = getAllEstimateCheckboxes();
+    int NumEstimatedCheckboxes = EstimateCheckBoxes.size();
+
+    if (file.open(QIODevice::Append)) {
+        QTextStream stream(&file);
+        stream << "Num Runs,Objective Criterion,Algorithm,Minimizer,Scaling";
+        stream << ",Bees Max Generations,Bees Total Num,Bees Num Best Sites,Bees Num Elite Sites";
+        stream << ",Bees Num Elite,Bees Num Other,Bees Neighborhood Size(%),Bees Num of SubRuns";
+        stream << ",NL Stop Condition,NL Checked,Value";
+        stream << ",NL Stop Condition,NL Checked,NL Num Seconds";
+        stream << ",NL Stop Condition,NL Checked,NL Num Evals";
+        for (int i=0; i<NumEstimatedCheckboxes; ++i) {
+            stream << ",Est Parameter,Enabled,Checked";
+        }
+        stream << "\n";
+        file.close();
+    }
+}
+
 bool
 nmfEstimation_Tab6::addToMultiRunFile(const int& numRunsToAdd,
                                       const int& currentNumberOfRuns,
@@ -1464,34 +1505,14 @@ nmfEstimation_Tab6::addToMultiRunFile(const int& numRunsToAdd,
     EstimateCheckBoxes = getAllEstimateCheckboxes();
     int NumEstimatedCheckboxes = EstimateCheckBoxes.size();
 
-    if (! file.exists()) {
-        if (file.open(QIODevice::WriteOnly)) {
-            QTextStream stream(&file);
-            stream << "Num Runs,Objective Criterion,Algorithm,Minimizer,Scaling";
-            stream << ",Bees Max Generations,Bees Total Num,Bees Num Best Sites,Bees Num Elite Sites";
-            stream << ",Bees Num Elite,Bees Num Other,Bees Neighborhood Size(%),Bees Num of SubRuns";
-            stream << ",NL Stop Condition,NL Checked,Value";
-            stream << ",NL Stop Condition,NL Checked,NL Num Seconds";
-            stream << ",NL Stop Condition,NL Checked,NL Num Evals";
-            for (int i=0; i<NumEstimatedCheckboxes; ++i) {
-                stream << ",Est Parameter,Enabled,Checked";
-            }
-            stream << "\n";
-            file.close();
-        }
-    }
-
     if (file.open(QIODevice::Append)) {
         std::string ObjectiveCriterion = getCurrentObjectiveCriterion();
         std::string Algorithm          = getCurrentAlgorithm();
         std::string Minimizer          = getCurrentMinimizer();
         std::string Scaling            = getCurrentScaling();
-//      checkAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
 
         QTextStream stream(&file);
-
         stream << numRunsToAdd;
-
         stream << "," << QString::fromStdString(ObjectiveCriterion);
         stream << "," << QString::fromStdString(Algorithm);
         stream << "," << QString::fromStdString(Minimizer);
@@ -1512,14 +1533,11 @@ nmfEstimation_Tab6::addToMultiRunFile(const int& numRunsToAdd,
                    << "," << EstimateCheckBoxes[i]->isEnabled()
                    << "," << EstimateCheckBoxes[i]->isChecked();
         }
-
         stream << "\n";
-
         file.close();
     }
 
     return true;
-
 }
 
 void
@@ -1618,6 +1636,7 @@ nmfEstimation_Tab6::clearMohnsRhoFile()
     QFile file(fullPath);
     file.remove();
 }
+
 
 void
 nmfEstimation_Tab6::callback_EnsembleViewPB()

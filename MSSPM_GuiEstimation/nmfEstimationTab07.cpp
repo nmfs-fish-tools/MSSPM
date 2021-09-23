@@ -43,7 +43,7 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     m_ProjectName.clear();
 
     readSettings();
-    m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableModelReview,m_ProjectName);
+    //m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableModelReview,m_ProjectName);
 
     m_SModel = new QStandardItemModel(0,m_NumColumns);
     m_SModel->setHorizontalHeaderLabels(horizontalHeaders);
@@ -470,7 +470,7 @@ nmfEstimation_Tab7::updateModelReviewTable(const QStringList& rowList)
     NumRows  = (int)dataMap["ModelName"].size();
 
     // Save Qt table data to database table
-    row  = NumRows + 1;
+    row  = NumRows;
     cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableModelReview +
             " (ProjectName,ModelNumber,ModelName,rSquared,SSResiduals,AIC," +
             "GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns," +
@@ -566,15 +566,16 @@ nmfEstimation_Tab7::saveModelReviewTable()
     if (m_SModel == nullptr) {
         return;
     }
+
+    // Clear current ModelReview table
+    m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableModelReview,m_ProjectName);
+
     m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
     NumRows = m_SModel->rowCount();
     NumCols = m_SModel->columnCount();
     if (NumRows == 0) {
         return;
     }
-
-    m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableModelReview,m_ProjectName);
-
 
 //    // Turn off significant digits in order to save with highest precision
 //    bool flippedSignificantDigits = false;

@@ -404,7 +404,7 @@ private:
             std::string& Minimizer,
             std::string& ObjectiveCriterion,
             std::string& Scaling);
-    void checkForecastAlgorithmIdentifiersForMultiRun(
+    bool checkForecastAlgorithmIdentifiersForMultiRun(
             std::string& Algorithm,
             std::string& Minimizer,
             std::string& ObjectiveCriterion,
@@ -524,6 +524,7 @@ private:
             QStringList& ForecastLabels,
             std::vector<boost::numeric::ublas::matrix<double> >& MultiScenarioBiomass);
     int getNumLines();
+    int getNumMohnsRhoMultiRuns();
     boost::numeric::ublas::matrix<double> getObservedBiomassByGroup(
             const int& NumGuilds,
             const int& RunLength,
@@ -1034,11 +1035,8 @@ protected:
 public slots:
     /**
      * @brief Callback invoked when main receives an AllSubRunsCompleted signal from NLopt_Estimator
-     * @param multiRunSpeciesFilename : name of Multi-Run Species File
-     * @param multiRunModelFilename : name of Multi-Run Model File
      */
-    void callback_AllSubRunsCompleted(std::string multiRunSpeciesFilename,
-                                      std::string multiRunModelFilename);
+    void callback_AllSubRunsCompleted();
     void callback_UpdateSeedValue(int isDeterministic);
     /**
      * @brief Callback invoked when user Runs an Estimation
@@ -1182,6 +1180,7 @@ public slots:
      * @param ranges : year ranges for current run
      */
     void callback_RunRetrospectiveAnalysisEstimation(std::vector<std::pair<int,int> > ranges);
+    void callback_RunRetrospectiveAnalysisEstimationMultiRun(std::vector<std::pair<int,int> > ranges);
     /**
      * @brief Callback invoked with user runs an Estimation
      * @param showDiagnosticsChart : boolean that when true will show the Diagnostics Chart in the OutputDockWidget
@@ -1515,7 +1514,7 @@ public slots:
     void callback_SummaryLoadPB();
     void callback_SummaryExportPB();
     void callback_SummaryImportPB();
-
+    void callback_AMohnsRhoMultiRunCompleted();
 //  /**
 //   * @brief Copy TestData into OutputGrowthRate
 //   */

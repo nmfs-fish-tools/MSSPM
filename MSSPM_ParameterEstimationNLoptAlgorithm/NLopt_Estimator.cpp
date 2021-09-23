@@ -720,12 +720,10 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     NumSubRuns  =  NLoptStruct.BeesNumRepetitions; // RSK fix this
 
     // Define forms
-//    if (NLoptGrowthForm == nullptr) {
-        NLoptGrowthForm      = std::make_unique<nmfGrowthForm>(     NLoptStruct.GrowthForm);
-        NLoptHarvestForm     = std::make_unique<nmfHarvestForm>(    NLoptStruct.HarvestForm);
-        NLoptCompetitionForm = std::make_unique<nmfCompetitionForm>(NLoptStruct.CompetitionForm);
-        NLoptPredationForm   = std::make_unique<nmfPredationForm>(  NLoptStruct.PredationForm);
-//    }
+    NLoptGrowthForm      = std::make_unique<nmfGrowthForm>(     NLoptStruct.GrowthForm);
+    NLoptHarvestForm     = std::make_unique<nmfHarvestForm>(    NLoptStruct.HarvestForm);
+    NLoptCompetitionForm = std::make_unique<nmfCompetitionForm>(NLoptStruct.CompetitionForm);
+    NLoptPredationForm   = std::make_unique<nmfPredationForm>(  NLoptStruct.PredationForm);
 
     // Load parameter ranges
     loadInitBiomassParameterRanges(           ParameterRanges, NLoptStruct);
@@ -740,124 +738,133 @@ for (int i=0; i< NumEstParameters; ++i) {
  std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
 }
 
-    if (isAMultiRun) {
-        NumMultiRuns = MultiRunLines.size();
-    }
-
-    for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
-        NumSubRuns = 1;
+//    int NumMohnsRhoMultiRuns = NLoptStruct.NumMohnsRhoMultiRuns;
+//    bool isAMohnsRhoMultiRun = (NumMohnsRhoMultiRuns > 0);
+//std::cout << "⬛⬛⬛ NumMohnsRhoMultiRuns: " << NumMohnsRhoMultiRuns << std::endl;
+//    for (int mohnsRhoMultiRun=0; mohnsRhoMultiRun<NumMohnsRhoMultiRuns; ++mohnsRhoMultiRun)
+//    {
+//std::cout << "⬛⬛⬛ mohnsRhoMultiRun: " << mohnsRhoMultiRun << std::endl;
+//        if (isAMohnsRhoMultiRun) {
+//            NumMultiRuns = MultiRunLines.size();  // RSK fix this!
+//        } else
         if (isAMultiRun) {
-            nmfUtilsQt::reloadDataStruct(NLoptStruct,MultiRunLines[multiRun]);
-            NumSubRuns = NLoptStruct.NLoptNumberOfRuns;
-            NLoptGrowthForm->setType(     NLoptStruct.GrowthForm);
-            NLoptHarvestForm->setType(    NLoptStruct.HarvestForm);
-            NLoptCompetitionForm->setType(NLoptStruct.CompetitionForm);
-            NLoptPredationForm->setType(  NLoptStruct.PredationForm);
-            ParameterRanges.clear();
-
-            loadInitBiomassParameterRanges(           ParameterRanges, NLoptStruct);
-            NLoptGrowthForm->loadParameterRanges(     ParameterRanges, NLoptStruct);
-            NLoptHarvestForm->loadParameterRanges(    ParameterRanges, NLoptStruct);
-            NLoptCompetitionForm->loadParameterRanges(ParameterRanges, NLoptStruct);
-            NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
-            loadSurveyQParameterRanges(               ParameterRanges, NLoptStruct);
-            NumEstParameters = ParameterRanges.size();
+            NumMultiRuns = MultiRunLines.size();
         }
 
-        // This must follow the reloadNLoptStruct call
-        if (NLoptStruct.EstimationAlgorithm != "NLopt Algorithm") {
-            continue; // skip over rest of for statement and continue with next increment
-        }
-        m_Seed = 0;
-        foundOneNLoptRun = true;
+        for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
+            NumSubRuns = 1;
+            if (isAMultiRun) {
+                nmfUtilsQt::reloadDataStruct(NLoptStruct,MultiRunLines[multiRun]);
+                NumSubRuns = NLoptStruct.NLoptNumberOfRuns;
+                NLoptGrowthForm->setType(     NLoptStruct.GrowthForm);
+                NLoptHarvestForm->setType(    NLoptStruct.HarvestForm);
+                NLoptCompetitionForm->setType(NLoptStruct.CompetitionForm);
+                NLoptPredationForm->setType(  NLoptStruct.PredationForm);
+                ParameterRanges.clear();
 
-//if (NLoptStruct.isMohnsRho && isAMultiRun) {
-// std::cout << "---> Is a MohnsRho AND a MultiRun <---" << std::endl;
-//}
-
-        for (int run=0; run<NumSubRuns; ++run) {
-            m_Quit = false;
-
-            if (NLoptStruct.isMohnsRho) {
-                m_MohnsRhoOffset = run;
+                loadInitBiomassParameterRanges(           ParameterRanges, NLoptStruct);
+                NLoptGrowthForm->loadParameterRanges(     ParameterRanges, NLoptStruct);
+                NLoptHarvestForm->loadParameterRanges(    ParameterRanges, NLoptStruct);
+                NLoptCompetitionForm->loadParameterRanges(ParameterRanges, NLoptStruct);
+                NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
+                loadSurveyQParameterRanges(               ParameterRanges, NLoptStruct);
+                NumEstParameters = ParameterRanges.size();
             }
 
-            // Initialize the optimizer with the appropriate algorithm
-            m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
+            // This must follow the reloadNLoptStruct call
+            if (NLoptStruct.EstimationAlgorithm != "NLopt Algorithm") {
+                continue; // skip over rest of for statement and continue with next increment
+            }
+            m_Seed = 0;
+            foundOneNLoptRun = true;
 
-            // Set Parameter Bounds, Objective Function, and Stopping Criteria
-            setSeed(isSetToDeterministic,NLoptStruct.useFixedSeedNLopt);
-            setParameterBounds(NLoptStruct,ParameterRanges,NumEstParameters);
-            setObjectiveFunction(NLoptStruct,MaxOrMin);
-            setStoppingCriteria(NLoptStruct);
+            for (int run=0; run<NumSubRuns; ++run) {
+                m_Quit = false;
 
-            // Run the Optimizer using the previously defined objective function
-            nlopt::result result;
-            try {
-                double fitness=0;
+                if (NLoptStruct.isMohnsRho) {
+                    m_MohnsRhoOffset = run;
+                }
+
+                // Initialize the optimizer with the appropriate algorithm
+                m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
+
+                // Set Parameter Bounds, Objective Function, and Stopping Criteria
+                setSeed(isSetToDeterministic,NLoptStruct.useFixedSeedNLopt);
+                setParameterBounds(NLoptStruct,ParameterRanges,NumEstParameters);
+                setObjectiveFunction(NLoptStruct,MaxOrMin);
+                setStoppingCriteria(NLoptStruct);
+
+                // Run the Optimizer using the previously defined objective function
+                nlopt::result result;
                 try {
-                    std::cout << "====> Running Optimizer <====" << std::endl;
-                    result = m_Optimizer.optimize(m_Parameters, fitness);
-                    std::cout << "Optimizer return code: " << returnCode(result) << std::endl;
-                } catch (const std::exception& e) {
-                    std::cout << "Exception thrown: " << e.what() << std::endl;
-                    return;
-                } catch (...) {
-                    std::cout << "Error: Unknown error from NLopt_Estimator::estimateParameters m_Optimizer.optimize()" << std::endl;
+                    double fitness=0;
+                    try {
+                        std::cout << "====> Running Optimizer <====" << std::endl;
+                        result = m_Optimizer.optimize(m_Parameters, fitness);
+                        std::cout << "Optimizer return code: " << returnCode(result) << std::endl;
+                    } catch (const std::exception& e) {
+                        std::cout << "Exception thrown: " << e.what() << std::endl;
+                        return;
+                    } catch (...) {
+                        std::cout << "Error: Unknown error from NLopt_Estimator::estimateParameters m_Optimizer.optimize()" << std::endl;
+                        return;
+                    }
+
+                    extractParameters(NLoptStruct, &m_Parameters[0],
+                            m_EstInitBiomass,
+                            m_EstGrowthRates,  m_EstCarryingCapacities,
+                            m_EstCatchability, m_EstAlpha,
+                            m_EstBetaSpecies,  m_EstBetaGuilds, m_EstBetaGuildsGuilds,
+                            m_EstPredation,    m_EstHandling,   m_EstExponent,  m_EstSurveyQ);
+
+                    createOutputStr(m_Parameters.size(),
+                                    NLoptStruct.TotalNumberParameters,
+                                    NumSubRuns,
+                                    fitness,fitnessStdDev,NLoptStruct,bestFitnessStr);
+                    if (isAMultiRun) { // && (!isAMohnsRhoMultiRun)) {
+                        // RSK -remove this and replace with logic writing est parameters to file
+                        // (Having to use this with a delay is pretty ad hoc.)
+                        emit SubRunCompleted(RunNumber++,
+                                             TotalIndividualRuns,
+                                             NLoptStruct.EstimationAlgorithm,
+                                             NLoptStruct.MinimizerAlgorithm,
+                                             NLoptStruct.ObjectiveCriterion,
+                                             NLoptStruct.ScalingAlgorithm,
+                                             NLoptStruct.MultiRunModelFilename,
+                                             fitness);
+                        QThread::msleep((unsigned long)(500));
+                    } else {
+                        emit RunCompleted(bestFitnessStr,NLoptStruct.showDiagnosticChart);
+                    }
+
+                    if (stoppedByUser()) {
+                        return;
+                    }
+                }
+                catch (nlopt::forced_stop &e) {
+                    std::cout << "User terminated application: " << e.what() << std::endl;
                     return;
                 }
-
-                extractParameters(NLoptStruct, &m_Parameters[0],
-                        m_EstInitBiomass,
-                        m_EstGrowthRates,  m_EstCarryingCapacities,
-                        m_EstCatchability, m_EstAlpha,
-                        m_EstBetaSpecies,  m_EstBetaGuilds, m_EstBetaGuildsGuilds,
-                        m_EstPredation,    m_EstHandling,   m_EstExponent,  m_EstSurveyQ);
-
-                createOutputStr(m_Parameters.size(),
-                                NLoptStruct.TotalNumberParameters,
-                                NumSubRuns,
-                                fitness,fitnessStdDev,NLoptStruct,bestFitnessStr);
-                if (isAMultiRun) {
-                    // RSK -remove this and replace with logic writing est parameters to file
-                    // (Having to use this with a delay is pretty ad hoc.)
-                    emit SubRunCompleted(RunNumber++,
-                                         TotalIndividualRuns,
-                                         NLoptStruct.EstimationAlgorithm,
-                                         NLoptStruct.MinimizerAlgorithm,
-                                         NLoptStruct.ObjectiveCriterion,
-                                         NLoptStruct.ScalingAlgorithm,
-                                         NLoptStruct.MultiRunModelFilename,
-                                         fitness);
-                    QThread::msleep((unsigned long)(100));
-                } else {
-                    emit RunCompleted(bestFitnessStr,NLoptStruct.showDiagnosticChart);
-                }
-
-                if (stoppedByUser()) {
+                catch (std::exception &e) {
+                    std::cout << "NLopt_Estimator::estimateParameters nlopt failed: " << e.what() << std::endl;
                     return;
                 }
-            }
-            catch (nlopt::forced_stop &e) {
-                std::cout << "User terminated application: " << e.what() << std::endl;
-                return;
-            }
-            catch (std::exception &e) {
-                std::cout << "NLopt_Estimator::estimateParameters nlopt failed: " << e.what() << std::endl;
-                return;
-            }
-            catch (...) {
-                std::cout << "NLopt_Estimator::estimateParameters stopped" << std::endl;
-                return;
-            }
-        } // end of sub run loop
+                catch (...) {
+                    std::cout << "NLopt_Estimator::estimateParameters stopped" << std::endl;
+                    return;
+                }
+            } // end of sub run loop
 
-    }
+        }
 
-    if (isAMultiRun && foundOneNLoptRun) {
-        emit AllSubRunsCompleted(NLoptStruct.MultiRunSpeciesFilename,
-                                 NLoptStruct.MultiRunModelFilename);
-    }
+//        if (isAMohnsRhoMultiRun) {
+//            emit AMohnsRhoMultiRunCompleted();
+//
+          if (isAMultiRun && foundOneNLoptRun) {
+            emit AllSubRunsCompleted();
+          }
+
+//    }
 
     std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtilsQt::elapsedTime(startTime);
 std::cout << elapsedTimeStr << std::endl;
