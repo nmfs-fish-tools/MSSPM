@@ -1902,7 +1902,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.34 (beta)";
+    QString version = "MSSPM v0.9.35 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3018,8 +3018,8 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_SetChartType(std::string,std::string)));
     connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimation(std::vector<std::pair<int,int> >)),
             this,                SLOT(callback_RunRetrospectiveAnalysisEstimation(std::vector<std::pair<int,int> >)));
-    connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimationMultiRun(std::vector<std::pair<int,int> >)),
-            this,                SLOT(callback_RunRetrospectiveAnalysisEstimationMultiRun(std::vector<std::pair<int,int> >)));
+//  connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimationMultiRun(std::vector<std::pair<int,int> >)),
+//          this,                SLOT(callback_RunRetrospectiveAnalysisEstimationMultiRun(std::vector<std::pair<int,int> >)));
     connect(Diagnostic_Tab1_ptr, SIGNAL(EnableRunButtons(bool)),
             this,                SLOT(callback_EnableRunButtons(bool)));
     connect(Diagnostic_Tab1_ptr, SIGNAL(CheckMSYBoxes(bool)),
@@ -9777,7 +9777,9 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
 
         // To-do: Add Bees to regular multi-run
         //      runBeesAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);
-//std::cout << "----->>>> TotalIndividualRuns: " << TotalIndividualRuns << std::endl;
+std::cout << "----->>>> TotalIndividualRuns: " << TotalIndividualRuns << std::endl;
+
+
         runNLoptAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns); // Run through all runs and do NLopt, skipping over non-NLopt
     } else {
         if (Algorithm == "Bees Algorithm") {
@@ -10172,7 +10174,7 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     QString multiRunModelFilename;
 
     bool isAMultiRun          = isAMultiOrMohnsRhoRun();
-    bool isSetToDeterministic = Estimation_Tab6_ptr->isSetToDeterministicNLopt();
+    bool isSetToDeterministic = Estimation_Tab6_ptr->isSetToDeterministicMinimizer();
 
     // Force isSetToDeterministic to be true if running Mohns Rho
     m_DataStruct.useFixedSeedNLopt = isAMohnsRhoMultiRun();
@@ -11292,7 +11294,6 @@ nmfMainWindow::getOutputBiomassEnsemble(
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     int NumRecords = dataMap["Value"].size();
     int NumRuns = NumRecords / NumValuesPerRun;
-
     OutputBiomassEnsemble.clear();
 
     nmfUtils::initialize(aMatrix,NumYears,NumSpecies);
@@ -11623,7 +11624,7 @@ nmfMainWindow::calculateSummaryStatisticsMohnsRhoBiomass(
     }
 
     // Check num records
-    totRecs = (NumPeels+1) * NumSpecies * (RunLength+1);
+    totRecs = NumPeels * NumSpecies * (RunLength+1);
     if (NumRecords != totRecs) {
         msg = "calculateSummaryStatisticsMohnsRhoBiomass: Read " + std::to_string(NumRecords) +
               " records but calculated " + std::to_string(totRecs) + " records.";
@@ -11636,7 +11637,7 @@ nmfMainWindow::calculateSummaryStatisticsMohnsRhoBiomass(
     std::vector<double> tmpVec;
     EstBiomass.clear();
 
-    for (int peel=0; peel<=NumPeels; ++peel) {
+    for (int peel=0; peel<NumPeels; ++peel) {
         tmpVec.clear();
         for (int j=0; j<NumSpecies; ++j) {
             for (int year=0; year<=RunLength; ++year) {
@@ -11819,18 +11820,11 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
                 QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun) :
                 QString::fromStdString(Estimation_Tab6_ptr->getEnsembleTimeStampedFilename());
     fullPath = QDir(basePath).filePath(multiRunFile);
-    if (dataStruct.NumMohnsRhoMultiRuns > 0) {
-        fullPath = QDir(basePath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
-    }
+//    if (dataStruct.NumMohnsRhoMultiRuns > 0) {
+//        fullPath = QDir(basePath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
+//    }
     dataStruct.MultiRunSetupFilename = fullPath.toStdString();
     dataStruct.EstimateRunBoxes = Estimation_Tab6_ptr->getEstimateRunBoxes();
-//std::cout << "Parameters to estimate (there are " << dataStruct.EstimateRunBoxes.size() << " ): " << std::endl;
-//for (nmfStructsQt::EstimateRunBox runBox : dataStruct.EstimateRunBoxes) {
-//std::cout << "  param: " << runBox.parameter << std::endl;
-//std::cout << "  state: " << runBox.state.first << "," << runBox.state.second << std::endl;
-//}
-
-//    m_Logger->logMsg(nmfConstants::Normal,"Reading from: "+m_ModelName);
 
     // Find RunLength
     fields     = {"ObsBiomassType","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm",
@@ -13517,7 +13511,7 @@ nmfMainWindow::callback_AddToReview()
     rowItems << QString::number(Estimation_Tab6_ptr->getNeighborhoodSize());                     // 21
     rowItems << QString::number(Estimation_Tab6_ptr->getNumSubRuns());                           // 22
 
-    rowItems << QString::number(Estimation_Tab6_ptr->isSetToDeterministicNLopt());               // 23
+    rowItems << QString::number(Estimation_Tab6_ptr->isSetToDeterministicMinimizer());               // 23
     rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterValue());                        // 24
     rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterValue());                // 25
     rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterTime());                         // 26
@@ -13635,7 +13629,7 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
     int stateBees  = (modelReview.setToDeterministicBees  == "1") ? Qt::Checked : Qt::Unchecked;
     Estimation_Tab6_ptr->callback_SetDeterministicCB(stateNLopt);
     Estimation_Tab6_ptr->callback_EnsembleSetDeterministicCB(stateNLopt);
-    Estimation_Tab6_ptr->setBeesDeterministicCB(stateBees);
+    Estimation_Tab6_ptr->setDeterministicBeesCB(stateBees==Qt::Checked);
 
     // 4. Reset Bees widgets
 //    Estimation_Tab6_ptr->setMaxGenerations(modelReview.maxGenerations);

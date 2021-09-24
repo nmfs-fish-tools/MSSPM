@@ -269,6 +269,7 @@ nmfDiagnostic_Tab2::callback_NumPeelsSB(int numPeels)
         m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear);
         setEndYearLE(getStartYearLBL()+RunLength-numPeels ); //getEndYearLBL() - numPeels);
     }
+    saveSettings();
 }
 
 void
@@ -333,10 +334,9 @@ return;
     // Mohn's Rho = {Σ[(X(t-n,t-n)-X(t-n,t)) / X(t-n,t)]} / x
     // where Σ goes from n=1 to x
     ranges.clear();
-    for (int i=0; i<=NumPeeledYears; ++i) {
-std::cout << "range: " << StartYear << ", " << EndYear << std::endl;
-        ranges.push_back(std::make_pair(StartYear,EndYear));
-        --EndYear;
+    for (int i=1; i<=NumPeeledYears; ++i) {
+        ranges.push_back(std::make_pair(StartYear,EndYear-i));
+std::cout << "range: " << StartYear << ", " << EndYear-i << std::endl;
     }
 
     emit CheckMSYBoxes(false);

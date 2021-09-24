@@ -109,7 +109,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_EnsembleUsingByCMB            = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_EnsembleUsingByCMB");
     Estimation_Tab6_EnsembleUsingAmountSB         = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab6_EnsembleUsingAmountSB");
     Estimation_Tab6_EnsembleUsingPctPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_EnsembleUsingPctPB");
-    Estimation_Tab6_SetDeterministicCB            = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_SetDeterministicCB");
+    Estimation_Tab6_MinimizerSetDeterministicCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_MinimizerSetDeterministicCB");
     Estimation_Tab6_EnsembleSetDeterministicCB    = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_EnsembleSetDeterministicCB");
     Estimation_Tab6_BeesSetDeterministicCB        = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab6_BeesSetDeterministicCB");
     Estimation_Tab6_AddToReviewPB                 = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_AddToReviewPB");
@@ -192,10 +192,10 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
             this,                                     SLOT(callback_EnsembleUsingPctPB()));
     connect(Estimation_Tab6_EnsembleUsingByCMB,       SIGNAL(currentTextChanged(QString)),
             this,                                     SLOT(callback_EnsembleUsingAmountCMB(QString)));
-    connect( Estimation_Tab6_SetDeterministicCB,      SIGNAL(stateChanged(int)),
-             this,                                    SLOT(callback_SetDeterministicCB(int)));
-    connect( Estimation_Tab6_EnsembleSetDeterministicCB, SIGNAL(stateChanged(int)),
-             this,                                       SLOT(callback_EnsembleSetDeterministicCB(int)));            
+    connect( Estimation_Tab6_MinimizerSetDeterministicCB, SIGNAL(stateChanged(int)),
+             this,                                        SLOT(callback_SetDeterministicCB(int)));
+    connect( Estimation_Tab6_EnsembleSetDeterministicCB,  SIGNAL(stateChanged(int)),
+             this,                                        SLOT(callback_EnsembleSetDeterministicCB(int)));
     connect(Estimation_Tab6_AddToReviewPB,           SIGNAL(clicked()),
             this,                                    SLOT(callback_AddToReviewPB()));
     connect(Estimation_Tab6_EstimateSurveyQCB,       SIGNAL(stateChanged(int)),
@@ -492,9 +492,9 @@ nmfEstimation_Tab6::isEstCompetitionBetaGuildsGuildsChecked()
 }
 
 bool
-nmfEstimation_Tab6::isSetToDeterministicNLopt()
+nmfEstimation_Tab6::isSetToDeterministicMinimizer()
 {
-    return Estimation_Tab6_SetDeterministicCB->isChecked();
+    return Estimation_Tab6_MinimizerSetDeterministicCB->isChecked();
 }
 
 bool
@@ -835,6 +835,7 @@ void
 nmfEstimation_Tab6::callback_ReloadPB()
 {
     if (loadWidgets()) {
+        enableRunButton(true);
         QMessageBox::information(Estimation_Tabs, "Run Settings Load",
                                  "\nRun Settings successfully loaded.\n",
                                  QMessageBox::Ok);
@@ -944,6 +945,9 @@ nmfEstimation_Tab6::saveSettingsConfiguration(bool verbose,
             "', Minimizer = '"                      + getCurrentMinimizer() +
             "', ObjectiveCriterion = '"             + getCurrentObjectiveCriterion() +
             "', Scaling = '"                        + getCurrentScaling() +
+            "', UseFixedSeedBees = "                + std::to_string(isSetToDeterministicBees()) +
+            ",  UseFixedSeedMinimizer = "           + std::to_string(isSetToDeterministicMinimizer()) +
+            ",  MinimizerType = '"                  + getCurrentMinimizerType() +
             "', BeesMaxGenerations = "              + getBeesMaxGenerations() +
             ",  BeesNumTotal = "                    + getBeesNumBees() +
             ",  BeesNumBestSites = "                + getBeesNumBestSites() +
@@ -1315,6 +1319,12 @@ nmfEstimation_Tab6::getCurrentMinimizer()
 }
 
 std::string
+nmfEstimation_Tab6::getCurrentMinimizerType()
+{
+    return Estimation_Tab6_MinimizerTypeCMB->currentText().toStdString();
+}
+
+std::string
 nmfEstimation_Tab6::getCurrentObjectiveCriterion()
 {
     return Estimation_Tab6_ObjectiveCriterionCMB->currentText().toStdString();
@@ -1336,6 +1346,11 @@ nmfEstimation_Tab6::getCurrentStopAfterValue()
     return Estimation_Tab6_NL_StopAfterValueLE->text().toDouble();
 }
 
+void
+nmfEstimation_Tab6::setCurrentMinimizerType(QString value)
+{
+    Estimation_Tab6_MinimizerTypeCMB->setCurrentText(value);
+}
 
 void
 nmfEstimation_Tab6::setCurrentTimeUnits(QString units)
@@ -1862,9 +1877,15 @@ nmfEstimation_Tab6::callback_EnsembleUsingAmountCMB(QString value)
 }
 
 void
-nmfEstimation_Tab6::setBeesDeterministicCB(int state)
+nmfEstimation_Tab6::setDeterministicBeesCB(bool state)
 {
-    Estimation_Tab6_BeesSetDeterministicCB->setChecked(state==Qt::Checked);
+    Estimation_Tab6_BeesSetDeterministicCB->setChecked(state);
+}
+
+void
+nmfEstimation_Tab6::setDeterministicMinimizerCB(bool state)
+{
+    Estimation_Tab6_MinimizerSetDeterministicCB->setChecked(state);
 }
 
 void
@@ -1878,9 +1899,9 @@ nmfEstimation_Tab6::callback_SetDeterministicCB(int state)
 void
 nmfEstimation_Tab6::callback_EnsembleSetDeterministicCB(int state)
 {
-    Estimation_Tab6_SetDeterministicCB->blockSignals(true);
-    Estimation_Tab6_SetDeterministicCB->setChecked(state==Qt::Checked);
-    Estimation_Tab6_SetDeterministicCB->blockSignals(false);
+    Estimation_Tab6_MinimizerSetDeterministicCB->blockSignals(true);
+    Estimation_Tab6_MinimizerSetDeterministicCB->setChecked(state==Qt::Checked);
+    Estimation_Tab6_MinimizerSetDeterministicCB->blockSignals(false);
 }
 
 void
@@ -1939,7 +1960,7 @@ std::cout << "Loading: " << ensembleFilename.toStdString() << std::endl;
         file.close();
         setEnsembleRuns(TotalNumRuns);
         setEnsembleRunsSet(TotalNumRuns);
-        saveSystem(false);
+//      saveSystem(false);
         enableEnsembleWidgets(false);
         m_EnsembleDialog->loadWidgets(ensembleFilename);
     } else {
@@ -2074,6 +2095,7 @@ nmfEstimation_Tab6::loadWidgets()
 
     fields     = {"ProjectName","ModelName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
                   "NumberOfRuns","StartYear","RunLength","TimeStep","Algorithm","Minimizer",
+                  "UseFixedSeedBees","UseFixedSeedMinimizer","MinimizerType",
                   "ObjectiveCriterion","Scaling","GAGenerations","GAPopulationSize",
                   "GAMutationRate","GAConvergence","BeesNumTotal","BeesNumElite","BeesNumOther",
                   "BeesNumEliteSites","BeesNumBestSites","BeesNumRepetitions",
@@ -2087,7 +2109,8 @@ nmfEstimation_Tab6::loadWidgets()
                   "EnsembleIsBoxChecked","EnsembleAverageAlg","EnsembleAverageBy","EnsembleUsingWhat",
                   "EnsembleUsingValue","EnsembleIsUsingPct","EnsembleFile"};
     queryStr   = std::string("SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,") +
-                 "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer,ObjectiveCriterion,Scaling," +
+                 "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer," +
+                 "UseFixedSeedBees,UseFixedSeedMinimizer,MinimizerType,ObjectiveCriterion,Scaling," +
                  "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence," +
                  "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions," +
                  "BeesMaxGenerations,BeesNeighborhoodSize," +
@@ -2163,6 +2186,9 @@ nmfEstimation_Tab6::loadWidgets()
     callback_EnsembleTotalRunsSB(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
     callback_EstimationAlgorithmCMB(QString::fromStdString(dataMap["Algorithm"][0]));
 
+    setDeterministicBeesCB(dataMap["UseFixedSeedBees"][0] == "1");
+    setDeterministicMinimizerCB(dataMap["UseFixedSeedMinimizer"][0] == "1");
+    Estimation_Tab6_MinimizerTypeCMB->setCurrentText(QString::fromStdString(dataMap["MinimizerType"][0]));
     Estimation_Tab6_MinimizerAlgorithmCMB->setCurrentText(QString::fromStdString(dataMap["Minimizer"][0]));
 
     callback_ObjectiveCriterionCMB(objectiveCriterion);

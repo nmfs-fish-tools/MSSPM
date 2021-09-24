@@ -139,7 +139,7 @@ class nmfEstimation_Tab6: public QObject
     QComboBox*   Estimation_Tab6_EnsembleUsingByCMB;
     QSpinBox*    Estimation_Tab6_EnsembleUsingAmountSB;
     QPushButton* Estimation_Tab6_EnsembleUsingPctPB;
-    QCheckBox*   Estimation_Tab6_SetDeterministicCB;
+    QCheckBox*   Estimation_Tab6_MinimizerSetDeterministicCB;
     QCheckBox*   Estimation_Tab6_EnsembleSetDeterministicCB;
     QCheckBox*   Estimation_Tab6_BeesSetDeterministicCB;
     QPushButton* Estimation_Tab6_AddToReviewPB;
@@ -185,8 +185,10 @@ public:
                            const int& totalNumberOfRunsDesired,
                            QString& filename);
     void clearMohnsRhoFile();
-    void setBeesDeterministicCB(int state);
-
+    void setDeterministicBeesCB(bool state);
+    void setDeterministicMinimizerCB(bool state);
+    void setCurrentMinimizerType(QString value);
+    std::string getCurrentMinimizerType();
     /**
      * @brief Append the passed message to the output text edit widget
      * @param the message to append to the text widget
@@ -219,7 +221,7 @@ public:
     void setEnsembleRunsSet(int value);
     bool isAMultiRun();
     bool isSetToDeterministicBees();
-    bool isSetToDeterministicNLopt();
+    bool isSetToDeterministicMinimizer();
     void enableAddToReview(bool enable);
     void enableMultiRunControls(bool enable);
     void enableRunButton(bool enableRun);

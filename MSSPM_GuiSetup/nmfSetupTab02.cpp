@@ -1175,7 +1175,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " Minimizer                       varchar(50)  NULL,";
         cmd += " ObjectiveCriterion              varchar(50)  NULL,";
         cmd += " Scaling                         varchar(50)  NULL,";
-        cmd += " OutputType                      varchar(50)  NULL,";
+        cmd += " UseFixedSeedBees                int(11)      NULL,";
+        cmd += " UseFixedSeedMinimizer           int(11)      NULL,";
+        cmd += " MinimizerType                   varchar(50)  NULL,";
         cmd += " GAGenerations                   int(11)      NULL,";
         cmd += " GAPopulationSize                int(11)      NULL,";
         cmd += " GAMutationRate                  float        NULL,";
