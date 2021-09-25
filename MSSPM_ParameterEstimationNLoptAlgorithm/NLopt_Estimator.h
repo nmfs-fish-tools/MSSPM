@@ -87,7 +87,6 @@ private:
 
 
     std::string returnCode(int result);
-
     void createOutputStr(
             const int&         numEstParameters,
             const int&         numTotalParameters,
@@ -270,10 +269,10 @@ public:
             std::vector<double>& EstSurveyQ);
     /**
      * @brief Get the estimated food competition alpha values
-     * @param EstInteraction : the estimated food competition alpha values to return
+     * @param estCompAlpha : the estimated food competition alpha values to return
      */
     void getEstCompetitionAlpha(
-            boost::numeric::ublas::matrix<double>& EstInteraction);
+            boost::numeric::ublas::matrix<double>& estCompAlpha);
     /**
      * @brief Get the estimated food competition beta values per Species-Guild
      * @param EstCompGuilds : the estimated food competition beta values per Species-Guild to return

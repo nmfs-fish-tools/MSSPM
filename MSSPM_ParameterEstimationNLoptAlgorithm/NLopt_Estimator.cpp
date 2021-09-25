@@ -110,6 +110,15 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
     exponent.clear();
     surveyQ.clear();
 
+    // Must do this so that if a subsequent run does not have any of these,
+    // they will be, not only cleared, but resized to 0,0.
+    nmfUtils::initialize(competitionAlpha,0,0);
+    nmfUtils::initialize(competitionBetaSpecies,0,0);
+    nmfUtils::initialize(competitionBetaGuilds,0,0);
+    nmfUtils::initialize(competitionBetaGuildsGuilds,0,0);
+    nmfUtils::initialize(predation,0,0);
+    nmfUtils::initialize(handling,0,0);
+
     // Always extract init biomass
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         initBiomass.emplace_back(EstParameters[offset+i]);
@@ -181,6 +190,7 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
         }
         offset += NumGuilds*NumGuilds;
     }
+
 
     if (isRho) {
         m = 0;
@@ -256,7 +266,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     double fitness=0;
     int timeMinus1;
     int NumYears   = NLoptDataStruct.RunLength+1 - m_MohnsRhoOffset;
-    int NumSpecies = NLoptDataStruct.NumSpecies;
+    int NumSpecies = NLoptDataStruct.NumSpecies;    
     int NumGuilds  = NLoptDataStruct.NumGuilds;
     int guildNum = 0;
     int NumSpeciesOrGuilds;
@@ -693,6 +703,7 @@ NLopt_Estimator::initialize(nmfStructsQt::ModelDataStruct &NLoptStruct)
     NLoptPredationForm   = std::make_unique<nmfPredationForm>(  NLoptStruct.PredationForm);
 }
 
+
 void
 NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                                     int& RunNumber,
@@ -711,6 +722,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     std::string MaxOrMin;
     std::vector<std::pair<double,double> > ParameterRanges;
     QDateTime startTime = nmfUtilsQt::getCurrentTime();
+
 
     m_NLoptFcnEvals  = 0;
     m_NumObjFcnCalls = 0;
@@ -799,9 +811,13 @@ for (int i=0; i< NumEstParameters; ++i) {
                 try {
                     double fitness=0;
                     try {
+                        // ******************************************************
+                        // *
                         std::cout << "====> Running Optimizer <====" << std::endl;
                         result = m_Optimizer.optimize(m_Parameters, fitness);
                         std::cout << "Optimizer return code: " << returnCode(result) << std::endl;
+                        // *
+                        // ******************************************************
                     } catch (const std::exception& e) {
                         std::cout << "Exception thrown: " << e.what() << std::endl;
                         return;
@@ -1064,9 +1080,9 @@ NLopt_Estimator::getEstSurveyQ(std::vector<double> &estSurveyQ)
 }
 
 void
-NLopt_Estimator::getEstCompetitionAlpha(boost::numeric::ublas::matrix<double> &estInteraction)
+NLopt_Estimator::getEstCompetitionAlpha(boost::numeric::ublas::matrix<double> &estCompAlpha)
 {
-    estInteraction = m_EstAlpha;
+    estCompAlpha = m_EstAlpha;
 }
 
 void

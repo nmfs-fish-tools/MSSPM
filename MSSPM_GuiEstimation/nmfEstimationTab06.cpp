@@ -2203,7 +2203,6 @@ nmfEstimation_Tab6::loadWidgets()
 
     saveSettings();
 
-
     return true;
 }
 

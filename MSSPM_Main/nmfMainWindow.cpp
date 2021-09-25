@@ -1902,7 +1902,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.35 (beta)";
+    QString version = "MSSPM v0.9.36 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3508,7 +3508,8 @@ nmfMainWindow::extractMatrixData(const bool& isEnabled,
 void
 nmfMainWindow::menu_saveCurrentRun()
 {
-std::cout << "\nSaving current run... " << std::endl;
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::menu_saveCurrentRun start");
+
     int NumSpecies;
     int StartYear=0;
     int NumGuilds;
@@ -3686,6 +3687,7 @@ std::cout << "\nSaving current run... " << std::endl;
         }
     }
 
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::menu_saveCurrentRun end");
 }
 
 void
@@ -3925,8 +3927,9 @@ nmfMainWindow::updateOutputTables(
     int i = 0;
     for (std::string tableName : OutputTableNames2)
     {
-        if (Skip[i++])
+        if (Skip[i++]) {
             continue;
+        }
         cmd = "DELETE FROM " + tableName +
               "  WHERE ProjectName = '"      + m_ProjectName +
               "' AND ModelName = '"          + m_ModelName +
@@ -3943,6 +3946,7 @@ nmfMainWindow::updateOutputTables(
                     QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
             return;
         }
+
         cmd = "REPLACE INTO " +
                tableName +
               " (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value) VALUES ";
@@ -3973,6 +3977,7 @@ nmfMainWindow::updateOutputTables(
                        "',"  + val.str() + "),";
             }
         }
+
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -4109,7 +4114,6 @@ nmfMainWindow::updateOutputTables(
             return;
         }
     }
-
 
 }
 
