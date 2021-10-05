@@ -219,9 +219,9 @@ Signals</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a06fcea88037286a126da443fc474ba44"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_e_m_o_r_a.html#a06fcea88037286a126da443fc474ba44">REMORA</a> (nmfDatabase *DatabasePtr, nmfLogger *Logger, std::string &amp;ProjectDir, std::string &amp;ProjectSettingsConfig, QStringList &amp;SpeciesList, QWidget *MModeWidget)</td></tr>
-<tr class="memdesc:a06fcea88037286a126da443fc474ba44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class definition for <a class="el" href="class_r_e_m_o_r_a.html" title="The main GUI class that contains all of the widget definitions for the REMORA Management tool.">REMORA</a> Management Tool.  <a href="class_r_e_m_o_r_a.html#a06fcea88037286a126da443fc474ba44">More...</a><br /></td></tr>
-<tr class="separator:a06fcea88037286a126da443fc474ba44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5b9ca4bdb9bbe56f1bcedd8aa7e7674"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_e_m_o_r_a.html#aa5b9ca4bdb9bbe56f1bcedd8aa7e7674">REMORA</a> (nmfDatabase *DatabasePtr, nmfLogger *Logger, std::string &amp;ProjectDir, std::string &amp;ProjectName, std::string &amp;ModelName, QStringList &amp;SpeciesList, QWidget *MModeWidget)</td></tr>
+<tr class="memdesc:aa5b9ca4bdb9bbe56f1bcedd8aa7e7674"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class definition for <a class="el" href="class_r_e_m_o_r_a.html" title="The main GUI class that contains all of the widget definitions for the REMORA Management tool.">REMORA</a> Management Tool.  <a href="class_r_e_m_o_r_a.html#aa5b9ca4bdb9bbe56f1bcedd8aa7e7674">More...</a><br /></td></tr>
+<tr class="separator:aa5b9ca4bdb9bbe56f1bcedd8aa7e7674"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e55e652d872ceb14fe569c53bf2cd58"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_e_m_o_r_a.html#a4e55e652d872ceb14fe569c53bf2cd58">getScaleValueFromPlot</a> (int species, int year)</td></tr>
 <tr class="memdesc:a4e55e652d872ceb14fe569c53bf2cd58"><td class="mdescLeft">&#160;</td><td class="mdescRight">getScaleValueFromPlot : returns harvest scale value for the passed in species and year  <a href="class_r_e_m_o_r_a.html#a4e55e652d872ceb14fe569c53bf2cd58">More...</a><br /></td></tr>
 <tr class="separator:a4e55e652d872ceb14fe569c53bf2cd58"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -247,8 +247,8 @@ Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The main GUI class that contains all of the widget definitions for the <a class="el" href="class_r_e_m_o_r_a.html" title="The main GUI class that contains all of the widget definitions for the REMORA Management tool.">REMORA</a> Management tool. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a06fcea88037286a126da443fc474ba44"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a06fcea88037286a126da443fc474ba44">&#9670;&nbsp;</a></span>REMORA()</h2>
+<a id="aa5b9ca4bdb9bbe56f1bcedd8aa7e7674"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5b9ca4bdb9bbe56f1bcedd8aa7e7674">&#9670;&nbsp;</a></span>REMORA()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -275,7 +275,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">std::string &amp;&#160;</td>
-          <td class="paramname"><em>ProjectSettingsConfig</em>, </td>
+          <td class="paramname"><em>ProjectName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>ModelName</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -303,7 +309,8 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">DatabasePtr</td><td>: pointer to database </td></tr>
     <tr><td class="paramname">Logger</td><td>: pointer to logger </td></tr>
     <tr><td class="paramname">ProjectDir</td><td>: project directory </td></tr>
-    <tr><td class="paramname">ProjectSettingsConfig</td><td>: project settings configuration name </td></tr>
+    <tr><td class="paramname">ProjectName</td><td>: the name of the project </td></tr>
+    <tr><td class="paramname">ModelName</td><td>: the name of the model </td></tr>
     <tr><td class="paramname">SpeciesList</td><td>: list of species </td></tr>
     <tr><td class="paramname">MModeWidget</td><td>: parent widget in which to place this class </td></tr>
   </table>
@@ -1284,8 +1291,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>MSSPM_GuiManagerMode/<a class="el" href="_r_e_m_o_r_a_8h_source.html">REMORA.h</a></li>
-<li>MSSPM_GuiManagerMode/REMORA.cpp</li>
+<li>unused/MSSPM_GuiManagerMode/<a class="el" href="_r_e_m_o_r_a_8h_source.html">REMORA.h</a></li>
+<li>unused/MSSPM_GuiManagerMode/REMORA.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

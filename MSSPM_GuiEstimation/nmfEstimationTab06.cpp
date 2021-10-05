@@ -804,12 +804,6 @@ nmfEstimation_Tab6::getEnsembleTimeStampedFilename()
     return m_EnsembleTimeStampedFilename;
 }
 
-bool
-nmfEstimation_Tab6::getFixedSeedBees()
-{
-    return Estimation_Tab6_BeesSetDeterministicCB->isChecked();
-}
-
 std::vector<nmfStructsQt::EstimateRunBox>
 nmfEstimation_Tab6::getEstimateRunBoxes()
 {
@@ -1633,7 +1627,7 @@ nmfEstimation_Tab6::callback_EnsembleAddPB()
         QMessageBox::information(Estimation_Tabs, "Multi-Run/Ensemble Setup Complete",
                                  "\nAll runs in current Multi-Run/Ensemble have now been set up.\n",
                                  QMessageBox::Ok);
-        enableEnsembleWidgets(false);
+        enableNonEnsembleWidgets(false);
     }
 }
 
@@ -1663,7 +1657,7 @@ nmfEstimation_Tab6::clearEnsembleFile()
     file.remove();
 
     m_EnsembleDialog->clear();
-    enableEnsembleWidgets(true);
+    enableNonEnsembleWidgets(true);
     m_EnsembleDefaultFilename = nmfConstantsMSSPM::FilenameMultiRun;
 }
 
@@ -1854,7 +1848,7 @@ void
 nmfEstimation_Tab6::callback_EnsembleControlsGB(bool isChecked)
 {
     callback_EnsembleTotalRunsSB(Estimation_Tab6_EnsembleTotalRunsSB->value());
-    enableEnsembleWidgets(! isChecked);
+    enableNonEnsembleWidgets(! isChecked);
 
     if (isChecked) {
         loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun),
@@ -1958,10 +1952,9 @@ std::cout << "Loading: " << ensembleFilename.toStdString() << std::endl;
             TotalNumRuns += fields[0].toInt();
         }
         file.close();
-        setEnsembleRuns(TotalNumRuns);
+        setEnsembleTotalRuns(TotalNumRuns);
         setEnsembleRunsSet(TotalNumRuns);
-//      saveSystem(false);
-        enableEnsembleWidgets(false);
+        enableNonEnsembleWidgets(false);
         m_EnsembleDialog->loadWidgets(ensembleFilename);
     } else {
         if (verbose) {
@@ -1975,26 +1968,24 @@ std::cout << "Loading: " << ensembleFilename.toStdString() << std::endl;
 }
 
 void
-nmfEstimation_Tab6::enableEnsembleWidgets(bool enable)
+nmfEstimation_Tab6::enableNonEnsembleWidgets(bool enable)
 {
-//    enableRunButton(! enable);
+    Estimation_Tab6_ModelAlgorithmsGB->setEnabled(enable);
     Estimation_Tab6_NL_ParametersGB->setEnabled(enable);
     Estimation_Tab6_Bees_ParametersGB->setEnabled(enable);
     Estimation_Tab6_EstParametersGB->setEnabled(enable);
-    Estimation_Tab6_ModelAlgorithmsGB->setEnabled(enable);
 
     enableRunButton(false);
-
 }
 
 void
-nmfEstimation_Tab6::enableMultiRunControls(bool enable)
+nmfEstimation_Tab6::enableEnsembleControls(bool enable)
 {
     Estimation_Tab6_EnsembleControlsGB->setChecked(enable);
 }
 
 void
-nmfEstimation_Tab6::setEnsembleRuns(int value)
+nmfEstimation_Tab6::setEnsembleTotalRuns(int value)
 {
    Estimation_Tab6_EnsembleTotalRunsSB->setValue(value);
 }
@@ -2052,7 +2043,7 @@ nmfEstimation_Tab6::callback_EnsembleSetAllPB()
             QString msg = "\nSaved Mult-Run Parameter File to:\n\n" + fullPath + "\n";
             QMessageBox::information(Estimation_Tabs, "MultiRun Parameter File Save",
                                      msg,QMessageBox::Ok);
-            enableEnsembleWidgets(false);
+            enableNonEnsembleWidgets(false);
         }
     }
 }

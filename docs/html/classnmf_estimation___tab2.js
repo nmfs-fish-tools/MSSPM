@@ -13,6 +13,5 @@ var classnmf_estimation___tab2 =
     [ "callback_SavePB", "classnmf_estimation___tab2.html#aaae777a753a648698472f1b80a0ee84a", null ],
     [ "clearWidgets", "classnmf_estimation___tab2.html#aa28f54f7a7c2cf18d31ca7df6e46d781", null ],
     [ "loadWidgets", "classnmf_estimation___tab2.html#aa8b3ddbb2db6ff90cb2048bf4f87506e", null ],
-    [ "loadWidgets", "classnmf_estimation___tab2.html#a6d872df42e5a0bb847897fb36fa26766", null ],
     [ "setHarvestType", "classnmf_estimation___tab2.html#a61801ee8195b5c9eb71750d71d8fb903", null ]
 ];

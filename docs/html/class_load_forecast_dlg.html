@@ -130,9 +130,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_DeleteSelect
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae085d7c68442a1d7ac461ee0401f2247"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_forecast_dlg.html#ae085d7c68442a1d7ac461ee0401f2247">LoadForecastDlg</a> (const QString &amp;title, QWidget *parent, nmfLogger *logger, nmfDatabase *databasePtr, QLineEdit *forecastName, QSpinBox *runLengthSB, QSpinBox *numRunsSB)</td></tr>
-<tr class="memdesc:ae085d7c68442a1d7ac461ee0401f2247"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dialog to select Forecast to Load.  <a href="class_load_forecast_dlg.html#ae085d7c68442a1d7ac461ee0401f2247">More...</a><br /></td></tr>
-<tr class="separator:ae085d7c68442a1d7ac461ee0401f2247"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa951e471a88c5f99cc88397d23a6e54f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_forecast_dlg.html#aa951e471a88c5f99cc88397d23a6e54f">LoadForecastDlg</a> (const QString &amp;title, QWidget *parent, nmfLogger *logger, nmfDatabase *databasePtr, const std::string &amp;projectName, const std::string &amp;modelName, QLineEdit *forecastName, QSpinBox *runLengthSB, QSpinBox *numRunsSB)</td></tr>
+<tr class="memdesc:aa951e471a88c5f99cc88397d23a6e54f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dialog to select Forecast to Load.  <a href="class_load_forecast_dlg.html#aa951e471a88c5f99cc88397d23a6e54f">More...</a><br /></td></tr>
+<tr class="separator:aa951e471a88c5f99cc88397d23a6e54f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25604b374f9e98cf8515fa6eb3e0c2e8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_forecast_dlg.html#a25604b374f9e98cf8515fa6eb3e0c2e8">loadWidgets</a> ()</td></tr>
 <tr class="memdesc:a25604b374f9e98cf8515fa6eb3e0c2e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads all widgets for this GUI from database tables.  <a href="class_load_forecast_dlg.html#a25604b374f9e98cf8515fa6eb3e0c2e8">More...</a><br /></td></tr>
 <tr class="separator:a25604b374f9e98cf8515fa6eb3e0c2e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,8 +144,8 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><p>Dialog to Load a Forecast. </p>
 <p>The user can load a previously saved Forecast. To delete a Forecast, the user right clicks over a saved Forecast and selects Delete. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ae085d7c68442a1d7ac461ee0401f2247"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae085d7c68442a1d7ac461ee0401f2247">&#9670;&nbsp;</a></span>LoadForecastDlg()</h2>
+<a id="aa951e471a88c5f99cc88397d23a6e54f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa951e471a88c5f99cc88397d23a6e54f">&#9670;&nbsp;</a></span>LoadForecastDlg()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -173,6 +173,18 @@ Public Member Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">nmfDatabase *&#160;</td>
           <td class="paramname"><em>databasePtr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>projectName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>modelName</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -207,6 +219,8 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">parent</td><td>: pointer to the parent widget of this dialog </td></tr>
     <tr><td class="paramname">logger</td><td>: pointer to the application logger </td></tr>
     <tr><td class="paramname">databasePtr</td><td>: pointer to the application database </td></tr>
+    <tr><td class="paramname">projectName</td><td>: name of the project </td></tr>
+    <tr><td class="paramname">modelName</td><td>: name of the model </td></tr>
     <tr><td class="paramname">forecastName</td><td>: name of Forecast </td></tr>
     <tr><td class="paramname">runLengthSB</td><td>: Spin Box for the number of Years per Run </td></tr>
     <tr><td class="paramname">numRunsSB</td><td>: Spin Box for the number of Runs in the current Forecast </td></tr>

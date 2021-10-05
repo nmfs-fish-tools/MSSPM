@@ -7,15 +7,19 @@
 #include <QStringList>
 #include <QTextStream>
 
+#include "nmfCompetitionForm.h"
 #include "nmfConstants.h"
 #include "nmfDatabase.h"
-#include "nmfLogger.h"
-#include "nmfUtils.h"
 #include "nmfGrowthForm.h"
 #include "nmfHarvestForm.h"
-#include "nmfCompetitionForm.h"
+#include "nmfLogger.h"
 #include "nmfPredationForm.h"
+#include "nmfUtils.h"
 
+/**
+ * @brief This class is responsible for the creation of the simulated biomass
+ * data used to test MSSPM's estimations algorithms.
+ */
 class nmfSimulatedData
 {
     std::string  m_ProjectName;
@@ -23,14 +27,37 @@ class nmfSimulatedData
     nmfDatabase* m_Database;
     nmfLogger*   m_Logger;
 
-    bool addError(double& value, const int& errorPct);
-    bool getCompetitionSystemCarryingCapacity(
+    /**
+     * @brief Adds a percent error to the passed value
+     * @param errorPct : percent error to add to value
+     * @param value : the value which receives the percent error
+     */
+    void addError(const int& errorPct,
+                  double& value);
+    /**
+     * @brief Sends back the system carrying capacity
+     * @param isAggProd : true if is an AggProd, otherwise false
+     * @param NumGuilds : number of guilds
+     * @param SpeciesK : vector of species carrying capacities
+     * @param GuildSpecies : map of species number per guild
+     * @param SystemCarryingCapacity : the system carrying capacity
+     */
+    void getSystemCarryingCapacity(
             const bool isAggProd,
             const int& NumGuilds,
-            std::map<int,std::vector<int> >& GuildSpecies,
             const std::vector<double>& SpeciesK,
+            std::map<int,std::vector<int> >& GuildSpecies,
             double& SystemCarryingCapacity);
-    bool getCompetitionGuildCarryingCapacity(
+    /**
+     * @brief Sends back the guild carrying capacity for the passed guild number
+     * @param isAggProd : true if is an AggProd, otherwise false
+     * @param Species : current species
+     * @param SpeciesK : vector of species carrying capacities
+     * @param GuildNum : current guild number
+     * @param GuildSpecies : map of species number per guild
+     * @param GuildCarryingCapacity : value of guild carrying capacity
+     */
+    void getGuildCarryingCapacity(
             const bool isAggProd,
             const int& Species,
             const std::vector<double>& SpeciesK,
@@ -77,18 +104,28 @@ class nmfSimulatedData
                            double& predationValue);
 */
 public:
+    /**
+     * @brief Class constructor
+     * @param database : pointer to database library
+     * @param logger : point to logger used to log any error messages
+     * @param projectName : name of current project
+     * @param modelName : name of current model
+     */
     nmfSimulatedData(
-            std::string& projectName,
-            std::string& modelName,
             nmfDatabase* database,
-            nmfLogger*   logger);
+            nmfLogger*   logger,
+            std::string& projectName,
+            std::string& modelName);
     ~nmfSimulatedData() {}
 
     /**
      * @brief Creates a simulated Biomass time series with the current model settings
+     * @param errorPct : percent error to add around values
+     * @param filename : filename where to write out simulated biomass
+     * @return true if data were read correctly, false otherwise
      */
-    bool createSimulatedBiomass(QString filename,
-                                const int& errorPct);
+    bool createSimulatedBiomass(const int& errorPct,
+                                QString& filename);
 };
 
 #endif // nmfSimulatedData_H

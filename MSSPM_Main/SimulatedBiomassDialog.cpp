@@ -86,7 +86,7 @@ void
 SimulatedBiomassDialog::callback_ContinuePB()
 {
     QString msg;
-    nmfSimulatedData SimulatedData(m_ProjectName,m_ModelName,m_Database,m_Logger);
+    nmfSimulatedData SimulatedData(m_Database,m_Logger,m_ProjectName,m_ModelName);
     QString filenameWithPath;
     QString filename = getFilename().toLower();
     int errorPct = getErrorPct();
@@ -99,7 +99,7 @@ SimulatedBiomassDialog::callback_ContinuePB()
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
     filenameWithPath = QDir(inputDataPath).filePath(filename);
     m_Logger->logMsg(nmfConstants::Normal,"Writing to: "+filenameWithPath.toStdString());
-    bool ok = SimulatedData.createSimulatedBiomass(filenameWithPath,errorPct);
+    bool ok = SimulatedData.createSimulatedBiomass(errorPct,filenameWithPath);
     close();
 
     if (ok) {

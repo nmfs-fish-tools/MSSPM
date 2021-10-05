@@ -95,18 +95,26 @@ public:
      * @param state : boolean definin the Run button's enabled state
      */
     void enableRunButton(bool state);
+    /**
+     * @brief Sets internal class variable to state if Mohn's Rhos should use last Single Run
+     * @param state : boolean state for Mohn's Rho class variable
+     */
     void setMohnsRhoForSingleRun(bool state);
+    /**
+     * @brief Sets internal class variable to state if Mohn's Rhos should use last Multi Run
+     * @param state : boolean state for Mohn's Rho class variable
+     */
     void setMohnsRhoForMultiRun(bool state);
     /**
      * @brief Gets the last year in the year range
      * @return The last year in the year range
      */
-    int     getEndYearLBL();
+    int getEndYearLBL();
     /**
      * @brief Gets the number of years peeled off of the year range
      * @return The number of peeled years
      */
-    int     getNumPeels();
+    int getNumPeels();
     /**
      * @brief Gets the peel position in the year range
      * @return The peel position (from the end or beginning)
@@ -116,47 +124,66 @@ public:
      * @brief Gets the first year in the year range
      * @return The first year in the year range
      */
-    int     getStartYearLBL();
+    int getStartYearLBL();
     /**
      * @brief Gets first year of range
      * @return The first year of range
      */
-    int     getStartYearLE();
+    int getStartYearLE();
     /**
-     * @brief Notifies the user if the run is a Mohns Rho run
-     * @return Boolean signifying if the user just started a Mohns Rho run
+     * @brief Notifies the user if the run is a Mohns Rho run using the last Single Run
+     * @return Boolean signifying if the user just started a Mohns Rho run using the last Single Run
      */
-    bool    isAMohnsRhoRunForSingleRun();
-    bool    isAMohnsRhoRunForMultiRun();
+    bool isAMohnsRhoRunForSingleRun();
+    /**
+     * @brief Notifies the user if the run is a Mohns Rho run using the last Multi Run
+     * @return Boolean signifying if the user just started a Mohns Rho run using the last Multi Run
+     */
+    bool isAMohnsRhoRunForMultiRun();
     /**
      * @brief Loads the GUI widgets without any peels.  It calls the overloaded loadWidgets with a -1.
      */
-    void    loadWidgets();
+    void loadWidgets();
     /**
      * @brief Loads the GUI widgets accounting for number of peels user has selected
      * @param NumPeels : number of peels to show in year range
      */
-    void    loadWidgets(int NumPeels);
+    void loadWidgets(int NumPeels);
     /**
      * @brief Sets the start year value accounting for number of peels and peel position
      * @param StartYear : First year of range
      */
-    void    setStartYearLE(int StartYear);
-
-    void    setWidgetsDark();
-    void    setWidgetsLight();
+    void setStartYearLE(int StartYear);
+    /**
+     * @brief Sets widget backgrounds to a dark color
+     */
+    void setWidgetsDark();
+    /**
+     * @brief Sets widget backgrounds to a light color
+     */
+    void setWidgetsLight();
 
 signals:
-    // void ResaveSystem();
+    /**
+     * @brief Signal emitted to set all of the output MSY checkboxes to the passed state
+     * @param state : state to set Output Controls MSY boxes
+     */
+    void CheckMSYBoxes(bool state);
+    /**
+     * @brief Signal emitted to notify calling routine to set all Run buttons to the passed in state
+     * @param state : state to set Run buttons (true=enabled, false=disabled)
+     */
+    void EnableRunButtons(bool state);
     /**
      * @brief Signals to the main routine to run the Mohn's Rho anaylsis with the passed year ranges
      * @param YearRanges : year ranges to run for Mohn's Rho analysis
      */
     void RunDiagnosticEstimation(std::vector<std::pair<int,int> > YearRanges);
+    /**
+     * @brief Signals to the main routine to run the Mohn's Rho anaylsis on a Multi Run with the passed year ranges
+     * @param YearRanges : year ranges to run for Mohn's Rho analysis on a Multi Run
+     */
     void RunDiagnosticEstimationMultiRun(std::vector<std::pair<int,int> > YearRanges);
-    void EnableRunButtons(bool state);
-    void CheckMSYBoxes(bool state);
-
 
 public slots:
     /**

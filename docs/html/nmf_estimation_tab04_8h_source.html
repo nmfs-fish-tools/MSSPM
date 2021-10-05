@@ -98,88 +98,129 @@ $(document).ready(function(){initNavTree('nmf_estimation_tab04_8h_source.html','
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    nmfDatabase*             m_DatabasePtr;</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    std::string              m_PredationForm;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    std::string              m_ProjectDir;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    std::string              m_ProjectSettingsConfig;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    std::vector&lt;QTableView*&gt; m_TableViews1d;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    std::vector&lt;QTableView*&gt; m_TableViews2d;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    std::vector&lt;std::string&gt; m_TableNames1d;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    std::vector&lt;std::string&gt; m_TableNames2d;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    std::vector&lt;QStandardItemModel*&gt; m_smodels1d;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    std::vector&lt;QStandardItemModel*&gt; m_smodels2d;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    QTabWidget*  Estimation_Tabs;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    QWidget*     Estimation_Tab4_Widget;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    QTableView*  Estimation_Tab4_PredationMinTV;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    QTableView*  Estimation_Tab4_PredationMaxTV;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    QTableView*  Estimation_Tab4_HandlingMinTV;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    QTableView*  Estimation_Tab4_HandlingMaxTV;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    QTableView*  Estimation_Tab4_ExponentMinTV;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    QTableView*  Estimation_Tab4_ExponentMaxTV;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    QSplitter*   Estimation_Tab4_PredationMinSP;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    QSplitter*   Estimation_Tab4_PredationMaxSP;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    QLabel*      Estimation_Tab4_PredationMinLBL;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    QLabel*      Estimation_Tab4_PredationMaxLBL;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    QLabel*      Estimation_Tab4_HandlingMinLBL;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    QLabel*      Estimation_Tab4_HandlingMaxLBL;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    QLabel*      Estimation_Tab4_ExponentMinLBL;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    QLabel*      Estimation_Tab4_ExponentMaxLBL;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    QPushButton* Estimation_Tab4_PrevPB;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    QPushButton* Estimation_Tab4_NextPB;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    QPushButton* Estimation_Tab4_LoadPB;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    QPushButton* Estimation_Tab4_SavePB;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    QPushButton* Estimation_Tab4_ImportPB;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    QPushButton* Estimation_Tab4_ExportPB;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    QCheckBox*   Estimation_Tab4_EstimateCB;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">void</span> getForms(std::string&amp; predationForm,</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                  std::string&amp; competitionForm);</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">int</span>  getNumSpecies();</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> readSettings();</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">void</span> saveCSVFiles(std::vector&lt;std::string&gt;&amp; allTableNames);</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> loadCSVFiles(std::vector&lt;std::string&gt;&amp; allTableNames);</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    std::vector&lt;std::string&gt; getAllTableNames();</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    std::vector&lt;QTableView*&gt; getAllTableViews();</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <a class="code" href="classnmf_estimation___tab4.html#aeb1d5dc876d4a5f4d8c032734a40c72a">nmfEstimation_Tab4</a>(QTabWidget*  tabs,</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;                       nmfLogger*   logger,</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                       nmfDatabase* databasePtr,</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                       std::string&amp; projectDir);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="classnmf_estimation___tab4.html">nmfEstimation_Tab4</a>();</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#acebcaad1dbb53f38e21e39d0d6b78c8c">clearWidgets</a>();</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classnmf_estimation___tab4.html#a4b9929b6e8eb8c55cb89f3491c2b9d0d">loadWidgets</a>();</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160; </div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="keyword">public</span> Q_SLOTS:</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a25d6e6f21f84d0ddf9d43e2e022d1ef1">callback_ExportPB</a>();</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a7bdf7c236905db673d0be7c869305be9">callback_ImportPB</a>();</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a3cb2313c012b009e89ec0dee8ae2ff2c">callback_LoadPB</a>();</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#ada95ab171fc464301af37f0c2e5fab06">callback_SavePB</a>();</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#af0a8f3b17f109784130024a24c41b938">callback_PrevPB</a>();</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#aa3aa8c4bc0a3681b34d0d0110a28cd6f">callback_NextPB</a>();</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a8464fab1552a8ce762eb7639d3eeb1d3">callback_PredationFormChanged</a>(QString predationForm);</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a58f20f9928978647310592686faa2ae2">callback_MinSplitterMoved</a>(<span class="keywordtype">int</span> pos, <span class="keywordtype">int</span> index);</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#aa7c5fdc8baf7d8ebdee7613249339aa2">callback_MaxSplitterMoved</a>(<span class="keywordtype">int</span> pos, <span class="keywordtype">int</span> index);</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#aa7c4ad0d53b389d0bc19e3f7534dd989">callback_EstimateChecked</a>(<span class="keywordtype">int</span> state);</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;};</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160; </div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="preprocessor">#endif // NMFESTIMATIONTAB4_H</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    std::string              m_ProjectName;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    std::string              m_ModelName;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    std::vector&lt;QTableView*&gt; m_TableViews1d;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    std::vector&lt;QTableView*&gt; m_TableViews2d;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    std::vector&lt;QTableView*&gt; m_TableViewsTypeI;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    std::vector&lt;QTableView*&gt; m_TableViewsTypeII;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    std::vector&lt;QTableView*&gt; m_TableViewsTypeIII;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    std::vector&lt;std::string&gt; m_TableNamesTypeI;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    std::vector&lt;std::string&gt; m_TableNamesTypeII;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    std::vector&lt;std::string&gt; m_TableNamesTypeIII;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    std::vector&lt;std::string&gt; m_TableNames1d;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    std::vector&lt;std::string&gt; m_TableNames2d;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    std::vector&lt;QStandardItemModel*&gt; m_smodels2d;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    QTabWidget*  Estimation_Tabs;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    QWidget*     Estimation_Tab4_Widget;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    QTableView*  Estimation_Tab4_PredationTV;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    QTableView*  Estimation_Tab4_PredationMinTV;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    QTableView*  Estimation_Tab4_PredationMaxTV;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    QTableView*  Estimation_Tab4_HandlingTV;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    QTableView*  Estimation_Tab4_HandlingMinTV;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    QTableView*  Estimation_Tab4_HandlingMaxTV;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    QTableView*  Estimation_Tab4_ExponentTV;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    QTableView*  Estimation_Tab4_ExponentMinTV;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    QTableView*  Estimation_Tab4_ExponentMaxTV;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    QSplitter*   Estimation_Tab4_MainSP;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    QSplitter*   Estimation_Tab4_MinSP;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    QSplitter*   Estimation_Tab4_MaxSP;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    QLabel*      Estimation_Tab4_PredationLBL;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    QLabel*      Estimation_Tab4_PredationMinLBL;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    QLabel*      Estimation_Tab4_PredationMaxLBL;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    QLabel*      Estimation_Tab4_HandlingLBL;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    QLabel*      Estimation_Tab4_HandlingMinLBL;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    QLabel*      Estimation_Tab4_HandlingMaxLBL;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    QLabel*      Estimation_Tab4_ExponentLBL;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    QLabel*      Estimation_Tab4_ExponentMinLBL;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    QLabel*      Estimation_Tab4_ExponentMaxLBL;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    QPushButton* Estimation_Tab4_PrevPB;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    QPushButton* Estimation_Tab4_NextPB;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    QPushButton* Estimation_Tab4_LoadPB;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    QPushButton* Estimation_Tab4_SavePB;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    QPushButton* Estimation_Tab4_ImportPB;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    QPushButton* Estimation_Tab4_ExportPB;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    QPushButton* Estimation_Tab4_TransposePB;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    QPushButton* Estimation_Tab4_TransposePB2;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    QSpinBox*    Estimation_Tab4_PredationSB;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    QSpinBox*    Estimation_Tab4_PredationSB2;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    QComboBox*   Estimation_Tab4_MinMaxCMB;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    QComboBox*   Estimation_Tab4_MinMaxCMB2;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160; </div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordtype">void</span> getForms(std::string&amp; predationForm,</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                  std::string&amp; competitionForm);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">int</span>  getNumSpecies();</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    std::vector&lt;std::vector&lt;QTableView *&gt; &gt; getGroupsOfTableViews();</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordtype">bool</span> isNull();</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keywordtype">bool</span> isTypeI();</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="keywordtype">bool</span> isTypeII();</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">bool</span> isTypeIII();</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordtype">void</span> readSettings();</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordtype">void</span> saveCSVFiles(std::vector&lt;std::string&gt;&amp; allTableNames);</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordtype">void</span> loadCSVFiles(std::vector&lt;std::string&gt;&amp; allTableNames);</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    std::vector&lt;std::string&gt; getAllTableNames();</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    std::vector&lt;QTableView*&gt; getAllTableViews();</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordtype">void</span> resetSpinBox(<span class="keyword">const</span> std::pair&lt;int,int&gt;&amp; nonZeroCell,</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;                      <span class="keyword">const</span> QStandardItemModel* smodel,</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;                      <span class="keyword">const</span> QStandardItemModel* smodel1,</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;                      <span class="keyword">const</span> QStandardItemModel* smodel2);</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <span class="keywordtype">void</span> saveTables(<span class="keyword">const</span> <span class="keywordtype">bool</span>&amp; isTypeIII,</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;                    <span class="keyword">const</span> std::vector&lt;std::string&gt;&amp; SpeNames,</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;                    <span class="keyword">const</span> std::vector&lt;QTableView*&gt;&amp; tableViews,</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;                    <span class="keyword">const</span> std::vector&lt;std::string&gt;&amp; tableNames);</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="keywordtype">void</span> assignTableViewsBasedOnRangeType(<span class="keyword">const</span> QString&amp; rangeType,</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;                                          QTableView* possibleTableView1,</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                                          QTableView* possibleTableView2,</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;                                          QTableView*&amp; tableView1,</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;                                          QTableView*&amp; tableView2);</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160; </div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <a class="code" href="classnmf_estimation___tab4.html#aeb1d5dc876d4a5f4d8c032734a40c72a">nmfEstimation_Tab4</a>(QTabWidget*  tabs,</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;                       nmfLogger*   logger,</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;                       nmfDatabase* databasePtr,</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;                       std::string&amp; projectDir);</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="classnmf_estimation___tab4.html">nmfEstimation_Tab4</a>();</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160; </div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#acebcaad1dbb53f38e21e39d0d6b78c8c">clearWidgets</a>();</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classnmf_estimation___tab4.html#a4b9929b6e8eb8c55cb89f3491c2b9d0d">loadWidgets</a>();</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160; </div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160; </div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="keyword">public</span> Q_SLOTS:</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a25d6e6f21f84d0ddf9d43e2e022d1ef1">callback_ExportPB</a>();</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a7bdf7c236905db673d0be7c869305be9">callback_ImportPB</a>();</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a3cb2313c012b009e89ec0dee8ae2ff2c">callback_LoadPB</a>();</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#ada95ab171fc464301af37f0c2e5fab06">callback_SavePB</a>();</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#af0a8f3b17f109784130024a24c41b938">callback_PrevPB</a>();</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#aa3aa8c4bc0a3681b34d0d0110a28cd6f">callback_NextPB</a>();</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a8464fab1552a8ce762eb7639d3eeb1d3">callback_PredationFormChanged</a>(QString predationForm);</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a58f20f9928978647310592686faa2ae2">callback_MinSplitterMoved</a>(<span class="keywordtype">int</span> pos, <span class="keywordtype">int</span> index);</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#aa7c5fdc8baf7d8ebdee7613249339aa2">callback_MaxSplitterMoved</a>(<span class="keywordtype">int</span> pos, <span class="keywordtype">int</span> index);</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#acad09b7c4328a7aa3827297152fdc333">callback_MinMaxCMB</a>(QString rangeType);</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a98b7ef0598de7ff1f2fd4ac6c1ef97e5">callback_PctRangeSB</a>(<span class="keywordtype">int</span> value);</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_estimation___tab4.html#a7065c79a021ebc69cecf5da4bcae7ce1">callback_TransposePB</a>();</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160; </div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;};</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160; </div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="preprocessor">#endif // NMFESTIMATIONTAB4_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="aclassnmf_estimation___tab4_html_aa7c5fdc8baf7d8ebdee7613249339aa2"><div class="ttname"><a href="classnmf_estimation___tab4.html#aa7c5fdc8baf7d8ebdee7613249339aa2">nmfEstimation_Tab4::callback_MaxSplitterMoved</a></div><div class="ttdeci">void callback_MaxSplitterMoved(int pos, int index)</div><div class="ttdoc">Callback invoked when the user changes any of the Minimum Competitive Effects splitters.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:135</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_a4b9929b6e8eb8c55cb89f3491c2b9d0d"><div class="ttname"><a href="classnmf_estimation___tab4.html#a4b9929b6e8eb8c55cb89f3491c2b9d0d">nmfEstimation_Tab4::loadWidgets</a></div><div class="ttdeci">bool loadWidgets()</div><div class="ttdoc">Loads all widgets for this GUI from database tables.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:668</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_a25d6e6f21f84d0ddf9d43e2e022d1ef1"><div class="ttname"><a href="classnmf_estimation___tab4.html#a25d6e6f21f84d0ddf9d43e2e022d1ef1">nmfEstimation_Tab4::callback_ExportPB</a></div><div class="ttdeci">void callback_ExportPB()</div><div class="ttdoc">Callback invoked when the user clicks the Export button to save a .csv file.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:418</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_aa7c5fdc8baf7d8ebdee7613249339aa2"><div class="ttname"><a href="classnmf_estimation___tab4.html#aa7c5fdc8baf7d8ebdee7613249339aa2">nmfEstimation_Tab4::callback_MaxSplitterMoved</a></div><div class="ttdeci">void callback_MaxSplitterMoved(int pos, int index)</div><div class="ttdoc">Callback invoked when the user changes any of the Minimum Competitive Effects splitters.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:194</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_a4b9929b6e8eb8c55cb89f3491c2b9d0d"><div class="ttname"><a href="classnmf_estimation___tab4.html#a4b9929b6e8eb8c55cb89f3491c2b9d0d">nmfEstimation_Tab4::loadWidgets</a></div><div class="ttdeci">bool loadWidgets()</div><div class="ttdoc">Loads all widgets for this GUI from database tables.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:764</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_a98b7ef0598de7ff1f2fd4ac6c1ef97e5"><div class="ttname"><a href="classnmf_estimation___tab4.html#a98b7ef0598de7ff1f2fd4ac6c1ef97e5">nmfEstimation_Tab4::callback_PctRangeSB</a></div><div class="ttdeci">void callback_PctRangeSB(int value)</div><div class="ttdoc">Callback invoked when user sets the Competition min/max range percent spin box.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:929</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_a25d6e6f21f84d0ddf9d43e2e022d1ef1"><div class="ttname"><a href="classnmf_estimation___tab4.html#a25d6e6f21f84d0ddf9d43e2e022d1ef1">nmfEstimation_Tab4::callback_ExportPB</a></div><div class="ttdeci">void callback_ExportPB()</div><div class="ttdoc">Callback invoked when the user clicks the Export button to save a .csv file.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:490</div></div>
 <div class="ttc" id="aclassnmf_estimation___tab4_html_aeb1d5dc876d4a5f4d8c032734a40c72a"><div class="ttname"><a href="classnmf_estimation___tab4.html#aeb1d5dc876d4a5f4d8c032734a40c72a">nmfEstimation_Tab4::nmfEstimation_Tab4</a></div><div class="ttdeci">nmfEstimation_Tab4(QTabWidget *tabs, nmfLogger *logger, nmfDatabase *databasePtr, std::string &amp;projectDir)</div><div class="ttdoc">nmfEstimation_Tab4 : class constructor for the Predation Parameters GUI page</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:7</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_a7bdf7c236905db673d0be7c869305be9"><div class="ttname"><a href="classnmf_estimation___tab4.html#a7bdf7c236905db673d0be7c869305be9">nmfEstimation_Tab4::callback_ImportPB</a></div><div class="ttdeci">void callback_ImportPB()</div><div class="ttdoc">Callback invoked when the user clicks the Import button to load a .csv file.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:181</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_ada95ab171fc464301af37f0c2e5fab06"><div class="ttname"><a href="classnmf_estimation___tab4.html#ada95ab171fc464301af37f0c2e5fab06">nmfEstimation_Tab4::callback_SavePB</a></div><div class="ttdeci">void callback_SavePB()</div><div class="ttdoc">Callback invoked when the user clicks the Save button.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:248</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_a58f20f9928978647310592686faa2ae2"><div class="ttname"><a href="classnmf_estimation___tab4.html#a58f20f9928978647310592686faa2ae2">nmfEstimation_Tab4::callback_MinSplitterMoved</a></div><div class="ttdeci">void callback_MinSplitterMoved(int pos, int index)</div><div class="ttdoc">Callback invoked when the user changes any of the Minimum Predator Coeficients splitters.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:129</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_aa7c4ad0d53b389d0bc19e3f7534dd989"><div class="ttname"><a href="classnmf_estimation___tab4.html#aa7c4ad0d53b389d0bc19e3f7534dd989">nmfEstimation_Tab4::callback_EstimateChecked</a></div><div class="ttdeci">void callback_EstimateChecked(int state)</div><div class="ttdoc">Callback invoked when the user toggles the Estimate checkbox.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:607</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_acebcaad1dbb53f38e21e39d0d6b78c8c"><div class="ttname"><a href="classnmf_estimation___tab4.html#acebcaad1dbb53f38e21e39d0d6b78c8c">nmfEstimation_Tab4::clearWidgets</a></div><div class="ttdeci">void clearWidgets()</div><div class="ttdoc">Clears the GUI's widgets.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:117</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_a3cb2313c012b009e89ec0dee8ae2ff2c"><div class="ttname"><a href="classnmf_estimation___tab4.html#a3cb2313c012b009e89ec0dee8ae2ff2c">nmfEstimation_Tab4::callback_LoadPB</a></div><div class="ttdeci">void callback_LoadPB()</div><div class="ttdoc">Callback invoked when the user clicks the Load button.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:171</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_a7bdf7c236905db673d0be7c869305be9"><div class="ttname"><a href="classnmf_estimation___tab4.html#a7bdf7c236905db673d0be7c869305be9">nmfEstimation_Tab4::callback_ImportPB</a></div><div class="ttdeci">void callback_ImportPB()</div><div class="ttdoc">Callback invoked when the user clicks the Import button to load a .csv file.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:241</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_ada95ab171fc464301af37f0c2e5fab06"><div class="ttname"><a href="classnmf_estimation___tab4.html#ada95ab171fc464301af37f0c2e5fab06">nmfEstimation_Tab4::callback_SavePB</a></div><div class="ttdeci">void callback_SavePB()</div><div class="ttdoc">Callback invoked when the user clicks the Save button.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:344</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_a58f20f9928978647310592686faa2ae2"><div class="ttname"><a href="classnmf_estimation___tab4.html#a58f20f9928978647310592686faa2ae2">nmfEstimation_Tab4::callback_MinSplitterMoved</a></div><div class="ttdeci">void callback_MinSplitterMoved(int pos, int index)</div><div class="ttdoc">Callback invoked when the user changes any of the Minimum Predator Coeficients splitters.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:188</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_acad09b7c4328a7aa3827297152fdc333"><div class="ttname"><a href="classnmf_estimation___tab4.html#acad09b7c4328a7aa3827297152fdc333">nmfEstimation_Tab4::callback_MinMaxCMB</a></div><div class="ttdeci">void callback_MinMaxCMB(QString rangeType)</div><div class="ttdoc">Callback invoked when the user changes one of the two range type combo boxes (it just updates the oth...</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:1025</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_acebcaad1dbb53f38e21e39d0d6b78c8c"><div class="ttname"><a href="classnmf_estimation___tab4.html#acebcaad1dbb53f38e21e39d0d6b78c8c">nmfEstimation_Tab4::clearWidgets</a></div><div class="ttdeci">void clearWidgets()</div><div class="ttdoc">Clears the GUI's widgets.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:173</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_a7065c79a021ebc69cecf5da4bcae7ce1"><div class="ttname"><a href="classnmf_estimation___tab4.html#a7065c79a021ebc69cecf5da4bcae7ce1">nmfEstimation_Tab4::callback_TransposePB</a></div><div class="ttdeci">void callback_TransposePB()</div><div class="ttdoc">Callback invoked when the user clicks the T button. This will cause the data in every Competition mat...</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:916</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_a3cb2313c012b009e89ec0dee8ae2ff2c"><div class="ttname"><a href="classnmf_estimation___tab4.html#a3cb2313c012b009e89ec0dee8ae2ff2c">nmfEstimation_Tab4::callback_LoadPB</a></div><div class="ttdeci">void callback_LoadPB()</div><div class="ttdoc">Callback invoked when the user clicks the Load button.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:231</div></div>
 <div class="ttc" id="aclassnmf_estimation___tab4_html"><div class="ttname"><a href="classnmf_estimation___tab4.html">nmfEstimation_Tab4</a></div><div class="ttdoc">Predation Data.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.h:44</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_af0a8f3b17f109784130024a24c41b938"><div class="ttname"><a href="classnmf_estimation___tab4.html#af0a8f3b17f109784130024a24c41b938">nmfEstimation_Tab4::callback_PrevPB</a></div><div class="ttdeci">void callback_PrevPB()</div><div class="ttdoc">Callback invoked when the user clicks the Previous Page button.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:157</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_aa3aa8c4bc0a3681b34d0d0110a28cd6f"><div class="ttname"><a href="classnmf_estimation___tab4.html#aa3aa8c4bc0a3681b34d0d0110a28cd6f">nmfEstimation_Tab4::callback_NextPB</a></div><div class="ttdeci">void callback_NextPB()</div><div class="ttdoc">Callback invoked when the user clicks the Next Page button.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:164</div></div>
-<div class="ttc" id="aclassnmf_estimation___tab4_html_a8464fab1552a8ce762eb7639d3eeb1d3"><div class="ttname"><a href="classnmf_estimation___tab4.html#a8464fab1552a8ce762eb7639d3eeb1d3">nmfEstimation_Tab4::callback_PredationFormChanged</a></div><div class="ttdeci">void callback_PredationFormChanged(QString predationForm)</div><div class="ttdoc">Callback invoked when the user updates the Predation Form in the Setup -&gt; Model Setup page.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:523</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_af0a8f3b17f109784130024a24c41b938"><div class="ttname"><a href="classnmf_estimation___tab4.html#af0a8f3b17f109784130024a24c41b938">nmfEstimation_Tab4::callback_PrevPB</a></div><div class="ttdeci">void callback_PrevPB()</div><div class="ttdoc">Callback invoked when the user clicks the Previous Page button.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:217</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_aa3aa8c4bc0a3681b34d0d0110a28cd6f"><div class="ttname"><a href="classnmf_estimation___tab4.html#aa3aa8c4bc0a3681b34d0d0110a28cd6f">nmfEstimation_Tab4::callback_NextPB</a></div><div class="ttdeci">void callback_NextPB()</div><div class="ttdoc">Callback invoked when the user clicks the Next Page button.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:224</div></div>
+<div class="ttc" id="aclassnmf_estimation___tab4_html_a8464fab1552a8ce762eb7639d3eeb1d3"><div class="ttname"><a href="classnmf_estimation___tab4.html#a8464fab1552a8ce762eb7639d3eeb1d3">nmfEstimation_Tab4::callback_PredationFormChanged</a></div><div class="ttdeci">void callback_PredationFormChanged(QString predationForm)</div><div class="ttdoc">Callback invoked when the user updates the Predation Form in the Setup -&gt; Model Setup page.</div><div class="ttdef"><b>Definition:</b> nmfEstimationTab04.cpp:601</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['bees_5festimator_587',['Bees_Estimator',['../class_bees___estimator.html#a02fd2323e1bee785545dca5123c490d4',1,'Bees_Estimator']]]
+  ['bees_5festimator_666',['Bees_Estimator',['../class_bees___estimator.html#a02fd2323e1bee785545dca5123c490d4',1,'Bees_Estimator']]]
 ];

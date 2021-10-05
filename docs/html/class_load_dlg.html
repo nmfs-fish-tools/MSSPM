@@ -133,19 +133,16 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
-<tr class="memitem:a39478c238846a05c222ffa3ef632f2b0"><td class="memItemLeft" align="right" valign="top"><a id="a39478c238846a05c222ffa3ef632f2b0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_dlg.html#a39478c238846a05c222ffa3ef632f2b0">ClearSystemName</a> ()</td></tr>
-<tr class="memdesc:a39478c238846a05c222ffa3ef632f2b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when user deletes a System name. <br /></td></tr>
-<tr class="separator:a39478c238846a05c222ffa3ef632f2b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac082ded26c15023409e068ded1061be"><td class="memItemLeft" align="right" valign="top"><a id="aac082ded26c15023409e068ded1061be"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_dlg.html#aac082ded26c15023409e068ded1061be">ClearModelName</a> ()</td></tr>
+<tr class="memdesc:aac082ded26c15023409e068ded1061be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when user deletes a System name. <br /></td></tr>
+<tr class="separator:aac082ded26c15023409e068ded1061be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad3a6c3d8a05ea09b6784d41c02615ab9"><td class="memItemLeft" align="right" valign="top"><a id="ad3a6c3d8a05ea09b6784d41c02615ab9"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>LoadDlg</b> (const QString &amp;title, QWidget *parent, nmfLogger *m_logger, nmfDatabase *m_databasePtr, const QString &amp;currentConfig)</td></tr>
-<tr class="separator:ad3a6c3d8a05ea09b6784d41c02615ab9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f776310c37941b18b8e0ba79a88260c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_load_dlg.html#a7f776310c37941b18b8e0ba79a88260c">getSettingData</a> (SystemData &amp;data)</td></tr>
-<tr class="memdesc:a7f776310c37941b18b8e0ba79a88260c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the database data affiliated with the current System name.  <a href="class_load_dlg.html#a7f776310c37941b18b8e0ba79a88260c">More...</a><br /></td></tr>
-<tr class="separator:a7f776310c37941b18b8e0ba79a88260c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95febfb2a634a9e8017c2c65ca32b114"><td class="memItemLeft" align="right" valign="top"><a id="a95febfb2a634a9e8017c2c65ca32b114"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>LoadDlg</b> (const QString &amp;title, QWidget *parent, nmfLogger *logger, nmfDatabase *databasePtr, const std::string &amp;projectName, const QString &amp;currentConfig)</td></tr>
+<tr class="separator:a95febfb2a634a9e8017c2c65ca32b114"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4. </p>
@@ -212,32 +209,6 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pos</td><td>: position on the screen where the popup menu will appear </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a7f776310c37941b18b8e0ba79a88260c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7f776310c37941b18b8e0ba79a88260c">&#9670;&nbsp;</a></span>getSettingData()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void LoadDlg::getSettingData </td>
-          <td>(</td>
-          <td class="paramtype">SystemData &amp;&#160;</td>
-          <td class="paramname"><em>data</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the database data affiliated with the current System name. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>: the data structure to load with the system data read from the database </td></tr>
   </table>
   </dd>
 </dl>

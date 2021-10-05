@@ -50,7 +50,6 @@ class nmfEstimation_Tab6: public QObject
 {
     Q_OBJECT
 
-
     nmfDatabase*    m_DatabasePtr;
     int             m_FontSize;
     int             m_IsMonospaced;
@@ -147,23 +146,21 @@ class nmfEstimation_Tab6: public QObject
     QLabel*      Estimation_Tab6_BeesDetStoTypeLBL;
     QLabel*      Estimation_Tab6_BeesSetDeterministicLBL;
 
-    void readSettings();
-    bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
-
     void activateCheckBox(QCheckBox* cbox,
                            std::pair<bool,bool> state);
-    QList<QCheckBox* > getAllEstimateCheckboxes();
-    void initializeDetStoMap();
     void adjustNumberOfParameters();
-
-    bool queryUserIfOkToClearMultiRunFile();
-    void runEnsemble();
-    bool passRunChecks(std::string& msg);
     void checkAlgorithmIdentifiersForMultiRun(
             std::string& Algorithm,
             std::string& Minimizer,
             std::string& ObjectiveCriterion,
             std::string& Scaling);
+    QList<QCheckBox* > getAllEstimateCheckboxes();
+    void initializeDetStoMap();
+    bool passRunChecks(std::string& msg);
+    bool queryUserIfOkToClearMultiRunFile();
+    void readSettings();
+    void runEnsemble();
+    bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
 
 public:
     /**
@@ -179,73 +176,110 @@ public:
                        std::string& projectDir);
     virtual ~nmfEstimation_Tab6();
 
-    void runEstimation();
+    /**
+     * @brief Adds an item to the Multi-Run file
+     * @param numRunsToAdd : number of runs to add
+     * @param currentNumberOfRuns : current number of runs already in Multi-Run file
+     * @param totalNumberOfRunsDesired : total number of runs that the Multi-Run file will contain
+     * @param filename : filename of Multi-Run file; if it's empty, the default Multi-run filename will be used
+     * @return true if add was successful, false otherwise
+     */
     bool addToMultiRunFile(const int& numRunsToAdd,
                            const int& currentNumberOfRuns,
                            const int& totalNumberOfRunsDesired,
                            QString& filename);
-    void clearMohnsRhoFile();
-    void setDeterministicBeesCB(bool state);
-    void setDeterministicMinimizerCB(bool state);
-    void setCurrentMinimizerType(QString value);
-    std::string getCurrentMinimizerType();
     /**
      * @brief Append the passed message to the output text edit widget
      * @param the message to append to the text widget
      */
     void appendOutputTE(QString msg);
     /**
+     * @brief Removes the disk file which populates the Multi-Run popup when the user clicks View
+     */
+    void clearEnsembleFile();
+    /**
+     * @brief Removes the disk file which populates the Multi-Run popup, on a Mohn's Rho run, when the user clicks View
+     */
+    void clearMohnsRhoFile();
+    /**
      * @brief Clear the output text edit widget
      */
     void clearOutputTE();
+    /**
+     * @brief Clears widgets in GUI
+     */
+    void clearWidgets();
     /**
      * @brief Converts the passed number of seconds to the correct whole number of hours, minutes, or seconds
      * @param seconds : number of seconds to convert to whole number hours or minutes
      * @return the converted value in hours or minutes (or seconds if < 60)
      */
     int convertToAppropriateUnits(int seconds);
-    void clearEnsembleFile();
-    void enableEnsembleWidgets(bool enable);
-    std::string getBeesMaxGenerations();
-    std::string getBeesNumBees();
-    std::string getBeesNumBestSites();
-    std::string getBeesNumEliteSites();
-    std::string getBeesNumEliteBees();
-    std::string getBeesNumOtherBees();
-    std::string getBeesNeighborhoodSize();
-    std::string getBeesNumberOfRuns();
-    std::string getEnsembleTimeStampedFilename();
-    bool loadEnsembleFile(QString ensembleFile,
-                          const bool& verbose);
-    void setEnsembleRuns(int value);
-    void setEnsembleRunsSet(int value);
-    bool isAMultiRun();
-    bool isSetToDeterministicBees();
-    bool isSetToDeterministicMinimizer();
+    /**
+     * @brief Creates a MultiRun filename that has a timestamp embedded in it
+     * @return the timestamped filename
+     */
+    QString createTimeStampedEnsembleFile();
+    /**
+     * @brief Sets the enable state of the Add button which adds an item to the Multi-Run file
+     * @param enable : true/false enable state for the Add button
+     */
     void enableAddToReview(bool enable);
-    void enableMultiRunControls(bool enable);
-    void enableRunButton(bool enableRun);
-    QString getMultiRunColumnData(int col);
-    bool isStopAfterValue();
-    bool isStopAfterTime();
-    bool isStopAfterIter();
-    int getMaxGenerations();
-    int getNumBees();
-    int getNumBestSites();
-    int getNumEliteSites();
-    int getNumEliteBees();
-    int getNumOtherBees();
-    int getNeighborhoodSize();
-    int getNumSubRuns();
-    void setMaxGenerations(int value);
-    void setNumBees(int value);
-    void setNumBestSites(int value);
-    void setNumEliteSites(int value);
-    void setNumEliteBees(int value);
-    void setNumOtherBees(int value);
-    void setNeighborhoodSize(int value);
-    void setNumSubRuns(int value);
-
+    /**
+     * @brief Set the enable state on the non-ensemble widgets (i.e., group boxes)
+     * @param enable : true/false enable state
+     */
+    void enableNonEnsembleWidgets(bool enable);
+    /**
+     * @brief Sets the enable state on the ensemble widgets (i.e., the ensemble/multi-run group box)
+     * @param enable : true/false enable state
+     */
+    void enableEnsembleControls(bool enable);
+    /**
+     * @brief Sets the enable state of the Run button
+     * @param enable : true/false enable state of the Run button
+     */
+    void enableRunButton(bool enable);
+    /**
+     * @brief Gets the Bees Algorithm Max Generations widget value
+     * @return string representing the Bees Algorithm Max Generations widget value
+     */
+    std::string getBeesMaxGenerations();
+    /**
+     * @brief Gets the Bees Algorithm Neighborhood Size widget value
+     * @return string representing the Bees Algorithm Neighborhood Size widget value
+     */
+    std::string getBeesNeighborhoodSize();
+    /**
+     * @brief Gets the Bees Algorithm Number of Bees widget value
+     * @return string representing the Bees Algorithm Number of Bees widget value
+     */
+    std::string getBeesNumBees();
+    /**
+     * @brief Gets the Bees Algorithm Number of Best Sites widget value
+     * @return string representing the Bees Algorithm Number of Best Sites widget value
+     */
+    std::string getBeesNumBestSites();
+    /**
+     * @brief Gets the Bees Algorithm Number of Elite Sites widget value
+     * @return string representing the Bees Algorithm Number of Elite Sites widget value
+     */
+    std::string getBeesNumEliteSites();
+    /**
+     * @brief Gets the Bees Algorithm Number of Elite Bees widget value
+     * @return string representing the Bees Algorithm Number of Elite Bees widget value
+     */
+    std::string getBeesNumEliteBees();
+    /**
+     * @brief Gets the Bees Algorithm Number of Runs widget value
+     * @return string representing the Bees Algorithm Number of Runs widget value
+     */
+    std::string getBeesNumberOfRuns();
+    /**
+     * @brief Gets the Bees Algorithm Number of Other Runs widget value
+     * @return string representing the Bees Algorithm Number of Other Runs widget value
+     */
+    std::string getBeesNumOtherBees();
     /**
      * @brief Gets the current Algorithm selected from the GUI
      * @return Returns the algorithm chosen
@@ -257,6 +291,11 @@ public:
      */
     std::string getCurrentMinimizer();
     /**
+     * @brief Gets the current minimizer type (either local or global)
+     * @return string specifying minimizer type
+     */
+    std::string getCurrentMinimizerType();
+    /**
      * @brief Gets the current Objective Criterion function from the GUI
      * @return Returns the objective criterion function (as a string)
      */
@@ -267,66 +306,273 @@ public:
      */
     std::string getCurrentScaling();
     /**
-     * @brief Gets the current time units used for Stop after (time) option
-     * @return Units of time
-     */
-    QString getCurrentTimeUnits();
-    /**
-     * @brief Gets the list of checked and enabled Estimate run boxes
-     * @return Returns list of the Estimate run box structs from Estimation Tab6
-     */
-    std::vector<nmfStructsQt::EstimateRunBox> getEstimateRunBoxes();
-    /**
      * @brief Gets the current Stop after (fcn evals) value
      * @return Returns number of function evaluations after which to stop the run
      */
     int getCurrentStopAfterIter();
+    /**
+     * @brief Gets the current Stop after time (seconds)
+     * @return The time (in number of seconds) after which to stop the model
+     */
+    int getCurrentStopAfterTime();
     /**
      * @brief Gets the current Stop after fitness value
      * @return The fitness value that when reached will stop the model
      */
     double getCurrentStopAfterValue();
     /**
-     * @brief Gets the current Stop after time (seconds)
-     * @return The time (in number of seconds) after which to stop the model
+     * @brief Gets the current time units used for Stop after (time) option
+     * @return Units of time
      */
-    int getCurrentStopAfterTime();
-    int getEnsembleUsingAmountValue();
-    int getEnsembleNumberOfTotalRuns();
-    QString getEnsembleAverageBy();
+    QString getCurrentTimeUnits();
+    /**
+     * @brief Gets the ensemble averaging algorithm
+     * @return the ensemble averaging algorithm
+     */
     QString getEnsembleAveragingAlgorithm();
+    /**
+     * @brief Gets the ensemble average-by value which describes how to average the ensemble
+     * @return the ensemble average-by value
+     */
+    QString getEnsembleAverageBy();
+    /**
+     * @brief Gets the total number of runs in the ensemble
+     * @return total number of ensemble runs
+     */
+    int getEnsembleNumberOfTotalRuns();
+    /**
+     * @brief Gets the ensemble file name with the embedded time stamp
+     * @return the timestamped ensemble file name
+     */
+    std::string getEnsembleTimeStampedFilename();
+    /**
+     * @brief Gets the ensemble Using Amount value which specifies how many of the individual runs
+     * should be used in the averaging calculations
+     * @return the Using Amount value
+     */
+    int getEnsembleUsingAmountValue();
+    /**
+     * @brief Gets the Using By value which specifies if the averaging algorithm should use
+     * All or only the Top Percent of the Using Amount value
+     * @return the Using By value
+     */
     QString getEnsembleUsingBy();
-    QString createTimeStampedEnsembleFile();
-
-    bool isEstInitialBiomassEnabled();
-    bool isEstInitialBiomassChecked();
-    bool isEstGrowthRateEnabled();
-    bool isEstGrowthRateChecked();
-    bool isEstCarryingCapacityEnabled();
-    bool isEstCarryingCapacityChecked();
-    bool isEstCatchabilityEnabled();
-    bool isEstCatchabilityChecked();
-    bool isEstCompetitionAlphaEnabled();
-    bool isEstCompetitionAlphaChecked();
-    bool isEstCompetitionBetaSpeciesEnabled();
-    bool isEstCompetitionBetaSpeciesChecked();
-    bool isEstCompetitionBetaGuildsEnabled();
-    bool isEstCompetitionBetaGuildsChecked();
-    bool isEstCompetitionBetaGuildsGuildsEnabled();
-    bool isEstCompetitionBetaGuildsGuildsChecked();
-    bool isEstPredationRhoEnabled();
-    bool isEstPredationRhoChecked();
-    bool isEstPredationHandlingEnabled();
-    bool isEstPredationHandlingChecked();
-    bool isEstPredationExponentEnabled();
-    bool isEstPredationExponentChecked();
-    bool isEstSurveyQEnabled();
-    bool isEstSurveyQChecked();
+    /**
+     * @brief Gets the Bees Algorithm Max Generations as an integer
+     * @return Bees Algorithm Max Generations value
+     */
+    int getMaxGenerations();
+    /**
+     * @brief Gets the Multi-Run Column data for the passed in column
+     * @param col : column whose Multi-Run data will be returned
+     * @return QString representing encoded Multi-Run data for a particular column
+     */
+    QString getMultiRunColumnData(int col);
+    /**
+     * @brief Gets the Bees Algorithm Neighborhood Size as an integer
+     * @return Bees Algorithm Neighborhood Size value
+     */
+    int getNeighborhoodSize();
+    /**
+     * @brief Gets the Bees Algorithm Number of Bees value as an integer
+     * @return Bees Algorithm Number of Bees value
+     */
+    int getNumBees();
+    /**
+     * @brief Gets the Bees Algorithm Number of Best Sites value as an integer
+     * @return Bees Algorithm Number of Best Sites value
+     */
+    int getNumBestSites();
+    /**
+     * @brief Gets the Bees Algorithm Number of Elite Sites value as an integer
+     * @return Bees Algorithm Number of Elite Sites value
+     */
+    int getNumEliteSites();
+    /**
+     * @brief Gets the Bees Algorithm Number of Elite Bees value as an integer
+     * @return Bees Algorithm Number of Elite Bees value
+     */
+    int getNumEliteBees();
+    /**
+     * @brief Gets the Bees Algorithm Number of Other Bees value as an integer
+     * @return Bees Algorithm Number of Other Bees value
+     */
+    int getNumOtherBees();
+    /**
+     * @brief Gets the Bees Algorithm Number of Sub Runs value as an integer
+     * @return Bees Algorithm Number of Sub Runs value
+     */
+    int getNumSubRuns();
+    /**
+     * @brief Gets the list of checked and enabled Estimate run boxes
+     * @return Returns list of the Estimate run box structs from Estimation Tab6
+     */
+    std::vector<nmfStructsQt::EstimateRunBox> getEstimateRunBoxes();
+    /**
+     * @brief Returns whether or not the Run is a Multi Run
+     * @return true if Multi-Run, false otherwise
+     */
+    bool isAMultiRun();
+    /**
+     * @brief Returns whether or not the Using Pct button has been pressed
+     * @return  true if pressed, false otherwise
+     */
     bool isEnsembleUsingPct();
-    void setRunButtonLabel(QString label);
-    void setMohnsRhoFileType(const QString& runType);
-    void setMohnsRhoFileHeader();
-
+    /**
+     * @brief Returns whether or not the Estimated Carrying Capacity checkbox has been checked
+     * @return true if checked, false otherwise
+     */
+    bool isEstCarryingCapacityChecked();
+    /**
+     * @brief Returns whether or not the Estimated Carrying Capacity checkbox has been enabled
+     * @return true if enabled, false otherwise
+     */
+    bool isEstCarryingCapacityEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Catchability checkbox has been checked
+     * @return true if checked, false otherwise
+     */
+    bool isEstCatchabilityChecked();
+    /**
+     * @brief Returns whether or not the Estimated Catchability checkbox has been enabled
+     * @return true if enabled, false otherwise
+     */
+    bool isEstCatchabilityEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Competition Alpha checkbox has been checked
+     * @return true if checked, false otherwise
+     */
+    bool isEstCompetitionAlphaChecked();
+    /**
+     * @brief Returns whether or not the Estimated Competition Alpha checkbox has been enabled
+     * @return true if checked, false otherwise
+     */
+    bool isEstCompetitionAlphaEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Competition Beta Guild by Species checkbox has been checked
+     * @return true if checked, false otherwise
+     */
+    bool isEstCompetitionBetaGuildsChecked();
+    /**
+     * @brief Returns whether or not the Estimated Competition Beta Guild by Species checkbox has been enabled
+     * @return true if checked, false otherwise
+     */
+    bool isEstCompetitionBetaGuildsEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Competition Beta Guild by Guild checkbox has been checked
+     * @return true if checked, false otherwise
+     */
+    bool isEstCompetitionBetaGuildsGuildsChecked();
+    /**
+     * @brief Returns whether or not the Estimated Competition Beta Guild by Guild checkbox has been enabled
+     * @return true if checked, false otherwise
+     */
+    bool isEstCompetitionBetaGuildsGuildsEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Competition Beta Species by Species checkbox has been enabled
+     * @return true if checked, false otherwise
+     */
+    bool isEstCompetitionBetaSpeciesEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Competition Beta Species by Species checkbox has been checked
+     * @return true if checked, false otherwise
+     */
+    bool isEstCompetitionBetaSpeciesChecked();
+    /**
+     * @brief Returns whether or not the Estimated Growth Rate checkbox has been checked
+     * @return
+     */
+    bool isEstGrowthRateChecked();
+    /**
+     * @brief Returns whether or not the Estimated Growth Rate checkbox has been enabled
+     * @return
+     */
+    bool isEstGrowthRateEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Initial Biomass checkbox has been checked
+     * @return
+     */
+    bool isEstInitialBiomassChecked();
+    /**
+     * @brief Returns whether or not the Estimated Initial Biomass checkbox has been enabled
+     * @return
+     */
+    bool isEstInitialBiomassEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Predation Rho checkbox has been checked
+     * @return
+     */
+    bool isEstPredationRhoChecked();
+    /**
+     * @brief Returns whether or not the Estimated Predation Rho checkbox has been enabled
+     * @return
+     */
+    bool isEstPredationRhoEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Predation Handling checkbox has been checked
+     * @return
+     */
+    bool isEstPredationHandlingChecked();
+    /**
+     * @brief Returns whether or not the Estimated Predation Handling checkbox has been enabled
+     * @return
+     */
+    bool isEstPredationHandlingEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Predation Exponent checkbox has been checked
+     * @return
+     */
+    bool isEstPredationExponentChecked();
+    /**
+     * @brief Returns whether or not the Estimated Predation Exponent checkbox has been enabled
+     * @return
+     */
+    bool isEstPredationExponentEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Survey Q checkbox has been checked
+     * @return
+     */
+    bool isEstSurveyQChecked();
+    /**
+     * @brief Returns whether or not the Estimated Survey Q checkbox has been enabled
+     * @return
+     */
+    bool isEstSurveyQEnabled();
+    /**
+     * @brief Boolean representing if the Bees algorithm should be run deterministically
+     * (i.e. with the inherent randomness being repeatable) or stochastically
+     * @return true/false representing if the Bees Algorithm Fixed Seed checkbox has been checked
+     */
+    bool isSetToDeterministicBees();
+    /**
+     * @brief Boolean representing if the NLopt Minimizer algorithm should be run deterministically
+     * (i.e. with the inherent randomness being repeatable) or stochastically
+     * @return true/false representing if the NLopt Algorithm Fixed Seed checkbox has been checked
+     */
+    bool isSetToDeterministicMinimizer();
+    /**
+     * @brief Boolean representing of the Stop After Iteration option has been checked
+     * @return true/false representing the state of the Stop After Iteration checkbox
+     */
+    bool isStopAfterIter();
+    /**
+     * @brief Boolean representing of the Stop After Time option has been checked
+     * @return true/false representing the state of the Stop After Time checkbox
+     */
+    bool isStopAfterTime();
+    /**
+     * @brief Boolean representing of the Stop After Function Value option has been checked
+     * @return true/false representing the state of the Stop After Function Value checkbox
+     */
+    bool isStopAfterValue();
+    /**
+     * @brief Loads the ensemble disk file into the ensemble table
+     * @param ensembleFile : name of ensemble file
+     * @param verbose : if true display popup messages, if false don't
+     * @return true if load was ok, false otherwise
+     */
+    bool loadEnsembleFile(QString ensembleFile,
+                          const bool& verbose);
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
@@ -338,6 +584,16 @@ public:
      * @param msg : the content of the message
      */
     void refreshMsg(QFont font, QString msg);
+    /**
+     * @brief Checks Bees algorithm parameters (certain parameters must be less than other parameters)
+     * @param errorMsg : error message from the check
+     * @return true if all checks ok, false otherwise
+     */
+    bool runBeesCheck(QString& errorMsg);
+    /**
+     * @brief Emits signals to notify the main program to run an Estimation
+     */
+    void runEstimation();
     /**
      * @brief Saves the current application settings to a Qt settings file
      */
@@ -352,36 +608,82 @@ public:
      * @brief Sets the current units to the passed string
      * @param units : current units to set the time units combo box to
      */
+    void setCurrentMinimizerType(QString value);
+    /**
+     * @brief Sets the Stop After Time units to sec, min, or hour (this option needs to be unlocked first with the adjacent lock/unlock button)
+     * @param units : sec, min, or hour
+     */
     void setCurrentTimeUnits(QString units);
+    /**
+     * @brief Sets the state of the Deterministic Bees Algorithm check box
+     * @param state : true if checked, false otherwise
+     */
+    void setDeterministicBeesCB(bool state);
+    /**
+     * @brief Sets the state of the Deterministic NLopt Minimizer Algorithm check box
+     * @param state : true if checked, false otherwise
+     */
+    void setDeterministicMinimizerCB(bool state);
+    /**
+     * @brief Sets the Ensemble Average By value
+     * @param averageBy : describes how the averaging should be done
+     */
     void setEnsembleAverageBy(QString averageBy);
+    /**
+     * @brief Sets the Ensemble Averaging Algorithm
+     * @param aveAlg : the name of the Ensemble Averaging Algorithm to use
+     */
     void setEnsembleAveragingAlgorithm(QString aveAlg);
-    void setEnsembleUsingBy(QString usingBy);
+    /**
+     * @brief Sets the total number of Ensemble Runs for the Multi-Run
+     * @param value : total number of Ensemble Runs to set the appropriate spin box to
+     */
+    void setEnsembleTotalRuns(int value);
+    /**
+     * @brief Sets the Ensemble Runs Set line edit
+     * @param value : value to put in the Currently Set text box
+     */
+    void setEnsembleRunsSet(int value);
+    /**
+     * @brief Sets the Ensemble Using Amount type
+     * @param usingAmount : the Using Amount type value (either Using All or Using Top), the first
+     * specifies to use all runs in the average and the second specifies to use the top n runs or
+     * top n percent of the runs in the average (based on other widget values)
+     */
     void setEnsembleUsingAmountValue(QString usingAmount);
+    void setEnsembleUsingBy(QString usingBy);
     void setEnsembleUsingPct(bool isUsingPct);
-    bool runBeesCheck(QString& errorMsg);
-
     /**
      * @brief Sets the font for the output text edit widget
      * @param font : the font to use for the output text edit widget
      */
     void setFont(QFont font);
+    void setMaxGenerations(int value);
+    void setMohnsRhoFileHeader();
+    void setMohnsRhoFileType(const QString& runType);
+    void setNeighborhoodSize(int value);
+    void setNumBees(int value);
+    void setNumBestSites(int value);
+    void setNumEliteBees(int value);
+    void setNumEliteSites(int value);
+    void setNumOtherBees(int value);
+    void setNumSubRuns(int value);
     /**
      * @brief Sets the content for the output text edit widget
      * @param msg : the content to use for the output text edit widget
      */
     void setOutputTE(QString msg);
-    void clearWidgets();
-    bool getFixedSeedBees();
+    void setRunButtonLabel(QString label);
 
 signals:
+    void AddToReview();
+    void BeesSetDeterministic(bool state);
     /**
      * @brief Signal sent to check all Estimation tables for completeness
      */
     void CheckAllEstimationTablesAndRun();
-    void AddToReview();
     void DimScalarBiomassControls(bool dim);
     void EnableRunButtons(bool state);
-    void BeesSetDeterministic(bool state);
 
     /**
      * @brief Signal sent after the user checks the Mono Font box. It causes
@@ -401,31 +703,17 @@ signals:
     void UpdateForecastYears();
 
 public Q_SLOTS:
+
+    void callback_AddToReviewPB();
+
     /**
      * @brief Callback invoked when the user selects an Averagin Algorithm for the multi-run feature
      * @param averagingAlgorithm : the selected averaging algorithm
      */
     void callback_AveragingAlgorithmCMB(QString averagingAlgorithm);
-    /**
-     * @brief Callback invoked when the user clicks the Run button
-     */
-    void callback_RunPB();
-    /**
-     * @brief Callback invoked when the user clicks the Load button
-     */
-    void callback_ReloadPB();
-    /**
-     * @brief Callback invoked when the user clicks the Save button
-     */
-    void callback_SavePB();
-    /**
-     * @brief Callback invoked when the user clicks the Next Page button
-     */
-    void callback_NextPB();
-    /**
-     * @brief Callback invoked when the user clicks the Previous Page button
-     */
-    void callback_PrevPB();
+    void callback_EnableSurveyQ(const QString biomassType,
+                                const bool enable,
+                                const bool checked);
     /**
      * @brief Callback invoked when the user toggles the Ensemble controls check box
      * @param isChecked : checked state of Ensemble controls group check box
@@ -436,31 +724,6 @@ public Q_SLOTS:
      * multi-run runs to use the same parameters.
      */
     void callback_EnsembleSetAllPB();
-    /**
-     * @brief Callback invoked when the user changes the font in the Run Summary tab
-     * @param fontSize : the font selected
-     */
-    void callback_Estimation_Tab6_FontSizeCMB(QString fontSize);
-    /**
-     * @brief Callback invoked when the user checks the mono font checkbox in the Run Summary tab
-     * @param isChecked : check state of the checkbox
-     */
-    void callback_Estimation_Tab6_MonoCB(int isChecked);
-    /**
-     * @brief Callback invoked when the user changes the Estimation Algorithm
-     * @param algorithm : the estimation algorithm selected
-     */
-    void callback_EstimationAlgorithmCMB(QString algorithm);
-    /**
-     * @brief Callback invoked when user changes the minimizer algorithm.
-     * @param algorithm : the minimizer algorithm selected
-     */
-    void callback_MinimizerAlgorithmCMB(QString algorithm);
-    /**
-     * @brief Callback invoked when the user changes the minimizer type
-     * @param type : the type of minimizer (i.e., global or local)
-     */
-    void callback_MinimizerTypeCMB(QString type);
     /**
      * @brief Callback invoked when user clicks the Load button
      */
@@ -489,16 +752,87 @@ public Q_SLOTS:
      * runs to a multi-run
      */
     void callback_EnsembleViewPB();
+    void callback_EnsembleUsingPctPB();
+    void callback_EnsembleUsingAmountCMB(QString value);
+    void callback_EnsembleSetDeterministicCB(int state);
+
+    void callback_EstimateSurveyQCB(int state);
+    /**
+     * @brief Callback invoked when the user changes the font in the Run Summary tab
+     * @param fontSize : the font selected
+     */
+    void callback_Estimation_Tab6_FontSizeCMB(QString fontSize);
+    /**
+     * @brief Callback invoked when the user checks the mono font checkbox in the Run Summary tab
+     * @param isChecked : check state of the checkbox
+     */
+    void callback_Estimation_Tab6_MonoCB(int isChecked);
+    /**
+     * @brief Callback invoked when the user changes the Estimation Algorithm
+     * @param algorithm : the estimation algorithm selected
+     */
+    void callback_EstimationAlgorithmCMB(QString algorithm);
+    /**
+     * @brief Callback invoked when user changes the minimizer algorithm.
+     * @param algorithm : the minimizer algorithm selected
+     */
+    void callback_MinimizerAlgorithmCMB(QString algorithm);
+    /**
+     * @brief Callback invoked when the user changes the minimizer type
+     * @param type : the type of minimizer (i.e., global or local)
+     */
+    void callback_MinimizerTypeCMB(QString type);
+    /**
+     * @brief Callback invoked when the user clicks the Next Page button
+     */
+    void callback_NextPB();
     /**
      * @brief Callback invoked when the user changes the Objective Criterion
      * @param objectiveCriterion : the objective criterion selected
      */
     void callback_ObjectiveCriterionCMB(QString objectiveCriterion);
     /**
+     * @brief Callback invoked when the user clicks the Previous Page button
+     */
+    void callback_PrevPB();
+    /**
+     * @brief Callback invoked when the user clicks the Run button
+     */
+    void callback_RunPB();
+    /**
      * @brief Callback invoked when user needs to query the states of all the Estimate run check boxes
      * @param unused : unused
      */
     void callback_RefreshEstimateRunBoxes(int unused);
+    /**
+     * @brief Callback invoked when the user clicks the Load button
+     */
+    void callback_ReloadPB();
+    /**
+     * @brief Callback invoked when the user clicks the Save button
+     */
+    void callback_SavePB();
+
+
+
+    /**
+     * @brief Callback invoked when the user saves the model on the Setup -> Model Setup GUI
+     */
+    void callback_SaveSettings();
+    /**
+     * @brief Callback invoked when user changes the scaling algorithm
+     * @param scalingAlgorithm : new scaling algorithm selected
+     */
+    void callback_ScalingCMB(QString scalingAlgorithm);
+    void callback_SetDeterministicCB(int state);
+
+    /**
+     * @brief Callback invoked when main routine needs to update Estimate checkboxes
+     * @param EstimateRunBoxes : Names and states of Estimate checkboxes to update
+     */
+    void callback_SetEstimateRunCheckboxes(
+            std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes);
+
     /**
      * @brief Callback invoked when the user checks the Stop When Reach Value checkbox
      * @param isChecked : boolean signiying the check state
@@ -534,32 +868,12 @@ public Q_SLOTS:
      * @param value : new Stop After Value value
      */
     void callback_StopAfterValueLE(QString value);
-    /**
-     * @brief Callback invoked when the user saves the model on the Setup -> Model Setup GUI
-     */
-    void callback_SaveSettings();
-    /**
-     * @brief Callback invoked when main routine needs to update Estimate checkboxes
-     * @param EstimateRunBoxes : Names and states of Estimate checkboxes to update
-     */
-    void callback_SetEstimateRunCheckboxes(
-            std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes);
-    /**
-     * @brief Callback invoked when user changes the scaling algorithm
-     * @param scalingAlgorithm : new scaling algorithm selected
-     */
-    void callback_ScalingCMB(QString scalingAlgorithm);
-
-    void callback_EnsembleUsingPctPB();
-    void callback_EnsembleUsingAmountCMB(QString value);
-    void callback_SetDeterministicCB(int state);
-    void callback_EnsembleSetDeterministicCB(int state);
-    void callback_AddToReviewPB();
-    void callback_EnableSurveyQ(const QString biomassType,
-                                const bool enable,
-                                const bool checked);
-    void callback_EstimateSurveyQCB(int state);
     void callback_TimeUnitsLockPB(bool isChecked);
+
+
+
+
+
 
 };
 

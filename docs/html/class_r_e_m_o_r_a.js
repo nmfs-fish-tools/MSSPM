@@ -1,6 +1,6 @@
 var class_r_e_m_o_r_a =
 [
-    [ "REMORA", "class_r_e_m_o_r_a.html#a06fcea88037286a126da443fc474ba44", null ],
+    [ "REMORA", "class_r_e_m_o_r_a.html#aa5b9ca4bdb9bbe56f1bcedd8aa7e7674", null ],
     [ "~REMORA", "class_r_e_m_o_r_a.html#af5750f77cb36737ece9e118a321a52da", null ],
     [ "callback_DelPB", "class_r_e_m_o_r_a.html#a31f1ce14e8573b4b4566e9609bde996d", null ],
     [ "callback_DeterministicRB", "class_r_e_m_o_r_a.html#a343b1746203ef20e1ed0f04500696534", null ],

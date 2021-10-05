@@ -1,4 +1,5 @@
 <map id="MSSPM_GuiSetup/nmfSetupTab04.h" name="MSSPM_GuiSetup/nmfSetupTab04.h">
 <area shape="rect" id="node1" title="GUI definition for the Setup Model page class nmfSetup_Tab4." alt="" coords="5,5,259,32"/>
-<area shape="rect" id="node2" href="$_load_dlg_8h.html" title="GUI definition for the Settings File LoadDlg widget." alt="" coords="89,80,175,107"/>
+<area shape="rect" id="node2" href="$_load_dlg_8h.html" title="GUI definition for the Settings File LoadDlg widget." alt="" coords="25,80,111,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="136,80,256,107"/>
 </map>

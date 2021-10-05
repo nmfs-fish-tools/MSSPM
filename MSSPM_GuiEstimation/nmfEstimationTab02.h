@@ -96,7 +96,6 @@ public:
      * @return Returns true if all data were loaded successfully
      */
     bool loadWidgets();
-
     /**
      * @brief Sets the class harvest type variable to the appropriate value
      * @param harvestType : the harvest type selected by the user when defining the model
@@ -108,6 +107,11 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Export button to save a .csv file
      */
     void callback_ExportPB();
+    /**
+     * @brief Callback invoked when the user modifies the Harvest Form in the Setup -> Model Setup page
+     * @param harvestForm : the harvest form selected by the user
+     */
+    void callback_HarvestFormChanged(QString harvestForm);
     /**
      * @brief Callback invoked when the user clicks the Import button to load a .csv file
      */
@@ -121,23 +125,17 @@ public Q_SLOTS:
      */
     void callback_LoadWidgets();
     /**
-     * @brief Callback invoked when the user clicks the Save button
+     * @brief Callback invoked when the user clicks the Next Page button
      */
-    void callback_SavePB();
+    void callback_NextPB();
     /**
      * @brief Callback invoked when the user clicks the Previous Page button
      */
     void callback_PrevPB();
     /**
-     * @brief Callback invoked when the user clicks the Next Page button
+     * @brief Callback invoked when the user clicks the Save button
      */
-    void callback_NextPB();
-    /**
-     * @brief Callback invoked when the user modifies the Harvest Form in the Setup -> Model Setup page
-     * @param harvestForm : the harvest form selected by the user
-     */
-    void callback_HarvestFormChanged(QString harvestForm);
-
+    void callback_SavePB();
 };
 
 #endif // NMFESTIMATIONTAB2_H

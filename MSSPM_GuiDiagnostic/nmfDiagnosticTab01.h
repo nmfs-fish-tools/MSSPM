@@ -58,8 +58,8 @@ private:
     nmfStructsQt::ModelDataStruct  m_DataStruct;
     QTabWidget*  m_Diagnostic_Tabs;
     QWidget*     m_Diagnostic_Tab1_Widget;
-//    QComboBox*   m_Diagnostic_Tab1_ParameterCMB;
-//    QLabel*      m_Diagnostic_Tab1_ParameterLBL;
+//  QComboBox*   m_Diagnostic_Tab1_ParameterCMB;
+//  QLabel*      m_Diagnostic_Tab1_ParameterLBL;
     QComboBox*   Diagnostic_Tab1_SurfaceParameter1CMB;
     QComboBox*   Diagnostic_Tab1_SurfaceParameter2CMB;
     QSpinBox*    m_Diagnostic_Tab1_PctVarSB;
@@ -80,10 +80,25 @@ private:
 
     double calculateFitness(const int& SpeciesOrGuildNum,
                             const std::vector<std::pair<QString,double> >& ParameterData);
+    void checkAlgorithmIdentifiersForMultiRun(
+            std::string& Algorithm,
+            std::string& Minimizer,
+            std::string& ObjectiveCriterion,
+            std::string& Scaling);
     bool isAggProd(std::string Algorithm,
                    std::string Minimizer,
                    std::string ObjectiveCriterion,
                    std::string Scaling);
+    void loadCompetitionParameters(
+            const bool&          isAggProd,
+            const int&           NumSpecies,
+            const int&           theNumGuilds,
+            const int&           NumSpeciesOrGuilds,
+            const std::string&   Algorithm,
+            const std::string&   Minimizer,
+            const std::string&   ObjectCriterion,
+            const std::string&   Scaling,
+            std::vector<double>& Parameters);
     /**
      * @brief Reads the appropriate table and loads the passed in parameter
      * @param algorithm : name of estimation algorithm
@@ -106,15 +121,6 @@ private:
                                       const std::string&   scaling,
                                       const QString&       parameterName,
                                       std::vector<double>& estParameter);
-    void loadOutputParameters(
-            const std::string&   TableName,
-            const int&           NumSpeciesOrGuilds,
-            const std::string&   Algorithm,
-            const std::string&   Minimizer,
-            const std::string&   ObjectiveCriterion,
-            const std::string&   Scaling,
-            const std::string&   isAggProd,
-            std::vector<double>& Parameters);
     void loadGrowthParameters(
             const int&           NumSpeciesOrGuilds,
             const std::string&   Algorithm,
@@ -130,15 +136,14 @@ private:
             const std::string&   ObjectCriterion,
             const std::string&   Scaling,
             std::vector<double>& Parameters);
-    void loadCompetitionParameters(
-            const bool&          isAggProd,
-            const int&           NumSpecies,
-            const int&           theNumGuilds,
+    void loadOutputParameters(
+            const std::string&   TableName,
             const int&           NumSpeciesOrGuilds,
             const std::string&   Algorithm,
             const std::string&   Minimizer,
-            const std::string&   ObjectCriterion,
+            const std::string&   ObjectiveCriterion,
             const std::string&   Scaling,
+            const std::string&   isAggProd,
             std::vector<double>& Parameters);
     void loadPredationParameters(
             const int&           NumSpeciesOrGuilds,
@@ -171,11 +176,6 @@ private:
                               const std::string& isAggProd,
                               const std::string& SurfaceType,
                               std::vector<DiagnosticTuple>& DiagnosticTupleVector);
-    void checkAlgorithmIdentifiersForMultiRun(
-            std::string& Algorithm,
-            std::string& Minimizer,
-            std::string& ObjectiveCriterion,
-            std::string& Scaling);
 
 public:
     /**
@@ -206,62 +206,118 @@ public:
      * @brief Gets the previous run's variation parameter that was stored in settings (not in a database table)
      * @return The previously saved variation parameter
      */
-    int         getLastRunsPctVariation();
+    int getLastRunsPctVariation();
     /**
      * @brief Gets the previous run's number of diagnostic points that was stored in settings (not in a database table)
      * @return The previously saved number of diagnostic points
      */
-    int         getLastRunsNumPoints();
+    int getLastRunsNumPoints();
+    /**
+     * @brief Gets the first parameter to be used for the 3d parameter surface
+     * @return the parameter name
+     */
+    QString getParameter1Name();
+    /**
+     * @brief Gets the second parameter to be used for the 3d parameter surface
+     * @return the parameter name
+     */
+    QString getParameter2Name();
     /**
      * @brief Gets data for the current Guilds in the model
      * @param numGuilds : number of guilds found in the model
      * @param guildNames : names of the guilds found in the model
      */
-    void        getGuildInfo(int& numGuilds,
+    void getGuildInfo(int& numGuilds,
                              QStringList& guildNames);
     /**
      * @brief Gets data for the current Species in the model
      * @param numSpecies : number of species found in the model
      * @param speciesNames : names of the species found in the model
      */
-    void        getSpeciesInfo(int& numSpecies,
-                               QStringList& speciesNames);
+    void getSpeciesInfo(int& numSpecies,
+                        QStringList& speciesNames);
+    /**
+     * @brief Returns true if the Use Last Run was set to Multi Run
+     * @return true if Use Last Run was checked, false otherwise
+     */
+    bool isSetLastRunMultiDiagnostics();
+    /**
+     * @brief Returns true if the Use Last Single Run radio button was checked
+     * @return checked state of Use Last Single Run button
+     */
+    bool isSingleRunRBChecked();
+    /**
+     * @brief Returns true if the Use Last Single Run radio button was enabled
+     * @return enabled state of Use Last Single Run button
+     */
+    bool isSingleRunRBEnabled();
+    /**
+     * @brief Returns true if the Use Last Multi Run radio button was checked
+     * @return checked state of Use Last Multi Run button
+     */
+    bool isMultiRunRBChecked();
+    /**
+     * @brief Returns true if the Use Last Multi Run radio button was enabled
+     * @return enabled state of Use Last Multi Run button
+     */
+    bool isMultiRunRBEnabled();
     /**
      * @brief Load widgets for this GUI panel
      */
-    void        loadWidgets();
+    void loadWidgets();
     /**
      * @brief Save program settings
      */
-    void        saveSettings();
-    /**
-     * @brief Sets the value for the % Variation GUI widget
-     * @param variation : the variation value used in the GUI slider
-     */
-    void        setVariation(int variation);
-    /**
-     * @brief Sets the value for number of points for the Number of Diagnostics Points GUI widget
-     * @param numPoints : the number of points used in the GUI slider
-     */
-    void        setNumPoints(int numPoints);
+    void saveSettings();
     /**
      * @brief Sets the class data structure variable
      * @param theDataStruct : the data structure containing the estimated parameter variables
      */
-    void        setDataStruct(nmfStructsQt::ModelDataStruct& theDataStruct);
-    QString getParameter1Name();
-    QString getParameter2Name();
-    void setSingleRunRBState(bool isEnabled, bool isChecked);
-    void setMultiRunRBState(bool isEnabled, bool isChecked);
+    void setDataStruct(nmfStructsQt::ModelDataStruct& theDataStruct);
+    /**
+     * @brief Sets the value for number of points for the Number of Diagnostics Points GUI widget
+     * @param numPoints : the number of points used in the GUI slider
+     */
+    void setNumPoints(int numPoints);
+    /**
+     * @brief Sets the enabled state of the Use Last Single Run radio button
+     * @param isEnabled : true if enabled, false if disabled
+     */
     void setSingleRunRBEnabled(bool isEnabled);
+    /**
+     * @brief Sets the enabled and checked state of the Use Last Single Run radio button
+     * @param isEnabled : true if enabled, false if disabled
+     * @param isChecked : true if checked, false if checked
+     */
+    void setSingleRunRBState(bool isEnabled, bool isChecked);
+    /**
+     * @brief Sets the enabled state of the Use Last Multi Run radio button
+     * @param isEnabled : true if enabled, false if disabled
+     */
     void setMultiRunRBEnabled(bool isEnabled);
-    bool isSetLastRunMultiDiagnostics();
-    bool isSingleRunRBChecked();
-    bool isSingleRunRBEnabled();
-    bool isMultiRunRBChecked();
-    bool isMultiRunRBEnabled();
+    /**
+     * @brief Sets the enabled and checked state of the Use Last Multi Run radio button
+     * @param isEnabled : true if enabled, false if disabled
+     * @param isChecked : true if checked, false if checked
+     */
+    void setMultiRunRBState(bool isEnabled, bool isChecked);
+    /**
+     * @brief Sets the value for the % Variation GUI widget
+     * @param variation : the variation value used in the GUI slider
+     */
+    void setVariation(int variation);
 
 signals:
+    /**
+     * @brief Signal emitted to set all of the output MSY checkboxes to the passed state
+     * @param state : state to set Output Controls MSY boxes
+     */
+    void CheckMSYBoxes(bool state);
+    /**
+     * @brief Signal emitted to notify calling routine to set all Run buttons to the passed in state
+     * @param state : state to set Run buttons (true=enabled, false=disabled)
+     */
+    void EnableRunButtons(bool state);
     /**
      * @brief Signal for loading the estimation algorithm's data structure
      */
@@ -276,8 +332,6 @@ signals:
      * @param method : type of diagnostic desired
      */
     void SetChartType(std::string type, std::string method);
-    void EnableRunButtons(bool state);
-    void CheckMSYBoxes(bool state);
 
 public slots:
     /**
@@ -288,10 +342,14 @@ public slots:
      * @brief Callback loads the parameter check boxes after the user clicks Save on the Model Setup Tab 4
      */
     void callback_UpdateDiagnosticParameterChoices();
-
-    void callback_UseLastSingleRunRB();
+    /**
+     * @brief Callback invoked when the user clicks on the Use Last Multi Run radio button
+     */
     void callback_UseLastMultiRunRB();
-
+    /**
+     * @brief Callback invoked when the user clicks on the Use Last Single Run radio button
+     */
+    void callback_UseLastSingleRunRB();
 };
 
 #endif

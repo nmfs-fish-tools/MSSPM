@@ -181,14 +181,13 @@ nmfEstimation_Tab2::callback_SavePB()
     QString value;
     QString valueWithoutComma;
 
-    if (! m_DatabasePtr->updateAllModelsInProject(Estimation_Tabs,"Harvest",m_ProjectName,m_ModelName,modelsInProject)) {
+    if (! m_DatabasePtr->updateAllModelsInProject(
+                Estimation_Tabs,"Harvest",m_ProjectName,m_ModelName,modelsInProject)) {
         return;
     }
-
     if (m_SModel == nullptr) {
         return;
     }
-
     Estimation_Tabs->setCursor(Qt::WaitCursor);
 
     for (int j=0; j<m_SModel->columnCount(); ++ j) {

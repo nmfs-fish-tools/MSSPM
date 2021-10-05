@@ -406,8 +406,6 @@ nmfDiagnostic_Tab1::isSetLastRunMultiDiagnostics()
 {
     return (m_Diagnostic_Tab1_UseLastMultiRunRB->isEnabled() &&
             m_Diagnostic_Tab1_UseLastMultiRunRB->isChecked());
-//    return (m_IsMultiRun && m_Diagnostic_Tab1_UseLastMultiRunRB->isEnabled() &&
-//                            m_Diagnostic_Tab1_UseLastMultiRunRB->isChecked());
 }
 
 void
@@ -502,8 +500,9 @@ nmfDiagnostic_Tab1::callback_RunPB()
     isAggProdBool = isAggProd(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
     isAggProdStr  = (isAggProdBool) ? "1" : "0";
     if (! m_DatabasePtr->getModelFormData(
+                m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
+                RunLength,InitialYear)) {
         emit EnableRunButtons(true);
         progressDlg->close();
         return;

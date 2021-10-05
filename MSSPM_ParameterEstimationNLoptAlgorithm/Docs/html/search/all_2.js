@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['nlopt_5festimator',['NLopt_Estimator',['../class_n_lopt___estimator.html',1,'']]],
-  ['nlopt_5festimator_2eh',['NLopt_Estimator.h',['../_n_lopt___estimator_8h.html',1,'']]]
+  ['estimateparameters_4',['estimateParameters',['../class_n_lopt___estimator.html#afdcf966c3d07bf7fba6807aaf8077da3',1,'NLopt_Estimator']]],
+  ['extractparameters_5',['extractParameters',['../class_n_lopt___estimator.html#a281d485a83469b0ce64acbd26e34e52f',1,'NLopt_Estimator']]]
 ];

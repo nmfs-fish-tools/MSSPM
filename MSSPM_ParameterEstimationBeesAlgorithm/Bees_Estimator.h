@@ -41,7 +41,6 @@
 #include "nmfConstantsMSSPM.h"
 #include "nmfUtils.h"
 #include "nmfUtilsQt.h"
-//#include "nmfRandom.h"
 
 #include "BeesAlgorithm.h"
 #include "BeesStats.h"
@@ -157,7 +156,6 @@ signals:
      * @param NumSubRuns : number of sub runs in the parent run
      */
     void RepetitionRunCompleted(int RunNum, int SubRun, int NumSubRuns);
-//  void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);
 
 public:
     /**

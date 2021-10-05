@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['resetoutputwidgetsforaggprod',['ResetOutputWidgetsForAggProd',['../classnmf_diagnostic___tab1.html#a77479ed0468848f7f9d35ed94d0ebda1',1,'nmfDiagnostic_Tab1']]],
-  ['rundiagnosticestimation',['RunDiagnosticEstimation',['../classnmf_diagnostic___tab2.html#ad8780b2d7cb487d259d42f37fbf92f1f',1,'nmfDiagnostic_Tab2']]]
+  ['loaddatastruct_93',['LoadDataStruct',['../classnmf_diagnostic___tab1.html#ac6afb5827b59e0e7abb5850fbc367180',1,'nmfDiagnostic_Tab1']]],
+  ['loadwidgets_94',['loadWidgets',['../classnmf_diagnostic___tab1.html#a4abc343023c9decbc69ff9362fb0a0c9',1,'nmfDiagnostic_Tab1::loadWidgets()'],['../classnmf_diagnostic___tab2.html#a53b879efc29ac00b7679e0f92c20853c',1,'nmfDiagnostic_Tab2::loadWidgets()'],['../classnmf_diagnostic___tab2.html#acddaf96a7d2ccd01176861f9637b440f',1,'nmfDiagnostic_Tab2::loadWidgets(int NumPeels)']]]
 ];

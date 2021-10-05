@@ -207,6 +207,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae63d073f24a25de9a73ba5f11d8902ad"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab2.html#ae63d073f24a25de9a73ba5f11d8902ad">nmfSetup_Tab2</a> (QTabWidget *tabWidget, nmfLogger *logger, nmfDatabase *databasePtr)</td></tr>
 <tr class="memdesc:ae63d073f24a25de9a73ba5f11d8902ad"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classnmf_setup___tab2.html" title="The Setup Tab 2 allows the user to enter and modify Project meta data.">nmfSetup_Tab2</a> : class constructor for the Project Setup Page  <a href="classnmf_setup___tab2.html#ae63d073f24a25de9a73ba5f11d8902ad">More...</a><br /></td></tr>
 <tr class="separator:ae63d073f24a25de9a73ba5f11d8902ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a180d284824168526aac92848b345a590"><td class="memItemLeft" align="right" valign="top"><a id="a180d284824168526aac92848b345a590"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>updateProgressDlg</b> (const std::string &amp;msg, int &amp;pInc)</td></tr>
+<tr class="separator:a180d284824168526aac92848b345a590"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab265c9bfb61e47d204675424a722e559"><td class="memItemLeft" align="right" valign="top"><a id="ab265c9bfb61e47d204675424a722e559"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab2.html#ab265c9bfb61e47d204675424a722e559">clearProject</a> ()</td></tr>
 <tr class="memdesc:ab265c9bfb61e47d204675424a722e559"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the Project meta data text boxes. <br /></td></tr>
@@ -255,6 +258,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab2.html#aa802417a18bb74225f47706344055e8b">loadWidgets</a> ()</td></tr>
 <tr class="memdesc:aa802417a18bb74225f47706344055e8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the widgets for this GUI from the appropriate database table(s) <br /></td></tr>
 <tr class="separator:aa802417a18bb74225f47706344055e8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fb4b51805370c774212eb4ad03f582d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab2.html#a5fb4b51805370c774212eb4ad03f582d">saveProject</a> (bool verbose)</td></tr>
+<tr class="memdesc:a5fb4b51805370c774212eb4ad03f582d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Saves the current project information.  <a href="classnmf_setup___tab2.html#a5fb4b51805370c774212eb4ad03f582d">More...</a><br /></td></tr>
+<tr class="separator:a5fb4b51805370c774212eb4ad03f582d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88cfb929eda5f5d0dc76f4d383cfcc4e"><td class="memItemLeft" align="right" valign="top"><a id="a88cfb929eda5f5d0dc76f4d383cfcc4e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab2.html#a88cfb929eda5f5d0dc76f4d383cfcc4e">saveSettings</a> ()</td></tr>
 <tr class="memdesc:a88cfb929eda5f5d0dc76f4d383cfcc4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Saves this GUI's project data to the Qt Settings file. <br /></td></tr>
@@ -644,6 +650,32 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Boolean describing whether or not the project was loaded </dd></dl>
+
+</div>
+</div>
+<a id="a5fb4b51805370c774212eb4ad03f582d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fb4b51805370c774212eb4ad03f582d">&#9670;&nbsp;</a></span>saveProject()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfSetup_Tab2::saveProject </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>verbose</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Saves the current project information. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">verbose</td><td>: flag designating if output should be echo'd to the screen </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

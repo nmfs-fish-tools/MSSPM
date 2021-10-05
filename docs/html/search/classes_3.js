@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['loaddlg_533',['LoadDlg',['../class_load_dlg.html',1,'']]],
-  ['loadforecastdlg_534',['LoadForecastDlg',['../class_load_forecast_dlg.html',1,'']]]
+  ['initspeciesdatastruct_598',['InitSpeciesDataStruct',['../struct_init_species_data_struct.html',1,'']]]
 ];

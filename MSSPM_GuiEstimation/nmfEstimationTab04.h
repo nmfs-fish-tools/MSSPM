@@ -99,19 +99,22 @@ class nmfEstimation_Tab4: public QObject
     QComboBox*   Estimation_Tab4_MinMaxCMB;
     QComboBox*   Estimation_Tab4_MinMaxCMB2;
 
+    void assignTableViewsBasedOnRangeType(const QString& rangeType,
+                                          QTableView* possibleTableView1,
+                                          QTableView* possibleTableView2,
+                                          QTableView*& tableView1,
+                                          QTableView*& tableView2);
     void getForms(std::string& predationForm,
                   std::string& competitionForm);
-    int  getNumSpecies();
     std::vector<std::vector<QTableView *> > getGroupsOfTableViews();
+    int  getNumSpecies();
     bool isNull();
     bool isTypeI();
     bool isTypeII();
     bool isTypeIII();
+    void loadCSVFiles(std::vector<std::string>& allTableNames);
     void readSettings();
     void saveCSVFiles(std::vector<std::string>& allTableNames);
-    void loadCSVFiles(std::vector<std::string>& allTableNames);
-    std::vector<std::string> getAllTableNames();
-    std::vector<QTableView*> getAllTableViews();
     void resetSpinBox(const std::pair<int,int>& nonZeroCell,
                       const QStandardItemModel* smodel,
                       const QStandardItemModel* smodel1,
@@ -120,11 +123,8 @@ class nmfEstimation_Tab4: public QObject
                     const std::vector<std::string>& SpeNames,
                     const std::vector<QTableView*>& tableViews,
                     const std::vector<std::string>& tableNames);
-    void assignTableViewsBasedOnRangeType(const QString& rangeType,
-                                          QTableView* possibleTableView1,
-                                          QTableView* possibleTableView2,
-                                          QTableView*& tableView1,
-                                          QTableView*& tableView2);
+    std::vector<std::string> getAllTableNames();
+    std::vector<QTableView*> getAllTableViews();
 
 public:
     /**
@@ -150,7 +150,6 @@ public:
      */
     bool loadWidgets();
 
-
 public Q_SLOTS:
     /**
      * @brief Callback invoked when the user clicks the Export button to save a .csv file
@@ -165,29 +164,6 @@ public Q_SLOTS:
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when the user clicks the Save button
-     */
-    void callback_SavePB();
-    /**
-     * @brief Callback invoked when the user clicks the Previous Page button
-     */
-    void callback_PrevPB();
-    /**
-     * @brief Callback invoked when the user clicks the Next Page button
-     */
-    void callback_NextPB();
-    /**
-     * @brief Callback invoked when the user updates the Predation Form in the Setup -> Model Setup page
-     * @param predationForm : the predation form selected by the user
-     */
-    void callback_PredationFormChanged(QString predationForm);
-    /**
-     * @brief Callback invoked when the user changes any of the Minimum Predator Coeficients splitters
-     * @param pos : position of the splitter
-     * @param index : the index of the splitter changed
-     */
-    void callback_MinSplitterMoved(int pos, int index);
-    /**
      * @brief Callback invoked when the user changes any of the Minimum Competitive Effects splitters
      * @param pos : position of the splitter
      * @param index : the index of the splitter changed
@@ -199,15 +175,37 @@ public Q_SLOTS:
      */
     void callback_MinMaxCMB(QString rangeType);
     /**
+     * @brief Callback invoked when the user changes any of the Minimum Predator Coeficients splitters
+     * @param pos : position of the splitter
+     * @param index : the index of the splitter changed
+     */
+    void callback_MinSplitterMoved(int pos, int index);
+    /**
+     * @brief Callback invoked when the user clicks the Next Page button
+     */
+    void callback_NextPB();
+    /**
      * @brief Callback invoked when user sets the Competition min/max range percent spin box
      * @param value : integer percent value to make the min/max range difference (i.e., 2 => min is 2% less than the initial values and max is 2% greater than the initial values)
      */
     void callback_PctRangeSB(int value);
     /**
+     * @brief Callback invoked when the user updates the Predation Form in the Setup -> Model Setup page
+     * @param predationForm : the predation form selected by the user
+     */
+    void callback_PredationFormChanged(QString predationForm);
+    /**
+     * @brief Callback invoked when the user clicks the Previous Page button
+     */
+    void callback_PrevPB();
+    /**
+     * @brief Callback invoked when the user clicks the Save button
+     */
+    void callback_SavePB();
+    /**
      * @brief Callback invoked when the user clicks the T button. This will cause the data in every Competition matrix to be transposed.
      */
     void callback_TransposePB();
-
 };
 
 #endif // NMFESTIMATIONTAB4_H

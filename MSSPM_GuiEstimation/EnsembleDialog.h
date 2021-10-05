@@ -38,18 +38,16 @@
 /**
  * @brief Dialog containing the Ensemble run parameter values
  *
- * The Dialog contains the Ensemble run parameter preferences.
+ * The Dialog contains the Ensemble/Multi-run run parameters that are saved when the user saves a Multi-run.
  */
 class EnsembleDialog : public QDialog
 {
     Q_OBJECT
 
     std::string         m_ProjectDir;
-
     QStandardItemModel* m_SModel;
     QTableView*         m_ensembleTV;
     QWidget*            m_Parent;
-
 
 public:
     /**
@@ -59,13 +57,25 @@ public:
     EnsembleDialog(QWidget* parent, std::string projectDir);
     virtual ~EnsembleDialog() {}
 
-    bool loadWidgets(QString ensembleFile);
+    /**
+     * @brief Clears the current multi-run parameters
+     */
     void clear();
+    /**
+     * @brief Gets the data associated with the passed in column number
+     * @param col : column number whose data is to be returned
+     * @return Encoded QString of column data
+     */
     QString getColumnData(int col);
+    /**
+     * @brief Loads GUI widgets with data in the passed ensemble filename
+     * @param ensembleFile : ensemble filename to load
+     * @return True if loaded with no errors, false otherwise
+     */
+    bool loadWidgets(QString ensembleFile);
 
 public Q_SLOTS:
-    void callback_refreshPB();
-    void callback_savePB();
+
 
 };
 

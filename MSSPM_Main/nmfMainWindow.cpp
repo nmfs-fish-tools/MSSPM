@@ -1348,10 +1348,10 @@ nmfMainWindow::menu_importDatabase()
                                              items, 0, false, &ok);
         if (ok && !selectedProjectName.isEmpty()) {
             Setup_Tab2_ptr->setProjectName(selectedProjectName);
-            Remora_ptr->setProjectName(selectedProjectName);
+            Remora_ptr->setProjectName(selectedProjectName.toStdString());
         } else { // the user clicked Cancel...so select the first project in the list
             Setup_Tab2_ptr->setProjectName(items[0]);
-            Remora_ptr->setProjectName(items[0]);
+            Remora_ptr->setProjectName(items[0].toStdString());
         }
         Setup_Tab2_ptr->saveSettings();
         Setup_Tab2_ptr->saveProject(nmfConstantsMSSPM::VerboseOff);
@@ -1902,7 +1902,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.36 (beta)";
+    QString version = "MSSPM v0.9.37 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3556,8 +3556,9 @@ nmfMainWindow::menu_saveCurrentRun()
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
 
     if (! m_DatabasePtr->getModelFormData(
+                m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
+                RunLength,InitialYear)) {
         return;
     }
 
@@ -10315,14 +10316,15 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
     boost::numeric::ublas::matrix<double> Exploitation;
 
     //
-    // continue here.....
+    // continue here.....possibly reduce code clutter...
     // RSK try calling    updateOutputBiomassTable(...nmfConstantsMSSPM::TableOutputBiomassEnsemble) instead of doing this....seems like there's repetitive code here
     //
     //
 
     if (! m_DatabasePtr->getModelFormData(
+                m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
+                RunLength,InitialYear)) {
         return false;
     }
     growthForm      = new nmfGrowthForm(GrowthForm);
@@ -10515,8 +10517,8 @@ nmfMainWindow::callback_InitializeSubRuns(
 
     m_finalList.clear();
 
-//    if (! m_DatabasePtr->getSpeciesInitialData(NumSpecies,SpeciesList,InitialBiomass,
-//                                               InitialGrowthRate,InitialSpeciesK,m_Logger)) {
+//    if (! m_DatabasePtr->getSpeciesInitialData(m_Logger,NumSpecies,SpeciesList,InitialBiomass,
+//                                               InitialGrowthRate,InitialSpeciesK)) {
 //        return;
 //    }
 //    QString fullPath      = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
@@ -10570,14 +10572,15 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     boost::numeric::ublas::matrix<double> EstPredationHandling;
     boost::numeric::ublas::matrix<double> CalculatedBiomass;
 
-    if (! m_DatabasePtr->getSpeciesInitialData(NumSpecies,SpeciesList,InitialBiomass,
-                                               InitialGrowthRate,InitialSpeciesK,m_Logger)) {
+    if (! m_DatabasePtr->getSpeciesInitialData(m_Logger,NumSpecies,SpeciesList,InitialBiomass,
+                                               InitialGrowthRate,InitialSpeciesK)) {
         return;
     }
 
     if (! m_DatabasePtr->getModelFormData(
+                m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName))
+                RunLength,InitialYear))
         return;
     bool isAggProd = (CompetitionForm == "AGG-PROD");
 
@@ -10853,8 +10856,9 @@ nmfMainWindow::calculateAverageBiomass()
         return;
 
     if (! m_DatabasePtr->getModelFormData(
+                m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
+                RunLength,InitialYear)) {
         return;
     }
     bool isCompetitionAGGPROD = (CompetitionForm == "AGG-PROD"); // RSK - incorrect since we're talking about averages here
@@ -11119,8 +11123,9 @@ nmfMainWindow::displayAverageBiomass()
     }
 
     if (! m_DatabasePtr->getModelFormData(
+                m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
+                RunLength,InitialYear)) {
         return;
     }
 
@@ -11241,8 +11246,9 @@ nmfMainWindow::getOutputBiomassAveraged(
     }
 
     if (! m_DatabasePtr->getModelFormData(
+                m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
+                RunLength,InitialYear)) {
         return false;
     }
     ++RunLength; // Needed as it's 1 less than what's needed here
@@ -11810,7 +11816,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.ScalingAlgorithm.clear();
     dataStruct.EstimateRunBoxes.clear();
 
-    dataStruct.useFixedSeedBees    = Estimation_Tab6_ptr->getFixedSeedBees();
+    dataStruct.useFixedSeedBees    = Estimation_Tab6_ptr->isSetToDeterministicBees();
     dataStruct.EstimationAlgorithm = Estimation_Tab6_ptr->getCurrentAlgorithm();
     dataStruct.ObjectiveCriterion  = Estimation_Tab6_ptr->getCurrentObjectiveCriterion();
     dataStruct.MinimizerAlgorithm  = Estimation_Tab6_ptr->getCurrentMinimizer();
@@ -13001,7 +13007,7 @@ nmfMainWindow::callback_ToDoAfterModelSave()
 {
     enableApplicationFeatures("AllOtherGroups",setupIsComplete());
     Estimation_Tab6_ptr->clearEnsembleFile();
-    Estimation_Tab6_ptr->enableEnsembleWidgets(true);
+    Estimation_Tab6_ptr->enableNonEnsembleWidgets(true);
 }
 
 
@@ -13053,6 +13059,7 @@ nmfMainWindow::callback_ModelLoaded()
     Estimation_Tab6_ptr->callback_EnsembleControlsGB(false);
 
     // Update REMORA
+    Remora_ptr->setProjectName(m_ProjectName);
     Remora_ptr->setModelName(m_ModelName);
 
     if (thereIsOutputBiomass()) {
@@ -13616,7 +13623,7 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
     // 2. Multi-Run/Ensemble Settings
     bool isAMultiRun = (modelReview.isAMultiRun == "1");
 //std::cout << "~~~> isAMultiRun: " << isAMultiRun << std::endl;
-    Estimation_Tab6_ptr->enableMultiRunControls(       isAMultiRun);
+    Estimation_Tab6_ptr->enableEnsembleControls(       isAMultiRun);
     Estimation_Tab6_ptr->setEnsembleAveragingAlgorithm(modelReview.ensembleAveragingAlgorithm);
     Estimation_Tab6_ptr->setEnsembleAverageBy(         modelReview.ensembleAverageBy);
     Estimation_Tab6_ptr->setEnsembleUsingBy(           modelReview.ensembleUsingBy);

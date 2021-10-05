@@ -1,22 +1,4 @@
 var searchData=
 [
-  ['nlopt_5festimator_2eh_563',['NLopt_Estimator.h',['../_n_lopt___estimator_8h.html',1,'']]],
-  ['nmfdiagnostictab01_2eh_564',['nmfDiagnosticTab01.h',['../nmf_diagnostic_tab01_8h.html',1,'']]],
-  ['nmfdiagnostictab02_2eh_565',['nmfDiagnosticTab02.h',['../nmf_diagnostic_tab02_8h.html',1,'']]],
-  ['nmfestimationtab01_2eh_566',['nmfEstimationTab01.h',['../nmf_estimation_tab01_8h.html',1,'']]],
-  ['nmfestimationtab02_2eh_567',['nmfEstimationTab02.h',['../nmf_estimation_tab02_8h.html',1,'']]],
-  ['nmfestimationtab03_2eh_568',['nmfEstimationTab03.h',['../nmf_estimation_tab03_8h.html',1,'']]],
-  ['nmfestimationtab04_2eh_569',['nmfEstimationTab04.h',['../nmf_estimation_tab04_8h.html',1,'']]],
-  ['nmfestimationtab05_2eh_570',['nmfEstimationTab05.h',['../nmf_estimation_tab05_8h.html',1,'']]],
-  ['nmfestimationtab06_2eh_571',['nmfEstimationTab06.h',['../nmf_estimation_tab06_8h.html',1,'']]],
-  ['nmfforecasttab01_2eh_572',['nmfForecastTab01.h',['../nmf_forecast_tab01_8h.html',1,'']]],
-  ['nmfforecasttab02_2eh_573',['nmfForecastTab02.h',['../nmf_forecast_tab02_8h.html',1,'']]],
-  ['nmfforecasttab03_2eh_574',['nmfForecastTab03.h',['../nmf_forecast_tab03_8h.html',1,'']]],
-  ['nmfforecasttab04_2eh_575',['nmfForecastTab04.h',['../nmf_forecast_tab04_8h.html',1,'']]],
-  ['nmfmainwindow_2eh_576',['nmfMainWindow.h',['../nmf_main_window_8h.html',1,'']]],
-  ['nmfoutputcontrols_2eh_577',['nmfOutputControls.h',['../nmf_output_controls_8h.html',1,'']]],
-  ['nmfsetuptab01_2eh_578',['nmfSetupTab01.h',['../nmf_setup_tab01_8h.html',1,'']]],
-  ['nmfsetuptab02_2eh_579',['nmfSetupTab02.h',['../nmf_setup_tab02_8h.html',1,'']]],
-  ['nmfsetuptab03_2eh_580',['nmfSetupTab03.h',['../nmf_setup_tab03_8h.html',1,'']]],
-  ['nmfsetuptab04_2eh_581',['nmfSetupTab04.h',['../nmf_setup_tab04_8h.html',1,'']]]
+  ['multiscenariosavedlg_2eh_634',['MultiScenarioSaveDlg.h',['../_multi_scenario_save_dlg_8h.html',1,'']]]
 ];

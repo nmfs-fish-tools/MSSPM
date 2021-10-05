@@ -122,12 +122,36 @@ Public Slots</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aaae74241fa2521962c5e11cc0aecbb08">callback_StopTheOptimizer</a> ()</td></tr>
 <tr class="memdesc:aaae74241fa2521962c5e11cc0aecbb08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user stops the Estimation run. <br /></td></tr>
 <tr class="separator:aaae74241fa2521962c5e11cc0aecbb08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2624826fd1f609bb177916f6a66a1882"><td class="memItemLeft" align="right" valign="top"><a id="a2624826fd1f609bb177916f6a66a1882"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_StopAllRuns</b> ()</td></tr>
+<tr class="separator:a2624826fd1f609bb177916f6a66a1882"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
+<tr class="memitem:a8ad6df707eae8b61a5b76c2804a98cdd"><td class="memItemLeft" align="right" valign="top"><a id="a8ad6df707eae8b61a5b76c2804a98cdd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a8ad6df707eae8b61a5b76c2804a98cdd">AllSubRunsCompleted</a> ()</td></tr>
+<tr class="memdesc:a8ad6df707eae8b61a5b76c2804a98cdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted at the end of a multi-run set of runs. <br /></td></tr>
+<tr class="separator:a8ad6df707eae8b61a5b76c2804a98cdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a838b4f1f818219511175e70a09e08430"><td class="memItemLeft" align="right" valign="top"><a id="a838b4f1f818219511175e70a09e08430"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a838b4f1f818219511175e70a09e08430">AMohnsRhoMultiRunCompleted</a> ()</td></tr>
+<tr class="memdesc:a838b4f1f818219511175e70a09e08430"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when a Mohn's Rho multi run has completed. <br /></td></tr>
+<tr class="separator:a838b4f1f818219511175e70a09e08430"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ecd572a2d12d00bcf801000ed3fd2c1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a0ecd572a2d12d00bcf801000ed3fd2c1">InitializeSubRuns</a> (std::string multiRunModelFilename, int totalIndividualRuns)</td></tr>
+<tr class="memdesc:a0ecd572a2d12d00bcf801000ed3fd2c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted at the start of a multi-run set of runs.  <a href="class_n_lopt___estimator.html#a0ecd572a2d12d00bcf801000ed3fd2c1">More...</a><br /></td></tr>
+<tr class="separator:a0ecd572a2d12d00bcf801000ed3fd2c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a242a7cca175e3c0d9ed21e0591020102"><td class="memItemLeft" align="right" valign="top"><a id="a242a7cca175e3c0d9ed21e0591020102"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a242a7cca175e3c0d9ed21e0591020102">QueryUserForMultiRunFilenames</a> ()</td></tr>
+<tr class="memdesc:a242a7cca175e3c0d9ed21e0591020102"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted to query user for the Multi Run Species and Model file names. <br /></td></tr>
+<tr class="separator:a242a7cca175e3c0d9ed21e0591020102"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54b477f2635a5a97cdc78801118948b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a54b477f2635a5a97cdc78801118948b5">RunCompleted</a> (std::string bestFitness, bool showDiagnosticsChart)</td></tr>
 <tr class="memdesc:a54b477f2635a5a97cdc78801118948b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted with NLopt Estimation run has complete.  <a href="class_n_lopt___estimator.html#a54b477f2635a5a97cdc78801118948b5">More...</a><br /></td></tr>
 <tr class="separator:a54b477f2635a5a97cdc78801118948b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb81082b3522404896f24484498ef0d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#afb81082b3522404896f24484498ef0d0">SubRunCompleted</a> (int run, int numRuns, std::string EstimationAlgorithm, std::string MinimizerAlgorithm, std::string ObjectiveCriterion, std::string ScalingAlgorithm, std::string multiRunModelFilename, double fitness)</td></tr>
+<tr class="memdesc:afb81082b3522404896f24484498ef0d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when NLopt Estimation sub run of a multi run has completed.  <a href="class_n_lopt___estimator.html#afb81082b3522404896f24484498ef0d0">More...</a><br /></td></tr>
+<tr class="separator:afb81082b3522404896f24484498ef0d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31fddb7ed79cd8be963aa9f1becd6e90"><td class="memItemLeft" align="right" valign="top"><a id="a31fddb7ed79cd8be963aa9f1becd6e90"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>UserHaltedRun</b> ()</td></tr>
+<tr class="separator:a31fddb7ed79cd8be963aa9f1becd6e90"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -135,21 +159,33 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a550c0da1dfb92b139272183baf2a91cc">NLopt_Estimator</a> ()</td></tr>
 <tr class="memdesc:a550c0da1dfb92b139272183baf2a91cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class constructor for the NLopt Estimation interface. <br /></td></tr>
 <tr class="separator:a550c0da1dfb92b139272183baf2a91cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0e5bba02497036d131c4e0348505863"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ab0e5bba02497036d131c4e0348505863">estimateParameters</a> (Data_Struct &amp;NLoptDataStruct, int RunNum)</td></tr>
-<tr class="memdesc:ab0e5bba02497036d131c4e0348505863"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main routine that runs the NLopt Optimizer.  <a href="class_n_lopt___estimator.html#ab0e5bba02497036d131c4e0348505863">More...</a><br /></td></tr>
-<tr class="separator:ab0e5bba02497036d131c4e0348505863"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58dcc53ef3527f075875dba53b8edc7b"><td class="memItemLeft" align="right" valign="top"><a id="a58dcc53ef3527f075875dba53b8edc7b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>stopRun</b> (const std::string &amp;elapsedTimeStr, const std::string &amp;fitnessStr)</td></tr>
+<tr class="separator:a58dcc53ef3527f075875dba53b8edc7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacce7b8074624c8d106babe407ed8b31"><td class="memItemLeft" align="right" valign="top"><a id="aacce7b8074624c8d106babe407ed8b31"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>initialize</b> (nmfStructsQt::ModelDataStruct &amp;NLoptStruct)</td></tr>
+<tr class="separator:aacce7b8074624c8d106babe407ed8b31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afdcf966c3d07bf7fba6807aaf8077da3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#afdcf966c3d07bf7fba6807aaf8077da3">estimateParameters</a> (nmfStructsQt::ModelDataStruct &amp;NLoptDataStruct, int &amp;RunNumber, std::pair&lt; bool, bool &gt; &amp;bools, std::vector&lt; QString &gt; &amp;MultiRunLines, int &amp;TotalIndividualRuns)</td></tr>
+<tr class="memdesc:afdcf966c3d07bf7fba6807aaf8077da3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main routine that runs the NLopt Optimizer.  <a href="class_n_lopt___estimator.html#afdcf966c3d07bf7fba6807aaf8077da3">More...</a><br /></td></tr>
+<tr class="separator:afdcf966c3d07bf7fba6807aaf8077da3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50954e28238f61ba43a195fef71b60dc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a50954e28238f61ba43a195fef71b60dc">getEstCarryingCapacities</a> (std::vector&lt; double &gt; &amp;EstCarryingCapacities)</td></tr>
 <tr class="memdesc:a50954e28238f61ba43a195fef71b60dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated carrying capacity values.  <a href="class_n_lopt___estimator.html#a50954e28238f61ba43a195fef71b60dc">More...</a><br /></td></tr>
 <tr class="separator:a50954e28238f61ba43a195fef71b60dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af18bd948d5795936f7d1b7024a1458d2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#af18bd948d5795936f7d1b7024a1458d2">getEstCatchability</a> (std::vector&lt; double &gt; &amp;EstCatchability)</td></tr>
 <tr class="memdesc:af18bd948d5795936f7d1b7024a1458d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated catchability values.  <a href="class_n_lopt___estimator.html#af18bd948d5795936f7d1b7024a1458d2">More...</a><br /></td></tr>
 <tr class="separator:af18bd948d5795936f7d1b7024a1458d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6f8fdb97ab83b932a87fb2bd58408595"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a6f8fdb97ab83b932a87fb2bd58408595">getEstCompetitionAlpha</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;EstInteraction)</td></tr>
-<tr class="memdesc:a6f8fdb97ab83b932a87fb2bd58408595"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated food competition alpha values.  <a href="class_n_lopt___estimator.html#a6f8fdb97ab83b932a87fb2bd58408595">More...</a><br /></td></tr>
-<tr class="separator:a6f8fdb97ab83b932a87fb2bd58408595"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee8e99eeb3b22d9383516f4b0c859d57"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aee8e99eeb3b22d9383516f4b0c859d57">getEstSurveyQ</a> (std::vector&lt; double &gt; &amp;EstSurveyQ)</td></tr>
+<tr class="memdesc:aee8e99eeb3b22d9383516f4b0c859d57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated Survey Q values.  <a href="class_n_lopt___estimator.html#aee8e99eeb3b22d9383516f4b0c859d57">More...</a><br /></td></tr>
+<tr class="separator:aee8e99eeb3b22d9383516f4b0c859d57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab54a4a682ddade9c4eee0266737b27d2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ab54a4a682ddade9c4eee0266737b27d2">getEstCompetitionAlpha</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;estCompAlpha)</td></tr>
+<tr class="memdesc:ab54a4a682ddade9c4eee0266737b27d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated food competition alpha values.  <a href="class_n_lopt___estimator.html#ab54a4a682ddade9c4eee0266737b27d2">More...</a><br /></td></tr>
+<tr class="separator:ab54a4a682ddade9c4eee0266737b27d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6917f9baf67257ffb51811a4881e8f6d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a6917f9baf67257ffb51811a4881e8f6d">getEstCompetitionBetaGuilds</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;EstCompGuilds)</td></tr>
-<tr class="memdesc:a6917f9baf67257ffb51811a4881e8f6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated food competition beta values per Guild.  <a href="class_n_lopt___estimator.html#a6917f9baf67257ffb51811a4881e8f6d">More...</a><br /></td></tr>
+<tr class="memdesc:a6917f9baf67257ffb51811a4881e8f6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated food competition beta values per Species-Guild.  <a href="class_n_lopt___estimator.html#a6917f9baf67257ffb51811a4881e8f6d">More...</a><br /></td></tr>
 <tr class="separator:a6917f9baf67257ffb51811a4881e8f6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af92c2513c5cdd0327d3b115769937029"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#af92c2513c5cdd0327d3b115769937029">getEstCompetitionBetaGuildsGuilds</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;EstCompGuildsGuilds)</td></tr>
+<tr class="memdesc:af92c2513c5cdd0327d3b115769937029"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated food competition beta values per Guild-Guild.  <a href="class_n_lopt___estimator.html#af92c2513c5cdd0327d3b115769937029">More...</a><br /></td></tr>
+<tr class="separator:af92c2513c5cdd0327d3b115769937029"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a906fc4d0bc94119d8a4bbff9993c1245"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a906fc4d0bc94119d8a4bbff9993c1245">getEstCompetitionBetaSpecies</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;EstCompSpecies)</td></tr>
 <tr class="memdesc:a906fc4d0bc94119d8a4bbff9993c1245"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated food competition beta values per Species.  <a href="class_n_lopt___estimator.html#a906fc4d0bc94119d8a4bbff9993c1245">More...</a><br /></td></tr>
 <tr class="separator:a906fc4d0bc94119d8a4bbff9993c1245"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -171,12 +207,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad6f0af00b4ad11256bbd094f4b100a08"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ad6f0af00b4ad11256bbd094f4b100a08">getVersion</a> ()</td></tr>
 <tr class="memdesc:ad6f0af00b4ad11256bbd094f4b100a08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the NLopt version.  <a href="class_n_lopt___estimator.html#ad6f0af00b4ad11256bbd094f4b100a08">More...</a><br /></td></tr>
 <tr class="separator:ad6f0af00b4ad11256bbd094f4b100a08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab016e1a725040a5a03f48696b56c1641"><td class="memItemLeft" align="right" valign="top"><a id="ab016e1a725040a5a03f48696b56c1641"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>stoppedByUser</b> ()</td></tr>
+<tr class="separator:ab016e1a725040a5a03f48696b56c1641"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a0f7ac24d31824123bd5943d49662b401"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a0f7ac24d31824123bd5943d49662b401">extractParameters</a> (const Data_Struct &amp;NLoptDataStruct, const double *EstParameters, std::vector&lt; double &gt; &amp;InitBiomass, std::vector&lt; double &gt; &amp;GrowthRate, std::vector&lt; double &gt; &amp;CarryingCapacity, std::vector&lt; double &gt; &amp;CatchabilityRate, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionAlpha, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaSpecies, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;Predation, boost::numeric::ublas::matrix&lt; double &gt; &amp;Handling, std::vector&lt; double &gt; &amp;Exponent)</td></tr>
-<tr class="memdesc:a0f7ac24d31824123bd5943d49662b401"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the estimated parameters from the NLopt Optimizer run.  <a href="class_n_lopt___estimator.html#a0f7ac24d31824123bd5943d49662b401">More...</a><br /></td></tr>
-<tr class="separator:a0f7ac24d31824123bd5943d49662b401"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a281d485a83469b0ce64acbd26e34e52f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a281d485a83469b0ce64acbd26e34e52f">extractParameters</a> (const nmfStructsQt::ModelDataStruct &amp;NLoptDataStruct, const double *EstParameters, std::vector&lt; double &gt; &amp;InitBiomass, std::vector&lt; double &gt; &amp;GrowthRate, std::vector&lt; double &gt; &amp;CarryingCapacity, std::vector&lt; double &gt; &amp;CatchabilityRate, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionAlpha, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaSpecies, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuildsGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;Predation, boost::numeric::ublas::matrix&lt; double &gt; &amp;Handling, std::vector&lt; double &gt; &amp;Exponent, std::vector&lt; double &gt; &amp;SurveyQ)</td></tr>
+<tr class="memdesc:a281d485a83469b0ce64acbd26e34e52f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the estimated parameters from the NLopt Optimizer run.  <a href="class_n_lopt___estimator.html#a281d485a83469b0ce64acbd26e34e52f">More...</a><br /></td></tr>
+<tr class="separator:a281d485a83469b0ce64acbd26e34e52f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">objectiveFunction</a> (unsigned n, const double *EstParameters, double *Gradient, void *FunctionData)</td></tr>
 <tr class="memdesc:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the objective function fitness value.  <a href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">More...</a><br /></td></tr>
 <tr class="separator:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -208,8 +247,8 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <div class="textblock"><p>This class acts as an interface class to the NLopt library. </p>
 <p>NLopt is an open-source library for non-linear optimization. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="ab0e5bba02497036d131c4e0348505863"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0e5bba02497036d131c4e0348505863">&#9670;&nbsp;</a></span>estimateParameters()</h2>
+<a id="afdcf966c3d07bf7fba6807aaf8077da3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afdcf966c3d07bf7fba6807aaf8077da3">&#9670;&nbsp;</a></span>estimateParameters()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -217,14 +256,32 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
         <tr>
           <td class="memname">void NLopt_Estimator::estimateParameters </td>
           <td>(</td>
-          <td class="paramtype">Data_Struct &amp;&#160;</td>
+          <td class="paramtype">nmfStructsQt::ModelDataStruct &amp;&#160;</td>
           <td class="paramname"><em>NLoptDataStruct</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>RunNum</em>&#160;</td>
+          <td class="paramtype">int &amp;&#160;</td>
+          <td class="paramname"><em>RunNumber</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::pair&lt; bool, bool &gt; &amp;&#160;</td>
+          <td class="paramname"><em>bools</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; QString &gt; &amp;&#160;</td>
+          <td class="paramname"><em>MultiRunLines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int &amp;&#160;</td>
+          <td class="paramname"><em>TotalIndividualRuns</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -239,14 +296,17 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
   <table class="params">
     <tr><td class="paramname">NLoptDataStruct</td><td>: structure containing all of the parameters needed by NLopt </td></tr>
     <tr><td class="paramname">RunNum</td><td>: the number of the run </td></tr>
+    <tr><td class="paramname">bools</td><td>pair holding isAMultiRun and isSetToDeterministic </td></tr>
+    <tr><td class="paramname">MultiRunLines</td><td>: the contents of the multi-run run file </td></tr>
+    <tr><td class="paramname">TotalIndividualRuns</td><td>: total of all of the multi-run runs </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="a0f7ac24d31824123bd5943d49662b401"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0f7ac24d31824123bd5943d49662b401">&#9670;&nbsp;</a></span>extractParameters()</h2>
+<a id="a281d485a83469b0ce64acbd26e34e52f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a281d485a83469b0ce64acbd26e34e52f">&#9670;&nbsp;</a></span>extractParameters()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -257,7 +317,7 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
         <tr>
           <td class="memname">void NLopt_Estimator::extractParameters </td>
           <td>(</td>
-          <td class="paramtype">const Data_Struct &amp;&#160;</td>
+          <td class="paramtype">const nmfStructsQt::ModelDataStruct &amp;&#160;</td>
           <td class="paramname"><em>NLoptDataStruct</em>, </td>
         </tr>
         <tr>
@@ -312,6 +372,12 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">boost::numeric::ublas::matrix&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>CompetitionBetaGuildsGuilds</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">boost::numeric::ublas::matrix&lt; double &gt; &amp;&#160;</td>
           <td class="paramname"><em>Predation</em>, </td>
         </tr>
         <tr>
@@ -324,7 +390,13 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
-          <td class="paramname"><em>Exponent</em>&#160;</td>
+          <td class="paramname"><em>Exponent</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>SurveyQ</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -350,10 +422,12 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
     <tr><td class="paramname">CatchabilityRate</td><td>: estimated catchability parameters </td></tr>
     <tr><td class="paramname">CompetitionAlpha</td><td>: estimated competition alpha parameters </td></tr>
     <tr><td class="paramname">CompetitionBetaSpecies</td><td>: estimated food competition beta parameters per Species </td></tr>
-    <tr><td class="paramname">CompetitionBetaGuilds</td><td>: estimated food competition beta parameters per Guild </td></tr>
-    <tr><td class="paramname">Predation</td><td>: estimated predation parameters </td></tr>
-    <tr><td class="paramname">Handling</td><td>: estimated handling parameters </td></tr>
-    <tr><td class="paramname">Exponent</td><td>: estimated handling parameters </td></tr>
+    <tr><td class="paramname">CompetitionBetaGuilds</td><td>: estimated food competition beta parameters per Species-Guild </td></tr>
+    <tr><td class="paramname">CompetitionBetaGuildsGuilds</td><td>: estimated food competition beta parameters per Guild-Guild </td></tr>
+    <tr><td class="paramname">Predation</td><td>: estimated predation rho parameters </td></tr>
+    <tr><td class="paramname">Handling</td><td>: estimated predation handling coefficient parameters </td></tr>
+    <tr><td class="paramname">Exponent</td><td>: estimated predation exponent parameters </td></tr>
+    <tr><td class="paramname">SurveyQ</td><td>: estimated SurveyQ parameters </td></tr>
   </table>
   </dd>
 </dl>
@@ -412,8 +486,8 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 </div>
 </div>
-<a id="a6f8fdb97ab83b932a87fb2bd58408595"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6f8fdb97ab83b932a87fb2bd58408595">&#9670;&nbsp;</a></span>getEstCompetitionAlpha()</h2>
+<a id="ab54a4a682ddade9c4eee0266737b27d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab54a4a682ddade9c4eee0266737b27d2">&#9670;&nbsp;</a></span>getEstCompetitionAlpha()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -422,7 +496,7 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
           <td class="memname">void NLopt_Estimator::getEstCompetitionAlpha </td>
           <td>(</td>
           <td class="paramtype">boost::numeric::ublas::matrix&lt; double &gt; &amp;&#160;</td>
-          <td class="paramname"><em>EstInteraction</em></td><td>)</td>
+          <td class="paramname"><em>estCompAlpha</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -431,7 +505,7 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <p>Get the estimated food competition alpha values. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">EstInteraction</td><td>: the estimated food competition alpha values to return </td></tr>
+    <tr><td class="paramname">estCompAlpha</td><td>: the estimated food competition alpha values to return </td></tr>
   </table>
   </dd>
 </dl>
@@ -454,10 +528,36 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
       </table>
 </div><div class="memdoc">
 
-<p>Get the estimated food competition beta values per Guild. </p>
+<p>Get the estimated food competition beta values per Species-Guild. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">EstCompGuilds</td><td>: the estimated food competition beta values per Guild to return </td></tr>
+    <tr><td class="paramname">EstCompGuilds</td><td>: the estimated food competition beta values per Species-Guild to return </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="af92c2513c5cdd0327d3b115769937029"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af92c2513c5cdd0327d3b115769937029">&#9670;&nbsp;</a></span>getEstCompetitionBetaGuildsGuilds()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::getEstCompetitionBetaGuildsGuilds </td>
+          <td>(</td>
+          <td class="paramtype">boost::numeric::ublas::matrix&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>EstCompGuildsGuilds</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the estimated food competition beta values per Guild-Guild. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">EstCompGuilds</td><td>: the estimated food competition beta values per Guild-Guild to return </td></tr>
   </table>
   </dd>
 </dl>
@@ -620,6 +720,32 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 </div>
 </div>
+<a id="aee8e99eeb3b22d9383516f4b0c859d57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee8e99eeb3b22d9383516f4b0c859d57">&#9670;&nbsp;</a></span>getEstSurveyQ()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::getEstSurveyQ </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>EstSurveyQ</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the estimated Survey Q values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">EstSurveyQ</td><td>: the estimated Surbey Q values to return </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ad6f0af00b4ad11256bbd094f4b100a08"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad6f0af00b4ad11256bbd094f4b100a08">&#9670;&nbsp;</a></span>getVersion()</h2>
 
@@ -637,6 +763,51 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 <p>Gets the NLopt version. </p>
 <dl class="section return"><dt>Returns</dt><dd>Returns a QString which comprises the major, minor, and bugfix version of NLopt </dd></dl>
+
+</div>
+</div>
+<a id="a0ecd572a2d12d00bcf801000ed3fd2c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ecd572a2d12d00bcf801000ed3fd2c1">&#9670;&nbsp;</a></span>InitializeSubRuns</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::InitializeSubRuns </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>multiRunModelFilename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>totalIndividualRuns</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted at the start of a multi-run set of runs. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">multiRunModelFilename</td><td>: name of Multi-Run Model File </td></tr>
+    <tr><td class="paramname">totalIndividualRuns</td><td>: total number of runs </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -829,6 +1000,93 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
   <table class="params">
     <tr><td class="paramname">bestFitness</td><td>: string representing the best fitness value </td></tr>
     <tr><td class="paramname">showDiagnosticsChart</td><td>: boolean signfying whether the diagnostic 3d chart should be displayed after the run completes </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="afb81082b3522404896f24484498ef0d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb81082b3522404896f24484498ef0d0">&#9670;&nbsp;</a></span>SubRunCompleted</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::SubRunCompleted </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>run</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>numRuns</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>EstimationAlgorithm</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>MinimizerAlgorithm</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>ObjectiveCriterion</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>ScalingAlgorithm</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>multiRunModelFilename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>fitness</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted when NLopt Estimation sub run of a multi run has completed. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">run</td><td>: current run </td></tr>
+    <tr><td class="paramname">numRuns</td><td>: total number of runs in multi run </td></tr>
+    <tr><td class="paramname">EstimationAlgorithm</td><td>: name of estimation algorithm </td></tr>
+    <tr><td class="paramname">MinimizerAlgorithm</td><td>: name of the minimizer algorithm </td></tr>
+    <tr><td class="paramname">ObjectiveCriterion</td><td>: name of the objective criterion </td></tr>
+    <tr><td class="paramname">ScalingAlgorithm</td><td>: name of the scaling algorithm </td></tr>
+    <tr><td class="paramname">multiRunModelFilename</td><td>: name of file that will contain the model data from all of the multi runs </td></tr>
+    <tr><td class="paramname">fitness</td><td>: fitness value of current run </td></tr>
   </table>
   </dd>
 </dl>

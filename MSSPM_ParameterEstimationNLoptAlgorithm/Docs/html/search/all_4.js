@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['this_20project_20contains_20the_20msspm_20nlopt_20estimation_20interface',['This project contains the MSSPM NLopt Estimation Interface',['../index.html',1,'']]]
+  ['initialize_19',['initialize',['../class_n_lopt___estimator.html#aacce7b8074624c8d106babe407ed8b31',1,'NLopt_Estimator']]],
+  ['initializesubruns_20',['InitializeSubRuns',['../class_n_lopt___estimator.html#a0ecd572a2d12d00bcf801000ed3fd2c1',1,'NLopt_Estimator']]]
 ];

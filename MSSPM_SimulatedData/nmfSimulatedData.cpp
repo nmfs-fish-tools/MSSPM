@@ -3,10 +3,10 @@
 
 
 nmfSimulatedData::nmfSimulatedData(
-        std::string&  projectName,
-        std::string&  modelName,
         nmfDatabase*  database,
-        nmfLogger*    logger)
+        nmfLogger*    logger,
+        std::string&  projectName,
+        std::string&  modelName)
 {
     m_ProjectName = projectName;
     m_ModelName   = modelName;
@@ -15,8 +15,8 @@ nmfSimulatedData::nmfSimulatedData(
 }
 
 bool
-nmfSimulatedData::createSimulatedBiomass(QString filename,
-                                         const int& errorPct)
+nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
+                                         QString& filename)
 {
     bool retv = true;
     int RunLength=0;
@@ -63,8 +63,10 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
     std::map<int,std::vector<int> > GuildSpecies;
 
     // First run the Mohns Rho
-    if (! m_Database->getModelFormData(GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                                       RunLength,InitialYear,m_Logger,m_ProjectName,m_ModelName)) {
+    if (! m_Database->getModelFormData(
+                m_Logger,m_ProjectName,m_ModelName,
+                GrowthForm,HarvestForm,CompetitionForm,PredationForm,
+                RunLength,InitialYear)) {
         msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getModelFormData";
         m_Logger->logMsg(nmfConstants::Error,msg);
         return false;
@@ -72,8 +74,9 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
     RunLength++; // to include the last year
 
     // Get initial data: B(0), r, and K (just to start with the Schaefer model)
-    if (! m_Database->getSpeciesInitialData(NumSpecies,SpeciesList,InitialBiomass,
-                                GrowthRate,SpeciesK,m_Logger)) {
+    if (! m_Database->getSpeciesInitialData(
+                m_Logger,NumSpecies,SpeciesList,InitialBiomass,
+                GrowthRate,SpeciesK)) {
         msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getSpeciesInitialData";
         m_Logger->logMsg(nmfConstants::Error,msg);
         return false;
@@ -119,8 +122,8 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
 
     bool isAggProd = (CompetitionForm == "AGG_PROD");
 
-    getCompetitionSystemCarryingCapacity(isAggProd,NumGuilds,GuildSpecies,
-                                         SpeciesK,SystemCarryingCapacity);
+    getSystemCarryingCapacity(isAggProd,NumGuilds,SpeciesK,
+                              GuildSpecies,SystemCarryingCapacity);
 
     // Load initial biomasses for all species prior to starting loop because some
     // models wlll require other species' previous year's biomass
@@ -155,8 +158,8 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
                 return false;
             }
 
-            getCompetitionGuildCarryingCapacity(isAggProd,species,SpeciesK,GuildNum,
-                                                GuildSpecies,GuildCarryingCapacity);
+            getGuildCarryingCapacity(isAggProd,species,SpeciesK,GuildNum,
+                                     GuildSpecies,GuildCarryingCapacity);
 
             simGrowthValue = SimGrowthForm.evaluate(species,lastYearBiomass,
                                                     GrowthRate,SpeciesK);
@@ -184,7 +187,7 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
 //std::cout << "sim year: " << time << ", val = " << lastYearBiomass << " + " << simGrowthValue << " - " << simHarvestValue << " - "
 //          << simCompetitionValue << " - " << simPredationValue <<  " = " << val << std::endl;
 
-            addError(val,errorPct);
+            addError(errorPct,val);
             SimulatedBiomass(time,species) = (val < 0) ? 0 : val;
 //std::cout << "sim val(" << time << "," << species << "): " << SimulatedBiomass(time,species) << std::endl;
         }
@@ -217,29 +220,27 @@ nmfSimulatedData::createSimulatedBiomass(QString filename,
         file.close();
     }
 
-
 std::cout << "Model: " << formCheck.toStdString() << std::endl;
     return retv;
 }
 
-bool
-nmfSimulatedData::addError(double& value, const int& errorPct)
+void
+nmfSimulatedData::addError(const int& errorPct,
+                           double& value)
 {
     double factor = nmfUtils::getRandomNumber(0,-1,1);
-    double error = value * (errorPct/100.0);
+    double error  = value * (errorPct/100.0);
 
     value += factor*error;
-    value = (value < 0) ? 0 : value;
-
-    return true;
+    value  = (value < 0) ? 0 : value;
 }
 
-bool
-nmfSimulatedData::getCompetitionSystemCarryingCapacity(
+void
+nmfSimulatedData::getSystemCarryingCapacity(
         const bool isAggProd,
         const int& NumGuilds,
-        std::map<int,std::vector<int> >& GuildSpecies,
         const std::vector<double>& SpeciesK,
+        std::map<int,std::vector<int> >& GuildSpecies,
         double& SystemCarryingCapacity)
 {
     SystemCarryingCapacity = 0;
@@ -249,16 +250,15 @@ nmfSimulatedData::getCompetitionSystemCarryingCapacity(
         }
     } else {
         for (int i=0; i<NumGuilds; ++i) {
-            for (unsigned j=0; j<GuildSpecies[i].size(); ++j) {
+            for (unsigned j=0; j<(unsigned)GuildSpecies[i].size(); ++j) {
                 SystemCarryingCapacity += SpeciesK[GuildSpecies[i][j]];
             }
         }
     }
-    return true;
 }
 
-bool
-nmfSimulatedData::getCompetitionGuildCarryingCapacity(
+void
+nmfSimulatedData::getGuildCarryingCapacity(
         const bool isAggProd,
         const int& species,
         const std::vector<double>& SpeciesK,
@@ -275,7 +275,6 @@ nmfSimulatedData::getCompetitionGuildCarryingCapacity(
             GuildCarryingCapacity += SpeciesK[GuildSpecies[guildNum][j]];
         }
     }
-    return true;
 }
 
 /*

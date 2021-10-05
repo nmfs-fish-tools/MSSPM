@@ -2,6 +2,7 @@ var classnmf_forecast___tab2 =
 [
     [ "nmfForecast_Tab2", "classnmf_forecast___tab2.html#a66ba8f2976e1f9132170a97dcfcbb0ae", null ],
     [ "~nmfForecast_Tab2", "classnmf_forecast___tab2.html#abf0f522b4fd68acea41c0987f29dca4a", null ],
+    [ "areDataComplete", "classnmf_forecast___tab2.html#a4977146c4f7204ff3bbb2cfcb2d9a701", null ],
     [ "callback_AutoSaveCB", "classnmf_forecast___tab2.html#a73c384f81dc45e598aca4b9316956fe1", null ],
     [ "callback_LoadPB", "classnmf_forecast___tab2.html#ae28d842bf9763b25f9f2e522598fdd3a", null ],
     [ "callback_MultiplierCB", "classnmf_forecast___tab2.html#a6897eee8cacb89befadc7666f84395e3", null ],

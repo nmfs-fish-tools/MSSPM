@@ -1,14 +1,17 @@
 var searchData=
 [
-  ['getestimatedcarryingcapacities',['getEstimatedCarryingCapacities',['../class_bees___estimator.html#ac8406eb5323709c7ec8fab5fbae26329',1,'Bees_Estimator']]],
-  ['getestimatedcatchability',['getEstimatedCatchability',['../class_bees___estimator.html#ad8b639c14ee2af778fa9a01f97493833',1,'Bees_Estimator']]],
-  ['getestimatedcompetitionalpha',['getEstimatedCompetitionAlpha',['../class_bees___estimator.html#ab7d0d9d8bfb3d3bb47222d4d0ee20db5',1,'Bees_Estimator']]],
-  ['getestimatedcompetitionbetaguilds',['getEstimatedCompetitionBetaGuilds',['../class_bees___estimator.html#a91b3fbda9736a88381ffd0b389704dcf',1,'Bees_Estimator']]],
-  ['getestimatedcompetitionbetaspecies',['getEstimatedCompetitionBetaSpecies',['../class_bees___estimator.html#af38bcbde91f1d8884aa421d51bf7a76c',1,'Bees_Estimator']]],
-  ['getestimatedexponent',['getEstimatedExponent',['../class_bees___estimator.html#a3bcea4cfdced0b19c36ca73c34924485',1,'Bees_Estimator']]],
-  ['getestimatedgrowthrates',['getEstimatedGrowthRates',['../class_bees___estimator.html#a56969db5ce54f14f3de3220136ee4bcc',1,'Bees_Estimator']]],
-  ['getestimatedhandling',['getEstimatedHandling',['../class_bees___estimator.html#a5ef971b00d5e43579ebb41df6a4300ed',1,'Bees_Estimator']]],
-  ['getestimatedpredation',['getEstimatedPredation',['../class_bees___estimator.html#a005f7eba7f2c83b74933e37e0e479a3c',1,'Bees_Estimator']]],
-  ['getmean',['getMean',['../class_bees_stats.html#ab3f485c43b7a99f75389e9a458a372b9',1,'BeesStats']]],
-  ['getstddev',['getStdDev',['../class_bees_stats.html#a6244924ae5a8dc0048f5ee2ca8fba87d',1,'BeesStats']]]
+  ['getestcarryingcapacities_37',['getEstCarryingCapacities',['../class_bees___estimator.html#a3aa0981a00ae72fabe142e1eabb4a645',1,'Bees_Estimator']]],
+  ['getestcatchability_38',['getEstCatchability',['../class_bees___estimator.html#a7e431d7901e077679a3786c92f6e9b0b',1,'Bees_Estimator']]],
+  ['getestcompetitionalpha_39',['getEstCompetitionAlpha',['../class_bees___estimator.html#a40fabc2f299b1a6c3db712f33f0bc9f2',1,'Bees_Estimator']]],
+  ['getestcompetitionbetaguilds_40',['getEstCompetitionBetaGuilds',['../class_bees___estimator.html#a992ea9bd7cc6b3d32f854391040f77a0',1,'Bees_Estimator']]],
+  ['getestcompetitionbetaguildsguilds_41',['getEstCompetitionBetaGuildsGuilds',['../class_bees___estimator.html#ad3ac4057da89e5ff61055fd75f92afc1',1,'Bees_Estimator']]],
+  ['getestcompetitionbetaspecies_42',['getEstCompetitionBetaSpecies',['../class_bees___estimator.html#a5160d93d8d2e3a218c36fe915e574890',1,'Bees_Estimator']]],
+  ['getestexponent_43',['getEstExponent',['../class_bees___estimator.html#a5dd97b0204b4e0068850f914845a8ca2',1,'Bees_Estimator']]],
+  ['getestgrowthrates_44',['getEstGrowthRates',['../class_bees___estimator.html#ade91d1e916341e49ef1b314c2b7aada6',1,'Bees_Estimator']]],
+  ['getesthandling_45',['getEstHandling',['../class_bees___estimator.html#a1cf2307f6460ba87e77d26e6dda8e75e',1,'Bees_Estimator']]],
+  ['getestinitbiomass_46',['getEstInitBiomass',['../class_bees___estimator.html#a1192df1f2645609d5c6d91eab2464194',1,'Bees_Estimator']]],
+  ['getestpredation_47',['getEstPredation',['../class_bees___estimator.html#aa310a9452edb3ddaf230d16df54a96c5',1,'Bees_Estimator']]],
+  ['getestsurveyq_48',['getEstSurveyQ',['../class_bees___estimator.html#a28cf2ff0c6438b3da720598c8f149c43',1,'Bees_Estimator']]],
+  ['getmean_49',['getMean',['../class_bees_stats.html#ab3f485c43b7a99f75389e9a458a372b9',1,'BeesStats']]],
+  ['getstddev_50',['getStdDev',['../class_bees_stats.html#a6244924ae5a8dc0048f5ee2ca8fba87d',1,'BeesStats']]]
 ];

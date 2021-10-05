@@ -103,8 +103,8 @@ private:
     QComboBox*   Estimation_Tab3_MinMaxCMB;
     QComboBox*   Estimation_Tab3_MinMaxCMB2;
 
-    QStringList getSpecies();
-    QStringList getGuilds();
+//  QStringList getSpecies();
+//  QStringList getGuilds();
     void        readSettings();
     std::vector<std::string> getAllTableNames();
     bool isNull();
@@ -138,15 +138,33 @@ public:
      */
     void clearWidgets();
     /**
+     * @brief Loads the active Competition CSV files into the appropriate Competition tables
+     * @param allTableNames : table names to load
+     */
+    void loadCSVFiles(const std::vector<std::string>& allTableNames);
+    /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */
     bool loadWidgets();
-    void saveCSVFiles(std::vector<std::string>& allTableNames);
-    void loadCSVFiles(std::vector<std::string>& allTableNames);
+    /**
+     * @brief resetSpinBox : Sets the min/max range spin box to the appropriate percentage value
+     * based upon the value found in the first non-zero row and non-zero column
+     * @param nonZeroCell : a pair whose value is the first (non zero row, non zero column) in the table
+     */
     void resetSpinBox(const std::pair<int,int>& nonZeroCell);
+    /**
+     * @brief Saves the active Competition table data to the appropriate Competition data files
+     * @param allTableNames : table names to save
+     */
+    void saveCSVFiles(const std::vector<std::string>& allTableNames);
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when the user updates the Competition Form in the Setup -> Model Setup page
+     * @param competitionForm : the competition form selected by the user
+     */
+    void callback_CompetitionFormChanged(QString competitionForm);
     /**
      * @brief Callback invoked when the user clicks the Export button to save a .csv file
      */
@@ -160,17 +178,16 @@ public Q_SLOTS:
      */
     void callback_LoadPB();
     /**
-     * @brief Callback invoked when the user clicks the Save button
+     * @brief Callback invoked when the user changes any of the Maximum Competitive Effects splitters
+     * @param pos : position of the splitter
+     * @param index : the index of the splitter changed
      */
-    void callback_SavePB();
+    void callback_MaxSplitterMoved(int pos, int index);
     /**
-     * @brief Callback invoked when the user clicks the Previous Page button
+     * @brief Callback invoked when the user changes one of the two range type combo boxes (it just updates the other one)
+     * @param rangeType : range type changed to (min/max, min only, or max only)
      */
-    void callback_PrevPB();
-    /**
-     * @brief Callback invoked when the user clicks the Next Page button
-     */
-    void callback_NextPB();
+    void callback_MinMaxCMB(QString rangeType);
     /**
      * @brief Callback invoked when the user changes any of the Minimum Competitive Effects splitters
      * @param pos : position of the splitter
@@ -178,31 +195,26 @@ public Q_SLOTS:
      */
     void callback_MinSplitterMoved(int pos, int index);
     /**
-     * @brief Callback invoked when the user changes any of the Maximum Competitive Effects splitters
-     * @param pos : position of the splitter
-     * @param index : the index of the splitter changed
+     * @brief Callback invoked when the user clicks the Next Page button
      */
-    void callback_MaxSplitterMoved(int pos, int index);
-    /**
-     * @brief Callback invoked when the user updates the Competition Form in the Setup -> Model Setup page
-     * @param competitionForm : the competition form selected by the user
-     */
-    void callback_CompetitionFormChanged(QString competitionForm);
-    /**
-     * @brief Callback invoked when the user changes one of the two range type combo boxes (it just updates the other one)
-     * @param rangeType : range type changed to (min/max, min only, or max only)
-     */
-    void callback_MinMaxCMB(QString rangeType);
+    void callback_NextPB();
     /**
      * @brief Callback invoked when user sets the Competition min/max range percent spin box
      * @param value : integer percent value to make the min/max range difference (i.e., 2 => min is 2% less than the initial values and max is 2% greater than the initial values)
      */
     void callback_PctRangeSB(int value);
     /**
+     * @brief Callback invoked when the user clicks the Previous Page button
+     */
+    void callback_PrevPB();
+    /**
+     * @brief Callback invoked when the user clicks the Save button
+     */
+    void callback_SavePB();
+    /**
      * @brief Callback invoked when the user clicks the T button. This will cause the data in every Competition matrix to be transposed.
      */
     void callback_TransposePB();
-
 };
 
 #endif // NMFESTIMATIONTAB3_H

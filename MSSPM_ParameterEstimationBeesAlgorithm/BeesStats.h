@@ -55,7 +55,13 @@ private:
     std::vector<std::vector<double> > m_data;
 
 public:
-    BeesStats(const int &totParameters, const int& numRuns);
+    /**
+     * @brief Class constructor
+     * @param totParameters : total number of parameters
+     * @param numRuns : total number of runs
+     */
+    BeesStats(const int& totParameters,
+              const int& numRuns);
    ~BeesStats() {}
 
     /**

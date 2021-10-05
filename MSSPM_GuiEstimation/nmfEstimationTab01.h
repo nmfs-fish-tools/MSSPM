@@ -56,7 +56,7 @@ class nmfEstimation_Tab1: public QObject
     std::string          m_ProjectName;
     std::string          m_ModelName;
     QModelIndexList      m_selIndexes;
-    QList<QString> m_originalSpeciesValuesAll;
+    QList<QString>       m_originalSpeciesValuesAll;
     std::vector<double>  m_originalValuesSelected;
     int                  m_StartPosSL;
     QString              m_OutputSpecies;
@@ -93,6 +93,7 @@ class nmfEstimation_Tab1: public QObject
                                      QString name,
                                      QString badParameter,
                                      bool showPopup);
+    bool getCSVFileName(QString& tableName);
     QModelIndexList getSelectedVisibleCells();
     void getSelectedIndexes();
     void importGuildData(const QString& tableName,
@@ -109,36 +110,35 @@ class nmfEstimation_Tab1: public QObject
     void resetModifySlider();
     void resetSelection();
     void resetVisibleColumns();
-    bool savePopulationParameterSpeciesK();
-    void showNoColumns(QTableView* tv);
-    void showAllColumns(QTableView* tv);
-    void showPrimaryColumns(QTableView* tv);
-    void showSuppColumns(QTableView* tv,bool show);
-    void showRangeColumns(QTableView* tv,bool show);
-    bool getCSVFileName(QString& tableName);
+    bool saveGuildDataPrimary(bool showPopup);
+    bool saveGuildDataSupplemental(bool showPopup);
+    bool saveGuildDataRange(bool showPopup);
+    bool saveGuildDataSupplementalAndRange(bool showPopup);
     void saveGuildsCSVFile(QString& tableName,
                            QList<QString>& GuildName,
                            QList<QString>& GrowthRate,
                            QList<QString>& GuildK);
+    bool savePopulationParameterGuildK();
+    bool savePopulationParametersGuilds(bool showPopup);
+    bool savePopulationParametersSpecies(bool showPopup);
+    bool savePopulationParameterSpeciesK();
     void saveSpeciesCSVFile(QString& tableName,
                             QList<QString>& SpeciesName,
                             QList<QString>& SpeciesGuild,
                             QList<QString>& SpeciesInitialBiomass,
                             QList<QString>& SpeciesGrowthRate,
                             QList<QString>& SpeciesK);
-    bool savePopulationParametersGuilds(bool showPopup);
-    bool savePopulationParameterGuildK();
-    bool saveGuildDataPrimary(bool showPopup);
-    bool saveGuildDataSupplemental(bool showPopup);
-    bool saveGuildDataRange(bool showPopup);
-    bool saveGuildDataSupplementalAndRange(bool showPopup);
-    bool savePopulationParametersSpecies(bool showPopup);
     bool saveSpeciesDataPrimary(bool showPopup);
     bool saveSpeciesDataSupplemental(bool showPopup);
     bool saveSpeciesDataRange(bool showPopup);
     bool saveSpeciesDataSupplementalAndRange(bool showPopup);
     void setupHelpSpecies();
     void setupHelpGuilds();
+    void showNoColumns(QTableView* tv);
+    void showAllColumns(QTableView* tv);
+    void showPrimaryColumns(QTableView* tv);
+    void showSuppColumns(QTableView* tv,bool show);
+    void showRangeColumns(QTableView* tv,bool show);
     bool surveyQValid(bool showPopup);
     void updateBiomassAbsoluteTable();
 
@@ -155,30 +155,7 @@ signals:
      * @brief Queries main program to load local list with Species Guild names
      */
     void LoadSpeciesGuild();
-    /**
-     * @brief Signal sent so the Guild Setup tab will be updated with the appropriate Guild fields
-     * @param GuildNames : list of guilds names
-     * @param GuildGrowthRate : list of guild growth rates
-     * @param GuildK : list of guild carrying capacities
-     */
-    void UpdateGuildSetupData(
-            QList<QString> GuildNames,
-            QList<QString> GuildGrowthRate,
-            QList<QString> GuildK);
-    /**
-     * @brief Signal sent so the Species Setup tab will be updated with the appropriate Species fields
-     * @param SpeciesNames : list of species names
-     * @param SpeciesGuilds : list of guilds that each species is in
-     * @param SpeciesInitBiomass : list of species initial biomass values
-     * @param SpeciesGrowthRate : list of species growth rates
-     * @param SpeciesK : list of species carrying capacities
-     */
-    void UpdateSpeciesSetupData(
-            QList<QString> SpeciesNames,
-            QList<QString> SpeciesGuilds,
-            QList<QString> SpeciesInitBiomass,
-            QList<QString> SpeciesGrowthRate,
-            QList<QString> SpeciesK);
+
     /**
      * @brief Signal notifying other widgets to reload guilds data
      * @param showPopup : boolean signifying whether the application should pop up a successful reload acknowledgement
@@ -211,6 +188,30 @@ signals:
      * @brief Signal causes the Species names in the Output Species widget to be temporarily saved
      */
     void StoreOutputSpecies();
+    /**
+     * @brief Signal sent so the Guild Setup tab will be updated with the appropriate Guild fields
+     * @param GuildNames : list of guilds names
+     * @param GuildGrowthRate : list of guild growth rates
+     * @param GuildK : list of guild carrying capacities
+     */
+    void UpdateGuildSetupData(
+            QList<QString> GuildNames,
+            QList<QString> GuildGrowthRate,
+            QList<QString> GuildK);
+    /**
+     * @brief Signal sent so the Species Setup tab will be updated with the appropriate Species fields
+     * @param SpeciesNames : list of species names
+     * @param SpeciesGuilds : list of guilds that each species is in
+     * @param SpeciesInitBiomass : list of species initial biomass values
+     * @param SpeciesGrowthRate : list of species growth rates
+     * @param SpeciesK : list of species carrying capacities
+     */
+    void UpdateSpeciesSetupData(
+            QList<QString> SpeciesNames,
+            QList<QString> SpeciesGuilds,
+            QList<QString> SpeciesInitBiomass,
+            QList<QString> SpeciesGrowthRate,
+            QList<QString> SpeciesK);
 
 public:
     /**
@@ -268,6 +269,16 @@ public Q_SLOTS:
      */
     void callback_ExportPB();
     /**
+     * @brief Callback invoked when user checks the Guilds Range Data check box. This
+     * shows or hides the range data columns in the Guilds table.
+     */
+    void callback_GuildRangeCB(bool isChecked);
+    /**
+     * @brief Callback invoked when user checks the Guilds Supplemental Data check box. This
+     * shows or hides the supplemental data columns in the Guilds table.
+     */
+    void callback_GuildSuppCB(bool isChecked);
+    /**
      * @brief Callback invoked when the user clicks the Import button to load data from a .csv file
      */
     void callback_ImportPB();
@@ -313,10 +324,6 @@ public Q_SLOTS:
      */
     void callback_RestorePB();
     /**
-     * @brief Callback invoked when the user clicks the Save button
-     */
-    void callback_SavePB();
-    /**
      * @brief Callback invoked when the user saves the Guilds from
      * the Guilds Setup tab
      * @param GuildName : list of guild names
@@ -326,6 +333,10 @@ public Q_SLOTS:
     void callback_SaveGuildsCSVFile(QList<QString> GuildName,
                                     QList<QString> GrowthRate,
                                     QList<QString> GuildK);
+    /**
+     * @brief Callback invoked when the user clicks the Save button
+     */
+    void callback_SavePB();
     /**
      * @brief Callback invoked when the user saves the Species from
      * the Species Setup tab
@@ -348,35 +359,25 @@ public Q_SLOTS:
     void callback_SelectionChangedTV(const QItemSelection& selection,
                                      const QItemSelection& deselection);
     /**
-     * @brief Callback invoked when user checks the Guilds Supplemental Data check box. This
-     * shows or hides the supplemental data columns in the Guilds table.
+     * @brief Callback invoked when user checks the Species Range Data check box. This
+     * shows or hides the range data columns in the Species table.
      */
-    void callback_GuildSuppCB(bool isChecked);
+    void callback_SpeciesRangeCB(bool isChecked);
     /**
      * @brief Callback invoked when user changes the range type combo box
      * @param value : value of combobox setting (i.e., User Defined or Percentage)
      */
     void callback_SpeciesRangeCMB(QString value);
     /**
-     * @brief Callback invoked when user checks the Species Supplemental Data check box. This
-     * shows or hides the supplemental data columns in the Species table.
-     */
-    void callback_SpeciesSuppCB(bool isChecked);
-    /**
-     * @brief Callback invoked when user checks the Guilds Range Data check box. This
-     * shows or hides the range data columns in the Guilds table.
-     */
-    void callback_GuildRangeCB(bool isChecked);
-    /**
-     * @brief Callback invoked when user checks the Species Range Data check box. This
-     * shows or hides the range data columns in the Species table.
-     */
-    void callback_SpeciesRangeCB(bool isChecked);
-    /**
      * @brief Callback invoked when user changes the Species range percent combo box
      * @param pct - percentage value of how the min/max values should be set around each parameter
      */
     void callback_SpeciesRangeSB(int pct);
+    /**
+     * @brief Callback invoked when user checks the Species Supplemental Data check box. This
+     * shows or hides the supplemental data columns in the Species table.
+     */
+    void callback_SpeciesSuppCB(bool isChecked);
 
 };
 

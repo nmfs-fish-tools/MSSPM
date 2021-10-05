@@ -62,9 +62,6 @@ class  NLopt_Estimator : public QObject
 
     Q_OBJECT
 
-
-
-
 private:
     int                                    m_Seed;
     static nlopt::opt                      m_Optimizer;
@@ -86,7 +83,13 @@ private:
     std::vector<double>                    m_Parameters;
 
 
-    std::string returnCode(int result);
+    std::string convertValues1DToOutputStr(
+            const std::string& label,
+            const std::vector<double> &Values,
+            const bool& includeTotal);
+    std::string convertValues2DToOutputStr(
+            const std::string& label,
+            const boost::numeric::ublas::matrix<double> &matrix);
     void createOutputStr(
             const int&         numEstParameters,
             const int&         numTotalParameters,
@@ -95,42 +98,43 @@ private:
             const double&      fitnessStdDev,
             const nmfStructsQt::ModelDataStruct& beeStruct,
             std::string&       bestFitnessStr);
-    std::string convertValues1DToOutputStr(const std::string& label,
-                                    const std::vector<double> &Values,
-                                    const bool& includeTotal);
-    std::string convertValues2DToOutputStr(const std::string& label,
-                                    const boost::numeric::ublas::matrix<double> &matrix);
-    static void incrementObjectiveFunctionCounter(std::string MSSPMName,
-                                           double fitness,
-                                           nmfStructsQt::ModelDataStruct NLoptDataStruct);
-//    double  dnorm4(double x, double mu, double sigma, int give_log);
-
     void loadInitBiomassParameterRanges(
             std::vector<std::pair<double,double> >& parameterRanges,
             const nmfStructsQt::ModelDataStruct& dataStruct);
     void loadSurveyQParameterRanges(
             std::vector<std::pair<double,double> >& parameterRanges,
             const nmfStructsQt::ModelDataStruct& dataStruct);
-    void setStoppingCriteria(nmfStructsQt::ModelDataStruct&  NLoptStruct);
-    void setObjectiveFunction(nmfStructsQt::ModelDataStruct& NLoptStruct,
-                              std::string& MaxOrMin);
-    void setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
-                            std::vector<std::pair<double,double> >& ParameterRanges,
-                            const int& NumEstParameters);
     void reloadNLoptStruct(
             nmfStructsQt::ModelDataStruct& NLoptStruct,
             const QString& MultiRunLine);
-    void setSeed(const bool& isSetToDeterministic,
-                 const bool& useFixedSeed);
+    std::string returnCode(int result);
+    void setObjectiveFunction(
+            nmfStructsQt::ModelDataStruct& NLoptStruct,
+            std::string& MaxOrMin);
+    void setParameterBounds(
+            nmfStructsQt::ModelDataStruct& NLoptStruct,
+            std::vector<std::pair<double,double> >& ParameterRanges,
+            const int& NumEstParameters);
+    void setSeed(
+            const bool& isSetToDeterministic,
+            const bool& useFixedSeed);
+    void setStoppingCriteria(nmfStructsQt::ModelDataStruct&  NLoptStruct);
 
-    static double myNaturalLog(double value);
+    static void incrementObjectiveFunctionCounter(
+            std::string MSSPMName,
+            double fitness,
+            nmfStructsQt::ModelDataStruct NLoptDataStruct);
     static double myExp(double value);
+    static double myNaturalLog(double value);
 
 signals:
     /**
      * @brief Signal emitted at the end of a multi-run set of runs
      */
     void AllSubRunsCompleted();
+    /**
+     * @brief Signal emitted when a Mohn's Rho multi run has completed
+     */
     void AMohnsRhoMultiRunCompleted();
     /**
      * @brief Signal emitted at the start of a multi-run set of runs
@@ -171,38 +175,27 @@ signals:
                          std::string multiRunModelFilename,
                          double fitness);
 
-    void UserHaltedRun();
-
-
 public:
+    /**
+     * @brief m_NLoptFcnEvals : counts the number of function evaluations
+     */
+    static int m_NLoptFcnEvals;
+    /**
+     * @brief m_NumObjFcnCalls : counts the number of objective function calls
+     */
+    static int m_NumObjFcnCalls;
+    /**
+     * @brief Keeps track of the run number
+     */
+    static int m_RunNum;
+
+
     /**
      * @brief Class constructor for the NLopt Estimation interface
      */
     NLopt_Estimator();
    ~NLopt_Estimator();
 
-    void stopRun(const std::string &elapsedTimeStr,
-                 const std::string &fitnessStr);
-
-    void initialize(nmfStructsQt::ModelDataStruct &NLoptStruct);
-//    /**
-//     * @brief Counts the number of run iterations
-//     */
-//    static int m_NLoptIters;
-    /**
-     * @brief Counts the number of function evaluations
-     */
-    static int m_NLoptFcnEvals;
-
-    static int m_NumObjFcnCalls;
-//    /**
-//     * @brief Counts the number of run iterations by the thousands
-//     */
-//    static int m_Counter;
-    /**
-     * @brief Keeps track of the run number
-     */
-    static int m_RunNum;
     /**
      * @brief The main routine that runs the NLopt Optimizer
      * @param NLoptDataStruct : structure containing all of the parameters needed by NLopt
@@ -327,6 +320,11 @@ public:
      */
     QString getVersion();
     /**
+     * @brief Initalizes the model form pointers
+     * @param NLoptStruct : data structure containing necessary run information
+     */
+    void initialize(nmfStructsQt::ModelDataStruct &NLoptStruct);
+    /**
      * @brief Calculates the objective function fitness value
      * @param n : unused (needed by NLopt library)
      * @param EstParameters : estimated parameter values
@@ -355,6 +353,9 @@ public:
     static void rescaleMinMax(
             const boost::numeric::ublas::matrix<double>& Matrix,
             boost::numeric::ublas::matrix<double>&       RescaledMatrix);
+    bool stoppedByUser();
+    void stopRun(const std::string &elapsedTimeStr,
+                 const std::string &fitnessStr);
     /**
      * @brief Updates the output chart data file with Optimization status. Another
      * process reads this file and updates the progress chart accordingly.
@@ -365,20 +366,21 @@ public:
      * @param NumGensSinceBestFit : unused
      */
     static void writeCurrentLoopFile(
-            std::string& MSSPMName,
-            int&         NumGens,
-            double&      BestFitness,
-            std::string& ObjectiveCriterion,
-            int&         NumGensSinceBestFit);
-
-    bool stoppedByUser();
+            const std::string& MSSPMName,
+            const int&         NumGens,
+            const double&      BestFitness,
+            const std::string& ObjectiveCriterion,
+            const int&         NumGensSinceBestFit);
 
 public slots:
+    /**
+     * @brief Callback invoked when the user indicates they wish to stop all Estimation runs (i.e., during a multi-run)
+     */
+    void callback_StopAllRuns();
     /**
      * @brief Callback invoked when the user stops the Estimation run
      */
     void callback_StopTheOptimizer();
-    void callback_StopAllRuns();
 };
 
 

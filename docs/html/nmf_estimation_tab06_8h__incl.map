@@ -1,6 +1,10 @@
 <map id="MSSPM_GuiEstimation/nmfEstimationTab06.h" name="MSSPM_GuiEstimation/nmfEstimationTab06.h">
-<area shape="rect" id="node1" title="GUI definition for the nmfEstimation_Tab6 Estimation Run class." alt="" coords="104,5,276,47"/>
+<area shape="rect" id="node1" title="GUI definition for the nmfEstimation_Tab6 Estimation Run class." alt="" coords="239,5,411,47"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,95,108,121"/>
 <area shape="rect" id="node3" title=" " alt="" coords="133,95,247,121"/>
 <area shape="rect" id="node4" title=" " alt="" coords="272,95,377,121"/>
+<area shape="rect" id="node5" title=" " alt="" coords="402,95,522,121"/>
+<area shape="rect" id="node6" href="$_ensemble_dialog_8h.html" title="GUI definition for the EnsembleDialog dialog class." alt="" coords="547,95,687,121"/>
+<area shape="rect" id="node7" title=" " alt="" coords="485,169,607,196"/>
+<area shape="rect" id="node8" title=" " alt="" coords="631,169,743,196"/>
 </map>

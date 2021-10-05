@@ -148,9 +148,16 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a10dfee72ed67b52afec72060531bfbb1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#a10dfee72ed67b52afec72060531bfbb1">callback_CompetitionFormChanged</a> (QString competitionForm)</td></tr>
 <tr class="memdesc:a10dfee72ed67b52afec72060531bfbb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user updates the Competition Form in the Setup -&gt; Model Setup page.  <a href="classnmf_estimation___tab3.html#a10dfee72ed67b52afec72060531bfbb1">More...</a><br /></td></tr>
 <tr class="separator:a10dfee72ed67b52afec72060531bfbb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42f31bad5e3e9377c671e6f58825c62f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#a42f31bad5e3e9377c671e6f58825c62f">callback_EstimateChecked</a> (int state)</td></tr>
-<tr class="memdesc:a42f31bad5e3e9377c671e6f58825c62f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user toggles the Estimate checkbox.  <a href="classnmf_estimation___tab3.html#a42f31bad5e3e9377c671e6f58825c62f">More...</a><br /></td></tr>
-<tr class="separator:a42f31bad5e3e9377c671e6f58825c62f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b5b1b7aea3d817b09a2fb6e109b22bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#a0b5b1b7aea3d817b09a2fb6e109b22bb">callback_MinMaxCMB</a> (QString rangeType)</td></tr>
+<tr class="memdesc:a0b5b1b7aea3d817b09a2fb6e109b22bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes one of the two range type combo boxes (it just updates the other one)  <a href="classnmf_estimation___tab3.html#a0b5b1b7aea3d817b09a2fb6e109b22bb">More...</a><br /></td></tr>
+<tr class="separator:a0b5b1b7aea3d817b09a2fb6e109b22bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac477e91e7fafbb0b24da4216e21b372b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#ac477e91e7fafbb0b24da4216e21b372b">callback_PctRangeSB</a> (int value)</td></tr>
+<tr class="memdesc:ac477e91e7fafbb0b24da4216e21b372b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user sets the Competition min/max range percent spin box.  <a href="classnmf_estimation___tab3.html#ac477e91e7fafbb0b24da4216e21b372b">More...</a><br /></td></tr>
+<tr class="separator:ac477e91e7fafbb0b24da4216e21b372b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95660c2f96d3ac68c0ce065ba11909dd"><td class="memItemLeft" align="right" valign="top"><a id="a95660c2f96d3ac68c0ce065ba11909dd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#a95660c2f96d3ac68c0ce065ba11909dd">callback_TransposePB</a> ()</td></tr>
+<tr class="memdesc:a95660c2f96d3ac68c0ce065ba11909dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the T button. This will cause the data in every Competition matrix to be transposed. <br /></td></tr>
+<tr class="separator:a95660c2f96d3ac68c0ce065ba11909dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -170,6 +177,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>saveCSVFiles</b> (std
 <tr class="memitem:ace2c219bf1aa38f73751cf67eb72533c"><td class="memItemLeft" align="right" valign="top"><a id="ace2c219bf1aa38f73751cf67eb72533c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>loadCSVFiles</b> (std::vector&lt; std::string &gt; &amp;allTableNames)</td></tr>
 <tr class="separator:ace2c219bf1aa38f73751cf67eb72533c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae997041dee6b3e180949f22764a21a07"><td class="memItemLeft" align="right" valign="top"><a id="ae997041dee6b3e180949f22764a21a07"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>resetSpinBox</b> (const std::pair&lt; int, int &gt; &amp;nonZeroCell)</td></tr>
+<tr class="separator:ae997041dee6b3e180949f22764a21a07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Competition Data. </p>
@@ -261,40 +271,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>loadCSVFiles</b> (std
 
 </div>
 </div>
-<a id="a42f31bad5e3e9377c671e6f58825c62f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a42f31bad5e3e9377c671e6f58825c62f">&#9670;&nbsp;</a></span>callback_EstimateChecked</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void nmfEstimation_Tab3::callback_EstimateChecked </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>state</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Callback invoked when the user toggles the Estimate checkbox. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">state</td><td>: when set to Checked means that the minimum and maxumum estimated value limits are the same (effectively defining the parameter(s)) </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="aa5798924ed6464cb7d87c5ea8a081020"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa5798924ed6464cb7d87c5ea8a081020">&#9670;&nbsp;</a></span>callback_MaxSplitterMoved</h2>
 
@@ -340,6 +316,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>loadCSVFiles</b> (std
 
 </div>
 </div>
+<a id="a0b5b1b7aea3d817b09a2fb6e109b22bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b5b1b7aea3d817b09a2fb6e109b22bb">&#9670;&nbsp;</a></span>callback_MinMaxCMB</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfEstimation_Tab3::callback_MinMaxCMB </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>rangeType</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when the user changes one of the two range type combo boxes (it just updates the other one) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rangeType</td><td>: range type changed to (min/max, min only, or max only) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a16ca0f7ba030ba671511a64a5bdbbed5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a16ca0f7ba030ba671511a64a5bdbbed5">&#9670;&nbsp;</a></span>callback_MinSplitterMoved</h2>
 
@@ -379,6 +389,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>loadCSVFiles</b> (std
   <table class="params">
     <tr><td class="paramname">pos</td><td>: position of the splitter </td></tr>
     <tr><td class="paramname">index</td><td>: the index of the splitter changed </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ac477e91e7fafbb0b24da4216e21b372b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac477e91e7fafbb0b24da4216e21b372b">&#9670;&nbsp;</a></span>callback_PctRangeSB</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfEstimation_Tab3::callback_PctRangeSB </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when user sets the Competition min/max range percent spin box. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>: integer percent value to make the min/max range difference (i.e., 2 =&gt; min is 2% less than the initial values and max is 2% greater than the initial values) </td></tr>
   </table>
   </dd>
 </dl>

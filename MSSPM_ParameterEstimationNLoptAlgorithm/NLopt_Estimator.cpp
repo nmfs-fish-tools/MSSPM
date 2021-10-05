@@ -2,15 +2,15 @@
 
 #include <iomanip>
 #include <iostream>
-#include <vector>
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
+#include <vector>
 
 bool m_Quit;
-//int NLopt_Estimator::m_NLoptIters    = 0;
-int NLopt_Estimator::m_NLoptFcnEvals = 0;
+//int NLopt_Estimator::m_NLoptIters   = 0;
+int NLopt_Estimator::m_NLoptFcnEvals  = 0;
 int NLopt_Estimator::m_NumObjFcnCalls = 0;
-int NLopt_Estimator::m_RunNum        = 0;
+int NLopt_Estimator::m_RunNum         = 0;
 nlopt::opt NLopt_Estimator::m_Optimizer;
 
 std::unique_ptr<nmfGrowthForm>      NLoptGrowthForm;
@@ -533,11 +533,11 @@ NLopt_Estimator::incrementObjectiveFunctionCounter(std::string MSSPMName,
 }
 
 void
-NLopt_Estimator::writeCurrentLoopFile(std::string &MSSPMName,
-                                      int         &NumGens,
-                                      double      &BestFitness,
-                                      std::string &ObjectiveCriterion,
-                                      int         &NumGensSinceBestFit)
+NLopt_Estimator::writeCurrentLoopFile(const std::string &MSSPMName,
+                                      const int         &NumGens,
+                                      const double      &BestFitness,
+                                      const std::string &ObjectiveCriterion,
+                                      const int         &NumGensSinceBestFit)
 {
     double adjustedBestFitness; // May need negating if ObjCrit is Model Efficiency
     std::ofstream outputFile(nmfConstantsMSSPM::MSSPMProgressChartFile,
@@ -912,7 +912,6 @@ NLopt_Estimator::callback_StopAllRuns()
 std::cout << "Stopping all runs" << std::endl;
    m_Quit = true;
    nlopt::forced_stop();
-
 }
 
 

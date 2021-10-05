@@ -11,5 +11,11 @@ var dir_089f85df96c31d70eef14411d2ef957a =
     [ "precompiled_header.h", "_m_s_s_p_m___main_2precompiled__header_8h.html", null ],
     [ "PreferencesDialog.h", "_preferences_dialog_8h.html", [
       [ "PreferencesDialog", "class_preferences_dialog.html", "class_preferences_dialog" ]
+    ] ],
+    [ "SimulatedBiomassDialog.h", "_simulated_biomass_dialog_8h.html", [
+      [ "SimulatedBiomassDialog", "class_simulated_biomass_dialog.html", "class_simulated_biomass_dialog" ]
+    ] ],
+    [ "TableNamesDialog.h", "_table_names_dialog_8h.html", [
+      [ "TableNamesDialog", "class_table_names_dialog.html", "class_table_names_dialog" ]
     ] ]
 ];

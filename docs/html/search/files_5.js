@@ -1,5 +1,24 @@
 var searchData=
 [
-  ['precompiled_5fheader_2eh_582',['precompiled_header.h',['../_m_s_s_p_m___gui_estimation_2precompiled__header_8h.html',1,'(Global Namespace)'],['../_m_s_s_p_m___gui_forecast_2precompiled__header_8h.html',1,'(Global Namespace)'],['../_m_s_s_p_m___gui_setup_2precompiled__header_8h.html',1,'(Global Namespace)'],['../_m_s_s_p_m___main_2precompiled__header_8h.html',1,'(Global Namespace)']]],
-  ['preferencesdialog_2eh_583',['PreferencesDialog.h',['../_preferences_dialog_8h.html',1,'']]]
+  ['nlopt_5festimator_2eh_635',['NLopt_Estimator.h',['../_n_lopt___estimator_8h.html',1,'']]],
+  ['nmfdiagnostictab01_2eh_636',['nmfDiagnosticTab01.h',['../nmf_diagnostic_tab01_8h.html',1,'']]],
+  ['nmfdiagnostictab02_2eh_637',['nmfDiagnosticTab02.h',['../nmf_diagnostic_tab02_8h.html',1,'']]],
+  ['nmfestimationtab01_2eh_638',['nmfEstimationTab01.h',['../nmf_estimation_tab01_8h.html',1,'']]],
+  ['nmfestimationtab02_2eh_639',['nmfEstimationTab02.h',['../nmf_estimation_tab02_8h.html',1,'']]],
+  ['nmfestimationtab03_2eh_640',['nmfEstimationTab03.h',['../nmf_estimation_tab03_8h.html',1,'']]],
+  ['nmfestimationtab04_2eh_641',['nmfEstimationTab04.h',['../nmf_estimation_tab04_8h.html',1,'']]],
+  ['nmfestimationtab05_2eh_642',['nmfEstimationTab05.h',['../nmf_estimation_tab05_8h.html',1,'']]],
+  ['nmfestimationtab06_2eh_643',['nmfEstimationTab06.h',['../nmf_estimation_tab06_8h.html',1,'']]],
+  ['nmfestimationtab07_2eh_644',['nmfEstimationTab07.h',['../nmf_estimation_tab07_8h.html',1,'']]],
+  ['nmfforecasttab01_2eh_645',['nmfForecastTab01.h',['../nmf_forecast_tab01_8h.html',1,'']]],
+  ['nmfforecasttab02_2eh_646',['nmfForecastTab02.h',['../nmf_forecast_tab02_8h.html',1,'']]],
+  ['nmfforecasttab03_2eh_647',['nmfForecastTab03.h',['../nmf_forecast_tab03_8h.html',1,'']]],
+  ['nmfforecasttab04_2eh_648',['nmfForecastTab04.h',['../nmf_forecast_tab04_8h.html',1,'']]],
+  ['nmfmainwindow_2eh_649',['nmfMainWindow.h',['../nmf_main_window_8h.html',1,'']]],
+  ['nmfoutputcontrols_2eh_650',['nmfOutputControls.h',['../nmf_output_controls_8h.html',1,'']]],
+  ['nmfoutputtablewidgets_2eh_651',['nmfOutputTableWidgets.h',['../nmf_output_table_widgets_8h.html',1,'']]],
+  ['nmfsetuptab01_2eh_652',['nmfSetupTab01.h',['../nmf_setup_tab01_8h.html',1,'']]],
+  ['nmfsetuptab02_2eh_653',['nmfSetupTab02.h',['../nmf_setup_tab02_8h.html',1,'']]],
+  ['nmfsetuptab03_2eh_654',['nmfSetupTab03.h',['../nmf_setup_tab03_8h.html',1,'']]],
+  ['nmfsetuptab04_2eh_655',['nmfSetupTab04.h',['../nmf_setup_tab04_8h.html',1,'']]]
 ];

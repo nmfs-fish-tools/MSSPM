@@ -97,76 +97,81 @@ $(document).ready(function(){initNavTree('nmf_forecast_tab03_8h_source.html','')
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    QString             m_Alpha;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    QString             m_BetaS;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    QString             m_BetaG;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    std::string         m_CompetitionForm;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    nmfDatabase*        m_DatabasePtr;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    std::map&lt;std::string,std::vector&lt;std::string&gt; &gt; m_FormMap;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    std::string         m_GrowthForm;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    std::string         m_HarvestForm;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">bool</span>                m_IsAggProd;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    nmfLogger*          m_Logger;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    QStringList         m_ParameterNames;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    std::string         m_PredationForm;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    std::string         m_ProjectDir;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    std::string         m_ProjectSettingsConfig;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    QString             m_Rho;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    QStandardItemModel* m_SModel;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    QTabWidget*  Forecast_Tabs;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    QWidget*     Forecast_Tab3_Widget;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    QTableView*  Forecast_Tab3_UncertaintyTV;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    QPushButton* Forecast_Tab3_PrevPB;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    QPushButton* Forecast_Tab3_NextPB;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    QPushButton* Forecast_Tab3_LoadPB;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    QPushButton* Forecast_Tab3_SavePB;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    QGroupBox*   Forecast_Tab2_HarvestGB;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    QLineEdit*   Forecast_Tab1_NameLE;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    QCheckBox*   Forecast_Tab3_AutoSaveRunCB;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">void</span> adjustColumnVisibility();</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span> clearUncertaintyTable(<span class="keywordtype">int</span>&amp; NumSpecies,</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;                               <span class="keywordtype">int</span>&amp; NumParameters);</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    QString harvestType();</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> readSettings();</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <a class="code" href="classnmf_forecast___tab3.html#a2f343bd1b6e426659c95441083a02449">nmfForecast_Tab3</a>(QTabWidget*  tabs,</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                     nmfLogger*   logger,</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                     nmfDatabase* databasePtr,</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                     std::string&amp; projectDir);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="classnmf_forecast___tab3.html">nmfForecast_Tab3</a>();</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classnmf_forecast___tab3.html#a5a10384304b5b3b7706c9a8125a67719">loadWidgets</a>();</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;signals:</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a53a7ae2269c83ca5cb7c4a6e2c0b0f62">RunForecast</a>(std::string ForecastName,</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                     <span class="keywordtype">bool</span> GenerateBiomass);</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160; </div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="keyword">public</span> Q_SLOTS:</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a47f2bf463f869371931f1c0c123af334">callback_LoadPB</a>();</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a9fec3606c5b5cac0b7694ce27a9f440c">callback_SavePB</a>();</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a49a1a94bbd06ef8d31c466318cc75e00">callback_PrevPB</a>();</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a9a91e375b801a1aad34326ff214d3c5f">callback_NextPB</a>();</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a462b5b1181a54cf1f2263e9dc5bc44b2">callback_ItemChanged</a>(<span class="keyword">const</span> QModelIndex&amp; unusedA,</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;                              <span class="keyword">const</span> QModelIndex&amp; unusedB);</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a276a8047ceeed8ade88b4052c16e92e1">callback_ContextMenu</a>(QPoint point);</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#ad82506ca384366a3725cd67599f16686">callback_ClearSelection</a>();</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;};</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160; </div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;<span class="preprocessor">#endif // NMFFORECASTTAB3_H</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    QString             m_BetaSG;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    QString             m_BetaGG;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    std::string         m_CompetitionForm;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    nmfDatabase*        m_DatabasePtr;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    std::map&lt;std::string,std::vector&lt;std::string&gt; &gt; m_FormMap;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    std::string         m_GrowthForm;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    std::string         m_HarvestForm;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">bool</span>                m_IsAggProd;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    nmfLogger*          m_Logger;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    QStringList         m_ParameterNames;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    std::string         m_PredationForm;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    std::string         m_ProjectDir;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    std::string         m_ProjectName;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    std::string         m_ModelName;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    QString             m_Rho;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    QStandardItemModel* m_SModel;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">int</span>                 m_NumSignificantDigits;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    QTabWidget*  Forecast_Tabs;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    QWidget*     Forecast_Tab3_Widget;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    QTableView*  Forecast_Tab3_UncertaintyTV;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    QPushButton* Forecast_Tab3_PrevPB;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    QPushButton* Forecast_Tab3_NextPB;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    QPushButton* Forecast_Tab3_LoadPB;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    QPushButton* Forecast_Tab3_SavePB;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    QGroupBox*   Forecast_Tab2_HarvestGB;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    QLineEdit*   Forecast_Tab1_NameLE;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    QCheckBox*   Forecast_Tab3_AutoSaveRunCB;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">void</span> adjustColumnVisibility();</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> clearUncertaintyTable(<span class="keywordtype">int</span>&amp; NumSpecies,</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;                               <span class="keywordtype">int</span>&amp; NumParameters);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    QString harvestType();</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">void</span> readSettings();</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <a class="code" href="classnmf_forecast___tab3.html#a2f343bd1b6e426659c95441083a02449">nmfForecast_Tab3</a>(QTabWidget*  tabs,</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                     nmfLogger*   logger,</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                     nmfDatabase* databasePtr,</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                     std::string&amp; projectDir);</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="classnmf_forecast___tab3.html">nmfForecast_Tab3</a>();</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classnmf_forecast___tab3.html#a2a22943f7280711570ebc7c5203b9aa2">areDataComplete</a>();</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classnmf_forecast___tab3.html#a5a10384304b5b3b7706c9a8125a67719">loadWidgets</a>();</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;signals:</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a53a7ae2269c83ca5cb7c4a6e2c0b0f62">RunForecast</a>(std::string ForecastName,</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                     <span class="keywordtype">bool</span> GenerateBiomass);</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160; </div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="keyword">public</span> Q_SLOTS:</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a47f2bf463f869371931f1c0c123af334">callback_LoadPB</a>();</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a9fec3606c5b5cac0b7694ce27a9f440c">callback_SavePB</a>();</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a49a1a94bbd06ef8d31c466318cc75e00">callback_PrevPB</a>();</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a9a91e375b801a1aad34326ff214d3c5f">callback_NextPB</a>();</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a462b5b1181a54cf1f2263e9dc5bc44b2">callback_ItemChanged</a>(<span class="keyword">const</span> QModelIndex&amp; unusedA,</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;                              <span class="keyword">const</span> QModelIndex&amp; unusedB);</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#a276a8047ceeed8ade88b4052c16e92e1">callback_ContextMenu</a>(QPoint point);</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnmf_forecast___tab3.html#ad82506ca384366a3725cd67599f16686">callback_ClearSelection</a>();</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;};</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160; </div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="preprocessor">#endif // NMFFORECASTTAB3_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aclassnmf_forecast___tab3_html_a53a7ae2269c83ca5cb7c4a6e2c0b0f62"><div class="ttname"><a href="classnmf_forecast___tab3.html#a53a7ae2269c83ca5cb7c4a6e2c0b0f62">nmfForecast_Tab3::RunForecast</a></div><div class="ttdeci">void RunForecast(std::string ForecastName, bool GenerateBiomass)</div><div class="ttdoc">Signal emitted to run a new Forecast.</div></div>
-<div class="ttc" id="aclassnmf_forecast___tab3_html_a462b5b1181a54cf1f2263e9dc5bc44b2"><div class="ttname"><a href="classnmf_forecast___tab3.html#a462b5b1181a54cf1f2263e9dc5bc44b2">nmfForecast_Tab3::callback_ItemChanged</a></div><div class="ttdeci">void callback_ItemChanged(const QModelIndex &amp;unusedA, const QModelIndex &amp;unusedB)</div><div class="ttdoc">Callback invoked when the user changes an item in the Uncertainty Parameters data table....</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:132</div></div>
-<div class="ttc" id="aclassnmf_forecast___tab3_html_a276a8047ceeed8ade88b4052c16e92e1"><div class="ttname"><a href="classnmf_forecast___tab3.html#a276a8047ceeed8ade88b4052c16e92e1">nmfForecast_Tab3::callback_ContextMenu</a></div><div class="ttdeci">void callback_ContextMenu(QPoint point)</div><div class="ttdoc">Callback invoked when user right clicks over the Uncertainty Parameters data table....</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:104</div></div>
-<div class="ttc" id="aclassnmf_forecast___tab3_html_a47f2bf463f869371931f1c0c123af334"><div class="ttname"><a href="classnmf_forecast___tab3.html#a47f2bf463f869371931f1c0c123af334">nmfForecast_Tab3::callback_LoadPB</a></div><div class="ttdeci">void callback_LoadPB()</div><div class="ttdoc">Callback invoked when the user clicks the Load button.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:264</div></div>
-<div class="ttc" id="aclassnmf_forecast___tab3_html_a5a10384304b5b3b7706c9a8125a67719"><div class="ttname"><a href="classnmf_forecast___tab3.html#a5a10384304b5b3b7706c9a8125a67719">nmfForecast_Tab3::loadWidgets</a></div><div class="ttdeci">bool loadWidgets()</div><div class="ttdoc">Loads all widgets for this GUI from database tables.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:279</div></div>
-<div class="ttc" id="aclassnmf_forecast___tab3_html_a9fec3606c5b5cac0b7694ce27a9f440c"><div class="ttname"><a href="classnmf_forecast___tab3.html#a9fec3606c5b5cac0b7694ce27a9f440c">nmfForecast_Tab3::callback_SavePB</a></div><div class="ttdeci">void callback_SavePB()</div><div class="ttdoc">Callback invoked when the user clicks the Save button.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:157</div></div>
+<div class="ttc" id="aclassnmf_forecast___tab3_html_a462b5b1181a54cf1f2263e9dc5bc44b2"><div class="ttname"><a href="classnmf_forecast___tab3.html#a462b5b1181a54cf1f2263e9dc5bc44b2">nmfForecast_Tab3::callback_ItemChanged</a></div><div class="ttdeci">void callback_ItemChanged(const QModelIndex &amp;unusedA, const QModelIndex &amp;unusedB)</div><div class="ttdoc">Callback invoked when the user changes an item in the Uncertainty Parameters data table....</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:139</div></div>
+<div class="ttc" id="aclassnmf_forecast___tab3_html_a276a8047ceeed8ade88b4052c16e92e1"><div class="ttname"><a href="classnmf_forecast___tab3.html#a276a8047ceeed8ade88b4052c16e92e1">nmfForecast_Tab3::callback_ContextMenu</a></div><div class="ttdeci">void callback_ContextMenu(QPoint point)</div><div class="ttdoc">Callback invoked when user right clicks over the Uncertainty Parameters data table....</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:111</div></div>
+<div class="ttc" id="aclassnmf_forecast___tab3_html_a47f2bf463f869371931f1c0c123af334"><div class="ttname"><a href="classnmf_forecast___tab3.html#a47f2bf463f869371931f1c0c123af334">nmfForecast_Tab3::callback_LoadPB</a></div><div class="ttdeci">void callback_LoadPB()</div><div class="ttdoc">Callback invoked when the user clicks the Load button.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:297</div></div>
+<div class="ttc" id="aclassnmf_forecast___tab3_html_a5a10384304b5b3b7706c9a8125a67719"><div class="ttname"><a href="classnmf_forecast___tab3.html#a5a10384304b5b3b7706c9a8125a67719">nmfForecast_Tab3::loadWidgets</a></div><div class="ttdeci">bool loadWidgets()</div><div class="ttdoc">Loads all widgets for this GUI from database tables.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:320</div></div>
+<div class="ttc" id="aclassnmf_forecast___tab3_html_a9fec3606c5b5cac0b7694ce27a9f440c"><div class="ttname"><a href="classnmf_forecast___tab3.html#a9fec3606c5b5cac0b7694ce27a9f440c">nmfForecast_Tab3::callback_SavePB</a></div><div class="ttdeci">void callback_SavePB()</div><div class="ttdoc">Callback invoked when the user clicks the Save button.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:164</div></div>
 <div class="ttc" id="aclassnmf_forecast___tab3_html_a2f343bd1b6e426659c95441083a02449"><div class="ttname"><a href="classnmf_forecast___tab3.html#a2f343bd1b6e426659c95441083a02449">nmfForecast_Tab3::nmfForecast_Tab3</a></div><div class="ttdeci">nmfForecast_Tab3(QTabWidget *tabs, nmfLogger *logger, nmfDatabase *databasePtr, std::string &amp;projectDir)</div><div class="ttdoc">nmfForecast_Tab3 : class constructor for the Uncertainty Parameters GUI page</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:7</div></div>
-<div class="ttc" id="aclassnmf_forecast___tab3_html_a9a91e375b801a1aad34326ff214d3c5f"><div class="ttname"><a href="classnmf_forecast___tab3.html#a9a91e375b801a1aad34326ff214d3c5f">nmfForecast_Tab3::callback_NextPB</a></div><div class="ttdeci">void callback_NextPB()</div><div class="ttdoc">Callback invoked when the user clicks the Next Page button.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:149</div></div>
-<div class="ttc" id="aclassnmf_forecast___tab3_html_a49a1a94bbd06ef8d31c466318cc75e00"><div class="ttname"><a href="classnmf_forecast___tab3.html#a49a1a94bbd06ef8d31c466318cc75e00">nmfForecast_Tab3::callback_PrevPB</a></div><div class="ttdeci">void callback_PrevPB()</div><div class="ttdoc">Callback invoked when the user clicks the Previous Page button.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:142</div></div>
+<div class="ttc" id="aclassnmf_forecast___tab3_html_a9a91e375b801a1aad34326ff214d3c5f"><div class="ttname"><a href="classnmf_forecast___tab3.html#a9a91e375b801a1aad34326ff214d3c5f">nmfForecast_Tab3::callback_NextPB</a></div><div class="ttdeci">void callback_NextPB()</div><div class="ttdoc">Callback invoked when the user clicks the Next Page button.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:156</div></div>
+<div class="ttc" id="aclassnmf_forecast___tab3_html_a49a1a94bbd06ef8d31c466318cc75e00"><div class="ttname"><a href="classnmf_forecast___tab3.html#a49a1a94bbd06ef8d31c466318cc75e00">nmfForecast_Tab3::callback_PrevPB</a></div><div class="ttdeci">void callback_PrevPB()</div><div class="ttdoc">Callback invoked when the user clicks the Previous Page button.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:149</div></div>
 <div class="ttc" id="aclassnmf_forecast___tab3_html"><div class="ttname"><a href="classnmf_forecast___tab3.html">nmfForecast_Tab3</a></div><div class="ttdoc">Uncertainty Parameters.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.h:40</div></div>
-<div class="ttc" id="aclassnmf_forecast___tab3_html_ad82506ca384366a3725cd67599f16686"><div class="ttname"><a href="classnmf_forecast___tab3.html#ad82506ca384366a3725cd67599f16686">nmfForecast_Tab3::callback_ClearSelection</a></div><div class="ttdeci">void callback_ClearSelection()</div><div class="ttdoc">Callback invoked when the user selects Clear from the right click context menu.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:119</div></div>
+<div class="ttc" id="aclassnmf_forecast___tab3_html_a2a22943f7280711570ebc7c5203b9aa2"><div class="ttname"><a href="classnmf_forecast___tab3.html#a2a22943f7280711570ebc7c5203b9aa2">nmfForecast_Tab3::areDataComplete</a></div><div class="ttdeci">bool areDataComplete()</div><div class="ttdoc">Notifies user if uncertainty table is completely filled out.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:311</div></div>
+<div class="ttc" id="aclassnmf_forecast___tab3_html_ad82506ca384366a3725cd67599f16686"><div class="ttname"><a href="classnmf_forecast___tab3.html#ad82506ca384366a3725cd67599f16686">nmfForecast_Tab3::callback_ClearSelection</a></div><div class="ttdeci">void callback_ClearSelection()</div><div class="ttdoc">Callback invoked when the user selects Clear from the right click context menu.</div><div class="ttdef"><b>Definition:</b> nmfForecastTab03.cpp:126</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

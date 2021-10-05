@@ -116,9 +116,9 @@ class nmfEstimation_Tab5: public QObject
                                   QStandardItemModel* smodel);
     bool saveTableValuesToDatabase(const std::string& tableName,
                                    QStandardItemModel* smodel);
-
     void updateInitialObservedBiomass(const std::string& tableName,
                                       QTableView* tableView);
+
 public:
     /**
      * @brief nmfEstimation_Tab5 : class constructor for the Observation Data GUI page
@@ -143,19 +143,27 @@ public:
      */
     void clearWidgets();
     /**
+     * @brief Checks that the passed value is not empty
+     * @param value : QString value to test for emptiness
+     * @return true if value is not empty, false otherwise
+     */
+    bool isTableValueOK(QString value);
+    /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */
     bool loadWidgets();
-
-    bool isTableValueOK(QString value);
-    void setObsBiomassType(QString obsBiomassType);
     /**
      * @brief Updates the data member m_IsDark accordingly and refreshes the GUI
      * @param style : the new light/dark preference setting
      *
      */
     void setIsDark(QString style);
+    /**
+     * @brief Sets the table label for the observed biomass type
+     * @param obsBiomassType : the observed biomass type of the data in the qtableview
+     */
+    void setObsBiomassType(QString obsBiomassType);
 
 signals:
     /**
@@ -191,6 +199,12 @@ public Q_SLOTS:
      */
     void callback_NextPB();
     /**
+     * @brief Callback invoked when the user changes the observed biomass type from
+     * Setup Tab4. It toggles visibility between the Absolute and Relative observed biomass tables.
+     * @param obsBiomassType : type of observed biomass selected: Absolute or Relative
+     */
+    void callback_ObservedBiomassType(QString obsBiomassType);
+    /**
      * @brief Callback invoked when the user clicks the Previous Page button
      */
     void callback_PrevPB();
@@ -212,13 +226,6 @@ public Q_SLOTS:
      * @param obsBiomassType : the type of observed biomass: Absolute or Relative
      */
     void callback_UpdateInitialObservedBiomass(QString obsBiomassType);
-    /**
-     * @brief Callback invoked when the user changes the observed biomass type from
-     * Setup Tab4. It toggles visibility between the Absolute and Relative observed biomass tables.
-     * @param obsBiomassType : type of observed biomass selected: Absolute or Relative
-     */
-    void callback_ObservedBiomassType(QString obsBiomassType);
-
 };
 
 #endif // NMFESTIMATIONTAB5_H

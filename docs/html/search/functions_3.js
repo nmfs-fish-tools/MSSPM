@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['deletesystem_805',['deleteSystem',['../classnmf_setup___tab4.html#aa65d406aee6d81cc829c8c1d5c737a36',1,'nmfSetup_Tab4']]],
-  ['displaymohnsrho_806',['displayMohnsRho',['../class_m_s_s_p_m___gui_output_controls.html#ab70c4711b2dfd3f464c34ea18717f965',1,'MSSPM_GuiOutputControls']]],
-  ['drawequation_807',['drawEquation',['../classnmf_setup___tab4.html#a6c5f7c5a914a03dd1bd133bdcc35240d',1,'nmfSetup_Tab4']]]
+  ['deletemodel_917',['deleteModel',['../classnmf_setup___tab4.html#a1cd6175a26eb960f25838b4a7de34eb2',1,'nmfSetup_Tab4']]],
+  ['displaymohnsrho_918',['displayMohnsRho',['../classnmf_output_controls.html#a0de41d6956e1654d6cf76072684cb0f4',1,'nmfOutputControls']]],
+  ['drawequation_919',['drawEquation',['../classnmf_setup___tab4.html#a6c5f7c5a914a03dd1bd133bdcc35240d',1,'nmfSetup_Tab4']]]
 ];

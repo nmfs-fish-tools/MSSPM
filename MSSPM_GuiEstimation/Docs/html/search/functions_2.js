@@ -1,6 +1,8 @@
 var searchData=
 [
-  ['getcurrentalgorithm',['getCurrentAlgorithm',['../classnmf_estimation___tab6.html#a81c9d5fa7c08230396d99728f24b23a9',1,'nmfEstimation_Tab6']]],
-  ['getcurrentminimizer',['getCurrentMinimizer',['../classnmf_estimation___tab6.html#aff516e5c4af59ec185d38533d99fcc3b',1,'nmfEstimation_Tab6']]],
-  ['getcurrentobjectivecriterion',['getCurrentObjectiveCriterion',['../classnmf_estimation___tab6.html#ac75d359d6f19639d57d49fe09891d920',1,'nmfEstimation_Tab6']]]
+  ['enableaddtoreview_291',['enableAddToReview',['../classnmf_estimation___tab6.html#ac1a6581ca602f35c908492886739f562',1,'nmfEstimation_Tab6']]],
+  ['enableensemblecontrols_292',['enableEnsembleControls',['../classnmf_estimation___tab6.html#a11f860c6f3f601de6cd2074cdd0512a7',1,'nmfEstimation_Tab6']]],
+  ['enablenonensemblewidgets_293',['enableNonEnsembleWidgets',['../classnmf_estimation___tab6.html#a2b6014d9c6010717f80538a4d8efe9ab',1,'nmfEstimation_Tab6']]],
+  ['enablerunbutton_294',['enableRunButton',['../classnmf_estimation___tab6.html#aab74f0f1a7492cd19242d64d84932c07',1,'nmfEstimation_Tab6']]],
+  ['ensembledialog_295',['EnsembleDialog',['../class_ensemble_dialog.html#acfdf136ca03dc7074eeadce89ab0e993',1,'EnsembleDialog']]]
 ];

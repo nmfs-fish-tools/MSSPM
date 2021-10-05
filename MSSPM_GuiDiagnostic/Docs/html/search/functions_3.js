@@ -1,5 +1,10 @@
 var searchData=
 [
-  ['nmfdiagnostic_5ftab1',['nmfDiagnostic_Tab1',['../classnmf_diagnostic___tab1.html#a30f459c5df78d5beea8cc2a43fb2cd4c',1,'nmfDiagnostic_Tab1']]],
-  ['nmfdiagnostic_5ftab2',['nmfDiagnostic_Tab2',['../classnmf_diagnostic___tab2.html#adec018e306cfeec86298070b616d410b',1,'nmfDiagnostic_Tab2']]]
+  ['isamohnsrhorunformultirun_86',['isAMohnsRhoRunForMultiRun',['../classnmf_diagnostic___tab2.html#a75e9f1083df616f8a8cf23713eb2609e',1,'nmfDiagnostic_Tab2']]],
+  ['isamohnsrhorunforsinglerun_87',['isAMohnsRhoRunForSingleRun',['../classnmf_diagnostic___tab2.html#a457e2005366fa3ed1d6a645a6e48b0b9',1,'nmfDiagnostic_Tab2']]],
+  ['ismultirunrbchecked_88',['isMultiRunRBChecked',['../classnmf_diagnostic___tab1.html#acbe8d081a5ebeba93e47839414109209',1,'nmfDiagnostic_Tab1']]],
+  ['ismultirunrbenabled_89',['isMultiRunRBEnabled',['../classnmf_diagnostic___tab1.html#a6acb2aff87f749d6f85c388a67c3ee23',1,'nmfDiagnostic_Tab1']]],
+  ['issetlastrunmultidiagnostics_90',['isSetLastRunMultiDiagnostics',['../classnmf_diagnostic___tab1.html#aa634a6eb4914df74722446529faf61b0',1,'nmfDiagnostic_Tab1']]],
+  ['issinglerunrbchecked_91',['isSingleRunRBChecked',['../classnmf_diagnostic___tab1.html#aaf643a4e68ba29dbc141628867834db8',1,'nmfDiagnostic_Tab1']]],
+  ['issinglerunrbenabled_92',['isSingleRunRBEnabled',['../classnmf_diagnostic___tab1.html#a39b0ba815e9c3504e7e560cf54ce910a',1,'nmfDiagnostic_Tab1']]]
 ];

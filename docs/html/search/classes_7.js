@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['remora_556',['REMORA',['../class_r_e_m_o_r_a.html',1,'']]]
+  ['preferencesdialog_624',['PreferencesDialog',['../class_preferences_dialog.html',1,'']]]
 ];

@@ -755,7 +755,7 @@ nmfEstimation_Tab4::getNumSpecies()
 {
     std::vector<std::string> species;
 
-    m_DatabasePtr->getAllSpecies(m_Logger,species);
+    m_DatabasePtr->getSpecies(m_Logger,species);
 
     return species.size();
 }

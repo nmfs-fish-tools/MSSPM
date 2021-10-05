@@ -12,16 +12,12 @@ EnsembleDialog::EnsembleDialog(QWidget *parent,
     m_Parent     = parent;
 
     m_ensembleTV = new QTableView();
-//  QPushButton*  savePB     = new QPushButton("Save");
-//  QPushButton*  refreshPB  = new QPushButton("Refresh");
     QPushButton*  cancelPB   = new QPushButton("Cancel");
     QHBoxLayout*  hLayt      = new QHBoxLayout;
     QVBoxLayout*  vLayt      = new QVBoxLayout;
 
     hLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
     hLayt->addWidget(cancelPB);
-//  hLayt->addWidget(refreshPB);
-//  hLayt->addWidget(savePB);
     hLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
     vLayt->addWidget(m_ensembleTV);
     vLayt->addLayout(hLayt);
@@ -30,8 +26,6 @@ EnsembleDialog::EnsembleDialog(QWidget *parent,
     setMinimumWidth(800);
 
     connect(cancelPB,  SIGNAL(clicked()), this, SLOT(close()));
-//  connect(refreshPB, SIGNAL(clicked()), this, SLOT(callback_refreshPB()));
-//  connect(savePB,    SIGNAL(clicked()), this, SLOT(callback_savePB()));
 }
 
 bool
@@ -102,17 +96,5 @@ EnsembleDialog::clear()
     m_SModel = new QStandardItemModel(0,0);
     m_ensembleTV->setModel(m_SModel);
     m_ensembleTV->resizeColumnsToContents();
-}
-
-void
-EnsembleDialog::callback_refreshPB()
-{
-//    loadWidgets();
-}
-
-void
-EnsembleDialog::callback_savePB()
-{
-
 }
 

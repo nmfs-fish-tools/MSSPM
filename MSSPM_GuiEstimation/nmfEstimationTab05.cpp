@@ -619,7 +619,7 @@ nmfEstimation_Tab5::loadWidgets()
     if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear)) {
         return false;
     }
-    if (! m_DatabasePtr->getAllSpecies(m_Logger,SpeciesNames)) {
+    if (! m_DatabasePtr->getSpecies(m_Logger,SpeciesNames)) {
         return false;
     }
     NumSpecies = SpeciesNames.size();

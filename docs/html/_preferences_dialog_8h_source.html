@@ -104,34 +104,37 @@ $(document).ready(function(){initNavTree('_preferences_dialog_8h_source.html',''
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    QVBoxLayout* MainLT;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    QHBoxLayout* BtnLT;</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    QHBoxLayout* StyleLT;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    QHBoxLayout* MShot1LT;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    QHBoxLayout* MShot2LT;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    QHBoxLayout* MShot3LT;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    QLabel*      StyleLBL;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    QComboBox*   StyleCMB;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    QPushButton* CancelPB;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    QPushButton* OkPB;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    QLabel*      MShot1LBL;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    QLabel*      MShot2LBL;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    QLabel*      MShot3LBL;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    QComboBox*   MShot1CMB;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    QSpinBox*    MShot2SB;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    QSpinBox*    MShot3SB;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;signals:</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">void</span> SetStyleSheet(QString style);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    QHBoxLayout* SigDigLT;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    QHBoxLayout* MShot1LT;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    QHBoxLayout* MShot2LT;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    QHBoxLayout* MShot3LT;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    QLabel*      StyleLBL;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    QComboBox*   StyleCMB;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    QPushButton* CancelPB;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    QPushButton* OkPB;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    QLabel*      MShot1LBL;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    QLabel*      MShot2LBL;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    QLabel*      MShot3LBL;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    QComboBox*   MShot1CMB;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    QSpinBox*    MShot2SB;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    QSpinBox*    MShot3SB;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    QCheckBox*   SigDigCB;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    QSpinBox*    SigDigSB;</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <a class="code" href="class_preferences_dialog.html#affb784cb5b42b4192b9bc94d63826056">PreferencesDialog</a>(QWidget*     parent,</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;                      nmfDatabase* databasePtr);</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_preferences_dialog.html">PreferencesDialog</a>() {}</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">void</span> loadWidgets();</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="keyword">private</span> Q_SLOTS:</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">void</span> callback_StyleCMB(QString algorithm);</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;};</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;signals:</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">void</span> SetStyleSheet(QString style);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <a class="code" href="class_preferences_dialog.html#affb784cb5b42b4192b9bc94d63826056">PreferencesDialog</a>(QWidget*     parent,</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                      nmfDatabase* databasePtr);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_preferences_dialog.html">PreferencesDialog</a>() {}</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">void</span> loadWidgets();</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="keyword">private</span> Q_SLOTS:</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">void</span> callback_StyleCMB(QString algorithm);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;};</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aclass_preferences_dialog_html_affb784cb5b42b4192b9bc94d63826056"><div class="ttname"><a href="class_preferences_dialog.html#affb784cb5b42b4192b9bc94d63826056">PreferencesDialog::PreferencesDialog</a></div><div class="ttdeci">PreferencesDialog(QWidget *parent, nmfDatabase *databasePtr)</div><div class="ttdoc">PreferencesDialog : class constructor.</div><div class="ttdef"><b>Definition:</b> PreferencesDialog.cpp:6</div></div>

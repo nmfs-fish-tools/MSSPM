@@ -14,6 +14,8 @@ nmfEstimation_Tab3::nmfEstimation_Tab3(QTabWidget*  tabs,
     int NumGuildTableViews   = 0;
     int NumSpeciesTableViews = 0;
     QUiLoader loader;
+    QStringList GuildList;
+    QStringList SpeciesList;
 
     m_Logger      = logger;
     m_DatabasePtr = databasePtr;
@@ -170,8 +172,10 @@ nmfEstimation_Tab3::nmfEstimation_Tab3(QTabWidget*  tabs,
     m_TableViews.push_back(Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV);
     NumGuildTableViews   = m_TableViews.size() - NumSpeciesTableViews;
 
-    NumSpecies = getSpecies().size();
-    NumGuilds  = getGuilds().size();
+//  NumSpecies = getSpecies().size();
+//  NumGuilds  = getGuilds().size();
+    m_DatabasePtr->getGuilds( m_Logger,NumGuilds, GuildList);
+    m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList);
     QStandardItemModel* smodel;
     for (int i=0; i<NumSpeciesTableViews; ++i) {
         smodel = new QStandardItemModel(NumSpecies, NumSpecies);
@@ -210,33 +214,28 @@ nmfEstimation_Tab3::clearWidgets()
          Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV});
 }
 
-QStringList
-nmfEstimation_Tab3::getSpecies()
-{
-    QStringList speciesList;
-    std::vector<std::string> species;
-
-    m_DatabasePtr->getAllSpecies(m_Logger,species);
-    for (std::string aSpecies : species) {
-        speciesList << QString::fromStdString(aSpecies);
-    }
-
-    return speciesList;
-}
-
-QStringList
-nmfEstimation_Tab3::getGuilds()
-{
-    QStringList guildsList;
-    std::vector<std::string> guilds;
-
-    m_DatabasePtr->getAllGuilds(m_Logger,guilds);
-    for (std::string aGuild : guilds) {
-        guildsList << QString::fromStdString(aGuild);
-    }
-
-    return guildsList;
-}
+//QStringList
+//nmfEstimation_Tab3::getSpecies()
+//{
+//    QStringList speciesList;
+//    std::vector<std::string> species;
+//    m_DatabasePtr->getSpecies(m_Logger,species);
+//    for (std::string aSpecies : species) {
+//        speciesList << QString::fromStdString(aSpecies);
+//    }
+//    return speciesList;
+//}
+//QStringList
+//nmfEstimation_Tab3::getGuilds()
+//{
+//    QStringList guildsList;
+//    std::vector<std::string> guilds;
+//    m_DatabasePtr->getGuilds(m_Logger,guilds);
+//    for (std::string aGuild : guilds) {
+//        guildsList << QString::fromStdString(aGuild);
+//    }
+//    return guildsList;
+//}
 
 void
 nmfEstimation_Tab3::readSettings()
@@ -421,7 +420,7 @@ nmfEstimation_Tab3::callback_ImportPB()
 }
 
 void
-nmfEstimation_Tab3::loadCSVFiles(std::vector<std::string>& allTableNames)
+nmfEstimation_Tab3::loadCSVFiles(const std::vector<std::string>& allTableNames)
 {
     bool loadOK;
     QString errorMsg;
@@ -778,7 +777,7 @@ nmfEstimation_Tab3::callback_TransposePB()
 
 void
 nmfEstimation_Tab3::saveCSVFiles(
-        std::vector<std::string>& allTableNames)
+        const std::vector<std::string>& allTableNames)
 {
     bool okSave;
     bool atLeastOneError = false;
@@ -968,10 +967,12 @@ nmfEstimation_Tab3::loadWidgets()
     }
 
     // Get Species and Guild names
-    m_SpeciesNames = getSpecies();
-    m_GuildNames   = getGuilds();
-    NumSpecies     = m_SpeciesNames.size();
-    NumGuilds      = m_GuildNames.size();
+    m_DatabasePtr->getGuilds( m_Logger,NumGuilds, m_GuildNames);
+    m_DatabasePtr->getSpecies(m_Logger,NumSpecies,m_SpeciesNames);
+//  m_SpeciesNames = getSpecies();
+//  m_GuildNames   = getGuilds();
+//  NumSpecies     = m_SpeciesNames.size();
+//  NumGuilds      = m_GuildNames.size();
     for (QString species : m_SpeciesNames) {
         vListSpecies << " " + species + " "; // for aesthetics (and because vertical header looks better when displaying years)
     }

@@ -1,8 +1,11 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" title=" " alt="" coords="5,107,80,133"/>
-<area shape="rect" id="node2" href="$class_clear_output_dialog.html" title="Clear Dialog." alt="" coords="139,5,282,32"/>
-<area shape="rect" id="node3" href="$class_load_dlg.html" title="Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4." alt="" coords="173,56,248,83"/>
-<area shape="rect" id="node4" href="$class_load_forecast_dlg.html" title="Dialog to Load a Forecast." alt="" coords="145,107,276,133"/>
-<area shape="rect" id="node5" href="$class_multi_scenario_save_dlg.html" title="Dialog to Save Multiple Forecasts." alt="" coords="128,157,293,184"/>
-<area shape="rect" id="node6" href="$class_preferences_dialog.html" title="Preferences Dialog." alt="" coords="140,208,281,235"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,183,80,209"/>
+<area shape="rect" id="node2" href="$class_clear_output_dialog.html" title="Clear Dialog." alt="" coords="150,5,293,32"/>
+<area shape="rect" id="node3" href="$class_ensemble_dialog.html" title="Dialog containing the Ensemble run parameter values." alt="" coords="157,56,285,83"/>
+<area shape="rect" id="node4" href="$class_load_dlg.html" title="Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4." alt="" coords="184,107,259,133"/>
+<area shape="rect" id="node5" href="$class_load_forecast_dlg.html" title="Dialog to Load a Forecast." alt="" coords="156,157,287,184"/>
+<area shape="rect" id="node6" href="$class_multi_scenario_save_dlg.html" title="Dialog to Save Multiple Forecasts." alt="" coords="139,208,304,235"/>
+<area shape="rect" id="node7" href="$class_preferences_dialog.html" title="Preferences Dialog." alt="" coords="151,259,292,285"/>
+<area shape="rect" id="node8" href="$class_simulated_biomass_dialog.html" title="SimulatedBiomass Dialog." alt="" coords="128,309,315,336"/>
+<area shape="rect" id="node9" href="$class_table_names_dialog.html" title="TableNamesDialog Dialog." alt="" coords="149,360,293,387"/>
 </map>
