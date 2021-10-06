@@ -260,7 +260,7 @@ nmfEstimation_Tab4::callback_ImportPB()
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr("Select predationrho*.csv file"), inputDataPath,
-                    QObject::tr("Data Files (predationrho*.csv)"));
+                    QObject::tr("Data Files (predationrho*.csv PredationRho*.csv)"));
         QFileInfo fi(filename);
         if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
             for (int i=0; i<numTables; ++i) {
@@ -894,7 +894,6 @@ nmfEstimation_Tab4::loadWidgets()
 
     return true;
 }
-
 
 std::vector<std::vector<QTableView* > >
 nmfEstimation_Tab4::getGroupsOfTableViews()

@@ -127,7 +127,7 @@ nmfEstimation_Tab2::callback_ImportPB()
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr("Select Harvest file"), inputDataPath,
-                    QObject::tr("Data Files (harvestcatch*.csv)"));
+                    QObject::tr("Data Files (harvestcatch*.csv HarvestCatch*.csv)"));
         if (filename.contains("_")) {
             QFileInfo fi(filename);
             if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {

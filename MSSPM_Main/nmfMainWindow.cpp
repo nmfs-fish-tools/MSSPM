@@ -1902,7 +1902,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.37 (beta)";
+    QString version = "MSSPM v0.9.38 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -6895,7 +6895,7 @@ nmfMainWindow::getObservedBiomassTableName(bool isPreEstimation)
     queryStr  = "SELECT ObsBiomassType FROM " +
                  nmfConstantsMSSPM::TableModels +
                 " WHERE ProjectName = '" + m_ProjectName +
-                "' AND ModelName = '"    + m_ModelName   + ",";
+                "' AND ModelName = '"    + m_ModelName   + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     int NumRecords = dataMap["ObsBiomassType"].size();
     if (NumRecords == 0) {
@@ -6905,6 +6905,7 @@ nmfMainWindow::getObservedBiomassTableName(bool isPreEstimation)
         ObsBiomassType = (ObsBiomassType.empty() || ObsBiomassType == "Absolute") ?
                          nmfConstantsMSSPM::TableBiomassAbsolute : relativeBiomassName;
     }
+
     return ObsBiomassType;
 }
 
@@ -6984,6 +6985,7 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
 
     // Load Observed (i.e., original) Biomass (need to check if should be loading Absolute or Relative)
     std::string ObsBiomassTableName = getObservedBiomassTableName(!nmfConstantsMSSPM::PreEstimation);
+std::cout << "==> ObsBiomassTableName: " <<  ObsBiomassTableName << std::endl;
     if (isAggProd) {
         if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                       "",ObsBiomassTableName,NumSpeciesOrGuilds,RunLength,
@@ -12179,7 +12181,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         // m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Exploitation");
     }
 
-    //std::cout << "----> isSurveyQ: " << isSurveyQ << std::endl;
+//std::cout << "----> isSurveyQ: " << isSurveyQ << std::endl;
     if (isSurveyQ) {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
                                                "",nmfConstantsMSSPM::TableBiomassRelative,

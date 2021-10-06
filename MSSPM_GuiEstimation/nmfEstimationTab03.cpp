@@ -404,7 +404,7 @@ nmfEstimation_Tab3::callback_ImportPB()
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr(selectMsg.toLatin1()), inputDataPath,
-                    QObject::tr("Data Files (competition*.csv)"));
+                    QObject::tr("Data Files (competition*.csv Competition*.csv)"));
         QFileInfo fi(filename);
         if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
             for (int i=0; i<numTables; ++i) {

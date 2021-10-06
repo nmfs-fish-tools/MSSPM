@@ -171,7 +171,7 @@ nmfEstimation_Tab5::importTableData(const bool& firstLineReadOnly,
         QString filename = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr("Select "+type.toLatin1()+" file"), inputDataPath,
-                    QObject::tr("Data Files (biomass*.csv)"));
+                    QObject::tr("Data Files (Biomass*.csv biomass*.csv)"));
         QFileInfo fi(filename);
         QString filenameNoPath = fi.baseName();
         loadCSVFile(firstLineReadOnly,filenameNoPath.toStdString(),tableView);
@@ -802,7 +802,9 @@ nmfEstimation_Tab5::updateInitialObservedBiomass(const std::string& tableName,
         SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
         initAbsBiomass = std::stod(dataMap["InitBiomass"][j]);
         initSurveyQ    = std::stod(dataMap["SurveyQ"][j]);
-        initObsBiomassValue = (tableName == nmfConstantsMSSPM::TableBiomassAbsolute) ? initAbsBiomass : initSurveyQ*initAbsBiomass;
+        initObsBiomassValue = (tableName == nmfConstantsMSSPM::TableBiomassAbsolute) ?
+                               initAbsBiomass :
+                               initSurveyQ * initAbsBiomass;
         item = new QStandardItem(QString::number(initObsBiomassValue));
         item->setTextAlignment(Qt::AlignCenter);
         smodel->setItem(0, j, item);

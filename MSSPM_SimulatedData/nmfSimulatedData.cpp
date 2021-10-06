@@ -50,19 +50,19 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     boost::numeric::ublas::matrix<double> SimulatedBiomassByGuilds;
     std::vector<double> PredationExponent;
     std::vector<double> Catchability;
-    double lastYearBiomass=0;
+    double EstBiomassVal=0;
     double bmInitial=0;
     double speciesK=0;
     double growth=0;
-    double simGrowthValue=0;
-    double simHarvestValue=0;
-    double simCompetitionValue=0;
-    double simPredationValue=0;
+    double GrowthTerm=0;
+    double HarvestTerm=0;
+    double CompetitionTerm=0;
+    double PredationTerm=0;
     double SystemCarryingCapacity;
     double GuildCarryingCapacity;
     std::map<int,std::vector<int> > GuildSpecies;
 
-    // First run the Mohns Rho
+
     if (! m_Database->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
@@ -147,7 +147,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
         timeMinus1 = time - 1;
         for (int species=0; species<NumSpecies; ++species) {
 
-            lastYearBiomass = SimulatedBiomass(timeMinus1,species);
+            EstBiomassVal = SimulatedBiomass(timeMinus1,species);
 
             growth    = GrowthRate[species];
             speciesK  = SpeciesK[species];
@@ -161,13 +161,13 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
             getGuildCarryingCapacity(isAggProd,species,SpeciesK,GuildNum,
                                      GuildSpecies,GuildCarryingCapacity);
 
-            simGrowthValue = SimGrowthForm.evaluate(species,lastYearBiomass,
+            GrowthTerm = SimGrowthForm.evaluate(species,EstBiomassVal,
                                                     GrowthRate,SpeciesK);
-            simHarvestValue = SimHarvestForm.evaluate(timeMinus1,species,
+            HarvestTerm = SimHarvestForm.evaluate(timeMinus1,species,
                                                     Catch,Effort,Exploitation,
-                                                    lastYearBiomass,Catchability);
-            simCompetitionValue = SimCompetitionForm.evaluate(
-                                   timeMinus1, species,lastYearBiomass,
+                                                    EstBiomassVal,Catchability);
+            CompetitionTerm = SimCompetitionForm.evaluate(
+                                   timeMinus1, species,EstBiomassVal,
                                    SystemCarryingCapacity,
                                    GrowthRate,
                                    GuildCarryingCapacity,
@@ -177,12 +177,12 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
                                    CompetitionBetaGuildGuild,
                                    SimulatedBiomass,
                                    SimulatedBiomassGuild);
-            simPredationValue = SimPredationForm.evaluate(
+            PredationTerm = SimPredationForm.evaluate(
                                    timeMinus1, species,
                                    PredationRho,PredationHandling,PredationExponent,
-                                   SimulatedBiomass,lastYearBiomass);
+                                   SimulatedBiomass,EstBiomassVal);
 
-            val = lastYearBiomass + simGrowthValue - simHarvestValue - simCompetitionValue - simPredationValue;
+            val = EstBiomassVal + GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
 
 //std::cout << "sim year: " << time << ", val = " << lastYearBiomass << " + " << simGrowthValue << " - " << simHarvestValue << " - "
 //          << simCompetitionValue << " - " << simPredationValue <<  " = " << val << std::endl;
