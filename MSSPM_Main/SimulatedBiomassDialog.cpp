@@ -11,14 +11,32 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
                                                nmfLogger* logger) :
     QDialog(parent)
 {
+    bool isBiomassAbsolute;
+    int RunLength=0;
+    int InitialYear=0;
+    std::string GrowthForm;
+    std::string HarvestForm;
+    std::string CompetitionForm;
+    std::string PredationForm;
     QString msg;
-    QString defaultName = "biomassabsolute_sim.csv";
 
     m_ProjectDir  = projectDir;
     m_ProjectName = projectName;
     m_ModelName   = modelName;
     m_Database    = database;
     m_Logger      = logger;
+
+    // Get some model data
+    if (! m_Database->getModelFormData(
+                m_Logger,m_ProjectName,m_ModelName,
+                GrowthForm,HarvestForm,CompetitionForm,PredationForm,
+                RunLength,InitialYear,isBiomassAbsolute)) {
+        m_Logger->logMsg(nmfConstants::Error,"SimulatedBiomassDialog::SimulatedBiomassDialog: Error calling getModelFormData");
+        return;
+    }
+    QString defaultName = (isBiomassAbsolute) ?
+                "biomassabsolute_sim.csv" :
+                "biomassrelative_sim.csv";
 
     InfoLBL    = new QLabel();
     ContinuePB = new QPushButton("Continue");

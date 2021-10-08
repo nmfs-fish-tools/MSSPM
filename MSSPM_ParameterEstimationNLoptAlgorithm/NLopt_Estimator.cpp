@@ -364,25 +364,8 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         return -1;
     }
 
-//nmfUtils::printMatrix("Competition Alpha",competitionAlpha,16,10);
-//nmfUtils::printMatrix("Predation Rho",predationRho,16,10);
-
     bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(NLoptDataStruct,"InitBiomass");
 
-
-// RSK take this out possible logstuff
-//for (int ii=0;ii<int(EstBiomassSpecies.size1()); ++ii) {
-//    for (int jj=0;jj<int(EstBiomassSpecies.size2()); ++jj) {
-//        EstBiomassSpecies(ii,jj) = myNaturalLog(EstBiomassSpecies(ii,jj));
-//    }
-//}
-//for (int ii=0;ii<int(Catch.size1()); ++ii) {
-//    for (int jj=0;jj<int(Catch.size2()); ++jj) {
-//        if (ii<2 and jj<2) {
-//            std::cout << "Catch (" << ii << "," << jj << "): " << Catch(ii,jj) << std::endl;
-//        }
-//    }
-//}
     for (int time=1; time<NumYears; ++time) {
 
         timeMinus1 = time - 1;
@@ -420,24 +403,9 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                                    EstBiomassSpecies,EstBiomassVal);
 
             EstBiomassVal  += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
-
-//if (time == 1) {
-//std::cout << "EstBiomassVal: " << EstBiomassVal << std::endl;
-//}
-
-//if (species == 0 && time == 1) {
-//    std::cout << "nlopt year: " << time << ", val = "
-//              << EstBiomassSpecies(timeMinus1,species) << " + "
-//              << GrowthTerm << " - "
-//              << HarvestTerm << " - "
-//              << CompetitionTerm << " - "
-//              << PredationTerm << " = "
-//              << EstBiomassVal << std::endl;
-//}
-
-if (EstBiomassVal < 0) { // test code only
-    EstBiomassVal = 0;
-}
+            if (EstBiomassVal < 0) { // test code only
+                EstBiomassVal = 0;
+            }
 
             if ((EstBiomassVal < 0) || (std::isnan(std::fabs(EstBiomassVal)))) {
                 incrementObjectiveFunctionCounter(MSSPMName,(double)DefaultFitness,NLoptDataStruct);
@@ -445,7 +413,7 @@ if (EstBiomassVal < 0) { // test code only
             }
 
             EstBiomassSpecies(time,species) = EstBiomassVal;
-//std::cout << "nlopt val(" << time << "," << species << "): " << EstBiomassVal << std::endl;
+
             // update EstBiomassGuilds for next time step
             for (int i=0; i<NumGuilds; ++i) {
                 for (unsigned j=0; j<GuildSpecies[i].size(); ++j) {

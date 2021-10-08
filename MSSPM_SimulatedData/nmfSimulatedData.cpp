@@ -12,6 +12,7 @@ nmfSimulatedData::nmfSimulatedData(
     m_ModelName   = modelName;
     m_Database    = database;
     m_Logger      = logger;
+    m_FixedSeed   = 0;
 }
 
 bool
@@ -19,10 +20,12 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
                                          QString& filename)
 {
     bool retv = true;
+    bool isBiomassAbsolute;
     int RunLength=0;
     int InitialYear=0;
     int NumGuilds=0;
     int NumSpecies=0;
+    int NumYears = 0;
     int timeMinus1;
     QStringList GuildList;
     QStringList SpeciesList;
@@ -35,8 +38,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     std::string HarvestForm;
     std::string CompetitionForm;
     std::string PredationForm;
-    QString formCheck = "TBD";
-    boost::numeric::ublas::matrix<double> SimulatedBiomass;
+    boost::numeric::ublas::matrix<double> EstBiomassSpecies;
     boost::numeric::ublas::matrix<double> SimulatedBiomassGuild;
     boost::numeric::ublas::matrix<double> Catch;
     boost::numeric::ublas::matrix<double> Effort;
@@ -51,9 +53,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     std::vector<double> PredationExponent;
     std::vector<double> Catchability;
     double EstBiomassVal=0;
-    double bmInitial=0;
     double speciesK=0;
-    double growth=0;
     double GrowthTerm=0;
     double HarvestTerm=0;
     double CompetitionTerm=0;
@@ -61,17 +61,30 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     double SystemCarryingCapacity;
     double GuildCarryingCapacity;
     std::map<int,std::vector<int> > GuildSpecies;
+    std::vector<double> SurveyQ;
 
-
+    // Get some model data
     if (! m_Database->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear)) {
+                RunLength,InitialYear,isBiomassAbsolute)) {
         msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getModelFormData";
         m_Logger->logMsg(nmfConstants::Error,msg);
         return false;
     }
-    RunLength++; // to include the last year
+    NumYears = RunLength + 1; // to include the last year
+
+    // Get SurveyQ data
+    if (! m_Database->getSurveyQData(m_Logger,SurveyQ)) {
+        msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getSurveyQData";
+        m_Logger->logMsg(nmfConstants::Error,msg);
+        return false;
+    }
+    if (isBiomassAbsolute) {
+        for (int i=0; i<(int)SurveyQ.size(); ++i) {
+            SurveyQ[i] = 1.0;
+        }
+    }
 
     // Get initial data: B(0), r, and K (just to start with the Schaefer model)
     if (! m_Database->getSpeciesInitialData(
@@ -83,19 +96,19 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     }
     // Get the guild data
 
-    if (! m_Database->getGuildData(m_Logger,NumGuilds,RunLength,GuildList,GuildSpecies,
+    if (! m_Database->getGuildData(m_Logger,NumGuilds,NumYears,GuildList,GuildSpecies,
                                    GuildNum,SimulatedBiomassByGuilds)) {
         return false;
     }
 
-    nmfUtils::initialize(SimulatedBiomass,RunLength,NumSpecies);
-    nmfUtils::initialize(Catch,RunLength,NumSpecies);
-    nmfUtils::initialize(Effort,RunLength,NumSpecies);
-    nmfUtils::initialize(Exploitation,RunLength,NumSpecies);
+    nmfUtils::initialize(EstBiomassSpecies,NumYears,NumSpecies);
+    nmfUtils::initialize(Catch,NumYears,NumSpecies);
+    nmfUtils::initialize(Effort,NumYears,NumSpecies);
+    nmfUtils::initialize(Exploitation,NumYears,NumSpecies);
 
     // Get harvest data
     if (! m_Database->getHarvestData(HarvestForm,m_Logger,m_ProjectName,m_ModelName,
-                                     NumSpecies,RunLength,Catch,Effort,Exploitation,
+                                     NumSpecies,NumYears,Catch,Effort,Exploitation,
                                      Catchability)) {
         msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getHarvestData";
         m_Logger->logMsg(nmfConstants::Error,msg);
@@ -128,28 +141,29 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     // Load initial biomasses for all species prior to starting loop because some
     // models wlll require other species' previous year's biomass
     for (int species=0; species<NumSpecies; ++species) {
-        bmInitial = InitialBiomass[species];
-        SimulatedBiomass(0,species) = bmInitial;
+        EstBiomassSpecies(0,species) = InitialBiomass[species];
     }
 
     //
     // Create simulated biomass
     //
-    formCheck = "OK";
     double val;
     nmfGrowthForm  SimGrowthForm(GrowthForm);
     nmfHarvestForm SimHarvestForm(HarvestForm);
     nmfPredationForm SimPredationForm(PredationForm);
     nmfCompetitionForm SimCompetitionForm(CompetitionForm);
 
-    for (int time=1; time<RunLength; ++time) {
+    for (int time=1; time<NumYears; ++time) {
 
         timeMinus1 = time - 1;
         for (int species=0; species<NumSpecies; ++species) {
 
-            EstBiomassVal = SimulatedBiomass(timeMinus1,species);
+            if (timeMinus1 == 0) {
+                EstBiomassVal = InitialBiomass[species];
+            } else {
+                EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
+            }
 
-            growth    = GrowthRate[species];
             speciesK  = SpeciesK[species];
             if (speciesK == 0) {
                 msg = "nmfSimulatedData::createSimulatedBiomass: Found SpeciesK=0 for Species (" +
@@ -161,35 +175,41 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
             getGuildCarryingCapacity(isAggProd,species,SpeciesK,GuildNum,
                                      GuildSpecies,GuildCarryingCapacity);
 
-            GrowthTerm = SimGrowthForm.evaluate(species,EstBiomassVal,
-                                                    GrowthRate,SpeciesK);
-            HarvestTerm = SimHarvestForm.evaluate(timeMinus1,species,
-                                                    Catch,Effort,Exploitation,
-                                                    EstBiomassVal,Catchability);
+            GrowthTerm = SimGrowthForm.evaluate(
+                        species,EstBiomassVal,
+                        GrowthRate,SpeciesK);
+            HarvestTerm = SimHarvestForm.evaluate(
+                        timeMinus1,species,
+                        Catch,Effort,Exploitation,
+                        EstBiomassVal,Catchability);
             CompetitionTerm = SimCompetitionForm.evaluate(
-                                   timeMinus1, species,EstBiomassVal,
-                                   SystemCarryingCapacity,
-                                   GrowthRate,
-                                   GuildCarryingCapacity,
-                                   CompetitionAlpha,
-                                   CompetitionBetaSpecies,
-                                   CompetitionBetaGuild,
-                                   CompetitionBetaGuildGuild,
-                                   SimulatedBiomass,
-                                   SimulatedBiomassGuild);
+                        timeMinus1,species,EstBiomassVal,
+                        SystemCarryingCapacity,
+                        GrowthRate,
+                        GuildCarryingCapacity,
+                        CompetitionAlpha,
+                        CompetitionBetaSpecies,
+                        CompetitionBetaGuild,
+                        CompetitionBetaGuildGuild,
+                        EstBiomassSpecies,
+                        SimulatedBiomassGuild);
             PredationTerm = SimPredationForm.evaluate(
-                                   timeMinus1, species,
-                                   PredationRho,PredationHandling,PredationExponent,
-                                   SimulatedBiomass,EstBiomassVal);
-
+                        timeMinus1, species,
+                        PredationRho,PredationHandling,PredationExponent,
+                        EstBiomassSpecies,EstBiomassVal);
             val = EstBiomassVal + GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
-
-//std::cout << "sim year: " << time << ", val = " << lastYearBiomass << " + " << simGrowthValue << " - " << simHarvestValue << " - "
-//          << simCompetitionValue << " - " << simPredationValue <<  " = " << val << std::endl;
-
             addError(errorPct,val);
-            SimulatedBiomass(time,species) = (val < 0) ? 0 : val;
-//std::cout << "sim val(" << time << "," << species << "): " << SimulatedBiomass(time,species) << std::endl;
+            EstBiomassSpecies(time,species) = (val < 0) ? 0 : val;
+        }
+    }
+
+    // Multiply Biomass by SurveyQ in case it's Relative Biomass. SurveyQ will be all 1's
+    // if it's Absolute Biomass.
+    double surveyQ;
+    for (int species=0; species<(int)EstBiomassSpecies.size2(); ++species) {
+        surveyQ = SurveyQ[species];
+        for (int time=0; time<(int)EstBiomassSpecies.size1(); ++time) {
+            EstBiomassSpecies(time,species) *= surveyQ;
         }
     }
 
@@ -203,8 +223,8 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     QString value;
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
-        int numRows = SimulatedBiomass.size1();
-        int numCols = SimulatedBiomass.size2();
+        int numRows = EstBiomassSpecies.size1();
+        int numCols = EstBiomassSpecies.size2();
         for (int col=0; col<numCols; ++col) {
             stream << "," << SpeciesList[col];
         }
@@ -212,7 +232,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
         for (int row=0; row<numRows; ++row) {
             stream << QString::number(row+InitialYear);
             for (int col=0; col<numCols; ++col) {
-                value = QString::number(SimulatedBiomass(row,col),'f',6);
+                value = QString::number(EstBiomassSpecies(row,col),'f',6);
                 stream << "," << value;
             }
             stream << "\n";
@@ -220,7 +240,6 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
         file.close();
     }
 
-std::cout << "Model: " << formCheck.toStdString() << std::endl;
     return retv;
 }
 
@@ -228,7 +247,7 @@ void
 nmfSimulatedData::addError(const int& errorPct,
                            double& value)
 {
-    double factor = nmfUtils::getRandomNumber(0,-1,1);
+    double factor = nmfUtils::getRandomNumber(m_FixedSeed++,-1,1);
     double error  = value * (errorPct/100.0);
 
     value += factor*error;

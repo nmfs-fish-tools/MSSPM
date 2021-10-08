@@ -26,6 +26,7 @@ class nmfSimulatedData
     std::string  m_ModelName;
     nmfDatabase* m_Database;
     nmfLogger*   m_Logger;
+    int          m_FixedSeed;
 
     /**
      * @brief Adds a percent error to the passed value

@@ -411,6 +411,7 @@ nmfDiagnostic_Tab1::isSetLastRunMultiDiagnostics()
 void
 nmfDiagnostic_Tab1::callback_RunPB()
 {
+    bool isBiomassAbsolute;
     int RunLength;
     int InitialYear;
     int NumSpecies;
@@ -502,7 +503,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
     if (! m_DatabasePtr->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear)) {
+                RunLength,InitialYear,isBiomassAbsolute)) {
         emit EnableRunButtons(true);
         progressDlg->close();
         return;

@@ -1902,7 +1902,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.38 (beta)";
+    QString version = "MSSPM v0.9.39 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3517,6 +3517,7 @@ nmfMainWindow::menu_saveCurrentRun()
     int RunNum=0;
     int InitialYear=0;
     bool isMonteCarlo = false;
+    bool isBiomassAbsolute;
     std::string Algorithm;
     std::string Minimizer;
     std::string ObjectiveCriterion;
@@ -3558,7 +3559,7 @@ nmfMainWindow::menu_saveCurrentRun()
     if (! m_DatabasePtr->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear)) {
+                RunLength,InitialYear,isBiomassAbsolute)) {
         return;
     }
 
@@ -6985,7 +6986,7 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
 
     // Load Observed (i.e., original) Biomass (need to check if should be loading Absolute or Relative)
     std::string ObsBiomassTableName = getObservedBiomassTableName(!nmfConstantsMSSPM::PreEstimation);
-std::cout << "==> ObsBiomassTableName: " <<  ObsBiomassTableName << std::endl;
+//std::cout << "==> ObsBiomassTableName: " <<  ObsBiomassTableName << std::endl;
     if (isAggProd) {
         if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                       "",ObsBiomassTableName,NumSpeciesOrGuilds,RunLength,
@@ -7010,7 +7011,7 @@ std::cout << "==> ObsBiomassTableName: " <<  ObsBiomassTableName << std::endl;
     for (int i=0;i<NumSpeciesOrGuilds;++i) {
         meanVal = 0;
         for (int j=0; j<=RunLength;++j) {
-            meanVal += observed[m++];
+            meanVal += ObservedBiomass(j,i);
         }
         meanVal /= (RunLength+1);
         meanObserved.push_back(meanVal);
@@ -7071,17 +7072,20 @@ std::cout << "Warning: TBD nmfMainWindow::calculateSummaryStatisticsStruct: Add 
     }
 
     // Calculate SSresiduals
-    nmfUtilsStatistics::calculateSSResiduals(NumSpeciesOrGuilds,RunLength,observed,estimated,SSresiduals);
+    nmfUtilsStatistics::calculateSSResiduals(
+                NumSpeciesOrGuilds,RunLength,observed,estimated,SSresiduals);
 
     // Calculate SSdeviations
-    ok = nmfUtilsStatistics::calculateSSDeviations(NumSpeciesOrGuilds,RunLength,estimated,meanObserved,SSdeviations);
+    ok = nmfUtilsStatistics::calculateSSDeviations(
+                NumSpeciesOrGuilds,RunLength,estimated,meanObserved,SSdeviations);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] calculateSummaryStatistics: Found SSdeviation of 0.");
         return false;
     }
 
     // Calculate SStotals
-    nmfUtilsStatistics::calculateSSTotals(NumSpeciesOrGuilds,SSdeviations,SSresiduals,SStotals);
+    nmfUtilsStatistics::calculateSSTotals(
+                NumSpeciesOrGuilds,SSdeviations,SSresiduals,SStotals);
 
     // Calculate rsquared (between 0.2 and 0.3 good....closer to 1.0 the better)
     nmfUtilsStatistics::calculateRSquared(NumSpeciesOrGuilds,SSdeviations,SStotals,rsquared);
@@ -10284,6 +10288,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                       boost::numeric::ublas::matrix<double>& EstBiomassSpecies)
 {
     bool isAggProd;
+    bool isBiomassAbsolute;
     int RunLength;
     int InitialYear;
     int timeMinus1;
@@ -10326,7 +10331,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
     if (! m_DatabasePtr->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear)) {
+                RunLength,InitialYear,isBiomassAbsolute)) {
         return false;
     }
     growthForm      = new nmfGrowthForm(GrowthForm);
@@ -10550,6 +10555,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     int RunLength;
     int InitialYear;
     int Peel;
+    bool isBiomassAbsolute;
     bool isAMohnsRho = isAMohnsRhoMultiRun();
     std::string GrowthForm;
     std::string HarvestForm;
@@ -10582,7 +10588,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     if (! m_DatabasePtr->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear))
+                RunLength,InitialYear,isBiomassAbsolute))
         return;
     bool isAggProd = (CompetitionForm == "AGG-PROD");
 
@@ -10827,7 +10833,7 @@ nmfMainWindow::calculateAverageBiomass()
     int NumGuilds;
     int NumSpecies;
     int RunLength;
-
+    bool isBiomassAbsolute;
     QString aveAlgorithm = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm();
     std::string aveAlgorithmStr = aveAlgorithm.toStdString();
     std::vector<double> Fitness;
@@ -10860,7 +10866,7 @@ nmfMainWindow::calculateAverageBiomass()
     if (! m_DatabasePtr->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear)) {
+                RunLength,InitialYear,isBiomassAbsolute)) {
         return;
     }
     bool isCompetitionAGGPROD = (CompetitionForm == "AGG-PROD"); // RSK - incorrect since we're talking about averages here
@@ -11083,6 +11089,7 @@ nmfMainWindow::displayAverageBiomass()
     int NumGuilds;
     int RunLength;
     int InitialYear;
+    bool isBiomassAbsolute;
     std::string GrowthForm;
     std::string HarvestForm;
     std::string CompetitionForm;
@@ -11127,7 +11134,7 @@ nmfMainWindow::displayAverageBiomass()
     if (! m_DatabasePtr->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear)) {
+                RunLength,InitialYear,isBiomassAbsolute)) {
         return;
     }
 
@@ -11233,6 +11240,7 @@ nmfMainWindow::getOutputBiomassAveraged(
     int NumSpecies;
     int RunLength;
     int InitialYear;
+    bool isBiomassAbsolute;
     std::string GrowthForm;
     std::string HarvestForm;
     std::string CompetitionForm;
@@ -11250,7 +11258,7 @@ nmfMainWindow::getOutputBiomassAveraged(
     if (! m_DatabasePtr->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear)) {
+                RunLength,InitialYear,isBiomassAbsolute)) {
         return false;
     }
     ++RunLength; // Needed as it's 1 less than what's needed here
@@ -12181,7 +12189,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         // m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Exploitation");
     }
 
-//std::cout << "----> isSurveyQ: " << isSurveyQ << std::endl;
+std::cout << "----> isSurveyQ: " << isSurveyQ << std::endl;
     if (isSurveyQ) {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
                                                "",nmfConstantsMSSPM::TableBiomassRelative,
@@ -12197,7 +12205,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         }
         //  m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Absolute Biomass");
     }
-
+//nmfUtils::printMatrix("dataStruct.ObservedBiomassBySpecies",dataStruct.ObservedBiomassBySpecies,10,8);
     // Load time series by guild observed biomass just load the first year's
     if (isAGGPROD) {
 std::cout << "Warning: If loading observed biomass by guild, must account for user wanting relative biomass" << std::endl;
