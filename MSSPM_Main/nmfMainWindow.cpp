@@ -12189,7 +12189,6 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         // m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Exploitation");
     }
 
-std::cout << "----> isSurveyQ: " << isSurveyQ << std::endl;
     if (isSurveyQ) {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
                                                "",nmfConstantsMSSPM::TableBiomassRelative,
