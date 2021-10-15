@@ -351,6 +351,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)/surveyQ[i];
+//      EstBiomassSpecies(0,i) = ObsBiomassBySpeciesOrGuilds(0,i);
     }
 
     // RSK - Remember there's only initial guild biomass data
@@ -364,7 +365,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         return -1;
     }
 
-    bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(NLoptDataStruct,"InitBiomass");
+    bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(NLoptDataStruct,"");
 
     for (int time=1; time<NumYears; ++time) {
 
@@ -373,7 +374,8 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
             if (isCheckedInitBiomass) { // if estimating the initial biomass
                 if (timeMinus1 == 0) {
-                    EstBiomassVal = initBiomass[species];
+//                EstBiomassVal = initBiomass[species];
+                  EstBiomassVal = EstBiomassSpecies(0,species);
                 } else {
                     EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
                 }
@@ -471,7 +473,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     incrementObjectiveFunctionCounter(MSSPMName,fitness,NLoptDataStruct);
 
     //std::cout << "NLopt_Estimator::objectiveFunction - end" << std::endl;
-
+//std::cout << "fitness: " << fitness << std::endl;
     return fitness;
 }
 
@@ -679,6 +681,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                                     std::vector<QString>& MultiRunLines,
                                     int& TotalIndividualRuns)
 {
+
     bool isAMultiRun = bools.first;
     bool isSetToDeterministic = bools.second;
     bool foundOneNLoptRun = false;
@@ -690,7 +693,6 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     std::string MaxOrMin;
     std::vector<std::pair<double,double> > ParameterRanges;
     QDateTime startTime = nmfUtilsQt::getCurrentTime();
-
 
     m_NLoptFcnEvals  = 0;
     m_NumObjFcnCalls = 0;
@@ -718,15 +720,6 @@ for (int i=0; i< NumEstParameters; ++i) {
  std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
 }
 
-//    int NumMohnsRhoMultiRuns = NLoptStruct.NumMohnsRhoMultiRuns;
-//    bool isAMohnsRhoMultiRun = (NumMohnsRhoMultiRuns > 0);
-//std::cout << "⬛⬛⬛ NumMohnsRhoMultiRuns: " << NumMohnsRhoMultiRuns << std::endl;
-//    for (int mohnsRhoMultiRun=0; mohnsRhoMultiRun<NumMohnsRhoMultiRuns; ++mohnsRhoMultiRun)
-//    {
-//std::cout << "⬛⬛⬛ mohnsRhoMultiRun: " << mohnsRhoMultiRun << std::endl;
-//        if (isAMohnsRhoMultiRun) {
-//            NumMultiRuns = MultiRunLines.size();  // RSK fix this!
-//        } else
         if (isAMultiRun) {
             NumMultiRuns = MultiRunLines.size();
         }
@@ -757,7 +750,6 @@ for (int i=0; i< NumEstParameters; ++i) {
             }
             m_Seed = 0;
             foundOneNLoptRun = true;
-
             for (int run=0; run<NumSubRuns; ++run) {
                 m_Quit = false;
 
@@ -915,7 +907,7 @@ NLopt_Estimator::createOutputStr(
     bestFitnessStr += "<br><br>Number of Runs:&nbsp;&nbsp;&nbsp;" + std::to_string(numSubRuns);
     bestFitnessStr += "<br>Best Fitness (SSE) value of all runs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + QString::number(bestFitness,'f',2).toStdString();
     bestFitnessStr += "<br>Std dev of Best Fitness values from all runs:&nbsp;&nbsp;" + QString::number(fitnessStdDev,'f',2).toStdString();
-    bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong>";
+    bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong><br>";
     bestFitnessStr += convertValues1DToOutputStr("Initial Absolute Biomass:    ",m_EstInitBiomass,false);
     bestFitnessStr += convertValues1DToOutputStr("Growth Rate:          ",       m_EstGrowthRates,  false);
     if (growthForm == "Logistic") {
@@ -966,14 +958,18 @@ NLopt_Estimator::convertValues1DToOutputStr(const std::string& label,
     double totalVal = 0;
     std::string bestFitnessStr = "";
 
-    bestFitnessStr += "<br>&nbsp;&nbsp;" + label + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+    bestFitnessStr += "<br>"+label;
+    bestFitnessStr += "<table>";
+    bestFitnessStr += "<tr>";
     for (unsigned i=0; i<Values.size(); ++i) {
         val = Values[i];
-        bestFitnessStr += nmfUtils::convertToScientificNotation(val) + "&nbsp;&nbsp;";
+        bestFitnessStr += "<td> "+nmfUtils::convertToScientificNotation(val) + "</td>";
         totalVal += val;
     }
+    bestFitnessStr += "</tr>";
+    bestFitnessStr += "</table>";
     if (includeTotal) {
-        bestFitnessStr += "<br>&nbsp;&nbsp;Total " + label + "&nbsp;" +
+        bestFitnessStr += "<br>Total " + label + "<br>" +
                 nmfUtils::convertToScientificNotation(totalVal);
     }
 
@@ -987,15 +983,18 @@ NLopt_Estimator::convertValues2DToOutputStr(const std::string& label,
 {
     std::string bestFitnessStr = "";
 
+    bestFitnessStr += "<br>"+label;
+    bestFitnessStr += "<table>";
+
     for (unsigned i=0; i<matrix.size1(); ++i) {
-        bestFitnessStr += "<br>&nbsp;&nbsp;";
+        bestFitnessStr += "<tr>";
         for (unsigned j=0; j<matrix.size2(); ++j) {
-            if ((i == 0) && (j == 0)) {
-                bestFitnessStr += "&nbsp;&nbsp;" + label + "<br>&nbsp;&nbsp;";
-            }
-            bestFitnessStr += "&nbsp;&nbsp;&nbsp;" + nmfUtils::convertToScientificNotation(matrix(i,j));
+            bestFitnessStr += "<td> " + nmfUtils::convertToScientificNotation(matrix(i,j)) + "</td>";
         }
+        bestFitnessStr += "</tr>";
     }
+
+    bestFitnessStr += "</table>";
 
     return bestFitnessStr;
 }

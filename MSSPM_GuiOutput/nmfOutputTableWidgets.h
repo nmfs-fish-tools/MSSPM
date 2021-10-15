@@ -82,6 +82,7 @@ public:
 
     void loadSummaryTable(QTableView* tableView,
                           const QString& label,
+                          const QStringList& EstParamNames,
                           const QStringList& statisticNames);
     void exportSummaryTable(QTableView* tableView,
                             const QString& label,
@@ -90,7 +91,7 @@ public:
                             const QString& label,
                             const std::string& defaultFilenameCSV);
     void loadWidgets();
-    void reloadLast();
+    void reloadLast(const QStringList& EstParamNames);
     void setLastVariables(QTableView* tableView,
                           const QString& label,
                           const QStringList& statisticNames);

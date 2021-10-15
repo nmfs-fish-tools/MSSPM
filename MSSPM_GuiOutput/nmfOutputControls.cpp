@@ -187,9 +187,9 @@ nmfOutputControls::initWidgets()
 If K=0 (which will happen if the growth rate selected is Linear), \
 the equation used for K becomes K(i) = r(i)/alpha(i,i).<br><br>\
 If K is not 0, then:<br><br>\
-&nbsp;&nbsp;For Species: B MSY = K(i)/2, where r(i) = carrying capacity for that species<br><br>\
-&nbsp;&nbsp;For Guilds: B MSY = Σ[K(i)]/2, where Σ is over all species in the selected guild<br><br>\
-&nbsp;&nbsp;For System: B MSY = Σ[K(i)]/2, where Σ is over all species<br>\
+&nbsp;&nbsp;For Species:&nbsp;B MSY = K(i)/2, where r(i) = carrying capacity for that species<br><br>\
+&nbsp;&nbsp;For Guilds:&nbsp;&nbsp;B MSY = Σ[K(i)]/2, where Σ is over all species in the selected guild<br><br>\
+&nbsp;&nbsp;For System:&nbsp;&nbsp;B MSY = Σ[K(i)]/2, where Σ is over all species<br>\
 </html>";
     OutputShowBMSYCB->setToolTip("Biomass Maximum Sustained Yield (K/2)");
     OutputShowBMSYCB->setStatusTip("Biomass Maximum Sustained Yield (K/2)");

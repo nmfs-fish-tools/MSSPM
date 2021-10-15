@@ -61,7 +61,7 @@ nmfOutputTableWidgets::saveSettings()
 }
 
 void
-nmfOutputTableWidgets::reloadLast()
+nmfOutputTableWidgets::reloadLast(const QStringList& EstParamNames)
 {
     if ((m_LastTableView == nullptr) &&
          m_LastLabel.isEmpty()       &&
@@ -70,7 +70,7 @@ nmfOutputTableWidgets::reloadLast()
     }
 
     if (m_LastFileLoaded.isEmpty()) { // Re-load table from database
-        loadSummaryTable(m_LastTableView,m_LastLabel,m_LastStatisticNames);
+        loadSummaryTable(m_LastTableView,m_LastLabel,EstParamNames,m_LastStatisticNames);
 
     } else {                          // Re-load last imported file
         int numRows = 0;
@@ -96,13 +96,15 @@ nmfOutputTableWidgets::setLastVariables(QTableView* tableView,
 void
 nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView,
                                         const QString& label,
+                                        const QStringList& EstParamNames,
                                         const QStringList& statisticNames)
 {
+    bool isDiagnosticSummary = false;
     int j;
     int NumFields;
     int NumDatabaseTableRows;
     int NumGuiTableCols;
-    int NumGuiTableRows = statisticNames.size();
+    int NumSummaryTableRows;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -113,6 +115,8 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView,
     QString valueStr;
     QString valueWithComma;
     QStringList header;
+    std::string fieldStr;
+    std::string fieldsStr;
 
     m_LastFileLoaded     = "";
     m_LastLabel          = label;
@@ -120,6 +124,8 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView,
     m_LastStatisticNames = statisticNames;
 
     if (label == "Summary Model Fit") {
+        isDiagnosticSummary = false;
+        NumSummaryTableRows = statisticNames.size();
         fields    = {"ProjectName","ModelName","SpeciesName","SSResiduals","SSDeviations","SSTotals",
                      "rSquared","rCorrelationCoeff","AkaikeInfoCriterion","RootMeanSquareError",
                      "ReliabilityIndex","AverageError","AverageAbsError","ModelingEfficiency"};
@@ -128,10 +134,18 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView,
         queryStr += "AverageAbsError,ModelingEfficiency FROM " +
                      nmfConstantsMSSPM::TableSummaryModelFit;
     } else {
-        fields    = {"ProjectName","ModelName","SpeciesName","InitialAbsBiomass","GrowthRate",
-                     "CarryingCapacity","PredationEffect","EstimatedBiomass"};
-        queryStr  = "SELECT ProjectName,ModelName,SpeciesName,InitialAbsBiomass,GrowthRate,";
-        queryStr += "CarryingCapacity,PredationEffect,EstimatedBiomass FROM " +
+        isDiagnosticSummary = true;
+        NumSummaryTableRows = EstParamNames.size();
+        fields    = {"ProjectName","ModelName","SpeciesName"};
+        for (QString field : EstParamNames) {
+            fieldStr = field.remove(" ").toStdString();
+            fields.push_back(fieldStr);
+            fieldsStr += fieldStr + ",";
+        }
+        fieldsStr = fieldsStr.substr(0,fieldsStr.size()-1); // remove last comma
+        queryStr  = "SELECT ProjectName,ModelName,SpeciesName,"; //,InitialAbsBiomass,GrowthRate,";
+        queryStr += fieldsStr;
+        queryStr += " FROM " +
                      nmfConstantsMSSPM::TableSummaryDiagnostic;
     }
     queryStr += " WHERE ProjectName='" + m_ProjectName +
@@ -153,11 +167,15 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView,
     NumGuiTableCols = (int)header.size();
 
     // Set size of table
-    smodel = new QStandardItemModel(NumGuiTableRows, NumGuiTableCols);
+    smodel = new QStandardItemModel(NumSummaryTableRows, NumGuiTableCols);
 
     // Load first column of table
-    for (int row=0; row<NumGuiTableRows; ++row) {
-        valueStr = statisticNames[row];
+    for (int row=0; row<NumSummaryTableRows; ++row) {
+        if (! isDiagnosticSummary) {
+            valueStr = statisticNames[row];
+        } else {
+            valueStr = "Mohn's Rho (" + EstParamNames[row] + ")";
+        }
         item = new QStandardItem(valueStr);
         item->setTextAlignment(Qt::AlignCenter);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable); // read-only

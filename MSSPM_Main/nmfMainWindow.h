@@ -1018,7 +1018,8 @@ public:
     bool isStartUpOK();
     bool okToRunForecast();
     void saveSummaryModelFitTable(QStandardItemModel *smodel);
-    void saveSummaryDiagnosticTable(QStandardItemModel *smodel);
+    void saveSummaryDiagnosticTable(QStandardItemModel *smodel,
+                                    std::string& FieldNames);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);

@@ -652,13 +652,13 @@ nmfSetup_Tab4::setEstimatedParameterNames()
     } else if (competitionForm == "MS-PROD") {
         runBox.parameter = "CompetitionAlpha";
         m_EstimatedParameters.push_back(nmfConstantsMSSPM::ParameterNameCompetitionBetaSpecies);
-        m_EstimatedParameters.push_back(nmfConstantsMSSPM::ParameterNameCompetitionBetaGuild);
+        m_EstimatedParameters.push_back(nmfConstantsMSSPM::ParameterNameCompetitionBetaGuilds);
         runBox.parameter = "CompetitionBetaSpeciesSpecies";
         EstimateRunBoxes.push_back(runBox);
         runBox.parameter = "CompetitionBetaGuildSpecies";
         EstimateRunBoxes.push_back(runBox);
     } else if (competitionForm == "AGG-PROD") {
-        m_EstimatedParameters.push_back(nmfConstantsMSSPM::ParameterNameCompetitionBetaGuildGuild);
+        m_EstimatedParameters.push_back(nmfConstantsMSSPM::ParameterNameCompetitionBetaGuildsGuilds);
         runBox.parameter = "CompetitionBetaGuildGuild";
         EstimateRunBoxes.push_back(runBox);
     }
