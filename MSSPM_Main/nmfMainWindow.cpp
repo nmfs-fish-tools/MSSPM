@@ -1902,7 +1902,8 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.40 (beta)";
+    QString version = "MSSPM v0.9.40"
+                      " (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -6321,17 +6322,17 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     msg += "<br>SSD  (SSdeviations):           Σ(Eₜ-&#332;)² over all t years";
     msg += "<br>SST  (SStotals):               SSresiduals + SSdeviations";
     msg += "<br>r²   (Determination Coeff):    SSdeviations/SStotals";
-    msg += "<br>r    (Correlation Coeff):      <u>   Σ[(Oₜ-&#332;)(Eₜ-&#274;)]   </u>";
-    msg += "<br>                               sqrt{Σ(Oₜ-&#332;)²Σ(Eₜ-&#274;)²}";
+    msg += "<br>r    (Correlation Coeff):      <u>  Σ[(Oₜ-&#332;)(Eₜ-&#274;)]    </u>";
+    msg += "<br>                               √{Σ(Oₜ-&#332;)²Σ(Eₜ-&#274;)²}";
     msg += "<br>AIC  (Akaike Info Criterion):  n*ln(σ²) + 2K, where:";
-    msg += "<br>                                   K  = number of parameters";
-    msg += "<br>                                   n  = number of observations";
-    msg += "<br>                                   σ² = SSresiduals/n";
-    msg += "<br>RMSE (Root Mean Sq Error):     sqrt{(Σ(Eₜ-Oₜ)²)/n}";
-    msg += "<br>RI   (Reliability Index):      exp[sqrt{(1/n)Σ([log(Oₜ/Eₜ)]²)}]";
-    msg += "<br>AE   (Ave Error or Bias):      Σ(Eₜ-Oₜ) / n";
-    msg += "<br>AAE  (Ave Abs Error):          Σ|Eₜ-Oₜ| / n";
-    msg += "<br>MEF  (Modeling Efficiency):    [Σ(Oₜ-&#332;)²-Σ(Eₜ-Oₜ)²] / Σ(Oₜ-&#332;)²<br>";
+    msg += "<br>                               K  = number of parameters";
+    msg += "<br>                               n  = number of observations";
+    msg += "<br>                               σ² = SSresiduals/n";
+    msg += "<br>RMSE (Root Mean Sq Error):     √{(Σ(Eₜ-Oₜ)²)/n}";
+    msg += "<br>RI   (Reliability Index):      exp[√{(1/n)Σ([log(Oₜ/Eₜ)]²)}]";
+    msg += "<br>AE   (Ave Error or Bias):      Σ(Eₜ-Oₜ)/n";
+    msg += "<br>AAE  (Ave Abs Error):          Σ|Eₜ-Oₜ|/n";
+    msg += "<br>MEF  (Modeling Efficiency):    [Σ(Oₜ-&#332;)²-Σ(Eₜ-Oₜ)²]/Σ(Oₜ-&#332;)²<br>";
     msg += "<br>where O = Observed Biomass";
     msg += "<br>and   E = Estimated Biomass";
     msg += "</pre>";
