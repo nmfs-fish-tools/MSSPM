@@ -103,21 +103,18 @@ private:
     QComboBox*   Estimation_Tab3_MinMaxCMB;
     QComboBox*   Estimation_Tab3_MinMaxCMB2;
 
-//  QStringList getSpecies();
-//  QStringList getGuilds();
-    void        readSettings();
-    std::vector<std::string> getAllTableNames();
-    bool isNull();
-    bool isNoK();
-    bool isMsProd();
-    bool isAggProd();
-    std::vector<QTableView* > getTableViews();
     void assignTableViewsBasedOnRangeType(const QString& rangeType,
                                           QTableView* possibleTableView1,
                                           QTableView* possibleTableView2,
                                           QTableView*& tableView1,
                                           QTableView*& tableView2);
-
+    std::vector<std::string> getAllTableNames();
+    std::vector<QTableView*> getTableViews();
+    bool isAggProd();
+    bool isMsProd();
+    bool isNoK();
+    bool isNull();
+    void readSettings();
 
 public:
     /**

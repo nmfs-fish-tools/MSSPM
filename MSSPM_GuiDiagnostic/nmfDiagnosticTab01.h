@@ -228,7 +228,7 @@ public:
      * @param guildNames : names of the guilds found in the model
      */
     void getGuildInfo(int& numGuilds,
-                             QStringList& guildNames);
+                      QStringList& guildNames);
     /**
      * @brief Gets data for the current Species in the model
      * @param numSpecies : number of species found in the model

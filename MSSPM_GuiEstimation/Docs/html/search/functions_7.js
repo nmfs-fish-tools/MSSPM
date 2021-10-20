@@ -1,11 +1,10 @@
 var searchData=
 [
-  ['readsettings_371',['readSettings',['../classnmf_estimation___tab7.html#a70940a6cebf5a5aa5ea30c9d8cb2381d',1,'nmfEstimation_Tab7']]],
-  ['refreshmsg_372',['refreshMsg',['../classnmf_estimation___tab6.html#a9d7c76dd70b2fc9a36beaaa4a4fb36d9',1,'nmfEstimation_Tab6']]],
-  ['reloadguilds_373',['ReloadGuilds',['../classnmf_estimation___tab1.html#a0464c9d7f32e5741fef7b7cf5a3952db',1,'nmfEstimation_Tab1']]],
-  ['reloadspecies_374',['ReloadSpecies',['../classnmf_estimation___tab1.html#a64339922d063f65a7271311fe9f45e7a',1,'nmfEstimation_Tab1::ReloadSpecies()'],['../classnmf_estimation___tab5.html#a8c90a043a42f8cbe0c848eb3e1be0a9a',1,'nmfEstimation_Tab5::ReloadSpecies()']]],
-  ['resetspinbox_375',['resetSpinBox',['../classnmf_estimation___tab3.html#ae997041dee6b3e180949f22764a21a07',1,'nmfEstimation_Tab3']]],
-  ['restoreoutputspecies_376',['RestoreOutputSpecies',['../classnmf_estimation___tab1.html#a66eeaa47afb6f466998f08195e65fe7a',1,'nmfEstimation_Tab1']]],
-  ['rundiagnostics_377',['RunDiagnostics',['../classnmf_estimation___tab1.html#ad13083f610289262fef099700ddd9806',1,'nmfEstimation_Tab1']]],
-  ['runestimation_378',['RunEstimation',['../classnmf_estimation___tab1.html#ae7f3a7ed7ffaebe6621c1b3f1941a867',1,'nmfEstimation_Tab1']]]
+  ['nmfestimation_5ftab1_423',['nmfEstimation_Tab1',['../classnmf_estimation___tab1.html#ac5bfc5f07973b3cff7f34a1c2fe443fd',1,'nmfEstimation_Tab1']]],
+  ['nmfestimation_5ftab2_424',['nmfEstimation_Tab2',['../classnmf_estimation___tab2.html#a81c4d112cfb52709ba46a2c287ea426e',1,'nmfEstimation_Tab2']]],
+  ['nmfestimation_5ftab3_425',['nmfEstimation_Tab3',['../classnmf_estimation___tab3.html#a66d00a2486349efb1fc71f6e5a83f306',1,'nmfEstimation_Tab3']]],
+  ['nmfestimation_5ftab4_426',['nmfEstimation_Tab4',['../classnmf_estimation___tab4.html#aeb1d5dc876d4a5f4d8c032734a40c72a',1,'nmfEstimation_Tab4']]],
+  ['nmfestimation_5ftab5_427',['nmfEstimation_Tab5',['../classnmf_estimation___tab5.html#aa56b87d7caf14ffa9351203c794a2b71',1,'nmfEstimation_Tab5']]],
+  ['nmfestimation_5ftab6_428',['nmfEstimation_Tab6',['../classnmf_estimation___tab6.html#a76d9d96d0040005c1beac82e6b1042e7',1,'nmfEstimation_Tab6']]],
+  ['nmfestimation_5ftab7_429',['nmfEstimation_Tab7',['../classnmf_estimation___tab7.html#af54778b7e1999dbb205d23b78b6e7f38',1,'nmfEstimation_Tab7']]]
 ];

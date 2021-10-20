@@ -93,16 +93,16 @@ class nmfEstimation_Tab7: public QObject
     QPushButton*  Estimation_Tab7_ImportPB;
     QCheckBox*    Estimation_Tab7_ShowHiddenCB;
 
-    QString getModelEquation(QStandardItemModel* smodel,
-                             const int& row);
-    QString getEstimatedParameters(QStandardItemModel* smodel,
-                                   const int& row);
-    void loadModel(QStandardItemModel* smodel,
-                   const int& row);
-    void resizeColumns();
     void adjustColumnsForReadOnly();
     QStandardItem* createNewModelReviewItem(const int& col,
                                             const QString& value);
+    QString getEstimatedParameters(QStandardItemModel* smodel,
+                                   const int& row);
+    QString getModelEquation(QStandardItemModel* smodel,
+                             const int& row);
+    void loadModel(QStandardItemModel* smodel,
+                   const int& row);
+    void resizeColumns();
     void saveModelReviewTable();
 
 public:
@@ -119,49 +119,84 @@ public:
                        std::string& projectDir);
     virtual ~nmfEstimation_Tab7();
 
-    void updateReviewList(const QStringList& rowList);
-    void updateModelReviewTable(const QStringList& rowList);
     /**
-     * @brief This function is used to reload the model review table. If the user changes their
+     * @brief Clears the widgets of the Model Review table
+     */
+    void clearWidgets();
+    /**
+     * @brief This method is used to reload the Model Review table. If the user changes their
      * significant digits preference, this table needs to be redrawn so as to accurately reflect that
      * preference. This method does an export and then an import (using a temp file) to accomplish this.
      */
     void loadWidgets();
+    /**
+     * @brief This method loads the Model Review table with out any significant digits logic.
+     */
     void loadWidgetsNoSignificantDigits();
+    /**
+     * @brief Reads the current application settings from the Qt settings file
+     */
+    void readSettings();
     /**
      * @brief Saves the current application settings to the Qt settings file
      */
     void saveSettings();
     /**
-     * @brief Reads the current application settings from the Qt settings file
+     * @brief showHiddenFields
+     * @return
      */
-    void readSettings();
     bool showHiddenFields();
-    void clearWidgets();
+    //  void updateReviewList(const QStringList& rowList);
+    /**
+     * @brief This method updates the Model Review Table with the passed data
+     * @param rowList : list of all of the row data with which to update the Model Review table
+     */
+    void updateModelReviewTable(const QStringList& rowList);
 
 signals:
+    /**
+     * @brief Signal emitted when the user loads a row from the Model Review
+     */
     void LoadFromModelReview(nmfStructsQt::ModelReviewStruct);
 
-
 public Q_SLOTS:
-    /**
-     * @brief Callback invoked when the user clicks the Previous Page button
-     */
-    void callback_PrevPB();
     /**
      * @brief Callback invoked when the user clicks the Delete button
      */
     void callback_DeletePB();
     /**
+     * @brief Callback invoked when the user clicks the Export to CSV file button
+     */
+    void callback_ExportPB();
+    /**
      * @brief Callback invoked when the user clicks the Generate Model Summary button
      */
     void callback_GenerateSummaryPB();
-    void callback_ShowHiddenCB(int state);
-    void callback_LoadModelPB();
-    void callback_LoadPB();
-    void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user clicks the Import from CSV file button
+     */
     void callback_ImportPB();
-    void callback_ExportPB();
+    /**
+     * @brief Callback invoked when the user clicks the Load button after selecting a desired row
+     */
+    void callback_LoadModelPB();
+    /**
+     * @brief Callback invoked when the user clicks the Load button to reload the Model Review table
+     */
+    void callback_LoadPB();
+    /**
+     * @brief Callback invoked when the user clicks the Previous Page button
+     */
+    void callback_PrevPB();
+    /**
+     * @brief Callback invoked when the user clicks the Save (to database) button
+     */
+    void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user checks the show hidden columns checkbox
+     * @param state : state of the checkbox (Checked or Unchecked)
+     */
+    void callback_ShowHiddenCB(int state);
 
 };
 

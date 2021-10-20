@@ -155,7 +155,6 @@ signals:
      * @brief Queries main program to load local list with Species Guild names
      */
     void LoadSpeciesGuild();
-
     /**
      * @brief Signal notifying other widgets to reload guilds data
      * @param showPopup : boolean signifying whether the application should pop up a successful reload acknowledgement
@@ -166,6 +165,9 @@ signals:
      * @param showPopup : boolean signifying whether the application should pop up a successful reload acknowledgement
      */
     void ReloadSpecies(bool showPopup);
+    /**
+     * @brief Signal notifying main application to update all of its GUIs.
+     */
     void ReloadWidgets();
     /**
      * @brief Signal causes the recently saved Output Species names to be written back into the appropriate Output Controls widget

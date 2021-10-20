@@ -85,6 +85,9 @@ class nmfEstimation_Tab5: public QObject
                              QStringList& VerticalList);
     void loadCovariates(const int& RunLength,
                         const QStringList& VerticalList);
+    void loadCSVFile(const bool& firstLineReadOnly,
+                     const std::string& tableName,
+                     QTableView* tableView);
     void loadRelativeBiomass(const int& RunLength,
                              const int& StartYear,
                              const int& NumSpecies,
@@ -102,14 +105,11 @@ class nmfEstimation_Tab5: public QObject
                                      const std::string& tableName,
                                      QStandardItemModel* smodel,
                                      QTableView* tableView);
-    void loadCSVFile(const bool& firstLineReadOnly,
-                     const std::string& tableName,
-                     QTableView* tableView);
     void readSettings();
+    bool saveAbsoluteBiomass();
     void saveCSVFile(const QString& type,
                      QStandardItemModel* smodel,
                      const std::string& tableName);
-    bool saveAbsoluteBiomass();
     bool saveRelativeBiomass();
     void saveTableValuesToCSVFile(const QString& type,
                                   const std::string& tableName,

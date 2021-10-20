@@ -86,11 +86,11 @@ class MultiScenarioSaveDlg : public QDialog
             boost::numeric::ublas::matrix<double>& ForecastBiomass);
     void loadScenarioMap();
     void printMap(QString msg);
-    void renameScenarioName(QString oldScenario,
-                            QString newScenario);
     void renameForecastLabel(QString scenario,
                              QString oldForecast,
                              QString newForecast);
+    void renameScenarioName(QString oldScenario,
+                            QString newScenario);
 
 public:
     /**
@@ -115,11 +115,6 @@ public:
     virtual ~MultiScenarioSaveDlg() {}
 
     /**
-     * @brief Gets the current Scenario name from the appropriate GUI widget
-     * @return Returns the current Scenario name
-     */
-    std::string getScenarioName();
-    /**
      * @brief Gets the current Forecast label from the appropriate GUI widget. Each
      * Forecast shown in a Scenario plot has its Forecast name as its label.
      * @return Returns the current Forecast label
@@ -131,6 +126,11 @@ public:
      */
     void getOrderedForecastLabels(std::map<QString,
                                   QStringList>& orderedForecastLabelsMap);
+    /**
+     * @brief Gets the current Scenario name from the appropriate GUI widget
+     * @return Returns the current Scenario name
+     */
+    std::string getScenarioName();
     /**
      * @brief Loads all widgets for this GUI from database tables
      */
@@ -144,38 +144,38 @@ signals:
 
 private Q_SLOTS:
     /**
-     * @brief Callback invoked when the user selects from the Scenario Name GUI widget
-     * @param scenario : current Scenario name
+     * @brief Callback invoked when the user clicks the Delete Forecast from Scenario button
      */
-    void callback_ScenarioNameCMB(QString scenario);
-    /**
-     * @brief Callback invoked when the user clicks the New Scenario button
-     */
-    void callback_NewScenarioPB();
+    void callback_DelForecastPB();
     /**
      * @brief Callback invoked when the user clicks the Delete Scenario button
      */
     void callback_DelScenarioPB();
     /**
-     * @brief Callback invoked when the user clicks the Rename Scenario button
+     * @brief Callback invoked when the user clicks the New Scenario button
      */
-    void callback_RenScenarioPB();
+    void callback_NewScenarioPB();
     /**
-     * @brief Callback invoked when the user clicks the Set Forecast Label button
+     * @brief Callback invoked when the user clicks the OK to Save Current Forecast to Current Scenario button
      */
-    void callback_SetForecastPB();
-    /**
-     * @brief Callback invoked when the user clicks the Delete Forecast from Scenario button
-     */
-    void callback_DelForecastPB();
+    void callback_OkPB();
     /**
      * @brief Callback invoked when the user clicks the Rename Current Forecast button
      */
     void callback_RenForecastPB();
     /**
-     * @brief Callback invoked when the user clicks the OK to Save Current Forecast to Current Scenario button
+     * @brief Callback invoked when the user clicks the Rename Scenario button
      */
-    void callback_OkPB();
+    void callback_RenScenarioPB();
+    /**
+     * @brief Callback invoked when the user selects from the Scenario Name GUI widget
+     * @param scenario : current Scenario name
+     */
+    void callback_ScenarioNameCMB(QString scenario);
+    /**
+     * @brief Callback invoked when the user clicks the Set Forecast Label button
+     */
+    void callback_SetForecastPB();
     /**
      * @brief Callback invoked when the user clicks the Set Order and Close button
      */

@@ -42,7 +42,7 @@ LoadForecastDlg::LoadForecastDlg(const QString& title,
     connect(m_ButtonBox,   SIGNAL(accepted()),    this, SLOT(callback_LoadOk()));
     connect(m_ButtonBox,   SIGNAL(rejected()),    this, SLOT(reject()));
     connect(m_ForecastsLW, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-            this,          SLOT(callback_itemDoubleClicked(QListWidgetItem*)));
+            this,          SLOT(callback_ItemDoubleClicked(QListWidgetItem*)));
     connect(m_ForecastsLW, SIGNAL(customContextMenuRequested(QPoint)),
             this,          SLOT(callback_ContextMenu(QPoint)));
 
@@ -171,7 +171,7 @@ LoadForecastDlg::callback_LoadOk()
 }
 
 void
-LoadForecastDlg::callback_itemDoubleClicked(QListWidgetItem* item)
+LoadForecastDlg::callback_ItemDoubleClicked(QListWidgetItem* item)
 {
     callback_LoadOk();
 }

@@ -645,46 +645,119 @@ public:
      */
     void setEnsembleRunsSet(int value);
     /**
-     * @brief Sets the Ensemble Using Amount type
-     * @param usingAmount : the Using Amount type value (either Using All or Using Top), the first
-     * specifies to use all runs in the average and the second specifies to use the top n runs or
-     * top n percent of the runs in the average (based on other widget values)
+     * @brief Sets the Ensemble Using Amount value that determines either how many of the top n runs
+     * to use when averaging or what percent of the top runs to use when averaging
+     * @param usingAmount : the using amount value
      */
     void setEnsembleUsingAmountValue(QString usingAmount);
+    /**
+     * @brief Sets the Ensemble Using By item
+     * @param usingBy : the Using By item (either Using All or Using Top), the first
+     * specifies using all runs in the average and the second specifies using the top n runs or
+     * top n percent of the runs in the average (based on other widget values)
+     */
     void setEnsembleUsingBy(QString usingBy);
+    /**
+     * @brief Sets the boolean that specifies the Using Amount Value as either an absolute number
+     * of runs to use when averaging or as a percentage of all runs to use when averaging
+     * @param isUsingPct : boolean value that if true denotes using a percentage, if false denotes
+     * using an absolute value of runs
+     */
     void setEnsembleUsingPct(bool isUsingPct);
     /**
      * @brief Sets the font for the output text edit widget
      * @param font : the font to use for the output text edit widget
      */
     void setFont(QFont font);
+    /**
+     * @brief Sets the maximum number of generations for the Bees estimation algorithm; a generation is
+     * when bees are distributed and assigned to sites
+     * @param value : value of max number of generations
+     */
     void setMaxGenerations(int value);
+    /**
+     * @brief Writes the header (i.e., names of fields) to the Mohn's Rho file to be used when
+     * running a Mohn's Rho multi-run
+     */
     void setMohnsRhoFileHeader();
+    /**
+     * @brief Sets the type of Mohn's Rho file to either a single run or a multi-run
+     * @param runType : the type of Mohn's Rho run
+     */
     void setMohnsRhoFileType(const QString& runType);
+    /**
+     * @brief Sets the neighborhood size in the Bees estimation algorithm, it is the length of a site as
+     * a percentage of the entire parameter space
+     * @param value : percentage size of neighborhood
+     */
     void setNeighborhoodSize(int value);
+    /**
+     * @brief Sets the number of bees exploring the parameter space, in the Bees estimation algorithm, at any given time
+     * @param value : number of exploring bees (i.e., points) in the parameter space
+     */
     void setNumBees(int value);
+    /**
+     * @brief Sets the number of best sites in the Bees estimation algorithm; these are the number of sites in the parameter
+     * space to explore in more detail
+     * @param value : number of best sites
+     */
     void setNumBestSites(int value);
+    /**
+     * @brief Sets the number of elite bees in the Bees estimation algorithm; these are the number of bees that
+     * are assigned to further explore an elite site
+     * @param value : number of elite bees
+     */
     void setNumEliteBees(int value);
+    /**
+     * @brief Sets the number of elite sites in the Bees estimation algorithm; these are the number of best sites to
+     * explore with the number of elite bees
+     * @param value : number of elite sites
+     */
     void setNumEliteSites(int value);
+    /**
+     * @brief Sets the number of other bees in the Bees estimation algorithm; these are the number of bees assigned to
+     * explore the best sites that aren't elite sites
+     * @param value : number of other bees
+     */
     void setNumOtherBees(int value);
+    /**
+     * @brief Sets the number of sub runs in the Bees estimation algorithm
+     * @param value : number of Bees sub runs
+     */
     void setNumSubRuns(int value);
     /**
      * @brief Sets the content for the output text edit widget
      * @param msg : the content to use for the output text edit widget
      */
     void setOutputTE(QString msg);
+    /**
+     * @brief Sets the run button label; used for setting to either Run or Running
+     * @param label : value of the run button label
+     */
     void setRunButtonLabel(QString label);
 
 signals:
+    /**
+     * @brief Signal emitted when the user clicks the Add to Review button; it adds the
+     * current Run meta-data to the Review GUI
+     */
     void AddToReview();
+    /**
+     * @brief Signal to notify the main routine to set the state of the Bees algorithm to
+     * deterministic (if true) and stochastic (if false)
+     * @param state : state of Bees algorithm
+     */
     void BeesSetDeterministic(bool state);
     /**
      * @brief Signal sent to check all Estimation tables for completeness
      */
     void CheckAllEstimationTablesAndRun();
-    void DimScalarBiomassControls(bool dim);
+//  void DimScalarBiomassControls(bool dim);
+    /**
+     * @brief Signal to notify main routine to set the enable state of all of its Run buttons
+     * @param state : enable state of application's Run buttons
+     */
     void EnableRunButtons(bool state);
-
     /**
      * @brief Signal sent after the user checks the Mono Font box. It causes
      * the displayed output edit widget to use a monospaced font.
@@ -704,16 +777,18 @@ signals:
 
 public Q_SLOTS:
 
+    /**
+     * @brief Callback invoked when user clicks the Add to Review button
+     */
     void callback_AddToReviewPB();
-
     /**
      * @brief Callback invoked when the user selects an Averagin Algorithm for the multi-run feature
      * @param averagingAlgorithm : the selected averaging algorithm
      */
     void callback_AveragingAlgorithmCMB(QString averagingAlgorithm);
-    void callback_EnableSurveyQ(const QString biomassType,
-                                const bool enable,
-                                const bool checked);
+//    void callback_EnableSurveyQ(const QString biomassType,
+//                                const bool enable,
+//                                const bool checked);
     /**
      * @brief Callback invoked when the user toggles the Ensemble controls check box
      * @param isChecked : checked state of Ensemble controls group check box
@@ -752,11 +827,21 @@ public Q_SLOTS:
      * runs to a multi-run
      */
     void callback_EnsembleViewPB();
+    /**
+     * @brief Callback invoked when the user clicks the Using Pct buttin
+     */
     void callback_EnsembleUsingPctPB();
+    /**
+     * @brief Callback invoked when the user changes the Using Amount combobox
+     * @param value : current Using Amount value
+     */
     void callback_EnsembleUsingAmountCMB(QString value);
+    /**
+     * @brief Callback invoked when the user checks or unchecks the Ensemble Set Deterministic button
+     * @param state : if true - deterministic, else if false - stochastic
+     */
     void callback_EnsembleSetDeterministicCB(int state);
-
-    void callback_EstimateSurveyQCB(int state);
+//  void callback_EstimateSurveyQCB(int state);
     /**
      * @brief Callback invoked when the user changes the font in the Run Summary tab
      * @param fontSize : the font selected
@@ -812,9 +897,6 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
-
-
-
     /**
      * @brief Callback invoked when the user saves the model on the Setup -> Model Setup GUI
      */
@@ -824,15 +906,17 @@ public Q_SLOTS:
      * @param scalingAlgorithm : new scaling algorithm selected
      */
     void callback_ScalingCMB(QString scalingAlgorithm);
+    /**
+     * @brief Callback invoked when the user checks or unchecks the Model Algorithm Set Deterministic button
+     * @param state : if true - deterministic, else if false - stochastic
+     */
     void callback_SetDeterministicCB(int state);
-
     /**
      * @brief Callback invoked when main routine needs to update Estimate checkboxes
      * @param EstimateRunBoxes : Names and states of Estimate checkboxes to update
      */
     void callback_SetEstimateRunCheckboxes(
             std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes);
-
     /**
      * @brief Callback invoked when the user checks the Stop When Reach Value checkbox
      * @param isChecked : boolean signiying the check state
@@ -868,12 +952,11 @@ public Q_SLOTS:
      * @param value : new Stop After Value value
      */
     void callback_StopAfterValueLE(QString value);
+    /**
+     * @brief Callback invoked when the user clicks the lock button for the time units
+     * @param isChecked : if true - units are locked, else if false - units may be changed
+     */
     void callback_TimeUnitsLockPB(bool isChecked);
-
-
-
-
-
 
 };
 

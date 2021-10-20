@@ -177,31 +177,31 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     connect(Estimation_Tab6_NL_StopAfterValueLE,    SIGNAL(textChanged(QString)),
             this,                                   SLOT(callback_StopAfterValueLE(QString)));
     connect(Estimation_Tab6_EnsembleAveragingAlgorithmCMB, SIGNAL(currentTextChanged(QString)),
-            this,                                     SLOT(callback_AveragingAlgorithmCMB(QString)));
-    connect(Estimation_Tab6_ScalingCMB,               SIGNAL(currentTextChanged(QString)),
-            this,                                     SLOT(callback_ScalingCMB(QString)));
-    connect(Estimation_Tab6_EnsembleControlsGB,       SIGNAL(toggled(bool)),
-            this,                                     SLOT(callback_EnsembleControlsGB(bool)));
-    connect(Estimation_Tab6_EnsembleSetAllPB,         SIGNAL(clicked()),
-            this,                                     SLOT(callback_EnsembleSetAllPB()));
-    connect(Estimation_Tab6_EnsembleLoadPB,           SIGNAL(clicked()),
-            this,                                     SLOT(callback_EnsembleLoadPB()));
-    connect(Estimation_Tab6_NL_StopAfterTimeUnitsCMB, SIGNAL(currentTextChanged(QString)),
-            this,                                     SLOT(callback_StopAfterTimeUnitsCMB(QString)));
-    connect(Estimation_Tab6_EnsembleUsingPctPB,       SIGNAL(clicked()),
-            this,                                     SLOT(callback_EnsembleUsingPctPB()));
-    connect(Estimation_Tab6_EnsembleUsingByCMB,       SIGNAL(currentTextChanged(QString)),
-            this,                                     SLOT(callback_EnsembleUsingAmountCMB(QString)));
+            this,                                         SLOT(callback_AveragingAlgorithmCMB(QString)));
+    connect(Estimation_Tab6_ScalingCMB,                   SIGNAL(currentTextChanged(QString)),
+            this,                                         SLOT(callback_ScalingCMB(QString)));
+    connect(Estimation_Tab6_EnsembleControlsGB,           SIGNAL(toggled(bool)),
+            this,                                         SLOT(callback_EnsembleControlsGB(bool)));
+    connect(Estimation_Tab6_EnsembleSetAllPB,             SIGNAL(clicked()),
+            this,                                         SLOT(callback_EnsembleSetAllPB()));
+    connect(Estimation_Tab6_EnsembleLoadPB,               SIGNAL(clicked()),
+            this,                                         SLOT(callback_EnsembleLoadPB()));
+    connect(Estimation_Tab6_NL_StopAfterTimeUnitsCMB,     SIGNAL(currentTextChanged(QString)),
+            this,                                         SLOT(callback_StopAfterTimeUnitsCMB(QString)));
+    connect(Estimation_Tab6_EnsembleUsingPctPB,           SIGNAL(clicked()),
+            this,                                         SLOT(callback_EnsembleUsingPctPB()));
+    connect(Estimation_Tab6_EnsembleUsingByCMB,           SIGNAL(currentTextChanged(QString)),
+            this,                                         SLOT(callback_EnsembleUsingAmountCMB(QString)));
     connect( Estimation_Tab6_MinimizerSetDeterministicCB, SIGNAL(stateChanged(int)),
              this,                                        SLOT(callback_SetDeterministicCB(int)));
     connect( Estimation_Tab6_EnsembleSetDeterministicCB,  SIGNAL(stateChanged(int)),
              this,                                        SLOT(callback_EnsembleSetDeterministicCB(int)));
-    connect(Estimation_Tab6_AddToReviewPB,           SIGNAL(clicked()),
-            this,                                    SLOT(callback_AddToReviewPB()));
-    connect(Estimation_Tab6_EstimateSurveyQCB,       SIGNAL(stateChanged(int)),
-            this,                                    SLOT(callback_EstimateSurveyQCB(int)));
-    connect(Estimation_Tab6_NL_TimeUnitsLockPB,      SIGNAL(clicked(bool)),
-            this,                                    SLOT(callback_TimeUnitsLockPB(bool)));
+    connect(Estimation_Tab6_AddToReviewPB,                SIGNAL(clicked()),
+            this,                                         SLOT(callback_AddToReviewPB()));
+//    connect(Estimation_Tab6_EstimateSurveyQCB,            SIGNAL(stateChanged(int)),
+//            this,                                         SLOT(callback_EstimateSurveyQCB(int)));
+    connect(Estimation_Tab6_NL_TimeUnitsLockPB,           SIGNAL(clicked(bool)),
+            this,                                         SLOT(callback_TimeUnitsLockPB(bool)));
 
 
     // Wire up signals/slots for the Estimate Run checkboxes
@@ -1579,29 +1579,29 @@ nmfEstimation_Tab6::clearWidgets()
     std::cout << "Note: nmfEstimation_Tab6::clearWidgets TBD" << std::endl;
 }
 
-void
-nmfEstimation_Tab6::callback_EstimateSurveyQCB(int state)
-{
-    emit DimScalarBiomassControls(state == Qt::Checked);
+//void
+//nmfEstimation_Tab6::callback_EstimateSurveyQCB(int state)
+//{
+//    emit DimScalarBiomassControls(state == Qt::Checked);
+//}
 
-}
 
-void
-nmfEstimation_Tab6::callback_EnableSurveyQ(const QString biomassType,
-                                           const bool enable,
-                                           const bool checked)
-{
-    Estimation_Tab6_EstimateSurveyQCB->setEnabled(enable);
-    Estimation_Tab6_EstimateSurveyQCB->blockSignals(true);
-    Estimation_Tab6_EstimateSurveyQCB->setChecked(checked);
-    Estimation_Tab6_EstimateSurveyQCB->blockSignals(false);
-    if (biomassType == "Relative") {
-        emit DimScalarBiomassControls(Estimation_Tab6_EstimateSurveyQCB->isChecked());
-    } else {
-        emit DimScalarBiomassControls(true);
-        Estimation_Tab6_EstimateSurveyQCB->setEnabled(false);
-    }
-}
+//void
+//nmfEstimation_Tab6::callback_EnableSurveyQ(const QString biomassType,
+//                                           const bool enable,
+//                                           const bool checked)
+//{
+//    Estimation_Tab6_EstimateSurveyQCB->setEnabled(enable);
+//    Estimation_Tab6_EstimateSurveyQCB->blockSignals(true);
+//    Estimation_Tab6_EstimateSurveyQCB->setChecked(checked);
+//    Estimation_Tab6_EstimateSurveyQCB->blockSignals(false);
+//    if (biomassType == "Relative") {
+//        emit DimScalarBiomassControls(Estimation_Tab6_EstimateSurveyQCB->isChecked());
+//    } else {
+//        emit DimScalarBiomassControls(true);
+//        Estimation_Tab6_EstimateSurveyQCB->setEnabled(false);
+//    }
+//}
 
 void
 nmfEstimation_Tab6::callback_EnsembleAddPB()

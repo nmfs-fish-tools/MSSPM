@@ -73,7 +73,6 @@ private:
     void saveHarvestData(bool verbose);
     void setHarvestType(std::string harvestType);
 
-
 public:
     /**
      * @brief nmfForecast_Tab2 : class constructor for the Forecast Harvest Data GUI page
@@ -104,31 +103,24 @@ public:
     bool loadWidgets();
 
 signals:
+    /**
+     * @brief Signal to notify the main routine to run the passed forecast
+     * @param ForecastName : name of forecast to run
+     * @param GenerateBiomass : boolean to specify whether or not to generate biomass data
+     */
     void RunForecast(std::string ForecastName,
                      bool GenerateBiomass);
+
 public Q_SLOTS:
-    /**
-     * @brief Callback invoked when the user clicks the Load button
-     */
-    void callback_LoadPB();
-    /**
-     * @brief Callback invoked when the user clicks the Save button
-     */
-    void callback_SavePB();
-    /**
-     * @brief Callback invoked when the user clicks the Previous Page button
-     */
-    void callback_PrevPB();
-    /**
-     * @brief Callback invoked when the user clicks the Next Page button
-     */
-    void callback_NextPB();
-//  void callback_HarvestFormChanged(QString harvestForm);
     /**
      * @brief Callback invoked when the user checks the Auto Save checkbox. This checkbox saves the Harvest data after each edit and then automatically runs a Forecast.
      * @param checked : Boolean signifying the checked state of the checkbox
      */
     void callback_AutoSaveCB(bool checked);
+    /**
+     * @brief Callback invoked when the user clicks the Load button
+     */
+    void callback_LoadPB();
     /**
      * @brief Callback invoked when the user checks the Multiplier widget. This checkbox enables the user
      * to modify selected table rows either by a constant multiplier or by a multiplier and the previous row's value.
@@ -136,15 +128,27 @@ public Q_SLOTS:
      */
     void callback_MultiplierCB(bool checked);
     /**
+     * @brief Callback invoked when the user changes the type of Multiplier
+     * @param type : type of Multiplier selected (current values are Constant and Variable)
+     */
+    void callback_MultiplierChangedCMB(QString type);
+    /**
      * @brief Callback invoked when the user changes the Multiplier value
      * @param value : value of new harvest data multiplier
      */
     void callback_MultiplierChangedDSB(double value);
     /**
-     * @brief Callback invoked when the user changes the type of Multiplier
-     * @param type : type of Multiplier selected (current values are Constant and Variable)
+     * @brief Callback invoked when the user clicks the Next Page button
      */
-    void callback_MultiplierChangedCMB(QString type);
+    void callback_NextPB();
+    /**
+     * @brief Callback invoked when the user clicks the Previous Page button
+     */
+    void callback_PrevPB();
+    /**
+     * @brief Callback invoked when the user clicks the Save button
+     */
+    void callback_SavePB();
     /**
      * @brief Callback invoked when the user changes the Harvest table selection.  As the user changes the
      * selection, the multiplier type and value are used to update the selection.

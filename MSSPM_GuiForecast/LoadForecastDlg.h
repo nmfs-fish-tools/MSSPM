@@ -78,20 +78,34 @@ public:
    ~LoadForecastDlg() {}
 
     /**
-     * @brief Loads all widgets for this GUI from database tables
-     * @return
-     */
-    void loadWidgets();
-    /**
      * @brief Gets the selected item the user has selected from the Load Forecast button
      * @return Returns the selected Forecast
      */
     std::string getSelectedItem();
+    /**
+     * @brief Loads all widgets for this GUI from database tables
+     * @return
+     */
+    void loadWidgets();
 
 public slots:
-    void callback_LoadOk();
-    void callback_itemDoubleClicked(QListWidgetItem* item);
+    /**
+     * @brief Callback invoked when the user right clicks over in item in the list widget
+     * @param pos : position of item clicked on in list widget
+     */
     void callback_ContextMenu(QPoint pos);
+    /**
+     * @brief Callback invoked when the user clicks the delete item in the context menu
+     */
     void callback_DeleteSelection();
+    /**
+     * @brief Callback invoked when the user double clicks on a forecast name
+     * @param item : name of forecast to load
+     */
+    void callback_ItemDoubleClicked(QListWidgetItem* item);
+    /**
+     * @brief Callback invoked when the user clicks the OK button after selecting a forecast to load
+     */
+    void callback_LoadOk();
 };
 

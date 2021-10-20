@@ -95,7 +95,7 @@ public:
     /**
      * @brief Clears all GUI widgets
      */
-    void        clearWidgets();
+    void clearWidgets();
     /**
      * @brief Returns the Forecast name the user inputted. This is the name
      * of the Forecast that will be generated.
@@ -106,48 +106,77 @@ public:
      * @brief Returns the seed value associated with the non-deterministic forecast run
      * @return The integer seed value to set if running a non-deterministic forecast
      */
-    int         getSeed();
+    int getSeed();
     /**
      * @brief Returns the start year associated with this Forecast
      * @return The integer start year associated with this Forecast
      */
-    int         getStartForecastYear();
+    int getStartForecastYear();
     /**
      * @brief Returns boolean signifying if the deterministic box has been checked
      * @return Returns True/False describing if deterministic box has been checked
      */
-    bool        isDeterministic();
+    bool isDeterministic();
+    /**
+     * @brief Returns boolean signifying if the Use Last Multi Run radio button is enabled and checked
+     * @return state : true if radio button is enabled and checked, else false
+     */
+    bool isSetLastRunMultiForecast();
+    /**
+     * @brief Returns boolean signifying if the Use Last Single Run radio button is enabled and checked
+     * @return state : true if radio button is enabled and checked, else false
+     */
+    bool isSetLastRunSingleForecast();
     /**
      * @brief Returns boolean signifying if the found Forecast name is valid
      * @return True/False describing if the entered Forecast name is valid
      */
-    bool        isValidForecastName();
+    bool isValidForecastName();
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */
-    bool        loadWidgets();
+    bool loadWidgets();
     /**
      * @brief Saves the GUIs settings to a Qt settings file
      */
-    void        saveSettings();
+    void saveSettings();
     /**
      * @brief Sets the deterministic state of the appropriate checkbox
      * @param isDeterministic : boolean describing deterministic state
      */
     void setDeterministic(bool isDeterministic);
-    void setSingleRunRBState(bool isEnabled,
-                             bool isChecked);
+    /**
+     * @brief Sets the enabled state of the Multi Run radio button
+     * @param isEnabled : if true - radio button is enabled, else if false - radio button is disabled
+     */
+    void setMultiRunRBEnabled(bool isEnabled);
+    /**
+     * @brief Sets the enabled and checked state of the Multi Run radio button
+     * @param isEnabled : if true - radio button is enabled, else if false - radio button is disabled
+     * @param isChecked : if true - radio button is checked, else if false - radio button is unchecked
+     */
     void setMultiRunRBState(bool isEnabled,
                             bool isChecked);
-    bool useSingleRunEstimatedParameters();
-    bool isSetLastRunMultiForecast();
-    bool isSetLastRunSingleForecast();
+    /**
+     * @brief Sets the enabled state of the Single Run radio button
+     * @param isEnabled : if true - radio button is enabled, else if false - radio button is disabled
+     */
     void setSingleRunRBEnabled(bool isEnabled);
-    void setMultiRunRBEnabled(bool isEnabled);
-
+    /**
+     * @brief Sets the enabled and checked state of the Single Run radio button
+     * @param isEnabled : if true - radio button is enabled, else if false - radio button is disabled
+     * @param isChecked : if true - radio button is checked, else if false - radio button is unchecked
+     */
+    void setSingleRunRBState(bool isEnabled,
+                             bool isChecked);
 
 signals:
+    /**
+     * @brief Signal emitted to change the state of the Run button on Forecast Tab 4
+     * @param enable : the enable state: true (enabled) or false (disabled)
+     */
+    void EnableRun(bool enable);
     /**
      * @brief Signal emitted when a new Forecast has been loaded
      * @param forecastLoaded : the name of the Forecast loaded
@@ -157,40 +186,8 @@ signals:
      * @brief If the model is an AggProd model, set any output controls accordingly
      */
     void ResetOutputWidgetsForAggProd();
-    /**
-     * @brief Signal emitted to change the state of the Run button on Forecast Tab 4
-     * @param enable : the enable state: true (enabled) or false (disabled)
-     */
-    void EnableRun(bool enable);
 
 public Q_SLOTS:
-    /**
-     * @brief Callback invoked when the user clicks the Load button
-     */
-    void callback_LoadPB();
-    /**
-     * @brief Callback invoked when the user clicks the Save button
-     */
-    void callback_SavePB();
-    /**
-     * @brief Callback invoked when the user clicks the Next Page button
-     */
-    void callback_NextPB();
-    /**
-     * @brief Callback invoked when the user clicks the Set button. It
-     * loads the Forecast name with the name of the last project
-     * settings configuration.
-     */
-    void callback_SetNamePB();
-//  void callback_PreviousRunCB(bool state);
-//  void callback_AlgorithmCMB(QString algorithm);
-//  void callback_MinimizerCMB(QString minimizer);
-    /**
-     * @brief Callback invoked when the user changes the Number of
-     * Years in Run widget
-     * @param numYears : Number of years in current Forecast
-     */
-    void callback_RunLengthSB(int numYears);
     /**
      * @brief Callback invoked when the user changes the Deterministic
      * checkbox. This checkbox is used to determine if the current
@@ -199,13 +196,44 @@ public Q_SLOTS:
      */
     void callback_DeterministicCB(int checked);
     /**
+     * @brief Callback invoked when the user clicks the Load button
+     */
+    void callback_LoadPB();
+    /**
+     * @brief Callback invoked when the user clicks the Next Page button
+     */
+    void callback_NextPB();
+    /**
+     * @brief Callback invoked when the user changes the Number of
+     * Years in Run widget
+     * @param numYears : Number of years in current Forecast
+     */
+    void callback_RunLengthSB(int numYears);
+    /**
+     * @brief Callback invoked when the user clicks the Save button
+     */
+    void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user clicks the Set button. It
+     * loads the Forecast name with the name of the last project
+     * settings configuration.
+     */
+    void callback_SetNamePB();
+    /**
      * @brief Callback invoked when the user changes the Year Range
      * from the Setup -> Model Setup page
      */
     void callback_UpdateForecastYears();
-
-    void callback_UseLastSingleRunRB(bool checked);
+    /**
+     * @brief Callback invoked when the user clicks on the Use Last Multi Run radio button
+     * @param checked : checked state of the radio button
+     */
     void callback_UseLastMultiRunRB(bool checked);
+    /**
+     * @brief Callback invoked when the user clicks on the Use Last Single Run radio button
+     * @param checked : checked state of the radio button
+     */
+    void callback_UseLastSingleRunRB(bool checked);
 
 };
 

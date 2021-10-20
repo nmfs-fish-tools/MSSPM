@@ -104,6 +104,8 @@ class nmfEstimation_Tab4: public QObject
                                           QTableView* possibleTableView2,
                                           QTableView*& tableView1,
                                           QTableView*& tableView2);
+    std::vector<std::string> getAllTableNames();
+    std::vector<QTableView*> getAllTableViews();
     void getForms(std::string& predationForm,
                   std::string& competitionForm);
     std::vector<std::vector<QTableView *> > getGroupsOfTableViews();
@@ -114,17 +116,15 @@ class nmfEstimation_Tab4: public QObject
     bool isTypeIII();
     void loadCSVFiles(std::vector<std::string>& allTableNames);
     void readSettings();
-    void saveCSVFiles(std::vector<std::string>& allTableNames);
     void resetSpinBox(const std::pair<int,int>& nonZeroCell,
                       const QStandardItemModel* smodel,
                       const QStandardItemModel* smodel1,
                       const QStandardItemModel* smodel2);
+    void saveCSVFiles(std::vector<std::string>& allTableNames);
     void saveTables(const bool& isTypeIII,
                     const std::vector<std::string>& SpeNames,
                     const std::vector<QTableView*>& tableViews,
                     const std::vector<std::string>& tableNames);
-    std::vector<std::string> getAllTableNames();
-    std::vector<QTableView*> getAllTableViews();
 
 public:
     /**

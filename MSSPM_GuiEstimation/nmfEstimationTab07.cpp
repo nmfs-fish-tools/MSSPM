@@ -511,44 +511,39 @@ nmfEstimation_Tab7::updateModelReviewTable(const QStringList& rowList)
     callback_LoadPB();
 }
 
-void
-nmfEstimation_Tab7::updateReviewList(const QStringList& rowList)
-{
-    bool hideField;
-    QList<QStandardItem* > itemList;
-    int numCols = rowList.size();
-    QString itemStr;
-    QStringList HeaderLabels;
-
-//    loadWidgets();
-
-    for (std::string field : m_ModelReviewFields) {
-        if (field == "rSquared") {
-            HeaderLabels << "r²";
-        } else {
-            HeaderLabels << QString::fromStdString(field);
-        }
-    }
-
-    for (int col=0; col<numCols; ++col) {
-        itemStr = rowList[col].trimmed();
-        itemStr.replace("||","\n");
-        itemList.push_back(createNewModelReviewItem(col,itemStr));
-    }
-    if (m_SModel != nullptr) {
-        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
-    }
-    m_SModel->appendRow(itemList);
-    for (int i=0; i<numCols; ++i) {
-        hideField = (! showHiddenFields()) && (i>nmfConstantsMSSPM::Model_Review_Column_Last_Visible);
-        Estimation_Tab7_ModelReviewTV->setColumnHidden(i,hideField);
-    }
-    m_SModel->setHorizontalHeaderLabels(HeaderLabels);
-    Estimation_Tab7_ModelReviewTV->horizontalHeader()->show();
-    resizeColumns();
-
-    saveModelReviewTable();
-}
+//void
+//nmfEstimation_Tab7::updateReviewList(const QStringList& rowList)
+//{
+//    bool hideField;
+//    QList<QStandardItem* > itemList;
+//    int numCols = rowList.size();
+//    QString itemStr;
+//    QStringList HeaderLabels;
+//    for (std::string field : m_ModelReviewFields) {
+//        if (field == "rSquared") {
+//            HeaderLabels << "r²";
+//        } else {
+//            HeaderLabels << QString::fromStdString(field);
+//        }
+//    }
+//    for (int col=0; col<numCols; ++col) {
+//        itemStr = rowList[col].trimmed();
+//        itemStr.replace("||","\n");
+//        itemList.push_back(createNewModelReviewItem(col,itemStr));
+//    }
+//    if (m_SModel != nullptr) {
+//        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+//    }
+//    m_SModel->appendRow(itemList);
+//    for (int i=0; i<numCols; ++i) {
+//        hideField = (! showHiddenFields()) && (i>nmfConstantsMSSPM::Model_Review_Column_Last_Visible);
+//        Estimation_Tab7_ModelReviewTV->setColumnHidden(i,hideField);
+//    }
+//    m_SModel->setHorizontalHeaderLabels(HeaderLabels);
+//    Estimation_Tab7_ModelReviewTV->horizontalHeader()->show();
+//    resizeColumns();
+//    saveModelReviewTable();
+//}
 
 
 void

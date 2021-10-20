@@ -115,21 +115,15 @@ signals:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when the user clicks the Load button
+     * @brief Callback invoked when the user selects Clear from the right click context menu
      */
-    void callback_LoadPB();
+    void callback_ClearSelection();
     /**
-     * @brief Callback invoked when the user clicks the Save button
+     * @brief Callback invoked when user right clicks over the Uncertainty Parameters data table.
+     * A Popup menu will appear asking the user if they want to clear the selected table items.
+     * @param point : point on the GUI at which the user clicked (needed so as to know where to draw the popup GUI)
      */
-    void callback_SavePB();
-    /**
-     * @brief Callback invoked when the user clicks the Previous Page button
-     */
-    void callback_PrevPB();
-    /**
-     * @brief Callback invoked when the user clicks the Next Page button
-     */
-    void callback_NextPB();
+    void callback_ContextMenu(QPoint point);
     /**
      * @brief Callback invoked when the user changes an item in the Uncertainty Parameters data table. If
      * the Auto Save button is checked, the Forecast will update after the user changes an item.
@@ -139,15 +133,21 @@ public Q_SLOTS:
     void callback_ItemChanged(const QModelIndex& unusedA,
                               const QModelIndex& unusedB);
     /**
-     * @brief Callback invoked when user right clicks over the Uncertainty Parameters data table.
-     * A Popup menu will appear asking the user if they want to clear the selected table items.
-     * @param point : point on the GUI at which the user clicked (needed so as to know where to draw the popup GUI)
+     * @brief Callback invoked when the user clicks the Load button
      */
-    void callback_ContextMenu(QPoint point);
+    void callback_LoadPB();
     /**
-     * @brief Callback invoked when the user selects Clear from the right click context menu
+     * @brief Callback invoked when the user clicks the Next Page button
      */
-    void callback_ClearSelection();
+    void callback_NextPB();
+    /**
+     * @brief Callback invoked when the user clicks the Previous Page button
+     */
+    void callback_PrevPB();
+    /**
+     * @brief Callback invoked when the user clicks the Save button
+     */
+    void callback_SavePB();
 };
 
 #endif // NMFFORECASTTAB3_H

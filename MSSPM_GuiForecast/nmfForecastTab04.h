@@ -132,20 +132,30 @@ public:
 
 signals:
     /**
+     * @brief Signal emitted to notify main routine to notify Output Controls to set the state of the MSY checkboxes
+     * @param state : state of MSY checkboxes (true - checked, false - unchecked)
+     */
+    void CheckMSYBoxes(bool state);
+    /**
      * @brief Signal emitted to notify application that all Run buttons should be enabled or disabled
      * @param state : boolean where if true, run buttons are enabled, else if false, they're disabled
      */
     void EnableRunButtons(bool state);
     /**
-     * @brief Signal emitted after user clicks the Run Forecast button
-     * @param forecastName : name of the Forecast to run
-     * @param generateBiomass : boolean signifying if a Monte Carlo simulation is to be run
+     * @brief Signal emitted when GUI needs to query the Scenario name from the Output Controls widgets
      */
-    void RunForecast(std::string forecastName, bool generateBiomass);
+    void QueryOutputScenario();
     /**
      * @brief Signal emitted when the user updates a Scenario
      */
     void RefreshOutput();
+    /**
+     * @brief Signal emitted after user clicks the Run Forecast button
+     * @param forecastName : name of the Forecast to run
+     * @param generateBiomass : boolean signifying if a Monte Carlo simulation is to be run
+     */
+    void RunForecast(std::string forecastName,
+                     bool generateBiomass);
     /**
      * @brief Sets the type of chart and passes the Forecast-Scenario map
      * @param type : type of chart desired
@@ -154,47 +164,42 @@ signals:
     void SetChartType(QString type,
                       std::map<QString,QStringList> sortedForecastLabelsMap);
     /**
-     * @brief Signal emitted when a Scenario is generated. It causes the appropriate Output widgets to be set.
-     */
-    void UpdateOutputScenarios();
-    /**
-     * @brief Signal emitted when GUI needs to query the Scenario name from the Output Controls widgets
-     */
-    void QueryOutputScenario();
-    /**
      * @brief Signal emitted to set the Scenario name in the appropriate Output Controls widget
      * @param scenario : name of Scenario to set
      */
     void SetOutputScenarioText(QString scenario);
-    void CheckMSYBoxes(bool state);
+    /**
+     * @brief Signal emitted when a Scenario is generated. It causes the appropriate Output widgets to be set.
+     */
+    void UpdateOutputScenarios();
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when the user clicks the Run Forecast button
+     * @brief Callback invoked when the user either loads or saves a Forecast name
+     * @param enable : state of run button (enabled or disabled)
      */
-    void callback_RunPB();
-    /**
-     * @brief Callback invoked when the user clicks Previous Page button
-     */
-    void callback_PrevPB();
+    void callback_EnableRun(bool enable);
     /**
      * @brief Callback invoked when the user changes the font size
      * @param fontSize : new font size selected
      */
     void callback_FontSizeCMB(QString fontSize);
     /**
-     * @brief Callback invoked when the user clicks the Multi-Scenario Forecast button
+     * @brief Callback invoked when the user clicks Previous Page button
      */
-    void callback_RunMultiScenarioPB();
+    void callback_PrevPB();
     /**
      * @brief Callback invoked after the user updates a Scenario
      */
     void callback_RefreshOutput();
     /**
-     * @brief Callback invoked when the user either loads or saves a Forecast name
-     * @param enable : state of run button (enabled or disabled)
+     * @brief Callback invoked when the user clicks the Multi-Scenario Forecast button
      */
-    void callback_EnableRun(bool enable);
+    void callback_RunMultiScenarioPB();
+    /**
+     * @brief Callback invoked when the user clicks the Run Forecast button
+     */
+    void callback_RunPB();
 };
 
 #endif // NMFFORECASTTAB4_H
