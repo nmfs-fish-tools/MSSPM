@@ -185,3 +185,10 @@ else:unix: LIBS += -L$$PWD/../../../builds/build-MSSPM_SimulatedData-Desktop_Qt_
 
 INCLUDEPATH += $$PWD/../MSSPM_SimulatedData
 DEPENDPATH += $$PWD/../MSSPM_SimulatedData
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../builds/build-MSSPM_GuiCovariate-Desktop_Qt_5_15_1_GCC_64bit-Release/release/ -lMSSPM_GuiCovariate
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../builds/build-MSSPM_GuiCovariate-Desktop_Qt_5_15_1_GCC_64bit-Release/debug/ -lMSSPM_GuiCovariate
+else:unix: LIBS += -L$$PWD/../../../builds/build-MSSPM_GuiCovariate-Desktop_Qt_5_15_1_GCC_64bit-Release/ -lMSSPM_GuiCovariate
+
+INCLUDEPATH += $$PWD/../MSSPM_GuiCovariate
+DEPENDPATH += $$PWD/../MSSPM_GuiCovariate

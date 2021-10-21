@@ -34,7 +34,8 @@ SOURCES += \
     nmfEstimationTab04.cpp \
     nmfEstimationTab05.cpp \
     nmfEstimationTab06.cpp \
-    nmfEstimationTab07.cpp
+    nmfEstimationTab07.cpp \
+    nmfEstimationTab08.cpp
 
 HEADERS += \
     EnsembleDialog.h \
@@ -44,9 +45,10 @@ HEADERS += \
     nmfEstimationTab03.h \
     nmfEstimationTab04.h \
     nmfEstimationTab05.h \
+    nmfEstimationTab06.h \
     nmfEstimationTab07.h \
-    precompiled_header.h \
-    nmfEstimationTab06.h
+    nmfEstimationTab08.h \
+    precompiled_header.h
 
 unix {
     target.path = /usr/lib

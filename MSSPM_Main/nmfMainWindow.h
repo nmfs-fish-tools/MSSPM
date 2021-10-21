@@ -73,6 +73,7 @@
 #include "nmfEstimationTab05.h"
 #include "nmfEstimationTab06.h"
 #include "nmfEstimationTab07.h"
+#include "nmfEstimationTab08.h"
 
 #include "nmfDiagnosticTab01.h"
 #include "nmfDiagnosticTab02.h"
@@ -265,6 +266,7 @@ private:
     nmfEstimation_Tab5*      Estimation_Tab5_ptr;
     nmfEstimation_Tab6*      Estimation_Tab6_ptr;
     nmfEstimation_Tab7*      Estimation_Tab7_ptr;
+    nmfEstimation_Tab8*      Estimation_Tab8_ptr;
     nmfForecast_Tab1*        Forecast_Tab1_ptr;
     nmfForecast_Tab2*        Forecast_Tab2_ptr;
     nmfForecast_Tab3*        Forecast_Tab3_ptr;

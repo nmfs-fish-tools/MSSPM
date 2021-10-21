@@ -14,7 +14,7 @@
         <file>forms/Simulation/Simulation_Tab04.ui</file>
         <file>forms/Simulation/Simulation_Tab05.ui</file>
         <file>forms/Simulation/Simulation_Tab06.ui</file>
-        <file>forms/Estimation/Estimation_Tab06.ui</file>
+        <file>forms/Estimation/Estimation_Tab07.ui</file>
         <file>forms/Diagnostic/Diagnostic_Tab01.ui</file>
         <file>icons/whatsthis.png</file>
         <file>forms/Forecast/Forecast_Tab01.ui</file>
@@ -33,8 +33,9 @@
         <file>forms/Main/PreferencesDlg.ui</file>
         <file>icons/scrgrbAll.png</file>
         <file>forms/Main/TableNamesDlg.ui</file>
-        <file>forms/Estimation/Estimation_Tab07.ui</file>
+        <file>forms/Estimation/Estimation_Tab08.ui</file>
         <file>icons/locked.png</file>
         <file>icons/unlocked.png</file>
+        <file>forms/Estimation/Estimation_Tab06.ui</file>
     </qresource>
 </RCC>

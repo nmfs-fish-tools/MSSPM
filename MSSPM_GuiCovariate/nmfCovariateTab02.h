@@ -26,20 +26,24 @@
  * Please cite the author(s) in any work or product based on this material.
  *
  */
-#ifndef MSSPM_GUICOVARIATE1_H
-#define MSSPM_GUICOVARIATE1_H
+#ifndef MSSPM_GUICOVARIATE2_H
+#define MSSPM_GUICOVARIATE2_H
 
+#include "nmfConstantsMSSPM.h"
 
-class nmfCovariate_Tab1: public QObject
+class nmfCovariate_Tab2: public QObject
 {
     Q_OBJECT
 
 private:
 
 public:
-    nmfCovariate_Tab1();
-    virtual ~nmfCovariate_Tab1() {}
+    nmfCovariate_Tab2(QTabWidget*  tabs,
+                      nmfLogger*   logger,
+                      nmfDatabase* databasePtr,
+                      std::string& projectDir);
+    virtual ~nmfCovariate_Tab2() {}
 
 };
 
-#endif // MSSPM_GUICOVARIATE1_H
+#endif // MSSPM_GUICOVARIATE2_H

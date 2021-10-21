@@ -841,7 +841,7 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
     std::vector<std::string> fields;
     std::string queryStr;
     std::string errorMsg;
-    std::string DefaultAveragingAlgorithm = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm().toStdString();
+    std::string DefaultAveragingAlgorithm = Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm().toStdString();
     std::string Algorithm          = DefaultAveragingAlgorithm;
     std::string Minimizer          = DefaultAveragingAlgorithm;
     std::string ObjectiveCriterion = DefaultAveragingAlgorithm;
@@ -2257,15 +2257,15 @@ nmfMainWindow::callback_ReadProgressChartDataFile(bool validPointsOnly,
                                             nmfConstantsMSSPM::MSSPMProgressChartLabelFile,
                                             validPointsOnly);
 //        outputMsg = "<br>" + QString::fromStdString(msg1);
-//        Estimation_Tab6_ptr->appendOutputTE(outputMsg);
+//        Estimation_Tab7_ptr->appendOutputTE(outputMsg);
 std::cout << "### Was it stopped: " << m_ProgressWidget->wasStopped() << std::endl;
         if (m_ProgressWidget->wasStopped()) {
             QString elapsedTime = QString::fromStdString(
                         "Elapsed Time: " + m_ProgressWidget->getElapsedTime());
-            Estimation_Tab6_ptr->appendOutputTE(elapsedTime);
+            Estimation_Tab7_ptr->appendOutputTE(elapsedTime);
         } else {
             outputMsg = "<br>" + QString::fromStdString(msg1);
-            Estimation_Tab6_ptr->appendOutputTE(outputMsg);
+            Estimation_Tab7_ptr->appendOutputTE(outputMsg);
 //            m_ProgressWidget->callback_stopPB(true);
         }
         QApplication::restoreOverrideCursor();
@@ -2639,8 +2639,8 @@ nmfMainWindow::loadAllWidgets()
     Estimation_Tab3_ptr->loadWidgets();
     Estimation_Tab4_ptr->loadWidgets();
     Estimation_Tab5_ptr->loadWidgets();
-    Estimation_Tab6_ptr->loadWidgets();
     Estimation_Tab7_ptr->loadWidgets();
+    Estimation_Tab8_ptr->loadWidgets();
 
     Diagnostic_Tab1_ptr->loadWidgets();
     Diagnostic_Tab2_ptr->loadWidgets();
@@ -2901,7 +2901,7 @@ nmfMainWindow::initConnections()
     connect(Setup_Tab4_ptr,  SIGNAL(SaveMainSettings()),
             this,            SLOT(callback_SaveMainSettings()));
     connect(Setup_Tab4_ptr,      SIGNAL(SetEstimateRunCheckboxes(std::vector<nmfStructsQt::EstimateRunBox>)),
-            Estimation_Tab6_ptr, SLOT(callback_SetEstimateRunCheckboxes(std::vector<nmfStructsQt::EstimateRunBox>)));
+            Estimation_Tab7_ptr, SLOT(callback_SetEstimateRunCheckboxes(std::vector<nmfStructsQt::EstimateRunBox>)));
     connect(Setup_Tab4_ptr->getModelPresetsCMB(),    SIGNAL(currentTextChanged(QString)),
             this,                                    SLOT(callback_Setup_Tab4_ModelPresetsCMB(QString)));
     connect(Setup_Tab4_ptr->getGrowthFormCMB(),      SIGNAL(currentTextChanged(QString)),
@@ -2928,7 +2928,7 @@ nmfMainWindow::initConnections()
     connect(Setup_Tab4_ptr,      SIGNAL(ReloadWidgets()),
             this,                SLOT(callback_ReloadWidgets()));
     connect(Setup_Tab4_ptr,      SIGNAL(SaveEstimationRunSettings()),
-            Estimation_Tab6_ptr, SLOT(callback_SaveSettings()));
+            Estimation_Tab7_ptr, SLOT(callback_SaveSettings()));
     connect(Setup_Tab4_ptr,      SIGNAL(ModelSaved()),
             this,                SLOT(callback_ToDoAfterModelSave()));
     connect(Setup_Tab4_ptr,      SIGNAL(ModelDeleted()),
@@ -2971,23 +2971,23 @@ nmfMainWindow::initConnections()
             Setup_Tab3_ptr,      SLOT(callback_ReloadSpeciesPB(bool)));
     connect(Estimation_Tab1_ptr, SIGNAL(ReloadGuilds(bool)),
             Setup_Tab3_ptr,      SLOT(callback_ReloadGuildsPB(bool)));
-    connect(Estimation_Tab6_ptr, SIGNAL(ShowRunMessage(QString)),
+    connect(Estimation_Tab7_ptr, SIGNAL(ShowRunMessage(QString)),
             this,                SLOT(callback_ShowRunMessage(QString)));
-    connect(Estimation_Tab6_ptr, SIGNAL(UpdateForecastYears()),
+    connect(Estimation_Tab7_ptr, SIGNAL(UpdateForecastYears()),
             Forecast_Tab1_ptr,   SLOT(callback_UpdateForecastYears()));
-    connect(Estimation_Tab6_ptr, SIGNAL(UpdateForecastYears()),
+    connect(Estimation_Tab7_ptr, SIGNAL(UpdateForecastYears()),
             Estimation_Tab2_ptr, SLOT(callback_LoadWidgets()));
-    connect(Estimation_Tab6_ptr, SIGNAL(UpdateForecastYears()),
+    connect(Estimation_Tab7_ptr, SIGNAL(UpdateForecastYears()),
             Estimation_Tab5_ptr, SLOT(callback_LoadWidgets()));
-    connect(Estimation_Tab6_ptr, SIGNAL(CheckAllEstimationTablesAndRun()),
+    connect(Estimation_Tab7_ptr, SIGNAL(CheckAllEstimationTablesAndRun()),
             this,                SLOT(callback_CheckAllEstimationTablesAndRun()));
     connect(Estimation_Tab1_ptr, SIGNAL(CheckAllEstimationTablesAndRun()),
             this,                SLOT(callback_CheckAllEstimationTablesAndRun()));
-    connect(Estimation_Tab6_ptr, SIGNAL(AddToReview()),
+    connect(Estimation_Tab7_ptr, SIGNAL(AddToReview()),
             this,                SLOT(callback_AddToReview()));
-    connect(Estimation_Tab6_ptr, SIGNAL(EnableRunButtons(bool)),
+    connect(Estimation_Tab7_ptr, SIGNAL(EnableRunButtons(bool)),
             this,                SLOT(callback_EnableRunButtons(bool)));
-    connect(Estimation_Tab7_ptr, SIGNAL(LoadFromModelReview(nmfStructsQt::ModelReviewStruct)),
+    connect(Estimation_Tab8_ptr, SIGNAL(LoadFromModelReview(nmfStructsQt::ModelReviewStruct)),
             this,                SLOT(callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct)));
 
     connect(Forecast_Tab1_ptr,   SIGNAL(ForecastLoaded(std::string)),
@@ -3417,41 +3417,41 @@ nmfMainWindow::createEstimatedFile()
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
         stream << "Estimated Parameters\n";
-        stream << extractVectorData(Estimation_Tab6_ptr->isEstInitialBiomassEnabled(),
-                                    Estimation_Tab6_ptr->isEstInitialBiomassChecked(),isAMultiRun,
+        stream << extractVectorData(Estimation_Tab7_ptr->isEstInitialBiomassEnabled(),
+                                    Estimation_Tab7_ptr->isEstInitialBiomassChecked(),isAMultiRun,
                                     SpeciesList,"Initial Absolute Biomass:",EstInitBiomass,'f',2);
-        stream << extractVectorData(Estimation_Tab6_ptr->isEstGrowthRateEnabled(),
-                                    Estimation_Tab6_ptr->isEstGrowthRateChecked(),isAMultiRun,
+        stream << extractVectorData(Estimation_Tab7_ptr->isEstGrowthRateEnabled(),
+                                    Estimation_Tab7_ptr->isEstGrowthRateChecked(),isAMultiRun,
                                     SpeciesList,"Growth Rate:",EstGrowthRates,'f',3);
-        stream << extractVectorData(Estimation_Tab6_ptr->isEstCarryingCapacityEnabled(),
-                                    Estimation_Tab6_ptr->isEstCarryingCapacityChecked(),isAMultiRun,
+        stream << extractVectorData(Estimation_Tab7_ptr->isEstCarryingCapacityEnabled(),
+                                    Estimation_Tab7_ptr->isEstCarryingCapacityChecked(),isAMultiRun,
                                     SpeciesList,"Carrying Capacity:",EstCarryingCapacities,'f',2);
-        stream << extractVectorData(Estimation_Tab6_ptr->isEstCatchabilityEnabled(),
-                                    Estimation_Tab6_ptr->isEstCatchabilityChecked(),isAMultiRun,
+        stream << extractVectorData(Estimation_Tab7_ptr->isEstCatchabilityEnabled(),
+                                    Estimation_Tab7_ptr->isEstCatchabilityChecked(),isAMultiRun,
                                     SpeciesList,"Catchability:",EstCatchability,'f',3);
-        stream << extractMatrixData(Estimation_Tab6_ptr->isEstCompetitionAlphaEnabled(),
-                                    Estimation_Tab6_ptr->isEstCompetitionAlphaChecked(),isAMultiRun,
+        stream << extractMatrixData(Estimation_Tab7_ptr->isEstCompetitionAlphaEnabled(),
+                                    Estimation_Tab7_ptr->isEstCompetitionAlphaChecked(),isAMultiRun,
                                     SpeciesList,"Competition Alpha:",EstCompetitionAlpha,'e',3);
-        stream << extractMatrixData(Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesEnabled(),
-                                    Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesChecked(),isAMultiRun,
+        stream << extractMatrixData(Estimation_Tab7_ptr->isEstCompetitionBetaSpeciesEnabled(),
+                                    Estimation_Tab7_ptr->isEstCompetitionBetaSpeciesChecked(),isAMultiRun,
                                     SpeciesList,"Competition Beta (Species):",EstCompetitionBetaSpecies,'e',3);
-        stream << extractMatrixData(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsEnabled(),
-                                    Estimation_Tab6_ptr->isEstCompetitionBetaGuildsChecked(),isAMultiRun,
+        stream << extractMatrixData(Estimation_Tab7_ptr->isEstCompetitionBetaGuildsEnabled(),
+                                    Estimation_Tab7_ptr->isEstCompetitionBetaGuildsChecked(),isAMultiRun,
                                     SpeciesList,"Competition Beta (Guilds):",EstCompetitionBetaGuilds,'e',3);
-        stream << extractMatrixData(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsEnabled(),
-                                    Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsChecked(),isAMultiRun,
+        stream << extractMatrixData(Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsEnabled(),
+                                    Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsChecked(),isAMultiRun,
                                     SpeciesList,"Competition Beta (Guilds-Guilds):",EstCompetitionBetaGuildsGuilds,'e',3);
-        stream << extractMatrixData(Estimation_Tab6_ptr->isEstPredationRhoEnabled(),
-                                    Estimation_Tab6_ptr->isEstPredationRhoChecked(),isAMultiRun,
+        stream << extractMatrixData(Estimation_Tab7_ptr->isEstPredationRhoEnabled(),
+                                    Estimation_Tab7_ptr->isEstPredationRhoChecked(),isAMultiRun,
                                     SpeciesList,"Predation (rho):",EstPredation,'e',3);
-        stream << extractMatrixData(Estimation_Tab6_ptr->isEstPredationHandlingEnabled(),
-                                    Estimation_Tab6_ptr->isEstPredationHandlingChecked(),isAMultiRun,
+        stream << extractMatrixData(Estimation_Tab7_ptr->isEstPredationHandlingEnabled(),
+                                    Estimation_Tab7_ptr->isEstPredationHandlingChecked(),isAMultiRun,
                                     SpeciesList,"Predation (h):",EstHandling,'f',6);
-        stream << extractVectorData(Estimation_Tab6_ptr->isEstPredationExponentEnabled(),
-                                    Estimation_Tab6_ptr->isEstPredationExponentChecked(),isAMultiRun,
+        stream << extractVectorData(Estimation_Tab7_ptr->isEstPredationExponentEnabled(),
+                                    Estimation_Tab7_ptr->isEstPredationExponentChecked(),isAMultiRun,
                                     SpeciesList,"Predation (b):",EstExponent,'f',3);
-        stream << extractVectorData(Estimation_Tab6_ptr->isEstSurveyQEnabled(),
-                                    Estimation_Tab6_ptr->isEstSurveyQChecked(),isAMultiRun,
+        stream << extractVectorData(Estimation_Tab7_ptr->isEstSurveyQEnabled(),
+                                    Estimation_Tab7_ptr->isEstSurveyQChecked(),isAMultiRun,
                                     SpeciesList,"SurveyQ:",EstSurveyQ,'f',3);
         file.close();
     }
@@ -5341,7 +5341,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     std::string queryStr;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string msg;
-    std::string DefaultAveragingAlgorithm = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm().toStdString();
+    std::string DefaultAveragingAlgorithm = Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm().toStdString();
     std::string Algorithm          = DefaultAveragingAlgorithm;
     std::string Minimizer          = DefaultAveragingAlgorithm;
     std::string ObjectiveCriterion = DefaultAveragingAlgorithm;
@@ -5890,7 +5890,7 @@ nmfMainWindow::getMSYData(bool isAveraged,
     int NumGuilds;
     int NumSpecies;
     std::string msg;
-    std::string DefaultAveragingAlgorithm = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm().toStdString();
+    std::string DefaultAveragingAlgorithm = Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm().toStdString();
     std::string Algorithm          = DefaultAveragingAlgorithm;
     std::string Minimizer          = DefaultAveragingAlgorithm;
     std::string ObjectiveCriterion = DefaultAveragingAlgorithm;
@@ -7247,7 +7247,7 @@ nmfMainWindow::calculateSummaryStatistics(QStandardItemModel* smodel,
         bool itsAMultiRun = isAMultiRun();
         if (itsAMultiRun) {
             std::string isAggProd = "0";
-            std::string AverageType = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm().toStdString();
+            std::string AverageType = Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm().toStdString();
             theAlgorithm = AverageType;
             if (! m_DatabasePtr->getEstimatedBiomass(NumSpeciesOrGuilds,RunLength,
                                                      nmfConstantsMSSPM::TableOutputBiomass,
@@ -7343,7 +7343,7 @@ nmfMainWindow::isAMohnsRhoMultiRun()
 bool
 nmfMainWindow::isAMultiRun()
 {
-    return (Estimation_Tab6_ptr->isAMultiRun());
+    return (Estimation_Tab7_ptr->isAMultiRun());
 }
 
 bool
@@ -9303,7 +9303,7 @@ std::cout << "New Project Name: " << m_ProjectName << std::endl;
   enableApplicationFeatures("AllOtherGroups",setupIsComplete());
 
   callback_ModelLoaded();
-  Estimation_Tab6_ptr->clearEnsembleFile();
+  Estimation_Tab7_ptr->clearEnsembleFile();
 }
 
 bool
@@ -9372,6 +9372,7 @@ nmfMainWindow::initGUIs()
     Estimation_Tab5_ptr = new nmfEstimation_Tab5(m_UI->EstimationDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
     Estimation_Tab6_ptr = new nmfEstimation_Tab6(m_UI->EstimationDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
     Estimation_Tab7_ptr = new nmfEstimation_Tab7(m_UI->EstimationDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
+    Estimation_Tab8_ptr = new nmfEstimation_Tab8(m_UI->EstimationDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
 
     Diagnostic_Tab1_ptr = new nmfDiagnostic_Tab1(m_UI->DiagnosticsDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
     Diagnostic_Tab2_ptr = new nmfDiagnostic_Tab2(m_UI->DiagnosticsDataInputTabWidget,m_Logger,m_DatabasePtr,m_ProjectDir);
@@ -9640,7 +9641,7 @@ nmfMainWindow::saveSettings(bool loadWidgets) {
 
     settings->beginGroup("Runtime");
     settings->setValue("IsMultiRun",   isAMultiRun());
-    settings->setValue("MultiRunType", Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm());
+    settings->setValue("MultiRunType", Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm());
     settings->endGroup();
 
     settings->beginGroup("Preferences");
@@ -9652,7 +9653,7 @@ nmfMainWindow::saveSettings(bool loadWidgets) {
 
     // Save other pages' settings
     Setup_Tab2_ptr->saveSettings();
-    Estimation_Tab6_ptr->saveSettings();
+    Estimation_Tab7_ptr->saveSettings();
     Forecast_Tab1_ptr->saveSettings();
     Forecast_Tab4_ptr->saveSettings();
     Output_Controls_ptr->saveSettings();
@@ -9745,7 +9746,7 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     }
 
     // Get current algorithm and run its estimation routine
-    std::string Algorithm = Estimation_Tab6_ptr->getCurrentAlgorithm();
+    std::string Algorithm = Estimation_Tab7_ptr->getCurrentAlgorithm();
 
     // Disable Monte Carlo Output Widgets
     Output_Controls_ptr->enableBrightnessWidgets(false);
@@ -10200,7 +10201,7 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     QString multiRunModelFilename;
 
     bool isAMultiRun          = isAMultiOrMohnsRhoRun();
-    bool isSetToDeterministic = Estimation_Tab6_ptr->isSetToDeterministicMinimizer();
+    bool isSetToDeterministic = Estimation_Tab7_ptr->isSetToDeterministicMinimizer();
 
     // Force isSetToDeterministic to be true if running Mohns Rho
     m_DataStruct.useFixedSeedNLopt = isAMohnsRhoMultiRun();
@@ -10818,7 +10819,7 @@ nmfMainWindow::callback_AllSubRunsCompleted()
     }
     Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
     enableRunWidgets(true);
-    Estimation_Tab6_ptr->enableAddToReview(true);
+    Estimation_Tab7_ptr->enableAddToReview(true);
 
     refreshOutputTables();
 
@@ -10836,7 +10837,7 @@ void
 nmfMainWindow::enableRunWidgets(bool state)
 {
     Output_Controls_ptr->enableControls(state);
-    Estimation_Tab6_ptr->enableRunButton(state);
+    Estimation_Tab7_ptr->enableRunButton(state);
     Diagnostic_Tab1_ptr->enableRunButton(state);
     Diagnostic_Tab2_ptr->enableRunButton(state);
     Forecast_Tab4_ptr->enableRunButton(state);
@@ -10850,7 +10851,7 @@ nmfMainWindow::calculateAverageBiomass()
     int NumSpecies;
     int RunLength;
     bool isBiomassAbsolute;
-    QString aveAlgorithm = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm();
+    QString aveAlgorithm = Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm();
     std::string aveAlgorithmStr = aveAlgorithm.toStdString();
     std::vector<double> Fitness;
     std::vector<double> AveInitBiomass;
@@ -10888,11 +10889,11 @@ nmfMainWindow::calculateAverageBiomass()
     bool isCompetitionAGGPROD = (CompetitionForm == "AGG-PROD"); // RSK - incorrect since we're talking about averages here
 std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic here" << std::endl;
     int usingTopValue = 100;
-    if (Estimation_Tab6_ptr->getEnsembleUsingBy() == "using Top:") {
-        usingTopValue = Estimation_Tab6_ptr->getEnsembleUsingAmountValue();
+    if (Estimation_Tab7_ptr->getEnsembleUsingBy() == "using Top:") {
+        usingTopValue = Estimation_Tab7_ptr->getEnsembleUsingAmountValue();
     }
 
-    bool isPercent = Estimation_Tab6_ptr->isEnsembleUsingPct();
+    bool isPercent = Estimation_Tab7_ptr->isEnsembleUsingPct();
 
     m_AveragedData->calculateAverage(usingTopValue,isPercent,aveAlgorithm);
     m_AveragedData->getAveData(Fitness,
@@ -10911,7 +10912,7 @@ std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic 
                                m_AveBiomass);
 
     // Save AveragedBiomass as OutputBiomass
-    if (Estimation_Tab6_ptr->getEnsembleAverageBy() == "by Parameter") {
+    if (Estimation_Tab7_ptr->getEnsembleAverageBy() == "by Parameter") {
         calculateSubRunBiomass(AveInitBiomass,
                                AveGrowthRates,
                                AveCarryingCapacities,
@@ -11120,7 +11121,7 @@ nmfMainWindow::displayAverageBiomass()
     std::vector<boost::numeric::ublas::matrix<double> > OutputBiomassEnsembleAve;
     std::vector<boost::numeric::ublas::matrix<double> > OutputBiomassByGuilds;
     boost::numeric::ublas::matrix<double> ObservedBiomass;
-    QString aveAlgorithm = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm();
+    QString aveAlgorithm = Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm();
     QStringList SpeciesList;
     QStringList GuildsList;
     QString Species   = Output_Controls_ptr->getOutputSpecies();
@@ -11264,7 +11265,7 @@ nmfMainWindow::getOutputBiomassAveraged(
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    std::string AveragingAlgorithm = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm().toStdString();
+    std::string AveragingAlgorithm = Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm().toStdString();
     QStringList SpeciesList;
 
     if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList)) {
@@ -11352,7 +11353,7 @@ std::cout << "updateOutputBiomassTableWithAverageBiomass " << std::endl;
     int RunLength = AveragedBiomass.size1();
     std::string cmd;
     std::string errorMsg;
-    std::string DefaultAveragingAlgorithm = Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm().toStdString();
+    std::string DefaultAveragingAlgorithm = Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm().toStdString();
     std::string Algorithm          = DefaultAveragingAlgorithm;
     std::string Minimizer          = DefaultAveragingAlgorithm;
     std::string ObjectiveCriterion = DefaultAveragingAlgorithm;
@@ -11482,8 +11483,8 @@ std::cout << "=====>>>>> Run Completed" << std::endl;
     }
     msg += "<br><br>" + QString::fromStdString(output);
     msg += "</p>";
-    Estimation_Tab6_ptr->setOutputTE("");
-    Estimation_Tab6_ptr->appendOutputTE(msg);
+    Estimation_Tab7_ptr->setOutputTE("");
+    Estimation_Tab7_ptr->appendOutputTE(msg);
 
     m_RunOutputMsg = msg;
     menu_saveAndShowCurrentRun(showDiagnosticChart);
@@ -11497,13 +11498,13 @@ std::cout << "=====>>>>> Run Completed" << std::endl;
     if (m_ProgressWidget->wasStopped()) {
         QString elapsedTime = QString::fromStdString(
                     "Elapsed Time: " + m_ProgressWidget->getElapsedTime());
-        Estimation_Tab6_ptr->appendOutputTE(elapsedTime);
+        Estimation_Tab7_ptr->appendOutputTE(elapsedTime);
     }
 
     Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
 
     enableRunWidgets(true);
-    Estimation_Tab6_ptr->enableAddToReview(true);
+    Estimation_Tab7_ptr->enableAddToReview(true);
 
 }
 
@@ -11512,7 +11513,7 @@ nmfMainWindow::callback_ShowRunMessage(QString fontName)
 {
     QFont font(fontName,11,QFont::Medium,false);
 
-    Estimation_Tab6_ptr->refreshMsg(font,m_RunOutputMsg);
+    Estimation_Tab7_ptr->refreshMsg(font,m_RunOutputMsg);
 }
 
 void
@@ -11545,7 +11546,7 @@ nmfMainWindow::callback_RunRetrospectiveAnalysisEstimation(
         std::vector<std::pair<int,int> > MohnsRhoRanges)
 {
     // Ensure that the user is not running a Multi-Run
-//  Estimation_Tab6_ptr->enableMultiRunControls(false);
+//  Estimation_Tab7_ptr->enableMultiRunControls(false);
 
     // 1. Create Mohns Rhos multi-run filename
     QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
@@ -11555,14 +11556,14 @@ nmfMainWindow::callback_RunRetrospectiveAnalysisEstimation(
     int numRunsToAdd             = MohnsRhoRanges.size();
     int currentNumberOfRuns      = 0;
     int totalNumberOfRunsDesired = numRunsToAdd;
-    Estimation_Tab6_ptr->clearMohnsRhoFile();
-//  Estimation_Tab6_ptr->setMohnsRhoFileType("SingleRun");
-//  Estimation_Tab6_ptr->setMohnsRhoFileHeader();
-    Estimation_Tab6_ptr->addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,
+    Estimation_Tab7_ptr->clearMohnsRhoFile();
+//  Estimation_Tab7_ptr->setMohnsRhoFileType("SingleRun");
+//  Estimation_Tab7_ptr->setMohnsRhoFileHeader();
+    Estimation_Tab7_ptr->addToMultiRunFile(numRunsToAdd,currentNumberOfRuns,
                                            totalNumberOfRunsDesired,fullPath);
 
     // 3. Run the Mohns Rho runs
-    Estimation_Tab6_ptr->runEstimation();
+    Estimation_Tab7_ptr->runEstimation();
 }
 
 void
@@ -11576,19 +11577,19 @@ nmfMainWindow::callback_RunRetrospectiveAnalysisEstimationMultiRun(
    // 1. Run n averaged runs and write average biomass to output filename
     int currentNumberOfRuns = 0;
     int numOfMultiRuns      = MohnsRhoRanges.size();
-    int numRunsPerMultiRun  = Estimation_Tab6_ptr->getEnsembleNumberOfTotalRuns();
+    int numRunsPerMultiRun  = Estimation_Tab7_ptr->getEnsembleNumberOfTotalRuns();
     int totalNumberOfRunsDesired = numOfMultiRuns*numRunsPerMultiRun;
 
     // 2.
 
     Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
 
-    Estimation_Tab6_ptr->clearMohnsRhoFile();
-//  Estimation_Tab6_ptr->setMohnsRhoFileType("MultiRun");
-//  Estimation_Tab6_ptr->setMohnsRhoFileHeader();
+    Estimation_Tab7_ptr->clearMohnsRhoFile();
+//  Estimation_Tab7_ptr->setMohnsRhoFileType("MultiRun");
+//  Estimation_Tab7_ptr->setMohnsRhoFileHeader();
     for (int i=0; i<numOfMultiRuns; ++i) {
         currentNumberOfRuns = i*numRunsPerMultiRun;
-        Estimation_Tab6_ptr->addToMultiRunFile(numRunsPerMultiRun,
+        Estimation_Tab7_ptr->addToMultiRunFile(numRunsPerMultiRun,
                                                currentNumberOfRuns,
                                                totalNumberOfRunsDesired,
                                                fullPath);
@@ -11596,7 +11597,7 @@ nmfMainWindow::callback_RunRetrospectiveAnalysisEstimationMultiRun(
 //std::cout << "⬛⬛⬛ numOfMultiRuns: " << numOfMultiRuns << std::endl;
 //std::cout << "⬛⬛⬛ fullPath: " << fullPath.toStdString() << std::endl;
 
-    Estimation_Tab6_ptr->runEstimation();
+    Estimation_Tab7_ptr->runEstimation();
 
 
 }
@@ -11841,11 +11842,11 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.ScalingAlgorithm.clear();
     dataStruct.EstimateRunBoxes.clear();
 
-    dataStruct.useFixedSeedBees    = Estimation_Tab6_ptr->isSetToDeterministicBees();
-    dataStruct.EstimationAlgorithm = Estimation_Tab6_ptr->getCurrentAlgorithm();
-    dataStruct.ObjectiveCriterion  = Estimation_Tab6_ptr->getCurrentObjectiveCriterion();
-    dataStruct.MinimizerAlgorithm  = Estimation_Tab6_ptr->getCurrentMinimizer();
-    dataStruct.ScalingAlgorithm    = Estimation_Tab6_ptr->getCurrentScaling();
+    dataStruct.useFixedSeedBees    = Estimation_Tab7_ptr->isSetToDeterministicBees();
+    dataStruct.EstimationAlgorithm = Estimation_Tab7_ptr->getCurrentAlgorithm();
+    dataStruct.ObjectiveCriterion  = Estimation_Tab7_ptr->getCurrentObjectiveCriterion();
+    dataStruct.MinimizerAlgorithm  = Estimation_Tab7_ptr->getCurrentMinimizer();
+    dataStruct.ScalingAlgorithm    = Estimation_Tab7_ptr->getCurrentScaling();
 
     // Set the MultiRun Setup output file that will contain all of the
     // MultiRun Run definitions
@@ -11853,13 +11854,13 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     QString basePath     = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
     QString multiRunFile = (Diagnostic_Tab2_ptr->isAMohnsRhoRunForSingleRun()) ?
                 QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun) :
-                QString::fromStdString(Estimation_Tab6_ptr->getEnsembleTimeStampedFilename());
+                QString::fromStdString(Estimation_Tab7_ptr->getEnsembleTimeStampedFilename());
     fullPath = QDir(basePath).filePath(multiRunFile);
 //    if (dataStruct.NumMohnsRhoMultiRuns > 0) {
 //        fullPath = QDir(basePath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
 //    }
     dataStruct.MultiRunSetupFilename = fullPath.toStdString();
-    dataStruct.EstimateRunBoxes = Estimation_Tab6_ptr->getEstimateRunBoxes();
+    dataStruct.EstimateRunBoxes = Estimation_Tab7_ptr->getEstimateRunBoxes();
 
     // Find RunLength
     fields     = {"ObsBiomassType","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm",
@@ -12339,7 +12340,7 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
         minVal  = std::stod(dataMapMin["Value"][m]);
         maxVal  = std::stod(dataMapMax["Value"][m]);
         ++NumInteractionParameters;
-        if ((InteractionType == "Exponent") && Estimation_Tab6_ptr->isEstPredationExponentEnabled() && Estimation_Tab6_ptr->isEstPredationExponentChecked()) {
+        if ((InteractionType == "Exponent") && Estimation_Tab7_ptr->isEstPredationExponentEnabled() && Estimation_Tab7_ptr->isEstPredationExponentChecked()) {
             MinData.push_back(minVal);
             MaxData.push_back(maxVal);
         } else {
@@ -12450,10 +12451,10 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
             ++NumInteractionParameters;
             ++m;
         }
-        if (((InteractionType == "Competition")    && Estimation_Tab6_ptr->isEstCompetitionAlphaEnabled()       && Estimation_Tab6_ptr->isEstCompetitionAlphaChecked())  ||
-            ((InteractionType == "Predation")      && Estimation_Tab6_ptr->isEstPredationRhoEnabled()           && Estimation_Tab6_ptr->isEstPredationRhoChecked())      ||
-            ((InteractionType == "Handling")       && Estimation_Tab6_ptr->isEstPredationHandlingEnabled()      && Estimation_Tab6_ptr->isEstPredationHandlingChecked()) ||
-            ((InteractionType == "MSPROD-Species") && Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesEnabled() && Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesChecked()))
+        if (((InteractionType == "Competition")    && Estimation_Tab7_ptr->isEstCompetitionAlphaEnabled()       && Estimation_Tab7_ptr->isEstCompetitionAlphaChecked())  ||
+            ((InteractionType == "Predation")      && Estimation_Tab7_ptr->isEstPredationRhoEnabled()           && Estimation_Tab7_ptr->isEstPredationRhoChecked())      ||
+            ((InteractionType == "Handling")       && Estimation_Tab7_ptr->isEstPredationHandlingEnabled()      && Estimation_Tab7_ptr->isEstPredationHandlingChecked()) ||
+            ((InteractionType == "MSPROD-Species") && Estimation_Tab7_ptr->isEstCompetitionBetaSpeciesEnabled() && Estimation_Tab7_ptr->isEstCompetitionBetaSpeciesChecked()))
         {
             MinData.push_back(MinRow);
             MaxData.push_back(MaxRow);
@@ -12568,7 +12569,7 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
             ++m;
         }
 
-        if ((InteractionType == "Competition-MSPROD") && Estimation_Tab6_ptr->isEstCompetitionBetaGuildsEnabled() && Estimation_Tab6_ptr->isEstCompetitionBetaGuildsChecked()) {
+        if ((InteractionType == "Competition-MSPROD") && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsEnabled() && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsChecked()) {
             MinData.push_back(MinRow);
             MaxData.push_back(MaxRow);
         } else {
@@ -12679,7 +12680,7 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
             ++NumInteractionParameters;
             ++m;
         }
-        if ((InteractionType == "Competition-AGGPROD") && Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsEnabled() && Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsChecked()) {
+        if ((InteractionType == "Competition-AGGPROD") && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsEnabled() && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsChecked()) {
             MinData.push_back(MinRow);
             MaxData.push_back(MaxRow);
         } else {
@@ -12753,8 +12754,9 @@ nmfMainWindow::initializeNavigatorTree()
     nmfUtilsQt::addTreeItem(item, "3. Competition Parameters");
     nmfUtilsQt::addTreeItem(item, "4. Predation Parameters");
     nmfUtilsQt::addTreeItem(item, "5. Observation Data");
-    nmfUtilsQt::addTreeItem(item, "6. Run Estimation");
-    nmfUtilsQt::addTreeItem(item, "7. Model Review");
+    nmfUtilsQt::addTreeItem(item, "6. Covariate Data");
+    nmfUtilsQt::addTreeItem(item, "7. Run Estimation");
+    nmfUtilsQt::addTreeItem(item, "8. Model Review");
     item->setExpanded(true);
 
     // Create Diagnostic navigator group
@@ -13029,8 +13031,8 @@ void
 nmfMainWindow::callback_ToDoAfterModelSave()
 {
     enableApplicationFeatures("AllOtherGroups",setupIsComplete());
-    Estimation_Tab6_ptr->clearEnsembleFile();
-    Estimation_Tab6_ptr->enableNonEnsembleWidgets(true);
+    Estimation_Tab7_ptr->clearEnsembleFile();
+    Estimation_Tab7_ptr->enableNonEnsembleWidgets(true);
 }
 
 
@@ -13054,7 +13056,7 @@ nmfMainWindow::callback_ModelLoaded()
     Estimation_Tab3_ptr->loadWidgets();
     Estimation_Tab4_ptr->loadWidgets();
     Estimation_Tab5_ptr->loadWidgets();
-    Estimation_Tab6_ptr->loadWidgets();
+    Estimation_Tab7_ptr->loadWidgets();
 
     Diagnostic_Tab1_ptr->loadWidgets();
     Diagnostic_Tab2_ptr->loadWidgets();
@@ -13079,7 +13081,7 @@ nmfMainWindow::callback_ModelLoaded()
         m_ViewerWidget->setImagePath(imagePath);
         m_ViewerWidget->callback_RefreshPB();
     }
-    Estimation_Tab6_ptr->callback_EnsembleControlsGB(false);
+    Estimation_Tab7_ptr->callback_EnsembleControlsGB(false);
 
     // Update REMORA
     Remora_ptr->setProjectName(m_ProjectName);
@@ -13094,7 +13096,7 @@ nmfMainWindow::callback_ModelLoaded()
 
     // Hack to get enable-ness correct on Tab6 widgets.  Should
     // remove it and fix the logic.
-    Estimation_Tab6_ptr->loadWidgets();
+    Estimation_Tab7_ptr->loadWidgets();
 
     QApplication::restoreOverrideCursor();
 }
@@ -13297,8 +13299,8 @@ nmfMainWindow::callback_ClearEstimationTables()
     Estimation_Tab3_ptr->clearWidgets();
     Estimation_Tab4_ptr->clearWidgets();
     Estimation_Tab5_ptr->clearWidgets();
-    Estimation_Tab6_ptr->clearWidgets();
     Estimation_Tab7_ptr->clearWidgets();
+    Estimation_Tab8_ptr->clearWidgets();
 }
 
 bool
@@ -13530,74 +13532,74 @@ nmfMainWindow::callback_AddToReview()
 
     if (isAMultiRun) {
         for (int col=0; col<5; ++col) {
-            rowItems << Estimation_Tab6_ptr->getMultiRunColumnData(col);                         // 8-12
+            rowItems << Estimation_Tab7_ptr->getMultiRunColumnData(col);                         // 8-12
         }
     } else {
         rowItems << "1"; // Number of Runs                                                       // 8
-        rowItems << QString::fromStdString(Estimation_Tab6_ptr->getCurrentObjectiveCriterion()); // 9
-        rowItems << QString::fromStdString(Estimation_Tab6_ptr->getCurrentAlgorithm());          // 10
-        rowItems << QString::fromStdString(Estimation_Tab6_ptr->getCurrentMinimizer());          // 11
-        rowItems << QString::fromStdString(Estimation_Tab6_ptr->getCurrentScaling());            // 12
+        rowItems << QString::fromStdString(Estimation_Tab7_ptr->getCurrentObjectiveCriterion()); // 9
+        rowItems << QString::fromStdString(Estimation_Tab7_ptr->getCurrentAlgorithm());          // 10
+        rowItems << QString::fromStdString(Estimation_Tab7_ptr->getCurrentMinimizer());          // 11
+        rowItems << QString::fromStdString(Estimation_Tab7_ptr->getCurrentScaling());            // 12
     }
 
     rowItems << ""; // Notes go here                                                             // 13
 
     // From here on out, the following columns will be hidden
-    rowItems << QString::number(Estimation_Tab6_ptr->isSetToDeterministicBees());                // 14
-    rowItems << QString::number(Estimation_Tab6_ptr->getMaxGenerations());                       // 15
-    rowItems << QString::number(Estimation_Tab6_ptr->getNumBees());                              // 16
-    rowItems << QString::number(Estimation_Tab6_ptr->getNumBestSites());                         // 17
-    rowItems << QString::number(Estimation_Tab6_ptr->getNumEliteSites());                        // 18
-    rowItems << QString::number(Estimation_Tab6_ptr->getNumEliteBees());                         // 19
-    rowItems << QString::number(Estimation_Tab6_ptr->getNumOtherBees());                         // 20
-    rowItems << QString::number(Estimation_Tab6_ptr->getNeighborhoodSize());                     // 21
-    rowItems << QString::number(Estimation_Tab6_ptr->getNumSubRuns());                           // 22
+    rowItems << QString::number(Estimation_Tab7_ptr->isSetToDeterministicBees());                // 14
+    rowItems << QString::number(Estimation_Tab7_ptr->getMaxGenerations());                       // 15
+    rowItems << QString::number(Estimation_Tab7_ptr->getNumBees());                              // 16
+    rowItems << QString::number(Estimation_Tab7_ptr->getNumBestSites());                         // 17
+    rowItems << QString::number(Estimation_Tab7_ptr->getNumEliteSites());                        // 18
+    rowItems << QString::number(Estimation_Tab7_ptr->getNumEliteBees());                         // 19
+    rowItems << QString::number(Estimation_Tab7_ptr->getNumOtherBees());                         // 20
+    rowItems << QString::number(Estimation_Tab7_ptr->getNeighborhoodSize());                     // 21
+    rowItems << QString::number(Estimation_Tab7_ptr->getNumSubRuns());                           // 22
 
-    rowItems << QString::number(Estimation_Tab6_ptr->isSetToDeterministicMinimizer());               // 23
-    rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterValue());                        // 24
-    rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterValue());                // 25
-    rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterTime());                         // 26
-    rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterTime());                 // 27
-    rowItems << QString::number(Estimation_Tab6_ptr->isStopAfterIter());                         // 28
-    rowItems << QString::number(Estimation_Tab6_ptr->getCurrentStopAfterIter());                 // 29
+    rowItems << QString::number(Estimation_Tab7_ptr->isSetToDeterministicMinimizer());               // 23
+    rowItems << QString::number(Estimation_Tab7_ptr->isStopAfterValue());                        // 24
+    rowItems << QString::number(Estimation_Tab7_ptr->getCurrentStopAfterValue());                // 25
+    rowItems << QString::number(Estimation_Tab7_ptr->isStopAfterTime());                         // 26
+    rowItems << QString::number(Estimation_Tab7_ptr->getCurrentStopAfterTime());                 // 27
+    rowItems << QString::number(Estimation_Tab7_ptr->isStopAfterIter());                         // 28
+    rowItems << QString::number(Estimation_Tab7_ptr->getCurrentStopAfterIter());                 // 29
 
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstInitialBiomassEnabled());              // 30
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstInitialBiomassChecked());              // 31
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstGrowthRateEnabled());                  // 32
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstGrowthRateChecked());                  // 33
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCarryingCapacityEnabled());            // 34
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCarryingCapacityChecked());            // 35
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCatchabilityEnabled());                // 36
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCatchabilityChecked());                // 37
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionAlphaEnabled());            // 38
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionAlphaChecked());            // 39
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesEnabled());      // 40
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaSpeciesChecked());      // 41
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsEnabled());       // 42
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsChecked());       // 43
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsEnabled()); // 44
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstCompetitionBetaGuildsGuildsChecked()); // 45
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationRhoEnabled());                // 46
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationRhoChecked());                // 47
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationHandlingEnabled());           // 48
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationHandlingChecked());           // 49
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationExponentEnabled());           // 50
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstPredationExponentChecked());           // 51
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstSurveyQEnabled());                     // 52
-    rowItems << QString::number(Estimation_Tab6_ptr->isEstSurveyQChecked());                     // 53
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstInitialBiomassEnabled());              // 30
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstInitialBiomassChecked());              // 31
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstGrowthRateEnabled());                  // 32
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstGrowthRateChecked());                  // 33
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCarryingCapacityEnabled());            // 34
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCarryingCapacityChecked());            // 35
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCatchabilityEnabled());                // 36
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCatchabilityChecked());                // 37
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCompetitionAlphaEnabled());            // 38
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCompetitionAlphaChecked());            // 39
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCompetitionBetaSpeciesEnabled());      // 40
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCompetitionBetaSpeciesChecked());      // 41
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCompetitionBetaGuildsEnabled());       // 42
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCompetitionBetaGuildsChecked());       // 43
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsEnabled()); // 44
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsChecked()); // 45
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstPredationRhoEnabled());                // 46
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstPredationRhoChecked());                // 47
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstPredationHandlingEnabled());           // 48
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstPredationHandlingChecked());           // 49
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstPredationExponentEnabled());           // 50
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstPredationExponentChecked());           // 51
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstSurveyQEnabled());                     // 52
+    rowItems << QString::number(Estimation_Tab7_ptr->isEstSurveyQChecked());                     // 53
 
     rowItems << QString::number(isAMultiOrMohnsRhoRun());                                        // 54
-    rowItems << Estimation_Tab6_ptr->getEnsembleAveragingAlgorithm();                            // 55
-    rowItems << Estimation_Tab6_ptr->getEnsembleAverageBy();                                     // 56
-    rowItems << Estimation_Tab6_ptr->getEnsembleUsingBy();                                       // 57
-    rowItems << QString::number(Estimation_Tab6_ptr->getEnsembleUsingAmountValue());             // 58
-    rowItems << QString::number(Estimation_Tab6_ptr->isEnsembleUsingPct());                      // 59
+    rowItems << Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm();                            // 55
+    rowItems << Estimation_Tab7_ptr->getEnsembleAverageBy();                                     // 56
+    rowItems << Estimation_Tab7_ptr->getEnsembleUsingBy();                                       // 57
+    rowItems << QString::number(Estimation_Tab7_ptr->getEnsembleUsingAmountValue());             // 58
+    rowItems << QString::number(Estimation_Tab7_ptr->isEnsembleUsingPct());                      // 59
 
-    rowItems << QString::fromStdString(Estimation_Tab6_ptr->getEnsembleTimeStampedFilename());                  // 60
+    rowItems << QString::fromStdString(Estimation_Tab7_ptr->getEnsembleTimeStampedFilename());                  // 60
     rowItems << createEstimatedFile();                                                           // 61
 
 //  Estimation_Tab7_ptr->updateReviewList(rowItems);
-    Estimation_Tab7_ptr->updateModelReviewTable(rowItems);
+    Estimation_Tab8_ptr->updateModelReviewTable(rowItems);
 }
 
 void
@@ -13649,19 +13651,19 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
     runBox.parameter = "SurveyQ";
     runBox.state     = std::make_pair(modelReview.isEstSurveyQEnabled == "1",                    modelReview.isEstSurveyQChecked == "1");
     EstimationRunBoxes.push_back(runBox);
-    Estimation_Tab6_ptr->callback_SetEstimateRunCheckboxes(EstimationRunBoxes);
+    Estimation_Tab7_ptr->callback_SetEstimateRunCheckboxes(EstimationRunBoxes);
 
     // 2. Multi-Run/Ensemble Settings
     bool isAMultiRun = (modelReview.isAMultiRun == "1");
 //std::cout << "~~~> isAMultiRun: " << isAMultiRun << std::endl;
-    Estimation_Tab6_ptr->enableEnsembleControls(       isAMultiRun);
-    Estimation_Tab6_ptr->setEnsembleAveragingAlgorithm(modelReview.ensembleAveragingAlgorithm);
-    Estimation_Tab6_ptr->setEnsembleAverageBy(         modelReview.ensembleAverageBy);
-    Estimation_Tab6_ptr->setEnsembleUsingBy(           modelReview.ensembleUsingBy);
-    Estimation_Tab6_ptr->setEnsembleUsingAmountValue(  modelReview.ensembleUsingAmountValue);
-    Estimation_Tab6_ptr->setEnsembleUsingPct(          modelReview.isEnsembleUsingPct == "1");
+    Estimation_Tab7_ptr->enableEnsembleControls(       isAMultiRun);
+    Estimation_Tab7_ptr->setEnsembleAveragingAlgorithm(modelReview.ensembleAveragingAlgorithm);
+    Estimation_Tab7_ptr->setEnsembleAverageBy(         modelReview.ensembleAverageBy);
+    Estimation_Tab7_ptr->setEnsembleUsingBy(           modelReview.ensembleUsingBy);
+    Estimation_Tab7_ptr->setEnsembleUsingAmountValue(  modelReview.ensembleUsingAmountValue);
+    Estimation_Tab7_ptr->setEnsembleUsingPct(          modelReview.isEnsembleUsingPct == "1");
     if (isAMultiRun) {
-        Estimation_Tab6_ptr->loadEnsembleFile(         modelReview.ensembleFilename, nmfConstantsMSSPM::VerboseOn);
+        Estimation_Tab7_ptr->loadEnsembleFile(         modelReview.ensembleFilename, nmfConstantsMSSPM::VerboseOn);
     }
 
     enableRunWidgets(true);
@@ -13669,19 +13671,19 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
     // 3. Reset Deterministic states
     int stateNLopt = (modelReview.setToDeterministicNLopt == "1") ? Qt::Checked : Qt::Unchecked;
     int stateBees  = (modelReview.setToDeterministicBees  == "1") ? Qt::Checked : Qt::Unchecked;
-    Estimation_Tab6_ptr->callback_SetDeterministicCB(stateNLopt);
-    Estimation_Tab6_ptr->callback_EnsembleSetDeterministicCB(stateNLopt);
-    Estimation_Tab6_ptr->setDeterministicBeesCB(stateBees==Qt::Checked);
+    Estimation_Tab7_ptr->callback_SetDeterministicCB(stateNLopt);
+    Estimation_Tab7_ptr->callback_EnsembleSetDeterministicCB(stateNLopt);
+    Estimation_Tab7_ptr->setDeterministicBeesCB(stateBees==Qt::Checked);
 
     // 4. Reset Bees widgets
-//    Estimation_Tab6_ptr->setMaxGenerations(modelReview.maxGenerations);
-//    Estimation_Tab6_ptr->setNumBees(modelReview.numBees);
-//    Estimation_Tab6_ptr->setNumBestSites(modelReview.numBestSites);
-//    Estimation_Tab6_ptr->setNumEliteSites(modelReview.numEliteSites);
-//    Estimation_Tab6_ptr->setNumEliteBees(modelReview.numEliteBees);
-//    Estimation_Tab6_ptr->setNumOtherBees(modelReview.numOtherBees);
-//    Estimation_Tab6_ptr->setNeighborhoodSize(modelReview.neighborhoodSize);
-//    Estimation_Tab6_ptr->setNumSubRuns(modelReview.numSubRuns);
+//    Estimation_Tab7_ptr->setMaxGenerations(modelReview.maxGenerations);
+//    Estimation_Tab7_ptr->setNumBees(modelReview.numBees);
+//    Estimation_Tab7_ptr->setNumBestSites(modelReview.numBestSites);
+//    Estimation_Tab7_ptr->setNumEliteSites(modelReview.numEliteSites);
+//    Estimation_Tab7_ptr->setNumEliteBees(modelReview.numEliteBees);
+//    Estimation_Tab7_ptr->setNumOtherBees(modelReview.numOtherBees);
+//    Estimation_Tab7_ptr->setNeighborhoodSize(modelReview.neighborhoodSize);
+//    Estimation_Tab7_ptr->setNumSubRuns(modelReview.numSubRuns);
 
     QApplication::restoreOverrideCursor();
 }
