@@ -29,6 +29,7 @@
 #ifndef NMFESTIMATIONTAB6_H
 #define NMFESTIMATIONTAB6_H
 
+#include <nmfStructsQt.h>
 
 
 class nmfEstimation_Tab6: public QObject
@@ -38,10 +39,22 @@ class nmfEstimation_Tab6: public QObject
 private:
     nmfLogger*   m_Logger;
     nmfDatabase* m_DatabasePtr;
+    std::string  m_ProjectName;
+    std::string  m_ModelName;
+    QStandardItemModel* m_smodelC;
+    QStandardItemModel* m_smodelSP;
+    std::vector<std::string> m_ParamNames;
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab6_Widget;
+    QPushButton* Estimation_Tab6_AddPB;
+    QTableView*  Estimation_Tab6_CovariateTV;
+    QTableView*  Estimation_Tab6_SpeciesParameterTV;
 
+    void addCovariateColumn(QString covariateName);
+    void initializeCovariateTable();
+    void initializeSpeciesParameterTable();
+    void readSettings();
 
 public:
     /**
@@ -68,7 +81,9 @@ public:
 //    bool loadWidgets();
 
 public Q_SLOTS:
-
+    void callback_AddPB();
+    void callback_SetEstimateRunCheckboxes(
+            std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes);
 
 };
 

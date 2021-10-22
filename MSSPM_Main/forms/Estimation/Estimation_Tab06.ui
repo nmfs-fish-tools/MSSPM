@@ -55,7 +55,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="Estimation_Tab6_AddPB">
              <property name="minimumSize">
               <size>
                <width>40</width>
@@ -74,7 +74,26 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_2">
+            <widget class="QPushButton" name="Estimation_Tab6_RenamePB">
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>40</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ren</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="Estimation_Tab6_DeletePB">
              <property name="minimumSize">
               <size>
                <width>40</width>
@@ -92,98 +111,12 @@
              </property>
             </widget>
            </item>
-           <item>
-            <spacer name="horizontalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>25</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
           </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QTableView" name="Estimation_Tab1_GuildPopulationTV"/>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_5">
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_6">
-               <item>
-                <widget class="QSlider" name="Estimation_Tab1_ModifySL_2">
-                 <property name="toolTip">
-                  <string>Allows user to modify selected values and see the results in real-time</string>
-                 </property>
-                 <property name="statusTip">
-                  <string>Allows user to modify selected values and see the results in real-time</string>
-                 </property>
-                 <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
-                 </property>
-                 <property name="maximum">
-                  <number>100</number>
-                 </property>
-                 <property name="tracking">
-                  <bool>true</bool>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="invertedAppearance">
-                  <bool>false</bool>
-                 </property>
-                 <property name="invertedControls">
-                  <bool>false</bool>
-                 </property>
-                 <property name="tickPosition">
-                  <enum>QSlider::NoTicks</enum>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <widget class="QPushButton" name="Estimation_Tab1_ModifyPB_2">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>20</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>20</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Resets the Modify slider to its initial (i.e. 0) value</string>
-               </property>
-               <property name="statusTip">
-                <string>Resets the Modify slider to its initial (i.e. 0) value</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QTableView" name="Estimation_Tab6_CovariateTV"/>
            </item>
           </layout>
          </item>
@@ -193,7 +126,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Parameter/Species Assignment</string>
+       <string>Species/Parameter Assignment</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
@@ -207,7 +140,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Assign Covariate to Parameter/Species Pair:</string>
+            <string>Assign Covariate to Species/Parameter Pair:</string>
            </property>
           </widget>
          </item>
@@ -231,124 +164,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QTableView" name="Estimation_Tab1_SpeciesPopulationTV"/>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_2">
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout">
-               <item>
-                <widget class="QSlider" name="Estimation_Tab1_ModifySL">
-                 <property name="toolTip">
-                  <string>Allows user to modify selected values and see the results when slider is released</string>
-                 </property>
-                 <property name="statusTip">
-                  <string>Allows user to modify selected values and see the results when slider is released</string>
-                 </property>
-                 <property name="whatsThis">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Modify Slider&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This slider allows the user to modify the selected table values. When the user releases the slider an Estimation run and Diagnostics run will occur. If more than one table value is selected, all selected table values will be modified accordingly. &lt;/p&gt;&lt;p&gt;If after the modification, the user wishes to restore the table values to their values prior to the last Save or Load, the user should click the Restore button at the bottom of the table.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
-                 </property>
-                 <property name="maximum">
-                  <number>100</number>
-                 </property>
-                 <property name="tracking">
-                  <bool>true</bool>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="invertedAppearance">
-                  <bool>false</bool>
-                 </property>
-                 <property name="invertedControls">
-                  <bool>false</bool>
-                 </property>
-                 <property name="tickPosition">
-                  <enum>QSlider::NoTicks</enum>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_7">
-               <item>
-                <widget class="QCheckBox" name="Estimation_Tab1_ModifyRunCB">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>14</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="baseSize">
-                  <size>
-                   <width>18</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>If checked, will run both Estimation and Diagnostics. If not, run only Estimation.</string>
-                 </property>
-                 <property name="statusTip">
-                  <string>If checked, will run both Estimation and Diagnostics. If not, run only Estimation.</string>
-                 </property>
-                 <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <widget class="QPushButton" name="Estimation_Tab1_ModifyRunPB">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>20</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>20</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Performs an Estimation and Diagnostics Run</string>
-               </property>
-               <property name="statusTip">
-                <string>Performs an Estimation and Diagnostics Run</string>
-               </property>
-               <property name="whatsThis">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Combined Estimation and Diagnostics Run&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button performs an Estimation and Diagnostics run as if the user had just released the above Modify Slider. The same result would be had if the user clicks on the Modify Slider button without actually sliding it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="checkable">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QTableView" name="Estimation_Tab6_SpeciesParameterTV"/>
            </item>
           </layout>
          </item>
@@ -361,7 +177,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_87">
      <item>
-      <widget class="QPushButton" name="Estimation_Tab1_NextPB_2">
+      <widget class="QPushButton" name="Estimation_Tab6_PrevPB">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -405,7 +221,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab1_LoadPB">
+      <widget class="QPushButton" name="Estimation_Tab6_LoadPB">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -421,7 +237,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab1_SavePB">
+      <widget class="QPushButton" name="Estimation_Tab6_SavePB">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -440,7 +256,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab1_ImportPB">
+      <widget class="QPushButton" name="Estimation_Tab6_ImportPB">
        <property name="toolTip">
         <string>Import table data from a CSV file</string>
        </property>
@@ -456,7 +272,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab1_ExportPB">
+      <widget class="QPushButton" name="Estimation_Tab6_ExportPB">
        <property name="toolTip">
         <string>Export table data to a CSV file</string>
        </property>
@@ -488,7 +304,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab1_NextPB">
+      <widget class="QPushButton" name="Estimation_Tab6_NextPB">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>

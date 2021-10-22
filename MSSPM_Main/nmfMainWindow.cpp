@@ -1902,7 +1902,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.40"
+    QString version = "MSSPM v0.9.41"
                       " (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
@@ -2902,6 +2902,8 @@ nmfMainWindow::initConnections()
             this,            SLOT(callback_SaveMainSettings()));
     connect(Setup_Tab4_ptr,      SIGNAL(SetEstimateRunCheckboxes(std::vector<nmfStructsQt::EstimateRunBox>)),
             Estimation_Tab7_ptr, SLOT(callback_SetEstimateRunCheckboxes(std::vector<nmfStructsQt::EstimateRunBox>)));
+    connect(Setup_Tab4_ptr,      SIGNAL(SetEstimateRunCheckboxes(std::vector<nmfStructsQt::EstimateRunBox>)),
+            Estimation_Tab6_ptr, SLOT(callback_SetEstimateRunCheckboxes(std::vector<nmfStructsQt::EstimateRunBox>)));
     connect(Setup_Tab4_ptr->getModelPresetsCMB(),    SIGNAL(currentTextChanged(QString)),
             this,                                    SLOT(callback_Setup_Tab4_ModelPresetsCMB(QString)));
     connect(Setup_Tab4_ptr->getGrowthFormCMB(),      SIGNAL(currentTextChanged(QString)),
@@ -3211,7 +3213,11 @@ nmfMainWindow::findTableInFocus()
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_AbsoluteBiomassTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_AbsoluteBiomassTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_RelativeBiomassTV")->hasFocus()) {
-        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_RelativeBiomassTV");
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_RelativeBiomassTV");        
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab6_CovariateTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab6_CovariateTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab6_SpeciesParameterTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab6_SpeciesParameterTV");
 
     } else if (m_UI->ForecastDataInputTabWidget->findChild<QTableView *>("Forecast_Tab2_HarvestTV")->hasFocus()) {
         return m_UI->ForecastDataInputTabWidget->findChild<QTableView *>("Forecast_Tab2_HarvestTV");
