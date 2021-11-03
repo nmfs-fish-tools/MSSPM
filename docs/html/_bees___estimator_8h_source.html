@@ -99,111 +99,109 @@ $(document).ready(function(){initNavTree('_bees___estimator_8h_source.html','');
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#include &quot;nmfConstantsMSSPM.h&quot;</span></div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#include &quot;nmfUtils.h&quot;</span></div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#include &quot;nmfUtilsQt.h&quot;</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">//#include &quot;nmfRandom.h&quot;</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#include &quot;BeesAlgorithm.h&quot;</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="_bees_stats_8h.html">BeesStats.h</a>&quot;</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &lt;QDateTime&gt;</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &lt;QFile&gt;</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &lt;QMutex&gt;</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#include &lt;QString&gt;</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#include &lt;QTextStream&gt;</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#include &lt;QThread&gt;</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#include &lt;thread&gt;</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keyword">typedef</span> boost::uniform_real&lt;&gt; NumberDistribution;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="keyword">typedef</span> boost::mt19937 RandomNumberGenerator;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keyword">typedef</span> boost::variate_generator&lt;RandomNumberGenerator&amp;,NumberDistribution&gt; Generator;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00064"></a><span class="lineno"><a class="line" href="class_bees___estimator.html">   64</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_bees___estimator.html">Bees_Estimator</a> : <span class="keyword">public</span> QObject</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;{</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    Q_OBJECT</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    std::vector&lt;double&gt;                   m_InitialCarryingCapacities;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">double</span>                                m_EstSystemCarryingCapacity;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    std::vector&lt;double&gt;                   m_EstInitBiomass;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    std::vector&lt;double&gt;                   m_EstGrowthRates;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    std::vector&lt;double&gt;                   m_EstCarryingCapacities;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">//  std::vector&lt;double&gt;                   m_EstExploitationRates;</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    std::vector&lt;double&gt;                   m_EstCatchability;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    std::vector&lt;double&gt;                   m_EstExponent;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    std::vector&lt;double&gt;                   m_EstSurveyQ;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstAlpha;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstBetaSpecies;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstBetaGuilds;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstBetaGuildsGuilds;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstPredation;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstHandling;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">void</span> createOutputStr(<span class="keyword">const</span> <span class="keywordtype">int</span>&amp;         numEstParameters,</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">int</span>&amp;         numTotalParameters,</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">int</span>&amp;         numSubRuns,</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">double</span>&amp;      bestFitness,</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">double</span>&amp;      fitnessStdDev,</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                         <span class="keyword">const</span> nmfStructsQt::ModelDataStruct&amp; beeStruct,</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                         std::string&amp;       bestFitnessStr);</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    std::string convertValues1DToOutputStr(<span class="keyword">const</span> std::string&amp; label,</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                                           <span class="keyword">const</span> std::vector&lt;double&gt;&amp; valuesVec,</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;                                           <span class="keyword">const</span> <span class="keywordtype">bool</span>&amp; includeTotal);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    std::string convertValues2DToOutputStr(<span class="keyword">const</span> std::string&amp; label,</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;                                           <span class="keyword">const</span> boost::numeric::ublas::matrix&lt;double&gt;&amp; valuesMatrix);</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">void</span> outputProgressData(std::string msg);</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordtype">void</span> printBee(std::string msg,</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                  <span class="keywordtype">double</span> &amp;fitness,</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;                  std::vector&lt;double&gt; &amp;parameters);</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordtype">void</span> stopRun(<span class="keyword">const</span> std::string &amp;elapsedTimeStr,</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                 <span class="keyword">const</span> std::string &amp;fitnessStr);</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">bool</span> wasStoppedByUser();</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;signals:</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#aeb11bf164d2f0b60d4a01e35d293f073">AllSubRunsCompleted</a>(std::string multiRunSpeciesFilename,</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;                             std::string multiRunModelFilename);</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#ae9fed1638bc81d1bdc186a9f821fc63e">ErrorFound</a>(std::string errorMsg);</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a7a396be0a4382b212026f0c24edb38b2">InitializeSubRuns</a>(std::string multiRunModelFilename,</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                           <span class="keywordtype">int</span> totalIndividualRuns);</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#ab9d93dad3c2ebf6bb3ca935aa8618f48">RunCompleted</a>(std::string bestFitness,</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;                      <span class="keywordtype">bool</span> showDiagnosticsChart);</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a28654e26e3abcee5aa2c734a44e94c0b">SubRunCompleted</a>(<span class="keywordtype">int</span> run,</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;                         <span class="keywordtype">int</span> numRuns,</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;                         std::string EstimationAlgorithm,</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;                         std::string MinimizerAlgorithm,</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;                         std::string ObjectiveCriterion,</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;                         std::string ScalingAlgorithm,</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;                         std::string multiRunModelFilename,</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;                         <span class="keywordtype">double</span> fitness);</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a8e59ea1d2c1e462114b3f7eb5edc4b99">RepetitionRunCompleted</a>(<span class="keywordtype">int</span> RunNum, <span class="keywordtype">int</span> SubRun, <span class="keywordtype">int</span> NumSubRuns);</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<span class="comment">//  void UpdateProgressData(int NumSpecies, int NumParams, QString elapsedTime);</span></div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160; </div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <a class="code" href="class_bees___estimator.html#a02fd2323e1bee785545dca5123c490d4">Bees_Estimator</a>();</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;   ~<a class="code" href="class_bees___estimator.html">Bees_Estimator</a>();</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160; </div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a749a4083849648eafccd5d8d02b29659">estimateParameters</a>(nmfStructsQt::ModelDataStruct &amp;BeeStruct,</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;                            <span class="keywordtype">int</span>&amp; RunNumber,</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;                            std::vector&lt;QString&gt;&amp; MultiRunLines,</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;                            <span class="keywordtype">int</span>&amp; TotalIndividualRuns);</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a3aa0981a00ae72fabe142e1eabb4a645">getEstCarryingCapacities</a>(std::vector&lt;double&gt; &amp;EstCarryingCapacity);</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a7e431d7901e077679a3786c92f6e9b0b">getEstCatchability</a>(std::vector&lt;double&gt; &amp;EstCatchability);</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a40fabc2f299b1a6c3db712f33f0bc9f2">getEstCompetitionAlpha</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstInteraction);</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a992ea9bd7cc6b3d32f854391040f77a0">getEstCompetitionBetaGuilds</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstCompGuilds);</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#ad3ac4057da89e5ff61055fd75f92afc1">getEstCompetitionBetaGuildsGuilds</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstCompGuildsGuilds);</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a5160d93d8d2e3a218c36fe915e574890">getEstCompetitionBetaSpecies</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstCompSpecies);</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a5dd97b0204b4e0068850f914845a8ca2">getEstExponent</a>(std::vector&lt;double&gt; &amp;EstExponent);</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#ade91d1e916341e49ef1b314c2b7aada6">getEstGrowthRates</a>(std::vector&lt;double&gt; &amp;EstGrowthRates);</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a1cf2307f6460ba87e77d26e6dda8e75e">getEstHandling</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstHandling);</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a1192df1f2645609d5c6d91eab2464194">getEstInitBiomass</a>(std::vector&lt;double&gt; &amp;EstInitBiomass);</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#aa310a9452edb3ddaf230d16df54a96c5">getEstPredation</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstPredation);</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a28cf2ff0c6438b3da720598c8f149c43">getEstSurveyQ</a>(std::vector&lt;double&gt; &amp;EstSurveyQ);</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;};</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160; </div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#include &quot;BeesAlgorithm.h&quot;</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="_bees_stats_8h.html">BeesStats.h</a>&quot;</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#include &lt;QDateTime&gt;</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &lt;QFile&gt;</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &lt;QMutex&gt;</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &lt;QString&gt;</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#include &lt;QTextStream&gt;</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#include &lt;QThread&gt;</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#include &lt;thread&gt;</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keyword">typedef</span> boost::uniform_real&lt;&gt; NumberDistribution;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keyword">typedef</span> boost::mt19937 RandomNumberGenerator;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="keyword">typedef</span> boost::variate_generator&lt;RandomNumberGenerator&amp;,NumberDistribution&gt; Generator;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="class_bees___estimator.html">   63</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_bees___estimator.html">Bees_Estimator</a> : <span class="keyword">public</span> QObject</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;{</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    Q_OBJECT</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    std::vector&lt;double&gt;                   m_InitialCarryingCapacities;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">double</span>                                m_EstSystemCarryingCapacity;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    std::vector&lt;double&gt;                   m_EstInitBiomass;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    std::vector&lt;double&gt;                   m_EstGrowthRates;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    std::vector&lt;double&gt;                   m_EstCarryingCapacities;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">//  std::vector&lt;double&gt;                   m_EstExploitationRates;</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    std::vector&lt;double&gt;                   m_EstCatchability;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    std::vector&lt;double&gt;                   m_EstExponent;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    std::vector&lt;double&gt;                   m_EstSurveyQ;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstAlpha;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstBetaSpecies;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstBetaGuilds;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstBetaGuildsGuilds;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstPredation;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    boost::numeric::ublas::matrix&lt;double&gt; m_EstHandling;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">void</span> createOutputStr(<span class="keyword">const</span> <span class="keywordtype">int</span>&amp;         numEstParameters,</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">int</span>&amp;         numTotalParameters,</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">int</span>&amp;         numSubRuns,</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">double</span>&amp;      bestFitness,</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                         <span class="keyword">const</span> <span class="keywordtype">double</span>&amp;      fitnessStdDev,</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                         <span class="keyword">const</span> nmfStructsQt::ModelDataStruct&amp; beeStruct,</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                         std::string&amp;       bestFitnessStr);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    std::string convertValues1DToOutputStr(<span class="keyword">const</span> std::string&amp; label,</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                                           <span class="keyword">const</span> std::vector&lt;double&gt;&amp; valuesVec,</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                                           <span class="keyword">const</span> <span class="keywordtype">bool</span>&amp; includeTotal);</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    std::string convertValues2DToOutputStr(<span class="keyword">const</span> std::string&amp; label,</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;                                           <span class="keyword">const</span> boost::numeric::ublas::matrix&lt;double&gt;&amp; valuesMatrix);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">void</span> outputProgressData(std::string msg);</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">void</span> printBee(std::string msg,</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                  <span class="keywordtype">double</span> &amp;fitness,</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                  std::vector&lt;double&gt; &amp;parameters);</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordtype">void</span> stopRun(<span class="keyword">const</span> std::string &amp;elapsedTimeStr,</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;                 <span class="keyword">const</span> std::string &amp;fitnessStr);</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordtype">bool</span> wasStoppedByUser();</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160; </div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;signals:</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#aeb11bf164d2f0b60d4a01e35d293f073">AllSubRunsCompleted</a>(std::string multiRunSpeciesFilename,</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;                             std::string multiRunModelFilename);</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#ae9fed1638bc81d1bdc186a9f821fc63e">ErrorFound</a>(std::string errorMsg);</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a7a396be0a4382b212026f0c24edb38b2">InitializeSubRuns</a>(std::string multiRunModelFilename,</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;                           <span class="keywordtype">int</span> totalIndividualRuns);</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#ab9d93dad3c2ebf6bb3ca935aa8618f48">RunCompleted</a>(std::string bestFitness,</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;                      <span class="keywordtype">bool</span> showDiagnosticsChart);</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a28654e26e3abcee5aa2c734a44e94c0b">SubRunCompleted</a>(<span class="keywordtype">int</span> run,</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;                         <span class="keywordtype">int</span> numRuns,</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;                         std::string EstimationAlgorithm,</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;                         std::string MinimizerAlgorithm,</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;                         std::string ObjectiveCriterion,</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;                         std::string ScalingAlgorithm,</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;                         std::string multiRunModelFilename,</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;                         <span class="keywordtype">double</span> fitness);</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a8e59ea1d2c1e462114b3f7eb5edc4b99">RepetitionRunCompleted</a>(<span class="keywordtype">int</span> RunNum, <span class="keywordtype">int</span> SubRun, <span class="keywordtype">int</span> NumSubRuns);</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160; </div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <a class="code" href="class_bees___estimator.html#a02fd2323e1bee785545dca5123c490d4">Bees_Estimator</a>();</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;   ~<a class="code" href="class_bees___estimator.html">Bees_Estimator</a>();</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160; </div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a749a4083849648eafccd5d8d02b29659">estimateParameters</a>(nmfStructsQt::ModelDataStruct &amp;BeeStruct,</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;                            <span class="keywordtype">int</span>&amp; RunNumber,</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;                            std::vector&lt;QString&gt;&amp; MultiRunLines,</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;                            <span class="keywordtype">int</span>&amp; TotalIndividualRuns);</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a3aa0981a00ae72fabe142e1eabb4a645">getEstCarryingCapacities</a>(std::vector&lt;double&gt; &amp;EstCarryingCapacity);</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a7e431d7901e077679a3786c92f6e9b0b">getEstCatchability</a>(std::vector&lt;double&gt; &amp;EstCatchability);</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a40fabc2f299b1a6c3db712f33f0bc9f2">getEstCompetitionAlpha</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstInteraction);</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a992ea9bd7cc6b3d32f854391040f77a0">getEstCompetitionBetaGuilds</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstCompGuilds);</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#ad3ac4057da89e5ff61055fd75f92afc1">getEstCompetitionBetaGuildsGuilds</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstCompGuildsGuilds);</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a5160d93d8d2e3a218c36fe915e574890">getEstCompetitionBetaSpecies</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstCompSpecies);</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a5dd97b0204b4e0068850f914845a8ca2">getEstExponent</a>(std::vector&lt;double&gt; &amp;EstExponent);</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#ade91d1e916341e49ef1b314c2b7aada6">getEstGrowthRates</a>(std::vector&lt;double&gt; &amp;EstGrowthRates);</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a1cf2307f6460ba87e77d26e6dda8e75e">getEstHandling</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstHandling);</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a1192df1f2645609d5c6d91eab2464194">getEstInitBiomass</a>(std::vector&lt;double&gt; &amp;EstInitBiomass);</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#aa310a9452edb3ddaf230d16df54a96c5">getEstPredation</a>(boost::numeric::ublas::matrix&lt;double&gt; &amp;EstPredation);</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees___estimator.html#a28cf2ff0c6438b3da720598c8f149c43">getEstSurveyQ</a>(std::vector&lt;double&gt; &amp;EstSurveyQ);</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;};</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160; </div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160; </div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aclass_bees___estimator_html_a1192df1f2645609d5c6d91eab2464194"><div class="ttname"><a href="class_bees___estimator.html#a1192df1f2645609d5c6d91eab2464194">Bees_Estimator::getEstInitBiomass</a></div><div class="ttdeci">void getEstInitBiomass(std::vector&lt; double &gt; &amp;EstInitBiomass)</div><div class="ttdoc">Gets the estimated initial biomass values per species.</div><div class="ttdef"><b>Definition:</b> Bees_Estimator.cpp:374</div></div>
-<div class="ttc" id="aclass_bees___estimator_html"><div class="ttname"><a href="class_bees___estimator.html">Bees_Estimator</a></div><div class="ttdoc">This class acts as an interface class to the Bees algorithm implementation.</div><div class="ttdef"><b>Definition:</b> Bees_Estimator.h:64</div></div>
+<div class="ttc" id="aclass_bees___estimator_html"><div class="ttname"><a href="class_bees___estimator.html">Bees_Estimator</a></div><div class="ttdoc">This class acts as an interface class to the Bees algorithm implementation.</div><div class="ttdef"><b>Definition:</b> Bees_Estimator.h:63</div></div>
 <div class="ttc" id="aclass_bees___estimator_html_ab9d93dad3c2ebf6bb3ca935aa8618f48"><div class="ttname"><a href="class_bees___estimator.html#ab9d93dad3c2ebf6bb3ca935aa8618f48">Bees_Estimator::RunCompleted</a></div><div class="ttdeci">void RunCompleted(std::string bestFitness, bool showDiagnosticsChart)</div><div class="ttdoc">Signal emitted with the Run has completed.</div></div>
 <div class="ttc" id="aclass_bees___estimator_html_a02fd2323e1bee785545dca5123c490d4"><div class="ttname"><a href="class_bees___estimator.html#a02fd2323e1bee785545dca5123c490d4">Bees_Estimator::Bees_Estimator</a></div><div class="ttdeci">Bees_Estimator()</div><div class="ttdoc">Class constructor for the Bees Estimation Algorithm interface class.</div><div class="ttdef"><b>Definition:</b> Bees_Estimator.cpp:6</div></div>
 <div class="ttc" id="aclass_bees___estimator_html_a5160d93d8d2e3a218c36fe915e574890"><div class="ttname"><a href="class_bees___estimator.html#a5160d93d8d2e3a218c36fe915e574890">Bees_Estimator::getEstCompetitionBetaSpecies</a></div><div class="ttdeci">void getEstCompetitionBetaSpecies(boost::numeric::ublas::matrix&lt; double &gt; &amp;EstCompSpecies)</div><div class="ttdoc">Gets the estimated beta competition values per species.</div><div class="ttdef"><b>Definition:</b> Bees_Estimator.cpp:410</div></div>

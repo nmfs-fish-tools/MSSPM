@@ -19,6 +19,7 @@ var hierarchy =
     [ "QObject", null, [
       [ "Bees_Estimator", "class_bees___estimator.html", null ],
       [ "NLopt_Estimator", "class_n_lopt___estimator.html", null ],
+      [ "nmfCovariate_Tab2", "classnmf_covariate___tab2.html", null ],
       [ "nmfDiagnostic_Tab1", "classnmf_diagnostic___tab1.html", null ],
       [ "nmfDiagnostic_Tab2", "classnmf_diagnostic___tab2.html", null ],
       [ "nmfEstimation_Tab1", "classnmf_estimation___tab1.html", null ],
@@ -28,6 +29,7 @@ var hierarchy =
       [ "nmfEstimation_Tab5", "classnmf_estimation___tab5.html", null ],
       [ "nmfEstimation_Tab6", "classnmf_estimation___tab6.html", null ],
       [ "nmfEstimation_Tab7", "classnmf_estimation___tab7.html", null ],
+      [ "nmfEstimation_Tab8", "classnmf_estimation___tab8.html", null ],
       [ "nmfForecast_Tab1", "classnmf_forecast___tab1.html", null ],
       [ "nmfForecast_Tab2", "classnmf_forecast___tab2.html", null ],
       [ "nmfForecast_Tab3", "classnmf_forecast___tab3.html", null ],

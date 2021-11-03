@@ -114,9 +114,9 @@ Collaboration diagram for SimulatedBiomassDialog:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a38b00b391795c175bc4a3e6e4ac193af"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_simulated_biomass_dialog.html#a38b00b391795c175bc4a3e6e4ac193af">SimulatedBiomassDialog</a> (QWidget *parent, std::string projectDir, std::string projectName, std::string modelName, nmfDatabase *database, nmfLogger *logger)</td></tr>
-<tr class="memdesc:a38b00b391795c175bc4a3e6e4ac193af"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_simulated_biomass_dialog.html" title="SimulatedBiomass Dialog.">SimulatedBiomassDialog</a> : class constructor.  <a href="class_simulated_biomass_dialog.html#a38b00b391795c175bc4a3e6e4ac193af">More...</a><br /></td></tr>
-<tr class="separator:a38b00b391795c175bc4a3e6e4ac193af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a9397594a9c580096495742836cd769"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_simulated_biomass_dialog.html#a6a9397594a9c580096495742836cd769">SimulatedBiomassDialog</a> (QWidget *parent, std::string projectDir, std::string projectName, std::string modelName, nmfDatabase *database, nmfLogger *logger, nmfStructsQt::ModelDataStruct &amp;dataStruct)</td></tr>
+<tr class="memdesc:a6a9397594a9c580096495742836cd769"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_simulated_biomass_dialog.html" title="SimulatedBiomass Dialog.">SimulatedBiomassDialog</a> : class constructor.  <a href="class_simulated_biomass_dialog.html#a6a9397594a9c580096495742836cd769">More...</a><br /></td></tr>
+<tr class="separator:a6a9397594a9c580096495742836cd769"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b1f65786627ee34bf4398e4dfc1cad3"><td class="memItemLeft" align="right" valign="top"><a id="a4b1f65786627ee34bf4398e4dfc1cad3"></a>
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>getFilename</b> ()</td></tr>
 <tr class="separator:a4b1f65786627ee34bf4398e4dfc1cad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -128,8 +128,8 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getErrorPct</b> ()</td
 <div class="textblock"><p>SimulatedBiomass Dialog. </p>
 <p>The Dialog contains the preferences for the user to select when creating simulated biomass data. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a38b00b391795c175bc4a3e6e4ac193af"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a38b00b391795c175bc4a3e6e4ac193af">&#9670;&nbsp;</a></span>SimulatedBiomassDialog()</h2>
+<a id="a6a9397594a9c580096495742836cd769"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a9397594a9c580096495742836cd769">&#9670;&nbsp;</a></span>SimulatedBiomassDialog()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -168,7 +168,13 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getErrorPct</b> ()</td
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">nmfLogger *&#160;</td>
-          <td class="paramname"><em>logger</em>&#160;</td>
+          <td class="paramname"><em>logger</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">nmfStructsQt::ModelDataStruct &amp;&#160;</td>
+          <td class="paramname"><em>dataStruct</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -187,6 +193,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getErrorPct</b> ()</td
     <tr><td class="paramname">modelName</td><td>: string representing the project settings config file </td></tr>
     <tr><td class="paramname">database</td><td>: pointer to database object </td></tr>
     <tr><td class="paramname">logger</td><td>: pointer to logger object) </td></tr>
+    <tr><td class="paramname">dataStruct</td><td>: data struct containing necessary covariate data </td></tr>
   </table>
   </dd>
 </dl>

@@ -500,11 +500,13 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(ProjectName varchar(50) NOT NULL,";
-    cmd += " ModelName   varchar(50) NOT NULL,";
-    cmd += " Year        int(11) NOT NULL,";
-    cmd += " Value       float NOT NULL,";
-    cmd += " PRIMARY KEY (ProjectName,ModelName,Year))";
+    cmd += "(ProjectName   varchar(50) NOT NULL,";
+    cmd += " ModelName     varchar(50) NOT NULL,";
+    cmd += " CovariateName varchar(50) NOT NULL,";
+    cmd += " Year          int(11)     NOT NULL,";
+    cmd += " Value         double      NOT NULL,";
+    cmd += " ValueScaled   double      NOT NULL,";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,CovariateName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 8] CreateTables: Create table " + fullTableName + " error: ", errorMsg);
@@ -517,16 +519,17 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 25 of 72: CovariateTS
-    tableName = nmfConstantsMSSPM::TableCovariateTS;
+    // 25 of 72: CovariateAssignment
+    tableName = nmfConstantsMSSPM::TableCovariateAssignment;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(ProjectName varchar(50) NOT NULL,";
-    cmd += " ModelName   varchar(50) NOT NULL,";
-    cmd += " RunNumber   int(11) NOT NULL,";
-    cmd += " Value       float NOT NULL,";
-    cmd += " PRIMARY KEY (ProjectName,ModelName,RunNumber))";
+    cmd += "(ProjectName     varchar(50) NOT NULL,";
+    cmd += " ModelName       varchar(50) NOT NULL,";
+    cmd += " SpeName         varchar(50) NOT NULL,";
+    cmd += " ParameterName   varchar(50) NOT NULL,";
+    cmd += " CovariateName   varchar(50) NULL,";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,SpeName,ParameterName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 9] CreateTables: Create table " + fullTableName + " error: ", errorMsg);

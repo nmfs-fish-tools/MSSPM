@@ -65,7 +65,7 @@ NLopt_Estimator::getVersion()
 
 void
 NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDataStruct,
-                                   const double *EstParameters,
+                                   const double* EstParameters,
                                    std::vector<double>& initBiomass,
                                    std::vector<double>& growthRate,
                                    std::vector<double>& carryingCapacity,
@@ -271,6 +271,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     int guildNum = 0;
     int NumSpeciesOrGuilds;
     double surveyQVal;
+    double surveyQCovariateCoeff = 1.0; // RSK estimate this eventually
     std::vector<double> initBiomass;
     std::vector<double> growthRate;
     std::vector<double> carryingCapacity;
@@ -278,6 +279,18 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     std::vector<double> predationExponent;
     std::vector<double> catchabilityRate;
     std::vector<double> surveyQ;
+    boost::numeric::ublas::matrix<double> initBiomassCovariate;
+    boost::numeric::ublas::matrix<double> growthRateCovariate;
+    boost::numeric::ublas::matrix<double> carryingCapacityCovariate;
+    boost::numeric::ublas::matrix<double> catchabilityRateCovariate;
+    boost::numeric::ublas::matrix<double> surveyQCovariate;
+    boost::numeric::ublas::matrix<double> predationRhoCovariate;
+    boost::numeric::ublas::matrix<double> predationHandlingCovariate;
+    boost::numeric::ublas::matrix<double> predationExponentCovariate;
+    boost::numeric::ublas::matrix<double> competitionAlphaCovariate;
+    boost::numeric::ublas::matrix<double> competitionBetaSpeciesCovariate;
+    boost::numeric::ublas::matrix<double> competitionBetaGuildSpeciesCovariate;
+    boost::numeric::ublas::matrix<double> competitionBetaGuildGuildCovariate;
     boost::numeric::ublas::matrix<double> EstBiomassSpecies;
     boost::numeric::ublas::matrix<double> EstBiomassGuilds;
     boost::numeric::ublas::matrix<double> EstBiomassRescaled;
@@ -322,6 +335,19 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     nmfUtils::initialize(predationRho,                        NumSpeciesOrGuilds, NumSpeciesOrGuilds);
     nmfUtils::initialize(predationHandling,                   NumSpeciesOrGuilds, NumSpeciesOrGuilds);
 
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"InitBiomass",                   initBiomassCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"GrowthRate",                    growthRateCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"CarryingCapacity",              carryingCapacityCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"Catchability",                  catchabilityRateCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"SurveyQ",                       surveyQCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"PredationRho",                  predationRhoCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"PredationHandling",             predationHandlingCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"PredationExponent",             predationExponentCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"CompetitionAlpha",              competitionAlphaCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"CompetitionBetaSpeciesSpecies", competitionBetaSpeciesCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"CompetitionBetaGuildSpecies",   competitionBetaGuildSpeciesCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"CompetitionBetaGuildGuild",     competitionBetaGuildGuildCovariate);
+
     // RSK - how does this initBiomass work with SurveyQ
     extractParameters(NLoptDataStruct, EstParameters, initBiomass,
                       growthRate,carryingCapacity,catchabilityRate,
@@ -330,11 +356,20 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                       predationRho,predationHandling,predationExponent,surveyQ);
 
     // Since we may be estimating SurveyQ, need to divide the Observed Biomass by the SurveyQ
+    double surveyQTerm;
     for (int species=0; species<int(ObsBiomassBySpeciesOrGuilds.size2()); ++species) {
-        surveyQVal = surveyQ[species];
+        surveyQVal  = surveyQ[species];
         for (int time=0; time<int(ObsBiomassBySpeciesOrGuilds.size1()); ++time) {
-            ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQVal;
+            surveyQTerm = surveyQVal*(1.0+surveyQCovariateCoeff*surveyQCovariate(time,species));
+            ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQTerm;
         }
+    }
+
+    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+qDebug() << "sq: " << surveyQ[i];
+        surveyQTerm = surveyQ[i]*(1.0+surveyQCovariateCoeff*surveyQCovariate(0,i));
+        EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)/surveyQTerm;
+//      EstBiomassSpecies(0,i) = ObsBiomassBySpeciesOrGuilds(0,i);
     }
 
     // Calculate carrying capacity for all guilds
@@ -349,10 +384,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         guildCarryingCapacity.push_back(guildK);
     }
 
-    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-        EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)/surveyQ[i];
-//      EstBiomassSpecies(0,i) = ObsBiomassBySpeciesOrGuilds(0,i);
-    }
 
     // RSK - Remember there's only initial guild biomass data
     // Multiply by guild surveyQ data when you have it
@@ -367,42 +398,63 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
     bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(NLoptDataStruct,"");
 
+    double initBiomassCoeff = 1.0; // RSK estimate this eventually
     for (int time=1; time<NumYears; ++time) {
-
         timeMinus1 = time - 1;
+
         for (int species=0; species<NumSpeciesOrGuilds; ++species) {
 
             if (isCheckedInitBiomass) { // if estimating the initial biomass
                 if (timeMinus1 == 0) {
-//                EstBiomassVal = initBiomass[species];
-                  EstBiomassVal = EstBiomassSpecies(0,species);
+                  EstBiomassVal = initBiomass[species];
+//                EstBiomassVal = EstBiomassSpecies(0,species);
                 } else {
                     EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
                 }
             } else {
                 EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
             }
+            if (timeMinus1 == 0) {
+                EstBiomassVal *= (1.0+initBiomassCoeff*initBiomassCovariate(timeMinus1,species));
+            }
 
-            GrowthTerm      = NLoptGrowthForm->evaluate(species,EstBiomassVal,
-                                                        growthRate,carryingCapacity);
+            GrowthTerm      = NLoptGrowthForm->evaluate(EstBiomassVal,
+                                                        growthRate[species],
+                                                        growthRateCovariate(timeMinus1,species),
+                                                        carryingCapacity[species],
+                                                        carryingCapacityCovariate(timeMinus1,species));
             HarvestTerm     = NLoptHarvestForm->evaluate(timeMinus1,species,
-                                                         Catch,Effort,Exploitation,
-                                                         EstBiomassVal,catchabilityRate);
+                                                         EstBiomassVal,
+                                                         Catch,
+                                                         Effort,
+                                                         Exploitation,
+                                                         catchabilityRate,
+                                                         catchabilityRateCovariate);
             CompetitionTerm = NLoptCompetitionForm->evaluate(
                                    timeMinus1,species,EstBiomassVal,
-                                   systemCarryingCapacity,
                                    growthRate,
+                                   growthRateCovariate,
                                    guildCarryingCapacity[guildNum],
-                                   competitionAlpha,
-                                   competitionBetaSpecies,
-                                   competitionBetaGuilds,
-                                   competitionBetaGuildsGuilds,
+                                   systemCarryingCapacity,
                                    EstBiomassSpecies,
-                                   EstBiomassGuilds);
+                                   EstBiomassGuilds,
+                                   competitionAlpha,
+                                   competitionAlphaCovariate,
+                                   competitionBetaSpecies,
+                                   competitionBetaSpeciesCovariate,
+                                   competitionBetaGuilds,
+                                   competitionBetaGuildSpeciesCovariate,
+                                   competitionBetaGuildsGuilds,
+                                   competitionBetaGuildGuildCovariate);
             PredationTerm   = NLoptPredationForm->evaluate(
                                    timeMinus1,species,
-                                   predationRho,predationHandling,predationExponent,
-                                   EstBiomassSpecies,EstBiomassVal);
+                                   EstBiomassSpecies,EstBiomassVal,
+                                   predationRho,
+                                   predationRhoCovariate,
+                                   predationHandling,
+                                   predationHandlingCovariate,
+                                   predationExponent,
+                                   predationExponentCovariate);
 
             EstBiomassVal  += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
             if (EstBiomassVal < 0) { // test code only

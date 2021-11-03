@@ -64,6 +64,7 @@ class SimulatedBiomassDialog : public QDialog
     std::string  m_ModelName;
     nmfDatabase* m_Database;
     nmfLogger*   m_Logger;
+    nmfStructsQt::ModelDataStruct m_DataStruct;
 
 
 public:
@@ -75,13 +76,15 @@ public:
      * @param modelName : string representing the project settings config file
      * @param database : pointer to database object
      * @param logger : pointer to logger object)
+     * @param dataStruct : data struct containing necessary covariate data
      */
     SimulatedBiomassDialog(QWidget* parent,
                            std::string projectDir,
                            std::string projectName,
                            std::string modelName,
                            nmfDatabase* database,
-                           nmfLogger* logger);
+                           nmfLogger* logger,
+                           nmfStructsQt::ModelDataStruct& dataStruct);
     virtual ~SimulatedBiomassDialog() {}
     QString getFilename();
     int getErrorPct();

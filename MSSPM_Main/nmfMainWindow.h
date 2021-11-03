@@ -356,6 +356,18 @@ private:
                                 std::vector<double>& EstCatchability,
                                 std::vector<double>& EstExponent,
                                 std::vector<double>& EstSurveyQ,
+                                boost::numeric::ublas::matrix<double>& InitBiomassCovariates,
+                                boost::numeric::ublas::matrix<double>& GrowthRateCovariates,
+                                boost::numeric::ublas::matrix<double>& CarryingCapacityCovariates,
+                                boost::numeric::ublas::matrix<double>& CatchabilityRatesCovariates,
+                                boost::numeric::ublas::matrix<double>& SurveyQCovariates,
+                                boost::numeric::ublas::matrix<double>& PredationRhoCovariate,
+                                boost::numeric::ublas::matrix<double>& PredationHandlingCovariate,
+                                boost::numeric::ublas::matrix<double>& PredationExponentCovariate,
+                                boost::numeric::ublas::matrix<double>& CompetitionBetaAlphaCovariate,
+                                boost::numeric::ublas::matrix<double>& CompetitionBetaSpeciesCovariate,
+                                boost::numeric::ublas::matrix<double>& CompetitionBetaGuildSpeciesCovariate,
+                                boost::numeric::ublas::matrix<double>& CompetitionBetaGuildGuildCovariate,
                                 boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
                                 boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
                                 boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
@@ -504,8 +516,8 @@ private:
                         const std::string& HarvestType,
                         boost::numeric::ublas::matrix<double>& Harvest);
     bool getInitialObservedBiomass(QList<double> &InitBiomass);
-    void getInitialYear(int& InitialYear,
-                        int& MaxNumYears);
+    void getInitialYear(int& StartYear,
+                        int& RunLength);
     std::string getLegendCode(bool isAveraged,
                               std::string &Algorithm,
                               std::string &Minimizer,
@@ -604,6 +616,8 @@ private:
                    std::string &msg2,
                    std::string &stopRunFile,
                    std::string &state);
+    bool loadCovariateAssignment(std::map<std::string,std::string>& covariateAssignment);
+    bool loadCovariateData(std::map<std::string,std::vector<double> >& covariateMap);
     void loadGuis();
     void loadDatabase();
     bool loadInteraction(int &NumSpecies,
@@ -937,6 +951,7 @@ private:
             const std::string& ForecastName,
             const int& NumSpeciesOrGuilds,
             const QList<double>& InitialBiomass,
+            boost::numeric::ublas::matrix<double>& EstInitBiomassCovariates,
             boost::numeric::ublas::matrix<double>& EstimatedBiomassBySpecies);
     void setDefaultDockWidgetsVisibility(
             const QString& actionName,

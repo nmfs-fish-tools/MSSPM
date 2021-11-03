@@ -107,25 +107,27 @@ $(document).ready(function(){initNavTree('_bees_stats_8h_source.html',''); initR
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    std::vector&lt;std::vector&lt;double&gt; &gt; m_data;</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <a class="code" href="class_bees_stats.html">BeesStats</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> &amp;totParameters, <span class="keyword">const</span> <span class="keywordtype">int</span>&amp; numRuns);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;   ~<a class="code" href="class_bees_stats.html">BeesStats</a>() {}</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees_stats.html#a0a8bc7bf4a3c6688ca23a1f121956bcb">addData</a>(<span class="keyword">const</span> <span class="keywordtype">double</span>&amp; bestFitness,</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;                 <span class="keyword">const</span> std::vector&lt;double&gt;&amp; parameters);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees_stats.html#ab3f485c43b7a99f75389e9a458a372b9">getMean</a>(<span class="keywordtype">double</span>&amp; fitness,</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;                 std::vector&lt;double&gt;&amp; parameters);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees_stats.html#a6244924ae5a8dc0048f5ee2ca8fba87d">getStdDev</a>(<span class="keywordtype">double</span>&amp; fitnessStdDev,</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                   <span class="keywordtype">double</span>&amp; totStdDev,</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;                   std::vector&lt;double&gt;&amp; stdDevParameters);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;};</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="class_bees_stats.html#a7e570cf6e3e327929d73e933345a3aa4">BeesStats</a>(<span class="keyword">const</span> <span class="keywordtype">int</span>&amp; totParameters,</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;              <span class="keyword">const</span> <span class="keywordtype">int</span>&amp; numRuns);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;   ~<a class="code" href="class_bees_stats.html">BeesStats</a>() {}</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees_stats.html#a0a8bc7bf4a3c6688ca23a1f121956bcb">addData</a>(<span class="keyword">const</span> <span class="keywordtype">double</span>&amp; bestFitness,</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;                 <span class="keyword">const</span> std::vector&lt;double&gt;&amp; parameters);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees_stats.html#ab3f485c43b7a99f75389e9a458a372b9">getMean</a>(<span class="keywordtype">double</span>&amp; fitness,</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;                 std::vector&lt;double&gt;&amp; parameters);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_bees_stats.html#a6244924ae5a8dc0048f5ee2ca8fba87d">getStdDev</a>(<span class="keywordtype">double</span>&amp; fitnessStdDev,</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                   <span class="keywordtype">double</span>&amp; totStdDev,</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                   std::vector&lt;double&gt;&amp; stdDevParameters);</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;};</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aclass_bees_stats_html_ab3f485c43b7a99f75389e9a458a372b9"><div class="ttname"><a href="class_bees_stats.html#ab3f485c43b7a99f75389e9a458a372b9">BeesStats::getMean</a></div><div class="ttdeci">void getMean(double &amp;fitness, std::vector&lt; double &gt; &amp;parameters)</div><div class="ttdoc">Finds the mean fitness value.</div><div class="ttdef"><b>Definition:</b> BeesStats.cpp:42</div></div>
 <div class="ttc" id="aclass_bees_stats_html_a0a8bc7bf4a3c6688ca23a1f121956bcb"><div class="ttname"><a href="class_bees_stats.html#a0a8bc7bf4a3c6688ca23a1f121956bcb">BeesStats::addData</a></div><div class="ttdeci">void addData(const double &amp;bestFitness, const std::vector&lt; double &gt; &amp;parameters)</div><div class="ttdoc">Loads data into the private data members.</div><div class="ttdef"><b>Definition:</b> BeesStats.cpp:23</div></div>
 <div class="ttc" id="aclass_bees_stats_html"><div class="ttname"><a href="class_bees_stats.html">BeesStats</a></div><div class="ttdoc">Bees Statistics Class.</div><div class="ttdef"><b>Definition:</b> BeesStats.h:44</div></div>
+<div class="ttc" id="aclass_bees_stats_html_a7e570cf6e3e327929d73e933345a3aa4"><div class="ttname"><a href="class_bees_stats.html#a7e570cf6e3e327929d73e933345a3aa4">BeesStats::BeesStats</a></div><div class="ttdeci">BeesStats(const int &amp;totParameters, const int &amp;numRuns)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> BeesStats.cpp:3</div></div>
 <div class="ttc" id="aclass_bees_stats_html_a6244924ae5a8dc0048f5ee2ca8fba87d"><div class="ttname"><a href="class_bees_stats.html#a6244924ae5a8dc0048f5ee2ca8fba87d">BeesStats::getStdDev</a></div><div class="ttdeci">void getStdDev(double &amp;fitnessStdDev, double &amp;totStdDev, std::vector&lt; double &gt; &amp;stdDevParameters)</div><div class="ttdoc">Gets the standard deviation of each of the parameter values.</div><div class="ttdef"><b>Definition:</b> BeesStats.cpp:54</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

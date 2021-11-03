@@ -1,5 +1,5 @@
 <map id="MSSPM_GuiEstimation/EnsembleDialog.h" name="MSSPM_GuiEstimation/EnsembleDialog.h">
 <area shape="rect" id="node1" title="GUI definition for the EnsembleDialog dialog class." alt="" coords="38,5,207,47"/>
-<area shape="rect" id="node2" href="$nmf_estimation_tab06_8h.html" title="GUI definition for the nmfEstimation_Tab6 Estimation Run class." alt="" coords="37,95,209,136"/>
+<area shape="rect" id="node2" href="$nmf_estimation_tab07_8h.html" title="GUI definition for the nmfEstimation_Tab8 Estimation Run class." alt="" coords="37,95,209,136"/>
 <area shape="rect" id="node3" href="$nmf_main_window_8h.html" title="GUI definition for the main nmfMainWindow MSSPM Application class." alt="" coords="5,184,240,211"/>
 </map>

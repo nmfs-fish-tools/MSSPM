@@ -1,10 +1,10 @@
 <map id="MSSPM_Main/SimulatedBiomassDialog.h" name="MSSPM_Main/SimulatedBiomassDialog.h">
-<area shape="rect" id="node1" title="GUI definition for the SimulatedBiomassDialog dialog class." alt="" coords="272,5,507,47"/>
+<area shape="rect" id="node1" title="GUI definition for the SimulatedBiomassDialog dialog class." alt="" coords="313,5,548,47"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,169,128,196"/>
-<area shape="rect" id="node3" title=" " alt="" coords="219,95,322,121"/>
-<area shape="rect" id="node4" title=" " alt="" coords="347,95,432,121"/>
-<area shape="rect" id="node5" title=" " alt="" coords="456,95,568,121"/>
-<area shape="rect" id="node6" href="$nmf_simulated_data_8h_source.html" title=" " alt="" coords="603,95,760,121"/>
+<area shape="rect" id="node3" title=" " alt="" coords="261,95,363,121"/>
+<area shape="rect" id="node4" title=" " alt="" coords="388,95,473,121"/>
+<area shape="rect" id="node5" title=" " alt="" coords="497,95,609,121"/>
+<area shape="rect" id="node6" href="$nmf_simulated_data_8h_source.html" title=" " alt="" coords="685,95,843,121"/>
 <area shape="rect" id="node7" title=" " alt="" coords="153,169,207,196"/>
 <area shape="rect" id="node8" title=" " alt="" coords="231,169,310,196"/>
 <area shape="rect" id="node9" title=" " alt="" coords="334,169,405,196"/>
@@ -17,4 +17,5 @@
 <area shape="rect" id="node16" title=" " alt="" coords="1357,169,1461,196"/>
 <area shape="rect" id="node17" title=" " alt="" coords="1485,169,1640,196"/>
 <area shape="rect" id="node18" title=" " alt="" coords="1664,169,1755,196"/>
+<area shape="rect" id="node19" title=" " alt="" coords="1779,169,1899,196"/>
 </map>

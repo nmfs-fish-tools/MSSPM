@@ -28,6 +28,5 @@ var classnmf_forecast___tab1 =
     [ "setMultiRunRBEnabled", "classnmf_forecast___tab1.html#a0f6776620ce9cdbb456658d0f3ee0fb5", null ],
     [ "setMultiRunRBState", "classnmf_forecast___tab1.html#a15c85a645de6c30c02d76612c6813fb6", null ],
     [ "setSingleRunRBEnabled", "classnmf_forecast___tab1.html#a26f6ad97a4d41c97ea4310bd41f13491", null ],
-    [ "setSingleRunRBState", "classnmf_forecast___tab1.html#a32b81d0aecc9ff9624e8f2ed784bedc2", null ],
-    [ "useSingleRunEstimatedParameters", "classnmf_forecast___tab1.html#ac72c5b69720d8f8920c76126e48807e3", null ]
+    [ "setSingleRunRBState", "classnmf_forecast___tab1.html#a32b81d0aecc9ff9624e8f2ed784bedc2", null ]
 ];

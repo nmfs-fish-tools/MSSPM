@@ -123,6 +123,14 @@ Public Slots</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a5d8fe9a643f5154567067dcd2c77a5d3">callback_ExportPB</a> ()</td></tr>
 <tr class="memdesc:a5d8fe9a643f5154567067dcd2c77a5d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Export button to save data to a .csv file. <br /></td></tr>
 <tr class="separator:a5d8fe9a643f5154567067dcd2c77a5d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf69f53953cc1ee68b12798d281a2303"><td class="memItemLeft" align="right" valign="top"><a id="abf69f53953cc1ee68b12798d281a2303"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#abf69f53953cc1ee68b12798d281a2303">callback_GuildRangeCB</a> (bool isChecked)</td></tr>
+<tr class="memdesc:abf69f53953cc1ee68b12798d281a2303"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user checks the Guilds Range Data check box. This shows or hides the range data columns in the Guilds table. <br /></td></tr>
+<tr class="separator:abf69f53953cc1ee68b12798d281a2303"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cf7fee3d985d84bf67539078613571c"><td class="memItemLeft" align="right" valign="top"><a id="a6cf7fee3d985d84bf67539078613571c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a6cf7fee3d985d84bf67539078613571c">callback_GuildSuppCB</a> (bool isChecked)</td></tr>
+<tr class="memdesc:a6cf7fee3d985d84bf67539078613571c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user checks the Guilds Supplemental Data check box. This shows or hides the supplemental data columns in the Guilds table. <br /></td></tr>
+<tr class="separator:a6cf7fee3d985d84bf67539078613571c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad36778f2f6606f210fc9377f747029bc"><td class="memItemLeft" align="right" valign="top"><a id="ad36778f2f6606f210fc9377f747029bc"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ad36778f2f6606f210fc9377f747029bc">callback_ImportPB</a> ()</td></tr>
 <tr class="memdesc:ad36778f2f6606f210fc9377f747029bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Import button to load data from a .csv file. <br /></td></tr>
@@ -162,41 +170,33 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ac55be00194ecaff1eb450bbc2358877c">callback_RestorePB</a> ()</td></tr>
 <tr class="memdesc:ac55be00194ecaff1eb450bbc2358877c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Restore button which will reload the table data with the data prior to the user modifying the data with the slider. <br /></td></tr>
 <tr class="separator:ac55be00194ecaff1eb450bbc2358877c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad77a2e92b5f0b426d414377fcf5841b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ad77a2e92b5f0b426d414377fcf5841b6">callback_SaveGuildsCSVFile</a> (QList&lt; QString &gt; GuildName, QList&lt; QString &gt; GrowthRate, QList&lt; QString &gt; GuildK)</td></tr>
+<tr class="memdesc:ad77a2e92b5f0b426d414377fcf5841b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user saves the Guilds from the Guilds Setup tab.  <a href="classnmf_estimation___tab1.html#ad77a2e92b5f0b426d414377fcf5841b6">More...</a><br /></td></tr>
+<tr class="separator:ad77a2e92b5f0b426d414377fcf5841b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9741486fd83c5ed7000ef9887e5ef947"><td class="memItemLeft" align="right" valign="top"><a id="a9741486fd83c5ed7000ef9887e5ef947"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a9741486fd83c5ed7000ef9887e5ef947">callback_SavePB</a> ()</td></tr>
 <tr class="memdesc:a9741486fd83c5ed7000ef9887e5ef947"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Save button. <br /></td></tr>
 <tr class="separator:a9741486fd83c5ed7000ef9887e5ef947"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad77a2e92b5f0b426d414377fcf5841b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ad77a2e92b5f0b426d414377fcf5841b6">callback_SaveGuildsCSVFile</a> (QList&lt; QString &gt; GuildName, QList&lt; QString &gt; GrowthRate, QList&lt; QString &gt; GuildK)</td></tr>
-<tr class="memdesc:ad77a2e92b5f0b426d414377fcf5841b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user saves the Guilds from the Guilds Setup tab.  <a href="classnmf_estimation___tab1.html#ad77a2e92b5f0b426d414377fcf5841b6">More...</a><br /></td></tr>
-<tr class="separator:ad77a2e92b5f0b426d414377fcf5841b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa8ff2a0d8c921814687c5ce9ecf2c92b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#aa8ff2a0d8c921814687c5ce9ecf2c92b">callback_SaveSpeciesCSVFile</a> (QList&lt; QString &gt; SpeciesName, QList&lt; QString &gt; SpeciesGuild, QList&lt; QString &gt; SpeciesInitialBiomass, QList&lt; QString &gt; SpeciesGrowthRate, QList&lt; QString &gt; SpeciesK)</td></tr>
 <tr class="memdesc:aa8ff2a0d8c921814687c5ce9ecf2c92b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user saves the Species from the Species Setup tab.  <a href="classnmf_estimation___tab1.html#aa8ff2a0d8c921814687c5ce9ecf2c92b">More...</a><br /></td></tr>
 <tr class="separator:aa8ff2a0d8c921814687c5ce9ecf2c92b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad92ff002c0b38264230fb3d6f0e00316"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ad92ff002c0b38264230fb3d6f0e00316">callback_SelectionChangedTV</a> (const QItemSelection &amp;selection, const QItemSelection &amp;deselection)</td></tr>
 <tr class="memdesc:ad92ff002c0b38264230fb3d6f0e00316"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user makes a selection in the tableview.  <a href="classnmf_estimation___tab1.html#ad92ff002c0b38264230fb3d6f0e00316">More...</a><br /></td></tr>
 <tr class="separator:ad92ff002c0b38264230fb3d6f0e00316"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6cf7fee3d985d84bf67539078613571c"><td class="memItemLeft" align="right" valign="top"><a id="a6cf7fee3d985d84bf67539078613571c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a6cf7fee3d985d84bf67539078613571c">callback_GuildSuppCB</a> (bool isChecked)</td></tr>
-<tr class="memdesc:a6cf7fee3d985d84bf67539078613571c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user checks the Guilds Supplemental Data check box. This shows or hides the supplemental data columns in the Guilds table. <br /></td></tr>
-<tr class="separator:a6cf7fee3d985d84bf67539078613571c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12b41bf726cbd981b475a468dce15c97"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a12b41bf726cbd981b475a468dce15c97">callback_SpeciesRangeCMB</a> (QString value)</td></tr>
-<tr class="memdesc:a12b41bf726cbd981b475a468dce15c97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user changes the range type combo box.  <a href="classnmf_estimation___tab1.html#a12b41bf726cbd981b475a468dce15c97">More...</a><br /></td></tr>
-<tr class="separator:a12b41bf726cbd981b475a468dce15c97"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeaa604f622fa168cd706ea4c15c9acb4"><td class="memItemLeft" align="right" valign="top"><a id="aeaa604f622fa168cd706ea4c15c9acb4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#aeaa604f622fa168cd706ea4c15c9acb4">callback_SpeciesSuppCB</a> (bool isChecked)</td></tr>
-<tr class="memdesc:aeaa604f622fa168cd706ea4c15c9acb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user checks the Species Supplemental Data check box. This shows or hides the supplemental data columns in the Species table. <br /></td></tr>
-<tr class="separator:aeaa604f622fa168cd706ea4c15c9acb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf69f53953cc1ee68b12798d281a2303"><td class="memItemLeft" align="right" valign="top"><a id="abf69f53953cc1ee68b12798d281a2303"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#abf69f53953cc1ee68b12798d281a2303">callback_GuildRangeCB</a> (bool isChecked)</td></tr>
-<tr class="memdesc:abf69f53953cc1ee68b12798d281a2303"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user checks the Guilds Range Data check box. This shows or hides the range data columns in the Guilds table. <br /></td></tr>
-<tr class="separator:abf69f53953cc1ee68b12798d281a2303"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1fd3a724a2620b28f38b64a0c43bb3ec"><td class="memItemLeft" align="right" valign="top"><a id="a1fd3a724a2620b28f38b64a0c43bb3ec"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a1fd3a724a2620b28f38b64a0c43bb3ec">callback_SpeciesRangeCB</a> (bool isChecked)</td></tr>
 <tr class="memdesc:a1fd3a724a2620b28f38b64a0c43bb3ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user checks the Species Range Data check box. This shows or hides the range data columns in the Species table. <br /></td></tr>
 <tr class="separator:a1fd3a724a2620b28f38b64a0c43bb3ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12b41bf726cbd981b475a468dce15c97"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a12b41bf726cbd981b475a468dce15c97">callback_SpeciesRangeCMB</a> (QString value)</td></tr>
+<tr class="memdesc:a12b41bf726cbd981b475a468dce15c97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user changes the range type combo box.  <a href="classnmf_estimation___tab1.html#a12b41bf726cbd981b475a468dce15c97">More...</a><br /></td></tr>
+<tr class="separator:a12b41bf726cbd981b475a468dce15c97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af062b27b5d1bba356b068be15c92a0e2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#af062b27b5d1bba356b068be15c92a0e2">callback_SpeciesRangeSB</a> (int pct)</td></tr>
 <tr class="memdesc:af062b27b5d1bba356b068be15c92a0e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user changes the Species range percent combo box.  <a href="classnmf_estimation___tab1.html#af062b27b5d1bba356b068be15c92a0e2">More...</a><br /></td></tr>
 <tr class="separator:af062b27b5d1bba356b068be15c92a0e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeaa604f622fa168cd706ea4c15c9acb4"><td class="memItemLeft" align="right" valign="top"><a id="aeaa604f622fa168cd706ea4c15c9acb4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#aeaa604f622fa168cd706ea4c15c9acb4">callback_SpeciesSuppCB</a> (bool isChecked)</td></tr>
+<tr class="memdesc:aeaa604f622fa168cd706ea4c15c9acb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user checks the Species Supplemental Data check box. This shows or hides the supplemental data columns in the Species table. <br /></td></tr>
+<tr class="separator:aeaa604f622fa168cd706ea4c15c9acb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
@@ -212,12 +212,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a54aa664d088f811d8bc90efdbe23ba87">LoadSpeciesGuild</a> ()</td></tr>
 <tr class="memdesc:a54aa664d088f811d8bc90efdbe23ba87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queries main program to load local list with Species Guild names. <br /></td></tr>
 <tr class="separator:a54aa664d088f811d8bc90efdbe23ba87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae10fb080fcf9d46961160d714397bdce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ae10fb080fcf9d46961160d714397bdce">UpdateGuildSetupData</a> (QList&lt; QString &gt; GuildNames, QList&lt; QString &gt; GuildGrowthRate, QList&lt; QString &gt; GuildK)</td></tr>
-<tr class="memdesc:ae10fb080fcf9d46961160d714397bdce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal sent so the Guild Setup tab will be updated with the appropriate Guild fields.  <a href="classnmf_estimation___tab1.html#ae10fb080fcf9d46961160d714397bdce">More...</a><br /></td></tr>
-<tr class="separator:ae10fb080fcf9d46961160d714397bdce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfc7ad5a6a7e7cde280794226380109f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#acfc7ad5a6a7e7cde280794226380109f">UpdateSpeciesSetupData</a> (QList&lt; QString &gt; SpeciesNames, QList&lt; QString &gt; SpeciesGuilds, QList&lt; QString &gt; SpeciesInitBiomass, QList&lt; QString &gt; SpeciesGrowthRate, QList&lt; QString &gt; SpeciesK)</td></tr>
-<tr class="memdesc:acfc7ad5a6a7e7cde280794226380109f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal sent so the Species Setup tab will be updated with the appropriate Species fields.  <a href="classnmf_estimation___tab1.html#acfc7ad5a6a7e7cde280794226380109f">More...</a><br /></td></tr>
-<tr class="separator:acfc7ad5a6a7e7cde280794226380109f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0464c9d7f32e5741fef7b7cf5a3952db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a0464c9d7f32e5741fef7b7cf5a3952db">ReloadGuilds</a> (bool showPopup)</td></tr>
 <tr class="memdesc:a0464c9d7f32e5741fef7b7cf5a3952db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal notifying other widgets to reload guilds data.  <a href="classnmf_estimation___tab1.html#a0464c9d7f32e5741fef7b7cf5a3952db">More...</a><br /></td></tr>
 <tr class="separator:a0464c9d7f32e5741fef7b7cf5a3952db"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -225,7 +219,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memdesc:a64339922d063f65a7271311fe9f45e7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal notifying other widgets to reload species data.  <a href="classnmf_estimation___tab1.html#a64339922d063f65a7271311fe9f45e7a">More...</a><br /></td></tr>
 <tr class="separator:a64339922d063f65a7271311fe9f45e7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7dc94e037a754d3c10da00b307d75eba"><td class="memItemLeft" align="right" valign="top"><a id="a7dc94e037a754d3c10da00b307d75eba"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ReloadWidgets</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a7dc94e037a754d3c10da00b307d75eba">ReloadWidgets</a> ()</td></tr>
+<tr class="memdesc:a7dc94e037a754d3c10da00b307d75eba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal notifying main application to update all of its GUIs. <br /></td></tr>
 <tr class="separator:a7dc94e037a754d3c10da00b307d75eba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66eeaa47afb6f466998f08195e65fe7a"><td class="memItemLeft" align="right" valign="top"><a id="a66eeaa47afb6f466998f08195e65fe7a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a66eeaa47afb6f466998f08195e65fe7a">RestoreOutputSpecies</a> ()</td></tr>
@@ -246,6 +241,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ab76a3c0b8003a84c34db6fa84b35e73c">StoreOutputSpecies</a> ()</td></tr>
 <tr class="memdesc:ab76a3c0b8003a84c34db6fa84b35e73c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal causes the Species names in the Output Species widget to be temporarily saved. <br /></td></tr>
 <tr class="separator:ab76a3c0b8003a84c34db6fa84b35e73c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae10fb080fcf9d46961160d714397bdce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ae10fb080fcf9d46961160d714397bdce">UpdateGuildSetupData</a> (QList&lt; QString &gt; GuildNames, QList&lt; QString &gt; GuildGrowthRate, QList&lt; QString &gt; GuildK)</td></tr>
+<tr class="memdesc:ae10fb080fcf9d46961160d714397bdce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal sent so the Guild Setup tab will be updated with the appropriate Guild fields.  <a href="classnmf_estimation___tab1.html#ae10fb080fcf9d46961160d714397bdce">More...</a><br /></td></tr>
+<tr class="separator:ae10fb080fcf9d46961160d714397bdce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfc7ad5a6a7e7cde280794226380109f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#acfc7ad5a6a7e7cde280794226380109f">UpdateSpeciesSetupData</a> (QList&lt; QString &gt; SpeciesNames, QList&lt; QString &gt; SpeciesGuilds, QList&lt; QString &gt; SpeciesInitBiomass, QList&lt; QString &gt; SpeciesGrowthRate, QList&lt; QString &gt; SpeciesK)</td></tr>
+<tr class="memdesc:acfc7ad5a6a7e7cde280794226380109f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal sent so the Species Setup tab will be updated with the appropriate Species fields.  <a href="classnmf_estimation___tab1.html#acfc7ad5a6a7e7cde280794226380109f">More...</a><br /></td></tr>
+<tr class="separator:acfc7ad5a6a7e7cde280794226380109f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>

@@ -126,6 +126,6 @@ var classnmf_main_window =
     [ "mouseMoveEvent", "classnmf_main_window.html#a8641b917a24d3d99bb70e100c882b93e", null ],
     [ "MouseReleased", "classnmf_main_window.html#ae7e34161d6345895ccf2caecc42d7ba4", null ],
     [ "okToRunForecast", "classnmf_main_window.html#a2f97a9690febe3d449da55f375e81802", null ],
-    [ "saveSummaryDiagnosticTable", "classnmf_main_window.html#aad22a2e8bc4c6c9d86cfb93bf7463a3a", null ],
+    [ "saveSummaryDiagnosticTable", "classnmf_main_window.html#abd627edcb91dcbaecf729cded8cb8598", null ],
     [ "saveSummaryModelFitTable", "classnmf_main_window.html#a05567241830d287b5eb78aa9c3756988", null ]
 ];

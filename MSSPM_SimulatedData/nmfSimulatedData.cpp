@@ -6,13 +6,15 @@ nmfSimulatedData::nmfSimulatedData(
         nmfDatabase*  database,
         nmfLogger*    logger,
         std::string&  projectName,
-        std::string&  modelName)
+        std::string&  modelName,
+        nmfStructsQt::ModelDataStruct& dataStruct)
 {
     m_ProjectName = projectName;
     m_ModelName   = modelName;
     m_Database    = database;
     m_Logger      = logger;
     m_FixedSeed   = 0;
+    m_DataStruct  = dataStruct;
 }
 
 bool
@@ -38,6 +40,18 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     std::string HarvestForm;
     std::string CompetitionForm;
     std::string PredationForm;
+    boost::numeric::ublas::matrix<double> InitBiomassCovariate;
+    boost::numeric::ublas::matrix<double> GrowthRateCovariate;
+    boost::numeric::ublas::matrix<double> SpeciesKCovariate;
+    boost::numeric::ublas::matrix<double> SurveyQCovariate;
+    boost::numeric::ublas::matrix<double> CatchabilityCovariate;
+    boost::numeric::ublas::matrix<double> PredationRhoCovariate;
+    boost::numeric::ublas::matrix<double> PredationHandlingCovariate;
+    boost::numeric::ublas::matrix<double> PredationExponentCovariate;
+    boost::numeric::ublas::matrix<double> CompetitionAlphaCovariate;
+    boost::numeric::ublas::matrix<double> CompetitionBetaSpeciesCovariate;
+    boost::numeric::ublas::matrix<double> CompetitionBetaGuildSpeciesCovariate;
+    boost::numeric::ublas::matrix<double> CompetitionBetaGuildGuildCovariate;
     boost::numeric::ublas::matrix<double> EstBiomassSpecies;
     boost::numeric::ublas::matrix<double> SimulatedBiomassGuild;
     boost::numeric::ublas::matrix<double> Catch;
@@ -62,6 +76,8 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     double GuildCarryingCapacity;
     std::map<int,std::vector<int> > GuildSpecies;
     std::vector<double> SurveyQ;
+    double surveyQ;
+    double SurveyQCovariateCoeff = 1.0; // RSK estimate this later
 
     // Get some model data
     if (! m_Database->getModelFormData(
@@ -73,6 +89,19 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
         return false;
     }
     NumYears = RunLength + 1; // to include the last year
+
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"InitBiomass",                   InitBiomassCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"GrowthRate",                    GrowthRateCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CarryingCapacity",              SpeciesKCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"SurveyQ",                       SurveyQCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"Catchability",                  CatchabilityCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"PredationRho",                  PredationRhoCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"PredationHandling",             PredationHandlingCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"PredationExponent",             PredationExponentCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionAlpha",              CompetitionAlphaCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionBetaSpeciesSpecies", CompetitionBetaSpeciesCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionBetaGuildSpecies",   CompetitionBetaGuildSpeciesCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionBetaGuildGuild",     CompetitionBetaGuildGuildCovariate);
 
     // Get SurveyQ data
     if (! m_Database->getSurveyQData(m_Logger,SurveyQ)) {
@@ -134,6 +163,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     }
 
     bool isAggProd = (CompetitionForm == "AGG_PROD");
+    double InitBiomassCoeff = 1.0; // RSK this will be estimated eventually
 
     getSystemCarryingCapacity(isAggProd,NumGuilds,SpeciesK,
                               GuildSpecies,SystemCarryingCapacity);
@@ -141,7 +171,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     // Load initial biomasses for all species prior to starting loop because some
     // models wlll require other species' previous year's biomass
     for (int species=0; species<NumSpecies; ++species) {
-        EstBiomassSpecies(0,species) = InitialBiomass[species];
+        EstBiomassSpecies(0,species) = InitialBiomass[species]*(1.0+InitBiomassCoeff*InitBiomassCovariate(0,species));
     }
 
     //
@@ -154,15 +184,19 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     nmfCompetitionForm SimCompetitionForm(CompetitionForm);
 
     for (int time=1; time<NumYears; ++time) {
-
         timeMinus1 = time - 1;
+
         for (int species=0; species<NumSpecies; ++species) {
 
             if (timeMinus1 == 0) {
-                EstBiomassVal = InitialBiomass[species];
+                EstBiomassVal = InitialBiomass[species]*(1.0+InitBiomassCoeff*InitBiomassCovariate(timeMinus1,species));
             } else {
                 EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
             }
+            // Multiply Biomass by SurveyQ in case it's Relative Biomass. SurveyQ will be all 1's
+            // if it's Absolute Biomass.
+            surveyQ = SurveyQ[species];
+            EstBiomassVal *= surveyQ*(1.0+SurveyQCovariateCoeff*SurveyQCovariate(time,species));
 
             speciesK  = SpeciesK[species];
             if (speciesK == 0) {
@@ -176,42 +210,55 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
                                      GuildSpecies,GuildCarryingCapacity);
 
             GrowthTerm = SimGrowthForm.evaluate(
-                        species,EstBiomassVal,
-                        GrowthRate,SpeciesK);
+                        EstBiomassVal,
+                        GrowthRate[species],
+                        GrowthRateCovariate(timeMinus1,species),
+                        SpeciesK[species],
+                        SpeciesKCovariate(timeMinus1,species));
             HarvestTerm = SimHarvestForm.evaluate(
                         timeMinus1,species,
-                        Catch,Effort,Exploitation,
-                        EstBiomassVal,Catchability);
+                        EstBiomassVal,
+                        Catch,
+                        Effort,
+                        Exploitation,
+                        Catchability,
+                        CatchabilityCovariate);
             CompetitionTerm = SimCompetitionForm.evaluate(
                         timeMinus1,species,EstBiomassVal,
-                        SystemCarryingCapacity,
                         GrowthRate,
+                        GrowthRateCovariate,
                         GuildCarryingCapacity,
-                        CompetitionAlpha,
-                        CompetitionBetaSpecies,
-                        CompetitionBetaGuild,
-                        CompetitionBetaGuildGuild,
+                        SystemCarryingCapacity,
                         EstBiomassSpecies,
-                        SimulatedBiomassGuild);
+                        SimulatedBiomassGuild,
+                        CompetitionAlpha,
+                        CompetitionAlphaCovariate,
+                        CompetitionBetaSpecies,
+                        CompetitionBetaSpeciesCovariate,
+                        CompetitionBetaGuild,
+                        CompetitionBetaGuildSpeciesCovariate,
+                        CompetitionBetaGuildGuild,
+                        CompetitionBetaGuildGuildCovariate);
             PredationTerm = SimPredationForm.evaluate(
                         timeMinus1, species,
-                        PredationRho,PredationHandling,PredationExponent,
-                        EstBiomassSpecies,EstBiomassVal);
+                        EstBiomassSpecies,EstBiomassVal,
+                        PredationRho,PredationRhoCovariate,
+                        PredationHandling,PredationHandlingCovariate,
+                        PredationExponent,PredationExponentCovariate);
             val = EstBiomassVal + GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
             addError(errorPct,val);
             EstBiomassSpecies(time,species) = (val < 0) ? 0 : val;
         }
     }
 
-    // Multiply Biomass by SurveyQ in case it's Relative Biomass. SurveyQ will be all 1's
-    // if it's Absolute Biomass.
-    double surveyQ;
-    for (int species=0; species<(int)EstBiomassSpecies.size2(); ++species) {
-        surveyQ = SurveyQ[species];
-        for (int time=0; time<(int)EstBiomassSpecies.size1(); ++time) {
-            EstBiomassSpecies(time,species) *= surveyQ;
-        }
-    }
+//    // Multiply Biomass by SurveyQ in case it's Relative Biomass. SurveyQ will be all 1's
+//    // if it's Absolute Biomass.
+//    for (int species=0; species<(int)EstBiomassSpecies.size2(); ++species) {
+//        surveyQ = SurveyQ[species];
+//        for (int time=0; time<(int)EstBiomassSpecies.size1(); ++time) {
+//            EstBiomassSpecies(time,species) *= surveyQ*(1.0+SurveyQCovariateCoeff*SurveyQCovariate(time,species));
+//        }
+//    }
 
     // Write out Biomass data to .csv file
     // Assure that file has a .csv extension

@@ -157,6 +157,25 @@
            </property>
           </spacer>
          </item>
+         <item>
+          <widget class="QPushButton" name="Estimation_Tab6_ClearPB">
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Sets all assignments to null</string>
+           </property>
+           <property name="statusTip">
+            <string>Sets all assignments to null</string>
+           </property>
+           <property name="text">
+            <string>Clr</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>

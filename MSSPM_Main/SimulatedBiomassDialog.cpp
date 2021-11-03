@@ -8,7 +8,8 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
                                                std::string projectName,
                                                std::string modelName,
                                                nmfDatabase* database,
-                                               nmfLogger* logger) :
+                                               nmfLogger* logger,
+                                               nmfStructsQt::ModelDataStruct& dataStruct) :
     QDialog(parent)
 {
     bool isBiomassAbsolute;
@@ -25,6 +26,7 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
     m_ModelName   = modelName;
     m_Database    = database;
     m_Logger      = logger;
+    m_DataStruct  = dataStruct;
 
     // Get some model data
     if (! m_Database->getModelFormData(
@@ -104,7 +106,7 @@ void
 SimulatedBiomassDialog::callback_ContinuePB()
 {
     QString msg;
-    nmfSimulatedData SimulatedData(m_Database,m_Logger,m_ProjectName,m_ModelName);
+    nmfSimulatedData SimulatedData(m_Database,m_Logger,m_ProjectName,m_ModelName,m_DataStruct);
     QString filenameWithPath;
     QString filename = getFilename().toLower();
     int errorPct = getErrorPct();

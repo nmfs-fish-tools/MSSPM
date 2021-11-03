@@ -140,6 +140,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#af379819acfabded6d10e0ae013468c49">callback_NextPB</a> ()</td></tr>
 <tr class="memdesc:af379819acfabded6d10e0ae013468c49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Next Page button. <br /></td></tr>
 <tr class="separator:af379819acfabded6d10e0ae013468c49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaaebd40dcfdbb102d30ba2931755cade"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#aaaebd40dcfdbb102d30ba2931755cade">callback_ObservedBiomassType</a> (QString obsBiomassType)</td></tr>
+<tr class="memdesc:aaaebd40dcfdbb102d30ba2931755cade"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes the observed biomass type from Setup Tab4. It toggles visibility between the Absolute and Relative observed biomass tables.  <a href="classnmf_estimation___tab5.html#aaaebd40dcfdbb102d30ba2931755cade">More...</a><br /></td></tr>
+<tr class="separator:aaaebd40dcfdbb102d30ba2931755cade"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2dd05d2d965eeedc2faf2f476f183ba"><td class="memItemLeft" align="right" valign="top"><a id="ad2dd05d2d965eeedc2faf2f476f183ba"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#ad2dd05d2d965eeedc2faf2f476f183ba">callback_PrevPB</a> ()</td></tr>
 <tr class="memdesc:ad2dd05d2d965eeedc2faf2f476f183ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Previous Page button. <br /></td></tr>
@@ -158,9 +161,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a52dbfe9607abe9704a51c4f08ec31aee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a52dbfe9607abe9704a51c4f08ec31aee">callback_UpdateInitialObservedBiomass</a> (QString obsBiomassType)</td></tr>
 <tr class="memdesc:a52dbfe9607abe9704a51c4f08ec31aee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user saves a new model in Setup -&gt; Model Setup.  <a href="classnmf_estimation___tab5.html#a52dbfe9607abe9704a51c4f08ec31aee">More...</a><br /></td></tr>
 <tr class="separator:a52dbfe9607abe9704a51c4f08ec31aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaaebd40dcfdbb102d30ba2931755cade"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#aaaebd40dcfdbb102d30ba2931755cade">callback_ObservedBiomassType</a> (QString obsBiomassType)</td></tr>
-<tr class="memdesc:aaaebd40dcfdbb102d30ba2931755cade"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes the observed biomass type from Setup Tab4. It toggles visibility between the Absolute and Relative observed biomass tables.  <a href="classnmf_estimation___tab5.html#aaaebd40dcfdbb102d30ba2931755cade">More...</a><br /></td></tr>
-<tr class="separator:aaaebd40dcfdbb102d30ba2931755cade"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
@@ -180,18 +180,18 @@ Public Member Functions</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#acdcfaa4b4632eb18c1d322330e9b0adf">clearWidgets</a> ()</td></tr>
 <tr class="memdesc:acdcfaa4b4632eb18c1d322330e9b0adf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the GUI's widgets. <br /></td></tr>
 <tr class="separator:acdcfaa4b4632eb18c1d322330e9b0adf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a213523b4b4b6322e310e5f6012172eac"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a213523b4b4b6322e310e5f6012172eac">isTableValueOK</a> (QString value)</td></tr>
+<tr class="memdesc:a213523b4b4b6322e310e5f6012172eac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks that the passed value is not empty.  <a href="classnmf_estimation___tab5.html#a213523b4b4b6322e310e5f6012172eac">More...</a><br /></td></tr>
+<tr class="separator:a213523b4b4b6322e310e5f6012172eac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a520a89098cd0cbf3d5b2c65e2ad6f85c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a520a89098cd0cbf3d5b2c65e2ad6f85c">loadWidgets</a> ()</td></tr>
 <tr class="memdesc:a520a89098cd0cbf3d5b2c65e2ad6f85c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads all widgets for this GUI from database tables.  <a href="classnmf_estimation___tab5.html#a520a89098cd0cbf3d5b2c65e2ad6f85c">More...</a><br /></td></tr>
 <tr class="separator:a520a89098cd0cbf3d5b2c65e2ad6f85c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a213523b4b4b6322e310e5f6012172eac"><td class="memItemLeft" align="right" valign="top"><a id="a213523b4b4b6322e310e5f6012172eac"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isTableValueOK</b> (QString value)</td></tr>
-<tr class="separator:a213523b4b4b6322e310e5f6012172eac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a438db6cf5730065212b75ae991f69eb7"><td class="memItemLeft" align="right" valign="top"><a id="a438db6cf5730065212b75ae991f69eb7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setObsBiomassType</b> (QString obsBiomassType)</td></tr>
-<tr class="separator:a438db6cf5730065212b75ae991f69eb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bb6aa4ecaa4d338fa4eef1bd4238c1a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a3bb6aa4ecaa4d338fa4eef1bd4238c1a">setIsDark</a> (QString style)</td></tr>
 <tr class="memdesc:a3bb6aa4ecaa4d338fa4eef1bd4238c1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the data member m_IsDark accordingly and refreshes the GUI.  <a href="classnmf_estimation___tab5.html#a3bb6aa4ecaa4d338fa4eef1bd4238c1a">More...</a><br /></td></tr>
 <tr class="separator:a3bb6aa4ecaa4d338fa4eef1bd4238c1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a438db6cf5730065212b75ae991f69eb7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a438db6cf5730065212b75ae991f69eb7">setObsBiomassType</a> (QString obsBiomassType)</td></tr>
+<tr class="memdesc:a438db6cf5730065212b75ae991f69eb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the table label for the observed biomass type.  <a href="classnmf_estimation___tab5.html#a438db6cf5730065212b75ae991f69eb7">More...</a><br /></td></tr>
+<tr class="separator:a438db6cf5730065212b75ae991f69eb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Observation Data. </p>
@@ -371,6 +371,33 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setObsBiomassType</b>
 
 </div>
 </div>
+<a id="a213523b4b4b6322e310e5f6012172eac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a213523b4b4b6322e310e5f6012172eac">&#9670;&nbsp;</a></span>isTableValueOK()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool nmfEstimation_Tab5::isTableValueOK </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Checks that the passed value is not empty. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>: QString value to test for emptiness </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if value is not empty, false otherwise </dd></dl>
+
+</div>
+</div>
 <a id="a520a89098cd0cbf3d5b2c65e2ad6f85c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a520a89098cd0cbf3d5b2c65e2ad6f85c">&#9670;&nbsp;</a></span>loadWidgets()</h2>
 
@@ -445,6 +472,32 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setObsBiomassType</b>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">style</td><td>: the new light/dark preference setting </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a438db6cf5730065212b75ae991f69eb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a438db6cf5730065212b75ae991f69eb7">&#9670;&nbsp;</a></span>setObsBiomassType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfEstimation_Tab5::setObsBiomassType </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>obsBiomassType</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the table label for the observed biomass type. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">obsBiomassType</td><td>: the observed biomass type of the data in the qtableview </td></tr>
   </table>
   </dd>
 </dl>

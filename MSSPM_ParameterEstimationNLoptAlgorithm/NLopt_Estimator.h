@@ -222,9 +222,9 @@ public:
      * @param CompetitionBetaSpecies : estimated food competition beta parameters per Species
      * @param CompetitionBetaGuilds : estimated food competition beta parameters per Species-Guild
      * @param CompetitionBetaGuildsGuilds : estimated food competition beta parameters per Guild-Guild
-     * @param Predation : estimated predation rho parameters
-     * @param Handling : estimated predation handling coefficient parameters
-     * @param Exponent : estimated predation exponent parameters
+     * @param PredationRho : estimated predation rho parameters
+     * @param PredationHandling : estimated predation handling coefficient parameters
+     * @param PredationExponent : estimated predation exponent parameters
      * @param SurveyQ : estimated SurveyQ parameters
      */
     static void extractParameters(
@@ -238,9 +238,9 @@ public:
             boost::numeric::ublas::matrix<double>& CompetitionBetaSpecies,
             boost::numeric::ublas::matrix<double>& CompetitionBetaGuilds,
             boost::numeric::ublas::matrix<double>& CompetitionBetaGuildsGuilds,
-            boost::numeric::ublas::matrix<double>& Predation,
-            boost::numeric::ublas::matrix<double>& Handling,
-            std::vector<double>&                   Exponent,
+            boost::numeric::ublas::matrix<double>& PredationRho,
+            boost::numeric::ublas::matrix<double>& PredationHandling,
+            std::vector<double>&                   PredationExponent,
             std::vector<double>&                   SurveyQ);
     /**
      * @brief Get the estimated carrying capacity values

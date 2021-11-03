@@ -138,11 +138,11 @@ $(document).ready(function(){initNavTree('_multi_scenario_save_dlg_8h_source.htm
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;            boost::numeric::ublas::matrix&lt;double&gt;&amp; ForecastBiomass);</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> loadScenarioMap();</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">void</span> printMap(QString msg);</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> renameScenarioName(QString oldScenario,</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                            QString newScenario);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">void</span> renameForecastLabel(QString scenario,</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                             QString oldForecast,</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                             QString newForecast);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> renameForecastLabel(QString scenario,</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                             QString oldForecast,</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                             QString newForecast);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">void</span> renameScenarioName(QString oldScenario,</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                            QString newScenario);</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <a class="code" href="class_multi_scenario_save_dlg.html#a275bc79c4f9ee0f1394d5681dc7da626">MultiScenarioSaveDlg</a>(QTabWidget*  parent,</div>
@@ -155,24 +155,24 @@ $(document).ready(function(){initNavTree('_multi_scenario_save_dlg_8h_source.htm
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                         std::string  forecastName);</div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_multi_scenario_save_dlg.html">MultiScenarioSaveDlg</a>() {}</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    std::string <a class="code" href="class_multi_scenario_save_dlg.html#a26e89041dd1634ff2c0959c93e70e5bd">getScenarioName</a>();</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    std::string <a class="code" href="class_multi_scenario_save_dlg.html#a10106292fd96ebd095dd68a61c34eb87">getForecastLabel</a>();</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_multi_scenario_save_dlg.html#a5c6a435262ad28524a1220398b988d39">getOrderedForecastLabels</a>(std::map&lt;QString,</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;                                  QStringList&gt;&amp; orderedForecastLabelsMap);</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    std::string <a class="code" href="class_multi_scenario_save_dlg.html#a10106292fd96ebd095dd68a61c34eb87">getForecastLabel</a>();</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_multi_scenario_save_dlg.html#a5c6a435262ad28524a1220398b988d39">getOrderedForecastLabels</a>(std::map&lt;QString,</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;                                  QStringList&gt;&amp; orderedForecastLabelsMap);</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    std::string <a class="code" href="class_multi_scenario_save_dlg.html#a26e89041dd1634ff2c0959c93e70e5bd">getScenarioName</a>();</div>
 <div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_multi_scenario_save_dlg.html#a86195c5e9d9ecc5a221bee74fe3659fb">loadWidgets</a>();</div>
 <div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160; </div>
 <div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;signals:</div>
 <div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_multi_scenario_save_dlg.html#afb99904839b9db7aeaf7d05083415a15">RefreshOutput</a>();</div>
 <div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160; </div>
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;<span class="keyword">private</span> Q_SLOTS:</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <span class="keywordtype">void</span> callback_ScenarioNameCMB(QString scenario);</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordtype">void</span> callback_NewScenarioPB();</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordtype">void</span> callback_DelScenarioPB();</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">void</span> callback_RenScenarioPB();</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="keywordtype">void</span> callback_SetForecastPB();</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="keywordtype">void</span> callback_DelForecastPB();</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">void</span> callback_RenForecastPB();</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordtype">void</span> callback_OkPB();</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keywordtype">void</span> callback_DelForecastPB();</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keywordtype">void</span> callback_DelScenarioPB();</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="keywordtype">void</span> callback_NewScenarioPB();</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="keywordtype">void</span> callback_OkPB();</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="keywordtype">void</span> callback_RenForecastPB();</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="keywordtype">void</span> callback_RenScenarioPB();</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">void</span> callback_ScenarioNameCMB(QString scenario);</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordtype">void</span> callback_SetForecastPB();</div>
 <div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="keywordtype">void</span> callback_SetOrderPB();</div>
 <div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">void</span> callback_ShowSortPB();</div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;};</div>

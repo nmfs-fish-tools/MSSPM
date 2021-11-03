@@ -26,6 +26,5 @@ var class_n_lopt___estimator =
     [ "RunCompleted", "class_n_lopt___estimator.html#a54b477f2635a5a97cdc78801118948b5", null ],
     [ "stoppedByUser", "class_n_lopt___estimator.html#ab016e1a725040a5a03f48696b56c1641", null ],
     [ "stopRun", "class_n_lopt___estimator.html#a58dcc53ef3527f075875dba53b8edc7b", null ],
-    [ "SubRunCompleted", "class_n_lopt___estimator.html#afb81082b3522404896f24484498ef0d0", null ],
-    [ "UserHaltedRun", "class_n_lopt___estimator.html#a31fddb7ed79cd8be963aa9f1becd6e90", null ]
+    [ "SubRunCompleted", "class_n_lopt___estimator.html#afb81082b3522404896f24484498ef0d0", null ]
 ];

@@ -118,26 +118,28 @@ $(document).ready(function(){initNavTree('_simulated_biomass_dialog_8h_source.ht
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    std::string  m_ModelName;</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    nmfDatabase* m_Database;</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    nmfLogger*   m_Logger;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    nmfStructsQt::ModelDataStruct m_DataStruct;</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <a class="code" href="class_simulated_biomass_dialog.html#a38b00b391795c175bc4a3e6e4ac193af">SimulatedBiomassDialog</a>(QWidget* parent,</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;                           std::string projectDir,</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;                           std::string projectName,</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                           std::string modelName,</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;                           nmfDatabase* database,</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;                           nmfLogger* logger);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_simulated_biomass_dialog.html">SimulatedBiomassDialog</a>() {}</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    QString getFilename();</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">int</span> getErrorPct();</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="keyword">private</span> Q_SLOTS:</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">void</span> callback_ContinuePB();</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;};</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <a class="code" href="class_simulated_biomass_dialog.html#a6a9397594a9c580096495742836cd769">SimulatedBiomassDialog</a>(QWidget* parent,</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                           std::string projectDir,</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;                           std::string projectName,</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;                           std::string modelName,</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                           nmfDatabase* database,</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                           nmfLogger* logger,</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                           nmfStructsQt::ModelDataStruct&amp; dataStruct);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_simulated_biomass_dialog.html">SimulatedBiomassDialog</a>() {}</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    QString getFilename();</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">int</span> getErrorPct();</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160; </div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="keyword">private</span> Q_SLOTS:</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">void</span> callback_ContinuePB();</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;};</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="aclass_simulated_biomass_dialog_html_a38b00b391795c175bc4a3e6e4ac193af"><div class="ttname"><a href="class_simulated_biomass_dialog.html#a38b00b391795c175bc4a3e6e4ac193af">SimulatedBiomassDialog::SimulatedBiomassDialog</a></div><div class="ttdeci">SimulatedBiomassDialog(QWidget *parent, std::string projectDir, std::string projectName, std::string modelName, nmfDatabase *database, nmfLogger *logger)</div><div class="ttdoc">SimulatedBiomassDialog : class constructor.</div><div class="ttdef"><b>Definition:</b> SimulatedBiomassDialog.cpp:6</div></div>
+<div class="ttc" id="aclass_simulated_biomass_dialog_html_a6a9397594a9c580096495742836cd769"><div class="ttname"><a href="class_simulated_biomass_dialog.html#a6a9397594a9c580096495742836cd769">SimulatedBiomassDialog::SimulatedBiomassDialog</a></div><div class="ttdeci">SimulatedBiomassDialog(QWidget *parent, std::string projectDir, std::string projectName, std::string modelName, nmfDatabase *database, nmfLogger *logger, nmfStructsQt::ModelDataStruct &amp;dataStruct)</div><div class="ttdoc">SimulatedBiomassDialog : class constructor.</div><div class="ttdef"><b>Definition:</b> SimulatedBiomassDialog.cpp:6</div></div>
 <div class="ttc" id="aclass_simulated_biomass_dialog_html"><div class="ttname"><a href="class_simulated_biomass_dialog.html">SimulatedBiomassDialog</a></div><div class="ttdoc">SimulatedBiomass Dialog.</div><div class="ttdef"><b>Definition:</b> SimulatedBiomassDialog.h:45</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

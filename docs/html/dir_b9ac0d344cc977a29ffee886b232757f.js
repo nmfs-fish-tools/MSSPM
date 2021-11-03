@@ -25,5 +25,6 @@ var dir_b9ac0d344cc977a29ffee886b232757f =
     [ "nmfEstimationTab07.h", "nmf_estimation_tab07_8h.html", [
       [ "nmfEstimation_Tab7", "classnmf_estimation___tab7.html", "classnmf_estimation___tab7" ]
     ] ],
+    [ "nmfEstimationTab08.h", "nmf_estimation_tab08_8h_source.html", null ],
     [ "precompiled_header.h", "_m_s_s_p_m___gui_estimation_2precompiled__header_8h.html", null ]
 ];

@@ -39,6 +39,7 @@ class nmfEstimation_Tab6: public QObject
 private:
     nmfLogger*   m_Logger;
     nmfDatabase* m_DatabasePtr;
+    std::string  m_ProjectDir;
     std::string  m_ProjectName;
     std::string  m_ModelName;
     QStandardItemModel* m_smodelC;
@@ -48,14 +49,41 @@ private:
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab6_Widget;
     QPushButton* Estimation_Tab6_AddPB;
+    QPushButton* Estimation_Tab6_ClearPB;
+    QPushButton* Estimation_Tab6_DeletePB;
+    QPushButton* Estimation_Tab6_RenamePB;
+    QPushButton* Estimation_Tab6_ImportPB;
+    QPushButton* Estimation_Tab6_ExportPB;
     QTableView*  Estimation_Tab6_CovariateTV;
     QTableView*  Estimation_Tab6_SpeciesParameterTV;
+    QPushButton* Estimation_Tab6_SavePB;
+    QPushButton* Estimation_Tab6_LoadPB;
+    QPushButton* Estimation_Tab6_NextPB;
+    QPushButton* Estimation_Tab6_PrevPB;
 
     void addCovariateColumn(QString covariateName);
+    void importTableData(
+            const bool& firstLineReadOnly,
+            const QString& type,
+            const std::string& tableName,
+            QTableView* tableView);
     void initializeCovariateTable();
     void initializeSpeciesParameterTable();
+    void loadCSVFile(
+            const bool& firstLineReadOnly,
+            const std::string& tableName,
+            QTableView* tableView);
     void readSettings();
-
+    bool saveCovariateTable();
+    bool saveCovariateAssignmentTable();
+    void saveCSVFile(
+            const QString& type,
+            QStandardItemModel* smodel,
+            const std::string& tableName);
+    void saveTableValuesToCSVFile(
+            const QString& type,
+            const std::string& tableName,
+            QStandardItemModel* smodel);
 public:
     /**
      * @brief nmfEstimation_Tab6 : class constructor for the Environmental Covariates GUI page
@@ -74,14 +102,28 @@ public:
      * @brief Clears the GUI's widgets
      */
 //    void clearWidgets();
+    void loadCovariateTable();
+    void loadCovariateAssignmentTable();
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */
-//    bool loadWidgets();
+    void loadWidgets();
+    void calculateCovariateScaleFactor(const int& col,
+                                       double& min,
+                                       double& max);
 
 public Q_SLOTS:
     void callback_AddPB();
+    void callback_ClearPB();
+    void callback_DeletePB();
+    void callback_ExportPB();
+    void callback_ImportPB();
+    void callback_LoadPB();
+    void callback_NextPB();
+    void callback_PrevPB();
+    void callback_RenamePB();
+    void callback_SavePB();
     void callback_SetEstimateRunCheckboxes(
             std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes);
 

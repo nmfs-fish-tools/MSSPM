@@ -15,6 +15,7 @@
 #include "nmfLogger.h"
 #include "nmfPredationForm.h"
 #include "nmfUtils.h"
+#include "nmfStructsQt.h"
 
 /**
  * @brief This class is responsible for the creation of the simulated biomass
@@ -27,6 +28,7 @@ class nmfSimulatedData
     nmfDatabase* m_Database;
     nmfLogger*   m_Logger;
     int          m_FixedSeed;
+    nmfStructsQt::ModelDataStruct m_DataStruct;
 
     /**
      * @brief Adds a percent error to the passed value
@@ -111,12 +113,14 @@ public:
      * @param logger : point to logger used to log any error messages
      * @param projectName : name of current project
      * @param modelName : name of current model
+     * @param dataStruct : model data (contains the covariate data)
      */
     nmfSimulatedData(
             nmfDatabase* database,
             nmfLogger*   logger,
             std::string& projectName,
-            std::string& modelName);
+            std::string& modelName,
+            nmfStructsQt::ModelDataStruct& dataStruct);
     ~nmfSimulatedData() {}
 
     /**
