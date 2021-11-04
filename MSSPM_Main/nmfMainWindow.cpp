@@ -1902,7 +1902,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.41"
+    QString version = "MSSPM v0.9.42"
                       " (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
@@ -11947,7 +11947,7 @@ nmfMainWindow::loadCovariateData(std::map<std::string,std::vector<double> >& cov
     std::string queryStr;
     std::string covariateName;
     std::vector<double> covariateTimeSeries;
-std::cout << "Warning: Using original (i.e., unscaled) covariate time series data" << std::endl;
+//std::cout << "Warning: Using original (i.e., unscaled) covariate time series data" << std::endl;
 
     getInitialYear(StartYear,RunLength);
     ++RunLength;

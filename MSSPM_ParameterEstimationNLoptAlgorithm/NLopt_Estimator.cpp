@@ -366,7 +366,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     }
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-qDebug() << "sq: " << surveyQ[i];
         surveyQTerm = surveyQ[i]*(1.0+surveyQCovariateCoeff*surveyQCovariate(0,i));
         EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)/surveyQTerm;
 //      EstBiomassSpecies(0,i) = ObsBiomassBySpeciesOrGuilds(0,i);
@@ -378,7 +377,6 @@ qDebug() << "sq: " << surveyQ[i];
         guildK = 0;
         for (unsigned j=0; j<GuildSpecies[i].size(); ++j) {
             guildK += carryingCapacity[GuildSpecies[i][j]];
-
             systemCarryingCapacity += guildK;
         }
         guildCarryingCapacity.push_back(guildK);
@@ -406,8 +404,8 @@ qDebug() << "sq: " << surveyQ[i];
 
             if (isCheckedInitBiomass) { // if estimating the initial biomass
                 if (timeMinus1 == 0) {
-                  EstBiomassVal = initBiomass[species];
-//                EstBiomassVal = EstBiomassSpecies(0,species);
+//                  EstBiomassVal = initBiomass[species];
+                EstBiomassVal = EstBiomassSpecies(0,species);
                 } else {
                     EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
                 }
@@ -474,6 +472,7 @@ qDebug() << "sq: " << surveyQ[i];
                     EstBiomassGuilds(time,i) += EstBiomassSpecies(time,GuildSpecies[i][j]);
                 }
             }
+
         } // end i
     } // end time
 

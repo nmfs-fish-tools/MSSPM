@@ -68,6 +68,12 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Add a new Environmental Covariate column</string>
+             </property>
+             <property name="statusTip">
+              <string>Add a new Environmental Covariate column</string>
+             </property>
              <property name="text">
               <string>Add</string>
              </property>
@@ -86,6 +92,12 @@
                <width>40</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Rename the currently selected Covariate column</string>
+             </property>
+             <property name="statusTip">
+              <string>Rename the currently selected Covariate column</string>
              </property>
              <property name="text">
               <string>Ren</string>
@@ -106,6 +118,12 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Delete the currently selected Covariate column</string>
+             </property>
+             <property name="statusTip">
+              <string>Delete the currently selected Covariate column</string>
+             </property>
              <property name="text">
               <string>Del</string>
              </property>
@@ -116,7 +134,11 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QTableView" name="Estimation_Tab6_CovariateTV"/>
+            <widget class="QTableView" name="Estimation_Tab6_CovariateTV">
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Environmental Covariate Table&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Each Covariate column is a time series containing the covariate data. The covariate term, cov(t,s), is used as follows wherever an estimated parameter appears in the model:&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)*(1.0+ccoeff(s)*cov(t,s))&lt;/p&gt;&lt;p&gt;where:&lt;/p&gt;&lt;p&gt;p(s) = an estimated parameter for species s&lt;br/&gt;ccoeff(s) = estimated covariate coefficient for species s (currently set to 1.0)&lt;br/&gt;cov(t,s) = environmental covariate time series for species s&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -216,10 +238,10 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>Go to next tab page</string>
+        <string>Go to the previous tab page</string>
        </property>
        <property name="statusTip">
-        <string>Go to next tab page</string>
+        <string>Go to the previous tab page</string>
        </property>
        <property name="text">
         <string>&lt;-</string>
