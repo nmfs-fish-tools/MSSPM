@@ -21,7 +21,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Covariate Data</string>
+       <string>1. Covariate Data</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
@@ -136,7 +136,7 @@
            <item>
             <widget class="QTableView" name="Estimation_Tab6_CovariateTV">
              <property name="whatsThis">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Environmental Covariate Table&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Each Covariate column is a time series containing the covariate data. The covariate term, cov(t,s), is used as follows wherever an estimated parameter appears in the model:&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)*(1.0+ccoeff(s)*cov(t,s))&lt;/p&gt;&lt;p&gt;where:&lt;/p&gt;&lt;p&gt;p(s) = an estimated parameter for species s&lt;br/&gt;ccoeff(s) = estimated covariate coefficient for species s (currently set to 1.0)&lt;br/&gt;cov(t,s) = environmental covariate time series for species s&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Environmental Covariate Table&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Each Covariate column is a time series containing the covariate data. The covariate term, cov(t,s), is used as follows wherever an estimated parameter appears in the model:&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)*(1.0+ccoeff(s)*cov(t,s))&lt;/p&gt;&lt;p&gt;where:&lt;/p&gt;&lt;p&gt;p(s) = an estimated parameter for species s&lt;br/&gt;ccoeff(s) = estimated covariate coefficient for species s&lt;br/&gt;cov(t,s) = environmental covariate time series for species s&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -148,7 +148,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Species/Parameter Assignment</string>
+       <string>2. Species/Parameter Assignment</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
@@ -210,6 +210,50 @@
           </layout>
          </item>
         </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>3. Initial Values and Ranges</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Set initial Covariate Coefficient values and ranges for Covariate Coefficient estimation:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTableView" name="Estimation_Tab6_InitialValuesTV">
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Initial Values and Ranges&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This table is used to enter the Covariate Coefficient initial values and respective ranges used to estimate the Covariate Coefficient. Default values are set to 1. The user may change these as desired but must ensure that the initial value is greater than or equal to the minimum range value and that the initial values is less than or equal to the maximum range value.&lt;/p&gt;&lt;p&gt;As described in the WhatsThis help for tab #1, Covariate Data, the covariate coefficient is used in the following way:&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)*(1.0+ccoeff(s)*cov(t,s))&lt;/p&gt;&lt;p&gt;where:&lt;/p&gt;&lt;p&gt;p(s) = an estimated parameter for species s&lt;br/&gt;ccoeff(s) = estimated covariate coefficient for species s &lt;br/&gt;cov(t,s) = environmental covariate time series for species s&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

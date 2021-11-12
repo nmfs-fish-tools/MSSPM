@@ -44,6 +44,7 @@ private:
     std::string  m_ModelName;
     QStandardItemModel* m_smodelC;
     QStandardItemModel* m_smodelSP;
+    QStandardItemModel* m_smodelIR;
     std::vector<std::string> m_ParamNames;
 
     QTabWidget*  Estimation_Tabs;
@@ -56,6 +57,7 @@ private:
     QPushButton* Estimation_Tab6_ExportPB;
     QTableView*  Estimation_Tab6_CovariateTV;
     QTableView*  Estimation_Tab6_SpeciesParameterTV;
+    QTableView*  Estimation_Tab6_InitialValuesTV;
     QPushButton* Estimation_Tab6_SavePB;
     QPushButton* Estimation_Tab6_LoadPB;
     QPushButton* Estimation_Tab6_NextPB;
@@ -69,13 +71,16 @@ private:
             QTableView* tableView);
     void initializeCovariateTable();
     void initializeSpeciesParameterTable();
+    void initializeInitialValuesAndRangesTable();
     void loadCSVFile(
             const bool& firstLineReadOnly,
             const std::string& tableName,
             QTableView* tableView);
+    bool okSaveInitialValuesAndRangesChecks();
     void readSettings();
     bool saveCovariateTable();
     bool saveCovariateAssignmentTable();
+    bool saveInitialValuesAndRangesTable();
     void saveCSVFile(
             const QString& type,
             QStandardItemModel* smodel,
@@ -104,6 +109,8 @@ public:
 //    void clearWidgets();
     void loadCovariateTable();
     void loadCovariateAssignmentTable();
+    void loadCovariateInitialValuesAndRangesTable();
+    void loadInitialValuesAndRangesForEditableCells();
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully

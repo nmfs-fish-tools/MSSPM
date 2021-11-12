@@ -47,6 +47,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_PrevPB             = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_PrevPB");
     Estimation_Tab6_CovariateTV        = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab6_CovariateTV");
     Estimation_Tab6_SpeciesParameterTV = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab6_SpeciesParameterTV");
+    Estimation_Tab6_InitialValuesTV    = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab6_InitialValuesTV");
 
     Estimation_Tab6_PrevPB->setText("\u25C1--");
     Estimation_Tab6_NextPB->setText("--\u25B7");
@@ -75,6 +76,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
 
     initializeCovariateTable();
     initializeSpeciesParameterTable();
+    initializeInitialValuesAndRangesTable();
 
 } // end constructor
 
@@ -100,6 +102,7 @@ nmfEstimation_Tab6::initializeSpeciesParameterTable()
     QStringList verticalHeader;
     QStringList horizontalHeader;
     int NumSpecies;
+    std::string paramName;
 
     QStandardItemModel* smodelC = qobject_cast<QStandardItemModel*>(Estimation_Tab6_CovariateTV->model());
 
@@ -119,6 +122,7 @@ nmfEstimation_Tab6::initializeSpeciesParameterTable()
     for (int i=0; i<numParameters; ++i) {
         horizontalHeader << QString::fromStdString(m_ParamNames[i]);
     }
+
     m_smodelSP = new QStandardItemModel(NumSpecies,numParameters);
     m_smodelSP->setVerticalHeaderLabels(verticalHeader);
     m_smodelSP->setHorizontalHeaderLabels(horizontalHeader);
@@ -148,7 +152,68 @@ nmfEstimation_Tab6::initializeSpeciesParameterTable()
     Estimation_Tab6_SpeciesParameterTV->resizeColumnsToContents();
 }
 
+void
+nmfEstimation_Tab6::initializeInitialValuesAndRangesTable()
+{
+    std::vector<std::string> SpeciesNames;
+    int RunLength;
+    int StartYear;
+    QStringList verticalHeader;
+    QStringList horizontalHeader;
+    int NumSpecies;
+    QStandardItem* item;
+    QComboBox* cbox;
+    QModelIndex index;
 
+    loadCovariateAssignmentTable();
+
+    m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear);
+
+    if (! m_DatabasePtr->getSpecies(m_Logger,SpeciesNames)) {
+        return;
+    }
+
+    // Set up header data
+    NumSpecies = SpeciesNames.size();
+    QList<QStandardItem* > items;
+    for (int i=0; i<NumSpecies; ++i) {
+        verticalHeader << QString::fromStdString(SpeciesNames[i]);
+    }
+    int numParameters = (int)m_ParamNames.size();
+    int numColumns = numParameters * 3; // Because each column also has a min and max column
+    for (int i=0; i<numParameters; ++i) {
+        horizontalHeader << QString::fromStdString(m_ParamNames[i]);
+        horizontalHeader << QString::fromStdString(m_ParamNames[i]+"Min");
+        horizontalHeader << QString::fromStdString(m_ParamNames[i]+"Max");
+    }
+    m_smodelIR = new QStandardItemModel(NumSpecies,numColumns);
+
+    // Set up item comboboxes
+    for (int row=0; row<m_smodelIR->rowCount(); ++row) {
+        for (int col=0; col<numColumns; ++col) {
+            item = new QStandardItem("");
+            item->setTextAlignment(Qt::AlignCenter);
+
+            // Make white background and enable if item selected in Assignment table
+            index = m_smodelSP->index(row,col/3);
+            cbox  = qobject_cast<QComboBox*>(Estimation_Tab6_SpeciesParameterTV->indexWidget(index));
+            if (cbox->currentText().isEmpty()) {
+                nmfUtilsQt::setItemEditable(nmfConstantsMSSPM::NotEditable,
+                                            nmfConstantsMSSPM::GrayedIfNotEditable,
+                                            item);
+                item->setText("");
+            } else {
+                item->setText("1");
+            }
+
+            m_smodelIR->setItem(row,col,item);
+        }
+    }
+    m_smodelIR->setVerticalHeaderLabels(verticalHeader);
+    m_smodelIR->setHorizontalHeaderLabels(horizontalHeader);
+    Estimation_Tab6_InitialValuesTV->setModel(m_smodelIR);
+    Estimation_Tab6_InitialValuesTV->resizeColumnsToContents();
+}
 
 void
 nmfEstimation_Tab6::readSettings()
@@ -203,48 +268,11 @@ void
 nmfEstimation_Tab6::loadWidgets()
 {
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::loadWidgets()");
-
     loadCovariateTable();
     loadCovariateAssignmentTable();
+    loadCovariateInitialValuesAndRangesTable();
 }
 
-void
-nmfEstimation_Tab6::loadCovariateAssignmentTable()
-{
-    int m=0;
-    int NumRecords;
-    int numRows = m_smodelSP->rowCount();
-    int numCols = m_smodelSP->columnCount();
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::string tableName = nmfConstantsMSSPM::TableCovariateAssignment;
-    QComboBox* cbox;
-    QModelIndex index;
-    QStandardItemModel* smodelSP = qobject_cast<QStandardItemModel*>(Estimation_Tab6_SpeciesParameterTV->model());
-
-    // Get data from database table
-    fields     = {"ProjectName","ModelName","SpeName","ParameterName","CovariateName"};
-    queryStr   = "SELECT ProjectName,ModelName,SpeName,ParameterName,CovariateName FROM " +
-                  tableName +
-                 " WHERE ProjectName = '" + m_ProjectName +
-                 "' AND ModelName = '"    + m_ModelName +
-                 "' ORDER BY SpeName,ParameterName ";
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["CovariateName"].size();
-
-    if (NumRecords == numRows*numCols) {
-        for (int row=0; row<numRows; ++row) {
-            for (int col=0; col<numCols; ++col) {
-                index = smodelSP->index(row,col);
-                cbox  = qobject_cast<QComboBox*>(Estimation_Tab6_SpeciesParameterTV->indexWidget(index));
-                cbox->setCurrentText(QString::fromStdString(dataMap["CovariateName"][m++]));
-                Estimation_Tab6_SpeciesParameterTV->setIndexWidget(index,cbox);
-            }
-        }
-        Estimation_Tab6_SpeciesParameterTV->resizeColumnsToContents();
-    }
-}
 
 void
 nmfEstimation_Tab6::loadCovariateTable()
@@ -300,8 +328,176 @@ nmfEstimation_Tab6::loadCovariateTable()
 
         Estimation_Tab6_CovariateTV->setModel(smodel);
         Estimation_Tab6_CovariateTV->resizeColumnsToContents();
+        Estimation_Tab6_CovariateTV->clearSelection();
     }
 }
+
+void
+nmfEstimation_Tab6::loadCovariateAssignmentTable()
+{
+    int m=0;
+    int NumRecords;
+    int numRows = m_smodelSP->rowCount();
+    int numCols = m_smodelSP->columnCount();
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string tableName = nmfConstantsMSSPM::TableCovariateAssignment;
+    QComboBox* cbox;
+    QModelIndex index;
+    QStandardItemModel* smodelSP = qobject_cast<QStandardItemModel*>(Estimation_Tab6_SpeciesParameterTV->model());
+
+    // Get data from database table
+    fields     = {"ProjectName","ModelName","SpeName","ParameterName","CovariateName"};
+    queryStr   = "SELECT ProjectName,ModelName,SpeName,ParameterName,CovariateName FROM " +
+                  tableName +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' ORDER BY SpeName,ParameterName ";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["CovariateName"].size();
+
+    if (NumRecords == numRows*numCols) {
+        for (int row=0; row<numRows; ++row) {
+            for (int col=0; col<numCols; ++col) {
+                index = smodelSP->index(row,col);
+                cbox  = qobject_cast<QComboBox*>(Estimation_Tab6_SpeciesParameterTV->indexWidget(index));
+                cbox->setCurrentText(QString::fromStdString(dataMap["CovariateName"][m++]));
+                Estimation_Tab6_SpeciesParameterTV->setIndexWidget(index,cbox);
+            }
+        }
+        Estimation_Tab6_SpeciesParameterTV->resizeColumnsToContents();
+    }
+}
+
+void
+nmfEstimation_Tab6::loadInitialValuesAndRangesForEditableCells()
+{
+    int m=0;
+    int NumRecords;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string tableName = nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges;
+    std::string coeffValue;
+    std::string newValue;
+    QStandardItem* item;
+    QStandardItemModel* smodelIR = qobject_cast<QStandardItemModel*>(Estimation_Tab6_InitialValuesTV->model());
+
+    // Get data from database table
+    fields     = {"ProjectName","ModelName","SpeName",
+                  "CoeffName","CoeffMinName","CoeffMaxName",
+                  "CoeffValue","CoeffMinValue","CoeffMaxValue"};
+    queryStr   = "SELECT ProjectName,ModelName,SpeName,CoeffName,CoeffMinName,CoeffMaxName,CoeffValue,CoeffMinValue,CoeffMaxValue FROM " +
+                  tableName +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' ORDER BY SpeName ";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["CoeffName"].size();
+    if (NumRecords == 0) {
+        return;
+    }
+
+    std::string SpeName;
+    std::string CoeffName;
+    std::string CoeffMinName;
+    std::string CoeffMaxName;
+    std::string CoeffValue;
+    std::string CoeffMinValue;
+    std::string CoeffMaxValue;
+    QString SpeNameIR;
+    for (int i=0; i<NumRecords; ++i) {
+        if (! dataMap["CoeffValue"][i].empty()) {
+            SpeName       = dataMap["SpeName"][i];
+            CoeffName     = dataMap["CoeffName"][i];
+            CoeffMinName  = dataMap["CoeffMinName"][i];
+            CoeffMaxName  = dataMap["CoeffMaxName"][i];
+            CoeffValue    = dataMap["CoeffValue"][i];
+            CoeffMinValue = dataMap["CoeffMinValue"][i];
+            CoeffMaxValue = dataMap["CoeffMaxValue"][i];
+            // Find corresponding cells in the smodelIR array for the preceding variables
+            for (int row=0; row<smodelIR->rowCount(); ++row) {
+                if (smodelIR->verticalHeaderItem(row)->text().toStdString() == SpeName) {
+                    for (int col=0; col<smodelIR->columnCount(); ++col) {
+                        item = smodelIR->item(row,col);
+                        if ((smodelIR->horizontalHeaderItem(col)->text().toStdString()        == CoeffName)    &&
+                             item->isEditable()) {
+                             item->setText(QString::fromStdString(CoeffValue));
+                        } else if ((smodelIR->horizontalHeaderItem(col)->text().toStdString() == CoeffMinName) &&
+                                   item->isEditable()) {
+                            item->setText(QString::fromStdString(CoeffMinValue));
+                        } else if ((smodelIR->horizontalHeaderItem(col)->text().toStdString() == CoeffMaxName) &&
+                                   item->isEditable()) {
+                            item->setText(QString::fromStdString(CoeffMaxValue));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void
+nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
+{
+    int m=0;
+    int numRows = m_smodelIR->rowCount();
+    int numCols = m_smodelIR->columnCount();
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string tableName = nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges;
+    std::string coeffValue;
+    std::string newValue;
+    QStandardItem* item;
+    QStandardItemModel* smodelIR = qobject_cast<QStandardItemModel*>(Estimation_Tab6_InitialValuesTV->model());
+
+    // Get data from database table
+    fields     = {"ProjectName","ModelName","SpeName",
+                  "CoeffName","CoeffMinName","CoeffMaxName",
+                  "CoeffValue","CoeffMinValue","CoeffMaxValue"};
+    queryStr   = "SELECT ProjectName,ModelName,SpeName,CoeffName,CoeffMinName,CoeffMaxName,CoeffValue,CoeffMinValue,CoeffMaxValue FROM " +
+                  tableName +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' ORDER BY SpeName ";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    if (dataMap["CoeffName"].size() == 0) {
+        return;
+    }
+
+    for (int row=0; row<numRows; ++row) {
+        for (int col=0; col<numCols-3; col+=3) {
+            coeffValue = dataMap["CoeffValue"][m];
+            if (! QString::fromStdString(coeffValue).trimmed().isEmpty()) {
+                item = new QStandardItem(QString::fromStdString(coeffValue));
+                item->setTextAlignment(Qt::AlignCenter);
+                smodelIR->setItem(row,col+0,item);
+                item = new QStandardItem(QString::fromStdString(dataMap["CoeffMinValue"][m]));
+                item->setTextAlignment(Qt::AlignCenter);
+                smodelIR->setItem(row,col+1,item);
+                item = new QStandardItem(QString::fromStdString(dataMap["CoeffMaxValue"][m]));
+                item->setTextAlignment(Qt::AlignCenter);
+                smodelIR->setItem(row,col+2,item);
+            } else { // if (! newValue.empty()) {
+                item = new QStandardItem("");
+                nmfUtilsQt::setItemEditable(nmfConstantsMSSPM::NotEditable,nmfConstantsMSSPM::GrayedIfNotEditable,item);
+                smodelIR->setItem(row,col+0,item);
+                item = new QStandardItem("");
+                nmfUtilsQt::setItemEditable(nmfConstantsMSSPM::NotEditable,nmfConstantsMSSPM::GrayedIfNotEditable,item);
+                smodelIR->setItem(row,col+1,item);
+                item = new QStandardItem("");
+                nmfUtilsQt::setItemEditable(nmfConstantsMSSPM::NotEditable,nmfConstantsMSSPM::GrayedIfNotEditable,item);
+                smodelIR->setItem(row,col+2,item);
+            }
+            ++m;
+        }
+    }
+    Estimation_Tab6_InitialValuesTV->setModel(smodelIR);
+    Estimation_Tab6_InitialValuesTV->resizeColumnsToContents();
+}
+
 
 void
 nmfEstimation_Tab6::importTableData(const bool& firstLineReadOnly,
@@ -353,10 +549,14 @@ nmfEstimation_Tab6::loadCSVFile(const bool& firstLineReadOnly,
                     firstLineReadOnly,
                     nmfConstantsMSSPM::FixedNotation,
                     nonZeroCell,errorMsg);
-    } else {
+    } else if (Estimation_Tab6_SpeciesParameterTV->isVisible()) {
         loadOK = nmfUtilsQt::loadCSVFileComboBoxes(
                     Estimation_Tabs, tableView, inputDataPath, tableNameStr,
                     errorMsg);
+    } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
+        loadOK = nmfUtilsQt::loadCVSFileCovariate(
+                    Estimation_Tabs, tableView, inputDataPath,
+                    tableNameStr, errorMsg);
     }
 
     if (! loadOK) {
@@ -414,9 +614,11 @@ nmfEstimation_Tab6::saveCSVFile(
 
     if (Estimation_Tab6_CovariateTV->isVisible()) {
         okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameWithPath);
-    } else {
+    } else if (Estimation_Tab6_SpeciesParameterTV->isVisible()) {
         okSave = nmfUtilsQt::saveCSVFileComboBoxes(Estimation_Tabs,Estimation_Tab6_SpeciesParameterTV,
                                                    smodel,inputDataPath,tableNameWithPath);
+    } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
+        okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameWithPath);
     }
 
     if (okSave) {
@@ -542,8 +744,8 @@ nmfEstimation_Tab6::saveCovariateAssignmentTable()
 
     // Delete the current entry here
     deleteCmd = "DELETE FROM " + tableName +
-            " WHERE ProjectName = '" + m_ProjectName +
-            "' AND ModelName = '" + m_ModelName + "'";
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '" + m_ModelName + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(deleteCmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         msg = "\nError in nmfEstimation_Tab6:saveCovariateAssignmentTable: Couldn't delete all records from " +
@@ -582,7 +784,117 @@ nmfEstimation_Tab6::saveCovariateAssignmentTable()
         return false;
     }
 
-//    loadCovariateAssignmentTable();
+    return true;
+}
+
+bool
+nmfEstimation_Tab6::okSaveInitialValuesAndRangesChecks()
+{
+    bool ok;
+    int numRows = m_smodelIR->rowCount();
+    int numCols = m_smodelIR->columnCount();
+    double value,valueMin,valueMax;
+    QStandardItem* item;
+
+    for (int row=0; row<numRows; ++row) {
+        for (int col=0; col<numCols; ++col) {
+            item = m_smodelIR->item(row,col);
+            if (item->isEditable()) {
+                // 1. Check that no editable cells are blank
+                if (item->text().isEmpty()) {
+                    return false;
+                }
+                // 2. Check that all entered values are numeric
+                value = item->text().toDouble(&ok);
+                if (! ok) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    // If we made it here we know that there are numbers in every editable cell
+    for (int row=0; row<numRows; ++row) {
+        for (int col=0; col<numCols; col+=3) {
+            item = m_smodelIR->item(row,col);
+            if (item->isEditable()) {
+                value    = item->text().toDouble();
+                valueMin = m_smodelIR->item(row,col+1)->text().toDouble();
+                valueMax = m_smodelIR->item(row,col+2)->text().toDouble();
+                // 3. Check that all min <= value and all max >= value
+                if ((value < valueMin) || (value > valueMax)) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+bool
+nmfEstimation_Tab6::saveInitialValuesAndRangesTable()
+{
+    int numRows = m_smodelIR->rowCount();
+    int numCols = m_smodelIR->columnCount();
+    std::string saveCmd;
+    std::string deleteCmd;
+    std::string errorMsg;
+    std::string tableName = nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges;
+    QString msg;
+    QString value,valueMin,valueMax;
+
+    if (! okSaveInitialValuesAndRangesChecks()) {
+        msg  = "\nFound missing, malformed, or out of range data. Please check that all editable cells ";
+        msg += "are populated and that range values contain their respective initial values.\n";
+        QMessageBox::critical(Estimation_Tabs, "Error", msg, QMessageBox::Ok);
+        return false;
+    }
+
+    // Delete the current entry here
+    deleteCmd = "DELETE FROM " + tableName +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '" + m_ModelName + "'";
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(deleteCmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        msg = "\nError in nmfEstimation_Tab6:saveInitialValuesAndRangesTable: Couldn't delete all records from " +
+                QString::fromStdString(tableName) + " table";
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab6::saveInitialValuesAndRangesTable: DELETE error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + deleteCmd);
+        QMessageBox::warning(Estimation_Tabs, "Error", msg, QMessageBox::Ok);
+        return false;
+    }
+
+    // Save the new data
+    saveCmd  = "INSERT INTO " + tableName +
+               " (ProjectName,ModelName,SpeName,CoeffName,CoeffMinName,CoeffMaxName,CoeffValue,CoeffMinValue,CoeffMaxValue) VALUES ";
+    for (int row=0; row<numRows; ++row) {
+        for (int col=0; col<numCols; col+=3) {
+            value    = m_smodelIR->index(row,col+0).data().toString();
+            valueMin = m_smodelIR->index(row,col+1).data().toString();
+            valueMax = m_smodelIR->index(row,col+2).data().toString();
+            saveCmd += "('"  + m_ProjectName +
+                       "','" + m_ModelName +
+                       "','" + m_smodelIR->verticalHeaderItem(row)->text().toStdString() +
+                       "','" + m_smodelIR->horizontalHeaderItem(col+0)->text().toStdString() +
+                       "','" + m_smodelIR->horizontalHeaderItem(col+1)->text().toStdString() +
+                       "','" + m_smodelIR->horizontalHeaderItem(col+2)->text().toStdString() +
+                       "','" + value.toStdString()    +
+                       "','" + valueMin.toStdString() +
+                       "','" + valueMax.toStdString() + "'),";
+        }
+    }
+    saveCmd = saveCmd.substr(0,saveCmd.size()-1);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(saveCmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab6::saveInitialValuesAndRangesTable: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + saveCmd);
+        QMessageBox::warning(Estimation_Tabs, "Error",
+                             "\nError in nmfEstimation_Tab6::saveInitialValuesAndRangesTable command\n",
+                             QMessageBox::Ok);
+        return false;
+    }
+
     return true;
 }
 
@@ -637,6 +949,9 @@ nmfEstimation_Tab6::callback_DeletePB()
          saveCovariateTable();
     }
     initializeSpeciesParameterTable();
+    initializeInitialValuesAndRangesTable();
+    loadInitialValuesAndRangesForEditableCells();
+    saveInitialValuesAndRangesTable();
 }
 
 void
@@ -661,6 +976,7 @@ nmfEstimation_Tab6::callback_RenamePB()
         saveCovariateTable();
     }
     initializeSpeciesParameterTable();
+    initializeInitialValuesAndRangesTable();
 }
 
 void
@@ -690,10 +1006,14 @@ nmfEstimation_Tab6::callback_ImportPB()
         importTableData(nmfConstantsMSSPM::FirstLineReadOnly,"Covariate",
                         nmfConstantsMSSPM::TableCovariate,
                         Estimation_Tab6_CovariateTV);
-    } else {
+    } else if (Estimation_Tab6_SpeciesParameterTV->isVisible()) {
         importTableData(nmfConstantsMSSPM::FirstLineReadOnly,"CovariateAssignment",
                         nmfConstantsMSSPM::TableCovariateAssignment,
                         Estimation_Tab6_SpeciesParameterTV);
+    } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
+        importTableData(nmfConstantsMSSPM::FirstLineReadOnly,"CovariateInitialValuesAndRanges",
+                        nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges,
+                        Estimation_Tab6_InitialValuesTV);
     }
 }
 
@@ -704,10 +1024,14 @@ nmfEstimation_Tab6::callback_ExportPB()
         saveTableValuesToCSVFile("Covariate",
                                  nmfConstantsMSSPM::TableCovariate,
                                  m_smodelC);
-    } else {
+    } else if (Estimation_Tab6_SpeciesParameterTV->isVisible()) {
         saveTableValuesToCSVFile("CovariateAssignment",
                                  nmfConstantsMSSPM::TableCovariateAssignment,
                                  m_smodelSP);
+    } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
+        saveTableValuesToCSVFile("CovariateInitialValuesAndRanges",
+                                 nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges,
+                                 m_smodelIR);
     }
 }
 
@@ -719,16 +1043,29 @@ nmfEstimation_Tab6::callback_SavePB()
         ok = saveCovariateTable();
         if (ok) {
             initializeSpeciesParameterTable();
+            initializeInitialValuesAndRangesTable();
             loadCovariateAssignmentTable();
+            loadCovariateInitialValuesAndRangesTable();
+
             QMessageBox::information(Estimation_Tabs,"Save",
                                      "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariate),
                                      QMessageBox::Ok);
         }
-    } else {
+    } else if (Estimation_Tab6_SpeciesParameterTV->isVisible()) {
         ok = saveCovariateAssignmentTable();
         if (ok) {
+            initializeInitialValuesAndRangesTable();
+            loadInitialValuesAndRangesForEditableCells();
+            saveInitialValuesAndRangesTable();
             QMessageBox::information(Estimation_Tabs,"Save",
                                      "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateAssignment),
+                                     QMessageBox::Ok);
+        }
+    } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
+        ok = saveInitialValuesAndRangesTable();
+        if (ok) {
+            QMessageBox::information(Estimation_Tabs,"Save",
+                                     "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges),
                                      QMessageBox::Ok);
         }
     }
@@ -738,12 +1075,17 @@ void
 nmfEstimation_Tab6::callback_SetEstimateRunCheckboxes(
         std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes)
 {
+    std::string paramName;
     m_ParamNames.clear();
     for (int i=0; i<(int)EstimateRunBoxes.size();++i) {
         if (EstimateRunBoxes[i].state.first && EstimateRunBoxes[i].state.second) {
-            m_ParamNames.push_back(EstimateRunBoxes[i].parameter);
+            paramName = EstimateRunBoxes[i].parameter;
+            if (paramName != "InitBiomass") { // Disallow InitBiomass as a Covariate
+                m_ParamNames.push_back(paramName);
+            }
         }
     }
     sort(m_ParamNames.begin(),m_ParamNames.end());
     initializeSpeciesParameterTable();
+    initializeInitialValuesAndRangesTable();
 }
