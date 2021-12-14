@@ -836,12 +836,20 @@ void
 nmfOutputControls::refresh()
 {
     int currentIndex = OutputChartTypeCMB->currentIndex();
-    if (currentIndex == 0) {
-        OutputChartTypeCMB->setCurrentIndex(1);
-    } else {
-        OutputChartTypeCMB->setCurrentIndex(0);
+//qDebug() << "ci: " << currentIndex;
+
+    try {
+      if (currentIndex == 0) {
+//qDebug() << "num: " << OutputChartTypeCMB->count();  // RSK fix possible bug here when choose Type III in GUI
+          OutputChartTypeCMB->setCurrentIndex(1);
+      } else {
+          OutputChartTypeCMB->setCurrentIndex(0);
+      }
+//qDebug() << 11;
+      OutputChartTypeCMB->setCurrentIndex(currentIndex);
+    } catch (...) {
+      return;
     }
-    OutputChartTypeCMB->setCurrentIndex(currentIndex);
 
     refreshScenarios();
 }
@@ -1337,8 +1345,10 @@ nmfOutputControls::setOutputType(QString type)
 {
     // This forces an update if the user needs to
     // refresh the same setting.
-    OutputChartTypeCMB->setCurrentIndex(0);
-    OutputChartTypeCMB->setCurrentText(type);
+    try {
+       OutputChartTypeCMB->setCurrentIndex(0);
+       OutputChartTypeCMB->setCurrentText(type);
+    } catch (...) {return;}
 
     return;
 }

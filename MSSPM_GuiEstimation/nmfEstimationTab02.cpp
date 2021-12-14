@@ -233,7 +233,8 @@ nmfEstimation_Tab2::callback_SavePB()
                 valueWithoutComma = index.data().toString().remove(",");
                 cmd += "('"  + m_ProjectName + "','" + projectModel +
                         "','" + SpeNames[j] + "'," + std::to_string(i) +
-                        ", " + std::to_string(valueWithoutComma.toDouble()) + "),";
+                        ", " + valueWithoutComma.toStdString() + "),";
+//                      ", " + std::to_string(valueWithoutComma.toDouble()) + "),";
             }
         }
 

@@ -676,10 +676,12 @@ nmfDiagnostic_Tab1::callback_RunPB()
             parameter2PctVar = -pctVariation;
             parameter2PctInc = -2*parameter2PctVar/totalNumPoints;
             for (int k=0; k<=totalNumPoints; ++k) {
-                zscoreFitness = (fitnesses[m++]-centerFitness)/sigma;
+                zscoreFitness = (sigma == 0) ? 0 : (fitnesses[m++]-centerFitness)/sigma;
+//              zscoreFitness = (fitnesses[m++]-centerFitness)/sigma;
                 aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[SpeciesNum],
                                                    parameter1PctVar,parameter2PctVar,
                                                    zscoreFitness);
+//std::cout << "tuple::fitness(z): " << std::get<3>(aDiagnosticTuple) << std::endl;
                 ZScoreDiagnosticTupleVector.push_back(aDiagnosticTuple);
                 parameter2PctVar += parameter2PctInc;
             }
@@ -711,10 +713,13 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
                                      const std::vector<std::pair<QString,double> >& ParameterData)
 {
     bool isAggProd;
+    bool isBiomassAbsolute;
     int NumSpecies;
     int NumGuilds;
     int NumSpeciesOrGuilds;
     int offset = 0;
+    int RunLength;
+    int InitialYear;
     unsigned unused1 = 0;
     double unused2[] = {0};
     double retv = 0;
@@ -725,6 +730,9 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     std::string CompetitionForm;
     std::string msg;
     std::string isAggProdStr;
+    std::string GrowthForm;
+    std::string HarvestForm;
+    std::string PredationForm;
     std::vector<double> parameters;
     std::vector<double> initBiomassParameters;
     std::vector<double> growthParameters;
@@ -738,6 +746,11 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     checkAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+//    m_DatabasePtr->getModelFormData(
+//                m_Logger,m_ProjectName,m_ModelName,
+//                GrowthForm,HarvestForm,CompetitionForm,PredationForm,
+//                RunLength,InitialYear,isBiomassAbsolute);
+
     emit LoadDataStruct();
 
     NumSpecies = m_DataStruct.NumSpecies;
@@ -774,16 +787,21 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
 
     for (std::pair<QString,double> ParameterItem : ParameterData) {
         offset = 0;
-        if (ParameterItem.first == "Initial Biomass (B₀)") {
+        if (ParameterItem.first == "Initial Biomass (B₀)") {            
             offset = initBiomassOffset;
+//qDebug() << "Init Biomass: " << offset;
         } else if (ParameterItem.first == "Growth Rate (r)") {
             offset = growthOffset;
+//qDebug() << "Growth rate: " << offset;
         } else if (ParameterItem.first == "Carrying Capacity (K)") {
-            offset = growthOffset+NumSpeciesOrGuilds;
+            offset = growthOffset+2*NumSpeciesOrGuilds; // 2* because of growth rate covariates
+//qDebug() << "Carrying Capacity: " << offset;
         } else if (ParameterItem.first == "Catchability (q)") {
-            offset = harvestOffset;
+            offset = harvestOffset+NumSpeciesOrGuilds;  // +NumSpeciesOrGuilds to skip over catchability covariates
+//qDebug() << "Catchability: " << offset;
         } else if (ParameterItem.first == "SurveyQ") {
             offset = surveyQOffset;
+//qDebug() << "SurveyQ: " << offset;
         } else {
             msg = "Error: Invalid parameter name: " + ParameterItem.first.toStdString();
             m_Logger->logMsg(nmfConstants::Error,msg);
@@ -878,9 +896,12 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
 
     if (m_DataStruct.GrowthForm == "Linear") {
         tableNames.push_back(nmfConstantsMSSPM::TableOutputGrowthRate);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputGrowthRateCovariateCoeffs);
     } else if (m_DataStruct.GrowthForm == "Logistic") {
         tableNames.push_back(nmfConstantsMSSPM::TableOutputGrowthRate);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputGrowthRateCovariateCoeffs);
         tableNames.push_back(nmfConstantsMSSPM::TableOutputCarryingCapacity);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputCarryingCapacityCovariateCoeffs);
     }
     for (std::string table : tableNames) {
         fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
@@ -930,6 +951,7 @@ nmfDiagnostic_Tab1::loadHarvestParameters(
 
     if (m_DataStruct.HarvestForm == "Effort (qE)") {
         tableNames.push_back(nmfConstantsMSSPM::TableOutputCatchability);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputCatchabilityCovariateCoeffs);
     }
     for (std::string table : tableNames) {
         fields     = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","SpeName","Value"};

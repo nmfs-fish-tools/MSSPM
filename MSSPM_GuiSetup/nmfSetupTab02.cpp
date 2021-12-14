@@ -264,12 +264,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
                                       "Cancel", 0, 35, Setup_Tabs);
     m_ProgressDlg->setWindowModality(Qt::WindowModal);
     m_ProgressDlg->setValue(pInc);
-    m_ProgressDlg->setRange(0,73);
+    m_ProgressDlg->setRange(0,76);
     m_ProgressDlg->show();
     connect(m_ProgressDlg, SIGNAL(canceled()),
             this,          SLOT(callback_progressDlgCancel()));
 
-    // 1 of 73: BetweenGuildsInteractionCoeff
+    // 1 of 76: BetweenGuildsInteractionCoeff
     std::string tableName = nmfConstantsMSSPM::TableBetweenGuildsInteractionCoeff;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -292,9 +292,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 2 of 73: CompetitionAlpha
-    // 3 of 73: CompetitionAlphaMax
-    // 4 of 73: CompetitionAlphaMin
+    // 2 of 76: CompetitionAlpha
+    // 3 of 76: CompetitionAlphaMax
+    // 4 of 76: CompetitionAlphaMin
     for (std::string tableName : {nmfConstantsMSSPM::TableCompetitionAlpha,
                                   nmfConstantsMSSPM::TableCompetitionAlphaMax,
                                   nmfConstantsMSSPM::TableCompetitionAlphaMin})
@@ -322,9 +322,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
     }
 
 
-    // 5 of 73: CompetitionBetaSpecies
-    // 6 of 73: CompetitionBetaSpeciesMax
-    // 7 of 73: CompetitionBetaSpeciesMin
+    // 5 of 76: CompetitionBetaSpecies
+    // 6 of 76: CompetitionBetaSpeciesMax
+    // 7 of 76: CompetitionBetaSpeciesMin
     for (std::string tableName : {nmfConstantsMSSPM::TableCompetitionBetaSpecies,
                                   nmfConstantsMSSPM::TableCompetitionBetaSpeciesMax,
                                   nmfConstantsMSSPM::TableCompetitionBetaSpeciesMin})
@@ -351,9 +351,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 8  of 73: CompetitionBetaGuilds
-    // 9  of 73: CompetitionBetaGuildsMax
-    // 10 of 73: CompetitionBetaGuildsMin
+    // 8  of 76: CompetitionBetaGuilds
+    // 9  of 76: CompetitionBetaGuildsMax
+    // 10 of 76: CompetitionBetaGuildsMin
     for (std::string tableName : {nmfConstantsMSSPM::TableCompetitionBetaGuilds,
                                   nmfConstantsMSSPM::TableCompetitionBetaGuildsMax,
                                   nmfConstantsMSSPM::TableCompetitionBetaGuildsMin})
@@ -380,9 +380,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 11 of 73: CompetitionBetaGuildsGuilds
-    // 12 of 73: CompetitionBetaGuildsGuildsMax
-    // 13 of 73: CompetitionBetaGuildsGuildsMin
+    // 11 of 76: CompetitionBetaGuildsGuilds
+    // 12 of 76: CompetitionBetaGuildsGuildsMax
+    // 13 of 76: CompetitionBetaGuildsGuildsMin
     for (std::string tableName : {nmfConstantsMSSPM::TableCompetitionBetaGuildsGuilds,
                                   nmfConstantsMSSPM::TableCompetitionBetaGuildsGuildsMax,
                                   nmfConstantsMSSPM::TableCompetitionBetaGuildsGuildsMin})
@@ -409,9 +409,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 14 of 73: PredationExponent
-    // 15 of 73: PredationExponentMin
-    // 16 of 73: PredationExponentMax
+    // 14 of 76: PredationExponent
+    // 15 of 76: PredationExponentMin
+    // 16 of 76: PredationExponentMax
     for (std::string tableName : {nmfConstantsMSSPM::TablePredationExponent,
                                   nmfConstantsMSSPM::TablePredationExponentMin,
                                   nmfConstantsMSSPM::TablePredationExponentMax})
@@ -437,12 +437,12 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 17 of 73: Catch
-    // 18 of 73: Effort
-    // 19 of 73: Exploitation
-    // 20 of 73: BiomassAbsolute
-    // 21 of 73: BiomassRelative
-    // 22 of 73: BiomassRelativeDividedByEstSurveyQ
+    // 17 of 76: Catch
+    // 18 of 76: Effort
+    // 19 of 76: Exploitation
+    // 20 of 76: BiomassAbsolute
+    // 21 of 76: BiomassRelative
+    // 22 of 76: BiomassRelativeDividedByEstSurveyQ
     for (std::string tableName : {nmfConstantsMSSPM::TableHarvestCatch,
                                   nmfConstantsMSSPM::TableHarvestEffort,
                                   nmfConstantsMSSPM::TableHarvestExploitation,
@@ -472,7 +472,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 23 of 73: BiomassRelativeScalar
+    // 23 of 76: BiomassRelativeScalar
     tableName = nmfConstantsMSSPM::TableBiomassRelativeScalars;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -495,7 +495,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 24 of 73: Covariate
+    // 24 of 76: Covariate
     tableName = nmfConstantsMSSPM::TableCovariate;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -519,7 +519,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 25 of 73: CovariateAssignment
+    // 25 of 76: CovariateAssignment
     tableName = nmfConstantsMSSPM::TableCovariateAssignment;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -542,7 +542,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 26 of 73: CovariateInitialValuesAndRanges
+    // 26 of 76: CovariateInitialValuesAndRanges
     tableName = nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -569,7 +569,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 27 of 73: Guilds
+    // 27 of 76: Guilds
     tableName = nmfConstantsMSSPM::TableGuilds;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -597,7 +597,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 28 of 73: OutputBiomass
+    // 28 of 76: OutputBiomass
     tableName = nmfConstantsMSSPM::TableOutputBiomass;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -625,10 +625,10 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 29 of 73: OutputCompetitionAlpha
-    // 30 of 73: OutputCompetitionBetaSpecies
-    // 31 of 73: OutputPredationRho
-    // 32 of 73: OutputPredationHandling
+    // 29 of 76: OutputCompetitionAlpha
+    // 30 of 76: OutputCompetitionBetaSpecies
+    // 31 of 76: OutputPredationRho
+    // 32 of 76: OutputPredationHandling
     for (std::string tableName : {nmfConstantsMSSPM::TableOutputCompetitionAlpha,
                                   nmfConstantsMSSPM::TableOutputCompetitionBetaSpecies,
                                   nmfConstantsMSSPM::TableOutputPredationRho,
@@ -661,7 +661,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 33 of 73: OutputCompetitionBetaGuilds
+    // 33 of 76: OutputCompetitionBetaGuilds
     for (std::string tableName : {nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds})
     {
         ExistingTableNames.push_back(tableName);
@@ -691,7 +691,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 34 of 73: OutputCompetitionBetaGuildsGuilds
+    // 34 of 76: OutputCompetitionBetaGuildsGuilds
     for (std::string tableName : {nmfConstantsMSSPM::TableOutputCompetitionBetaGuildsGuilds})
     {
         ExistingTableNames.push_back(tableName);
@@ -721,18 +721,24 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 35 of 73: OutputCatchability
-    // 36 of 73: OutputGrowthRate
-    // 37 of 73: OutputCarryingCapacity
-    // 38 of 73: OutputSurveyQ
-    // 39 of 73: OutputPredationExponent
-    // 40 of 73: OutputMSY
-    // 41 of 73: OutputMSYBiomass
-    // 42 of 73: OutputMSYFishing
-    // 43 of 73: OutputInitBiomass
+    // 35 of 76: OutputCatchability
+    // 36 of 76: OutputCatchabilityCovariateCoeffs
+    // 37 of 76: OutputGrowthRate
+    // 38 of 76: OutputGrowthRateCovariateCoeffs
+    // 39 of 76: OutputCarryingCapacity
+    // 40 of 76: OutputCarryingCapacityCovariateCoeffs
+    // 41 of 76: OutputSurveyQ
+    // 42 of 76: OutputPredationExponent
+    // 43 of 76: OutputMSY
+    // 44 of 76: OutputMSYBiomass
+    // 45 of 76: OutputMSYFishing
+    // 46 of 76: OutputInitBiomass
     for (std::string tableName : {nmfConstantsMSSPM::TableOutputCatchability,
+                                  nmfConstantsMSSPM::TableOutputCatchabilityCovariateCoeffs,
                                   nmfConstantsMSSPM::TableOutputGrowthRate,
+                                  nmfConstantsMSSPM::TableOutputGrowthRateCovariateCoeffs,
                                   nmfConstantsMSSPM::TableOutputCarryingCapacity,
+                                  nmfConstantsMSSPM::TableOutputCarryingCapacityCovariateCoeffs,
                                   nmfConstantsMSSPM::TableOutputSurveyQ,
                                   nmfConstantsMSSPM::TableOutputPredationExponent,
                                   nmfConstantsMSSPM::TableOutputMSY,
@@ -766,7 +772,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 44 of 73: SpatialOverlap
+    // 47 of 76: SpatialOverlap
     for (std::string tableName : {nmfConstantsMSSPM::TableSpatialOverlap})
     {
         ExistingTableNames.push_back(tableName);
@@ -792,13 +798,13 @@ nmfSetup_Tab2::createTables(QString databaseName)
     }
 
 
-    // 45 of 73: PredationHandling
-    // 46 of 73: PredationHandlingMin
-    // 47 of 73: PredationHandlingMax
-    // 48 of 73: PredationRho
-    // 49 of 73: PredationRhoMax
-    // 50 of 73: PredationRhoMin
-    // xx of 73: TestCompetition
+    // 48 of 76: PredationHandling
+    // 49 of 76: PredationHandlingMin
+    // 50 of 76: PredationHandlingMax
+    // 51 of 76: PredationRho
+    // 52 of 76: PredationRhoMax
+    // 53 of 76: PredationRhoMin
+    // xx of 76: TestCompetition
     for (std::string tableName : {nmfConstantsMSSPM::TablePredationHandling,
                                   nmfConstantsMSSPM::TablePredationHandlingMin,
                                   nmfConstantsMSSPM::TablePredationHandlingMax,
@@ -829,7 +835,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 51 of 73: Species
+    // 54 of 76: Species
     tableName = nmfConstantsMSSPM::TableSpecies;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -869,7 +875,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 52 of 73: Forecasts
+    // 55 of 76: Forecasts
     tableName = nmfConstantsMSSPM::TableForecasts;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -905,9 +911,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 53 of 73: ForecastHarvestExploitation
-    // 54 of 73: ForecastHarvestEffort
-    // 55 of 73: ForecastHarvestCatch
+    // 56 of 76: ForecastHarvestExploitation
+    // 57 of 76: ForecastHarvestEffort
+    // 58 of 76: ForecastHarvestCatch
     for (std::string tableName : {nmfConstantsMSSPM::TableForecastHarvestExploitation,
                                   nmfConstantsMSSPM::TableForecastHarvestEffort,
                                   nmfConstantsMSSPM::TableForecastHarvestCatch})
@@ -939,7 +945,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 56 of 73: ForecastBiomass
+    // 59 of 76: ForecastBiomass
     tableName = nmfConstantsMSSPM::TableForecastBiomass;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -968,7 +974,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 57 of 73: ForecastBiomassMonteCarlo
+    // 60 of 76: ForecastBiomassMonteCarlo
     tableName = nmfConstantsMSSPM::TableForecastBiomassMonteCarlo;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -998,7 +1004,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 58 of 73: ForecastMonteCarloParameters
+    // 61 of 76: ForecastMonteCarloParameters
     tableName = nmfConstantsMSSPM::TableForecastMonteCarloParameters;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -1036,7 +1042,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 59 of 73: ForecastBiomassMultiScenario
+    // 62 of 76: ForecastBiomassMultiScenario
     tableName = nmfConstantsMSSPM::TableForecastBiomassMultiScenario;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -1062,7 +1068,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 60 of 73: ForecastUncertainty
+    // 63 of 76: ForecastUncertainty
     tableName = nmfConstantsMSSPM::TableForecastUncertainty;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -1101,11 +1107,11 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 61 of 73: DiagnosticInitBiomass
-    // 62 of 73: DiagnosticGrowthRate
-    // 63 of 73: DiagnosticCarryingCapacity
-    // 64 of 73: DiagnosticCatchability
-    // 65 of 73: DiagnosticSurveyQ
+    // 64 of 76: DiagnosticInitBiomass
+    // 65 of 76: DiagnosticGrowthRate
+    // 66 of 76: DiagnosticCarryingCapacity
+    // 67 of 76: DiagnosticCatchability
+    // 68 of 76: DiagnosticSurveyQ
     for (std::string tableName : {nmfConstantsMSSPM::TableDiagnosticInitBiomass,
                                   nmfConstantsMSSPM::TableDiagnosticGrowthRate,
                                   nmfConstantsMSSPM::TableDiagnosticCarryingCapacity,
@@ -1140,7 +1146,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 66 of 73: DiagnosticSurface
+    // 69 of 76: DiagnosticSurface
     for (std::string tableName : {nmfConstantsMSSPM::TableDiagnosticSurface})
     {
         ExistingTableNames.push_back(tableName);
@@ -1172,7 +1178,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 67 of 73: Models
+    // 70 of 76: Models
     for (std::string tableName : {nmfConstantsMSSPM::TableModels})
     {
         ExistingTableNames.push_back(tableName);
@@ -1188,6 +1194,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " HarvestForm                     varchar(25)  NULL,";
         cmd += " WithinGuildCompetitionForm      varchar(25)  NULL,";
         cmd += " BetweenGuildCompetitionForm     varchar(25)  NULL,";
+        cmd += " CovariateAlgorithmType          varchar(25)  NULL,";
         cmd += " NumberOfParameters              int(11)      NULL,";
         cmd += " StochasticGrowth                varchar(25)  NULL,";
         cmd += " StochasticCatch                 varchar(25)  NULL,";
@@ -1266,7 +1273,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         }
     }
 
-    // 68 of 73: Application (contains name of application - used to assure app is using correct database)
+    // 71 of 76: Application (contains name of application - used to assure app is using correct database)
     for (std::string tableName : {nmfConstantsMSSPM::TableApplication})
     {
         ExistingTableNames.push_back(tableName);
@@ -1288,7 +1295,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         m_DatabasePtr->saveApplicationTable(Setup_Tabs,m_Logger,fullTableName);
     }
 
-    // 69 of 73: OutputBiomassEnsemble
+    // 72 of 76: OutputBiomassEnsemble
     tableName = nmfConstantsMSSPM::TableOutputBiomassEnsemble;
     fullTableName = db + "." + tableName;
     ExistingTableNames .push_back(tableName);
@@ -1318,7 +1325,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 70 of 73: ModelReview
+    // 73 of 76: ModelReview
     tableName = nmfConstantsMSSPM::TableModelReview;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -1400,7 +1407,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 71 of 73: Model Fit Summary
+    // 74 of 76: Model Fit Summary
     tableName = nmfConstantsMSSPM::TableSummaryModelFit;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -1432,7 +1439,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 72 of 73: Mohn's Rho Diagnostics Summary
+    // 75 of 76: Mohn's Rho Diagnostics Summary
     tableName = nmfConstantsMSSPM::TableSummaryDiagnostic;
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
@@ -1443,6 +1450,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " InitialAbsoluteBiomass      varchar(50) NOT NULL,";
     cmd += " GrowthRate                  varchar(50) NULL,";
     cmd += " CarryingCapacity            varchar(50) NULL,";
+    cmd += " Catchability                varchar(50) NULL,";
     cmd += " CompetitionAlpha            varchar(50) NULL,";
     cmd += " CompetitionBetaSpecies      varchar(50) NULL,";
     cmd += " CompetitionBetaGuilds       varchar(50) NULL,";
@@ -1465,7 +1473,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
         return;
     }
 
-    // 73 of 73: OutputBiomassMohnsRhoOfEnsembles
+    // 76 of 76: OutputBiomassMohnsRhoOfEnsembles
     tableName = nmfConstantsMSSPM::TableOutputBiomassMohnsRhoOfEnsembles;
     fullTableName = db + "." + tableName;
     ExistingTableNames .push_back(tableName);

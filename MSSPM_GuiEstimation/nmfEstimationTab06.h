@@ -62,8 +62,18 @@ private:
     QPushButton* Estimation_Tab6_LoadPB;
     QPushButton* Estimation_Tab6_NextPB;
     QPushButton* Estimation_Tab6_PrevPB;
+    QPushButton* Estimation_Tab6_SetEstOffPB;
+    QPushButton* Estimation_Tab6_ClearRangesPB;
+    QPushButton* Estimation_Tab6_ViewNormalizedPB;
+    QSpinBox*    Estimation_Tab6_SpeciesRangeSB;
+    QComboBox*   Estimation_Tab6_SpeciesRangeCMB;
+    QComboBox*   Estimation_Tab6_MinMaxCMB;
+    QComboBox*   Estimation_Tab6_AlgTypeCMB;
 
     void addCovariateColumn(QString covariateName);
+    void calculateCovariateScaleFactor(const int& col,
+                                       double& min,
+                                       double& max);
     void importTableData(
             const bool& firstLineReadOnly,
             const QString& type,
@@ -72,12 +82,14 @@ private:
     void initializeCovariateTable();
     void initializeSpeciesParameterTable();
     void initializeInitialValuesAndRangesTable();
+    bool isViewNormalizeToggled();
     void loadCSVFile(
             const bool& firstLineReadOnly,
             const std::string& tableName,
             QTableView* tableView);
     bool okSaveInitialValuesAndRangesChecks();
     void readSettings();
+    bool saveCovariateAlgorithmType();
     bool saveCovariateTable();
     bool saveCovariateAssignmentTable();
     bool saveInitialValuesAndRangesTable();
@@ -89,6 +101,8 @@ private:
             const QString& type,
             const std::string& tableName,
             QStandardItemModel* smodel);
+    void setCovariateAlgorithmType(std::string& algType);
+
 public:
     /**
      * @brief nmfEstimation_Tab6 : class constructor for the Environmental Covariates GUI page
@@ -104,35 +118,111 @@ public:
     virtual ~nmfEstimation_Tab6();
 
     /**
-     * @brief Clears the GUI's widgets
+     * @brief Gets the current value for the covariate algorithm type
+     * @return String signifying the currently selected covariate algorithm type
      */
-//    void clearWidgets();
-    void loadCovariateTable();
+    std::string getCovariateAlgorithmType();
+    /**
+     * @brief Loads the Covariate Algorithm Type into the 1st Covariate tab
+     */
+    void loadCovariateAlgorithmType();
+    /**
+     * @brief Loads the (2nd tab) Covariate Assignment Table
+     */
     void loadCovariateAssignmentTable();
+    /**
+     * @brief Loads the (3rd tab) Covariate Initial Values and Ranges table
+     */
     void loadCovariateInitialValuesAndRangesTable();
+    /**
+     * @brief Loads the (1st tab) Covariate table
+     */
+    void loadCovariateTable();
+    /**
+     * @brief Loads the initial values
+     */
     void loadInitialValuesAndRangesForEditableCells();
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */
     void loadWidgets();
-    void calculateCovariateScaleFactor(const int& col,
-                                       double& min,
-                                       double& max);
 
 public Q_SLOTS:
+    /**
+     * @brief Callback invoked when the user wants to add a new environmental covariate
+     */
     void callback_AddPB();
+    /**
+     * @brief Callback invoked when the user wants to clear the initial values and range table
+     */
+    void callback_ClearInitialValuesAndRangePB();
+    /**
+     * @brief Callback invoked when the user wants to clear all of the covariate assignments
+     */
     void callback_ClearPB();
+    /**
+     * @brief Callback invoked when the user wants to delete the currently selected covariate
+     */
     void callback_DeletePB();
+    /**
+     * @brief Callback invoked when the user wants to export the data from the currently viewed table
+     */
     void callback_ExportPB();
+    /**
+     * @brief Callback invoked when the user wants to import a previously exported version of the
+     * currently viewed table's data
+     */
     void callback_ImportPB();
+    /**
+     * @brief Callback invoked when the user wants to load the currently viewed table with the data
+     * from the corresponding database table (i.e., since the last Save)
+     */
     void callback_LoadPB();
+    /**
+     * @brief Callback invoked to move to the next page (i.e., GUI)
+     */
     void callback_NextPB();
+    /**
+     * @brief Callback invoked to move to the previous page (i.e., GUI)
+     */
     void callback_PrevPB();
+    /**
+     * @brief Callback invoked when the user wants to rename the currently selected Environmental Covariate
+     */
     void callback_RenamePB();
+    /**
+     * @brief Callback invoked when the user wants to save the currently viewed table's data into the
+     * corresponding database table
+     */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked to allow only those parameters that have code implemented for Environmental Covariates
+     * @param EstimateRunBoxes : vector of parameter boxes that have been checked
+     */
     void callback_SetEstimateRunCheckboxes(
             std::vector<nmfStructsQt::EstimateRunBox> EstimateRunBoxes);
+    /**
+     * @brief Callback invoked when the user wants to effectively disable covariate estimation
+     * on specific (or all) Species/Parameter combinations
+     */
+    void callback_SetEstOffPB();
+    /**
+     * @brief Callback invoked when the user wants to change the min/max range values manually or by using the spin box
+     * @param value : value describes how the user wants to change the min/max range values
+     */
+    void callback_SpeciesRangeCMB(QString value);
+    /**
+     * @brief Callback invoked as the user changes the Spin Box values that represent the percent change that should
+     * be made to either (or both) of the min/max range values
+     * @param pct : percent change made to min/max range values
+     */
+    void callback_SpeciesRangeSB(int pct);
+    /**
+     * @brief Callback invoked when the user presses the view normalized covariate data toggle button
+     * @param checked : describes if the button is pressed in (true) or pressed out (false)
+     */
+    void callback_ViewNormalizedPB(bool checked);
 
 };
 

@@ -61,6 +61,7 @@ private:
     QString             m_Rho;
     QStandardItemModel* m_SModel;
     int                 m_NumSignificantDigits;
+    int                 m_UncertaintyPct;
 
     QTabWidget*  Forecast_Tabs;
     QWidget*     Forecast_Tab3_Widget;
@@ -69,15 +70,19 @@ private:
     QPushButton* Forecast_Tab3_NextPB;
     QPushButton* Forecast_Tab3_LoadPB;
     QPushButton* Forecast_Tab3_SavePB;
+    QPushButton* Forecast_Tab3_SetPB;
     QGroupBox*   Forecast_Tab2_HarvestGB;
     QLineEdit*   Forecast_Tab1_NameLE;
     QCheckBox*   Forecast_Tab3_AutoSaveRunCB;
+    QSpinBox*    Forecast_Tab3_SetSB;
+
 
     void adjustColumnVisibility();
     void clearUncertaintyTable(int& NumSpecies,
                                int& NumParameters);
     QString harvestType();
     void readSettings();
+    void saveSettings();
 
 public:
     /**
@@ -148,6 +153,11 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user clicks the Set button to set the uncertainty values
+     */
+    void callback_SetPB();
+
 };
 
 #endif // NMFFORECASTTAB3_H

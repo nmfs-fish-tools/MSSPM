@@ -20,6 +20,7 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_ModelName.clear();
     m_ProjectName.clear();
     m_NumSignificantDigits = -1;
+    m_UncertaintyPct = 0;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab3::nmfForecast_Tab3");
 
@@ -39,16 +40,20 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     Forecast_Tab3_LoadPB        = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab3_LoadPB");
     Forecast_Tab3_SavePB        = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab3_SavePB");
     Forecast_Tab3_AutoSaveRunCB = Forecast_Tabs->findChild<QCheckBox   *>("Forecast_Tab3_AutoSaveRunCB");
+    Forecast_Tab3_SetPB         = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab3_SetPB");
+    Forecast_Tab3_SetSB         = Forecast_Tabs->findChild<QSpinBox    *>("Forecast_Tab3_SetSB");
 
     // Set up connections
-    connect(Forecast_Tab3_PrevPB, SIGNAL(clicked(bool)),
+    connect(Forecast_Tab3_PrevPB, SIGNAL(clicked()),
             this,                 SLOT(callback_PrevPB()));
-    connect(Forecast_Tab3_NextPB, SIGNAL(clicked(bool)),
+    connect(Forecast_Tab3_NextPB, SIGNAL(clicked()),
             this,                 SLOT(callback_NextPB()));
-    connect(Forecast_Tab3_LoadPB, SIGNAL(clicked(bool)),
+    connect(Forecast_Tab3_LoadPB, SIGNAL(clicked()),
             this,                 SLOT(callback_LoadPB()));
-    connect(Forecast_Tab3_SavePB, SIGNAL(clicked(bool)),
+    connect(Forecast_Tab3_SavePB, SIGNAL(clicked()),
             this,                 SLOT(callback_SavePB()));
+    connect(Forecast_Tab3_SetPB,  SIGNAL(clicked()),
+            this,                 SLOT(callback_SetPB()));
 
     Forecast_Tab3_UncertaintyTV->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(Forecast_Tab3_UncertaintyTV, SIGNAL(customContextMenuRequested(QPoint)),
@@ -285,6 +290,11 @@ nmfForecast_Tab3::readSettings()
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
+    settings->beginGroup("Forecast");
+    m_UncertaintyPct = settings->value("UncertaintyPct","").toInt();
+    Forecast_Tab3_SetSB->setValue(m_UncertaintyPct);
+    settings->endGroup();
+
     settings->beginGroup("Preferences");
     m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
     settings->endGroup();
@@ -292,6 +302,17 @@ nmfForecast_Tab3::readSettings()
     delete settings;
 }
 
+void
+nmfForecast_Tab3::saveSettings()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    settings->beginGroup("Forecast");
+    settings->setValue("UncertaintyPct", Forecast_Tab3_SetSB->value());
+    settings->endGroup();
+
+    delete settings;
+}
 
 void
 nmfForecast_Tab3::callback_LoadPB()
@@ -486,4 +507,40 @@ nmfForecast_Tab3::clearUncertaintyTable(int& NumSpeciesOrGuilds, int& NumParamet
     }
 }
 
+
+void
+nmfForecast_Tab3::callback_SetPB()
+{
+    int row;
+    int col;
+    int numRows  = m_SModel->rowCount();
+    int numCols  = m_SModel->columnCount();
+    double value = Forecast_Tab3_SetSB->value()/100.0;
+    QStandardItem* item;
+
+    QModelIndexList indexes = nmfUtilsQt::getSelectedTableViewCells(Forecast_Tab3_UncertaintyTV);
+
+    if (indexes.size() == 0) { // mean no selections, so set all min/max parameter values
+        for (int i=0; i<numRows; ++i) {
+            for (int j=0; j<numCols; ++j) {
+                item = new QStandardItem(QString::number(value));
+                item->setTextAlignment(Qt::AlignCenter);
+                m_SModel->setItem(i, j, item);
+            }
+        }
+    } else {
+        for (QModelIndex index : indexes) {
+            row  = index.row();
+            col  = index.column();
+            item = m_SModel->item(row,col);
+            item->setText(QString::number(value));
+        }
+        nmfUtilsQt::reselectTableViewCells(Forecast_Tab3_UncertaintyTV,indexes);
+
+    }
+    Forecast_Tab3_UncertaintyTV->resizeColumnsToContents();
+    adjustColumnVisibility();
+
+    saveSettings();
+}
 

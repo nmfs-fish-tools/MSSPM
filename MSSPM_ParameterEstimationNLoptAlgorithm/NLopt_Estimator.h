@@ -67,6 +67,7 @@ private:
     static nlopt::opt                      m_Optimizer;
     std::vector<double>                    m_InitialCarryingCapacities;
     std::vector<double>                    m_EstCatchability;
+    std::vector<double>                    m_EstCatchabilityCovariateCoeffs;
     std::vector<double>                    m_EstExponent;
     std::vector<double>                    m_EstSurveyQ;
     boost::numeric::ublas::matrix<double>  m_EstAlpha;
@@ -74,8 +75,10 @@ private:
     boost::numeric::ublas::matrix<double>  m_EstBetaGuilds;
     boost::numeric::ublas::matrix<double>  m_EstBetaGuildsGuilds;
     std::vector<double>                    m_EstCarryingCapacities;
+    std::vector<double>                    m_EstCarryingCapacityCovariateCoeffs;
     std::vector<double>                    m_EstInitBiomass;
     std::vector<double>                    m_EstGrowthRates;
+    std::vector<double>                    m_EstGrowthRateCovariateCoeffs;
     std::vector<double>                    m_EstInitialBiomass;
     boost::numeric::ublas::matrix<double>  m_EstPredation;
     boost::numeric::ublas::matrix<double>  m_EstHandling;
@@ -216,8 +219,11 @@ public:
      * @param EstParameters : output estimated parameters from the NLopt Optimizer
      * @param InitBiomass : estimated initial biomass parameters
      * @param GrowthRate : estimated growth rate parameters
+     * @param GrowthRateCovariateCoeffs : estimated growth rate covariate coefficient parameters
      * @param CarryingCapacity : estimated carrying capacity parameters
-     * @param CatchabilityRate : estimated catchability parameters
+     * @param CarryingCapacityCovariateCoeffs : estimated carrying capacity covariate coefficient parameters
+     * @param Catchability : estimated catchability parameters
+     * @param CatchabilityCovariateCoeffs : estimated catchability covariate coefficient parameters
      * @param CompetitionAlpha : estimated competition alpha parameters
      * @param CompetitionBetaSpecies : estimated food competition beta parameters per Species
      * @param CompetitionBetaGuilds : estimated food competition beta parameters per Species-Guild
@@ -228,12 +234,15 @@ public:
      * @param SurveyQ : estimated SurveyQ parameters
      */
     static void extractParameters(
-            const nmfStructsQt::ModelDataStruct&                     NLoptDataStruct,
+            const nmfStructsQt::ModelDataStruct&   NLoptDataStruct,
             const double*                          EstParameters,
             std::vector<double>&                   InitBiomass,
             std::vector<double>&                   GrowthRate,
+            std::vector<double>&                   GrowthRateCovariateCoeffs,
             std::vector<double>&                   CarryingCapacity,
-            std::vector<double>&                   CatchabilityRate,
+            std::vector<double>&                   CarryingCapacityCovariateCoeffs,
+            std::vector<double>&                   Catchability,
+            std::vector<double>&                   CatchabilityCovariateCoeffs,
             boost::numeric::ublas::matrix<double>& CompetitionAlpha,
             boost::numeric::ublas::matrix<double>& CompetitionBetaSpecies,
             boost::numeric::ublas::matrix<double>& CompetitionBetaGuilds,
@@ -249,11 +258,23 @@ public:
     void getEstCarryingCapacities(
             std::vector<double>& EstCarryingCapacities);
     /**
+     * @brief Get the estimated carrying capacity covariate coefficient values
+     * @param EstCarryingCapacityCovariateCoeffs : the estimated carrying capacity covariate coefficient values to return
+     */
+    void getEstCarryingCapacityCovariateCoeffs(
+            std::vector<double>& EstCarryingCapacityCovariateCoeffs);
+    /**
      * @brief Get the estimated catchability values
      * @param EstCatchability : the estimated catchability values to return
      */
     void getEstCatchability(
             std::vector<double>& EstCatchability);
+    /**
+     * @brief Get the estimated catchability covariate coefficient values
+     * @param EstCatchabilityCovariateCoeffs : the estimated catchability covariate coefficient values to return
+     */
+    void getEstCatchabilityCovariateCoeffs(
+            std::vector<double>& EstCatchabilityCovariateCoeffs);
     /**
      * @brief Get the estimated Survey Q values
      * @param EstSurveyQ : the estimated Surbey Q values to return
@@ -292,10 +313,16 @@ public:
             std::vector<double>& EstExponent);
     /**
      * @brief Get the estimated growth rate values
-     * @param GrowthRates : the estimated growth rate values to return
+     * @param EstGrowthRates : the estimated growth rate values to return
      */
     void getEstGrowthRates(
-            std::vector<double>& GrowthRates);
+            std::vector<double>& EstGrowthRates);
+    /**
+     * @brief Get the estimated growth rate covariate coefficients
+     * @param EstGrowthRateCovariateCoeffs : the estimated growth rate covariate coefficients to return
+     */
+    void getEstGrowthRateCovariateCoeffs(
+            std::vector<double>& EstGrowthRateCovariateCoeffs);
     /**
      * @brief Get the estimated handling values
      * @param EstHandling : the estimated handling values to return
@@ -324,6 +351,14 @@ public:
      * @param NLoptStruct : data structure containing necessary run information
      */
     void initialize(nmfStructsQt::ModelDataStruct &NLoptStruct);
+//    /**
+//     * @brief Loads the covariate coefficient parameter ranges
+//     * @param parameterRanges : vector of parameter range pairs
+//     * @param dataStruct : structure containing the Covariate parameter range data
+//     */
+//    void loadCovariateParameterRanges(
+//            std::vector<std::pair<double,double> >& parameterRanges,
+//            const nmfStructsQt::ModelDataStruct& dataStruct);
     /**
      * @brief Calculates the objective function fitness value
      * @param n : unused (needed by NLopt library)

@@ -68,8 +68,11 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
                                    const double* EstParameters,
                                    std::vector<double>& initBiomass,
                                    std::vector<double>& growthRate,
+                                   std::vector<double>& growthRateCovariateCoeffs,
                                    std::vector<double>& carryingCapacity,
-                                   std::vector<double>& catchabilityRate,
+                                   std::vector<double>& carryingCapacityCovariateCoeffs,
+                                   std::vector<double>& catchability,
+                                   std::vector<double>& catchabilityCovariateCoeffs,
                                    boost::numeric::ublas::matrix<double>& competitionAlpha,
                                    boost::numeric::ublas::matrix<double>& competitionBetaSpecies,
                                    boost::numeric::ublas::matrix<double>& competitionBetaGuilds,
@@ -99,8 +102,11 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
 
     initBiomass.clear();
     growthRate.clear();
+    growthRateCovariateCoeffs.clear();
     carryingCapacity.clear();
-    catchabilityRate.clear();
+    carryingCapacityCovariateCoeffs.clear();
+    catchability.clear();
+    catchabilityCovariateCoeffs.clear();
     competitionAlpha.clear();
     competitionBetaSpecies.clear();
     competitionBetaGuilds.clear();
@@ -131,6 +137,12 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
     }
     offset += NumSpeciesOrGuilds;
 
+    // Always extract growth rate covariates
+    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+        growthRateCovariateCoeffs.emplace_back(EstParameters[offset+i]);
+    }
+    offset += NumSpeciesOrGuilds;
+
     // Load the carrying capacity vector
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         if (isLogistic) {
@@ -141,11 +153,19 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
     }
     if (isLogistic) {
         offset += NumSpeciesOrGuilds;
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            carryingCapacityCovariateCoeffs.emplace_back(EstParameters[offset+i]);
+        }
+        offset += NumSpeciesOrGuilds; // 2* because of the Covariate Coeffs
     }
 
     if (isCatchability) {
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-            catchabilityRate.emplace_back(EstParameters[offset+i]);
+            catchability.emplace_back(EstParameters[offset+i]);
+        }
+        offset += NumSpeciesOrGuilds;
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            catchabilityCovariateCoeffs.emplace_back(EstParameters[offset+i]);
         }
         offset += NumSpeciesOrGuilds;
     }
@@ -271,18 +291,21 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     int guildNum = 0;
     int NumSpeciesOrGuilds;
     double surveyQVal;
-    double surveyQCovariateCoeff = 1.0; // RSK estimate this eventually
+    double surveyQCovariateCoeff = 0.0; // RSK estimate this eventually
     std::vector<double> initBiomass;
     std::vector<double> growthRate;
+    std::vector<double> growthRateCovariateCoeffs;
     std::vector<double> carryingCapacity;
+    std::vector<double> carryingCapacityCovariateCoeffs;
     std::vector<double> guildCarryingCapacity;
     std::vector<double> predationExponent;
-    std::vector<double> catchabilityRate;
+    std::vector<double> catchability;
+    std::vector<double> catchabilityCovariateCoeffs;
     std::vector<double> surveyQ;
     boost::numeric::ublas::matrix<double> initBiomassCovariate;
     boost::numeric::ublas::matrix<double> growthRateCovariate;
     boost::numeric::ublas::matrix<double> carryingCapacityCovariate;
-    boost::numeric::ublas::matrix<double> catchabilityRateCovariate;
+    boost::numeric::ublas::matrix<double> catchabilityCovariate;
     boost::numeric::ublas::matrix<double> surveyQCovariate;
     boost::numeric::ublas::matrix<double> predationRhoCovariate;
     boost::numeric::ublas::matrix<double> predationHandlingCovariate;
@@ -307,6 +330,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     boost::numeric::ublas::matrix<double> Exploitation = NLoptDataStruct.Exploitation;
     std::map<int,std::vector<int> > GuildSpecies = NLoptDataStruct.GuildSpecies;
     std::string MSSPMName = "Run " + std::to_string(m_RunNum) + "-1";
+    std::string covariateAlgorithmType = NLoptDataStruct.CovariateAlgorithmType;
 //std::cout << "NLopt_Estimator::objectiveFunction - start" << std::endl;
 
     if (m_Quit) {
@@ -338,7 +362,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"InitBiomass",                   initBiomassCovariate);
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"GrowthRate",                    growthRateCovariate);
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"CarryingCapacity",              carryingCapacityCovariate);
-    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"Catchability",                  catchabilityRateCovariate);
+    nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"Catchability",                  catchabilityCovariate);
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"SurveyQ",                       surveyQCovariate);
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"PredationRho",                  predationRhoCovariate);
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"PredationHandling",             predationHandlingCovariate);
@@ -350,25 +374,32 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
     // RSK - how does this initBiomass work with SurveyQ
     extractParameters(NLoptDataStruct, EstParameters, initBiomass,
-                      growthRate,carryingCapacity,catchabilityRate,
+                      growthRate,growthRateCovariateCoeffs,
+                      carryingCapacity,carryingCapacityCovariateCoeffs,
+                      catchability,catchabilityCovariateCoeffs,
                       competitionAlpha,competitionBetaSpecies,
                       competitionBetaGuilds,competitionBetaGuildsGuilds,
                       predationRho,predationHandling,predationExponent,surveyQ);
 
     // Since we may be estimating SurveyQ, need to divide the Observed Biomass by the SurveyQ
     double surveyQTerm;
-    for (int species=0; species<int(ObsBiomassBySpeciesOrGuilds.size2()); ++species) {
+    for (int species=0; species<NumSpecies; ++species) {
         surveyQVal  = surveyQ[species];
-        for (int time=0; time<int(ObsBiomassBySpeciesOrGuilds.size1()); ++time) {
-            surveyQTerm = surveyQVal*(1.0+surveyQCovariateCoeff*surveyQCovariate(time,species));
+        for (int time=0; time<NumYears; ++time) {
+//          surveyQTerm = surveyQVal*(1.0+surveyQCovariateCoeff*surveyQCovariate(time,species));
+            surveyQTerm = nmfUtils::applyCovariate(nullptr,
+                        covariateAlgorithmType,surveyQVal,
+                        surveyQCovariateCoeff,surveyQCovariate(time,species));
             ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQTerm;
         }
     }
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-        surveyQTerm = surveyQ[i]*(1.0+surveyQCovariateCoeff*surveyQCovariate(0,i));
+//      surveyQTerm = surveyQ[i]*(1.0+surveyQCovariateCoeff*surveyQCovariate(0,i));
+        surveyQTerm = nmfUtils::applyCovariate(nullptr,
+                    covariateAlgorithmType,surveyQ[i],
+                    surveyQCovariateCoeff,surveyQCovariate(0,i));
         EstBiomassSpecies(0,i) = NLoptDataStruct.ObservedBiomassBySpecies(0,i)/surveyQTerm;
-//      EstBiomassSpecies(0,i) = ObsBiomassBySpeciesOrGuilds(0,i);
     }
 
     // Calculate carrying capacity for all guilds
@@ -381,7 +412,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         }
         guildCarryingCapacity.push_back(guildK);
     }
-
 
     // RSK - Remember there's only initial guild biomass data
     // Multiply by guild surveyQ data when you have it
@@ -396,16 +426,15 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
     bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(NLoptDataStruct,"");
 
-    double initBiomassCoeff = 1.0; // RSK estimate this eventually
+    double initBiomassCoeff = 0.0; // Not estimated
+    std::string speciesName;
     for (int time=1; time<NumYears; ++time) {
         timeMinus1 = time - 1;
-
         for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-
+            speciesName = NLoptDataStruct.SpeciesNames[species];
             if (isCheckedInitBiomass) { // if estimating the initial biomass
                 if (timeMinus1 == 0) {
-//                  EstBiomassVal = initBiomass[species];
-                EstBiomassVal = EstBiomassSpecies(0,species);
+                    EstBiomassVal = EstBiomassSpecies(0,species);
                 } else {
                     EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
                 }
@@ -413,46 +442,51 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                 EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
             }
             if (timeMinus1 == 0) {
-                EstBiomassVal *= (1.0+initBiomassCoeff*initBiomassCovariate(timeMinus1,species));
+//              EstBiomassVal *= (1.0+initBiomassCoeff*initBiomassCovariate(timeMinus1,species));
+                EstBiomassVal = nmfUtils::applyCovariate(nullptr,
+                            covariateAlgorithmType,EstBiomassVal,
+                            initBiomassCoeff,initBiomassCovariate(timeMinus1,species));
             }
 
-            GrowthTerm      = NLoptGrowthForm->evaluate(EstBiomassVal,
+            GrowthTerm      = NLoptGrowthForm->evaluate(covariateAlgorithmType,
+                                                        EstBiomassVal,
                                                         growthRate[species],
+                                                        growthRateCovariateCoeffs[species],
                                                         growthRateCovariate(timeMinus1,species),
                                                         carryingCapacity[species],
+                                                        carryingCapacityCovariateCoeffs[species],
                                                         carryingCapacityCovariate(timeMinus1,species));
-            HarvestTerm     = NLoptHarvestForm->evaluate(timeMinus1,species,
-                                                         EstBiomassVal,
-                                                         Catch,
-                                                         Effort,
-                                                         Exploitation,
-                                                         catchabilityRate,
-                                                         catchabilityRateCovariate);
-            CompetitionTerm = NLoptCompetitionForm->evaluate(
-                                   timeMinus1,species,EstBiomassVal,
-                                   growthRate,
-                                   growthRateCovariate,
-                                   guildCarryingCapacity[guildNum],
-                                   systemCarryingCapacity,
-                                   EstBiomassSpecies,
-                                   EstBiomassGuilds,
-                                   competitionAlpha,
-                                   competitionAlphaCovariate,
-                                   competitionBetaSpecies,
-                                   competitionBetaSpeciesCovariate,
-                                   competitionBetaGuilds,
-                                   competitionBetaGuildSpeciesCovariate,
-                                   competitionBetaGuildsGuilds,
-                                   competitionBetaGuildGuildCovariate);
-            PredationTerm   = NLoptPredationForm->evaluate(
-                                   timeMinus1,species,
-                                   EstBiomassSpecies,EstBiomassVal,
-                                   predationRho,
-                                   predationRhoCovariate,
-                                   predationHandling,
-                                   predationHandlingCovariate,
-                                   predationExponent,
-                                   predationExponentCovariate);
+            HarvestTerm     = NLoptHarvestForm->evaluate(covariateAlgorithmType,
+                                                         timeMinus1,species,EstBiomassVal,
+                                                         Catch,Effort,Exploitation,
+                                                         catchability[species],
+                                                         catchabilityCovariateCoeffs[species],
+                                                         catchabilityCovariate(timeMinus1,species));
+            CompetitionTerm = NLoptCompetitionForm->evaluate(covariateAlgorithmType,
+                                                             timeMinus1,species,EstBiomassVal,
+                                                             growthRate,
+                                                             growthRateCovariate,
+                                                             guildCarryingCapacity[guildNum],
+                                                             systemCarryingCapacity,
+                                                             EstBiomassSpecies,
+                                                             EstBiomassGuilds,
+                                                             competitionAlpha,
+                                                             competitionAlphaCovariate,
+                                                             competitionBetaSpecies,
+                                                             competitionBetaSpeciesCovariate,
+                                                             competitionBetaGuilds,
+                                                             competitionBetaGuildSpeciesCovariate,
+                                                             competitionBetaGuildsGuilds,
+                                                             competitionBetaGuildGuildCovariate);
+            PredationTerm   = NLoptPredationForm->evaluate(covariateAlgorithmType,
+                                                           timeMinus1,species,
+                                                           EstBiomassSpecies,EstBiomassVal,
+                                                           predationRho,
+                                                           predationRhoCovariate,
+                                                           predationHandling,
+                                                           predationHandlingCovariate,
+                                                           predationExponent,
+                                                           predationExponentCovariate);
 
             EstBiomassVal  += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
             if (EstBiomassVal < 0) { // test code only
@@ -626,6 +660,33 @@ NLopt_Estimator::loadSurveyQParameterRanges(
     }
 }
 
+//void
+//NLopt_Estimator::loadCovariateParameterRanges(
+//        std::vector<std::pair<double,double> >& parameterRanges,
+//        const nmfStructsQt::ModelDataStruct& dataStruct)
+//{
+//    int NumSpeciesWithCovariates;
+//    std::vector<std::string> SpeciesNames;
+//    std::pair<double,double> aPair;
+//    std::map<std::string,std::vector<nmfStructsQt::CovariateStruct> > covariateRanges;
+//    std::vector<nmfStructsQt::CovariateStruct> covariateRangeVector;
+//    nmfStructsQt::CovariateStruct covariateRangeStruct;
+//    covariateRanges = dataStruct.Covariate;
+//    NumSpeciesWithCovariates = covariateRanges.size();
+//    SpeciesNames = dataStruct.SpeciesNames;
+//    // Load Covariate pair values
+//    for (std::string Species : SpeciesNames) {
+//        if (covariateRanges.find(Species) != covariateRanges.end()) {
+//            covariateRangeVector = covariateRanges[Species];
+//            for (nmfStructsQt::CovariateStruct covariateRangeStruct : covariateRangeVector) {
+//                aPair = std::make_pair(covariateRangeStruct.CoeffMinValue,
+//                                       covariateRangeStruct.CoeffMaxValue);
+//                parameterRanges.emplace_back(aPair);
+//            }
+//        }
+//    }
+//}
+
 void
 NLopt_Estimator::setStoppingCriteria(nmfStructsQt::ModelDataStruct &NLoptStruct)
 {
@@ -768,7 +829,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     NumEstParameters = ParameterRanges.size();
 std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
 for (int i=0; i< NumEstParameters; ++i) {
- std::cout << "  " <<    ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
+ std::cout << "  " << ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
 }
 
         if (isAMultiRun) {
@@ -839,8 +900,10 @@ for (int i=0; i< NumEstParameters; ++i) {
 
                     extractParameters(NLoptStruct, &m_Parameters[0],
                             m_EstInitBiomass,
-                            m_EstGrowthRates,  m_EstCarryingCapacities,
-                            m_EstCatchability, m_EstAlpha,
+                            m_EstGrowthRates,        m_EstGrowthRateCovariateCoeffs,
+                            m_EstCarryingCapacities, m_EstCarryingCapacityCovariateCoeffs,
+                            m_EstCatchability,       m_EstCatchabilityCovariateCoeffs,
+                            m_EstAlpha,
                             m_EstBetaSpecies,  m_EstBetaGuilds, m_EstBetaGuildsGuilds,
                             m_EstPredation,    m_EstHandling,   m_EstExponent,  m_EstSurveyQ);
 
@@ -959,41 +1022,45 @@ NLopt_Estimator::createOutputStr(
     bestFitnessStr += "<br>Best Fitness (SSE) value of all runs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + QString::number(bestFitness,'f',2).toStdString();
     bestFitnessStr += "<br>Std dev of Best Fitness values from all runs:&nbsp;&nbsp;" + QString::number(fitnessStdDev,'f',2).toStdString();
     bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong><br>";
-    bestFitnessStr += convertValues1DToOutputStr("Initial Absolute Biomass:    ",m_EstInitBiomass,false);
-    bestFitnessStr += convertValues1DToOutputStr("Growth Rate:          ",       m_EstGrowthRates,  false);
+    bestFitnessStr += convertValues1DToOutputStr("Initial Absolute Biomass:    ",  m_EstInitBiomass,  false);
+    bestFitnessStr += convertValues1DToOutputStr("Growth Rate:          ",         m_EstGrowthRates,  false);
+    bestFitnessStr += convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ", m_EstGrowthRateCovariateCoeffs,  false);
+
     if (growthForm == "Logistic") {
-    bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:  ",         m_EstCarryingCapacities,true);
+        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:  ",                  m_EstCarryingCapacities,             true);
+        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity Covariate Coeffs:  ", m_EstCarryingCapacityCovariateCoeffs,false);
     }
 
     if (harvestForm == "Effort (qE)") {
-    bestFitnessStr += convertValues1DToOutputStr("Catchability:       ",         m_EstCatchability,false);
+        bestFitnessStr += convertValues1DToOutputStr("Catchability:       ",             m_EstCatchability,false);
+        bestFitnessStr += convertValues1DToOutputStr("Catchability Covariate Coeffs:  ", m_EstCatchabilityCovariateCoeffs,false);
     }
     if (competitionForm == "NO_K") {
-    bestFitnessStr += convertValues2DToOutputStr("Competition (alpha):",         m_EstAlpha);
+        bestFitnessStr += convertValues2DToOutputStr("Competition (alpha):",         m_EstAlpha);
     } else if ((competitionForm == "MS-PROD") ||
                (competitionForm == "AGG-PROD"))
     {
         if (competitionForm == "MS-PROD") {
-    bestFitnessStr += convertValues2DToOutputStr("Competition (beta::species):", m_EstBetaSpecies);
+            bestFitnessStr += convertValues2DToOutputStr("Competition (beta::species):", m_EstBetaSpecies);
         }
-    bestFitnessStr += convertValues2DToOutputStr("Competition (beta::guilds): ", m_EstBetaSpecies);
+        bestFitnessStr += convertValues2DToOutputStr("Competition (beta::guilds): ", m_EstBetaSpecies);
     }
 
     if ((predationForm == "Type I")  ||
-        (predationForm == "Type II") ||
-        (predationForm == "Type III"))
+            (predationForm == "Type II") ||
+            (predationForm == "Type III"))
     {
-    bestFitnessStr += convertValues2DToOutputStr("Predation (rho):   ",m_EstPredation);
+        bestFitnessStr += convertValues2DToOutputStr("Predation (rho):   ",m_EstPredation);
     }
     if ((predationForm == "Type II") ||
-        (predationForm == "Type III"))
+            (predationForm == "Type III"))
     {
-    bestFitnessStr += convertValues2DToOutputStr("Handling:          ",m_EstHandling);
+        bestFitnessStr += convertValues2DToOutputStr("Handling:          ",m_EstHandling);
     }
     if (predationForm == "Type III")
     {
-    bestFitnessStr += "<br>&nbsp;&nbsp;";
-    bestFitnessStr += convertValues1DToOutputStr("Predation Exponent", m_EstExponent,false);
+        bestFitnessStr += "<br>&nbsp;&nbsp;";
+        bestFitnessStr += convertValues1DToOutputStr("Predation Exponent", m_EstExponent,false);
     }
     bestFitnessStr += convertValues1DToOutputStr("SurveyQ:          ", m_EstSurveyQ, false);
 
@@ -1021,7 +1088,7 @@ NLopt_Estimator::convertValues1DToOutputStr(const std::string& label,
     bestFitnessStr += "</table>";
     if (includeTotal) {
         bestFitnessStr += "<br>Total " + label + "<br>" +
-                nmfUtils::convertToScientificNotation(totalVal);
+                nmfUtils::convertToScientificNotation(totalVal) + "<br>";
     }
 
     return bestFitnessStr;
@@ -1079,15 +1146,33 @@ NLopt_Estimator::getEstGrowthRates(std::vector<double>& estGrowthRates)
 }
 
 void
+NLopt_Estimator::getEstGrowthRateCovariateCoeffs(std::vector<double>& estGrowthRateCovariateCoeffs)
+{
+    estGrowthRateCovariateCoeffs = m_EstGrowthRateCovariateCoeffs;
+}
+
+void
 NLopt_Estimator::getEstCarryingCapacities(std::vector<double>& estCarryingCapacities)
 {
     estCarryingCapacities = m_EstCarryingCapacities;
 }
 
 void
+NLopt_Estimator::getEstCarryingCapacityCovariateCoeffs(std::vector<double>& estCarryingCapacityCovariateCoeffs)
+{
+    estCarryingCapacityCovariateCoeffs = m_EstCarryingCapacityCovariateCoeffs;
+}
+
+void
 NLopt_Estimator::getEstCatchability(std::vector<double> &estCatchability)
 {
     estCatchability = m_EstCatchability;
+}
+
+void
+NLopt_Estimator::getEstCatchabilityCovariateCoeffs(std::vector<double> &estCatchabilityCovariateCoeffs)
+{
+    estCatchabilityCovariateCoeffs = m_EstCatchabilityCovariateCoeffs;
 }
 
 void

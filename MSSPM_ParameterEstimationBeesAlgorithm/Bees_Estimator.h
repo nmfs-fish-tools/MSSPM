@@ -70,7 +70,10 @@ private:
     double                                m_EstSystemCarryingCapacity;
     std::vector<double>                   m_EstInitBiomass;
     std::vector<double>                   m_EstGrowthRates;
+    std::vector<double>                   m_EstGrowthRateCovariateCoeffs;
     std::vector<double>                   m_EstCarryingCapacities;
+    std::vector<double>                   m_EstCarryingCapacityCovariateCoeffs;
+    std::vector<double>                   m_EstCatchabilityCovariateCoeffs;
 //  std::vector<double>                   m_EstExploitationRates;
     std::vector<double>                   m_EstCatchability;
     std::vector<double>                   m_EstExponent;
@@ -181,10 +184,20 @@ public:
      */
     void getEstCarryingCapacities(std::vector<double> &EstCarryingCapacity);
     /**
+     * @brief Gets the estimated carrying capacity covariate coefficient values per species
+     * @param EstCarryingCapacityCovariateCoeffs : vector of carrying capacities covariate coefficients per species
+     */
+    void getEstCarryingCapacityCovariateCoeffs(std::vector<double> &EstCarryingCapacityCovariateCoeffs);
+    /**
      * @brief Gets the estimated catchability values per species
      * @param EstCatchability : vector of catchability values per species
      */
     void getEstCatchability(std::vector<double> &EstCatchability);
+    /**
+     * @brief Gets the estimated catchability covariate coefficient values per species
+     * @param EstCatchability : vector of catchability covariate coefficient values per species
+     */
+    void getEstCatchabilityCovariateCoeffs(std::vector<double> &estCatchabilityCovariateCoeffs);
     /**
      * @brief Gets the estimated alpha interaction values per species
      * @param EstInteraction : vector of alpha interaction values per species
@@ -210,6 +223,11 @@ public:
      * @param EstExponent : vector of exponent values per species
      */
     void getEstExponent(std::vector<double> &EstExponent);
+    /**
+     * @brief Gets the estimated growth rate covariate coefficient values per species
+     * @param EstGrowthRateCovariateCoeffs : vector of growth rate covariate coefficient values per species
+     */
+    void getEstGrowthRateCovariateCoeffs(std::vector<double> &EstGrowthRateCovariateCoeffs);
     /**
      * @brief Gets the estimated growth rate values per species
      * @param EstGrowthRates : vector of growth rate values per species

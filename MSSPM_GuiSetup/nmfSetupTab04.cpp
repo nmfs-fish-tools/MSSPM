@@ -761,6 +761,7 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
     std::string ObsBiomassType  = Setup_Tab4_ObsBiomassTypeCMB->currentText().toStdString();
     std::string StartYear       = std::to_string(Setup_Tab4_StartYearSB->value());
     std::string RunLength       = std::to_string(getRunLength());
+    std::string CovariateAlgorithmTypeDefault = nmfConstantsMSSPM::Linear;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -803,12 +804,13 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
                "', NumberOfParameters = "          + std::to_string(NumberOfParameters) +
                ",  StartYear = "                   + StartYear +
                ",  RunLength = "                   + RunLength +
-               " WHERE ModelName = '"              + currentModelName +
+               ",  CovariateAlgorithmType = '"     + CovariateAlgorithmTypeDefault +
+               "' WHERE ModelName = '"             + currentModelName +
                "' AND ProjectName = '"             + m_ProjectName + "'";
     } else { // This means the system name does not exist so do a replace
         cmd  = "REPLACE INTO " + nmfConstantsMSSPM::TableModels +
                " (ProjectName,ModelName,CarryingCapacity,ObsBiomassType,GrowthForm,PredationForm,HarvestForm,";
-        cmd += "WithinGuildCompetitionForm,StartYear,RunLength,NumberOfParameters) ";
+        cmd += "WithinGuildCompetitionForm,StartYear,RunLength,CovariateAlgorithmType,NumberOfParameters) ";
         cmd += "VALUES ('" +
                 m_ProjectName                      + "','"  +
                 currentModelName                   + "', "  +
@@ -819,7 +821,8 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
                 HarvestForm                        + "', '" +
                 CompetitionForm                    + "', "  +
                 StartYear                          + ", "   +
-                RunLength                          + ", "   +
+                RunLength                          + ", '"  +
+                CovariateAlgorithmTypeDefault      + "', "  +
                 std::to_string(NumberOfParameters) + " );";
     }
 

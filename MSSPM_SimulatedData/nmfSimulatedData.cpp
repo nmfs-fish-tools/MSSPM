@@ -19,7 +19,8 @@ nmfSimulatedData::nmfSimulatedData(
 
 bool
 nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
-                                         QString& filename)
+                                         QString& filename,
+                                         QString& errorMsg)
 {
     bool retv = true;
     bool isBiomassAbsolute;
@@ -33,9 +34,11 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     QStringList SpeciesList;
     std::vector<double> InitialBiomass;
     std::vector<double> GrowthRate;
+    std::vector<double> GrowthRateCovariateCoeffs;
     std::vector<double> SpeciesK;
+    std::vector<double> SpeciesKCovariateCoeffs;
+    std::vector<double> CatchabilityCovariateCoeffs;
     std::vector<int> GuildNum;
-    std::string msg;
     std::string GrowthForm;
     std::string HarvestForm;
     std::string CompetitionForm;
@@ -77,15 +80,16 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     std::map<int,std::vector<int> > GuildSpecies;
     std::vector<double> SurveyQ;
     double surveyQ;
-    double SurveyQCovariateCoeff = 1.0; // RSK estimate this later
-
+    double SurveyQCovariateCoeff = 0.0; // RSK estimate this later
+    std::string covariateAlgorithmType = m_DataStruct.CovariateAlgorithmType;
+qDebug() << "--> " << QString::fromStdString(covariateAlgorithmType);
     // Get some model data
     if (! m_Database->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
                 RunLength,InitialYear,isBiomassAbsolute)) {
-        msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getModelFormData";
-        m_Logger->logMsg(nmfConstants::Error,msg);
+        errorMsg = "nmfSimulatedData::createSimulatedBiomass: Error calling getModelFormData";
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return false;
     }
     NumYears = RunLength + 1; // to include the last year
@@ -105,8 +109,8 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
 
     // Get SurveyQ data
     if (! m_Database->getSurveyQData(m_Logger,SurveyQ)) {
-        msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getSurveyQData";
-        m_Logger->logMsg(nmfConstants::Error,msg);
+        errorMsg = "nmfSimulatedData::createSimulatedBiomass: Error calling getSurveyQData";
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return false;
     }
     if (isBiomassAbsolute) {
@@ -119,11 +123,21 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     if (! m_Database->getSpeciesInitialData(
                 m_Logger,NumSpecies,SpeciesList,InitialBiomass,
                 GrowthRate,SpeciesK)) {
-        msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getSpeciesInitialData";
-        m_Logger->logMsg(nmfConstants::Error,msg);
+        errorMsg = "nmfSimulatedData::createSimulatedBiomass: Error calling getSpeciesInitialData";
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return false;
     }
     // Get the guild data
+    //Get initial species covariate data
+    if (! m_Database->getSpeciesInitialCovariateData(
+                m_Logger,m_ProjectName,m_ModelName,
+                GrowthRateCovariateCoeffs,
+                SpeciesKCovariateCoeffs,
+                CatchabilityCovariateCoeffs)) {
+            errorMsg = "nmfSimulatedData::createSimulatedBiomass: Error calling getSpeciesInitialCovariateData";
+            m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+            return false;
+    }
 
     if (! m_Database->getGuildData(m_Logger,NumGuilds,NumYears,GuildList,GuildSpecies,
                                    GuildNum,SimulatedBiomassByGuilds)) {
@@ -131,16 +145,16 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     }
 
     nmfUtils::initialize(EstBiomassSpecies,NumYears,NumSpecies);
-    nmfUtils::initialize(Catch,NumYears,NumSpecies);
-    nmfUtils::initialize(Effort,NumYears,NumSpecies);
-    nmfUtils::initialize(Exploitation,NumYears,NumSpecies);
+    nmfUtils::initialize(Catch,            NumYears,NumSpecies);
+    nmfUtils::initialize(Effort,           NumYears,NumSpecies);
+    nmfUtils::initialize(Exploitation,     NumYears,NumSpecies);
 
     // Get harvest data
     if (! m_Database->getHarvestData(HarvestForm,m_Logger,m_ProjectName,m_ModelName,
                                      NumSpecies,NumYears,Catch,Effort,Exploitation,
                                      Catchability)) {
-        msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getHarvestData";
-        m_Logger->logMsg(nmfConstants::Error,msg);
+        errorMsg = "nmfSimulatedData::createSimulatedBiomass: Error calling getHarvestData";
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return false;
     }
 
@@ -148,8 +162,8 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     if (! m_Database->getPredationData(PredationForm,m_Logger,m_ProjectName,m_ModelName,
                                        NumSpecies,PredationRho,PredationHandling,
                                        PredationExponent)) {
-        msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getPredationData";
-        m_Logger->logMsg(nmfConstants::Error,msg);
+        errorMsg = "nmfSimulatedData::createSimulatedBiomass: Error calling getPredationData";
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return false;
     }
 
@@ -157,21 +171,26 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     if (! m_Database->getCompetitionData(CompetitionForm,m_Logger,m_ProjectName,m_ModelName,
                                          NumSpecies,NumGuilds,CompetitionAlpha,CompetitionBetaSpecies,
                                          CompetitionBetaGuild,CompetitionBetaGuildGuild)) {
-        msg = "nmfSimulatedData::createSimulatedBiomass: Error calling getCompetitionData";
-        m_Logger->logMsg(nmfConstants::Error,msg);
+        errorMsg = "nmfSimulatedData::createSimulatedBiomass: Error calling getCompetitionData";
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return false;
     }
 
     bool isAggProd = (CompetitionForm == "AGG_PROD");
-    double InitBiomassCoeff = 1.0; // RSK this will be estimated eventually
+    double InitBiomassCoeff = 0.0; // RSK this will be estimated eventually
 
     getSystemCarryingCapacity(isAggProd,NumGuilds,SpeciesK,
                               GuildSpecies,SystemCarryingCapacity);
 
     // Load initial biomasses for all species prior to starting loop because some
     // models wlll require other species' previous year's biomass
+qDebug() << "Init Biomass for species 0: " << InitialBiomass[0];
     for (int species=0; species<NumSpecies; ++species) {
-        EstBiomassSpecies(0,species) = InitialBiomass[species]*(1.0+InitBiomassCoeff*InitBiomassCovariate(0,species));
+       EstBiomassSpecies(0,species) = InitialBiomass[species];
+//     EstBiomassSpecies(0,species) = InitialBiomass[species]*(1.0+InitBiomassCoeff*InitBiomassCovariate(0,species));
+//     EstBiomassSpecies(0,species) = nmfUtils::applyCovariate(m_Logger,
+//                    covariateAlgorithmType,InitialBiomass[species],
+//                    InitBiomassCoeff,InitBiomassCovariate(0,species));
     }
 
     //
@@ -189,20 +208,37 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
         for (int species=0; species<NumSpecies; ++species) {
 
             if (timeMinus1 == 0) {
-                EstBiomassVal = InitialBiomass[species]*(1.0+InitBiomassCoeff*InitBiomassCovariate(timeMinus1,species));
+                EstBiomassVal = InitialBiomass[species];
+//              EstBiomassVal = InitialBiomass[species]*(1.0+InitBiomassCoeff*InitBiomassCovariate(timeMinus1,species));
+//              EstBiomassVal = nmfUtils::applyCovariate(m_Logger,
+//                          covariateAlgorithmType,InitialBiomass[species],
+//                          InitBiomassCoeff,InitBiomassCovariate(timeMinus1,species));
+if (time == 1) {
+    qDebug() << "EstBiomassVal: " << EstBiomassVal;
+    qDebug() << "covariateAlgorithmType: " << QString::fromStdString(covariateAlgorithmType);
+    qDebug() << "InitialBiomass[species]: " << InitialBiomass[species];
+    qDebug() << "InitBiomassCoeff: " << InitBiomassCoeff;
+    qDebug() << "InitBiomassCovariate(timeMinus1,species): " << InitBiomassCovariate(timeMinus1,species);
+}
             } else {
                 EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
             }
             // Multiply Biomass by SurveyQ in case it's Relative Biomass. SurveyQ will be all 1's
             // if it's Absolute Biomass.
             surveyQ = SurveyQ[species];
-            EstBiomassVal *= surveyQ*(1.0+SurveyQCovariateCoeff*SurveyQCovariate(time,species));
+//          EstBiomassVal *= surveyQ*(1.0+SurveyQCovariateCoeff*SurveyQCovariate(time,species));
+            EstBiomassVal *= nmfUtils::applyCovariate(m_Logger,
+                        covariateAlgorithmType,surveyQ,
+                        SurveyQCovariateCoeff,SurveyQCovariate(time,species));
+if (time == 1) {
+  qDebug() << "EstBiomassVal(2): " << EstBiomassVal;
+}
 
             speciesK  = SpeciesK[species];
             if (speciesK == 0) {
-                msg = "nmfSimulatedData::createSimulatedBiomass: Found SpeciesK=0 for Species (" +
-                        SpeciesList[species].toStdString() + ")";
-                m_Logger->logMsg(nmfConstants::Error,msg);
+                errorMsg = QString("nmfSimulatedData::createSimulatedBiomass: Found SpeciesK=0 for Species (") +
+                           SpeciesList[species] + ")";
+                m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
                 return false;
             }
 
@@ -210,20 +246,23 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
                                      GuildSpecies,GuildCarryingCapacity);
 
             GrowthTerm = SimGrowthForm.evaluate(
+                        covariateAlgorithmType,
                         EstBiomassVal,
                         GrowthRate[species],
+                        GrowthRateCovariateCoeffs[species],
                         GrowthRateCovariate(timeMinus1,species),
                         SpeciesK[species],
+                        SpeciesKCovariateCoeffs[species],
                         SpeciesKCovariate(timeMinus1,species));
             HarvestTerm = SimHarvestForm.evaluate(
-                        timeMinus1,species,
-                        EstBiomassVal,
-                        Catch,
-                        Effort,
-                        Exploitation,
-                        Catchability,
-                        CatchabilityCovariate);
+                        covariateAlgorithmType,
+                        timeMinus1,species,EstBiomassVal,
+                        Catch,Effort,Exploitation,
+                        Catchability[species],
+                        CatchabilityCovariateCoeffs[species],
+                        CatchabilityCovariate(timeMinus1,species));
             CompetitionTerm = SimCompetitionForm.evaluate(
+                        covariateAlgorithmType,
                         timeMinus1,species,EstBiomassVal,
                         GrowthRate,
                         GrowthRateCovariate,
@@ -240,12 +279,16 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
                         CompetitionBetaGuildGuild,
                         CompetitionBetaGuildGuildCovariate);
             PredationTerm = SimPredationForm.evaluate(
+                        covariateAlgorithmType,
                         timeMinus1, species,
                         EstBiomassSpecies,EstBiomassVal,
                         PredationRho,PredationRhoCovariate,
                         PredationHandling,PredationHandlingCovariate,
                         PredationExponent,PredationExponentCovariate);
             val = EstBiomassVal + GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
+if (time == 1) {
+ qDebug() << val << " = " << EstBiomassVal << " + " << GrowthTerm << " - " << HarvestTerm << " - " << CompetitionTerm << " - " << PredationTerm;
+}
             addError(errorPct,val);
             EstBiomassSpecies(time,species) = (val < 0) ? 0 : val;
         }

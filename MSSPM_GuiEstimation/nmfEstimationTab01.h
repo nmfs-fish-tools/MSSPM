@@ -94,7 +94,6 @@ class nmfEstimation_Tab1: public QObject
                                      QString badParameter,
                                      bool showPopup);
     bool getCSVFileName(QString& tableName);
-    QModelIndexList getSelectedVisibleCells();
     void getSelectedIndexes();
     void importGuildData(const QString& tableName,
                          bool updateSetup);

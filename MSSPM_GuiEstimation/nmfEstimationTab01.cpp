@@ -953,8 +953,8 @@ nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin()
         SpeciesKMin = valueWithoutComma.toDouble();
 
         if (InitBiomass > SpeciesKMin) {
-            errorMsg  = "\nFound: InitBiomass (" + std::to_string(InitBiomass) +
-                    ") > SpeciesKMin (" + std::to_string(SpeciesKMin) +
+            errorMsg  = "\nFound: InitBiomass (" + QString::number(InitBiomass).toStdString() +
+                    ") > SpeciesKMin (" + QString::number(SpeciesKMin).toStdString() +
                     ") for Species: " + SpeName.toStdString();
             errorMsg += "\n\nInitBiomass must be less than SpeciesKMin.\n";
             QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
@@ -1794,25 +1794,6 @@ nmfEstimation_Tab1::getOutputSpecies()
     return m_OutputSpecies;
 }
 
-QModelIndexList
-nmfEstimation_Tab1::getSelectedVisibleCells()
-{
-    QItemSelectionModel *selectionModel = Estimation_Tab1_SpeciesPopulationTV->selectionModel();
-    QModelIndexList indexes = selectionModel->selectedIndexes();
-    return indexes;
-}
-
-void
-nmfEstimation_Tab1::reselectVisibleCells(QModelIndexList indexes)
-{
-    if (indexes.size() > 0) {
-        QItemSelectionModel *selectionModel = Estimation_Tab1_SpeciesPopulationTV->selectionModel();
-        for (QModelIndex index : indexes) {
-            selectionModel->select(index,QItemSelectionModel::Select);
-        }
-    }
-}
-
 void
 nmfEstimation_Tab1::callback_SpeciesRangeCMB(QString value)
 {
@@ -1820,13 +1801,13 @@ nmfEstimation_Tab1::callback_SpeciesRangeCMB(QString value)
     Estimation_Tab1_MinMaxCMB->setEnabled(value == "Percentage");
 
     // RSK - Not sure we want this logic. Comment it out for now.
-//    QModelIndexList indexes = getSelectedVisibleCells();
+//    QModelIndexList indexes = nmfUtilsQt::getSelectedTableViewCells(Estimation_Tab1_SpeciesPopulationTV);
 //    if (value == "Percentage") {
 //        callback_SpeciesRangeSB(Estimation_Tab1_SpeciesRangeSB->value());
 //    } else {
 //        loadWidgets();
 //    }
-//    reselectVisibleCells(indexes);
+//    nmfUtilsQt::reselectTableViewCells(Estimation_Tab1_SpeciesPopulationTV,indexes);
 }
 
 void
@@ -1850,7 +1831,7 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
     QString valueWithComma;
     double newValue;
 
-    QModelIndexList indexes = getSelectedVisibleCells();
+    QModelIndexList indexes = nmfUtilsQt::getSelectedTableViewCells(Estimation_Tab1_SpeciesPopulationTV);
 
     int numRows = m_SpeciesModel->rowCount();
     if (indexes.size() == 0) { // mean no selections, so set all min/max parameter values
@@ -1914,7 +1895,7 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                     break;
             }
         }
-        reselectVisibleCells(indexes);
+        nmfUtilsQt::reselectTableViewCells(Estimation_Tab1_SpeciesPopulationTV,indexes);
     }
     Estimation_Tab1_SpeciesPopulationTV->resizeColumnsToContents();
 }

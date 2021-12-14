@@ -250,6 +250,7 @@ private:
     QTableView*              SummaryTV;
     QTableView*              DiagnosticSummaryTV;
     QTableView*              OutputBiomassTV;
+    QTableView*              CovariateCoefficientsTV;
     QVBoxLayout*             VChartLayt;
     QVBoxLayout*             OutputChartMainLayt;
     QWidget*                 NavigatorTreeWidget;
@@ -352,8 +353,11 @@ private:
             const boost::numeric::ublas::matrix<double>& EstPredationRho);
     bool calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                 std::vector<double>& EstGrowthRates,
+                                std::vector<double>& EstGrowthRateCovariateCoeffs,
                                 std::vector<double>& EstCarryingCapacities,
+                                std::vector<double>& EstCarryingCapacityCovariateCoeffs,
                                 std::vector<double>& EstCatchability,
+                                std::vector<double>& EstCatchabilityCovariateCoeffs,
                                 std::vector<double>& EstExponent,
                                 std::vector<double>& EstSurveyQ,
                                 boost::numeric::ublas::matrix<double>& InitBiomassCovariates,
@@ -618,6 +622,10 @@ private:
                    std::string &state);
     bool loadCovariateAssignment(std::map<std::string,std::string>& covariateAssignment);
     bool loadCovariateData(std::map<std::string,std::vector<double> >& covariateMap);
+    bool loadCovariateRanges(
+       std::map<std::string,nmfStructsQt::CovariateStruct>& growthRateCovariateRanges,
+       std::map<std::string,nmfStructsQt::CovariateStruct>& carryingCapacityCovariateRanges,
+       std::map<std::string,nmfStructsQt::CovariateStruct>& catchabilityCovariateRanges);
     void loadGuis();
     void loadDatabase();
     bool loadInteraction(int &NumSpecies,
@@ -658,6 +666,7 @@ private:
                                      int &NumInteractionParameters);
     bool loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
                         const bool& verbose);
+    bool loadParametersMisc(nmfStructsQt::ModelDataStruct& dataStruct);
     void loadSummaryStatisticsModel(
             const int& NumSpeciesOrGuilds,
             QStandardItemModel* smodel,
@@ -907,31 +916,37 @@ private:
                                   std::string& PredationForm,
                                   std::string& InitBiomassTable,
                                   std::string& GrowthRateTable,
+                                  std::string& GrowthRateCovariateCoeffsTable,
                                   std::string& CarryingCapacityTable,
+                                  std::string& CarryingCapacityCovariateCoeffsTable,
                                   std::string& CatchabilityTable,
+                                  std::string& CatchabilityCovariateCoeffsTable,
                                   std::string& SurveyQTable,
                                   std::string& OutputBiomassTable);
     void updateProgressChartAnnotation(double xMin, double xMax, double xInc);
     void updateOutputTables(
-        std::string                                 &Algorithm,
-        std::string                                 &Minimizer,
-        std::string                                 &ObjectiveCriterion,
-        std::string                                 &Scaling,
-        const int                                   &isCompAggProd,
-        const QStringList                           &SpeciesList,
-        const QStringList                           &GuildList,
-        const std::vector<double>                   &EstInitBiomass,
-        const std::vector<double>                   &EstGrowthRates,
-        const std::vector<double>                   &EstCarryingCapacities,
-        const std::vector<double>                   &EstCatchability,
-        const boost::numeric::ublas::matrix<double> &EstCompetitionAlpha,
-        const boost::numeric::ublas::matrix<double> &EstCompetitionBetaSpecies,
-        const boost::numeric::ublas::matrix<double> &EstCompetitionBetaGuilds,
-        const boost::numeric::ublas::matrix<double> &EstCompetitionBetaGuildsGuilds,
-        const boost::numeric::ublas::matrix<double> &EstPredation,
-        const boost::numeric::ublas::matrix<double> &EstHandling,
-        const std::vector<double>                   &EstExponent,
-        const std::vector<double>                   &EstSurveyQ);
+        std::string&                                 Algorithm,
+        std::string&                                 Minimizer,
+        std::string&                                 ObjectiveCriterion,
+        std::string&                                 Scaling,
+        const int&                                   isCompAggProd,
+        const QStringList&                           SpeciesList,
+        const QStringList&                           GuildList,
+        const std::vector<double>&                   EstInitBiomass,
+        const std::vector<double>&                   EstGrowthRates,
+        const std::vector<double>&                   EstGrowthRateCovariateCoeffs,
+        const std::vector<double>&                   EstCarryingCapacities,
+        const std::vector<double>&                   EstCarryingCapacityCovariateCoeffs,
+        const std::vector<double>&                   EstCatchability,
+        const std::vector<double>&                   EstCatchabilityCovariateCoeffs,
+        const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
+        const boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
+        const boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
+        const boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
+        const boost::numeric::ublas::matrix<double>& EstPredation,
+        const boost::numeric::ublas::matrix<double>& EstHandling,
+        const std::vector<double>&                   EstExponent,
+        const std::vector<double>&                   EstSurveyQ);
     void updateModelEquationSummary();
     void updateScreenShotViewer(QString filename);
     bool getSurfaceData(
@@ -967,13 +982,17 @@ private:
             const std::string& ObjectiveCriterion,
             const std::string& Scaling,
             const boost::numeric::ublas::matrix<double>& CalculatedBiomass);
+    void updateOutputCovariateCoefficientsTable(const QStringList& SpeciesList);
     void updateOutputTableViews(
             const QStringList&                           SpeciesList,
             const QStringList&                           GuildList,
             const std::vector<double>&                   EstInitBiomass,
             const std::vector<double>&                   EstGrowthRates,
+            const std::vector<double>&                   EstGrowthRateCovariateCoeffs,
             const std::vector<double>&                   EstCarryingCapacities,
+            const std::vector<double>&                   EstCarryingCapacityCovariateCoeffs,
             const std::vector<double>&                   EstCatchability,
+            const std::vector<double>&                   EstCatchabilityCovariateCoeffs,
             const std::vector<double>&                   EstPredationExponent,
             const std::vector<double>&                   EstSurveyQ,
             const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,

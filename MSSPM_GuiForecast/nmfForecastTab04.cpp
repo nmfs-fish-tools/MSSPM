@@ -60,6 +60,8 @@ nmfForecast_Tab4::nmfForecast_Tab4(QTabWidget*  tabs,
     connect(Forecast_Tab4_FontSizeCMB, SIGNAL(currentTextChanged(QString)),
             this,                      SLOT(callback_FontSizeCMB(QString)));
 
+    enableRunButton(true);
+
 }
 
 

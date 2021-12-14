@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Estimation_Tab1_PopulationTab</class>
- <widget class="QWidget" name="Estimation_Tab1_PopulationTab">
+ <class>Estimation_Tab6_CovariateTab</class>
+ <widget class="QWidget" name="Estimation_Tab6_CovariateTab">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>765</width>
-    <height>349</height>
+    <width>789</width>
+    <height>359</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_7">
+  <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
     <widget class="QTabWidget" name="Estimation_Tab6_CovariateDataTW">
      <property name="currentIndex">
@@ -37,7 +37,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Environmental Covariate Data Table</string>
+              <string>Environmental Covariate Data Table:</string>
              </property>
             </widget>
            </item>
@@ -49,6 +49,61 @@
              <property name="sizeHint" stdset="0">
               <size>
                <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="toolTip">
+              <string>Sets the type of covariate algorithm to be used</string>
+             </property>
+             <property name="statusTip">
+              <string>Sets the type of covariate algorithm to be used</string>
+             </property>
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Algorithm Type&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the type of covariate algorithm to be used in all covariate calculations.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1. Linear&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This option will use the covariate coefficient (cc) and covariate value (cov) in the following linear form for the example parameter r (growth rate):&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;r*(1+cc*cov)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. Exponential&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This option will use the covariate coefficient (cc) and covariate value (cov) in the following exponential form for the example parameter r (growth rate):&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;r&lt;span style=&quot; vertical-align:super;&quot;&gt;(cc*cov)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Alg type:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Estimation_Tab6_AlgTypeCMB">
+             <property name="toolTip">
+              <string>Sets the type of covariate algorithm to be used</string>
+             </property>
+             <property name="statusTip">
+              <string>Sets the type of covariate algorithm to be used</string>
+             </property>
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Algorithm Type&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the type of covariate algorithm to be used in all covariate calculations.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1. Linear&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This option will use the covariate coefficient (cc) and covariate value (cov) in the following linear form for the example parameter r (growth rate):&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;r*(1+cc*cov)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. Exponential&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This option will use the covariate coefficient (cc) and covariate value (cov) in the following exponential form for the example parameter r (growth rate):&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;r&lt;span style=&quot; vertical-align:super;&quot;&gt;(cc*cov)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;N.B. &lt;/span&gt;If either the covariate coefficent (cc) or the covariate value (cov) are 0, this means that the Linear algorithm type will yield a value of just the parameter (r, in the example above) and the Exponential algorithm type will yield a value of 1 (r&lt;span style=&quot; vertical-align:super;&quot;&gt;0&lt;/span&gt;=1, in the example above). The implications of the parameter covariate expression being 1 will, most likely, cause the calculated biomass to become 0 for all years.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>Linear</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Exponential</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_8">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
                <height>20</height>
               </size>
              </property>
@@ -129,6 +184,53 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QPushButton" name="Estimation_Tab6_ViewNormalizedPB">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Toggles viewing the normalized covariate values</string>
+             </property>
+             <property name="statusTip">
+              <string>Toggles viewing the normalized covariate values</string>
+             </property>
+             <property name="text">
+              <string>VwNm</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
           </layout>
          </item>
          <item>
@@ -136,7 +238,7 @@
            <item>
             <widget class="QTableView" name="Estimation_Tab6_CovariateTV">
              <property name="whatsThis">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Environmental Covariate Table&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Each Covariate column is a time series containing the covariate data. The covariate term, cov(t,s), is used as follows wherever an estimated parameter appears in the model:&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)*(1.0+ccoeff(s)*cov(t,s))&lt;/p&gt;&lt;p&gt;where:&lt;/p&gt;&lt;p&gt;p(s) = an estimated parameter for species s&lt;br/&gt;ccoeff(s) = estimated covariate coefficient for species s&lt;br/&gt;cov(t,s) = environmental covariate time series for species s&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Environmental Covariate Table&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Each Covariate column is a time series containing the covariate data. The data in each column are normalized (i.e. rescaled to values between 0 and 1, inclusive). The covariate term, cov(t,s), is used as follows wherever an estimated parameter appears in the model:&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)*(1.0+ccoeff(s)*cov(t,s))&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;or &lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)&lt;span style=&quot; vertical-align:super;&quot;&gt;(ccoeff(s)*cov(t,s))&lt;/span&gt;&lt;/p&gt;&lt;p&gt;based upon the value of the Algorithm Type pulldown (i.e., Linear, Exponential)&lt;/p&gt;&lt;p&gt;where:&lt;/p&gt;&lt;p&gt;p(s) = an estimated parameter for species s&lt;br/&gt;ccoeff(s) = estimated covariate coefficient for species s&lt;br/&gt;cov(t,s) = environmental covariate time series for species s&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -198,6 +300,22 @@
            </property>
           </widget>
          </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </item>
        <item>
@@ -205,7 +323,11 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QTableView" name="Estimation_Tab6_SpeciesParameterTV"/>
+            <widget class="QTableView" name="Estimation_Tab6_SpeciesParameterTV">
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Species/Parameter Table&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This table allows the user to select the desired covariate for a specific species/parameter pair. This table does not need to be completely filled out. Once this table is updated (and saved), the next tab will allow the user to enter initial and range values for each covariate coefficient.&lt;/p&gt;&lt;p&gt;N.B. Currently, the only parameters that are available for covariate estimation are:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Growth Rate&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Carrying Capacity&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Catchability&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;(i.e., the Growth and Harvest parameters)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -229,7 +351,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Set initial Covariate Coefficient values and ranges for Covariate Coefficient estimation:</string>
+            <string>Initial Covariate Coefficient Values and Ranges:</string>
            </property>
           </widget>
          </item>
@@ -246,12 +368,170 @@
            </property>
           </spacer>
          </item>
+         <item>
+          <widget class="QComboBox" name="Estimation_Tab6_SpeciesRangeCMB">
+           <property name="minimumSize">
+            <size>
+             <width>105</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>105</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Choose if user enters range manually or via percentage</string>
+           </property>
+           <property name="statusTip">
+            <string>Choose if user enters range manually or via percentage</string>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Range Type&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this is set to User Defined, the user enters in the desired min/max range values directly into the table. If this is set to Percentage, the min/max range values are set by the percentage number set by the spin box to the right.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>User Defined</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Percentage</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="Estimation_Tab6_SpeciesRangeSB">
+           <property name="toolTip">
+            <string>Sets the percentage range min/max values</string>
+           </property>
+           <property name="statusTip">
+            <string>Sets the percentage range min/max values</string>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Range Percentage&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This value represents the percentage of a parameter the min/max values will be set to. For example, if SpeciesK is 100 and this value is set to 10, SpeciesKMin will be set to 90 and SpeciesKMax will be set to 110.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="Estimation_Tab6_MinMaxCMB">
+           <property name="toolTip">
+            <string>Selects the type of values the percentage values should be set for</string>
+           </property>
+           <property name="statusTip">
+            <string>Selects the type of values the percentage values should be set for</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>min/max</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min only</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>max only</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>5</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Estimation_Tab6_SetEstOffPB">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Disable Estimation for the Selected Cells</string>
+           </property>
+           <property name="statusTip">
+            <string>Disable Estimation for the Selected Cells</string>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Set Estimation to Off&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button will effectively disable estimation for the selected cells and give the covariate the effect of a forcing function. It does this by setting the min and max values equal to the initial value for all selected cells. If no cells are selected, this will be done for all cells.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Set Est Off</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Estimation_Tab6_ClearRangesPB">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Sets selected cells  to 0</string>
+           </property>
+           <property name="statusTip">
+            <string>Sets selected cells  to 0</string>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Clear&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Sets the selected cells to 0. This is useful if the user wants to disable covariate contribution completely. &lt;/p&gt;&lt;p&gt;N.B. This can also be accomplished by removing all of the Species/Parameter Assignments in the previous tab.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Clr</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </item>
        <item>
         <widget class="QTableView" name="Estimation_Tab6_InitialValuesTV">
          <property name="whatsThis">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Initial Values and Ranges&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This table is used to enter the Covariate Coefficient initial values and respective ranges used to estimate the Covariate Coefficient. Default values are set to 1. The user may change these as desired but must ensure that the initial value is greater than or equal to the minimum range value and that the initial values is less than or equal to the maximum range value.&lt;/p&gt;&lt;p&gt;As described in the WhatsThis help for tab #1, Covariate Data, the covariate coefficient is used in the following way:&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)*(1.0+ccoeff(s)*cov(t,s))&lt;/p&gt;&lt;p&gt;where:&lt;/p&gt;&lt;p&gt;p(s) = an estimated parameter for species s&lt;br/&gt;ccoeff(s) = estimated covariate coefficient for species s &lt;br/&gt;cov(t,s) = environmental covariate time series for species s&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Initial Values and Ranges&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This table is used to enter the covariate coefficient initial values and respective ranges used to estimate the covariate coefficient. Default values are set to 0. The user may change these as desired but must ensure that the initial value is greater than or equal to the minimum range value and that the initial value is less than or equal to the maximum range value.&lt;/p&gt;&lt;p&gt;As described in the WhatsThis help for tab, 1. Covariate Data, the covariate coefficient is used in the following way:&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)*(1.0+ccoeff(s)*cov(t,s))&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;or &lt;/p&gt;&lt;p align=&quot;center&quot;&gt;p(s)&lt;span style=&quot; vertical-align:super;&quot;&gt;(ccoeff(s)*cov(t,s))&lt;/span&gt;&lt;/p&gt;&lt;p&gt;based upon the value of the Algorithm Type pulldown (i.e., Linear, Exponential)&lt;/p&gt;&lt;p&gt;where:&lt;/p&gt;&lt;p&gt;p(s) = an estimated parameter for species s&lt;br/&gt;ccoeff(s) = estimated covariate coefficient for species s &lt;br/&gt;cov(t,s) = environmental covariate time series for species s&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>

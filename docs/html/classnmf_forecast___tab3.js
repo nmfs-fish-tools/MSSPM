@@ -10,6 +10,7 @@ var classnmf_forecast___tab3 =
     [ "callback_NextPB", "classnmf_forecast___tab3.html#a9a91e375b801a1aad34326ff214d3c5f", null ],
     [ "callback_PrevPB", "classnmf_forecast___tab3.html#a49a1a94bbd06ef8d31c466318cc75e00", null ],
     [ "callback_SavePB", "classnmf_forecast___tab3.html#a9fec3606c5b5cac0b7694ce27a9f440c", null ],
+    [ "callback_SetPB", "classnmf_forecast___tab3.html#ad2cc68b16247be344ead9b1d28de6b8c", null ],
     [ "loadWidgets", "classnmf_forecast___tab3.html#a5a10384304b5b3b7706c9a8125a67719", null ],
     [ "RunForecast", "classnmf_forecast___tab3.html#a53a7ae2269c83ca5cb7c4a6e2c0b0f62", null ]
 ];

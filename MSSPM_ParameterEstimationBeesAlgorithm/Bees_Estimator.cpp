@@ -69,7 +69,10 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     m_EstSystemCarryingCapacity = 0;
     m_EstInitBiomass.clear();
     m_EstGrowthRates.clear();
+    m_EstGrowthRateCovariateCoeffs.clear();
     m_EstCarryingCapacities.clear();
+    m_EstCarryingCapacityCovariateCoeffs.clear();
+    m_EstCatchabilityCovariateCoeffs.clear();
     m_EstAlpha.clear();
     m_EstPredation.clear();
     m_EstHandling.clear();
@@ -169,9 +172,13 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                                             m_EstInitBiomass);
                 beesAlg->extractGrowthParameters(EstParameters,startPos,
                                                  m_EstGrowthRates,
+                                                 m_EstGrowthRateCovariateCoeffs,
                                                  m_EstCarryingCapacities,
+                                                 m_EstCarryingCapacityCovariateCoeffs,
                                                  m_EstSystemCarryingCapacity);
-                beesAlg->extractHarvestParameters(EstParameters,startPos,m_EstCatchability);
+                beesAlg->extractHarvestParameters(EstParameters,startPos,
+                                                  m_EstCatchability,
+                                                  m_EstCatchabilityCovariateCoeffs);
                 beesAlg->extractCompetitionParameters(EstParameters,startPos,
                                                       m_EstAlpha,
                                                       m_EstBetaSpecies,
@@ -186,7 +193,7 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 numTotalParameters = EstParameters.size();
                 createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,
                                 bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
-   std::cout << "1 Emitting RunCompleted" << std::endl;
+
                 emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
 
             }
@@ -268,14 +275,17 @@ Bees_Estimator::createOutputStr(
         bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:",m_InitialCarryingCapacities,true);
     }
     bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong>";
-    bestFitnessStr += convertValues1DToOutputStr("Initial Absolute Biomass:    ",m_EstInitBiomass,false);
-    bestFitnessStr += convertValues1DToOutputStr("Growth Rate:        ",m_EstGrowthRates,false);
+    bestFitnessStr += convertValues1DToOutputStr("Initial Absolute Biomass:    ", m_EstInitBiomass,false);
+    bestFitnessStr += convertValues1DToOutputStr("Growth Rate:        ",          m_EstGrowthRates,false);
+    bestFitnessStr += convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ",m_EstGrowthRateCovariateCoeffs,false);
     if (growthForm == "Logistic") {
-        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:  ",m_EstCarryingCapacities,true);
+        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:  ",                 m_EstCarryingCapacities,true);
+        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity Covariate Coeffs:  ",m_EstCarryingCapacityCovariateCoeffs,true);
     }
 
     if (harvestForm == "Effort (qE)") {
-        bestFitnessStr += convertValues1DToOutputStr("Catchability:       ",m_EstCatchability,false);
+        bestFitnessStr += convertValues1DToOutputStr("Catchability:       ",                 m_EstCatchability,false);
+        bestFitnessStr += convertValues1DToOutputStr("Catchability Covariate Coeffs:       ",m_EstCatchabilityCovariateCoeffs,false);
     }
 
     if (competitionForm == "NO_K") {
@@ -383,9 +393,27 @@ Bees_Estimator::getEstGrowthRates(std::vector<double> &estGrowthRates)
 }
 
 void
+Bees_Estimator::getEstGrowthRateCovariateCoeffs(std::vector<double> &estGrowthRateCovariateCoeffs)
+{
+    estGrowthRateCovariateCoeffs = m_EstGrowthRateCovariateCoeffs;
+}
+
+void
 Bees_Estimator::getEstCarryingCapacities(std::vector<double> &estCarryingCapacities)
 {
     estCarryingCapacities = m_EstCarryingCapacities;
+}
+
+void
+Bees_Estimator::getEstCarryingCapacityCovariateCoeffs(std::vector<double> &estCarryingCapacityCovariateCoeffs)
+{
+    estCarryingCapacityCovariateCoeffs = m_EstCarryingCapacityCovariateCoeffs;
+}
+
+void
+Bees_Estimator::getEstCatchabilityCovariateCoeffs(std::vector<double> &estCatchabilityCovariateCoeffs)
+{
+    estCatchabilityCovariateCoeffs = m_EstCatchabilityCovariateCoeffs;
 }
 
 void

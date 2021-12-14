@@ -2,8 +2,8 @@ var classnmf_estimation___tab6 =
 [
     [ "nmfEstimation_Tab6", "classnmf_estimation___tab6.html#a76d9d96d0040005c1beac82e6b1042e7", null ],
     [ "~nmfEstimation_Tab6", "classnmf_estimation___tab6.html#a588a962f6558b77c50cde66ead87f21b", null ],
-    [ "calculateCovariateScaleFactor", "classnmf_estimation___tab6.html#ad363337de98270a4a452a76222280439", null ],
     [ "callback_AddPB", "classnmf_estimation___tab6.html#a684aa30561869303fc946332a4ea39e0", null ],
+    [ "callback_ClearInitialValuesAndRangePB", "classnmf_estimation___tab6.html#a272e59d198a9cea4e666922a84e49c42", null ],
     [ "callback_ClearPB", "classnmf_estimation___tab6.html#aa8c393e44d2ea9350e09529c05a7ae58", null ],
     [ "callback_DeletePB", "classnmf_estimation___tab6.html#ae01d6861812b037d3cce5d6a74ad13c7", null ],
     [ "callback_ExportPB", "classnmf_estimation___tab6.html#a4f2189d086b28f8fdf7e918d225fce21", null ],
@@ -14,7 +14,15 @@ var classnmf_estimation___tab6 =
     [ "callback_RenamePB", "classnmf_estimation___tab6.html#a1bcac5b1911b99955b56792caa8c9dee", null ],
     [ "callback_SavePB", "classnmf_estimation___tab6.html#ab9d8966d571adcbf20eb563be2cee41f", null ],
     [ "callback_SetEstimateRunCheckboxes", "classnmf_estimation___tab6.html#a0eb5550a41b08ad7711123d0fe30d9d2", null ],
+    [ "callback_SetEstOffPB", "classnmf_estimation___tab6.html#a612fbb70e99b17f7ec81ec3911e3e490", null ],
+    [ "callback_SpeciesRangeCMB", "classnmf_estimation___tab6.html#ac419415244a0d97c5e2e5f2b5fe21852", null ],
+    [ "callback_SpeciesRangeSB", "classnmf_estimation___tab6.html#abd3728da3f7999e3ece12ad0749c67dd", null ],
+    [ "callback_ViewNormalizedPB", "classnmf_estimation___tab6.html#aa7b5c38ee55893e249c618d045d4d249", null ],
+    [ "getCovariateAlgorithmType", "classnmf_estimation___tab6.html#aaa73895ba92ce221efa8c5ef9a5f84e1", null ],
+    [ "loadCovariateAlgorithmType", "classnmf_estimation___tab6.html#a5f2054eff4e92244832d31b98fa01355", null ],
     [ "loadCovariateAssignmentTable", "classnmf_estimation___tab6.html#a3654030733045626912c93025f1077d6", null ],
+    [ "loadCovariateInitialValuesAndRangesTable", "classnmf_estimation___tab6.html#a6e828bd97198fc1a362f7613d3b08366", null ],
     [ "loadCovariateTable", "classnmf_estimation___tab6.html#a442a6dc124e89b5a8ba097648b9f862d", null ],
+    [ "loadInitialValuesAndRangesForEditableCells", "classnmf_estimation___tab6.html#a6485c2c7f0fa4b8790ffb7019ea65fc2", null ],
     [ "loadWidgets", "classnmf_estimation___tab6.html#a424bd9a8e8d42e121e7de02a46015da2", null ]
 ];

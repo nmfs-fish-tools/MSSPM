@@ -127,10 +127,12 @@ public:
      * @brief Creates a simulated Biomass time series with the current model settings
      * @param errorPct : percent error to add around values
      * @param filename : filename where to write out simulated biomass
+     * @param errorMsg : error message to pass back to the calling routine
      * @return true if data were read correctly, false otherwise
      */
     bool createSimulatedBiomass(const int& errorPct,
-                                QString& filename);
+                                QString& filename,
+                                QString& errorMsg);
 };
 
 #endif // nmfSimulatedData_H

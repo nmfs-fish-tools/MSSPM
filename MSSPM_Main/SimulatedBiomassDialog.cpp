@@ -106,6 +106,7 @@ void
 SimulatedBiomassDialog::callback_ContinuePB()
 {
     QString msg;
+    QString errorMsg;
     nmfSimulatedData SimulatedData(m_Database,m_Logger,m_ProjectName,m_ModelName,m_DataStruct);
     QString filenameWithPath;
     QString filename = getFilename().toLower();
@@ -116,17 +117,21 @@ SimulatedBiomassDialog::callback_ContinuePB()
         return;
     }
 
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QString inputDataPath =  QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
     filenameWithPath = QDir(inputDataPath).filePath(filename);
     m_Logger->logMsg(nmfConstants::Normal,"Writing to: "+filenameWithPath.toStdString());
-    bool ok = SimulatedData.createSimulatedBiomass(errorPct,filenameWithPath);
+    bool ok = SimulatedData.createSimulatedBiomass(errorPct,filenameWithPath,errorMsg);
     close();
 
     if (ok) {
-        msg = "\nSuccessfully created simulated biomass time series. Data written to:\n\n";
+        msg = "\nSuccessfully created simulated biomass time series.\n\nData written to:\n\n";
         msg += filenameWithPath + "\n";
-        QMessageBox::information(this, tr("Create Simulated Biomass"), tr(msg.toLatin1()),
+        QMessageBox::information(this, tr("Success"), tr(msg.toLatin1()),
                                  QMessageBox::Ok);
+    } else {
+        msg = "\nError creating simulated biomass:\n\n";
+        msg += errorMsg + "\n";
+        QMessageBox::critical(this, tr("Error"), tr(msg.toLatin1()),
+                              QMessageBox::Ok);
     }
-
 }
