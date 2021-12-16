@@ -120,7 +120,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     readSettingsGuiOrientation(nmfConstantsMSSPM::ResetPositionAlso);
     readSettings();
 
-    m_TableNamesDlg = new TableNamesDialog(this, m_DatabasePtr, m_ProjectDatabase);
+    m_TableNamesDlg = new TableNamesDialog(this, m_DatabasePtr);
     initializePreferencesDlg();
 
     // Hide Progress Chart and Log dock widgets. Show them once user does their first MSSPM run.
@@ -1906,7 +1906,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.42 (beta)";
+    QString version = "MSSPM v0.9.43 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -9303,7 +9303,7 @@ nmfMainWindow::context_Action(bool triggered)
 void
 nmfMainWindow::menu_showTableNames()
 {
-    m_TableNamesDlg->loadTableNames();
+    m_TableNamesDlg->loadTableNames(m_ProjectDatabase);
     m_TableNamesDlg->show();
 }
 
@@ -10539,7 +10539,6 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
     // RSK try calling    updateOutputBiomassTable(...nmfConstantsMSSPM::TableOutputBiomassEnsemble) instead of doing this....seems like there's repetitive code here
     //
     //
-
     if (! m_DatabasePtr->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
@@ -10646,6 +10645,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
 
     }
 
+    double EstCarryingCapacityValue = 0;
     for (int time = 1; time <= RunLength; time++) {
         timeMinus1 = time-1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species)
@@ -10669,7 +10669,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                                    EstGrowthRateCovariateCoeffs[species],
                                                    GrowthRateCovariate(timeMinus1,species),
                                                    EstCarryingCapacities[species],
-                                                   EstCarryingCapacityCovariateCoeffs[species],
+                                                   EstCarryingCapacityValue,
                                                    CarryingCapacityCovariate(timeMinus1,species));
             harvestTerm     = harvestForm->evaluate(CovariateAlgorithmType,
                                                     timeMinus1,species,EstBiomassVal,
@@ -10726,7 +10726,6 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
 
         }
     }
-
 
     return true;
 }
@@ -10872,10 +10871,14 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     m_Estimator_NLopt->getEstExponent(EstPredationExponent);
 
     if (! calculateSubRunBiomass(EstInitBiomass,
-                                 EstGrowthRates,EstGrowthRateCovariateCoeffs,
-                                 EstCarryingCapacities, EstCarryingCapacityCovariateCoeffs,
-                                 EstCatchability,EstCatchabilityCovariateCoeffs,
-                                 EstPredationExponent,EstSurveyQ,
+                                 EstGrowthRates,
+                                 EstGrowthRateCovariateCoeffs,
+                                 EstCarryingCapacities,
+                                 EstCarryingCapacityCovariateCoeffs,
+                                 EstCatchability,
+                                 EstCatchabilityCovariateCoeffs,
+                                 EstPredationExponent,
+                                 EstSurveyQ,
                                  InitBiomassCovariate,
                                  GrowthRateCovariate,
                                  CarryingCapacityCovariate,
@@ -11119,6 +11122,7 @@ nmfMainWindow::calculateAverageBiomass()
     int NumGuilds;
     int NumSpecies;
     int RunLength;
+    int NumYears;
     bool isBiomassAbsolute;
     QString aveAlgorithm = Estimation_Tab7_ptr->getEnsembleAveragingAlgorithm();
     std::string aveAlgorithmStr = aveAlgorithm.toStdString();
@@ -11132,18 +11136,18 @@ nmfMainWindow::calculateAverageBiomass()
     std::vector<double> AveCatchability;
     std::vector<double> AveCatchabilityCovariateCoeffs;
     std::vector<double> AveSurveyQ;
-    boost::numeric::ublas::matrix<double> AveInitBiomassCovariate;
-    boost::numeric::ublas::matrix<double> AveGrowthRateCovariate;
-    boost::numeric::ublas::matrix<double> AveCarryingCapacityCovariate;
-    boost::numeric::ublas::matrix<double> AveCatchabilityCovariate;
-    boost::numeric::ublas::matrix<double> AveSurveyQCovariate;
-    boost::numeric::ublas::matrix<double> AvePredationRhoCovariate;
-    boost::numeric::ublas::matrix<double> AvePredationHandlingCovariate;
-    boost::numeric::ublas::matrix<double> AvePredationExponentCovariate;
-    boost::numeric::ublas::matrix<double> AveCompetitionAlphaCovariate;
-    boost::numeric::ublas::matrix<double> AveCompetitionBetaSpeciesCovariate;
-    boost::numeric::ublas::matrix<double> AveCompetitionBetaGuildSpeciesCovariate;
-    boost::numeric::ublas::matrix<double> AveCompetitionBetaGuildGuildCovariate;
+    boost::numeric::ublas::matrix<double> InitBiomassCovariate;
+    boost::numeric::ublas::matrix<double> GrowthRateCovariate;
+    boost::numeric::ublas::matrix<double> CarryingCapacityCovariate;
+    boost::numeric::ublas::matrix<double> CatchabilityCovariate;
+    boost::numeric::ublas::matrix<double> SurveyQCovariate;
+    boost::numeric::ublas::matrix<double> PredationRhoCovariate;
+    boost::numeric::ublas::matrix<double> PredationHandlingCovariate;
+    boost::numeric::ublas::matrix<double> PredationExponentCovariate;
+    boost::numeric::ublas::matrix<double> CompetitionAlphaCovariate;
+    boost::numeric::ublas::matrix<double> CompetitionBetaSpeciesCovariate;
+    boost::numeric::ublas::matrix<double> CompetitionBetaGuildSpeciesCovariate;
+    boost::numeric::ublas::matrix<double> CompetitionBetaGuildGuildCovariate;
     boost::numeric::ublas::matrix<double> AveCompetitionAlpha;
     boost::numeric::ublas::matrix<double> AveCompetitionBetaSpecies;
     boost::numeric::ublas::matrix<double> AveCompetitionBetaGuilds;
@@ -11170,6 +11174,21 @@ nmfMainWindow::calculateAverageBiomass()
                 RunLength,InitialYear,isBiomassAbsolute)) {
         return;
     }
+    NumYears = RunLength + 1;
+
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"InitBiomass",                   InitBiomassCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"GrowthRate",                    GrowthRateCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CarryingCapacity",              CarryingCapacityCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"SurveyQ",                       SurveyQCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"Catchability",                  CatchabilityCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"PredationRho",                  PredationRhoCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"PredationHandling",             PredationHandlingCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"PredationExponent",             PredationExponentCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionAlpha",              CompetitionAlphaCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionBetaSpeciesSpecies", CompetitionBetaSpeciesCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionBetaGuildSpecies",   CompetitionBetaGuildSpeciesCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionBetaGuildGuild",     CompetitionBetaGuildGuildCovariate);
+
     bool isCompetitionAGGPROD = (CompetitionForm == "AGG-PROD"); // RSK - incorrect since we're talking about averages here
 std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic here" << std::endl;
     int usingTopValue = 100;
@@ -11209,18 +11228,18 @@ std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic 
                                AveCatchabilityCovariateCoeffs,
                                AvePredationExponent,
                                AveSurveyQ,
-                               AveInitBiomassCovariate,
-                               AveGrowthRateCovariate,
-                               AveCarryingCapacityCovariate,
-                               AveCatchabilityCovariate,
-                               AveSurveyQCovariate,
-                               AvePredationRhoCovariate,
-                               AvePredationHandlingCovariate,
-                               AvePredationExponentCovariate,
-                               AveCompetitionAlphaCovariate,
-                               AveCompetitionBetaSpeciesCovariate,
-                               AveCompetitionBetaGuildSpeciesCovariate,
-                               AveCompetitionBetaGuildGuildCovariate,
+                               InitBiomassCovariate,
+                               GrowthRateCovariate,
+                               CarryingCapacityCovariate,
+                               CatchabilityCovariate,
+                               SurveyQCovariate,
+                               PredationRhoCovariate,
+                               PredationHandlingCovariate,
+                               PredationExponentCovariate,
+                               CompetitionAlphaCovariate,
+                               CompetitionBetaSpeciesCovariate,
+                               CompetitionBetaGuildSpeciesCovariate,
+                               CompetitionBetaGuildGuildCovariate,
                                AveCompetitionAlpha,
                                AveCompetitionBetaSpecies,
                                AveCompetitionBetaGuilds,
@@ -11229,9 +11248,9 @@ std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic 
                                AvePredationHandling,
                                m_AveBiomass);
     }
+
     updateOutputBiomassDatabaseTableWithAverageBiomass(m_AveBiomass);
     updateOutputBiomassOutputTableWithAveragedBiomass(m_AveBiomass);
-
     updateOutputTables(aveAlgorithmStr,
                        aveAlgorithmStr,
                        aveAlgorithmStr,
@@ -11272,7 +11291,6 @@ std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic 
                            AvePredationRho,
                            AvePredationHandling);
 
-
     m_OutputBiomassEnsemble.clear();
     getOutputBiomassEnsemble(m_AveBiomass.size1(),m_AveBiomass.size2(),m_OutputBiomassEnsemble);
 
@@ -11299,17 +11317,10 @@ nmfMainWindow::updateOutputTableViews(
         const boost::numeric::ublas::matrix<double>& EstPredationHandling)
 {
     int NumSpeciesOrGuilds = EstInitBiomass.size();
-    int NumSpecies = SpeciesList.size();
     double val;
     QStandardItemModel* smodel;
     QStandardItem* item;
     QStringList hLabels;
-qDebug() << "size: EstInitBiomass: " << EstInitBiomass.size();
-qDebug() << "size: EstGrowthRates: " << EstGrowthRates.size();
-qDebug() << "size: EstCarryingCapacities: " << EstCarryingCapacities.size();
-qDebug() << "size: EstCatchability: " << EstCatchability.size();
-qDebug() << "size: EstPredationExponent: " << EstPredationExponent.size();
-qDebug() << "size: EstSurveyQ: " << EstSurveyQ.size();
 
     QList<std::vector<double> > ListVectors = {EstInitBiomass,
                                                EstGrowthRates,

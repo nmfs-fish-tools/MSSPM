@@ -6,14 +6,11 @@
 
 
 TableNamesDialog::TableNamesDialog(QWidget *parent,
-                                   nmfDatabase* databasePtr,
-                                   std::string ProjectDatabase) :
+                                   nmfDatabase* databasePtr) :
     QDialog(parent)
 {
     // the constructor will initialize all of the widgets and layout
-    // but will not load the database onto the m_TableNamesLW, instead, we initialize the m_ProjectDatabase.
     m_databasePtr = databasePtr;
-    m_ProjectDatabase = ProjectDatabase;
     QUiLoader m_loader;
     QFile file(":/forms/Main/TableNamesDlg.ui");
     file.open(QFile::ReadOnly);
@@ -37,7 +34,7 @@ TableNamesDialog::TableNamesDialog(QWidget *parent,
 
 // This function will be called whenever a user tries to view the tables in the current database.
 void
-TableNamesDialog::loadTableNames()
+TableNamesDialog::loadTableNames(const std::string& ProjectDatabase)
 {
 
     std::vector<std::string> fields;
@@ -47,14 +44,14 @@ TableNamesDialog::loadTableNames()
 
     fields    = {"table_name"};
     queryStr  = "SELECT table_name FROM information_schema.tables WHERE ";
-    queryStr += "table_schema = '" + m_ProjectDatabase + "'";
+    queryStr += "table_schema = '" + ProjectDatabase + "'";
     dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumTables = dataMap["table_name"].size();
     m_TableNamesLW->clear();
     if (NumTables <= 0) {
-        m_TableNamesLW->addItem(QString::fromStdString("No tables found in database: " + m_ProjectDatabase));
+        m_TableNamesLW->addItem(QString::fromStdString("No tables found in database: " + ProjectDatabase));
     } else {
-        m_DatabaseNameLB->setText(QString::fromStdString(m_ProjectDatabase));
+        m_DatabaseNameLB->setText(QString::fromStdString(ProjectDatabase));
         for (int i=0; i<NumTables; ++i) {
             m_TableNamesLW->addItem(QString::fromStdString(std::to_string(i+1) + ". " + dataMap["table_name"][i]));
         }

@@ -49,7 +49,6 @@ class TableNamesDialog : public QDialog
 {
     Q_OBJECT
 
-    std::string                           m_ProjectDatabase;
     nmfDatabase*                          m_databasePtr;
     QWidget*                              m_TableNamesWidget;
     QPushButton*                          m_TableNamesOkPB;
@@ -65,13 +64,14 @@ public:
      * @param projectDatabase : the name of the database.
      */
     TableNamesDialog(QWidget*     parent,
-                     nmfDatabase* databasePtr,
-                     std::string  projectDatabase);
+                     nmfDatabase* databasePtr);
     virtual ~TableNamesDialog() {}
+
     /**
      * @brief loadTableNames : This function is called whenever a user tries to view the list of tables in the current database.
+     * @param projectDatabase : name of current project database
      */
-    void loadTableNames();
+    void loadTableNames(const std::string& projectDatabase);
 
 
 private Q_SLOTS:
