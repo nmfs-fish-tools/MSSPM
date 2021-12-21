@@ -486,8 +486,6 @@ nmfEstimation_Tab6::loadInitialValuesAndRangesForEditableCells()
 void
 nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
 {
-    int numRows = m_smodelIR->rowCount();
-    int numCols = m_smodelIR->columnCount();
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -527,7 +525,7 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
             ++m;
             modelCol += 3;
             coeffValue = dataMap["CoeffValue"][m];
-            if (! QString::fromStdString(coeffValue).trimmed().isEmpty()) {
+            if (! QString::fromStdString(coeffValue).trimmed().isEmpty()) {                
                 item = new QStandardItem(QString::fromStdString(coeffValue));
                 item->setTextAlignment(Qt::AlignCenter);
                 smodelIR->setItem(species,modelCol+0,item);
@@ -537,7 +535,7 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
                 item = new QStandardItem(QString::fromStdString(dataMap["CoeffMaxValue"][m]));
                 item->setTextAlignment(Qt::AlignCenter);
                 smodelIR->setItem(species,modelCol+2,item);
-            } else { // if (! newValue.empty()) {
+            } else {
                 item = new QStandardItem("");
                 nmfUtilsQt::setItemEditable(nmfConstantsMSSPM::NotEditable,nmfConstantsMSSPM::GrayedIfNotEditable,item);
                 smodelIR->setItem(species,modelCol+0,item);
@@ -1166,7 +1164,8 @@ nmfEstimation_Tab6::callback_SetEstimateRunCheckboxes(
     for (int i=0; i<(int)EstimateRunBoxes.size();++i) {
         if (EstimateRunBoxes[i].state.first && EstimateRunBoxes[i].state.second) {
             paramName = EstimateRunBoxes[i].parameter;
-            // Hard-coded: Only allow Growth Rate, Carrying Capacity, and Catchability for estimatable Covariate Cofficients
+            // Hard-coded: Only allow Growth Rate, Carrying Capacity, and
+            // Catchability for estimatable Covariate Cofficients
             if ((paramName == "GrowthRate")       ||
                 (paramName == "CarryingCapacity") ||
                 (paramName == "Catchability"))
@@ -1175,9 +1174,12 @@ nmfEstimation_Tab6::callback_SetEstimateRunCheckboxes(
             }
         }
     }
+
     sort(m_ParamNames.begin(),m_ParamNames.end());
     initializeSpeciesParameterTable();
     initializeInitialValuesAndRangesTable();
+    loadCovariateAssignmentTable();
+    loadCovariateInitialValuesAndRangesTable();
 }
 
 void

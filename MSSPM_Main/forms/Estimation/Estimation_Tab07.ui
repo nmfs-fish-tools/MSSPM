@@ -520,7 +520,7 @@
                      <string>(d) - deterministic algorithm, (s) - stochastic algorithm</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Algorithm Class&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Minimizer algorithms are either deterministic or stochastic. If set to (d), the selected algorithm is deterministic. If set to (s), the selected algorithm is stochastic.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minimizer Algorithm Class&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Minimizer algorithms are either deterministic or stochastic. If set to (d), the selected algorithm is deterministic. If set to (s), the selected algorithm is stochastic.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>(d)</string>

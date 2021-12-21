@@ -114,20 +114,19 @@ Collaboration diagram for TableNamesDialog:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a319ddc836e3311e7a1ca6590bd19c718"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_table_names_dialog.html#a319ddc836e3311e7a1ca6590bd19c718">TableNamesDialog</a> (QWidget *parent, nmfDatabase *databasePtr, std::string projectDatabase)</td></tr>
-<tr class="memdesc:a319ddc836e3311e7a1ca6590bd19c718"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_table_names_dialog.html" title="TableNamesDialog Dialog.">TableNamesDialog</a> : class constructor.  <a href="class_table_names_dialog.html#a319ddc836e3311e7a1ca6590bd19c718">More...</a><br /></td></tr>
-<tr class="separator:a319ddc836e3311e7a1ca6590bd19c718"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a194b99a517987390b34e62eb02846dab"><td class="memItemLeft" align="right" valign="top"><a id="a194b99a517987390b34e62eb02846dab"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_table_names_dialog.html#a194b99a517987390b34e62eb02846dab">loadTableNames</a> ()</td></tr>
-<tr class="memdesc:a194b99a517987390b34e62eb02846dab"><td class="mdescLeft">&#160;</td><td class="mdescRight">loadTableNames : This function is called whenever a user tries to view the list of tables in the current database. <br /></td></tr>
-<tr class="separator:a194b99a517987390b34e62eb02846dab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afbb2a3a5737a055b24b3789b3a8e5d9b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_table_names_dialog.html#afbb2a3a5737a055b24b3789b3a8e5d9b">TableNamesDialog</a> (QWidget *parent, nmfDatabase *databasePtr)</td></tr>
+<tr class="memdesc:afbb2a3a5737a055b24b3789b3a8e5d9b"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_table_names_dialog.html" title="TableNamesDialog Dialog.">TableNamesDialog</a> : class constructor.  <a href="class_table_names_dialog.html#afbb2a3a5737a055b24b3789b3a8e5d9b">More...</a><br /></td></tr>
+<tr class="separator:afbb2a3a5737a055b24b3789b3a8e5d9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1fd4d927688ac168a2fbbc74605f6953"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_table_names_dialog.html#a1fd4d927688ac168a2fbbc74605f6953">loadTableNames</a> (const std::string &amp;projectDatabase)</td></tr>
+<tr class="memdesc:a1fd4d927688ac168a2fbbc74605f6953"><td class="mdescLeft">&#160;</td><td class="mdescRight">loadTableNames : This function is called whenever a user tries to view the list of tables in the current database.  <a href="class_table_names_dialog.html#a1fd4d927688ac168a2fbbc74605f6953">More...</a><br /></td></tr>
+<tr class="separator:a1fd4d927688ac168a2fbbc74605f6953"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="class_table_names_dialog.html" title="TableNamesDialog Dialog.">TableNamesDialog</a> Dialog. </p>
 <p>The Dialog contains the name of database, and tables within a list widgets. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a319ddc836e3311e7a1ca6590bd19c718"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a319ddc836e3311e7a1ca6590bd19c718">&#9670;&nbsp;</a></span>TableNamesDialog()</h2>
+<a id="afbb2a3a5737a055b24b3789b3a8e5d9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afbb2a3a5737a055b24b3789b3a8e5d9b">&#9670;&nbsp;</a></span>TableNamesDialog()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -142,13 +141,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">nmfDatabase *&#160;</td>
-          <td class="paramname"><em>databasePtr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>projectDatabase</em>&#160;</td>
+          <td class="paramname"><em>databasePtr</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -164,6 +157,33 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
     <tr><td class="paramname">parent</td><td>: the parent widget (typically the main window) </td></tr>
     <tr><td class="paramname">databasePtr</td><td>: the pointer to the application database </td></tr>
     <tr><td class="paramname">projectDatabase</td><td>: the name of the database. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a1fd4d927688ac168a2fbbc74605f6953"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1fd4d927688ac168a2fbbc74605f6953">&#9670;&nbsp;</a></span>loadTableNames()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TableNamesDialog::loadTableNames </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>projectDatabase</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>loadTableNames : This function is called whenever a user tries to view the list of tables in the current database. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">projectDatabase</td><td>: name of current project database </td></tr>
   </table>
   </dd>
 </dl>

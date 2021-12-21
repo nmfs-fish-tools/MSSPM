@@ -24,6 +24,6 @@ var searchData=
   ['rundiagnosticestimation_1399',['RunDiagnosticEstimation',['../classnmf_diagnostic___tab2.html#ad8780b2d7cb487d259d42f37fbf92f1f',1,'nmfDiagnostic_Tab2']]],
   ['rundiagnosticestimationmultirun_1400',['RunDiagnosticEstimationMultiRun',['../classnmf_diagnostic___tab2.html#aabf2b427af8371a4c6a9cb44d305604b',1,'nmfDiagnostic_Tab2']]],
   ['rundiagnostics_1401',['RunDiagnostics',['../classnmf_estimation___tab1.html#ad13083f610289262fef099700ddd9806',1,'nmfEstimation_Tab1']]],
-  ['runestimation_1402',['runEstimation',['../classnmf_estimation___tab7.html#a4acb5c45e354f2234965a27344bb1f3e',1,'nmfEstimation_Tab7::runEstimation()'],['../classnmf_estimation___tab1.html#ae7f3a7ed7ffaebe6621c1b3f1941a867',1,'nmfEstimation_Tab1::RunEstimation()']]],
+  ['runestimation_1402',['RunEstimation',['../classnmf_estimation___tab1.html#ae7f3a7ed7ffaebe6621c1b3f1941a867',1,'nmfEstimation_Tab1::RunEstimation()'],['../classnmf_estimation___tab7.html#a4acb5c45e354f2234965a27344bb1f3e',1,'nmfEstimation_Tab7::runEstimation()']]],
   ['runforecast_1403',['RunForecast',['../classnmf_forecast___tab2.html#ad1ef695f29894aa7371f7d0856f247cd',1,'nmfForecast_Tab2::RunForecast()'],['../classnmf_forecast___tab3.html#a53a7ae2269c83ca5cb7c4a6e2c0b0f62',1,'nmfForecast_Tab3::RunForecast()'],['../classnmf_forecast___tab4.html#a3259d857e66a564de28810faa3da95d5',1,'nmfForecast_Tab4::RunForecast()']]]
 ];

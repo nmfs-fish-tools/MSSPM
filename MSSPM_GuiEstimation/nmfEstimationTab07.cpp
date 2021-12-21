@@ -1017,7 +1017,9 @@ nmfEstimation_Tab7::setRunButtonLabel(QString label)
 void
 nmfEstimation_Tab7::callback_MinimizerAlgorithmCMB(QString algorithm)
 {
-    Estimation_Tab6_MinimizerDetStoTypeLBL->setText(m_DetStoTypeMap[algorithm]);
+    QString detStoTypeLabel = m_DetStoTypeMap[algorithm];
+    Estimation_Tab6_MinimizerDetStoTypeLBL->setText(detStoTypeLabel);
+    Estimation_Tab6_MinimizerSetDeterministicCB->setEnabled(detStoTypeLabel == "(s)");
     enableRunButton(false);
 }
 
@@ -1206,6 +1208,7 @@ nmfEstimation_Tab7::callback_EstimationAlgorithmCMB(QString algorithm)
     Estimation_Tab6_MinimizerAlgorithmCMB->setEnabled(enableMinimizer);
     Estimation_Tab6_MinimizerAlgorithmLBL->setEnabled(enableMinimizer);    
     Estimation_Tab6_MinimizerDetStoTypeLBL->setEnabled(enableMinimizer);
+    Estimation_Tab6_MinimizerSetDeterministicCB->setEnabled(enableMinimizer);
     Estimation_Tab6_MinimizerTypeCMB->setEnabled(enableMinimizer);
 
     // Enable all ObjectiveCriterion
@@ -1327,11 +1330,7 @@ nmfEstimation_Tab7::getCurrentObjectiveCriterion()
 std::string
 nmfEstimation_Tab7::getCurrentScaling()
 {
-//    if (Estimation_Tab6_ScalingCMB->isEnabled()) {
-        return Estimation_Tab6_ScalingCMB->currentText().toStdString();
-//    } else {
-//        return "";
-//    }
+    return Estimation_Tab6_ScalingCMB->currentText().toStdString();
 }
 
 double
@@ -1352,6 +1351,29 @@ nmfEstimation_Tab7::setCurrentTimeUnits(QString units)
     Estimation_Tab6_NL_StopAfterTimeUnitsCMB->setCurrentText(units);
 }
 
+void
+nmfEstimation_Tab7::setAlgorithm(QString algorithm)
+{
+    Estimation_Tab6_EstimationAlgorithmCMB->setCurrentText(algorithm);
+}
+
+void
+nmfEstimation_Tab7::setMinimizer(QString minimizer)
+{
+    Estimation_Tab6_MinimizerAlgorithmCMB->setCurrentText(minimizer);
+}
+
+void
+nmfEstimation_Tab7::setObjectiveCriterion(QString objectiveCriterion)
+{
+    Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(objectiveCriterion);
+}
+
+void
+nmfEstimation_Tab7::setScaling(QString scaling)
+{
+    Estimation_Tab6_ScalingCMB->setCurrentText(scaling);
+}
 
 QString
 nmfEstimation_Tab7::getCurrentTimeUnits()

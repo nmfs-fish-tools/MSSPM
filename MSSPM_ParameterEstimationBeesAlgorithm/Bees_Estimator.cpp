@@ -188,7 +188,9 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 beesAlg->extractHandlingParameters(EstParameters,startPos,m_EstHandling);
                 beesAlg->extractExponentParameters(EstParameters,startPos,m_EstExponent);
                 beesAlg->extractSurveyQParameters(EstParameters,startPos,m_EstSurveyQ);
-
+for (double sq : m_EstSurveyQ) {
+   std::cout << "==> " << sq << std::endl;
+}
                 numEstParameters   = beesAlg->calculateActualNumEstParameters();
                 numTotalParameters = EstParameters.size();
                 createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,
@@ -272,48 +274,48 @@ Bees_Estimator::createOutputStr(
 
     if (growthForm == "Logistic") {
         bestFitnessStr += "<br><br>Initial Parameters:";
-        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:",m_InitialCarryingCapacities,true);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity:",m_InitialCarryingCapacities,true);
     }
     bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong>";
-    bestFitnessStr += convertValues1DToOutputStr("Initial Absolute Biomass:    ", m_EstInitBiomass,false);
-    bestFitnessStr += convertValues1DToOutputStr("Growth Rate:        ",          m_EstGrowthRates,false);
-    bestFitnessStr += convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ",m_EstGrowthRateCovariateCoeffs,false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Initial Absolute Biomass:    ", m_EstInitBiomass,false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate:        ",          m_EstGrowthRates,false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ",m_EstGrowthRateCovariateCoeffs,false);
     if (growthForm == "Logistic") {
-        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:  ",                 m_EstCarryingCapacities,true);
-        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity Covariate Coeffs:  ",m_EstCarryingCapacityCovariateCoeffs,true);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity:  ",                 m_EstCarryingCapacities,true);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity Covariate Coeffs:  ",m_EstCarryingCapacityCovariateCoeffs,true);
     }
 
     if (harvestForm == "Effort (qE)") {
-        bestFitnessStr += convertValues1DToOutputStr("Catchability:       ",                 m_EstCatchability,false);
-        bestFitnessStr += convertValues1DToOutputStr("Catchability Covariate Coeffs:       ",m_EstCatchabilityCovariateCoeffs,false);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Catchability:       ",                 m_EstCatchability,false);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Catchability Covariate Coeffs:       ",m_EstCatchabilityCovariateCoeffs,false);
     }
 
     if (competitionForm == "NO_K") {
-        bestFitnessStr += convertValues2DToOutputStr("Competition (alpha):",m_EstAlpha);
+        bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Competition (alpha):",m_EstAlpha);
     } else if ((competitionForm == "MS-PROD") ||
                (competitionForm == "AGG-PROD"))
     {
         if (competitionForm == "MS-PROD") {
-            bestFitnessStr += convertValues2DToOutputStr("Competition (beta::species):",m_EstBetaSpecies);
+            bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Competition (beta::species):",m_EstBetaSpecies);
         }
-        bestFitnessStr += convertValues2DToOutputStr("Competition (beta::guilds): ",m_EstBetaSpecies);
+        bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Competition (beta::guilds): ",m_EstBetaSpecies);
     }
 
     if ((predationForm == "Type I")  ||
         (predationForm == "Type II") ||
         (predationForm == "Type III"))
     {
-        bestFitnessStr += convertValues2DToOutputStr("Predation (rho):",m_EstPredation);
+        bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Predation (rho):",m_EstPredation);
     }
     if ((predationForm == "Type II") ||
         (predationForm == "Type III"))
     {
-        bestFitnessStr += convertValues2DToOutputStr("Handling:       ",m_EstHandling);
+        bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Handling:       ",m_EstHandling);
     }
     if (predationForm == "Type III")
     {
         bestFitnessStr += "<br>&nbsp;&nbsp;";
-        bestFitnessStr += convertValues1DToOutputStr("Predation Exponent:",m_EstExponent,false);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Predation Exponent:",m_EstExponent,false);
 //        for (unsigned i=0; i<m_EstExponent.size(); ++i) {
 //            if (i == 0) {
 //                bestFitnessStr += "&nbsp;&nbsp;Predation Exponent: ";
@@ -321,51 +323,8 @@ Bees_Estimator::createOutputStr(
 //            bestFitnessStr += nmfUtils::to_string_scientificNotation(m_EstExponent[i]) + " ";
 //        }
     }
-    bestFitnessStr += convertValues1DToOutputStr("Survey Q:    ",m_EstSurveyQ,false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Survey Q:    ",m_EstSurveyQ,false);
 
-}
-
-std::string
-Bees_Estimator::convertValues1DToOutputStr(const std::string& label,
-                                           const std::vector<double> &values,
-                                           const bool& includeTotal)
-{
-    double val;
-    double totalVal = 0;
-    std::string bestFitnessStr = "";
-
-    bestFitnessStr += "<br>&nbsp;&nbsp;" + label + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-    for (unsigned i=0; i<values.size(); ++i) {
-        val = values[i];
-        bestFitnessStr += nmfUtils::convertToScientificNotation(val) + "&nbsp;&nbsp;";
-        totalVal += val;
-    }
-    if (includeTotal) {
-        bestFitnessStr += "<br>&nbsp;&nbsp;Total " + label + "&nbsp;&nbsp;" +
-                nmfUtils::convertToScientificNotation(totalVal);
-    }
-
-    return bestFitnessStr;
-}
-
-
-std::string
-Bees_Estimator::convertValues2DToOutputStr(const std::string& label,
-                                           const boost::numeric::ublas::matrix<double> &matrix)
-{
-    std::string bestFitnessStr = "";
-
-    for (unsigned i=0; i<matrix.size1(); ++i) {
-        bestFitnessStr += "<br>&nbsp;&nbsp;";
-        for (unsigned j=0; j<matrix.size2(); ++j) {
-            if ((i == 0) && (j == 0)) {
-                bestFitnessStr += "&nbsp;&nbsp;" + label + "<br>&nbsp;&nbsp;";
-            }
-            bestFitnessStr += "&nbsp;&nbsp;&nbsp;" + nmfUtils::convertToScientificNotation(matrix(i,j));
-        }
-    }
-
-    return bestFitnessStr;
 }
 
 void

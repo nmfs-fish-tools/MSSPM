@@ -1022,101 +1022,49 @@ NLopt_Estimator::createOutputStr(
     bestFitnessStr += "<br>Best Fitness (SSE) value of all runs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + QString::number(bestFitness,'f',2).toStdString();
     bestFitnessStr += "<br>Std dev of Best Fitness values from all runs:&nbsp;&nbsp;" + QString::number(fitnessStdDev,'f',2).toStdString();
     bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong><br>";
-    bestFitnessStr += convertValues1DToOutputStr("Initial Absolute Biomass:    ",  m_EstInitBiomass,  false);
-    bestFitnessStr += convertValues1DToOutputStr("Growth Rate:          ",         m_EstGrowthRates,  false);
-    bestFitnessStr += convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ", m_EstGrowthRateCovariateCoeffs,  false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Initial Absolute Biomass:    ",  m_EstInitBiomass,  false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate:          ",         m_EstGrowthRates,  false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ", m_EstGrowthRateCovariateCoeffs,  false);
 
     if (growthForm == "Logistic") {
-        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity:  ",                  m_EstCarryingCapacities,             true);
-        bestFitnessStr += convertValues1DToOutputStr("Carrying Capacity Covariate Coeffs:  ", m_EstCarryingCapacityCovariateCoeffs,false);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity:  ",                  m_EstCarryingCapacities,             true);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity Covariate Coeffs:  ", m_EstCarryingCapacityCovariateCoeffs,false);
     }
 
     if (harvestForm == "Effort (qE)") {
-        bestFitnessStr += convertValues1DToOutputStr("Catchability:       ",             m_EstCatchability,false);
-        bestFitnessStr += convertValues1DToOutputStr("Catchability Covariate Coeffs:  ", m_EstCatchabilityCovariateCoeffs,false);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Catchability:       ",             m_EstCatchability,false);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Catchability Covariate Coeffs:  ", m_EstCatchabilityCovariateCoeffs,false);
     }
     if (competitionForm == "NO_K") {
-        bestFitnessStr += convertValues2DToOutputStr("Competition (alpha):",         m_EstAlpha);
+        bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Competition (alpha):",         m_EstAlpha);
     } else if ((competitionForm == "MS-PROD") ||
                (competitionForm == "AGG-PROD"))
     {
         if (competitionForm == "MS-PROD") {
-            bestFitnessStr += convertValues2DToOutputStr("Competition (beta::species):", m_EstBetaSpecies);
+            bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Competition (beta::species):", m_EstBetaSpecies);
         }
-        bestFitnessStr += convertValues2DToOutputStr("Competition (beta::guilds): ", m_EstBetaSpecies);
+        bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Competition (beta::guilds): ", m_EstBetaSpecies);
     }
 
     if ((predationForm == "Type I")  ||
-            (predationForm == "Type II") ||
-            (predationForm == "Type III"))
+        (predationForm == "Type II") ||
+        (predationForm == "Type III"))
     {
-        bestFitnessStr += convertValues2DToOutputStr("Predation (rho):   ",m_EstPredation);
+        bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Predation (rho):   ",m_EstPredation);
     }
     if ((predationForm == "Type II") ||
-            (predationForm == "Type III"))
+        (predationForm == "Type III"))
     {
-        bestFitnessStr += convertValues2DToOutputStr("Handling:          ",m_EstHandling);
+        bestFitnessStr += nmfUtils::convertValues2DToOutputStr("Handling:          ",m_EstHandling);
     }
     if (predationForm == "Type III")
     {
         bestFitnessStr += "<br>&nbsp;&nbsp;";
-        bestFitnessStr += convertValues1DToOutputStr("Predation Exponent", m_EstExponent,false);
+        bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Predation Exponent", m_EstExponent,false);
     }
-    bestFitnessStr += convertValues1DToOutputStr("SurveyQ:          ", m_EstSurveyQ, false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("SurveyQ:          ", m_EstSurveyQ, false);
 
 }
-
-
-std::string
-NLopt_Estimator::convertValues1DToOutputStr(const std::string& label,
-                                            const std::vector<double> &Values,
-                                            const bool& includeTotal)
-{
-    double val;
-    double totalVal = 0;
-    std::string bestFitnessStr = "";
-
-    bestFitnessStr += "<br>"+label;
-    bestFitnessStr += "<table>";
-    bestFitnessStr += "<tr>";
-    for (unsigned i=0; i<Values.size(); ++i) {
-        val = Values[i];
-        bestFitnessStr += "<td> "+nmfUtils::convertToScientificNotation(val) + "</td>";
-        totalVal += val;
-    }
-    bestFitnessStr += "</tr>";
-    bestFitnessStr += "</table>";
-    if (includeTotal) {
-        bestFitnessStr += "<br>Total " + label + "<br>" +
-                nmfUtils::convertToScientificNotation(totalVal) + "<br>";
-    }
-
-    return bestFitnessStr;
-}
-
-
-std::string
-NLopt_Estimator::convertValues2DToOutputStr(const std::string& label,
-                                            const boost::numeric::ublas::matrix<double> &matrix)
-{
-    std::string bestFitnessStr = "";
-
-    bestFitnessStr += "<br>"+label;
-    bestFitnessStr += "<table>";
-
-    for (unsigned i=0; i<matrix.size1(); ++i) {
-        bestFitnessStr += "<tr>";
-        for (unsigned j=0; j<matrix.size2(); ++j) {
-            bestFitnessStr += "<td> " + nmfUtils::convertToScientificNotation(matrix(i,j)) + "</td>";
-        }
-        bestFitnessStr += "</tr>";
-    }
-
-    bestFitnessStr += "</table>";
-
-    return bestFitnessStr;
-}
-
 
 void
 NLopt_Estimator::stopRun(const std::string &elapsedTimeStr,

@@ -357,6 +357,11 @@ nmfEstimation_Tab8::loadModel(QStandardItemModel* smodel, const int& row)
 
     modelReview.ModelName                               = smodel->index(row, 0).data().toString().trimmed(); // Reload this model
 
+    modelReview.ObjectiveCriterion                      = smodel->index(row, 9).data().toString().trimmed();
+    modelReview.EstimationAlgorithm                     = smodel->index(row,10).data().toString().trimmed();
+    modelReview.MinimizerAlgorithm                      = smodel->index(row,11).data().toString().trimmed();
+    modelReview.ScalingAlgorithm                        = smodel->index(row,12).data().toString().trimmed();
+
     modelReview.setToDeterministicBees                  = smodel->index(row,14).data().toString().trimmed();
     modelReview.maxGenerations                          = smodel->index(row,15).data().toString().remove(",").toInt();
     modelReview.numBees                                 = smodel->index(row,16).data().toString().remove(",").toInt();

@@ -334,7 +334,7 @@ nmfSetup_Tab4::saveSettings()
 
     delete settings;
 
-    emit SaveMainSettings();
+//    emit SaveMainSettings();
 }
 
 void

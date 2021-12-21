@@ -85,14 +85,6 @@ private:
     std::map<std::string,nlopt::algorithm> m_MinimizerToEnum;
     std::vector<double>                    m_Parameters;
 
-
-    std::string convertValues1DToOutputStr(
-            const std::string& label,
-            const std::vector<double> &Values,
-            const bool& includeTotal);
-    std::string convertValues2DToOutputStr(
-            const std::string& label,
-            const boost::numeric::ublas::matrix<double> &matrix);
     void createOutputStr(
             const int&         numEstParameters,
             const int&         numTotalParameters,

@@ -1580,6 +1580,8 @@ nmfMainWindow::menu_toggleManagerMode()
 
     if (showManagerMode) {
         saveSettings();
+        loadAllWidgets();
+
         // Get desired forecast data and initialize Remora with them
         ok = getForecastInitialData(forecastName,numYearsPerRun,numRunsPerForecast,growthForm,harvestForm);
         if (! ok and forecastName.isEmpty()) {
@@ -1906,7 +1908,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.43 (beta)";
+    QString version = "MSSPM v0.9.44 (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2012,6 +2014,7 @@ nmfMainWindow::menu_toggleSignificantDigits()
     sigdigCB->setChecked(m_NumSignificantDigits >= 0);
 
     saveSettings();
+    loadAllWidgets();
 
 }
 
@@ -2389,7 +2392,7 @@ nmfMainWindow::menu_copy()
         testDlg.exec();
         m_ShowSignificantDigitsDlg = testDlg.showFutureDialogs();
         if (! testDlg.wasYesClicked()) {
-            saveSettings(nmfConstantsMSSPM::DontReloadAllWidgets);
+            saveSettings();
             return;
         }
     }
@@ -2400,7 +2403,7 @@ nmfMainWindow::menu_copy()
         QMessageBox::question(this,tr("Copy"),retv,QMessageBox::Ok);
     }
 
-    saveSettings(nmfConstantsMSSPM::DontReloadAllWidgets);
+    saveSettings();
 }
 
 void
@@ -2435,7 +2438,7 @@ nmfMainWindow::menu_pasteAll()
         testDlg.exec();
         m_ShowSignificantDigitsDlg = testDlg.showFutureDialogs();
         if (! testDlg.wasYesClicked()) {
-            saveSettings(nmfConstantsMSSPM::DontReloadAllWidgets);
+            saveSettings();
             return;
         }
     }
@@ -3356,6 +3359,7 @@ void
 nmfMainWindow::menu_saveSettings()
 {
     saveSettings();
+    loadAllWidgets();
 }
 
 
@@ -3705,6 +3709,7 @@ nmfMainWindow::menu_saveCurrentRun()
             m_Estimator_Bees->getEstExponent(EstExponent);
         }
         m_Estimator_Bees->getEstSurveyQ(EstSurveyQ);
+
         updateOutputTables(Algorithm,Minimizer,
                            ObjectiveCriterion,Scaling,
                            isCompetitionAGGPROD,
@@ -9631,6 +9636,7 @@ nmfMainWindow::callback_PreferencesMShotOkPB()
     m_NumSignificantDigits = (sigdigSB->isEnabled()) ? sigdigSB->value() : -1;
 
     saveSettings();
+    loadAllWidgets();
     m_PreferencesDlg->close();
 }
 
@@ -9783,7 +9789,7 @@ nmfMainWindow::getCurrentStyle()
 }
 
 void
-nmfMainWindow::saveSettings(bool loadWidgets) {
+nmfMainWindow::saveSettings() {
     if (! m_SaveSettings) {
         return;
     }
@@ -9837,9 +9843,9 @@ nmfMainWindow::saveSettings(bool loadWidgets) {
 
     delete settings;
 
-    if (loadWidgets) {
-        loadAllWidgets();
-    }
+//    if (loadWidgets) {
+//        loadAllWidgets();
+//    }
 }
 
 void
@@ -9905,6 +9911,7 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
 //std::cout << "⬛⬛⬛ isAMohnsRhoRunOfMultiRuns: "  << isAMohnsRhoRunOfMultiRuns << std::endl;
 
     saveSettings();
+    loadAllWidgets();
     readSettings();
 
     m_UI->OutputDockWidget->raise();
@@ -10259,7 +10266,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     summary += "<strong>Used Estimated Parameters from last:</strong> " + lastRunType + "<br>";
     summary += "</tt>";
     Forecast_Tab4_ptr->appendOutputTE(summary);
-    saveSettings(false);
+    saveSettings();
 
     if (GenerateBiomass) {
         callback_SaveForecastOutputBiomassData(ForecastName);
@@ -10327,8 +10334,8 @@ nmfMainWindow::runBeesAlgorithm(bool showDiagnosticChart,
             this,              SLOT(callback_RepetitionRunCompleted(int,int,int)));
     connect(m_Estimator_Bees,  SIGNAL(ErrorFound(std::string)),
             this,              SLOT(callback_ErrorFound(std::string)));
-    connect(m_Estimator_Bees,  SIGNAL(AllSubRunsCompleted()),
-            this,              SLOT(callback_AllSubRunsCompleted()));
+//    connect(m_Estimator_Bees,  SIGNAL(AllSubRunsCompleted()),
+//            this,              SLOT(callback_AllSubRunsCompleted()));
     connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
             this,              SLOT(callback_StopAllRuns()));
 
@@ -12729,15 +12736,19 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
 
     // Calculate total number of parameters
     dataStruct.TotalNumberParameters = 0;
-    if (growthForm == "Linear") {
-        dataStruct.TotalNumberParameters += NumSpecies; // Just r for each Species
-    } else if (growthForm == "Logistic") {
-        dataStruct.TotalNumberParameters += NumSpecies; // Just r
-        dataStruct.TotalNumberParameters += NumSpecies; // Just K
-    }
     dataStruct.TotalNumberParameters += NumSpecies; // Add on for estimating InitBiomass parameter
+    if (growthForm == "Linear") {
+        dataStruct.TotalNumberParameters += NumSpecies; // r for each Species
+        dataStruct.TotalNumberParameters += NumSpecies; // r covariates for each Species
+    } else if (growthForm == "Logistic") {
+        dataStruct.TotalNumberParameters += NumSpecies; //  r
+        dataStruct.TotalNumberParameters += NumSpecies; //  r covariates
+        dataStruct.TotalNumberParameters += NumSpecies; //  K
+        dataStruct.TotalNumberParameters += NumSpecies; //  K covariates
+    }
     if (harvestForm == nmfConstantsMSSPM::HarvestEffort.toStdString()) {
-        dataStruct.TotalNumberParameters += NumSpecies;
+        dataStruct.TotalNumberParameters += NumSpecies; // q
+        dataStruct.TotalNumberParameters += NumSpecies; // q covariates
     }
     if (predationForm != "Null") {
         dataStruct.TotalNumberParameters += NumPredationParameters;
@@ -12756,6 +12767,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
     } else if (competitionForm == "AGG-PROD") {
         dataStruct.TotalNumberParameters += NumBetaGuildsParameters;
     }
+
     // SurveyQ is always estimated...even for absolute biomass which is technically incorrect,
     // but it's set to 1 for absolute biomass and so it just makes the code simpler and causes no issues.
     dataStruct.TotalNumberParameters += NumSpecies;
@@ -13623,6 +13635,7 @@ nmfMainWindow::callback_ToDoAfterModelSave()
 void
 nmfMainWindow::callback_ModelLoaded()
 {
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::callback_ModelLoaded start");
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     readSettings();
@@ -14259,15 +14272,21 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
     Estimation_Tab7_ptr->callback_EnsembleSetDeterministicCB(stateNLopt);
     Estimation_Tab7_ptr->setDeterministicBeesCB(stateBees==Qt::Checked);
 
-    // 4. Reset Bees widgets
-//    Estimation_Tab7_ptr->setMaxGenerations(modelReview.maxGenerations);
-//    Estimation_Tab7_ptr->setNumBees(modelReview.numBees);
-//    Estimation_Tab7_ptr->setNumBestSites(modelReview.numBestSites);
-//    Estimation_Tab7_ptr->setNumEliteSites(modelReview.numEliteSites);
-//    Estimation_Tab7_ptr->setNumEliteBees(modelReview.numEliteBees);
-//    Estimation_Tab7_ptr->setNumOtherBees(modelReview.numOtherBees);
-//    Estimation_Tab7_ptr->setNeighborhoodSize(modelReview.neighborhoodSize);
-//    Estimation_Tab7_ptr->setNumSubRuns(modelReview.numSubRuns);
+    // 4. Reset Model Algorithms
+    Estimation_Tab7_ptr->setObjectiveCriterion(modelReview.ObjectiveCriterion);
+    Estimation_Tab7_ptr->setAlgorithm(modelReview.EstimationAlgorithm);
+    Estimation_Tab7_ptr->setMinimizer(modelReview.MinimizerAlgorithm);
+    Estimation_Tab7_ptr->setScaling(modelReview.ScalingAlgorithm);
+
+    // 5. Reset Bees widgets
+    Estimation_Tab7_ptr->setMaxGenerations(modelReview.maxGenerations);
+    Estimation_Tab7_ptr->setNumBees(modelReview.numBees);
+    Estimation_Tab7_ptr->setNumBestSites(modelReview.numBestSites);
+    Estimation_Tab7_ptr->setNumEliteSites(modelReview.numEliteSites);
+    Estimation_Tab7_ptr->setNumEliteBees(modelReview.numEliteBees);
+    Estimation_Tab7_ptr->setNumOtherBees(modelReview.numOtherBees);
+    Estimation_Tab7_ptr->setNeighborhoodSize(modelReview.neighborhoodSize);
+    Estimation_Tab7_ptr->setNumSubRuns(modelReview.numSubRuns);
 
     QApplication::restoreOverrideCursor();
 }

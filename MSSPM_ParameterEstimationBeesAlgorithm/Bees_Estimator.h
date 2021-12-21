@@ -92,11 +92,6 @@ private:
                          const double&      fitnessStdDev,
                          const nmfStructsQt::ModelDataStruct& beeStruct,
                          std::string&       bestFitnessStr);
-    std::string convertValues1DToOutputStr(const std::string& label,
-                                           const std::vector<double>& valuesVec,
-                                           const bool& includeTotal);
-    std::string convertValues2DToOutputStr(const std::string& label,
-                                           const boost::numeric::ublas::matrix<double>& valuesMatrix);
     void outputProgressData(std::string msg);
     void printBee(std::string msg,
                   double &fitness,

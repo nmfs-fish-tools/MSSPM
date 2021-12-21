@@ -715,7 +715,7 @@ private:
                            int& TotalIndividualRuns);
     void saveRemoraDataFile(QString filename);
     bool saveScreenshot(QString &outputfile, QPixmap &pm);
-    void saveSettings(bool loadWidgets=true);
+    void saveSettings(); //bool loadWidgets=true);
     bool scaleTimeSeriesIfMonteCarlo(const bool& isMonteCarlo,
                                      const std::vector<double>&             Uncertainty,
                                      boost::numeric::ublas::matrix<double>& HarvestMatrix,

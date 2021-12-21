@@ -605,6 +605,11 @@ public:
      */
     bool saveSystem(bool RunChecks);
     /**
+     * @brief Sets the algorithm combo box to the passed value
+     * @param algorithm : name of algorithm to set as current
+     */
+    void setAlgorithm(QString algorithm);
+    /**
      * @brief Sets the current units to the passed string
      * @param units : current units to set the time units combo box to
      */
@@ -676,6 +681,11 @@ public:
      */
     void setMaxGenerations(int value);
     /**
+     * @brief Sets the minimizer combo box to the passed value
+     * @param minimizer : name of minimizer algorithm to set as current
+     */
+    void setMinimizer(QString minimizer);
+    /**
      * @brief Writes the header (i.e., names of fields) to the Mohn's Rho file to be used when
      * running a Mohn's Rho multi-run
      */
@@ -726,6 +736,11 @@ public:
      */
     void setNumSubRuns(int value);
     /**
+     * @brief Sets the objective criterion combox box to the passed value
+     * @param objectiveCriterion : name of objective criterion algorithm to set as current
+     */
+    void setObjectiveCriterion(QString objectiveCriterion);
+    /**
      * @brief Sets the content for the output text edit widget
      * @param msg : the content to use for the output text edit widget
      */
@@ -735,6 +750,11 @@ public:
      * @param label : value of the run button label
      */
     void setRunButtonLabel(QString label);
+    /**
+     * @brief Sets the scaling combo box to the passed value
+     * @param scaling : name of scaling algorithm to set as current
+     */
+    void setScaling(QString scaling);
 
 signals:
     /**

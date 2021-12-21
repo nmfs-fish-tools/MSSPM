@@ -102,20 +102,19 @@ $(document).ready(function(){initNavTree('_table_names_dialog_8h_source.html',''
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;{</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    Q_OBJECT</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    std::string                           m_ProjectDatabase;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    nmfDatabase*                          m_databasePtr;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    QWidget*                              m_TableNamesWidget;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    QPushButton*                          m_TableNamesOkPB;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    QListWidget*                          m_TableNamesLW;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    QLabel*                               m_DatabaseNameLB;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    QVBoxLayout*                          m_layout;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <a class="code" href="class_table_names_dialog.html#a319ddc836e3311e7a1ca6590bd19c718">TableNamesDialog</a>(QWidget*     parent,</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;                     nmfDatabase* databasePtr,</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;                     std::string  projectDatabase);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_table_names_dialog.html">TableNamesDialog</a>() {}</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_table_names_dialog.html#a194b99a517987390b34e62eb02846dab">loadTableNames</a>();</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    nmfDatabase*                          m_databasePtr;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    QWidget*                              m_TableNamesWidget;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    QPushButton*                          m_TableNamesOkPB;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    QListWidget*                          m_TableNamesLW;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    QLabel*                               m_DatabaseNameLB;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    QVBoxLayout*                          m_layout;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <a class="code" href="class_table_names_dialog.html#afbb2a3a5737a055b24b3789b3a8e5d9b">TableNamesDialog</a>(QWidget*     parent,</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;                     nmfDatabase* databasePtr);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_table_names_dialog.html">TableNamesDialog</a>() {}</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_table_names_dialog.html#a1fd4d927688ac168a2fbbc74605f6953">loadTableNames</a>(<span class="keyword">const</span> std::string&amp; projectDatabase);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="keyword">private</span> Q_SLOTS:</div>
@@ -124,9 +123,9 @@ $(document).ready(function(){initNavTree('_table_names_dialog_8h_source.html',''
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
+<div class="ttc" id="aclass_table_names_dialog_html_afbb2a3a5737a055b24b3789b3a8e5d9b"><div class="ttname"><a href="class_table_names_dialog.html#afbb2a3a5737a055b24b3789b3a8e5d9b">TableNamesDialog::TableNamesDialog</a></div><div class="ttdeci">TableNamesDialog(QWidget *parent, nmfDatabase *databasePtr)</div><div class="ttdoc">TableNamesDialog : class constructor.</div><div class="ttdef"><b>Definition:</b> TableNamesDialog.cpp:8</div></div>
+<div class="ttc" id="aclass_table_names_dialog_html_a1fd4d927688ac168a2fbbc74605f6953"><div class="ttname"><a href="class_table_names_dialog.html#a1fd4d927688ac168a2fbbc74605f6953">TableNamesDialog::loadTableNames</a></div><div class="ttdeci">void loadTableNames(const std::string &amp;projectDatabase)</div><div class="ttdoc">loadTableNames : This function is called whenever a user tries to view the list of tables in the curr...</div><div class="ttdef"><b>Definition:</b> TableNamesDialog.cpp:37</div></div>
 <div class="ttc" id="aclass_table_names_dialog_html"><div class="ttname"><a href="class_table_names_dialog.html">TableNamesDialog</a></div><div class="ttdoc">TableNamesDialog Dialog.</div><div class="ttdef"><b>Definition:</b> TableNamesDialog.h:48</div></div>
-<div class="ttc" id="aclass_table_names_dialog_html_a194b99a517987390b34e62eb02846dab"><div class="ttname"><a href="class_table_names_dialog.html#a194b99a517987390b34e62eb02846dab">TableNamesDialog::loadTableNames</a></div><div class="ttdeci">void loadTableNames()</div><div class="ttdoc">loadTableNames : This function is called whenever a user tries to view the list of tables in the curr...</div><div class="ttdef"><b>Definition:</b> TableNamesDialog.cpp:40</div></div>
-<div class="ttc" id="aclass_table_names_dialog_html_a319ddc836e3311e7a1ca6590bd19c718"><div class="ttname"><a href="class_table_names_dialog.html#a319ddc836e3311e7a1ca6590bd19c718">TableNamesDialog::TableNamesDialog</a></div><div class="ttdeci">TableNamesDialog(QWidget *parent, nmfDatabase *databasePtr, std::string projectDatabase)</div><div class="ttdoc">TableNamesDialog : class constructor.</div><div class="ttdef"><b>Definition:</b> TableNamesDialog.cpp:8</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
