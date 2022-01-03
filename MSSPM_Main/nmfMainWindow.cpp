@@ -68,7 +68,6 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     CatchabilityTV      = nullptr;
     CovariateCoefficientsTV = nullptr;
     m_ChartView3d       = nullptr;
-    m_Modifier          = nullptr;
     m_Graph3D           = nullptr;
     OutputChartMainLayt = nullptr;
     Output_Controls_ptr = nullptr;
@@ -590,7 +589,6 @@ nmfMainWindow::getOutputInitialBiomass(
     } else {
         checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
     }
-// RSK
 
     fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
     queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
@@ -1908,7 +1906,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.44 (beta)";
+    QString version = "MSSPM v0.9.45  (beta)";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -4463,7 +4461,7 @@ nmfMainWindow::setFirstRowEstimatedBiomass(
 
     bool isCheckedEstimateInitBiomass = nmfUtils::isEstimateParameterChecked(dataStruct,"InitBiomass");
     std::string covariateAlgorithmType = m_DatabasePtr->getCovariateAlgorithmType(m_Logger,m_ProjectName,m_ModelName);
-    if (isCheckedEstimateInitBiomass) {
+    if (isCheckedEstimateInitBiomass && ForecastName.empty()) {
         getOutputInitialBiomass(ForecastName,OutputInitBiomass);
         if (OutputInitBiomass.size() == NumSpeciesOrGuilds) {
             for (int species=0; species<NumSpeciesOrGuilds; ++species) {
@@ -4838,7 +4836,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputPredationExponent);
     }
     OutputTableNames.push_back(OutputSurveyQTable);
-qDebug() << "WARNING: check NLopt_Estimator::objectiveFunction for not estimating surveyQCovariateCoeff";
 
     for (unsigned j=0; j<OutputTableNames.size(); ++j) {
         fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
@@ -4882,7 +4879,7 @@ qDebug() << "WARNING: check NLopt_Estimator::objectiveFunction for not estimatin
                 GrowthRandomValues.push_back(randomValue);
             }
         } else if (OutputTableNames[j] == OutputGrowthRateCovariateCoeffsTable) {
-std::cout << "WARNING(1): Check with Howard re. uncertainty in covariate coefficient values" << std::endl;
+//std::cout << "WARNING(1): Check with Howard re. uncertainty in growth rate covariate coefficient values" << std::endl;
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
 // RSK - don't use random values yet in covariate coefficient calculations...check with Howard
                 EstGrowthRateCovariateCoeffs.push_back(std::stod(dataMap["Value"][i]));
@@ -4901,7 +4898,7 @@ std::cout << "WARNING(1): Check with Howard re. uncertainty in covariate coeffic
                 }
             }
         } else if (OutputTableNames[j] == OutputCarryingCapacityCovariateCoeffsTable) {
-std::cout << "WARNING(2): Check with Howard re. uncertainty in covariate coefficient values" << std::endl;
+//std::cout << "WARNING(2): Check with Howard re. uncertainty in carrying capacity covariate coefficient values" << std::endl;
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
 // RSK - don't use random values yet in covariate coefficient calculations...check with Howard
                 EstCarryingCapacityCovariateCoeffs.push_back(std::stod(dataMap["Value"][i]));
@@ -5243,6 +5240,7 @@ std::cout << "WARNING(2): Check with Howard re. uncertainty in covariate coeffic
             }
 
             EstimatedBiomassTimeMinus1  = EstimatedBiomassBySpecies(timeMinus1,species);
+
             growthTerm      = growthForm->evaluate(CovariateAlgorithmType,
                                                    EstimatedBiomassTimeMinus1,
                                                    EstGrowthRates[species],
@@ -5284,6 +5282,7 @@ std::cout << "WARNING(2): Check with Howard re. uncertainty in covariate coeffic
                                                       PredationHandlingCovariate,
                                                       EstPredationExponent,
                                                       PredationExponentCovariate);
+
             EstimatedBiomassTimeMinus1 += growthTerm - harvestTerm - competitionTerm - predationTerm;
             if ( std::isnan(std::fabs(EstimatedBiomassTimeMinus1)) ||
                 (EstimatedBiomassTimeMinus1 < 0) )
@@ -6476,6 +6475,7 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
         smodel->setItem(i, 0, item);
     }
 
+    // This causes all GUIs to reload because it toggles the significant digits
     bool isSigDigChecked = saveSigDigState();
 
     calculateSummaryStatistics(smodel,isAggProd,Algorithm,Minimizer,
@@ -6490,6 +6490,7 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
 
     saveSummaryModelFitTable(smodel);
 
+    // This causes all GUIs to reload because it toggles the significant digits
     restoreSigDigState(isSigDigChecked);
 
     QString msg = "";
@@ -6527,7 +6528,6 @@ nmfMainWindow::saveSummaryModelFitTable(QStandardItemModel *smodel)
     std::string cmd;
     std::string errorMsg;
     QString valueStr;
-    QStandardItem* item;
     QStringList SpeciesList;
 
     if (smodel) {
@@ -8585,7 +8585,7 @@ nmfMainWindow::showChartBiomassVsTime(
         // Set up the legend for tooltips.  Needs to be done like this due to the
         // B MSY labels being the same for all of the B MSY dotted line plots.
         legend->setToolTips(markerColors);
-        legend->setConnections();
+        legend->setupConnections();
     }
 
     //
@@ -8793,7 +8793,7 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
         // Set up the legend for tooltips.  Needs to be done like this due to the
         // B MSY labels being the same for all of the B MSY dotted line plots.
         // legend->setToolTips(markerColors);
-        legend->setConnections();
+        legend->setupConnections();
     } else {
         Output_Controls_ptr->clearOutputBMSY();
     }
@@ -10453,6 +10453,9 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
 void
 nmfMainWindow::callback_StopAllRuns()
 {
+    if (m_Estimator_Bees != nullptr) {
+        m_Estimator_Bees->stopRun("--:--:--","n/a");
+    }
     if (m_Estimator_NLopt != nullptr) {
         m_Estimator_NLopt->callback_StopAllRuns();
 //      m_Estimator_NLopt->stopRun("--:--:--","n/a");
@@ -11900,9 +11903,7 @@ std::cout << "=====>>>>> Run Completed" << std::endl;
 
     m_RunOutputMsg = msg;
     menu_saveAndShowCurrentRun(showDiagnosticChart);
-
     callback_UpdateSummaryStatistics();
-
     m_ProgressWidget->showLegend();
 
     Estimation_Tab1_ptr->checkIfRunFromModifySlider();
@@ -13412,7 +13413,7 @@ nmfMainWindow::callback_Setup_Tab4_CompetitionFormCMB(QString name)
 void
 nmfMainWindow::setup3dChart()
 {
-    if (m_Graph3D != nullptr) { // && (m_modifier != nullptr)) {
+    if (m_Graph3D != nullptr) {
         m_ChartView3d->show();
         return;
     }

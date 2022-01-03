@@ -19,7 +19,6 @@ var hierarchy =
     [ "QObject", null, [
       [ "Bees_Estimator", "class_bees___estimator.html", null ],
       [ "NLopt_Estimator", "class_n_lopt___estimator.html", null ],
-      [ "nmfCovariate_Tab2", "classnmf_covariate___tab2.html", null ],
       [ "nmfDiagnostic_Tab1", "classnmf_diagnostic___tab1.html", null ],
       [ "nmfDiagnostic_Tab2", "classnmf_diagnostic___tab2.html", null ],
       [ "nmfEstimation_Tab1", "classnmf_estimation___tab1.html", null ],

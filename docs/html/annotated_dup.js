@@ -9,7 +9,6 @@ var annotated_dup =
     [ "LoadForecastDlg", "class_load_forecast_dlg.html", "class_load_forecast_dlg" ],
     [ "MultiScenarioSaveDlg", "class_multi_scenario_save_dlg.html", "class_multi_scenario_save_dlg" ],
     [ "NLopt_Estimator", "class_n_lopt___estimator.html", "class_n_lopt___estimator" ],
-    [ "nmfCovariate_Tab2", "classnmf_covariate___tab2.html", "classnmf_covariate___tab2" ],
     [ "nmfDiagnostic_Tab1", "classnmf_diagnostic___tab1.html", "classnmf_diagnostic___tab1" ],
     [ "nmfDiagnostic_Tab2", "classnmf_diagnostic___tab2.html", "classnmf_diagnostic___tab2" ],
     [ "nmfEstimation_Tab1", "classnmf_estimation___tab1.html", "classnmf_estimation___tab1" ],

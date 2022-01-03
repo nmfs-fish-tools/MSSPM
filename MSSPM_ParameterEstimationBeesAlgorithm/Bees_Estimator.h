@@ -96,8 +96,6 @@ private:
     void printBee(std::string msg,
                   double &fitness,
                   std::vector<double> &parameters);
-    void stopRun(const std::string &elapsedTimeStr,
-                 const std::string &fitnessStr);
     bool wasStoppedByUser();
 
 signals:
@@ -248,6 +246,13 @@ public:
      * @param EstSurveyQ : vector of SurveyQ values per species
      */
     void getEstSurveyQ(std::vector<double> &EstSurveyQ);
+    /**
+     * @brief Stops the current Bees run
+     * @param elapsedTimeStr : elapsed time string
+     * @param fitnessStr : fitness value string
+     */
+    void stopRun(const std::string &elapsedTimeStr,
+                 const std::string &fitnessStr);
 };
 
 

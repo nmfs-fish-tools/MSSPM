@@ -37,7 +37,7 @@
 
 
 /**
- * @brief SimulatedBiomass Dialog
+ * @brief Dialog that displays user preferences for simulating biomass data
  *
  * The Dialog contains the preferences for the user to select when creating simulated
  * biomass data.

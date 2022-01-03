@@ -169,34 +169,34 @@ public:
      * @brief Initializes the current database
      * @param database : database to initialize
      */
-    void    initDatabase(QString database);
+    void initDatabase(QString database);
     /**
      * @brief Checks the project data to see if they're valid
      * @return Boolean describing whether or not the project data are valid
      */
-    bool    isProjectDataValid();
+    bool isProjectDataValid();
     /**
      * @brief Checks the project name to see if it's valid
      * @param projectName : the project name to check for validity
      * @return Boolean describing whether or not the project name is valid
      */
-    bool    isProjectNameValid(QString projectName);
+    bool isProjectNameValid(QString projectName);
     /**
      * @brief Loads all available database names into the appropriate widget for user selection
      * @param databaseNameToSelect : name of database to select as current
      */
-    void    loadDatabaseNames(QString databaseNameToSelect);
+    void loadDatabaseNames(QString databaseNameToSelect);
     /**
      * @brief Loads the currently selected Project
      * @param logger : pointer to the application logger
      * @param projectFilename : name of the Project file to load
      * @return Boolean describing whether or not the project was loaded
      */
-    bool    loadProject(nmfLogger *logger, QString projectFilename);
+    bool loadProject(nmfLogger *logger, QString projectFilename);
     /**
      * @brief Loads the widgets for this GUI from the appropriate database table(s)
      */
-    void    loadWidgets();
+    void loadWidgets();
     /**
      * @brief Saves the current project information
      * @param verbose : flag designating if output should be echo'd to the screen
@@ -205,7 +205,7 @@ public:
     /**
      * @brief Saves this GUI's project data to the Qt Settings file
      */
-    void    saveSettings();
+    void saveSettings();
     /**
      * @brief Writes the author of the project into the appropriate widget
      * @param author : the author's name
@@ -231,7 +231,6 @@ public:
      * @param name : the name of the project
      */
     void setProjectName(QString name);
-
 
 public Q_SLOTS:
     /**

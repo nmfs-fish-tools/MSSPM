@@ -6,6 +6,6 @@
 <area shape="rect" id="node5" href="$class_load_forecast_dlg.html" title="Dialog to Load a Forecast." alt="" coords="156,157,287,184"/>
 <area shape="rect" id="node6" href="$class_multi_scenario_save_dlg.html" title="Dialog to Save Multiple Forecasts." alt="" coords="139,208,304,235"/>
 <area shape="rect" id="node7" href="$class_preferences_dialog.html" title="Preferences Dialog." alt="" coords="151,259,292,285"/>
-<area shape="rect" id="node8" href="$class_simulated_biomass_dialog.html" title="SimulatedBiomass Dialog." alt="" coords="128,309,315,336"/>
-<area shape="rect" id="node9" href="$class_table_names_dialog.html" title="TableNamesDialog Dialog." alt="" coords="149,360,293,387"/>
+<area shape="rect" id="node8" href="$class_simulated_biomass_dialog.html" title="Dialog that displays user preferences for simulating biomass data." alt="" coords="128,309,315,336"/>
+<area shape="rect" id="node9" href="$class_table_names_dialog.html" title="Dialog that displays the names of all of the tables in the currently loaded database." alt="" coords="149,360,293,387"/>
 </map>

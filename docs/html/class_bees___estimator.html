@@ -188,6 +188,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a28cf2ff0c6438b3da720598c8f149c43"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a28cf2ff0c6438b3da720598c8f149c43">getEstSurveyQ</a> (std::vector&lt; double &gt; &amp;EstSurveyQ)</td></tr>
 <tr class="memdesc:a28cf2ff0c6438b3da720598c8f149c43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated SurveyQ values per species.  <a href="class_bees___estimator.html#a28cf2ff0c6438b3da720598c8f149c43">More...</a><br /></td></tr>
 <tr class="separator:a28cf2ff0c6438b3da720598c8f149c43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a596f7887df332312ecccf342295cbb87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a596f7887df332312ecccf342295cbb87">stopRun</a> (const std::string &amp;elapsedTimeStr, const std::string &amp;fitnessStr)</td></tr>
+<tr class="memdesc:a596f7887df332312ecccf342295cbb87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the current Bees run.  <a href="class_bees___estimator.html#a596f7887df332312ecccf342295cbb87">More...</a><br /></td></tr>
+<tr class="separator:a596f7887df332312ecccf342295cbb87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This class acts as an interface class to the Bees algorithm implementation. </p>
@@ -848,6 +851,43 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">bestFitness</td><td>: string value representing the best fitness value </td></tr>
     <tr><td class="paramname">showDiagnosticsChart</td><td>: boolean signfying whether the diagnostic 3d chart should be displayed after the run completes </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a596f7887df332312ecccf342295cbb87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a596f7887df332312ecccf342295cbb87">&#9670;&nbsp;</a></span>stopRun()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Bees_Estimator::stopRun </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>elapsedTimeStr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>fitnessStr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stops the current Bees run. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">elapsedTimeStr</td><td>: elapsed time string </td></tr>
+    <tr><td class="paramname">fitnessStr</td><td>: fitness value string </td></tr>
   </table>
   </dd>
 </dl>

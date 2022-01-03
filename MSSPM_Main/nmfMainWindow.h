@@ -47,8 +47,6 @@
 #include "nmfProgressWidget.h"
 #include "ClearOutputDialog.h"
 #include "nmfDatabaseConnectDialog.h"
-#include "nmfOutputChart3DBarModifier.h"
-#include "nmfOutputChart3D.h"
 #include "nmfSimulatedData.h"
 #include "SimulatedBiomassDialog.h"
 #include "nmfMessageWithDontShowDialog.h"
@@ -181,7 +179,6 @@ private:
     nmfLogger*                            m_Logger;
     nmfLogWidget*                         m_LogWidget;
     QStringListModel*                     m_ModelSpeciesOrGuild;
-    nmfOutputChart3DBarModifier*          m_Modifier;
     int                                   m_NumLines;
     int                                   m_NumMohnsRhoRanges;
     std::string                           m_Password;

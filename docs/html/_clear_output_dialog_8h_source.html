@@ -113,28 +113,32 @@ $(document).ready(function(){initNavTree('_clear_output_dialog_8h_source.html','
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    QPushButton* CancelPB;</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    QPushButton* OkPB;</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <a class="code" href="class_clear_output_dialog.html#aff323745924e7918c3aa13f0b2483c69">ClearOutputDialog</a>(QWidget*     parent,</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;                      nmfDatabase* databasePtr);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_clear_output_dialog.html">ClearOutputDialog</a>() {}</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    std::string getAlgorithm();</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    std::string getMinimizer();</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    std::string getObjectiveCriterion();</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    std::string getScaling();</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">void</span>        loadWidgets();</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="keyword">private</span> Q_SLOTS:</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">void</span> callback_AlgorithmCMB(QString algorithm);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">void</span> callback_MinimizerCMB(QString minimizer);</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">void</span> callback_ObjectiveCriterionCMB(QString objectiveCriterion);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;};</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> loadWidgets();</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <a class="code" href="class_clear_output_dialog.html#aff323745924e7918c3aa13f0b2483c69">ClearOutputDialog</a>(QWidget*     parent,</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;                      nmfDatabase* databasePtr);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_clear_output_dialog.html">ClearOutputDialog</a>() {}</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    std::string <a class="code" href="class_clear_output_dialog.html#a2e0e1749d7589dc7167035d5cc665d05">getAlgorithm</a>();</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    std::string <a class="code" href="class_clear_output_dialog.html#a99881be4f913c9d95033c6261b9d378e">getMinimizer</a>();</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    std::string <a class="code" href="class_clear_output_dialog.html#a4800cc6f39628d9581912db6512561c8">getObjectiveCriterion</a>();</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    std::string <a class="code" href="class_clear_output_dialog.html#af9aff37572279e06afec9c91171ff52c">getScaling</a>();</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="keyword">private</span> Q_SLOTS:</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">void</span> callback_AlgorithmCMB(QString algorithm);</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">void</span> callback_MinimizerCMB(QString minimizer);</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordtype">void</span> callback_ObjectiveCriterionCMB(QString objectiveCriterion);</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;};</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
+<div class="ttc" id="aclass_clear_output_dialog_html_af9aff37572279e06afec9c91171ff52c"><div class="ttname"><a href="class_clear_output_dialog.html#af9aff37572279e06afec9c91171ff52c">ClearOutputDialog::getScaling</a></div><div class="ttdeci">std::string getScaling()</div><div class="ttdoc">Gets the selected scaling name from the GUI.</div><div class="ttdef"><b>Definition:</b> ClearOutputDialog.cpp:227</div></div>
 <div class="ttc" id="aclass_clear_output_dialog_html"><div class="ttname"><a href="class_clear_output_dialog.html">ClearOutputDialog</a></div><div class="ttdoc">Clear Dialog.</div><div class="ttdef"><b>Definition:</b> ClearOutputDialog.h:46</div></div>
+<div class="ttc" id="aclass_clear_output_dialog_html_a4800cc6f39628d9581912db6512561c8"><div class="ttname"><a href="class_clear_output_dialog.html#a4800cc6f39628d9581912db6512561c8">ClearOutputDialog::getObjectiveCriterion</a></div><div class="ttdeci">std::string getObjectiveCriterion()</div><div class="ttdoc">Gets the selected objective criterion name from the GUI.</div><div class="ttdef"><b>Definition:</b> ClearOutputDialog.cpp:221</div></div>
 <div class="ttc" id="aclass_clear_output_dialog_html_aff323745924e7918c3aa13f0b2483c69"><div class="ttname"><a href="class_clear_output_dialog.html#aff323745924e7918c3aa13f0b2483c69">ClearOutputDialog::ClearOutputDialog</a></div><div class="ttdeci">ClearOutputDialog(QWidget *parent, nmfDatabase *databasePtr)</div><div class="ttdoc">ClearOutputDialog : class constructor.</div><div class="ttdef"><b>Definition:</b> ClearOutputDialog.cpp:5</div></div>
+<div class="ttc" id="aclass_clear_output_dialog_html_a2e0e1749d7589dc7167035d5cc665d05"><div class="ttname"><a href="class_clear_output_dialog.html#a2e0e1749d7589dc7167035d5cc665d05">ClearOutputDialog::getAlgorithm</a></div><div class="ttdeci">std::string getAlgorithm()</div><div class="ttdoc">Gets the selected algorithm name from the GUI.</div><div class="ttdef"><b>Definition:</b> ClearOutputDialog.cpp:209</div></div>
+<div class="ttc" id="aclass_clear_output_dialog_html_a99881be4f913c9d95033c6261b9d378e"><div class="ttname"><a href="class_clear_output_dialog.html#a99881be4f913c9d95033c6261b9d378e">ClearOutputDialog::getMinimizer</a></div><div class="ttdeci">std::string getMinimizer()</div><div class="ttdoc">Gets the selected minimizer name from the GUI.</div><div class="ttdef"><b>Definition:</b> ClearOutputDialog.cpp:215</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

@@ -1,6 +1,5 @@
 var files_dup =
 [
-    [ "MSSPM_GuiCovariate", "dir_81ec642101a58dd721e208be2f4b95b3.html", "dir_81ec642101a58dd721e208be2f4b95b3" ],
     [ "MSSPM_GuiDiagnostic", "dir_b912b8d0c9e387e34c8ac65d355f81fe.html", "dir_b912b8d0c9e387e34c8ac65d355f81fe" ],
     [ "MSSPM_GuiEstimation", "dir_b9ac0d344cc977a29ffee886b232757f.html", "dir_b9ac0d344cc977a29ffee886b232757f" ],
     [ "MSSPM_GuiForecast", "dir_225a0762100a1f7f6f8bcbe417a61133.html", "dir_225a0762100a1f7f6f8bcbe417a61133" ],

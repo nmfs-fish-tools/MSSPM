@@ -31,7 +31,15 @@
 
 #include <nmfStructsQt.h>
 
-
+/**
+ * @brief Covariate Data
+ *
+ * These widgets allow the user to input custom environmental covariate data and then apply
+ * the desired covariates to the desired species-parameter combinations. The user enters
+ * the covariate data time series. The user also enters the covariate intial value and
+ * ranges so that the covariate coefficients may be estimated if desired.
+ *
+ */
 class nmfEstimation_Tab6: public QObject
 {
     Q_OBJECT

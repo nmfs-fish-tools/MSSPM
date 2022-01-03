@@ -63,6 +63,7 @@ class ClearOutputDialog : public QDialog
     QPushButton* CancelPB;
     QPushButton* OkPB;
 
+    void loadWidgets();
 
 public:
     /**
@@ -74,15 +75,42 @@ public:
                       nmfDatabase* databasePtr);
     virtual ~ClearOutputDialog() {}
 
+    /**
+     * @brief Gets the selected algorithm name from the GUI
+     * @return Algorithm selected by the user
+     */
     std::string getAlgorithm();
+    /**
+     * @brief Gets the selected minimizer name from the GUI
+     * @return Minimizer selected by the user
+     */
     std::string getMinimizer();
+    /**
+     * @brief Gets the selected objective criterion name from the GUI
+     * @return Objective Criterion selected by the user
+     */
     std::string getObjectiveCriterion();
+    /**
+     * @brief Gets the selected scaling name from the GUI
+     * @return Scaling selected by the user
+     */
     std::string getScaling();
-    void        loadWidgets();
 
 private Q_SLOTS:
+    /**
+     * @brief Callback invoked when the user selects an item from the Algorithm combo box
+     * @param algorithm : algorithm selected by the user
+     */
     void callback_AlgorithmCMB(QString algorithm);
+    /**
+     * @brief Callback invoked when the user selects an item from the Minimizer combo box
+     * @param minimizer : minimizer selected by the user
+     */
     void callback_MinimizerCMB(QString minimizer);
+    /**
+     * @brief Callback invoked when the user selects an item from the Objective Criterion combo box
+     * @param objectiveCriterion : objective criterion selected by the user
+     */
     void callback_ObjectiveCriterionCMB(QString objectiveCriterion);
 };
 

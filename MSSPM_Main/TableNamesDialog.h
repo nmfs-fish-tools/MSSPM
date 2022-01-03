@@ -40,7 +40,7 @@
 #include <QVBoxLayout>
 
 /**
- * @brief TableNamesDialog Dialog
+ * @brief Dialog that displays the names of all of the tables in the currently loaded database
  *
  * The Dialog contains the name of database, and tables within a list widgets.
  *

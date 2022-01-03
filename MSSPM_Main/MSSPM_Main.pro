@@ -80,12 +80,11 @@ else:unix: LIBS += -L$$PWD/../../../builds/build-nmfDatabase-Desktop_Qt_5_15_1_G
 INCLUDEPATH += $$PWD/../../nmfSharedUtilities/nmfDatabase
 DEPENDPATH += $$PWD/../../nmfSharedUtilities/nmfDatabase
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfGuiComponentsMain-Desktop_Qt_5_15_1_GCC_64bit-Release/release/ -lnmfGuiComponentsMain
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfGuiComponentsMain-Desktop_Qt_5_15_1_GCC_64bit-Release/debug/ -lnmfGuiComponentsMain
-else:unix: LIBS += -L$$PWD/../../../builds/build-nmfGuiComponentsMain-Desktop_Qt_5_15_1_GCC_64bit-Release/ -lnmfGuiComponentsMain
-
-INCLUDEPATH += $$PWD/../../nmfSharedUtilities/nmfGuiComponentsMain
-DEPENDPATH += $$PWD/../../nmfSharedUtilities/nmfGuiComponentsMain
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfGuiComponentsMain-Desktop_Qt_5_15_1_GCC_64bit-Release/release/ -lnmfGuiComponentsMain
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfGuiComponentsMain-Desktop_Qt_5_15_1_GCC_64bit-Release/debug/ -lnmfGuiComponentsMain
+#else:unix: LIBS += -L$$PWD/../../../builds/build-nmfGuiComponentsMain-Desktop_Qt_5_15_1_GCC_64bit-Release/ -lnmfGuiComponentsMain
+#INCLUDEPATH += $$PWD/../../nmfSharedUtilities/nmfGuiComponentsMain
+#DEPENDPATH += $$PWD/../../nmfSharedUtilities/nmfGuiComponentsMain
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfCharts-Desktop_Qt_5_15_1_GCC_64bit-Release/release/ -lnmfCharts
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../builds/build-nmfCharts-Desktop_Qt_5_15_1_GCC_64bit-Release/debug/ -lnmfCharts

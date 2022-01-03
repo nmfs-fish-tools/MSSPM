@@ -126,6 +126,7 @@ var classnmf_estimation___tab7 =
     [ "runEstimation", "classnmf_estimation___tab7.html#a4acb5c45e354f2234965a27344bb1f3e", null ],
     [ "saveSettings", "classnmf_estimation___tab7.html#a4fb9986ffaab264cc040b38f0d450d1f", null ],
     [ "saveSystem", "classnmf_estimation___tab7.html#ac0ccb585aaaa14f922091c6935064925", null ],
+    [ "setAlgorithm", "classnmf_estimation___tab7.html#a146e3b876c330ee8bd53f54bd531bb1e", null ],
     [ "SetAlgorithm", "classnmf_estimation___tab7.html#a7cf042260ecb0a14c39e1ef353639e87", null ],
     [ "setCurrentMinimizerType", "classnmf_estimation___tab7.html#acfb86bd49a52a954154b710bd7b070e3", null ],
     [ "setCurrentTimeUnits", "classnmf_estimation___tab7.html#ab557d9a8d830ea8b3a36642785235a46", null ],
@@ -140,6 +141,7 @@ var classnmf_estimation___tab7 =
     [ "setEnsembleUsingPct", "classnmf_estimation___tab7.html#a78d3ebde500878d71d863a43cfd7d313", null ],
     [ "setFont", "classnmf_estimation___tab7.html#a072f321e81b8f35454918de7a9174152", null ],
     [ "setMaxGenerations", "classnmf_estimation___tab7.html#a0a2b1be590bd6426f021d1e3d6ce2fd7", null ],
+    [ "setMinimizer", "classnmf_estimation___tab7.html#ad423e47722b6703fb25525c6078b044c", null ],
     [ "setMohnsRhoFileHeader", "classnmf_estimation___tab7.html#aff34931b2f3e57f9413a41c021fcf937", null ],
     [ "setMohnsRhoFileType", "classnmf_estimation___tab7.html#a6c275d259267319e41f59ddeb5a0d4ee", null ],
     [ "setNeighborhoodSize", "classnmf_estimation___tab7.html#a6ce3cb2b155381512cd7600418f7b673", null ],
@@ -149,8 +151,10 @@ var classnmf_estimation___tab7 =
     [ "setNumEliteSites", "classnmf_estimation___tab7.html#ac14371153d06d821b7e489c4975517a4", null ],
     [ "setNumOtherBees", "classnmf_estimation___tab7.html#a8e518df127f958b76c8ff0e06d213ab9", null ],
     [ "setNumSubRuns", "classnmf_estimation___tab7.html#aaa6bf3efd4d06c1d05db4aa15d08214e", null ],
+    [ "setObjectiveCriterion", "classnmf_estimation___tab7.html#a6839d70b0aa28a056127a7e4bcbc4408", null ],
     [ "setOutputTE", "classnmf_estimation___tab7.html#a663c05f14216080538698451931f735e", null ],
     [ "setRunButtonLabel", "classnmf_estimation___tab7.html#a3af525a2ea9ecc5b314ce59b66c2bf5b", null ],
+    [ "setScaling", "classnmf_estimation___tab7.html#a09e701620c6c6272cf0404d516280ca7", null ],
     [ "ShowRunMessage", "classnmf_estimation___tab7.html#a8c56a87aa3ed2517b584c1858c0e83ae", null ],
     [ "UpdateForecastYears", "classnmf_estimation___tab7.html#a0fcce11a9e2ff5f48c1d7242816b2568", null ]
 ];

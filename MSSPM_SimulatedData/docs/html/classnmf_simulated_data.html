@@ -69,25 +69,26 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>This class is responsible for the creation of the simulated biomass data used to test MSSPM's estimations algorithms.  
+<p>Creates simulated biomass.  
  <a href="classnmf_simulated_data.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="nmf_simulated_data_8h_source.html">nmfSimulatedData.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a14fc394e0a48b35e5c146a27180c8932"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_simulated_data.html#a14fc394e0a48b35e5c146a27180c8932">nmfSimulatedData</a> (nmfDatabase *database, nmfLogger *logger, std::string &amp;projectName, std::string &amp;modelName)</td></tr>
-<tr class="memdesc:a14fc394e0a48b35e5c146a27180c8932"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class constructor.  <a href="classnmf_simulated_data.html#a14fc394e0a48b35e5c146a27180c8932">More...</a><br /></td></tr>
-<tr class="separator:a14fc394e0a48b35e5c146a27180c8932"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2fb62b523c7b0b2c64aafd93a4861d8b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_simulated_data.html#a2fb62b523c7b0b2c64aafd93a4861d8b">createSimulatedBiomass</a> (const int &amp;errorPct, QString &amp;filename)</td></tr>
-<tr class="memdesc:a2fb62b523c7b0b2c64aafd93a4861d8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a simulated Biomass time series with the current model settings.  <a href="classnmf_simulated_data.html#a2fb62b523c7b0b2c64aafd93a4861d8b">More...</a><br /></td></tr>
-<tr class="separator:a2fb62b523c7b0b2c64aafd93a4861d8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a118175634cfc55b7cbd51d95c9215c42"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_simulated_data.html#a118175634cfc55b7cbd51d95c9215c42">nmfSimulatedData</a> (nmfDatabase *database, nmfLogger *logger, std::string &amp;projectName, std::string &amp;modelName, nmfStructsQt::ModelDataStruct &amp;dataStruct)</td></tr>
+<tr class="memdesc:a118175634cfc55b7cbd51d95c9215c42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class constructor.  <a href="classnmf_simulated_data.html#a118175634cfc55b7cbd51d95c9215c42">More...</a><br /></td></tr>
+<tr class="separator:a118175634cfc55b7cbd51d95c9215c42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab81b3063657df4c9165bb1b73caaaf5e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_simulated_data.html#ab81b3063657df4c9165bb1b73caaaf5e">createSimulatedBiomass</a> (const int &amp;errorPct, QString &amp;filename, QString &amp;errorMsg)</td></tr>
+<tr class="memdesc:ab81b3063657df4c9165bb1b73caaaf5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a simulated Biomass time series with the current model settings.  <a href="classnmf_simulated_data.html#ab81b3063657df4c9165bb1b73caaaf5e">More...</a><br /></td></tr>
+<tr class="separator:ab81b3063657df4c9165bb1b73caaaf5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This class is responsible for the creation of the simulated biomass data used to test MSSPM's estimations algorithms. </p>
+<div class="textblock"><p>Creates simulated biomass. </p>
+<p>This class is responsible for the creation of the simulated biomass data used to test MSSPM's estimations algorithms. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a14fc394e0a48b35e5c146a27180c8932"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a14fc394e0a48b35e5c146a27180c8932">&#9670;&nbsp;</a></span>nmfSimulatedData()</h2>
+<a id="a118175634cfc55b7cbd51d95c9215c42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a118175634cfc55b7cbd51d95c9215c42">&#9670;&nbsp;</a></span>nmfSimulatedData()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -114,7 +115,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">std::string &amp;&#160;</td>
-          <td class="paramname"><em>modelName</em>&#160;</td>
+          <td class="paramname"><em>modelName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">nmfStructsQt::ModelDataStruct &amp;&#160;</td>
+          <td class="paramname"><em>dataStruct</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -131,6 +138,7 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">logger</td><td>: point to logger used to log any error messages </td></tr>
     <tr><td class="paramname">projectName</td><td>: name of current project </td></tr>
     <tr><td class="paramname">modelName</td><td>: name of current model </td></tr>
+    <tr><td class="paramname">dataStruct</td><td>: model data (contains the covariate data) </td></tr>
   </table>
   </dd>
 </dl>
@@ -138,8 +146,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a2fb62b523c7b0b2c64aafd93a4861d8b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2fb62b523c7b0b2c64aafd93a4861d8b">&#9670;&nbsp;</a></span>createSimulatedBiomass()</h2>
+<a id="ab81b3063657df4c9165bb1b73caaaf5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab81b3063657df4c9165bb1b73caaaf5e">&#9670;&nbsp;</a></span>createSimulatedBiomass()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -154,7 +162,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">QString &amp;&#160;</td>
-          <td class="paramname"><em>filename</em>&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QString &amp;&#160;</td>
+          <td class="paramname"><em>errorMsg</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -169,6 +183,7 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">errorPct</td><td>: percent error to add around values </td></tr>
     <tr><td class="paramname">filename</td><td>: filename where to write out simulated biomass </td></tr>
+    <tr><td class="paramname">errorMsg</td><td>: error message to pass back to the calling routine </td></tr>
   </table>
   </dd>
 </dl>

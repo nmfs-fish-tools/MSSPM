@@ -53,10 +53,10 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_bees___estimator_8h.html",
-"classnmf_diagnostic___tab2.html#aabf2b427af8371a4c6a9cb44d305604b",
-"classnmf_estimation___tab7.html#a9bf6bc6be717361a2c068315224a71ba",
-"classnmf_main_window.html#a94ebb32872785a082d38c787c45a70f7",
-"classnmf_setup___tab4.html#a373be120af3107c340dfb39cc6231db6"
+"classnmf_diagnostic___tab2.html#acb3957cfb5f9bb45e20111a42300e67b",
+"classnmf_estimation___tab7.html#a978342e091d342886c1de6e1ff561013",
+"classnmf_main_window.html#a9219079f1cdf08e2076cb1248e64da88",
+"classnmf_setup___tab4.html#a306c5c34cbb6a64e62e0f88c4e3dd3af"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

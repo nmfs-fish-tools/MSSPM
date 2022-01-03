@@ -50,8 +50,8 @@ ClearOutputDialog::ClearOutputDialog(QWidget*     parent,
             this,         SLOT(callback_MinimizerCMB(QString)));
     connect(ObjectiveCriterionCMB, SIGNAL(currentIndexChanged(QString)),
             this,                  SLOT(callback_ObjectiveCriterionCMB(QString)));
-    connect(CancelPB, SIGNAL(clicked()), this, SLOT(close()));
-    connect(OkPB,     SIGNAL(clicked()), this, SLOT(accept()));
+    connect(CancelPB,     SIGNAL(clicked()), this, SLOT(close()));
+    connect(OkPB,         SIGNAL(clicked()), this, SLOT(accept()));
 
     setWindowTitle("Clear Selected Output");
     loadWidgets();
