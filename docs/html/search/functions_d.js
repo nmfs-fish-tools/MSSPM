@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['predationformchanged_1385',['PredationFormChanged',['../classnmf_setup___tab4.html#ab3142037bf7c2e394daa4c13a7fb0314',1,'nmfSetup_Tab4']]],
-  ['preferencesdialog_1386',['PreferencesDialog',['../class_preferences_dialog.html#affb784cb5b42b4192b9bc94d63826056',1,'PreferencesDialog']]],
-  ['projectsaved_1387',['ProjectSaved',['../classnmf_setup___tab2.html#a44a63ef7740e05ec6dff675756532f89',1,'nmfSetup_Tab2']]]
+  ['queryoutputscenario_1328',['QueryOutputScenario',['../classnmf_forecast___tab4.html#ac54dab3823ce57737df1a7e73e3d75f5',1,'nmfForecast_Tab4']]],
+  ['queryuserformultirunfilenames_1329',['QueryUserForMultiRunFilenames',['../class_n_lopt___estimator.html#a242a7cca175e3c0d9ed21e0591020102',1,'NLopt_Estimator']]]
 ];

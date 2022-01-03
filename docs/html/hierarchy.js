@@ -38,7 +38,6 @@ var hierarchy =
       [ "nmfSetup_Tab1", "classnmf_setup___tab1.html", null ],
       [ "nmfSetup_Tab2", "classnmf_setup___tab2.html", null ],
       [ "nmfSetup_Tab3", "classnmf_setup___tab3.html", null ],
-      [ "nmfSetup_Tab4", "classnmf_setup___tab4.html", null ],
-      [ "REMORA", "class_r_e_m_o_r_a.html", null ]
+      [ "nmfSetup_Tab4", "classnmf_setup___tab4.html", null ]
     ] ]
 ];

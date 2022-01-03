@@ -32,7 +32,6 @@ var annotated_dup =
     [ "nmfSetup_Tab4", "classnmf_setup___tab4.html", "classnmf_setup___tab4" ],
     [ "nmfSimulatedData", "classnmf_simulated_data.html", "classnmf_simulated_data" ],
     [ "PreferencesDialog", "class_preferences_dialog.html", "class_preferences_dialog" ],
-    [ "REMORA", "class_r_e_m_o_r_a.html", "class_r_e_m_o_r_a" ],
     [ "SimulatedBiomassDialog", "class_simulated_biomass_dialog.html", "class_simulated_biomass_dialog" ],
     [ "TableNamesDialog", "class_table_names_dialog.html", "class_table_names_dialog" ]
 ];

@@ -9,6 +9,5 @@ var files_dup =
     [ "MSSPM_ParameterEstimationBeesAlgorithm", "dir_d739ac0d358c5d9a1290530f1222b625.html", "dir_d739ac0d358c5d9a1290530f1222b625" ],
     [ "MSSPM_ParameterEstimationNLoptAlgorithm", "dir_2ff6449fe73183056a7ae675bc17f6cc.html", "dir_2ff6449fe73183056a7ae675bc17f6cc" ],
     [ "MSSPM_SimulatedData", "dir_6e4a50d2ec06af41c3f259e2254bc400.html", "dir_6e4a50d2ec06af41c3f259e2254bc400" ],
-    [ "unused", "dir_6bc6b6260c3e0b928ae8376696ec1137.html", "dir_6bc6b6260c3e0b928ae8376696ec1137" ],
     [ "mainpage.h", "mainpage_8h_source.html", null ]
 ];
