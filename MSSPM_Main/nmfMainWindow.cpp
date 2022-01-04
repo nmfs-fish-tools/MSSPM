@@ -2495,7 +2495,7 @@ nmfMainWindow::menu_clearSpecificOutputData()
     }
 }
 
-//
+
 void
 nmfMainWindow::menu_clearOutputData()
 {
