@@ -93,7 +93,8 @@ private:
     bool isViewNormalizeToggled();
     void loadCSVFile(
             const bool& firstLineReadOnly,
-            const std::string& tableName,
+            const QString& filePath,
+            const QString& tableName,
             QTableView* tableView);
     bool okSaveInitialValuesAndRangesChecks();
     void readSettings();

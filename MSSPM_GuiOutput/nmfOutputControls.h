@@ -77,6 +77,7 @@ class nmfOutputControls: public QObject
     QLabel*      OutputScaleLBL;
     QLabel*      OutputLineBrightnessLBL;
     QLabel*      OutputShowShadowLBL;
+    QLabel*      OutputShowHistoricalDataLBL;
     QSlider*     OutputLineBrightnessSL;
     QComboBox*   OutputSpeciesCMB;
     QComboBox*   OutputParametersCMB;
@@ -100,6 +101,7 @@ class nmfOutputControls: public QObject
     QLineEdit*   OutputShowMSYLE;
     QLineEdit*   OutputShowFMSYLE;
     QGroupBox*   ControlsGroupBox;
+    QCheckBox*   OutputShowHistoricalDataCB;
     QCheckBox*   OutputShowShadowCB;
 
     void enableMSYWidgets(bool state);
@@ -142,7 +144,7 @@ public:
     void            displayMohnsRho();
     /**
      * @brief Sets the appropriate states of the widgets that allow the user to change brightness of stochastice Forecast runs
-     * @param state : state of the widgets (True or False)
+     * @param state : enabled state of the widgets (True or False)
      */
     void            enableBrightnessWidgets(bool state);
     /**
@@ -261,6 +263,11 @@ public:
      * @return Boolean signifying if combobox is set to Retrospective Analysis
      */
     bool            isSetToRetrospectiveAnalysis();
+    /**
+     * @brief Informs the user if the Show Historical Data checkbox is checked
+     * @return The state of the Show Historical Data checkbox
+     */
+    bool            isHistoricalDataShown();
     /**
      * @brief Informs the user if the Show Shadow box is checked
      * @return The state of the Show Shadow box
@@ -473,10 +480,15 @@ public slots:
      */
     void callback_OutputFMSYCB(int val);
     /**
-     * @brief Callback invoked when the user checks the Show Shadow check box
-     * @param dummy - unused
+     * @brief Callback invoked when the user checks the Historical Data checkbox
+     * @param unused - unused parameter
      */
-    void callback_OutputShowShadowCB(int dummy);
+    void callback_OutputShowHistoricalDataCB(int unused);
+    /**
+     * @brief Callback invoked when the user checks the Show Shadow check box
+     * @param unused - unused parameter
+     */
+    void callback_OutputShowShadowCB(int unused);
     /**
      * @brief Callback invoked when the user selects from the Scale Factor combo box widget
      * @param scale : the y-axis scale selected, values are strings of 0 triples (i.e., "000" or "000 000")

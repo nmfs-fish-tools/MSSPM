@@ -191,6 +191,10 @@ nmfEstimation_Tab8::callback_ImportPB()
                                  QMessageBox::Ok);
             return;
         }
+        QMessageBox::information(Estimation_Tabs, "Import Successful",
+                                 "\nThe CSV data file has been successfully imported.\n",
+                                 QMessageBox::Ok);
+
         adjustColumnsForReadOnly();
         Estimation_Tab7_ModelReviewTV->horizontalHeader()->show();
     }

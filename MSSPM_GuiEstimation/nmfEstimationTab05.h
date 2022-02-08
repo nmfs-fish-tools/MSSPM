@@ -52,22 +52,22 @@ class nmfEstimation_Tab5: public QObject
     int                 m_NumSignificantDigits;
     QStandardItemModel* m_SModelAbsoluteBiomass;
     QStandardItemModel* m_SModelRelativeBiomass;
-    QStandardItemModel* m_SModelCovariates;
+    QString             m_PreviousUnits;
 
     QTabWidget*   Estimation_Tabs;
     QWidget*      Estimation_Tab5_Widget;
     QTableView*   Estimation_Tab5_AbsoluteBiomassTV;
     QTableView*   Estimation_Tab5_RelativeBiomassTV;
-    QTableView*   Estimation_Tab5_CovariatesTV;
     QPushButton*  Estimation_Tab5_PrevPB;
     QPushButton*  Estimation_Tab5_NextPB;
     QPushButton*  Estimation_Tab5_LoadPB;
     QPushButton*  Estimation_Tab5_SavePB;
     QPushButton*  Estimation_Tab5_ImportPB;
     QPushButton*  Estimation_Tab5_ExportPB;
-    QGroupBox*    Estimation_Tab5_CovariatesGB;
     QCheckBox*    Estimation_Tab5_EstimateSurveyQCB;
     QLabel*       Estimation_Tab5_ObsBiomassTypeLBL;
+    QComboBox*    Estimation_Tab5_UnitsCMB;
+    QCheckBox*    Estimation_Tab5_ConvertCB;
 
     void importAbsoluteBiomass();
     void importRelativeBiomass();
@@ -83,10 +83,9 @@ class nmfEstimation_Tab5: public QObject
                              const std::vector<std::string>& SpeciesNames,
                              const QStringList& SpeciesList,
                              QStringList& VerticalList);
-    void loadCovariates(const int& RunLength,
-                        const QStringList& VerticalList);
     void loadCSVFile(const bool& firstLineReadOnly,
-                     const std::string& tableName,
+                     const QString& filePath,
+                     const QString& tableName,
                      QTableView* tableView);
     void loadRelativeBiomass(const int& RunLength,
                              const int& StartYear,
@@ -105,6 +104,7 @@ class nmfEstimation_Tab5: public QObject
                                      const std::string& tableName,
                                      QStandardItemModel* smodel,
                                      QTableView* tableView);
+    void loadUnits(const std::string& tableName);
     void readSettings();
     bool saveAbsoluteBiomass();
     void saveCSVFile(const QString& type,
@@ -143,6 +143,17 @@ public:
      */
     void clearWidgets();
     /**
+     * @brief Returns the current units set by the user in the combo box
+     * @return Current units QString (lbs, kg, mt)
+     */
+    QString getCurrentUnits();
+    /**
+     * @brief If checked, the data table will be automatically
+     * converted as the user changes the Units combo box
+     * @return True if convert checkbox is checked, false otherwise
+     */
+    bool isConvertChecked();
+    /**
      * @brief Checks that the passed value is not empty
      * @param value : QString value to test for emptiness
      * @return true if value is not empty, false otherwise
@@ -153,6 +164,11 @@ public:
      * @return Returns true if all data were loaded successfully
      */
     bool loadWidgets();
+    /**
+     * @brief Sets the Units combo box
+     * @param currentUnits : value with which to set the current units combo box
+     */
+    void setCurrentUnits(QString currentUnits);
     /**
      * @brief Updates the data member m_IsDark accordingly and refreshes the GUI
      * @param style : the new light/dark preference setting
@@ -221,6 +237,11 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user changes the Units combo box
+     * @param units : new units selected by the user
+     */
+    void callback_UnitsCMB(QString units);
     /**
      * @brief Callback invoked when the user saves a new model in Setup -> Model Setup
      * @param obsBiomassType : the type of observed biomass: Absolute or Relative

@@ -53,6 +53,7 @@ private:
     std::string         m_ProjectName;
     int                 m_NumSignificantDigits;
     QStandardItemModel* m_SModel;
+    QString             m_PreviousUnits;
 
     QTabWidget*     Forecast_Tabs;
     QWidget*        Forecast_Tab2_Widget;
@@ -67,11 +68,15 @@ private:
     QComboBox*      Forecast_Tab2_MultiplierCMB;
     QDoubleSpinBox* Forecast_Tab2_MultiplierDSB;
     QCheckBox*      Forecast_Tab2_AutoSaveCB;
+    QComboBox*      Forecast_Tab2_UnitsCMB;
+    QCheckBox*      Forecast_Tab2_ConvertCB;
 
+    void loadUnits(const std::string& tableName);
     bool restoreData(int minRow, int minCol, int maxRow, int maxCol);
     void readSettings();
     void saveHarvestData(bool verbose);
     void setHarvestType(std::string harvestType);
+    void updateUnitsTable(const std::string& harvestTable);
 
 public:
     /**
@@ -97,10 +102,26 @@ public:
      */
     void clearWidgets();
     /**
+     * @brief Returns the current units set by the user in the combo box
+     * @return Current units QString (lbs, kg, mt)
+     */
+    QString getCurrentUnits();
+    /**
+     * @brief If checked, the data table will be automatically
+     * converted as the user changes the Units combo box
+     * @return True if convert checkbox is checked, false otherwise
+     */
+    bool isConvertChecked();
+    /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */
     bool loadWidgets();
+    /**
+     * @brief Sets the Units combo box
+     * @param currentUnits : value with which to set the current units combo box
+     */
+    void setCurrentUnits(QString currentUnits);
 
 signals:
     /**
@@ -155,7 +176,14 @@ public Q_SLOTS:
      * @param sel : the newly selected items
      * @param desel : the newly deselected items
      */
-    void callback_SelectionChanged(const QItemSelection &sel, const QItemSelection &desel);
+    void callback_SelectionChanged(const QItemSelection &sel,
+                                   const QItemSelection &desel);
+    /**
+     * @brief Callback invoked when the user changes the Units combo box
+     * @param units : new units selected by the user
+     */
+    void callback_UnitsCMB(QString units);
+
 };
 
 #endif // NMFFORECASTTAB2_H

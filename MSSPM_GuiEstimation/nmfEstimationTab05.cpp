@@ -18,10 +18,10 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
     m_ProjectName.clear();
     m_SModelAbsoluteBiomass = nullptr;
     m_SModelRelativeBiomass = nullptr;
-    m_SModelCovariates      = nullptr;
     // assuming that the default is light.
     m_IsDark = false;
     m_NumSignificantDigits = -1;
+    m_PreviousUnits.clear();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::nmfEstimation_Tab5");
 
@@ -38,18 +38,18 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
     // Add the loaded widget as the new tabbed page
     Estimation_Tabs->addTab(Estimation_Tab5_Widget, tr("5. Observation Data"));
 
-    Estimation_Tab5_CovariatesGB      = Estimation_Tabs->findChild<QGroupBox    *>("Estimation_Tab5_CovariatesGB");
-    Estimation_Tab5_AbsoluteBiomassTV = Estimation_Tabs->findChild<QTableView   *>("Estimation_Tab5_AbsoluteBiomassTV");
-    Estimation_Tab5_RelativeBiomassTV = Estimation_Tabs->findChild<QTableView   *>("Estimation_Tab5_RelativeBiomassTV");
-//  Estimation_Tab5_Rel2AbsScalarTV   = Estimation_Tabs->findChild<QTableView   *>("Estimation_Tab5_Rel2AbsScalarTV");
-    Estimation_Tab5_CovariatesTV      = Estimation_Tabs->findChild<QTableView   *>("Estimation_Tab5_CovariatesTV");
-    Estimation_Tab5_PrevPB            = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_PrevPB");
-    Estimation_Tab5_NextPB            = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_NextPB");
-    Estimation_Tab5_LoadPB            = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_LoadPB");
-    Estimation_Tab5_SavePB            = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_SavePB");
-    Estimation_Tab5_ImportPB          = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_ImportPB");
-    Estimation_Tab5_ExportPB          = Estimation_Tabs->findChild<QPushButton  *>("Estimation_Tab5_ExportPB");
-    Estimation_Tab5_ObsBiomassTypeLBL = Estimation_Tabs->findChild<QLabel       *>("Estimation_Tab5_ObsBiomassTypeLBL");
+    Estimation_Tab5_AbsoluteBiomassTV = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab5_AbsoluteBiomassTV");
+    Estimation_Tab5_RelativeBiomassTV = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab5_RelativeBiomassTV");
+//  Estimation_Tab5_Rel2AbsScalarTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab5_Rel2AbsScalarTV");
+    Estimation_Tab5_PrevPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_PrevPB");
+    Estimation_Tab5_NextPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_NextPB");
+    Estimation_Tab5_LoadPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_LoadPB");
+    Estimation_Tab5_SavePB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_SavePB");
+    Estimation_Tab5_ImportPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_ImportPB");
+    Estimation_Tab5_ExportPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab5_ExportPB");
+    Estimation_Tab5_ObsBiomassTypeLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab5_ObsBiomassTypeLBL");
+    Estimation_Tab5_UnitsCMB          = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab5_UnitsCMB");
+    Estimation_Tab5_ConvertCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab5_ConvertCB");
 
     connect(Estimation_Tab5_PrevPB,   SIGNAL(clicked()),
             this,                     SLOT(callback_PrevPB()));
@@ -63,68 +63,44 @@ nmfEstimation_Tab5::nmfEstimation_Tab5(QTabWidget  *tabs,
             this,                     SLOT(callback_ImportPB()));
     connect(Estimation_Tab5_ExportPB, SIGNAL(clicked()),
             this,                     SLOT(callback_ExportPB()));
+    connect(Estimation_Tab5_UnitsCMB, SIGNAL(currentTextChanged(QString)),
+            this,                     SLOT(callback_UnitsCMB(QString)));
+
+    m_PreviousUnits = Estimation_Tab5_UnitsCMB->currentText();
 
     Estimation_Tab5_PrevPB->setText("\u25C1--");
     Estimation_Tab5_NextPB->setText("--\u25B7");
 
-    Estimation_Tab5_CovariatesGB->setVisible(false);
 //    Estimation_Tab5_Rel2AbsScalarTV->hide();
     Estimation_Tab5_RelativeBiomassTV->hide();
 
 } // end constructor
-
 
 nmfEstimation_Tab5::~nmfEstimation_Tab5()
 {
 
 }
 
+bool
+nmfEstimation_Tab5::areTablesOK()
+{
+    return nmfUtilsQt::allCellsArePopulated(
+                Estimation_Tabs,
+                Estimation_Tab5_AbsoluteBiomassTV,
+                nmfConstantsMSSPM::DontShowError);
+}
+
 void
 nmfEstimation_Tab5::clearWidgets()
 {
     nmfUtilsQt::clearTableView(
-        {Estimation_Tab5_AbsoluteBiomassTV,
-         Estimation_Tab5_CovariatesTV});
+        {Estimation_Tab5_AbsoluteBiomassTV});
 }
 
-void
-nmfEstimation_Tab5::callback_PrevPB()
+QString
+nmfEstimation_Tab5::getCurrentUnits()
 {
-    int prevPage = Estimation_Tabs->currentIndex()-1;
-    Estimation_Tabs->setCurrentIndex(prevPage);
-}
-
-void
-nmfEstimation_Tab5::callback_NextPB()
-{
-    int nextPage = Estimation_Tabs->currentIndex()+1;
-    Estimation_Tabs->setCurrentIndex(nextPage);
-}
-
-void
-nmfEstimation_Tab5::callback_LoadWidgets()
-{
-    loadWidgets();
-}
-
-void
-nmfEstimation_Tab5::callback_LoadPB()
-{
-    if (loadWidgets()) {
-        QMessageBox::information(Estimation_Tabs, "Biomass Load",
-                                 "\nBiomass table(s) successfully loaded.\n",
-                                 QMessageBox::Ok);
-    }
-}
-
-void
-nmfEstimation_Tab5::callback_ImportPB()
-{
-    if (isAbsoluteBiomassChecked()) {
-        importAbsoluteBiomass();
-    } else {
-        importRelativeBiomass();
-    }
+    return Estimation_Tab5_UnitsCMB->currentText();
 }
 
 void
@@ -165,41 +141,21 @@ nmfEstimation_Tab5::importTableData(const bool& firstLineReadOnly,
     if (reply == QMessageBox::Cancel) {
         return;
     } else if (reply == QMessageBox::Yes) {
-        loadCSVFile(firstLineReadOnly,tableName,tableView);
+        loadCSVFile(firstLineReadOnly,inputDataPath,QString::fromStdString(tableName),tableView);
     } else {
         // if no, raise browser and have user select the appropriate Observed Biomass file.
-        QString filename = QFileDialog::getOpenFileName(
+        QString filenameWithPath = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr("Select "+type.toLatin1()+" file"), inputDataPath,
                     QObject::tr("Data Files (Biomass*.csv biomass*.csv)"));
-        QFileInfo fi(filename);
-        QString filenameNoPath = fi.baseName();
-        loadCSVFile(firstLineReadOnly,filenameNoPath.toStdString(),tableView);
-    }
-}
-
-void
-nmfEstimation_Tab5::loadCSVFile(const bool& firstLineReadOnly,
-                                const std::string& tableName,
-                                QTableView* tableView)
-{
-    bool loadOK;
-    QString errorMsg;
-    QString tableNameStr;
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    std::pair<int,int> nonZeroCell;
-
-    tableNameStr = QString::fromStdString(tableName);
-    tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
-
-    loadOK = nmfUtilsQt::loadTimeSeries(
-                Estimation_Tabs, tableView, inputDataPath, tableNameStr,
-                firstLineReadOnly,
-                nmfConstantsMSSPM::FixedNotation,
-                nonZeroCell,errorMsg);
-
-    if (! loadOK) {
-        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+        QFileInfo fi(filenameWithPath);
+        QString fileName     = fi.fileName();
+        QString absolutePath = fi.absolutePath();
+        if (absolutePath == inputDataPath) {
+            loadCSVFile(firstLineReadOnly,inputDataPath,fileName,tableView);
+        } else {
+            loadCSVFile(firstLineReadOnly,absolutePath,filenameWithPath,tableView);
+        }
     }
 }
 
@@ -209,85 +165,259 @@ nmfEstimation_Tab5::isAbsoluteBiomassChecked()
     return (! m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName));
 }
 
-void
-nmfEstimation_Tab5::setObsBiomassType(QString obsBiomassType)
+bool
+nmfEstimation_Tab5::isConvertChecked()
 {
-    Estimation_Tab5_ObsBiomassTypeLBL->setText(obsBiomassType+":");
+    return Estimation_Tab5_ConvertCB->isChecked();
+}
+
+bool
+nmfEstimation_Tab5::isTableValueOK(QString value)
+{
+    bool retv = true;
+    if (value.isEmpty()) {
+        QMessageBox::information(Estimation_Tabs, "Error: Missing Data",
+                                 "\nPlease make sure all table cells are populated.\n",
+                                 QMessageBox::Ok);
+        retv = false;
+    }
+    return retv;
 }
 
 void
-nmfEstimation_Tab5::callback_SavePB()
+nmfEstimation_Tab5::loadAbsoluteBiomass(const int& RunLength,
+                                        const int& StartYear,
+                                        const int& NumSpecies,
+                                        const QString& ModelName,
+                                        const std::vector<std::string>& SpeciesNames,
+                                        const QStringList& SpeciesList,
+                                        QStringList& VerticalList)
 {
-    bool okSave;
-    bool shownAlready=false;
-    std::vector<std::string> modelsInProject = {};
+    loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,ModelName,SpeciesNames,
+                                SpeciesList,VerticalList,nmfConstantsMSSPM::TableBiomassAbsolute,
+                                m_SModelAbsoluteBiomass,Estimation_Tab5_AbsoluteBiomassTV);
+    loadUnits(nmfConstantsMSSPM::TableBiomassAbsolute);
+}
 
-    if (! m_DatabasePtr->updateAllModelsInProject(Estimation_Tabs,"ObservedBiomass",m_ProjectName,
-                                                  m_ModelName,modelsInProject)) {
-        return;
+void
+nmfEstimation_Tab5::loadCSVFile(const bool& firstLineReadOnly,
+                                const QString& filePath,
+                                const QString& tableName,
+                                QTableView* tableView)
+{
+    bool loadOK;
+    QString errorMsg;
+    QString tableNameStr = tableName.contains(".csv") ? tableName : tableName+".csv";
+    std::pair<int,int> nonZeroCell;
+
+    tableNameStr = QDir(filePath).filePath(tableNameStr);
+
+    loadOK = nmfUtilsQt::loadTimeSeries(
+                Estimation_Tabs, tableView, filePath, tableNameStr,
+                firstLineReadOnly,
+                nmfConstantsMSSPM::FixedNotation,
+                nonZeroCell,errorMsg);
+
+    if (! loadOK) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+        QMessageBox::warning(Estimation_Tabs,"Time Series Load Error","\n"+errorMsg+"\n", QMessageBox::Ok);
+    } else {
+        QMessageBox::information(Estimation_Tabs, "Import Successful",
+                                 "\nThe CSV data file has been successfully imported.\n",
+                                 QMessageBox::Ok);
     }
+}
 
-    std::string m_ModelNameRem = m_ModelName;
-    for (std::string projectModel : modelsInProject)
-    {
-        m_ModelName = projectModel;
-        if (isAbsoluteBiomassChecked()) {
-            okSave = saveAbsoluteBiomass();
-            if (okSave && ! shownAlready) {
-                QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
-                                         "\nObserved Absolute Biomass table has been successfully updated.\n",
-                                         QMessageBox::Ok);
-                shownAlready = true;
-            }
-        } else {
-            okSave = saveRelativeBiomass();
-            if (okSave && ! shownAlready) {
-                QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
-                                         "\nObserved Relative Biomass table has been successfully updated.\n",
-                                         QMessageBox::Ok);
-                shownAlready = true;
+void
+nmfEstimation_Tab5::loadRelativeBiomass(const int& RunLength,
+                                        const int& StartYear,
+                                        const int& NumSpecies,
+                                        const QString& ModelName,
+                                        const std::vector<std::string>& SpeciesNames,
+                                        const QStringList& SpeciesList,
+                                        QStringList& VerticalList)
+{
+    VerticalList.clear();
+    loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,ModelName,SpeciesNames,
+                                SpeciesList,VerticalList,nmfConstantsMSSPM::TableBiomassRelative,
+                                m_SModelRelativeBiomass,Estimation_Tab5_RelativeBiomassTV);
+    loadUnits(nmfConstantsMSSPM::TableBiomassRelative);
+}
+
+void
+nmfEstimation_Tab5::loadTableValuesFromDatabase(
+        const int& RunLength,
+        const int& StartYear,
+        const int& NumSpecies,
+        const QString& ModelName,
+        const std::vector<std::string>& SpeciesNames,
+        const QStringList& SpeciesList,
+        QStringList& VerticalList,
+        const std::string& tableName,
+        QStandardItemModel* smodel,
+        QTableView* tableView)
+{
+    int NumRecords;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    QStandardItem *item;
+
+    // Get data from database table
+    fields     = {"ProjectName","ModelName","SpeName","Year","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " +
+                  tableName +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + ModelName.toStdString() +
+                 "' ORDER BY SpeName,Year ";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["SpeName"].size();
+    Qt::ItemFlags flags;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
+
+    // Load BiomassTV model and set the tableview
+    if (NumRecords > 0) {
+        int m = 0;
+        for (int i=0; i<=RunLength; ++i) {
+            VerticalList << " " + QString::number(StartYear+i) + " ";
+        }
+        for (int j=0; j<NumSpecies; ++j) {
+            for (int i=0; i<=RunLength; ++i) {
+                if ((m < NumRecords) && (SpeciesNames[j] == dataMap["SpeName"][m])) {
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,6);
+                    item = new QStandardItem(valueWithComma);
+                } else {
+                    item = new QStandardItem(QString(""));
+                }
+                item->setTextAlignment(Qt::AlignCenter);
+                // Make first row read-only
+                item->setEditable(i != 0);
+                if (i == 0) {
+                    if (m_IsDark){
+                        item->setBackground(QBrush(QColor(103,110,113)));
+                    } else {
+                        item->setBackground(QBrush(QColor(211,211,211)));
+                    }
+//                  item->setBackground(QBrush(QColor(240,240,240)));
+                    flags = item->flags();
+                    flags &= ~(Qt::ItemIsSelectable | Qt::ItemIsEditable); // reset/clear the flag
+                    item->setFlags(flags);
+                }
+                smodel->setItem(i, j, item);
             }
         }
-    }
-    m_ModelName = m_ModelNameRem;
 
+        smodel->setVerticalHeaderLabels(VerticalList);
+        smodel->setHorizontalHeaderLabels(SpeciesList);
+        tableView->setModel(smodel);
+        tableView->resizeColumnsToContents();
+    } else {
+        // No database table yet...just fill with blanks for placeholders
+        for (int j=0; j<NumSpecies; ++j) {
+            for (int i=0; i<=RunLength; ++i) {
+                item = new QStandardItem(QString(""));
+                item->setTextAlignment(Qt::AlignCenter);
+                smodel->setItem(i, j, item);
+            }
+        }
+        smodel->setVerticalHeaderLabels(VerticalList);
+        smodel->setHorizontalHeaderLabels(SpeciesList);
+        tableView->setModel(smodel);
+        tableView->resizeColumnsToContents();
+        updateInitialObservedBiomass(tableName,tableView);
+    }
 }
 
 void
-nmfEstimation_Tab5::callback_ExportPB()
+nmfEstimation_Tab5::loadUnits(const std::string& tableName)
 {
-    if (isAbsoluteBiomassChecked()) {
-        saveTableValuesToCSVFile("Absolute Biomass",nmfConstantsMSSPM::TableBiomassAbsolute,m_SModelAbsoluteBiomass);
-    } else {
-//      saveTableValuesToCSVFile("Relative Biomass Scalars",nmfConstantsMSSPM::TableBiomassRelativeScalars,m_SModelScalars);
-        saveTableValuesToCSVFile("Relative Biomass",nmfConstantsMSSPM::TableBiomassRelative,m_SModelRelativeBiomass);
-//      matchTableColumnWidths();
+    int NumRecords;
+    std::string units;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    fields     = {"ProjectName","ModelName","TableName","Units"};
+    queryStr   = "SELECT ProjectName,ModelName,TableName,Units FROM " +
+                  nmfConstantsMSSPM::TableUnits +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' AND TableName = '"    + tableName + "'";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["Units"].size();
+    if (NumRecords == 1) {
+        setCurrentUnits(QString::fromStdString(dataMap["Units"][0]));
+    } else if (NumRecords > 1) {
+        QString msg = "Error reading units table. Found " + QString::number(NumRecords) + " record(s)";
+        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+        QMessageBox::warning(Estimation_Tabs,"Error","\n"+msg+"\n", QMessageBox::Ok);
     }
 }
 
-//void
-//nmfEstimation_Tab5::matchTableColumnWidths()
-//{
-//    int relativeColWidth;
-//    int scalarColWidth;
-//    int NumSpecies = m_SModelRelativeBiomass->columnCount();
+bool
+nmfEstimation_Tab5::loadWidgets()
+{
+    int NumSpecies;
+    int RunLength;
+    int StartYear;
+    std::vector<std::string> SpeciesNames;
+    QStringList VerticalList;
+    QStringList SpeciesList;
 
-//    Estimation_Tab5_RelativeBiomassTV->verticalHeader()->setFixedWidth(
-//        Estimation_Tab5_Rel2AbsScalarTV->verticalHeader()->width());
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::loadWidgets()");
 
-//    Estimation_Tab5_RelativeBiomassTV->resizeColumnsToContents();
-//    Estimation_Tab5_Rel2AbsScalarTV->resizeColumnsToContents();
+    readSettings();
 
-//    for (int col=0; col<NumSpecies; ++col) {
-//        relativeColWidth = Estimation_Tab5_RelativeBiomassTV->columnWidth(col);
-//        scalarColWidth   = Estimation_Tab5_Rel2AbsScalarTV->columnWidth(col);
-//        if (relativeColWidth > scalarColWidth) {
-//            Estimation_Tab5_Rel2AbsScalarTV->setColumnWidth(col,relativeColWidth);
-//        } else {
-//            Estimation_Tab5_RelativeBiomassTV->setColumnWidth(col,scalarColWidth);
-//        }
-//    }
-//}
+    QString ModelName = QString::fromStdString(m_ModelName);
+    if (ModelName.isEmpty())
+        return false;
+
+    clearWidgets();
+
+    if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear)) {
+        return false;
+    }
+    if (! m_DatabasePtr->getSpecies(m_Logger,SpeciesNames)) {
+        return false;
+    }
+    NumSpecies = SpeciesNames.size();
+    nmfUtilsQt::convertVectorToStrList(SpeciesNames,SpeciesList);
+
+    m_SModelAbsoluteBiomass = new QStandardItemModel( RunLength, NumSpecies );
+    m_SModelRelativeBiomass = new QStandardItemModel( RunLength, NumSpecies );
+
+    // Load tableviews
+    loadAbsoluteBiomass(RunLength,StartYear,NumSpecies,ModelName,
+                        SpeciesNames,SpeciesList,VerticalList);
+    loadRelativeBiomass(RunLength,StartYear,NumSpecies,ModelName,
+                        SpeciesNames,SpeciesList,VerticalList);
+
+    Estimation_Tab5_RelativeBiomassTV->resizeColumnsToContents();
+    return true;
+}
+
+void
+nmfEstimation_Tab5::readSettings()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    settings->beginGroup("Settings");
+    m_ModelName   = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
+    settings->endGroup();
+
+    delete settings;
+}
 
 bool
 nmfEstimation_Tab5::saveAbsoluteBiomass()
@@ -304,7 +434,7 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     QString msg;
     QString valueWithoutComma;
 
-    if ((m_SModelAbsoluteBiomass == NULL) || (m_SModelCovariates == NULL)) {
+    if (m_SModelAbsoluteBiomass == NULL) {
         return false;
     }
     SpeciesKMin.clear();
@@ -323,52 +453,39 @@ nmfEstimation_Tab5::saveAbsoluteBiomass()
     // Save Observed Biomass data to Database table
     saveTableValuesToDatabase(nmfConstantsMSSPM::TableBiomassAbsolute,m_SModelAbsoluteBiomass);
 
-/*
-    // Put when in when implement covariates
-    cmd = "DELETE FROM " + nmfConstantsMSSPM::TableCovariate;
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 4] nmfEstimation_Tab5::callback_SavePB: DELETE error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        QMessageBox::warning(Estimation_Tabs, "Error",
-                             "\nError in Save command.  Couldn't delete all records from Covariate table.\n",
-                             QMessageBox::Ok);
-        Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return false;
-    }
-
-    cmd = "INSERT INTO Covariate (Year,Value) VALUES ";
-    for (int i=0; i<m_SModelCovariates->rowCount(); ++i) { // Time in years
-        for (int j=0; j<m_SModelCovariates->columnCount(); ++ j) {
-            // RSK - This table isn't currently used.  It was for Kraken. Setting values to "0".
-            // index = smodelCovariates->index(i,j);
-            // value = index.data().toString().toStdString();
-            value = "0";
-            cmd += "(" + std::to_string(i) + ", " + value.toStdString() + "),";
-        }
-    }
-    cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 5] nmfEstimation_Tab5::callback_SavePB: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        QMessageBox::warning(Estimation_Tabs, "Error",
-                             "\nError in Save command.  Check that all cells are populated.\n",
-                             QMessageBox::Ok);
-        Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return false;
-    }
-
-    Estimation_Tab5_CovariatesTV->resizeColumnsToContents();
-*/
-    QMessageBox::information(Estimation_Tabs, "Absolute Data Updated",
-                             "\nAbsolute data table(s) have been successfully updated.\n",
-                             QMessageBox::Ok);
+//    QMessageBox::information(Estimation_Tabs, "Absolute Data Updated",
+//                             "\nAbsolute data table(s) have been successfully updated.\n",
+//                             QMessageBox::Ok);
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
 
     return true;
 
+}
+
+void
+nmfEstimation_Tab5::saveCSVFile(
+        const QString& type,
+        QStandardItemModel* smodel,
+        const std::string& tableName)
+{
+    bool okSave;
+    QString tableNameWithPath;
+
+    // Save time series data to a .csv file
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
+    okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameWithPath);
+
+    if (okSave) {
+        QMessageBox::information(Estimation_Tabs, type+" File Saved",
+                                 "\n"+type+" CSV file has been successfully saved as:\n\n"+tableNameWithPath+"\n",
+                                 QMessageBox::Ok);
+    } else {
+        QMessageBox::information(Estimation_Tabs, type+" File Save Error",
+                                 "\nError: Please enter a valid "+type+" filename (i.e., non-blank)\n",
+                                 QMessageBox::Ok);
+    }
 }
 
 bool
@@ -393,7 +510,6 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
         const std::string& tableName,
         QStandardItemModel* smodel)
 {
-    bool ok;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -502,13 +618,21 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
                 m_Logger->logMsg(nmfConstants::Error,"[Error 3] nmfEstimation_Tab5::saveTableValuesToDatabase: Write table error: " + errorMsg);
                 m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
                 QMessageBox::warning(Estimation_Tabs,"Warning",
-                                     "\nCouldn't REPLACE INTO Species table.\n",
+                                     "\nCouldn't REPLACE INTO biomassabsolute table.\n",
                                      QMessageBox::Ok);
                 return false;
             }
         }
         emit ReloadSpecies(nmfConstantsMSSPM::ShowPopupError);
     }
+
+    m_DatabasePtr->updateUnitsTable(
+            Estimation_Tabs,
+            m_Logger,
+            m_ProjectName,
+            m_ModelName,
+            tableName,
+            getCurrentUnits().toStdString());
 
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
     return true;
@@ -550,220 +674,23 @@ nmfEstimation_Tab5::saveTableValuesToCSVFile(const QString& type,
 }
 
 void
-nmfEstimation_Tab5::saveCSVFile(
-        const QString& type,
-        QStandardItemModel* smodel,
-        const std::string& tableName)
+nmfEstimation_Tab5::setCurrentUnits(QString currentUnits)
 {
-    bool okSave;
-    QString tableNameWithPath;
-
-    // Save time series data to a .csv file
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
-    okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameWithPath);
-
-    if (okSave) {
-        QMessageBox::information(Estimation_Tabs, type+" File Saved",
-                                 "\n"+type+" CSV file has been successfully saved as:\n\n"+tableNameWithPath+"\n",
-                                 QMessageBox::Ok);
-    } else {
-        QMessageBox::information(Estimation_Tabs, type+" File Save Error",
-                                 "\nError: Please enter a valid "+type+" filename (i.e., non-blank)\n",
-                                 QMessageBox::Ok);
-    }
+    Estimation_Tab5_UnitsCMB->setCurrentText(currentUnits);
 }
 
 void
-nmfEstimation_Tab5::readSettings()
-{
-    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+nmfEstimation_Tab5::setIsDark(QString style){
 
-    settings->beginGroup("Settings");
-    m_ModelName   = settings->value("Name","").toString().toStdString();
-    settings->endGroup();
+    m_IsDark = (style=="Dark");
+    loadWidgets();
 
-    settings->beginGroup("SetupTab");
-    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
-    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
-    settings->endGroup();
-
-    settings->beginGroup("Preferences");
-    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
-    settings->endGroup();
-
-    delete settings;
-}
-
-
-bool
-nmfEstimation_Tab5::loadWidgets()
-{
-    int NumSpecies;
-    int RunLength;
-    int StartYear;
-    std::vector<std::string> SpeciesNames;
-    QStringList VerticalList;
-    QStringList SpeciesList;
-
-    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab5::loadWidgets()");
-
-    readSettings();
-
-    QString ModelName = QString::fromStdString(m_ModelName);
-    if (ModelName.isEmpty())
-        return false;
-
-    clearWidgets();
-
-    if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear)) {
-        return false;
-    }
-    if (! m_DatabasePtr->getSpecies(m_Logger,SpeciesNames)) {
-        return false;
-    }
-    NumSpecies = SpeciesNames.size();
-    nmfUtilsQt::convertVectorToStrList(SpeciesNames,SpeciesList);
-
-    m_SModelAbsoluteBiomass = new QStandardItemModel( RunLength, NumSpecies );
-    m_SModelRelativeBiomass = new QStandardItemModel( RunLength, NumSpecies );
-    m_SModelCovariates      = new QStandardItemModel( RunLength, 1 );
-
-    // Load tableviews
-    loadAbsoluteBiomass(RunLength,StartYear,NumSpecies,ModelName,
-                        SpeciesNames,SpeciesList,VerticalList);
-    loadRelativeBiomass(RunLength,StartYear,NumSpecies,ModelName,
-                        SpeciesNames,SpeciesList,VerticalList);
-    loadCovariates(RunLength,VerticalList);
-
-    Estimation_Tab5_RelativeBiomassTV->resizeColumnsToContents();
-    return true;
 }
 
 void
-nmfEstimation_Tab5::loadAbsoluteBiomass(const int& RunLength,
-                                        const int& StartYear,
-                                        const int& NumSpecies,
-                                        const QString& ModelName,
-                                        const std::vector<std::string>& SpeciesNames,
-                                        const QStringList& SpeciesList,
-                                        QStringList& VerticalList)
+nmfEstimation_Tab5::setObsBiomassType(QString obsBiomassType)
 {
-    loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,ModelName,SpeciesNames,
-                                SpeciesList,VerticalList,nmfConstantsMSSPM::TableBiomassAbsolute,
-                                m_SModelAbsoluteBiomass,Estimation_Tab5_AbsoluteBiomassTV);
-}
-
-void
-nmfEstimation_Tab5::loadRelativeBiomass(const int& RunLength,
-                                        const int& StartYear,
-                                        const int& NumSpecies,
-                                        const QString& ModelName,
-                                        const std::vector<std::string>& SpeciesNames,
-                                        const QStringList& SpeciesList,
-                                        QStringList& VerticalList)
-{
-    VerticalList.clear();
-    loadTableValuesFromDatabase(RunLength,StartYear,NumSpecies,ModelName,SpeciesNames,
-                                SpeciesList,VerticalList,nmfConstantsMSSPM::TableBiomassRelative,
-                                m_SModelRelativeBiomass,Estimation_Tab5_RelativeBiomassTV);
-}
-
-
-void
-nmfEstimation_Tab5::loadTableValuesFromDatabase(
-        const int& RunLength,
-        const int& StartYear,
-        const int& NumSpecies,
-        const QString& ModelName,
-        const std::vector<std::string>& SpeciesNames,
-        const QStringList& SpeciesList,
-        QStringList& VerticalList,
-        const std::string& tableName,
-        QStandardItemModel* smodel,
-        QTableView* tableView)
-{
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    QStandardItem *item;
-
-    // Get data from database table
-    fields     = {"ProjectName","ModelName","SpeName","Year","Value"};
-    queryStr   = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " +
-                  tableName +
-                 " WHERE ProjectName = '" + m_ProjectName +
-                 "' AND ModelName = '"    + ModelName.toStdString() +
-                 "' ORDER BY SpeName,Year ";
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SpeName"].size();
-    Qt::ItemFlags flags;
-    QLocale locale(QLocale::English);
-    QString valueWithComma;
-
-    // Load BiomassTV model and set the tableview
-    if (NumRecords > 0) {
-        int m = 0;
-        for (int i=0; i<=RunLength; ++i) {
-            VerticalList << " " + QString::number(StartYear+i) + " ";
-        }
-        for (int j=0; j<NumSpecies; ++j) {
-            for (int i=0; i<=RunLength; ++i) {
-                if ((m < NumRecords) && (SpeciesNames[j] == dataMap["SpeName"][m])) {
-                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                                std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,6);
-                    item = new QStandardItem(valueWithComma);
-                } else {
-                    item = new QStandardItem(QString(""));
-                }
-                item->setTextAlignment(Qt::AlignCenter);
-                // Make first row read-only
-                item->setEditable(i != 0);
-                if (i == 0) {
-                    if (m_IsDark){
-                        item->setBackground(QBrush(QColor(103,110,113)));
-                    } else {
-                        item->setBackground(QBrush(QColor(211,211,211)));
-                    }
-//                  item->setBackground(QBrush(QColor(240,240,240)));
-                    flags = item->flags();
-                    flags &= ~(Qt::ItemIsSelectable | Qt::ItemIsEditable); // reset/clear the flag
-                    item->setFlags(flags);
-                }
-                smodel->setItem(i, j, item);
-            }
-        }
-
-        smodel->setVerticalHeaderLabels(VerticalList);
-        smodel->setHorizontalHeaderLabels(SpeciesList);
-        tableView->setModel(smodel);
-        tableView->resizeColumnsToContents();
-    } else {
-        // No database table yet...just fill with blanks for placeholders
-        for (int j=0; j<NumSpecies; ++j) {
-            for (int i=0; i<=RunLength; ++i) {
-                item = new QStandardItem(QString(""));
-                item->setTextAlignment(Qt::AlignCenter);
-                smodel->setItem(i, j, item);
-            }
-        }
-        smodel->setVerticalHeaderLabels(VerticalList);
-        smodel->setHorizontalHeaderLabels(SpeciesList);
-        tableView->setModel(smodel);
-        tableView->resizeColumnsToContents();
-        updateInitialObservedBiomass(tableName,tableView);
-    }
-}
-
-void
-nmfEstimation_Tab5::callback_UpdateInitialObservedBiomass(QString obsBiomassType)
-{
-    if (obsBiomassType == "Absolute") {
-        updateInitialObservedBiomass(nmfConstantsMSSPM::TableBiomassAbsolute,Estimation_Tab5_AbsoluteBiomassTV);
-    } else {
-        updateInitialObservedBiomass(nmfConstantsMSSPM::TableBiomassAbsolute,Estimation_Tab5_RelativeBiomassTV);
-    }
+    Estimation_Tab5_ObsBiomassTypeLBL->setText(obsBiomassType+":");
 }
 
 void
@@ -821,40 +748,55 @@ nmfEstimation_Tab5::updateInitialObservedBiomass(const std::string& tableName,
 }
 
 void
-nmfEstimation_Tab5::loadCovariates(const int& RunLength,
-                                   const QStringList& VerticalList)
+nmfEstimation_Tab5::callback_AbsoluteBiomassRB()
 {
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    QStandardItem *item;
-    QStringList CovariatesHeaderList;
+    Estimation_Tab5_AbsoluteBiomassTV->show();
+    Estimation_Tab5_RelativeBiomassTV->hide();
+}
 
-    // Get data from database table
-    fields     = {"Year","Value"};
-    queryStr   = "SELECT Year,Value FROM " +
-                  nmfConstantsMSSPM::TableCovariate +
-                 " WHERE ProjectName = '" + m_ProjectName +
-                 "' AND ModelName = '"    + m_ModelName   + "'";
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["Year"].size();
-
-    // Update model with database data
-    m_SModelCovariates = new QStandardItemModel( RunLength, 1 );
-    for (int i=0; i<=RunLength; ++i) {
-        if (i < NumRecords)
-            item = new QStandardItem(QString::fromStdString(dataMap["Value"][i]));
-        else
-            item = new QStandardItem(QString(""));
-        item->setTextAlignment(Qt::AlignCenter);
-        m_SModelCovariates->setItem(i, 0, item);
+void
+nmfEstimation_Tab5::callback_ExportPB()
+{
+    if (isAbsoluteBiomassChecked()) {
+        saveTableValuesToCSVFile("Absolute Biomass",nmfConstantsMSSPM::TableBiomassAbsolute,m_SModelAbsoluteBiomass);
+    } else {
+//      saveTableValuesToCSVFile("Relative Biomass Scalars",nmfConstantsMSSPM::TableBiomassRelativeScalars,m_SModelScalars);
+        saveTableValuesToCSVFile("Relative Biomass",nmfConstantsMSSPM::TableBiomassRelative,m_SModelRelativeBiomass);
+//      matchTableColumnWidths();
     }
-    CovariatesHeaderList << "Covariates";
-    m_SModelCovariates->setVerticalHeaderLabels(VerticalList);
-    m_SModelCovariates->setHorizontalHeaderLabels(CovariatesHeaderList);
-    Estimation_Tab5_CovariatesTV->setModel(m_SModelCovariates);
-    Estimation_Tab5_CovariatesTV->resizeColumnsToContents();
+}
+
+void
+nmfEstimation_Tab5::callback_ImportPB()
+{
+    if (isAbsoluteBiomassChecked()) {
+        importAbsoluteBiomass();
+    } else {
+        importRelativeBiomass();
+    }
+}
+
+void
+nmfEstimation_Tab5::callback_LoadPB()
+{
+    if (loadWidgets()) {
+        QMessageBox::information(Estimation_Tabs, "Biomass Load",
+                                 "\nBiomass table(s) successfully loaded.\n",
+                                 QMessageBox::Ok);
+    }
+}
+
+void
+nmfEstimation_Tab5::callback_LoadWidgets()
+{
+    loadWidgets();
+}
+
+void
+nmfEstimation_Tab5::callback_NextPB()
+{
+    int nextPage = Estimation_Tabs->currentIndex()+1;
+    Estimation_Tabs->setCurrentIndex(nextPage);
 }
 
 void
@@ -869,39 +811,10 @@ nmfEstimation_Tab5::callback_ObservedBiomassType(QString obsBiomassType)
 }
 
 void
-nmfEstimation_Tab5::callback_AbsoluteBiomassRB()
+nmfEstimation_Tab5::callback_PrevPB()
 {
-    Estimation_Tab5_AbsoluteBiomassTV->show();
-    Estimation_Tab5_RelativeBiomassTV->hide();
-}
-
-void
-nmfEstimation_Tab5::callback_RelativeBiomassRB()
-{
-    Estimation_Tab5_AbsoluteBiomassTV->hide();
-    Estimation_Tab5_RelativeBiomassTV->show();
-}
-
-bool
-nmfEstimation_Tab5::isTableValueOK(QString value)
-{
-    bool retv = true;
-    if (value.isEmpty()) {
-        QMessageBox::information(Estimation_Tabs, "Error: Missing Data",
-                                 "\nPlease make sure all table cells are populated.\n",
-                                 QMessageBox::Ok);
-        retv = false;
-    }
-    return retv;
-}
-
-bool
-nmfEstimation_Tab5::areTablesOK()
-{
-    return nmfUtilsQt::allCellsArePopulated(
-                Estimation_Tabs,
-                Estimation_Tab5_AbsoluteBiomassTV,
-                nmfConstantsMSSPM::DontShowError);
+    int prevPage = Estimation_Tabs->currentIndex()-1;
+    Estimation_Tabs->setCurrentIndex(prevPage);
 }
 
 void
@@ -913,9 +826,73 @@ nmfEstimation_Tab5::callback_Rel2AbsScalarTVScrolled(int value)
 }
 
 void
-nmfEstimation_Tab5::setIsDark(QString style){
+nmfEstimation_Tab5::callback_RelativeBiomassRB()
+{
+    Estimation_Tab5_AbsoluteBiomassTV->hide();
+    Estimation_Tab5_RelativeBiomassTV->show();
+}
 
-    m_IsDark = (style=="Dark");
-    loadWidgets();
+void
+nmfEstimation_Tab5::callback_SavePB()
+{
+    bool okSave;
+    bool shownAlready=false;
+    std::vector<std::string> modelsInProject = {};
 
+    if (! m_DatabasePtr->updateAllModelsInProject(Estimation_Tabs,"ObservedBiomass",m_ProjectName,
+                                                  m_ModelName,modelsInProject)) {
+        return;
+    }
+
+    std::string m_ModelNameRem = m_ModelName;
+    for (std::string projectModel : modelsInProject)
+    {
+        m_ModelName = projectModel;
+        if (isAbsoluteBiomassChecked()) {
+            okSave = saveAbsoluteBiomass();
+            if (okSave && ! shownAlready) {
+                QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
+                                         "\nObserved Absolute Biomass table has been successfully updated.\n",
+                                         QMessageBox::Ok);
+                shownAlready = true;
+            }
+        } else {
+            okSave = saveRelativeBiomass();
+            if (okSave && ! shownAlready) {
+                QMessageBox::information(Estimation_Tabs, "Observed Biomass Updated",
+                                         "\nObserved Relative Biomass table has been successfully updated.\n",
+                                         QMessageBox::Ok);
+                shownAlready = true;
+            }
+        }
+    }
+    m_ModelName = m_ModelNameRem;
+
+}
+
+void
+nmfEstimation_Tab5::callback_UnitsCMB(QString currentUnits)
+{
+    if (isConvertChecked()) {
+        if (Estimation_Tab5_AbsoluteBiomassTV->isVisible()) {
+            nmfUtilsQt::convertTableView(Estimation_Tab5_AbsoluteBiomassTV,
+                                    m_NumSignificantDigits,
+                                    m_PreviousUnits,currentUnits);
+        } else {
+            nmfUtilsQt::convertTableView(Estimation_Tab5_RelativeBiomassTV,
+                                    m_NumSignificantDigits,
+                                    m_PreviousUnits,currentUnits);
+        }
+    }
+    m_PreviousUnits = currentUnits;
+}
+
+void
+nmfEstimation_Tab5::callback_UpdateInitialObservedBiomass(QString obsBiomassType)
+{
+    if (obsBiomassType == "Absolute") {
+        updateInitialObservedBiomass(nmfConstantsMSSPM::TableBiomassAbsolute,Estimation_Tab5_AbsoluteBiomassTV);
+    } else {
+        updateInitialObservedBiomass(nmfConstantsMSSPM::TableBiomassAbsolute,Estimation_Tab5_RelativeBiomassTV);
+    }
 }

@@ -70,6 +70,7 @@ nmfOutputControls::initWidgets()
     QHBoxLayout* FMSYLayt    = new QHBoxLayout();
     QHBoxLayout* ParametersLayt = new QHBoxLayout();
     QHBoxLayout* ScaleLayt    = new QHBoxLayout();
+    QHBoxLayout* HistoricalDataLayt = new QHBoxLayout();
     QHBoxLayout* ShadowLayt   = new QHBoxLayout();
     QHBoxLayout* MinMaxLayt   = new QHBoxLayout();
     QWidget*     scrollAreaW  = new QWidget();
@@ -115,6 +116,8 @@ nmfOutputControls::initWidgets()
     OutputShowFMSYLE     = new QLineEdit();
     OutputShowShadowCB   = new QCheckBox();
     OutputShowShadowLBL  = new QLabel("3d Surface Shadow: ");
+    OutputShowHistoricalDataCB   = new QCheckBox();
+    OutputShowHistoricalDataLBL  = new QLabel("Historical Data: ");
     OutputParameters2d3dPB = new QPushButton("3d");
     OutputShowBMSYCB->setMinimumWidth(120);
     OutputShowMSYCB->setMinimumWidth(120);
@@ -159,6 +162,10 @@ nmfOutputControls::initWidgets()
     ScaleLayt->addWidget(OutputScaleCMB);
     ScaleLayt->addStretch();
     controlLayt->addLayout(ScaleLayt);
+    HistoricalDataLayt->addWidget(OutputShowHistoricalDataLBL);
+    HistoricalDataLayt->addWidget(OutputShowHistoricalDataCB);
+    HistoricalDataLayt->addStretch();
+    controlLayt->addLayout(HistoricalDataLayt);
     ShadowLayt->addWidget(OutputShowShadowLBL);
     ShadowLayt->addWidget(OutputShowShadowCB);
     ShadowLayt->addStretch();
@@ -250,11 +257,10 @@ For System: F MSY = average[r(i)] / NumSpecies, where the average is over all sp
     OutputShowBMSYLE->setAlignment(Qt::AlignRight);
     OutputShowMSYLE->setAlignment(Qt::AlignRight);
     OutputShowFMSYLE->setAlignment(Qt::AlignRight);
-    OutputShowShadowLBL->setToolTip("Toggles the 3d surface's shadow");
-    OutputShowShadowLBL->setStatusTip("Toggles the 3d surface's shadow");
+    OutputShowHistoricalDataLBL->setToolTip("Toggles historical data for a Forecast plot");
+    OutputShowHistoricalDataLBL->setStatusTip("Toggles historical data for a Forecast plot");
     OutputShowShadowCB->setToolTip("Toggles the 3d surface's shadow");
     OutputShowShadowCB->setStatusTip("Toggles the 3d surface's shadow");
-
     OutputChartTypeLBL->setToolTip("The type of chart that will be displayed");
     OutputChartTypeLBL->setStatusTip("The type of chart that will be displayed");
     OutputChartTypeCMB->setToolTip("The type of chart that will be displayed");
@@ -381,6 +387,9 @@ The ZScore value is calculated by the following formula: \
     OutputShowShadowCB->setEnabled(false);
     OutputShowShadowCB->setChecked(true);
     OutputShowShadowLBL->setEnabled(false);
+    OutputShowHistoricalDataCB->setChecked(false);
+    OutputShowHistoricalDataCB->setEnabled(false);
+    OutputShowHistoricalDataLBL->setEnabled(false);
     OutputParametersZScoreCB->setEnabled(false);
 
     ControlsGroupBox->setMinimumHeight(100);
@@ -390,6 +399,12 @@ bool
 nmfOutputControls::isShadowShown()
 {
     return OutputShowShadowCB->isChecked();
+}
+
+bool
+nmfOutputControls::isHistoricalDataShown()
+{
+    return OutputShowHistoricalDataCB->isChecked();
 }
 
 void
@@ -439,6 +454,8 @@ nmfOutputControls::initConnections()
             this,                   SLOT(callback_OutputShowShadowCB(int)));
     connect(OutputParameters2d3dPB, SIGNAL(clicked()),
             this,                   SLOT(callback_OutputParameters2d3dPB()));
+    connect(OutputShowHistoricalDataCB, SIGNAL(stateChanged(int)),
+            this,                       SLOT(callback_OutputShowHistoricalDataCB(int)));
 }
 
 void
@@ -762,6 +779,8 @@ nmfOutputControls::callback_OutputChartTypeCMB(QString outputType)
 //  OutputYAxisMaxSB->setEnabled(isDiagnostic);
     OutputShowShadowCB->setEnabled(isDiagnostic && is3dSurfaceDisplayed);
     OutputShowShadowLBL->setEnabled(isDiagnostic && is3dSurfaceDisplayed);
+    OutputShowHistoricalDataLBL->setEnabled(isForecast);
+    OutputShowHistoricalDataCB->setEnabled(isForecast);
 
     speciesLVFlag = ((outputType == "(Abs) Bc vs Time") ||
                      (outputType == "(Rel) Bc vs Time"));
@@ -796,6 +815,7 @@ nmfOutputControls::callback_OutputChartTypeCMB(QString outputType)
             emit ShowChartMohnsRho();
         }
     } else if (isForecast) {
+        OutputYAxisMinSL->setValue(0);
         callback_ResetOutputWidgetsForAggProd();
         emit SetChartView2d(true);
         emit ShowChart("",""); //,m_IsAveraged);
@@ -1036,6 +1056,12 @@ void
 nmfOutputControls::callback_OutputShowShadowCB(int dummy)
 {
     emit ShowChart("",""); //,m_IsAveraged);
+}
+
+void
+nmfOutputControls::callback_OutputShowHistoricalDataCB(int dummy)
+{
+    emit ShowChart("","");
 }
 
 void

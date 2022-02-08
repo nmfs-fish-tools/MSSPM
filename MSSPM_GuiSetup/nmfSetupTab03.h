@@ -55,6 +55,7 @@ class nmfSetup_Tab3: public QObject
     QStringList         m_colLabelsGuilds;
     std::vector<std::string> m_ModelPresetNames;
     std::map<std::string,std::vector<std::string> > m_ModelPresets;
+    QString             m_PreviousUnits;
 
     QTabWidget*   Setup_Tabs;
     QTabWidget*   Setup_Tab3_GuildsSpeciesTabW;
@@ -91,15 +92,18 @@ class nmfSetup_Tab3: public QObject
     QPushButton*  Setup_Tab3_ReloadSpeciesPB;
     QPushButton*  Setup_Tab3_ReloadGuildsPB;
     QPushButton*  Setup_Tab3_CalcGuildsPB;
+    QComboBox*    Setup_Tab3_UnitsCMB;
+    QCheckBox*    Setup_Tab3_ConvertCB;
 
     void clearSpeciesWidgets();
     void clearGuildWidgets();
     void executeDelete(std::string cmd);
     bool guildDataIsSaved();
-    void loadCSVFile(QTableWidget* tableWidget,
-                     const QStringList& guildValues);
+//  void loadCSVFile(QTableWidget* tableWidget,
+//                   const QStringList& guildValues);
     void loadGuilds();
     void loadSpecies();
+    void loadUnits(const std::string& tableName);
     int  numColumnsSpecies();
     int  numColumnsGuilds();
     bool onGuildPage();
@@ -145,6 +149,22 @@ public:
             const double& val,
             const int& numSignificantDigits,
             const int& numDecimalPlaces);
+    /**
+     * @brief Returns the current units set by the user in the combo box
+     * @return Current units QString (lbs, kg, mt)
+     */
+    QString getCurrentUnits();
+    /**
+     * @brief If checked, the data table will be automatically
+     * converted as the user changes the Units combo box
+     * @return True if convert checkbox is checked, false otherwise
+     */
+    bool isConvertChecked();
+    /**
+     * @brief Sets the Units combo box
+     * @param currentUnits : value with which to set the current units combo box
+     */
+    void setCurrentUnits(QString currentUnits);
 
 signals:
     /**
@@ -276,6 +296,11 @@ public Q_SLOTS:
      * @brief Callback invoked when user modifies the Species table
      */
     void callback_SpeciesTableChanged(int,int);
+    /**
+     * @brief Callback invoked when the user changes the Units combo box
+     * @param units : new units selected by the user
+     */
+    void callback_UnitsCMB(QString units);
     /**
      * @brief Callback invoked when the user updates the Guild Supplemental data and the
      * Guild Setup data must also be updated

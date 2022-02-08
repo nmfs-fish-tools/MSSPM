@@ -18,6 +18,7 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     m_ModelName.clear();
     m_ProjectName.clear();
     m_NumSignificantDigits = -1;
+    m_PreviousUnits.clear();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::nmfEstimation_Tab2");
 
@@ -37,15 +38,16 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     Estimation_Tabs->addTab(Estimation_Tab2_Widget, tr("2. Harvest Data"));
 
     Estimation_Tab2_HarvestTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_HarvestTV");
-    Estimation_Tab2_HarvestGB  = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab2_HarvestGB");
     Estimation_Tab2_PrevPB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_PrevPB");
     Estimation_Tab2_NextPB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_NextPB");
     Estimation_Tab2_LoadPB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_LoadPB");
     Estimation_Tab2_SavePB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_SavePB");
     Estimation_Tab2_ImportPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ImportPB");
     Estimation_Tab2_ExportPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_ExportPB");
+    Estimation_Tab2_UnitsCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab2_UnitsCMB");
+    Estimation_Tab2_ConvertCB  = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab2_ConvertCB");
     Estimation_Tab2_HarvestLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab2_HarvestLBL");
-    Estimation_Tab2_HarvestLBL->hide();
+//  Estimation_Tab2_HarvestLBL->hide();
 
     connect(Estimation_Tab2_PrevPB,   SIGNAL(clicked(bool)),
             this,                     SLOT(callback_PrevPB()));
@@ -59,15 +61,27 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
             this,                     SLOT(callback_ImportPB()));
     connect(Estimation_Tab2_ExportPB, SIGNAL(clicked()),
             this,                     SLOT(callback_ExportPB()));
+    connect(Estimation_Tab2_UnitsCMB, SIGNAL(currentTextChanged(QString)),
+            this,                     SLOT(callback_UnitsCMB(QString)));
+
+    m_PreviousUnits = Estimation_Tab2_UnitsCMB->currentText();
 
     Estimation_Tab2_PrevPB->setText("\u25C1--");
     Estimation_Tab2_NextPB->setText("--\u25B7");
 }
 
-
 nmfEstimation_Tab2::~nmfEstimation_Tab2()
 {
 
+}
+
+bool
+nmfEstimation_Tab2::areTablesOK()
+{
+    return nmfUtilsQt::allCellsArePopulated(
+                Estimation_Tabs,
+                Estimation_Tab2_HarvestTV,
+                nmfConstantsMSSPM::DontShowError);
 }
 
 void
@@ -76,24 +90,307 @@ nmfEstimation_Tab2::clearWidgets()
     nmfUtilsQt::clearTableView({Estimation_Tab2_HarvestTV});
 }
 
-void
-nmfEstimation_Tab2::callback_PrevPB()
+QString
+nmfEstimation_Tab2::getCurrentUnits()
 {
-    int prevPage = Estimation_Tabs->currentIndex()-1;
-    Estimation_Tabs->setCurrentIndex(prevPage);
+    return Estimation_Tab2_UnitsCMB->currentText();
+}
+
+bool
+nmfEstimation_Tab2::isConvertChecked()
+{
+    return Estimation_Tab2_ConvertCB->isChecked();
 }
 
 void
-nmfEstimation_Tab2::callback_NextPB()
+nmfEstimation_Tab2::loadCSVFile(const QString& filePath,
+                                const QString& tableName)
 {
-    int nextPage = Estimation_Tabs->currentIndex()+1;
-    Estimation_Tabs->setCurrentIndex(nextPage);
+    bool loadOK;
+    QString errorMsg;
+    QString tableNameStr = tableName.contains(".csv") ? tableName : tableName+".csv";
+    std::pair<int,int> nonZeroCell;
+
+    tableNameStr = QDir(filePath).filePath(tableNameStr);
+
+    loadOK = nmfUtilsQt::loadTimeSeries(
+                Estimation_Tabs, Estimation_Tab2_HarvestTV,
+                filePath, tableNameStr,
+                nmfConstantsMSSPM::FirstLineNotReadOnly,
+                nmfConstantsMSSPM::FixedNotation,
+                nonZeroCell,errorMsg);
+
+    if (! loadOK) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+        QMessageBox::warning(Estimation_Tabs,"Time Series Load Error","\n"+errorMsg+"\n", QMessageBox::Ok);
+    } else {
+        QMessageBox::information(Estimation_Tabs, "Import Successful",
+                                 "\nThe CSV data file has been successfully imported.\n",
+                                 QMessageBox::Ok);
+    }
 }
 
 void
-nmfEstimation_Tab2::callback_LoadWidgets()
+nmfEstimation_Tab2::loadUnits(const std::string& tableName)
 {
+    int NumRecords;
+    std::string units;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    fields     = {"ProjectName","ModelName","TableName","Units"};
+    queryStr   = "SELECT ProjectName,ModelName,TableName,Units FROM " +
+                  nmfConstantsMSSPM::TableUnits +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName +
+                 "' AND TableName = '"    + tableName + "'";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["Units"].size();
+    if (NumRecords == 1) {
+        setCurrentUnits(QString::fromStdString(dataMap["Units"][0]));
+    } else if (NumRecords > 1) {
+        QString msg = "Error reading units table. Found " + QString::number(NumRecords) + " record(s)";
+        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+        QMessageBox::warning(Estimation_Tabs,"Error","\n"+msg+"\n", QMessageBox::Ok);
+    }
+}
+
+bool
+nmfEstimation_Tab2::loadWidgets()
+{
+    int m;
+    int NumSpecies;
+    int RunLength;
+    int StartYear;
+    int NumRecords;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    QStandardItem *item;
+    QStringList SpeciesNames;
+    QStringList VerticalList;
+    QLocale locale(QLocale::English);
+    QString valueWithComma;
+
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::loadWidgets()");
+
+    readSettings();
+
+    clearWidgets();
+
+    if (m_ModelName.empty())
+        return false;
+    if (m_HarvestType.empty() || (m_HarvestType == "Null")) {
+        m_Logger->logMsg(nmfConstants::Warning,"Warning: Harvest Type set to Null.");
+        Estimation_Tab2_HarvestTV->setEnabled(false);
+        return true;
+    }
+
+    Estimation_Tab2_HarvestTV->setEnabled(true);
+    Estimation_Tab2_HarvestLBL->setText(QString::fromStdString(m_GroupBoxTitle[m_HarvestType]));
+
+    fields   = {"RunLength","StartYear"};
+    queryStr = "SELECT RunLength,StartYear FROM " +
+                nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND  ModelName = '"   + m_ModelName   + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    if (dataMap["RunLength"].size() == 0)  {
+        m_Logger->logMsg(nmfConstants::Warning,"No records found in Models table.");
+        return false;
+    }
+    RunLength = std::stoi(dataMap["RunLength"][0]);
+    StartYear = std::stoi(dataMap["StartYear"][0]);
+
+    fields = {"SpeName"};
+    queryStr   = "SELECT SpeName FROM " + nmfConstantsMSSPM::TableSpecies;
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumSpecies = dataMap["SpeName"].size();
+    for (int j=0; j<NumSpecies; ++j) {
+        SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
+    }
+
+    fields   = {"ProjectName","ModelName","SpeName","Year","Value"};
+    queryStr = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " +
+                m_HarvestType +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '"    + m_ModelName   +
+               "' ORDER BY SpeName,Year ";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["SpeName"].size();
+    m = 0;
+    m_SModel = new QStandardItemModel( RunLength, NumSpecies );
+    VerticalList.clear();
+    for (int i=0; i<=RunLength; ++i) {
+        VerticalList << " " + QString::number(StartYear+i) + " ";
+    }
+    for (int j=0; j<NumSpecies; ++j) {
+        for (int i=0; i<=RunLength; ++i) {
+            if ((m < NumRecords) && (SpeciesNames[j].toStdString() == dataMap["SpeName"][m])) {
+                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                            std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,2);
+                item = new QStandardItem(valueWithComma);
+            } else {
+                item = new QStandardItem(QString(""));
+            }
+            item->setTextAlignment(Qt::AlignCenter);
+            m_SModel->setItem(i, j, item);
+        }
+    }
+
+    m_SModel->setVerticalHeaderLabels(VerticalList);
+    m_SModel->setHorizontalHeaderLabels(SpeciesNames);
+    Estimation_Tab2_HarvestTV->setModel(m_SModel);
+    Estimation_Tab2_HarvestTV->resizeColumnsToContents();
+
+    loadUnits(m_HarvestType);
+
+    return true;
+}
+
+void
+nmfEstimation_Tab2::readSettings()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    settings->beginGroup("Settings");
+    m_ModelName   = settings->value("Name","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("SetupTab");
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
+    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    settings->endGroup();
+
+    settings->beginGroup("Preferences");
+    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
+    settings->endGroup();
+
+    delete settings;
+}
+
+void
+nmfEstimation_Tab2::saveCSVFile(std::string& tableName)
+{
+    // Save time series data to a .csv file
+    QString inputDataPath     = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QString tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
+    bool okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,m_SModel,inputDataPath,tableNameWithPath);
+
+    if (okSave) {
+        QMessageBox::information(Estimation_Tabs, "Harvest File Saved",
+                                 "\nHarvest CSV file has been successfully saved as:\n\n"+tableNameWithPath+"\n",
+                                 QMessageBox::Ok);
+    } else {
+        QMessageBox::information(Estimation_Tabs, "Harvest File Saved",
+                                 "\nError: Harvest CSV file has not been saved. Please enter a valid (i.e., non-blank) filename.\n",
+                                 QMessageBox::Ok);
+    }
+}
+
+void
+nmfEstimation_Tab2::setCurrentUnits(QString currentUnits)
+{
+    Estimation_Tab2_UnitsCMB->setCurrentText(currentUnits);
+}
+
+void
+nmfEstimation_Tab2::setHarvestType(std::string harvestType)
+{
+    std::string type = (QString::fromStdString(harvestType).split(" ")[0]).toLower().toStdString();
+    if (type == "catch") {
+        m_HarvestType = nmfConstantsMSSPM::TableHarvestCatch;
+    } else if (type == "effort") {
+        m_HarvestType = nmfConstantsMSSPM::TableHarvestEffort;
+    } else if (type == "exploitation") {
+        m_HarvestType = nmfConstantsMSSPM::TableHarvestExploitation;
+    }
+    //m_HarvestType = "Harvest"+(QString::fromStdString(harvestType).split(" ")[0]).toStdString();
+}
+
+void
+nmfEstimation_Tab2::callback_ExportPB()
+{
+    // Save time series data to a .csv file
+    std::string tableName = m_HarvestType;
+    QString msg = "\nOK to use default file name for Harvest .csv file and overwrite any previous file?";
+    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Harvest CSV File"),
+                                                              tr(msg.toLatin1()),
+                                                              QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
+                                                              QMessageBox::Yes);
+    if (reply == QMessageBox::Cancel) {
+        return;
+    } else if (reply == QMessageBox::Yes) {
+        saveCSVFile(tableName);
+    } else {
+        bool ok;
+        QString tag = QInputDialog::getText(Estimation_Tabs, tr("Harvest Files"),
+                                            tr("Enter Harvest CSV filename version tag: "), QLineEdit::Normal,
+                                            "", &ok);
+        if (ok && !tag.isEmpty()) {
+            tableName += "_"+tag.toStdString();
+            saveCSVFile(tableName);
+        } else if (tag.isEmpty()) {
+            QMessageBox::warning(Estimation_Tabs, "Tag Error",
+                                 "\nError: Please enter a valid (i.e., non-blank) tag.\n",
+                                 QMessageBox::Ok);
+        }
+    }
+}
+
+void
+nmfEstimation_Tab2::callback_HarvestFormChanged(QString harvestForm)
+{
+    setHarvestType(harvestForm.toStdString());
     loadWidgets();
+}
+
+void
+nmfEstimation_Tab2::callback_ImportPB()
+{
+    QString tag="";
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+
+    // Load default CSV files
+    std::string msg = "\nLoad default Harvest .csv file?";
+    QString tableName = QString::fromStdString(m_HarvestType);
+    QMessageBox::StandardButton reply = QMessageBox::question(
+                Estimation_Tabs, tr("Default Harvest CSV File"),
+                tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel, QMessageBox::Yes);
+    if (reply == QMessageBox::Cancel) {
+        return;
+    } else if (reply == QMessageBox::Yes) {
+        loadCSVFile(inputDataPath,tableName);
+    } else {
+        // if no, raise browser and have user select the Harvest file.
+        QString filenameWithPath = QFileDialog::getOpenFileName(
+                    Estimation_Tabs,
+                    QObject::tr("Select Harvest file"), inputDataPath,
+                    QObject::tr("Data Files (harvestcatch*.csv HarvestCatch*.csv)"));
+
+        QFileInfo fi(filenameWithPath);
+        QString fileName     = fi.fileName();
+        QString absolutePath = fi.absolutePath();
+        if (absolutePath == inputDataPath) {
+            if (filenameWithPath.contains("_")) {
+                if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
+                    tableName += "_"+tag;
+                    loadCSVFile(absolutePath,tableName);
+                } else {
+                    QMessageBox::information(Estimation_Tabs, "Harvest CSV Import",
+                                             "\nPlease make sure to select the Harvest file containing the desired tag\n",
+                                             QMessageBox::Ok);
+                }
+            } else if (! filenameWithPath.isEmpty()){
+                QMessageBox::critical(Estimation_Tabs, "Harvest CSV Import",
+                                      "\nError: No tag found in filename\n",
+                                      QMessageBox::Ok);
+            }
+        } else {
+            loadCSVFile(absolutePath,fileName);
+        }
+    }
 }
 
 void
@@ -107,66 +404,23 @@ nmfEstimation_Tab2::callback_LoadPB()
 }
 
 void
-nmfEstimation_Tab2::callback_ImportPB()
+nmfEstimation_Tab2::callback_LoadWidgets()
 {
-    QString tag="";
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-
-    // Load default CSV files
-    std::string msg = "\nLoad default Harvest .csv file?";
-    std::string tableName = m_HarvestType;
-    QMessageBox::StandardButton reply = QMessageBox::question(
-                Estimation_Tabs, tr("Default Harvest CSV File"),
-                tr(msg.c_str()), QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel, QMessageBox::Yes);
-    if (reply == QMessageBox::Cancel) {
-        return;
-    } else if (reply == QMessageBox::Yes) {
-        loadCSVFile(tableName);
-    } else {
-        // if no, raise browser and have user select the Harvest file.
-        QString filename = QFileDialog::getOpenFileName(
-                    Estimation_Tabs,
-                    QObject::tr("Select Harvest file"), inputDataPath,
-                    QObject::tr("Data Files (harvestcatch*.csv HarvestCatch*.csv)"));
-        if (filename.contains("_")) {
-            QFileInfo fi(filename);
-            if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
-                tableName += "_"+tag.toStdString();
-                loadCSVFile(tableName);
-            } else {
-                QMessageBox::information(Estimation_Tabs, "Harvest CSV Import",
-                                         "\nPlease make sure to select the Harvest file containing the desired tag\n",
-                                         QMessageBox::Ok);
-            }
-        } else if (!filename.isEmpty()){
-            QMessageBox::critical(Estimation_Tabs, "Harvest CSV Import",
-                                  "\nError: No tag found in filename\n",
-                                  QMessageBox::Ok);
-        }
-    }
+    loadWidgets();
 }
 
 void
-nmfEstimation_Tab2::loadCSVFile(std::string& tableName)
+nmfEstimation_Tab2::callback_NextPB()
 {
-    bool loadOK;
-    QString errorMsg;
-    QString tableNameStr;
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    std::pair<int,int> nonZeroCell;
+    int nextPage = Estimation_Tabs->currentIndex()+1;
+    Estimation_Tabs->setCurrentIndex(nextPage);
+}
 
-    tableNameStr = QString::fromStdString(tableName);
-    tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
-std::cout << "input: " << tableNameStr.toStdString() << std::endl;
-
-    loadOK = nmfUtilsQt::loadTimeSeries(
-                Estimation_Tabs, Estimation_Tab2_HarvestTV, inputDataPath, tableNameStr,
-                nmfConstantsMSSPM::FirstLineNotReadOnly,
-                nmfConstantsMSSPM::FixedNotation,
-                nonZeroCell,errorMsg);
-    if (! loadOK) {
-        m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
-    }
+void
+nmfEstimation_Tab2::callback_PrevPB()
+{
+    int prevPage = Estimation_Tabs->currentIndex()-1;
+    Estimation_Tabs->setCurrentIndex(prevPage);
 }
 
 void
@@ -237,7 +491,6 @@ nmfEstimation_Tab2::callback_SavePB()
 //                      ", " + std::to_string(valueWithoutComma.toDouble()) + "),";
             }
         }
-
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -249,6 +502,10 @@ nmfEstimation_Tab2::callback_SavePB()
             Estimation_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
+
+        m_DatabasePtr->updateUnitsTable(
+                    Estimation_Tabs,m_Logger,m_ProjectName,projectModel,
+                    m_HarvestType,getCurrentUnits().toStdString());
     }
 
     Estimation_Tab2_HarvestTV->resizeColumnsToContents();
@@ -261,198 +518,13 @@ nmfEstimation_Tab2::callback_SavePB()
     Estimation_Tabs->setCursor(Qt::ArrowCursor);
 }
 
-
 void
-nmfEstimation_Tab2::callback_ExportPB()
+nmfEstimation_Tab2::callback_UnitsCMB(QString currentUnits)
 {
-    // Save time series data to a .csv file
-    std::string tableName = m_HarvestType;
-    QString msg = "\nOK to use default file name for Harvest .csv file and overwrite any previous file?";
-    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default Harvest CSV File"),
-                                                              tr(msg.toLatin1()),
-                                                              QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
-                                                              QMessageBox::Yes);
-    if (reply == QMessageBox::Cancel) {
-        return;
-    } else if (reply == QMessageBox::Yes) {
-        saveCSVFile(tableName);
-    } else {
-        bool ok;
-        QString tag = QInputDialog::getText(Estimation_Tabs, tr("Harvest Files"),
-                                            tr("Enter Harvest CSV filename version tag: "), QLineEdit::Normal,
-                                            "", &ok);
-        if (ok && !tag.isEmpty()) {
-            tableName += "_"+tag.toStdString();
-            saveCSVFile(tableName);
-        } else if (tag.isEmpty()) {
-            QMessageBox::warning(Estimation_Tabs, "Tag Error",
-                                 "\nError: Please enter a valid (i.e., non-blank) tag.\n",
-                                 QMessageBox::Ok);
-        }
+    if (isConvertChecked()) {
+        nmfUtilsQt::convertTableView(Estimation_Tab2_HarvestTV,
+                                m_NumSignificantDigits,
+                                m_PreviousUnits,currentUnits);
     }
+    m_PreviousUnits = currentUnits;
 }
-
-void
-nmfEstimation_Tab2::saveCSVFile(std::string& tableName)
-{
-    // Save time series data to a .csv file
-    QString inputDataPath     = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    QString tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
-    bool okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,m_SModel,inputDataPath,tableNameWithPath);
-
-    if (okSave) {
-        QMessageBox::information(Estimation_Tabs, "Harvest File Saved",
-                                 "\nHarvest CSV file has been successfully saved as:\n\n"+tableNameWithPath+"\n",
-                                 QMessageBox::Ok);
-    } else {
-        QMessageBox::information(Estimation_Tabs, "Harvest File Saved",
-                                 "\nError: Harvest CSV file has not been saved. Please enter a valid (i.e., non-blank) filename.\n",
-                                 QMessageBox::Ok);
-    }
-}
-
-
-void
-nmfEstimation_Tab2::readSettings()
-{
-    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
-
-    settings->beginGroup("Settings");
-    m_ModelName   = settings->value("Name","").toString().toStdString();
-    settings->endGroup();
-
-    settings->beginGroup("SetupTab");
-    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
-    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
-    settings->endGroup();
-
-    settings->beginGroup("Preferences");
-    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
-    settings->endGroup();
-
-    delete settings;
-}
-
-bool
-nmfEstimation_Tab2::loadWidgets()
-{
-    int m;
-    int NumSpecies;
-    int RunLength;
-    int StartYear;
-    int NumRecords;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    QStandardItem *item;
-    QStringList SpeciesNames;
-    QStringList VerticalList;
-    QLocale locale(QLocale::English);
-    QString valueWithComma;
-
-    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::loadWidgets()");
-
-    readSettings();
-
-    clearWidgets();
-
-    if (m_ModelName.empty())
-        return false;
-    if (m_HarvestType.empty() || (m_HarvestType == "Null")) {
-        m_Logger->logMsg(nmfConstants::Warning,"Warning: Harvest Type set to Null.");
-        Estimation_Tab2_HarvestTV->setEnabled(false);
-        return true;
-    }
-
-    Estimation_Tab2_HarvestTV->setEnabled(true);
-
-    Estimation_Tab2_HarvestGB->setTitle(QString::fromStdString(m_GroupBoxTitle[m_HarvestType]));
-
-    fields   = {"RunLength","StartYear"};
-    queryStr = "SELECT RunLength,StartYear FROM " +
-                nmfConstantsMSSPM::TableModels +
-               " WHERE ProjectName = '" + m_ProjectName +
-               "' AND  ModelName = '"   + m_ModelName   + "'";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    if (dataMap["RunLength"].size() == 0)  {
-        m_Logger->logMsg(nmfConstants::Warning,"No records found in Models table.");
-        return false;
-    }
-    RunLength = std::stoi(dataMap["RunLength"][0]);
-    StartYear = std::stoi(dataMap["StartYear"][0]);
-
-    fields = {"SpeName"};
-    queryStr   = "SELECT SpeName FROM " + nmfConstantsMSSPM::TableSpecies;
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumSpecies = dataMap["SpeName"].size();
-    for (int j=0; j<NumSpecies; ++j) {
-        SpeciesNames << QString::fromStdString(dataMap["SpeName"][j]);
-    }
-
-    fields   = {"ProjectName","ModelName","SpeName","Year","Value"};
-    queryStr = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " +
-                m_HarvestType +
-               " WHERE ProjectName = '" + m_ProjectName +
-               "' AND ModelName = '"    + m_ModelName   +
-               "' ORDER BY SpeName,Year ";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["SpeName"].size();
-    m = 0;
-    m_SModel = new QStandardItemModel( RunLength, NumSpecies );
-    VerticalList.clear();
-    for (int i=0; i<=RunLength; ++i) {
-        VerticalList << " " + QString::number(StartYear+i) + " ";
-    }
-    for (int j=0; j<NumSpecies; ++j) {
-        for (int i=0; i<=RunLength; ++i) {
-            if ((m < NumRecords) && (SpeciesNames[j].toStdString() == dataMap["SpeName"][m])) {
-                valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                            std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,2);
-                item = new QStandardItem(valueWithComma);
-            } else {
-                item = new QStandardItem(QString(""));
-            }
-            item->setTextAlignment(Qt::AlignCenter);
-            m_SModel->setItem(i, j, item);
-        }
-    }
-
-    m_SModel->setVerticalHeaderLabels(VerticalList);
-    m_SModel->setHorizontalHeaderLabels(SpeciesNames);
-    Estimation_Tab2_HarvestTV->setModel(m_SModel);
-    Estimation_Tab2_HarvestTV->resizeColumnsToContents();
-    //Estimation_Tab2_HarvestLBL->setText(QString::fromStdString(m_HarvestType+":").replace("Harvest",""));
-
-    return true;
-}
-
-void
-nmfEstimation_Tab2::setHarvestType(std::string harvestType)
-{
-    std::string type = (QString::fromStdString(harvestType).split(" ")[0]).toLower().toStdString();
-    if (type == "catch") {
-        m_HarvestType = nmfConstantsMSSPM::TableHarvestCatch;
-    } else if (type == "effort") {
-        m_HarvestType = nmfConstantsMSSPM::TableHarvestEffort;
-    } else if (type == "exploitation") {
-        m_HarvestType = nmfConstantsMSSPM::TableHarvestExploitation;
-    }
-    //m_HarvestType = "Harvest"+(QString::fromStdString(harvestType).split(" ")[0]).toStdString();
-}
-
-void
-nmfEstimation_Tab2::callback_HarvestFormChanged(QString harvestForm)
-{
-    setHarvestType(harvestForm.toStdString());
-    loadWidgets();
-}
-
-bool
-nmfEstimation_Tab2::areTablesOK()
-{
-    return nmfUtilsQt::allCellsArePopulated(
-                Estimation_Tabs,
-                Estimation_Tab2_HarvestTV,
-                nmfConstantsMSSPM::DontShowError);
-}
-

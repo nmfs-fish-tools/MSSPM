@@ -450,7 +450,7 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
         return;
     }
 
-    if (updateSetup) {
+    if (loadOK && updateSetup) {
         // Load signal with data to send to Species Setup tab
         QList<QString> SpeciesNames;
         QList<QString> SpeciesInitBiomass;
@@ -464,6 +464,9 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
         }
         emit UpdateSpeciesSetupData(SpeciesNames,SpeciesGuilds,SpeciesInitBiomass,
                                     SpeciesGrowthRate,SpeciesK);
+        QMessageBox::information(Estimation_Tabs, "Data Updated",
+                                 "\nSpecies/Guild table has been successfully updated.\n",
+                                 QMessageBox::Ok);
     }
 }
 

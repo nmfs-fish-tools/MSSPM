@@ -273,7 +273,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                                    double*       gradientUnused,
                                    void*         dataPtr)
 {
-    const int DefaultFitness = 99999;
     nmfStructsQt::ModelDataStruct NLoptDataStruct = *((nmfStructsQt::ModelDataStruct *)dataPtr);
     bool isAggProd = (NLoptDataStruct.CompetitionForm == "AGG-PROD");
     double EstBiomassVal;
@@ -288,6 +287,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     int NumYears   = NLoptDataStruct.RunLength+1 - m_MohnsRhoOffset;
     int NumSpecies = NLoptDataStruct.NumSpecies;    
     int NumGuilds  = NLoptDataStruct.NumGuilds;
+    int DefaultFitness = (NLoptDataStruct.ObjectiveCriterion == "Model Efficiency") ? INT_MIN : INT_MAX;
     int guildNum = 0;
     int NumSpeciesOrGuilds;
     double surveyQVal;
@@ -490,10 +490,14 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
             EstBiomassVal  += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
             if (EstBiomassVal < 0) { // test code only
+//std::cout << "******* Calculated negative EstBiomass. species: " << species << ", time: " << time <<
+//             ", 4 terms: " << GrowthTerm << " - " << HarvestTerm << " - " <<
+//             CompetitionTerm << " - " << PredationTerm << std::endl;
                 EstBiomassVal = 0;
             }
 
             if ((EstBiomassVal < 0) || (std::isnan(std::fabs(EstBiomassVal)))) {
+
                 incrementObjectiveFunctionCounter(MSSPMName,(double)DefaultFitness,NLoptDataStruct);
                 return DefaultFitness;
             }

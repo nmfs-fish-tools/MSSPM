@@ -254,35 +254,41 @@ nmfEstimation_Tab4::callback_ImportPB()
     if (reply == QMessageBox::Cancel) {
         return;
     } else if (reply == QMessageBox::Yes) {
-        loadCSVFiles(allTableNames);
+        loadCSVFiles(inputDataPath,allTableNames);
     } else {
         // if no, raise browser and have user select "predationrho*.csv" file.
-        QString filename = QFileDialog::getOpenFileName(
+        QString filenameWithPath = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr("Select predationrho*.csv file"), inputDataPath,
                     QObject::tr("Data Files (predationrho*.csv PredationRho*.csv)"));
-        QFileInfo fi(filename);
-        if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
-            for (int i=0; i<numTables; ++i) {
-                allTableNames[i] += "_"+tag.toStdString();
+        QFileInfo fi(filenameWithPath);
+        QString absolutePath = fi.absolutePath();
+        if (absolutePath == inputDataPath) {
+            if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
+                for (int i=0; i<numTables; ++i) {
+                    allTableNames[i] += "_"+tag.toStdString();
+                }
+                loadCSVFiles(inputDataPath,allTableNames);
+            } else if (! filenameWithPath.isEmpty()) {
+                QMessageBox::information(Estimation_Tabs, "Predation CSV Import",
+                                         "\nPlease make sure to select the filename that begins with: predationrho\n",
+                                         QMessageBox::Ok);
             }
-            loadCSVFiles(allTableNames);
-        } else if (! filename.isEmpty()) {
-            QMessageBox::information(Estimation_Tabs, "Predation CSV Import",
-                                     "\nPlease make sure to select the filename that begins with: predationrho\n",
-                                     QMessageBox::Ok);
+        } else {
+            loadCSVFiles(absolutePath,allTableNames);
         }
     }
 }
 
 void
-nmfEstimation_Tab4::loadCSVFiles(std::vector<std::string>& allTableNames)
+nmfEstimation_Tab4::loadCSVFiles(const QString& filePath,
+                                 std::vector<std::string>& allTableNames)
 {
     bool loadOK;
+    bool allCSVFilesLoadedOK = true;
     int tableNum=0;
     QString errorMsg;
     QString tableName;
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
     std::vector<QTableView*> allTableViews = getAllTableViews();
     std::pair<int,int> nonZeroCell      = std::make_pair(0,0);
     std::pair<int,int> nonZeroCellSaved = std::make_pair(0,0);
@@ -292,19 +298,28 @@ nmfEstimation_Tab4::loadCSVFiles(std::vector<std::string>& allTableNames)
         QStandardItemModel* smodel1 = qobject_cast<QStandardItemModel*>(allTableViews[1]->model());
         QStandardItemModel* smodel2 = qobject_cast<QStandardItemModel*>(allTableViews[2]->model());
         for (QTableView* tv : allTableViews) {
-            tableName = QDir(inputDataPath).filePath(QString::fromStdString(allTableNames[tableNum]+".csv"));
+            tableName = QString::fromStdString(allTableNames[tableNum]);
+            tableName = tableName.contains(".csv") ? tableName : tableName+".csv";
+            tableName = QDir(filePath).filePath(tableName);
             loadOK = nmfUtilsQt::loadTimeSeries(
-                        Estimation_Tabs, tv, inputDataPath, tableName,
+                        Estimation_Tabs, tv, filePath, tableName,
                         nmfConstantsMSSPM::FirstLineNotReadOnly,
                         nmfConstantsMSSPM::ScientificNotation,
                         nonZeroCell,errorMsg);
             if (! loadOK) {
+                allCSVFilesLoadedOK = false;
                 m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+                QMessageBox::warning(Estimation_Tabs,"Time Series Load Error","\n"+errorMsg+"\n", QMessageBox::Ok);
             }
             ++tableNum;
             if (tableNum == 1) {
                 nonZeroCellSaved = nonZeroCell;
             }
+        }
+        if (allCSVFilesLoadedOK) {
+            QMessageBox::information(Estimation_Tabs, "Import Successful",
+                                     "\nAll CSV data files have been successfully imported.\n",
+                                     QMessageBox::Ok);
         }
         resetSpinBox(nonZeroCellSaved,smodel,smodel1,smodel2);
     } else {

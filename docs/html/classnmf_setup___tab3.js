@@ -21,16 +21,20 @@ var classnmf_setup___tab3 =
     [ "callback_ReloadSpeciesPB", "classnmf_setup___tab3.html#a98d4e77c1808267ece001433fc2dc3e3", null ],
     [ "callback_SavePB", "classnmf_setup___tab3.html#a6826af0be90575eba476ebffc89b871c", null ],
     [ "callback_SpeciesTableChanged", "classnmf_setup___tab3.html#a96f66fad637f76a3ef88eb001c9d63c4", null ],
+    [ "callback_UnitsCMB", "classnmf_setup___tab3.html#abe86286a851cc06b25215e98ee8fcdc8", null ],
     [ "callback_UpdateGuildTable", "classnmf_setup___tab3.html#a99317382df98f7d1534dce889159f6c0", null ],
     [ "callback_UpdateSpeciesPB", "classnmf_setup___tab3.html#a31cdee36b775f3baa0ec4eaa0cab866c", null ],
     [ "callback_UpdateSpeciesTable", "classnmf_setup___tab3.html#a8d8801796b42d825d0cab5baf7408e92", null ],
     [ "checkAndCalculateWithSignificantDigits", "classnmf_setup___tab3.html#ae65eab16bcff8846ecd33fafd1b4b49f", null ],
+    [ "getCurrentUnits", "classnmf_setup___tab3.html#afce3b41c30773cbf466c50698ffa79e1", null ],
     [ "getSpeciesGuild", "classnmf_setup___tab3.html#a4441ffdeb7943bf844c701ff8c964b6e", null ],
+    [ "isConvertChecked", "classnmf_setup___tab3.html#add9f803a19c679b6358bb0d3b72e50fa", null ],
     [ "LoadEstimation", "classnmf_setup___tab3.html#a7fa6c5119e989916c7744421c8764b6d", null ],
     [ "LoadGuildSupplemental", "classnmf_setup___tab3.html#a14d6c1f7bdfef3adeb210d06b11ab4ec", null ],
     [ "LoadSpeciesSupplemental", "classnmf_setup___tab3.html#a18b6b19cc7172f3b0c5924cf2af3d3a7", null ],
     [ "loadWidgets", "classnmf_setup___tab3.html#a2b6df20bba0023e9b67995a551268ba9", null ],
     [ "ReloadWidgets", "classnmf_setup___tab3.html#adcbc051bff92008c7673f08db64063fe", null ],
     [ "SaveGuildSupplemental", "classnmf_setup___tab3.html#a1bfb84180217802f2864bb62515959db", null ],
-    [ "SaveSpeciesSupplemental", "classnmf_setup___tab3.html#acf44ba4ec3bda341ad8911082826703e", null ]
+    [ "SaveSpeciesSupplemental", "classnmf_setup___tab3.html#acf44ba4ec3bda341ad8911082826703e", null ],
+    [ "setCurrentUnits", "classnmf_setup___tab3.html#a2931cb4154fb801d13f4a2f8b5daecbe", null ]
 ];

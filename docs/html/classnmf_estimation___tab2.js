@@ -11,7 +11,11 @@ var classnmf_estimation___tab2 =
     [ "callback_NextPB", "classnmf_estimation___tab2.html#a4ddbed0f122af965a66316e1994523b5", null ],
     [ "callback_PrevPB", "classnmf_estimation___tab2.html#ae41c2f59eb16add1033d18bfce26b5ba", null ],
     [ "callback_SavePB", "classnmf_estimation___tab2.html#aaae777a753a648698472f1b80a0ee84a", null ],
+    [ "callback_UnitsCMB", "classnmf_estimation___tab2.html#a89a77c8ee71391dc28551e544fd9bf42", null ],
     [ "clearWidgets", "classnmf_estimation___tab2.html#aa28f54f7a7c2cf18d31ca7df6e46d781", null ],
+    [ "getCurrentUnits", "classnmf_estimation___tab2.html#ab20d712a5303da7476691abb97d9133b", null ],
+    [ "isConvertChecked", "classnmf_estimation___tab2.html#ac598210adcd92ea4ab69bcc525d1af41", null ],
     [ "loadWidgets", "classnmf_estimation___tab2.html#aa8b3ddbb2db6ff90cb2048bf4f87506e", null ],
+    [ "setCurrentUnits", "classnmf_estimation___tab2.html#a48b1370105dea3b40a8348d9ccdd6dc4", null ],
     [ "setHarvestType", "classnmf_estimation___tab2.html#a61801ee8195b5c9eb71750d71d8fb903", null ]
 ];

@@ -43,6 +43,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_IsMultiRun = false;
     m_MultiRunType.clear();
     m_Estimator_NLopt = nullptr;
+    m_DBTimeout = nmfConstantsMSSPM::DefaultDBTimeoutDays;
 
     m_ProjectDir.clear();
     m_ProjectDatabase.clear();
@@ -135,6 +136,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
         m_isStartUpOK = false;
         return;
     }
+    m_AppStartTime = QDateTime::currentDateTime();
 
     if (m_LoadLastProject) {
         loadDatabase();
@@ -192,7 +194,7 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
         !Setup_Tab4_ptr->getModelName().isEmpty());
 
     setOutputControlsWidth();
-
+    setDatabaseWaitTime();
 }
 
 
@@ -206,6 +208,20 @@ nmfMainWindow::~nmfMainWindow()
     }
     if (m_ViewerWidget != nullptr) {
         delete m_ViewerWidget;
+    }
+}
+
+void
+nmfMainWindow::setDatabaseWaitTime()
+{
+    int timeoutSeconds   = m_DBTimeout * nmfConstants::SecondsPerDay;
+    std::string cmd      = "SET GLOBAL wait_timeout=" + std::to_string(timeoutSeconds);
+    std::string errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"[Error 1] setDatabaseWaitTime: set global error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        return;
     }
 }
 
@@ -245,7 +261,7 @@ nmfMainWindow::initializePreferencesDlg()
     QPushButton* cancelPB     = m_PreferencesWidget->findChild<QPushButton*>("PrefCancelPB");
     QPushButton* okPB         = m_PreferencesWidget->findChild<QPushButton*>("PrefOkPB");
     QCheckBox*   sigdigCB     = m_PreferencesWidget->findChild<QCheckBox  *>("PrefSignificantDigitsCB");
-    QSpinBox*    sigdigSB     = m_PreferencesWidget->findChild<QSpinBox   *>("PrefSignificantDigitsSB");
+//  QSpinBox*    sigdigSB     = m_PreferencesWidget->findChild<QSpinBox   *>("PrefSignificantDigitsSB");
 
     QVBoxLayout* layt = new QVBoxLayout();
     layt->addWidget(m_PreferencesWidget);
@@ -258,7 +274,7 @@ nmfMainWindow::initializePreferencesDlg()
     connect(styleCMB,         SIGNAL(currentTextChanged(QString)),
             this,             SLOT(callback_PreferencesSetStyleSheet(QString)));
     connect(okPB,             SIGNAL(clicked()),
-            this,             SLOT(callback_PreferencesMShotOkPB()));
+            this,             SLOT(callback_PreferencesOkPB()));
     connect(sigdigCB,         SIGNAL(stateChanged(int)),
             this,             SLOT(callback_PreferencesSigDigCB(int)));
     connect(cancelPB,         SIGNAL(clicked()),
@@ -519,7 +535,7 @@ nmfMainWindow::setupOutputEstimateParametersWidgets()
 
 
 bool
-nmfMainWindow::getFinalObservedBiomass(QList<double> &FinalBiomass)
+nmfMainWindow::getFinalObservedBiomass(boost::numeric::ublas::vector<double>& FinalBiomass)
 {
     int NumRecords;
     int NumSpecies;
@@ -555,8 +571,9 @@ nmfMainWindow::getFinalObservedBiomass(QList<double> &FinalBiomass)
                                            NumSpecies,RunLength,ObservedBiomass)) {
         return false;
     }
+    nmfUtils::initialize(FinalBiomass,NumSpecies);
     for (int species=0; species<NumSpecies; ++species) {
-        FinalBiomass.push_back(ObservedBiomass(RunLength,species));
+        FinalBiomass[species] = ObservedBiomass(RunLength,species);
     }
 
     return true;
@@ -615,7 +632,7 @@ nmfMainWindow::getOutputInitialBiomass(
 }
 
 bool
-nmfMainWindow::getInitialObservedBiomass(QList<double> &InitBiomass)
+nmfMainWindow::getInitialObservedBiomass(boost::numeric::ublas::vector<double> &InitBiomass)
 {
 
     int NumSpecies;
@@ -633,8 +650,9 @@ nmfMainWindow::getInitialObservedBiomass(QList<double> &InitBiomass)
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] getInitialObservedBiomass: No species found in table Species");
         return false;
     }
+    nmfUtils::initialize(InitBiomass,NumSpecies);
     for (int i=0; i<NumSpecies; ++i) {
-        InitBiomass.append(std::stod(dataMap["InitBiomass"][i]));
+        InitBiomass[i] = std::stod(dataMap["InitBiomass"][i]);
     }
 
     return true;
@@ -854,6 +872,8 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
 
     OutputBiomass.clear();
 
+    isAggProd = (isAggProd.empty()) ? "0" : isAggProd;
+
     if (! isAveraged) {
         m_DatabasePtr->getAlgorithmIdentifiers(
                     this,m_Logger,m_ProjectName,m_ModelName,
@@ -862,7 +882,7 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
 
     }
 
-    // Load Calculated Biomass data (ie, calculated from estimated parameters r and alpha)
+    // Load Calculated Biomass data (i.e., calculated from estimated parameters r and alpha)
     fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Year","Value"};
     queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value FROM " +
                  nmfConstantsMSSPM::TableOutputBiomass;
@@ -882,6 +902,7 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
             queryStr += filterStr;
         }
     }
+
     queryStr += " ORDER BY Algorithm,Minimizer,ObjectiveCriterion,Scaling,SpeName,Year";
     dataMapCalculatedBiomass = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMapCalculatedBiomass["SpeName"].size();
@@ -891,13 +912,13 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
         queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value FROM " +
                      nmfConstantsMSSPM::TableOutputBiomass;
         if ((NumLines == 1) && (! isAtLeastOneFilterPressed())) {
-            queryStr += " WHERE ProjectName       = '" + m_ProjectName +
-                        "' AND ModelName          = '" + m_ModelName +
-                        "' AND Algorithm          = '" + Algorithm +
-                        "' AND Minimizer          = '" + Minimizer +
+            queryStr += " WHERE ProjectName = '" + m_ProjectName +
+                        "' AND ModelName = '" + m_ModelName +
+                        "' AND Algorithm = '" + Algorithm +
+                        "' AND Minimizer = '" + Minimizer +
                         "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                        "' AND Scaling            = '" + Scaling +
-                        "' AND isAggProd          = "  + isAggProd;
+                        "' AND Scaling = '" + Scaling +
+                        "' AND isAggProd = "  + isAggProd;
         } else {
             filterStr = getFilterButtonsResult();
             if (filterStr.empty()) { // This will never be empty. Fix when implement AggProd fixes.
@@ -914,6 +935,7 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
         // m_Logger->logMsg(nmfConstants::Normal,"2NumRecords = "+std::to_string(NumRecords));
 
     }
+
     if (! isAMohnsRhoMultiRun()) {
         if (NumRecords == 0) {
             errorMsg  = "[Error 1] getOutputBiomass: No records found in table OutputBiomass";
@@ -1728,7 +1750,7 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
     int NumSpecies=0;
     int RunLength;
     int NumRuns;
-    int StartForecastYear;
+    int StartYearForecast;
     int NumYearsPerRun;
     int NumRunsPerForecast;
     int Year;
@@ -1749,6 +1771,10 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
     QStandardItem* item;
     QString growthForm;
     QString harvestForm;
+    QString tableForecastHarvestCatch = QString::fromStdString(nmfConstantsMSSPM::TableForecastHarvestCatch);
+    std::map<QString,QString> previousUnits;
+
+    m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
 
     // Get number of years in forecast and number of species
     if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList))
@@ -1764,7 +1790,7 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
 
     // Find Forecast info
     if (! m_DatabasePtr->getForecastInfo(
-         TableName,m_ProjectName,m_ModelName,ForecastName.toStdString(),RunLength,StartForecastYear,
+         TableName,m_ProjectName,m_ModelName,ForecastName.toStdString(),RunLength,StartYearForecast,
          Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
             return;
     }
@@ -1785,6 +1811,9 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
                 ForecastHarvest)) {
         return;
     }
+    if (previousUnits.find(tableForecastHarvestCatch) != previousUnits.end()) {
+        nmfUtilsQt::convertMatrix(ForecastHarvest[0], previousUnits[tableForecastHarvestCatch], "mt");
+    }
 
     QFile file(filename);
     if (file.open(QIODevice::ReadWrite)) {
@@ -1802,8 +1831,8 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
         stream << "\n" << "# Biomass (absolute)" << "\n";
         stream << Header << "\n";
         for (int i=0; i<=RunLength; ++i) {
-            stream << StartForecastYear+i;
-            item = new QStandardItem(QString::number(StartForecastYear+i,'d',0));
+            stream << StartYearForecast+i;
+            item = new QStandardItem(QString::number(StartYearForecast+i,'d',0));
             item->setTextAlignment(Qt::AlignCenter);
             smodel1->setItem(i, 0, item);
             for (int j=0; j<NumSpecies; ++j) {
@@ -1821,8 +1850,8 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
         stream << "\n" << "# Biomass (relative)" << "\n";
         stream << Header << "\n";
         for (int i=0; i<=RunLength; ++i) {
-            stream << StartForecastYear+i;
-            item = new QStandardItem(QString::number(StartForecastYear+i,'d',0));
+            stream << StartYearForecast+i;
+            item = new QStandardItem(QString::number(StartYearForecast+i,'d',0));
             item->setTextAlignment(Qt::AlignCenter);
             smodel2->setItem(i, 0, item);
             for (int j=0; j<NumSpecies; ++j) {
@@ -1841,8 +1870,8 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
         stream << "\n" << "# Fishing Mortality" << "\n";
         stream << Header << "\n";
         for (int i=0; i<=RunLength; ++i) {
-            stream << StartForecastYear+i;
-            item = new QStandardItem(QString::number(StartForecastYear+i,'d',0));
+            stream << StartYearForecast+i;
+            item = new QStandardItem(QString::number(StartYearForecast+i,'d',0));
             item->setTextAlignment(Qt::AlignCenter);
             smodel3->setItem(i, 0, item);
             for (int j=0; j<NumSpecies; ++j) {
@@ -1862,8 +1891,8 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
         stream << "\n" << "# Harvest Scale Factor" << "\n";
         stream << Header << "\n";
         for (int i=0; i<=RunLength; ++i) {
-            stream << StartForecastYear+i;
-            Year = StartForecastYear+i;
+            stream << StartYearForecast+i;
+            Year = StartYearForecast+i;
             item = new QStandardItem(QString::number(Year,'d',0));
             item->setTextAlignment(Qt::AlignCenter);
             smodel4->setItem(i, 0, item);
@@ -1906,7 +1935,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v0.9.45  (beta)";
+    QString version = "MSSPM v1.0.0";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -1924,6 +1953,8 @@ nmfMainWindow::menu_about()
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     QString os = QString::fromStdString(nmfUtils::getOS());
+    QDateTime currentAppTime = QDateTime::currentDateTime();
+    int upTimeSeconds = m_AppStartTime.secsTo(currentAppTime);
 
     // Define Qt link
     qtLink = QString("<a href='https://www.qt.io'>https://www.qt.io</a>");
@@ -1971,7 +2002,7 @@ nmfMainWindow::menu_about()
     linuxDeployLink = QString("<a href='https://github.com/probonopd/linuxdeployqt'>https://github.com/probonopd/linuxdeployqt</a>");
 
     // Build About message
-  //msg += QString("<li>")+cppVersion+QString("</li>");
+    //msg += QString("<li>")+cppVersion+QString("</li>");
     msg += QString("<li>")+QString("Qt ")+QString::fromUtf8(qVersion())+QString("<br>")+qtLink+QString("</li>");
     msg += QString("<li>")+QString("MySQL ")+mysqlVersion+QString("<br>")+mysqlLink+QString("</li>");
     msg += QString("<li>")+QString("Boost ")+boostVersion+QString("<br>")+boostLink+QString("</li>");
@@ -1981,7 +2012,7 @@ nmfMainWindow::menu_about()
     msg += QString("<li>")+QString("linuxdeployqt 6 (January 27, 2019)<br>")+linuxDeployLink+QString("</li>");
     msg += QString("</ul>");
 
-    nmfUtilsQt::showAboutWidget(this,name,os,version,specialAcknowledgement,msg);
+    nmfUtilsQt::showAboutWidget(this,name,os,upTimeSeconds,version,specialAcknowledgement,msg);
 }
 
 void
@@ -2381,7 +2412,7 @@ nmfMainWindow::menu_copy()
         return;
     }
 
-    if (m_ShowSignificantDigitsDlg && isSignificantDigitsEnabled()) {
+if (m_ShowSignificantDigitsDlg && isSignificantDigitsEnabled()) {
         msg += "\nSignificant digits are currently enabled. Toggle them\n";
         msg += "off if you want to copy the data at full precision.\n\n";
         msg += "Continue with the Copy?\n";
@@ -2668,6 +2699,8 @@ nmfMainWindow::loadAllWidgets()
     Forecast_Tab4_ptr->loadWidgets();
 
     Output_Controls_ptr->resetMSYWidgets();
+
+    setDatabaseWaitTime();
 
     refreshOutputTables();
 
@@ -3225,8 +3258,6 @@ nmfMainWindow::findTableInFocus()
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_ExponentMinTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_ExponentMaxTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab4_ExponentMaxTV");
-    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_CovariatesTV")->hasFocus()) {
-        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_CovariatesTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_AbsoluteBiomassTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_AbsoluteBiomassTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab5_RelativeBiomassTV")->hasFocus()) {
@@ -4445,7 +4476,7 @@ bool
 nmfMainWindow::setFirstRowEstimatedBiomass(
         const std::string& ForecastName,
         const int& NumSpeciesOrGuilds,
-        const QList<double>& InitialBiomass,
+        const boost::numeric::ublas::vector<double>& InitialBiomass,
         boost::numeric::ublas::matrix<double>& EstInitBiomassCovariates,
         boost::numeric::ublas::matrix<double>& EstimatedBiomassBySpecies)
 {
@@ -4737,7 +4768,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     boost::numeric::ublas::matrix<double> EstimatedBiomassByGuilds;
     boost::numeric::ublas::matrix<double> NullMatrix;
     QList<QList<double> > BiomassData; // A Vector of row vectors
-    QList<double> InitialBiomass;
+//  QList<double> InitialBiomass;
+    boost::numeric::ublas::vector<double> InitialBiomass;
     double growthTerm;
     double harvestTerm;
     double competitionTerm;
@@ -4764,6 +4796,15 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     std::map<int,std::vector<int> > GuildSpecies;
     std::vector<int>                GuildNum;
     boost::numeric::ublas::matrix<double> ObservedBiomassByGuilds;
+
+    // Read units table
+    QString tableHarvestCatch    = QString::fromStdString(nmfConstantsMSSPM::TableHarvestCatch);
+    QString tableForecastHarvestCatch = QString::fromStdString(nmfConstantsMSSPM::TableForecastHarvestCatch);
+    QString tableSpecies         = QString::fromStdString(nmfConstantsMSSPM::TableSpecies);
+    QString tableBiomassAbsolute = QString::fromStdString(nmfConstantsMSSPM::TableBiomassAbsolute);
+    QString tableBiomassRelative = QString::fromStdString(nmfConstantsMSSPM::TableBiomassRelative);
+    std::map<QString,QString> previousUnits;
+    m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
 
     BiomassData.clear();
     EstInitBiomass.clear();
@@ -4909,7 +4950,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 MonteCarloValue = calculateMonteCarloValue(CatchabilityUncertainty[i],
                                                            std::stod(dataMap["Value"][i]),
                                                            randomValue);
-
                 EstCatchability.push_back(MonteCarloValue);
                 CatchabilityRandomValues.push_back(randomValue);
             } 
@@ -4955,8 +4995,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     nmfUtils::initialize(EstCompetitionAlpha,      NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(EstCompetitionBetaSpecies,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
-    nmfUtils::initialize(EstPredationRho,             NumSpeciesOrGuilds,NumSpeciesOrGuilds);
-    nmfUtils::initialize(EstPredationHandling,              NumSpeciesOrGuilds,NumSpeciesOrGuilds);
+    nmfUtils::initialize(EstPredationRho,          NumSpeciesOrGuilds,NumSpeciesOrGuilds);
+    nmfUtils::initialize(EstPredationHandling,     NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     for (unsigned i=0; i<OutputTableNames.size(); ++i) {
 
         fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
@@ -5119,6 +5159,15 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 return false;
             }
         }
+        if (ForecastName == "") {
+            if (previousUnits.find(tableHarvestCatch) != previousUnits.end()) {
+                nmfUtilsQt::convertMatrix(Catch, previousUnits[tableHarvestCatch], "mt");
+            }
+        } else {
+            if (previousUnits.find(tableForecastHarvestCatch) != previousUnits.end()) {
+                nmfUtilsQt::convertMatrix(Catch, previousUnits[tableForecastHarvestCatch], "mt");
+            }
+        }
         scaleTimeSeriesIfMonteCarlo(isMonteCarlo,HarvestUncertainty,Catch,HarvestRandomValues);
     } else if (HarvestForm == nmfConstantsMSSPM::HarvestEffort.toStdString()) {
         if (isAggProd) {
@@ -5177,6 +5226,10 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             return false;
         }
     }
+    if (previousUnits.find(tableSpecies) != previousUnits.end()) {
+        nmfUtilsQt::convertVector(InitialBiomass, previousUnits[tableSpecies],"mt");
+    }
+
 
     // Check to see if no species names have been loaded. If they haven't, load them now. This is probably
     // due to the user running a Forecast without first running an Estimation.
@@ -5208,6 +5261,15 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     if (! m_DatabasePtr->getGuildData(m_Logger,NumGuilds,RunLength,GuildList,GuildSpecies,
                                       GuildNum,ObservedBiomassByGuilds)) {
         return false;
+    }
+    if (m_DatabasePtr->isSurveyQ(m_ProjectName,m_ModelName)) {
+        if (previousUnits.find(tableBiomassRelative) != previousUnits.end()) {
+            nmfUtilsQt::convertMatrix(ObservedBiomassByGuilds, previousUnits[tableBiomassRelative],"mt");
+        }
+    } else {
+        if (previousUnits.find(tableBiomassAbsolute) != previousUnits.end()) {
+            nmfUtilsQt::convertMatrix(ObservedBiomassByGuilds, previousUnits[tableBiomassAbsolute],"mt");
+        }
     }
     EstimatedBiomassByGuilds = ObservedBiomassByGuilds;
 
@@ -5241,7 +5303,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             }
 
             EstimatedBiomassTimeMinus1  = EstimatedBiomassBySpecies(timeMinus1,species);
-
+//std::cout << "BM-1: " << EstimatedBiomassTimeMinus1 << std::endl;
             growthTerm      = growthForm->evaluate(CovariateAlgorithmType,
                                                    EstimatedBiomassTimeMinus1,
                                                    EstGrowthRates[species],
@@ -5276,7 +5338,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                         CompetitionBetaGuildGuildCovariate);
             predationTerm   = predationForm->evaluate(CovariateAlgorithmType,
                                                       timeMinus1, species,
-                                                      EstimatedBiomassBySpecies,EstimatedBiomassTimeMinus1,
+                                                      EstimatedBiomassBySpecies,
+                                                      EstimatedBiomassTimeMinus1,
                                                       EstPredationRho,
                                                       PredationRhoCovariate,
                                                       EstPredationHandling,
@@ -5285,6 +5348,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                       PredationExponentCovariate);
 
             EstimatedBiomassTimeMinus1 += growthTerm - harvestTerm - competitionTerm - predationTerm;
+
             if ( std::isnan(std::fabs(EstimatedBiomassTimeMinus1)) ||
                 (EstimatedBiomassTimeMinus1 < 0) )
             {
@@ -5548,6 +5612,14 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     std::vector<double> EstCatchability;
     QLocale locale(QLocale::English);
     QString valueWithComma;
+    std::map<QString,QString> previousUnits;
+    QString tableBiomassAbsolute = QString::fromStdString(nmfConstantsMSSPM::TableBiomassAbsolute);
+    QString tableBiomassRelative = QString::fromStdString(nmfConstantsMSSPM::TableBiomassRelative);
+    QString tableHarvestCatch    = QString::fromStdString(nmfConstantsMSSPM::TableHarvestCatch);
+    QString BiomassTable = (m_DatabasePtr->isSurveyQ(m_ProjectName,m_ModelName)) ?
+                            tableBiomassRelative : tableBiomassAbsolute;
+
+    m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
 
     if (isAMultiOrMohnsRhoRun() && OutputType.isEmpty() &&
         (OutputChartType == nmfConstantsMSSPM::OutputChartBiomass)) {
@@ -5832,6 +5904,12 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
             return false;
         }
     }
+
+    // Convert Observed Biomass to correct units
+    if (previousUnits.find(BiomassTable) != previousUnits.end()) {
+        nmfUtilsQt::convertMatrix(ObservedBiomass, previousUnits[BiomassTable], "mt");
+    }
+
     TableViews.clear();
     TableViews.append(OutputBiomassTV);
     OutputTableNames.clear();
@@ -5890,6 +5968,10 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         }
         HarvestVec.clear();
         HarvestVec.push_back(HarvestData);
+        // Convert catch to mt for plot
+        if (previousUnits.find(tableHarvestCatch) != previousUnits.end()) {
+            nmfUtilsQt::convertMatrix(HarvestData, previousUnits[tableHarvestCatch], "mt");
+        }
         showChartTableVsTime(HarvestForm,
                              NumSpeciesOrGuilds,OutputSpecies,
                              SpeciesNum,RunLength,StartYear,
@@ -5942,9 +6024,11 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     }
 
     else if (OutputType == "Forecast") {
-        if (! showForecastChart(isAggProd,Forecast_Tab1_ptr->getForecastName(),StartYear,
-                                ScaleStr,ScaleVal,YMinVal,
-                                Output_Controls_ptr->getOutputBrightnessFactor()))
+        double brightnessFactor = Output_Controls_ptr->getOutputBrightnessFactor();
+        bool showHistoricalData = Output_Controls_ptr->isHistoricalDataShown();
+        if (! showForecastChart(isAggProd,Forecast_Tab1_ptr->getForecastName(),
+                                StartYear,ScaleStr,ScaleVal,YMinVal,
+                                brightnessFactor,showHistoricalData))
         {
             return false;
         }
@@ -6729,8 +6813,9 @@ nmfMainWindow::callback_ShowChartMultiScenario(QStringList SortedForecastLabels)
     QString ScaleStr         = Output_Controls_ptr->getOutputScale();
     QString OutputSpecies    = Output_Controls_ptr->getOutputSpecies();
     int SpeciesNum           = Output_Controls_ptr->getOutputSpeciesIndex();
-    int StartForecastYear    = Forecast_Tab1_ptr->getStartForecastYear();
+    int StartYearForecast    = Forecast_Tab1_ptr->getStartForecastYear();
     std::string ScenarioName = Output_Controls_ptr->getOutputScenario().toStdString();
+    bool showHistoricalData  = Output_Controls_ptr->isHistoricalDataShown();
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomassMultiScenario;
     QStringList ColumnLabelsForLegend;
     double ScaleVal = convertUnitsStringToValue(ScaleStr);
@@ -6761,17 +6846,21 @@ nmfMainWindow::callback_ShowChartMultiScenario(QStringList SortedForecastLabels)
     }
 
     // Draw the scenario chart
-    showBiomassVsTimeForMultipleRuns("Multi-Forecast Scenario",
-                              StartForecastYear,
-                              NumSpecies,OutputSpecies,
-                              SpeciesNum,NumYears,
-                              ForecastBiomassMultiScenario,
-                              ScaleStr,ScaleVal,
-                              YMinSliderVal,BrightnessFactor,
-                              nmfConstantsMSSPM::IsNotMonteCarlo,
-                              nmfConstantsMSSPM::IsNotEnsemble,
-                              nmfConstantsMSSPM::Clear,
-                              ColumnLabelsForLegend);
+    showBiomassVsTimeForMultipleRuns(
+                "Multi-Forecast Scenario",
+                "Year",
+                "Multi-Forecast Scenario",
+                showHistoricalData,
+                StartYearForecast,NumYears, // RSK - check this logic for using NumYears here...
+                NumSpecies,OutputSpecies,
+                SpeciesNum,NumYears,
+                ForecastBiomassMultiScenario,
+                ScaleStr,ScaleVal,
+                YMinSliderVal,BrightnessFactor,
+                nmfConstantsMSSPM::IsNotMonteCarlo,
+                nmfConstantsMSSPM::IsNotEnsemble,
+                nmfConstantsMSSPM::Clear,
+                ColumnLabelsForLegend);
 
     setCurrentOutputTab("Chart");
 
@@ -6942,7 +7031,8 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
                                  QString&     ScaleStr,
                                  double&      ScaleVal,
                                  double&      YMinSliderValue,
-                                 double       BrightnessFactor)
+                                 double&      BrightnessFactor,
+                                 const bool&  showHistoricalData)
 {
     int NumRuns    = 0;
     int RunLength  = 0;
@@ -6950,7 +7040,7 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     int NumGuilds  = 0;
     int NumSpeciesOrGuilds;
     int SpeciesNum = Output_Controls_ptr->getOutputSpeciesIndex();
-    int StartForecastYear = nmfConstantsMSSPM::Start_Year;
+    int StartYearForecast = nmfConstantsMSSPM::Start_Year;
     // int EndYear;
     QString OutputSpecies = Output_Controls_ptr->getOutputSpecies();
     std::string Algorithm;
@@ -6959,6 +7049,8 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     std::string Scaling;
     std::string TableName = nmfConstantsMSSPM::TableForecasts;
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomass;
+    boost::numeric::ublas::matrix<double> ForecastBiomassWithHistoricalData;
+    std::vector<boost::numeric::ublas::matrix<double> > AppendedMatrices;
     std::vector<boost::numeric::ublas::matrix<double> > ForecastBiomassMonteCarlo;
     QStringList SpeciesOrGuildList;
     QStringList SpeciesOrGuildAbbrevList;
@@ -6971,6 +7063,8 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
     QStringList ColumnLabelsForLegend;
     QLocale locale(QLocale::English);
     QString valueWithComma;
+    std::vector<boost::numeric::ublas::matrix<double> > OutputBiomass;
+
 
     // Find guild info
     if (! m_DatabasePtr->getGuilds(m_Logger,NumGuilds,GuildList))
@@ -6988,11 +7082,30 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
 
     // Find Forecast info
     if (! m_DatabasePtr->getForecastInfo(
-         TableName,m_ProjectName,m_ModelName,ForecastName,RunLength,StartForecastYear,
+         TableName,m_ProjectName,m_ModelName,ForecastName,RunLength,StartYearForecast,
          Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
             return false;
     }
     checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
+
+    if (showHistoricalData) {
+        int NumLines = 1;
+        int StartYear;
+        int RunLength;
+        std::vector<std::string> Algorithms;
+        std::vector<std::string> Minimizers;
+        std::vector<std::string> ObjectiveCriteria;
+        std::vector<std::string> Scalings;
+        std::string              isAggProdStr;
+        m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear);
+        if (! getOutputBiomass(NumLines,NumSpeciesOrGuilds,RunLength,
+                               Algorithms,Minimizers,ObjectiveCriteria,Scalings,
+                               isAggProdStr,OutputBiomass))
+        {
+            m_Logger->logMsg(nmfConstants::Error,"Returning from within showForecastChart");
+            return false;
+        }
+    }
 
     // Plot ForecastBiomassMonteCarlo data
     if (NumRuns > 0) {
@@ -7006,17 +7119,25 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
 
         ColumnLabelsForLegend.clear();
         ColumnLabelsForLegend << "";
-        showBiomassVsTimeForMultipleRuns("Estimated Biomass",StartForecastYear,
-                                  NumSpeciesOrGuilds,OutputSpecies,
-                                  SpeciesNum,RunLength+1,
-                                  ForecastBiomassMonteCarlo,
-                                  ScaleStr,ScaleVal,
-                                  YMinSliderValue,BrightnessFactor,
-                                  nmfConstantsMSSPM::IsMonteCarlo,
-                                  nmfConstantsMSSPM::IsNotEnsemble,
-                                  nmfConstantsMSSPM::Clear,
-                                  ColumnLabelsForLegend);
+
+        showBiomassVsTimeForMultipleRuns(
+                    "Forecast",
+                    "Year",
+                    "Biomass",
+                    nmfConstantsMSSPM::DontShowHistoricalDelimiterLine,
+                    StartYearForecast,RunLength+1, // RSK - this might not be correct check with OutputBiomass[0].size1()
+                    NumSpeciesOrGuilds,OutputSpecies,
+                    SpeciesNum,RunLength+1,
+                    ForecastBiomassMonteCarlo,
+                    ScaleStr,ScaleVal,
+                    YMinSliderValue,BrightnessFactor,
+                    nmfConstantsMSSPM::IsMonteCarlo,
+                    nmfConstantsMSSPM::IsNotEnsemble,
+                    nmfConstantsMSSPM::Clear,
+                    ColumnLabelsForLegend);
     }
+
+
 
     // Plot ForecastBiomass data
     if (! m_DatabasePtr->getForecastBiomass(this,m_Logger,m_ProjectName,m_ModelName,
@@ -7026,23 +7147,65 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
         return false;
     }
     ColumnLabelsForLegend << "Forecast Biomass";
-    showBiomassVsTimeForMultipleRuns("Estimated Biomass",StartForecastYear,
-                              NumSpeciesOrGuilds,OutputSpecies,
-                              SpeciesNum,RunLength+1,
-                              ForecastBiomass,
-                              ScaleStr,ScaleVal,
-                              YMinSliderValue,BrightnessFactor,
-                              nmfConstantsMSSPM::IsNotMonteCarlo,
-                              nmfConstantsMSSPM::IsNotEnsemble,
-                              nmfConstantsMSSPM::DontClear,
-                              ColumnLabelsForLegend);
+
+    // if show historical data, prepend OutputBiomass to ForecastBiomass
+    if (showHistoricalData) {
+        int totalNumRows = OutputBiomass[0].size1() + ForecastBiomass[0].size1();
+        int totalNumCols = OutputBiomass[0].size2() + ForecastBiomass[0].size2();
+        nmfUtils::initialize(ForecastBiomassWithHistoricalData,totalNumRows,totalNumCols);
+        for (int row=0; row<(int)OutputBiomass[0].size1(); ++row) {
+            for (int col=0; col<(int)OutputBiomass[0].size2(); ++col) {
+                ForecastBiomassWithHistoricalData(row,col) = OutputBiomass[0](row,col);
+            }
+        }
+        int numRowsOutputBiomass = OutputBiomass[0].size1();
+        for (int row=1; row<(int)ForecastBiomass[0].size1(); ++row) { // First Forecast row is same as last observed biomass row
+            for (int col=0; col<(int)ForecastBiomass[0].size2(); ++col) {
+                ForecastBiomassWithHistoricalData(numRowsOutputBiomass+row-1,col) = ForecastBiomass[0](row,col);
+            }
+        }
+        AppendedMatrices.push_back(ForecastBiomassWithHistoricalData);
+
+        showBiomassVsTimeForMultipleRuns("Forecast w/ Historical Data",
+                                         "Year",
+                                         "Biomass",
+                                         showHistoricalData,
+                                         StartYear,OutputBiomass[0].size1(),
+                                         NumSpeciesOrGuilds,OutputSpecies,
+                                         SpeciesNum,ForecastBiomassWithHistoricalData.size1()-1, //Because we're omitting the 1st forecast point
+                                         AppendedMatrices,
+                                         ScaleStr,ScaleVal,
+                                         YMinSliderValue,BrightnessFactor,
+                                         nmfConstantsMSSPM::IsNotMonteCarlo,
+                                         nmfConstantsMSSPM::IsNotEnsemble,
+                                         nmfConstantsMSSPM::DontClear,
+                                         ColumnLabelsForLegend);
+    }
+    else {
+        showBiomassVsTimeForMultipleRuns("Forecast",
+                                         "Year",
+                                         "Biomass",
+                                         showHistoricalData,
+                                         StartYearForecast,RunLength+1, // RSK - this might not be correct check with OutputBiomass[0].size1()
+                                         NumSpeciesOrGuilds,OutputSpecies,
+                                         SpeciesNum,RunLength+1,
+                                         ForecastBiomass,
+                                         ScaleStr,ScaleVal,
+                                         YMinSliderValue,BrightnessFactor,
+                                         nmfConstantsMSSPM::IsNotMonteCarlo,
+                                         nmfConstantsMSSPM::IsNotEnsemble,
+                                         nmfConstantsMSSPM::DontClear,
+                                         ColumnLabelsForLegend);
+    }
+
+
 
     // Update Output->Estimated Parameters->Output Biomass table
     smodel = new QStandardItemModel( RunLength, NumSpeciesOrGuilds );
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         for (int time=0; time<=RunLength; ++time) {
             if (i == 0) {
-                yearLabels << QString::number(StartForecastYear+time);
+                yearLabels << QString::number(StartYearForecast+time);
             }
             valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                         ForecastBiomass[0](time,i),m_NumSignificantDigits,3);
@@ -8015,7 +8178,7 @@ nmfMainWindow::getMonteCarloUncertaintyData(
     int RunLength;
     int NumRuns;
     int NumRecords;
-    int StartForecastYear;
+    int StartYearForecast;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string Algorithm;
@@ -8028,7 +8191,7 @@ nmfMainWindow::getMonteCarloUncertaintyData(
     std::string str;
 
     if (! m_DatabasePtr->getForecastInfo(
-         TableName,m_ProjectName,m_ModelName,ForecastName,RunLength,StartForecastYear,
+         TableName,m_ProjectName,m_ModelName,ForecastName,RunLength,StartYearForecast,
          Algorithm,Minimizer,ObjectiveCriterion,Scaling,NumRuns)) {
             return;
     }
@@ -8071,17 +8234,21 @@ nmfMainWindow::getMonteCarloUncertaintyData(
 
 void
 nmfMainWindow::showBiomassVsTimeForMultipleRuns(
-        const std::string &ChartTitle,
-        const int &StartForecastYear,
-        const int &NumSpecies,
-        const QString &OutputSpecies,
-        const int &SpeciesNum,
+        const std::string& ChartTitle,
+        const std::string& XAxisLabel,
+        const std::string& YAxisLabel,
+        const bool& showHistoricalData,
+        const int& StartYear,
+        const int& NumObservedYears,
+        const int& NumSpecies,
+        const QString& OutputSpecies,
+        const int& SpeciesNum,
         const int NumYears,
-        std::vector<boost::numeric::ublas::matrix<double> > &Biomass,  // Catch or Calculated Biomass
-        QString &ScaleStr,
-        double &ScaleVal,
-        double &YMinVal,
-        double &brightnessFactor,
+        std::vector<boost::numeric::ublas::matrix<double> >& Biomass,  // Catch or Calculated Biomass
+        QString& ScaleStr,
+        double& ScaleVal,
+        double& YMinVal,
+        double& brightnessFactor,
         bool  isMonteCarloSimulation,
         bool  isEnsemble,
         bool  clearChart,
@@ -8103,7 +8270,9 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
     ChartScatterData.clear();
     RowLabelsForBars.clear();
     std::string value;
-    std::string LineStyle = "SolidLine";
+    std::string LineStyleSolid  = "SolidLine";
+    std::string LineStyleDotted = "DottedLine";
+    std::string LineStyleDashed = "DashedLine";
     QStandardItem *item;
     QStringList SpeciesNames;
     QStringList Years;
@@ -8123,8 +8292,8 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
 
     ChartType = "Line";
     MainTitle = ChartTitle + " for: " + OutputSpecies.toStdString();
-    XLabel    = "Year";
-    YLabel    = ChartTitle + " (" + ScaleStr.toStdString() + "metric tons)";
+    XLabel    = XAxisLabel;
+    YLabel    = YAxisLabel + " (" + ScaleStr.toStdString() + "metric tons)";
 
 //  NumColors = nmfConstants::LineColors.size();
     LineColors.append(QColor(nmfConstants::LineColors[0].c_str()));
@@ -8150,7 +8319,7 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
                 }
                 for (int time=0; time<NumYears; ++time) {
                     legendCode = (isMonteCarloSimulation) ? "Monte Carlo Sim "+std::to_string(time+1) : "Forecast Biomass";
-                    Years << QString::number(StartForecastYear+time);
+                    Years << QString::number(StartYear+time);
                     ChartLineData(time,line) = Biomass[line](time,species)/ScaleVal;
 //                  valueWithComma = locale.toString(ChartLineData(time,line));
 //                  valueWithComma = locale.toString(std::stod(value));
@@ -8191,19 +8360,28 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
 //          ShowLegend = true;
         }
 
+        if (showHistoricalData) {
+            lineChart->overlayVerticalLine(
+                        m_ChartWidget,
+                        LineStyleDotted,
+                        StartYear+NumObservedYears-1,
+                        YMinVal,YMaxVal,
+                        nmfConstants::SkyBlue);
+        }
+
         lineChart->populateChart(m_ChartWidget,
                                  ChartType,
-                                 LineStyle,
+                                 LineStyleSolid,
                                  nmfConstantsMSSPM::ShowFirstPoint,
                                  ShowLegend,
-                                 StartForecastYear,
+                                 StartYear,
                                  nmfConstantsMSSPM::LabelXAxisAsInts,
                                  YMinVal,YMaxVal,
                                  nmfConstantsMSSPM::DontLeaveGapsWhereNegative,
                                  ChartLineData,
                                  RowLabelsForBars,
                                  ColumnLabelsForLegend,
-                                 HoverLabels, // ColumnLabelsForLegend, //  HoverLabels,
+                                 HoverLabels,
                                  MainTitle,
                                  XLabel,
                                  YLabel,
@@ -8212,6 +8390,8 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
                                  LineColors[0],
                                  lineColorName,
                                  1.0);
+
+
 
     }
 
@@ -8303,7 +8483,7 @@ nmfMainWindow::getLegendCode(bool isAveraged,
 void
 nmfMainWindow::showObservedBiomassScatter(
             const std::string &ChartTitle,
-            const int &StartForecastYear,
+            const int &StartYearForecast,
             const int &NumSpecies,
             const QString &OutputSpecies,
             const int &SpeciesNum,
@@ -9625,14 +9805,16 @@ nmfMainWindow::getNumSignificantDigits()
 }
 
 void
-nmfMainWindow::callback_PreferencesMShotOkPB()
+nmfMainWindow::callback_PreferencesOkPB()
 {
     QSpinBox* numRowsSB    = m_PreferencesWidget->findChild<QSpinBox *>("PrefNumRowsSB");
     QSpinBox* numColumnsSB = m_PreferencesWidget->findChild<QSpinBox *>("PrefNumColumnsSB");
     QSpinBox* sigdigSB     = m_PreferencesWidget->findChild<QSpinBox *>("PrefSignificantDigitsSB");
+    QSpinBox* timeoutSB    = m_PreferencesWidget->findChild<QSpinBox *>("PrefTimeoutSB");
 
     m_MShotNumRows = numRowsSB->value();
     m_MShotNumCols = numColumnsSB->value();
+    m_DBTimeout    = timeoutSB->value();
 
     m_NumSignificantDigits = (sigdigSB->isEnabled()) ? sigdigSB->value() : -1;
 
@@ -9698,6 +9880,7 @@ nmfMainWindow::readSettings(QString Name)
         m_MShotNumRows = settings->value("MShotNumRows",3).toInt();
         m_MShotNumCols = settings->value("MShotNumCols",4).toInt();
         m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
+        m_DBTimeout = settings->value("DBTimeout",nmfConstantsMSSPM::DefaultDBTimeoutDays).toInt();
         settings->endGroup();
     } else if (Name == "Runtime") {
         settings->beginGroup("Runtime");
@@ -9769,6 +9952,7 @@ nmfMainWindow::readSettings()
     m_MShotNumCols = settings->value("MShotNumCols",4).toInt();
     m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
     m_ShowSignificantDigitsDlg = settings->value("ShowSignificantDigitsDialog",true).toBool();
+    m_DBTimeout = settings->value("DBTimeout",nmfConstantsMSSPM::DefaultDBTimeoutDays).toInt();
 
     settings->endGroup();
 
@@ -9828,6 +10012,7 @@ nmfMainWindow::saveSettings() {
     settings->setValue("MShotNumCols", m_MShotNumCols);
     settings->setValue("NumSignificantDigits", m_NumSignificantDigits);
     settings->setValue("ShowSignificantDigitsDialog", m_ShowSignificantDigitsDlg);
+    settings->setValue("DBTimeout", m_DBTimeout);
     settings->endGroup();
 
     // Save other pages' settings
@@ -10135,14 +10320,13 @@ nmfMainWindow::callback_SaveForecastOutputBiomassData(std::string ForecastName)
 
 
     // Need to reset the visibility for REMORA
-//    menu_toggleManagerMode();
+//  menu_toggleManagerMode();
     m_UI->OutputDockWidget->setVisible(!isRunningREMORA);
     m_UI->NavigatorDockWidget->setVisible(!isRunningREMORA);
     m_UI->ProgressDockWidget->setVisible(!isRunningREMORA);
     m_UI->LogDockWidget->setVisible(!isRunningREMORA);
     m_UI->centralWidget->setVisible(!isRunningREMORA);
     MModeDockWidget->setVisible(isRunningREMORA);
-
 }
 
 void
@@ -10171,7 +10355,6 @@ void
 nmfMainWindow::callback_RunForecast(std::string ForecastName,
                                     bool GenerateBiomass)
 {
-//  bool updateOK = true;
     bool isAggProd;
     int RunLength = 0;
     int StartYear = nmfConstantsMSSPM::Start_Year;
@@ -10191,10 +10374,11 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     std::string isAggProdStr;
     double ScaleVal = 1.0;
     QString ScaleStr = "";
-    double YMinSliderValue = Output_Controls_ptr->getYMinSliderVal();
+    double YMinSliderValue  = Output_Controls_ptr->getYMinSliderVal();
+    bool showHistoricalData = Output_Controls_ptr->isHistoricalDataShown();
+    double brightnessFactor = Output_Controls_ptr->getOutputBrightnessFactor();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::callback_RunForecast start");
-
     
     if (! okToRunForecast()) {
         QMessageBox::warning(this, "Error",
@@ -10277,7 +10461,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     // Set Chart Type to Forecast
     if (! showForecastChart(isAggProd,ForecastName,StartYear,
                             ScaleStr,ScaleVal,YMinSliderValue,
-                            Output_Controls_ptr->getOutputBrightnessFactor())) {
+                            brightnessFactor,showHistoricalData)) {
         QApplication::restoreOverrideCursor();
         Forecast_Tab4_ptr->enableRunButton(true);
         return;
@@ -10404,8 +10588,8 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
 
     // Set up connections
     disconnect(m_ProgressWidget, 0, 0, 0);
-    connect(m_ProgressWidget,  SIGNAL(StopTheRun()),
-            m_Estimator_NLopt, SLOT(callback_StopTheOptimizer()));
+//  connect(m_ProgressWidget,  SIGNAL(StopTheRun()),
+//          m_Estimator_NLopt, SLOT(callback_StopTheOptimizer()));
     connect(m_ProgressWidget,  SIGNAL(StopTheTimer()),
             this,              SLOT(callback_StopTheTimer()));
     connect(m_ProgressWidget,  SIGNAL(RedrawValidPointsOnly(bool,bool)),
@@ -10544,6 +10728,13 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
     boost::numeric::ublas::matrix<double> Catch;
     boost::numeric::ublas::matrix<double> Effort;
     boost::numeric::ublas::matrix<double> Exploitation;
+    QString tableHarvestCatch    = QString::fromStdString(nmfConstantsMSSPM::TableHarvestCatch);
+    QString tableSpecies         = QString::fromStdString(nmfConstantsMSSPM::TableSpecies);
+    QString tableBiomassAbsolute = QString::fromStdString(nmfConstantsMSSPM::TableBiomassAbsolute);
+    QString tableBiomassRelative = QString::fromStdString(nmfConstantsMSSPM::TableBiomassRelative);
+    std::map<QString,QString> previousUnits;
+
+    m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
 
     //
     // continue here.....possibly reduce code clutter...
@@ -10654,6 +10845,11 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                 return false;
         }
 
+    }
+
+    // Assure all appropriate dataStruct elements are in metric tons
+    if (previousUnits.find(tableHarvestCatch) != previousUnits.end()) {
+        nmfUtilsQt::convertMatrix(Catch, previousUnits[tableHarvestCatch], "mt");
     }
 
     double EstCarryingCapacityValue = 0;
@@ -11544,6 +11740,7 @@ nmfMainWindow::displayAverageBiomass()
     QString Species   = Output_Controls_ptr->getOutputSpecies();
     QString GroupType = Output_Controls_ptr->getOutputGroupType();
     int SpeciesNum    = Output_Controls_ptr->getSpeciesNumFromName(Species);
+    bool showHistoricalData = Output_Controls_ptr->isHistoricalDataShown();
     boost::numeric::ublas::matrix<double> AveBiomass;
     QList<QString> lineLabels;
     std::vector<std::string> Algorithms = {};
@@ -11652,7 +11849,12 @@ nmfMainWindow::displayAverageBiomass()
             OutputBiomassByGuilds = getOutputBiomassByGroup(RunLength,OutputBiomassEnsembleAve,GroupType.toStdString());
             OutputBiomassEnsembleAve = OutputBiomassByGuilds;
         }
-        showBiomassVsTimeForMultipleRuns("Ensemble Biomass",InitialYear,
+
+        showBiomassVsTimeForMultipleRuns("Ensemble Biomass",
+                                         "Year",
+                                         "Ensemble Biomass",
+                                         showHistoricalData,
+                                         InitialYear,ObservedBiomass.size1(),
                                          NumSpecies,OutputSpecies,
                                          SpeciesNum,RunLength+1,
                                          OutputBiomassEnsembleAve,
@@ -12366,6 +12568,11 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     std::map<std::string,nmfStructsQt::CovariateStruct> growthRateCovariateRanges;
     std::map<std::string,nmfStructsQt::CovariateStruct> carryingCapacityCovariateRanges;
     std::map<std::string,nmfStructsQt::CovariateStruct> catchabilityCovariateRanges;
+    std::map<QString,QString> previousUnits;
+    QString tableHarvestCatch    = QString::fromStdString(nmfConstantsMSSPM::TableHarvestCatch);
+    QString tableSpecies         = QString::fromStdString(nmfConstantsMSSPM::TableSpecies);
+    QString tableBiomassAbsolute = QString::fromStdString(nmfConstantsMSSPM::TableBiomassAbsolute);
+    QString tableBiomassRelative = QString::fromStdString(nmfConstantsMSSPM::TableBiomassRelative);
 
     loadCovariateData(covariateMap);
     loadCovariateAssignment(covariateAssignment);
@@ -12441,6 +12648,9 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.ScalingAlgorithm    = Estimation_Tab7_ptr->getCurrentScaling();
     dataStruct.CovariateAlgorithmType = m_DatabasePtr->getCovariateAlgorithmType(m_Logger,m_ProjectName,m_ModelName);
 
+    m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
+    dataStruct.PreviousUnits = previousUnits;
+
     // Set the MultiRun Setup output file that will contain all of the
     // MultiRun Run definitions
     QString fullPath     = "";
@@ -12455,7 +12665,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.MultiRunSetupFilename = fullPath.toStdString();
     dataStruct.EstimateRunBoxes = Estimation_Tab7_ptr->getEstimateRunBoxes();
 
-    // Find RunLength
+    // Find all algorithm parameters
     fields     = {"ObsBiomassType","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm",
                   "RunLength","Minimizer","ObjectiveCriterion",
                   "BeesNumTotal","BeesNumElite","BeesNumOther","BeesNumEliteSites",
@@ -12519,6 +12729,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     bool isMSPROD   = (competitionForm == "MS-PROD");
     bool isAGGPROD  = (competitionForm == "AGG-PROD");
     bool isSurveyQ  = (obsBiomassType  == "Relative");
+    dataStruct.isRelativeBiomass = isSurveyQ;
 
     if (isAlpha) {
         dataStruct.CompetitionMin.clear();
@@ -12830,10 +13041,34 @@ std::cout << "Warning: If loading observed biomass by guild, must account for us
            dataStruct.InitBiomassMax[i] = initialGuildBiomassMax[Guild[i]];
        }
     }
-    //  m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Biomass");
+
+    // Assure all appropriate dataStruct elements are in metric tons
+    if (isSurveyQ) {
+        if (previousUnits.find(tableBiomassRelative) != previousUnits.end()) {
+            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassBySpecies,previousUnits[tableBiomassRelative],"mt");
+            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassByGuilds, previousUnits[tableBiomassRelative],"mt");
+        }
+    } else {
+        if (previousUnits.find(tableBiomassAbsolute) != previousUnits.end()) {
+            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassBySpecies,previousUnits[tableBiomassAbsolute],"mt");
+            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassByGuilds, previousUnits[tableBiomassAbsolute],"mt");
+        }
+    }
+    if (previousUnits.find(tableHarvestCatch) != previousUnits.end()) {
+        nmfUtilsQt::convertMatrix(dataStruct.Catch,                   previousUnits[tableHarvestCatch], "mt");
+    }
+    if (previousUnits.find(tableSpecies) != previousUnits.end()) {
+        nmfUtilsQt::convertVector(dataStruct.InitBiomass,             previousUnits[tableSpecies],      "mt");
+        nmfUtilsQt::convertVector(dataStruct.InitBiomassMin,          previousUnits[tableSpecies],      "mt");
+        nmfUtilsQt::convertVector(dataStruct.InitBiomassMax,          previousUnits[tableSpecies],      "mt");
+        nmfUtilsQt::convertVector(dataStruct.CarryingCapacity,        previousUnits[tableSpecies],      "mt");
+        nmfUtilsQt::convertVector(dataStruct.CarryingCapacityMin,     previousUnits[tableSpecies],      "mt");
+        nmfUtilsQt::convertVector(dataStruct.CarryingCapacityMax,     previousUnits[tableSpecies],      "mt");
+    }
 
     return true;
-}
+
+} // end loadParameters
 
 void
 nmfMainWindow::checkGuildRanges(const int &NumGuilds,
@@ -13836,14 +14071,17 @@ nmfMainWindow::callback_ForecastTabChanged(int tab)
 void
 nmfMainWindow::callback_ForecastLineBrightnessChanged(double brightnessFactor)
 {
-    int StartForecastYear = nmfConstantsMSSPM::Start_Year;
-    double ScaleVal = 1.0;
-    QString ScaleStr = "";
+    int StartYearForecast = nmfConstantsMSSPM::Start_Year;
+    int RunLength;
+    int StartYear;
+    QString ScaleStr = Output_Controls_ptr->getOutputScale();
+    double ScaleVal  = convertUnitsStringToValue(ScaleStr);
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     std::string ForecastName = Forecast_Tab1_ptr->getForecastName();
-    double YMinSliderValue = Output_Controls_ptr->getYMinSliderVal();
+    double YMinSliderValue   = Output_Controls_ptr->getYMinSliderVal();
+    bool showHistoricalData  = Output_Controls_ptr->isHistoricalDataShown();
 
     fields    = {"ProjectName","ModelName","ForecastName","StartYear"};
     queryStr  = "SELECT ProjectName,ModelName,ForecastName,StartYear FROM " +
@@ -13853,13 +14091,18 @@ nmfMainWindow::callback_ForecastLineBrightnessChanged(double brightnessFactor)
                 "' AND ForecastName = '" + ForecastName + "'";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ForecastName"].size() != 0) {
-        StartForecastYear  = std::stoi(dataMap["StartYear"][0]);
+        StartYearForecast  = std::stoi(dataMap["StartYear"][0]);
     }
 
+    // Add year offset if showing historical data
+    m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear);
+    StartYearForecast = (showHistoricalData) ? StartYear : StartYearForecast;
+
     if (! showForecastChart(isAggProd(),ForecastName,
-                            StartForecastYear,
+                            StartYearForecast,
                             ScaleStr,ScaleVal,
-                            YMinSliderValue,brightnessFactor)) {
+                            YMinSliderValue,brightnessFactor,
+                            showHistoricalData)) {
         return;
     }
 }

@@ -891,7 +891,8 @@ nmfSetup_Tab4::loadWidgets()
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ModelName"].size();
     if (NumRecords == 0) {
-        std::cout << "Error: No records found in Models" << std::endl;
+        std::cout << "Error: " + nmfConstantsMSSPM::TableModels << std::endl;
+        std::cout << queryStr << std::endl;
         return;
     }
 

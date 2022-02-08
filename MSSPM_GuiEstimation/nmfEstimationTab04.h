@@ -114,7 +114,8 @@ class nmfEstimation_Tab4: public QObject
     bool isTypeI();
     bool isTypeII();
     bool isTypeIII();
-    void loadCSVFiles(std::vector<std::string>& allTableNames);
+    void loadCSVFiles(const QString& filePath,
+                      std::vector<std::string>& allTableNames);
     void readSettings();
     void resetSpinBox(const std::pair<int,int>& nonZeroCell,
                       const QStandardItemModel* smodel,

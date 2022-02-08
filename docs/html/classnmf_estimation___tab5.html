@@ -158,6 +158,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a916bfd238c215efec4592bdd122a9b25">callback_SavePB</a> ()</td></tr>
 <tr class="memdesc:a916bfd238c215efec4592bdd122a9b25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Save button. <br /></td></tr>
 <tr class="separator:a916bfd238c215efec4592bdd122a9b25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade51aa625d0a48f258e9c159b282d7b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#ade51aa625d0a48f258e9c159b282d7b9">callback_UnitsCMB</a> (QString units)</td></tr>
+<tr class="memdesc:ade51aa625d0a48f258e9c159b282d7b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes the Units combo box.  <a href="classnmf_estimation___tab5.html#ade51aa625d0a48f258e9c159b282d7b9">More...</a><br /></td></tr>
+<tr class="separator:ade51aa625d0a48f258e9c159b282d7b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52dbfe9607abe9704a51c4f08ec31aee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a52dbfe9607abe9704a51c4f08ec31aee">callback_UpdateInitialObservedBiomass</a> (QString obsBiomassType)</td></tr>
 <tr class="memdesc:a52dbfe9607abe9704a51c4f08ec31aee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user saves a new model in Setup -&gt; Model Setup.  <a href="classnmf_estimation___tab5.html#a52dbfe9607abe9704a51c4f08ec31aee">More...</a><br /></td></tr>
 <tr class="separator:a52dbfe9607abe9704a51c4f08ec31aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -180,12 +183,21 @@ Public Member Functions</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#acdcfaa4b4632eb18c1d322330e9b0adf">clearWidgets</a> ()</td></tr>
 <tr class="memdesc:acdcfaa4b4632eb18c1d322330e9b0adf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the GUI's widgets. <br /></td></tr>
 <tr class="separator:acdcfaa4b4632eb18c1d322330e9b0adf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef5ca6c29cb717243cf38a6decca233f"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#aef5ca6c29cb717243cf38a6decca233f">getCurrentUnits</a> ()</td></tr>
+<tr class="memdesc:aef5ca6c29cb717243cf38a6decca233f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current units set by the user in the combo box.  <a href="classnmf_estimation___tab5.html#aef5ca6c29cb717243cf38a6decca233f">More...</a><br /></td></tr>
+<tr class="separator:aef5ca6c29cb717243cf38a6decca233f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb72f115e7e9ce8a26d090c105fbeb64"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#adb72f115e7e9ce8a26d090c105fbeb64">isConvertChecked</a> ()</td></tr>
+<tr class="memdesc:adb72f115e7e9ce8a26d090c105fbeb64"><td class="mdescLeft">&#160;</td><td class="mdescRight">If checked, the data table will be automatically converted as the user changes the Units combo box.  <a href="classnmf_estimation___tab5.html#adb72f115e7e9ce8a26d090c105fbeb64">More...</a><br /></td></tr>
+<tr class="separator:adb72f115e7e9ce8a26d090c105fbeb64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a213523b4b4b6322e310e5f6012172eac"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a213523b4b4b6322e310e5f6012172eac">isTableValueOK</a> (QString value)</td></tr>
 <tr class="memdesc:a213523b4b4b6322e310e5f6012172eac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks that the passed value is not empty.  <a href="classnmf_estimation___tab5.html#a213523b4b4b6322e310e5f6012172eac">More...</a><br /></td></tr>
 <tr class="separator:a213523b4b4b6322e310e5f6012172eac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a520a89098cd0cbf3d5b2c65e2ad6f85c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a520a89098cd0cbf3d5b2c65e2ad6f85c">loadWidgets</a> ()</td></tr>
 <tr class="memdesc:a520a89098cd0cbf3d5b2c65e2ad6f85c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads all widgets for this GUI from database tables.  <a href="classnmf_estimation___tab5.html#a520a89098cd0cbf3d5b2c65e2ad6f85c">More...</a><br /></td></tr>
 <tr class="separator:a520a89098cd0cbf3d5b2c65e2ad6f85c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfd8912b25d23ef894518448cf61e055"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#acfd8912b25d23ef894518448cf61e055">setCurrentUnits</a> (QString currentUnits)</td></tr>
+<tr class="memdesc:acfd8912b25d23ef894518448cf61e055"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the Units combo box.  <a href="classnmf_estimation___tab5.html#acfd8912b25d23ef894518448cf61e055">More...</a><br /></td></tr>
+<tr class="separator:acfd8912b25d23ef894518448cf61e055"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bb6aa4ecaa4d338fa4eef1bd4238c1a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab5.html#a3bb6aa4ecaa4d338fa4eef1bd4238c1a">setIsDark</a> (QString style)</td></tr>
 <tr class="memdesc:a3bb6aa4ecaa4d338fa4eef1bd4238c1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the data member m_IsDark accordingly and refreshes the GUI.  <a href="classnmf_estimation___tab5.html#a3bb6aa4ecaa4d338fa4eef1bd4238c1a">More...</a><br /></td></tr>
 <tr class="separator:a3bb6aa4ecaa4d338fa4eef1bd4238c1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -337,6 +349,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a id="ade51aa625d0a48f258e9c159b282d7b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ade51aa625d0a48f258e9c159b282d7b9">&#9670;&nbsp;</a></span>callback_UnitsCMB</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfEstimation_Tab5::callback_UnitsCMB </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>units</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when the user changes the Units combo box. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">units</td><td>: new units selected by the user </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a52dbfe9607abe9704a51c4f08ec31aee"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a52dbfe9607abe9704a51c4f08ec31aee">&#9670;&nbsp;</a></span>callback_UpdateInitialObservedBiomass</h2>
 
@@ -368,6 +414,46 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="aef5ca6c29cb717243cf38a6decca233f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef5ca6c29cb717243cf38a6decca233f">&#9670;&nbsp;</a></span>getCurrentUnits()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString nmfEstimation_Tab5::getCurrentUnits </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the current units set by the user in the combo box. </p>
+<dl class="section return"><dt>Returns</dt><dd>Current units QString (lbs, kg, mt) </dd></dl>
+
+</div>
+</div>
+<a id="adb72f115e7e9ce8a26d090c105fbeb64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb72f115e7e9ce8a26d090c105fbeb64">&#9670;&nbsp;</a></span>isConvertChecked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool nmfEstimation_Tab5::isConvertChecked </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>If checked, the data table will be automatically converted as the user changes the Units combo box. </p>
+<dl class="section return"><dt>Returns</dt><dd>True if convert checkbox is checked, false otherwise </dd></dl>
 
 </div>
 </div>
@@ -446,6 +532,32 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">showPopup</td><td>: boolean signifying whether the application should pop up a successful reload acknowledgement </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="acfd8912b25d23ef894518448cf61e055"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfd8912b25d23ef894518448cf61e055">&#9670;&nbsp;</a></span>setCurrentUnits()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfEstimation_Tab5::setCurrentUnits </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>currentUnits</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the Units combo box. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">currentUnits</td><td>: value with which to set the current units combo box </td></tr>
   </table>
   </dd>
 </dl>

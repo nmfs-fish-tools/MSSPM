@@ -147,6 +147,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a39bfa05c9cb085dd459e93d6761b08cd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a39bfa05c9cb085dd459e93d6761b08cd">callback_SelectionChanged</a> (const QItemSelection &amp;sel, const QItemSelection &amp;desel)</td></tr>
 <tr class="memdesc:a39bfa05c9cb085dd459e93d6761b08cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes the Harvest table selection. As the user changes the selection, the multiplier type and value are used to update the selection.  <a href="classnmf_forecast___tab2.html#a39bfa05c9cb085dd459e93d6761b08cd">More...</a><br /></td></tr>
 <tr class="separator:a39bfa05c9cb085dd459e93d6761b08cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c834f03e1e554c61c7a45e80f6be458"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a8c834f03e1e554c61c7a45e80f6be458">callback_UnitsCMB</a> (QString units)</td></tr>
+<tr class="memdesc:a8c834f03e1e554c61c7a45e80f6be458"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes the Units combo box.  <a href="classnmf_forecast___tab2.html#a8c834f03e1e554c61c7a45e80f6be458">More...</a><br /></td></tr>
+<tr class="separator:a8c834f03e1e554c61c7a45e80f6be458"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
@@ -166,9 +169,18 @@ Public Member Functions</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#adf481822f9373293ad86892c298a16fb">clearWidgets</a> ()</td></tr>
 <tr class="memdesc:adf481822f9373293ad86892c298a16fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears all GUI widgets. <br /></td></tr>
 <tr class="separator:adf481822f9373293ad86892c298a16fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa76990e4d246b3beb57a4ac59cffaad1"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#aa76990e4d246b3beb57a4ac59cffaad1">getCurrentUnits</a> ()</td></tr>
+<tr class="memdesc:aa76990e4d246b3beb57a4ac59cffaad1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current units set by the user in the combo box.  <a href="classnmf_forecast___tab2.html#aa76990e4d246b3beb57a4ac59cffaad1">More...</a><br /></td></tr>
+<tr class="separator:aa76990e4d246b3beb57a4ac59cffaad1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a274934d060587e087ff78e571cc64479"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a274934d060587e087ff78e571cc64479">isConvertChecked</a> ()</td></tr>
+<tr class="memdesc:a274934d060587e087ff78e571cc64479"><td class="mdescLeft">&#160;</td><td class="mdescRight">If checked, the data table will be automatically converted as the user changes the Units combo box.  <a href="classnmf_forecast___tab2.html#a274934d060587e087ff78e571cc64479">More...</a><br /></td></tr>
+<tr class="separator:a274934d060587e087ff78e571cc64479"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd5a3c9b76396b758be5bdee757ecb3d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#acd5a3c9b76396b758be5bdee757ecb3d">loadWidgets</a> ()</td></tr>
 <tr class="memdesc:acd5a3c9b76396b758be5bdee757ecb3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads all widgets for this GUI from database tables.  <a href="classnmf_forecast___tab2.html#acd5a3c9b76396b758be5bdee757ecb3d">More...</a><br /></td></tr>
 <tr class="separator:acd5a3c9b76396b758be5bdee757ecb3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc2aaab02b2cedcf4c24fe09e3ebf025"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#abc2aaab02b2cedcf4c24fe09e3ebf025">setCurrentUnits</a> (QString currentUnits)</td></tr>
+<tr class="memdesc:abc2aaab02b2cedcf4c24fe09e3ebf025"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the Units combo box.  <a href="classnmf_forecast___tab2.html#abc2aaab02b2cedcf4c24fe09e3ebf025">More...</a><br /></td></tr>
+<tr class="separator:abc2aaab02b2cedcf4c24fe09e3ebf025"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Forecast Harvest Data. </p>
@@ -427,6 +439,80 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a id="a8c834f03e1e554c61c7a45e80f6be458"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c834f03e1e554c61c7a45e80f6be458">&#9670;&nbsp;</a></span>callback_UnitsCMB</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfForecast_Tab2::callback_UnitsCMB </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>units</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when the user changes the Units combo box. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">units</td><td>: new units selected by the user </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa76990e4d246b3beb57a4ac59cffaad1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa76990e4d246b3beb57a4ac59cffaad1">&#9670;&nbsp;</a></span>getCurrentUnits()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString nmfForecast_Tab2::getCurrentUnits </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the current units set by the user in the combo box. </p>
+<dl class="section return"><dt>Returns</dt><dd>Current units QString (lbs, kg, mt) </dd></dl>
+
+</div>
+</div>
+<a id="a274934d060587e087ff78e571cc64479"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a274934d060587e087ff78e571cc64479">&#9670;&nbsp;</a></span>isConvertChecked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool nmfForecast_Tab2::isConvertChecked </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>If checked, the data table will be automatically converted as the user changes the Units combo box. </p>
+<dl class="section return"><dt>Returns</dt><dd>True if convert checkbox is checked, false otherwise </dd></dl>
+
+</div>
+</div>
 <a id="acd5a3c9b76396b758be5bdee757ecb3d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acd5a3c9b76396b758be5bdee757ecb3d">&#9670;&nbsp;</a></span>loadWidgets()</h2>
 
@@ -486,6 +572,32 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   <table class="params">
     <tr><td class="paramname">ForecastName</td><td>: name of forecast to run </td></tr>
     <tr><td class="paramname">GenerateBiomass</td><td>: boolean to specify whether or not to generate biomass data </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="abc2aaab02b2cedcf4c24fe09e3ebf025"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc2aaab02b2cedcf4c24fe09e3ebf025">&#9670;&nbsp;</a></span>setCurrentUnits()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfForecast_Tab2::setCurrentUnits </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>currentUnits</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the Units combo box. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">currentUnits</td><td>: value with which to set the current units combo box </td></tr>
   </table>
   </dd>
 </dl>

@@ -12,7 +12,11 @@ var classnmf_forecast___tab2 =
     [ "callback_PrevPB", "classnmf_forecast___tab2.html#ad3e802ee1011c3a2f049b04b944246ae", null ],
     [ "callback_SavePB", "classnmf_forecast___tab2.html#aaed7886522940b50c2f7868de1eef471", null ],
     [ "callback_SelectionChanged", "classnmf_forecast___tab2.html#a39bfa05c9cb085dd459e93d6761b08cd", null ],
+    [ "callback_UnitsCMB", "classnmf_forecast___tab2.html#a8c834f03e1e554c61c7a45e80f6be458", null ],
     [ "clearWidgets", "classnmf_forecast___tab2.html#adf481822f9373293ad86892c298a16fb", null ],
+    [ "getCurrentUnits", "classnmf_forecast___tab2.html#aa76990e4d246b3beb57a4ac59cffaad1", null ],
+    [ "isConvertChecked", "classnmf_forecast___tab2.html#a274934d060587e087ff78e571cc64479", null ],
     [ "loadWidgets", "classnmf_forecast___tab2.html#acd5a3c9b76396b758be5bdee757ecb3d", null ],
-    [ "RunForecast", "classnmf_forecast___tab2.html#ad1ef695f29894aa7371f7d0856f247cd", null ]
+    [ "RunForecast", "classnmf_forecast___tab2.html#ad1ef695f29894aa7371f7d0856f247cd", null ],
+    [ "setCurrentUnits", "classnmf_forecast___tab2.html#abc2aaab02b2cedcf4c24fe09e3ebf025", null ]
 ];

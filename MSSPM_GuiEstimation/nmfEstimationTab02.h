@@ -51,11 +51,11 @@ class nmfEstimation_Tab2: public QObject
     std::map<std::string,std::string> m_GroupBoxTitle;
     QStandardItemModel*               m_SModel;
     int                               m_NumSignificantDigits;
+    QString                           m_PreviousUnits;
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab2_Widget;
     QTableView*  Estimation_Tab2_HarvestTV;
-    QGroupBox*   Estimation_Tab2_HarvestGB;
     QPushButton* Estimation_Tab2_PrevPB;
     QPushButton* Estimation_Tab2_NextPB;
     QPushButton* Estimation_Tab2_LoadPB;
@@ -63,8 +63,12 @@ class nmfEstimation_Tab2: public QObject
     QPushButton* Estimation_Tab2_ImportPB;
     QPushButton* Estimation_Tab2_ExportPB;
     QLabel*      Estimation_Tab2_HarvestLBL;
+    QComboBox*   Estimation_Tab2_UnitsCMB;
+    QCheckBox*   Estimation_Tab2_ConvertCB;
 
-    void loadCSVFile(std::string& tableName);
+    void loadCSVFile(const QString& absolutePath,
+                     const QString& tableName);
+    void loadUnits(const std::string& tableName);
     void readSettings();
     void saveCSVFile(std::string& tableName);
 
@@ -92,10 +96,26 @@ public:
      */
     void clearWidgets();
     /**
+     * @brief Returns the current units set by the user in the combo box
+     * @return Current units QString (lbs, kg, mt)
+     */
+    QString getCurrentUnits();
+    /**
+     * @brief If checked, the data table will be automatically
+     * converted as the user changes the Units combo box
+     * @return True if convert checkbox is checked, false otherwise
+     */
+    bool isConvertChecked();
+    /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
      */
     bool loadWidgets();
+    /**
+     * @brief Sets the Units combo box
+     * @param currentUnits : value with which to set the current units combo box
+     */
+    void setCurrentUnits(QString currentUnits);
     /**
      * @brief Sets the class harvest type variable to the appropriate value
      * @param harvestType : the harvest type selected by the user when defining the model
@@ -136,6 +156,11 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user changes the Units combo box
+     * @param units : new units selected by the user
+     */
+    void callback_UnitsCMB(QString units);
 };
 
 #endif // NMFESTIMATIONTAB2_H

@@ -27,7 +27,7 @@ var classnmf_main_window =
     [ "callback_NavigatorSelectionChanged", "classnmf_main_window.html#a32453977084ac27c001ded2d8e935fff", null ],
     [ "callback_openCSVFile", "classnmf_main_window.html#a20c3ee3508981c43485dc32916a771c8", null ],
     [ "callback_OutputTypeCMB", "classnmf_main_window.html#a94bb2eb92595da329cd5d244fc62a12f", null ],
-    [ "callback_PreferencesMShotOkPB", "classnmf_main_window.html#ad0ec62ef3b1b8822c16232249b8fb02b", null ],
+    [ "callback_PreferencesOkPB", "classnmf_main_window.html#acd34a3323cc18449bf0a841413f8abca", null ],
     [ "callback_PreferencesSetStyleSheet", "classnmf_main_window.html#a34f5f6c819aa6b5089520fb7eaf12118", null ],
     [ "callback_PreferencesSigDigCB", "classnmf_main_window.html#ac394a82d6f1105aa61c513752c1b6488", null ],
     [ "callback_ProjectSaved", "classnmf_main_window.html#ad9b3fdcf247607d280593570a5d22519", null ],

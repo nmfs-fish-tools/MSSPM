@@ -188,6 +188,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#a96f66fad637f76a3ef88eb001c9d63c4">callback_SpeciesTableChanged</a> (int, int)</td></tr>
 <tr class="memdesc:a96f66fad637f76a3ef88eb001c9d63c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user modifies the Species table. <br /></td></tr>
 <tr class="separator:a96f66fad637f76a3ef88eb001c9d63c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe86286a851cc06b25215e98ee8fcdc8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#abe86286a851cc06b25215e98ee8fcdc8">callback_UnitsCMB</a> (QString units)</td></tr>
+<tr class="memdesc:abe86286a851cc06b25215e98ee8fcdc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes the Units combo box.  <a href="classnmf_setup___tab3.html#abe86286a851cc06b25215e98ee8fcdc8">More...</a><br /></td></tr>
+<tr class="separator:abe86286a851cc06b25215e98ee8fcdc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a99317382df98f7d1534dce889159f6c0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#a99317382df98f7d1534dce889159f6c0">callback_UpdateGuildTable</a> (QList&lt; QString &gt; GuildNames, QList&lt; QString &gt; GrowthRate, QList&lt; QString &gt; GuildK)</td></tr>
 <tr class="memdesc:a99317382df98f7d1534dce889159f6c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user updates the Guild Supplemental data and the Guild Setup data must also be updated.  <a href="classnmf_setup___tab3.html#a99317382df98f7d1534dce889159f6c0">More...</a><br /></td></tr>
 <tr class="separator:a99317382df98f7d1534dce889159f6c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -240,6 +243,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ae65eab16bcff8846ecd33fafd1b4b49f"><td class="memItemLeft" align="right" valign="top"><a id="ae65eab16bcff8846ecd33fafd1b4b49f"></a>
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>checkAndCalculateWithSignificantDigits</b> (const double &amp;val, const int &amp;numSignificantDigits, const int &amp;numDecimalPlaces)</td></tr>
 <tr class="separator:ae65eab16bcff8846ecd33fafd1b4b49f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afce3b41c30773cbf466c50698ffa79e1"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#afce3b41c30773cbf466c50698ffa79e1">getCurrentUnits</a> ()</td></tr>
+<tr class="memdesc:afce3b41c30773cbf466c50698ffa79e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current units set by the user in the combo box.  <a href="classnmf_setup___tab3.html#afce3b41c30773cbf466c50698ffa79e1">More...</a><br /></td></tr>
+<tr class="separator:afce3b41c30773cbf466c50698ffa79e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add9f803a19c679b6358bb0d3b72e50fa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#add9f803a19c679b6358bb0d3b72e50fa">isConvertChecked</a> ()</td></tr>
+<tr class="memdesc:add9f803a19c679b6358bb0d3b72e50fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">If checked, the data table will be automatically converted as the user changes the Units combo box.  <a href="classnmf_setup___tab3.html#add9f803a19c679b6358bb0d3b72e50fa">More...</a><br /></td></tr>
+<tr class="separator:add9f803a19c679b6358bb0d3b72e50fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2931cb4154fb801d13f4a2f8b5daecbe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#a2931cb4154fb801d13f4a2f8b5daecbe">setCurrentUnits</a> (QString currentUnits)</td></tr>
+<tr class="memdesc:a2931cb4154fb801d13f4a2f8b5daecbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the Units combo box.  <a href="classnmf_setup___tab3.html#a2931cb4154fb801d13f4a2f8b5daecbe">More...</a><br /></td></tr>
+<tr class="separator:a2931cb4154fb801d13f4a2f8b5daecbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The Setup Tab 3 allows the user to enter and modify Species data. </p>
@@ -433,6 +445,40 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>checkAndCalculateW
 
 </div>
 </div>
+<a id="abe86286a851cc06b25215e98ee8fcdc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe86286a851cc06b25215e98ee8fcdc8">&#9670;&nbsp;</a></span>callback_UnitsCMB</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfSetup_Tab3::callback_UnitsCMB </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>units</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when the user changes the Units combo box. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">units</td><td>: new units selected by the user </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a99317382df98f7d1534dce889159f6c0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a99317382df98f7d1534dce889159f6c0">&#9670;&nbsp;</a></span>callback_UpdateGuildTable</h2>
 
@@ -551,6 +597,26 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>checkAndCalculateW
 
 </div>
 </div>
+<a id="afce3b41c30773cbf466c50698ffa79e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afce3b41c30773cbf466c50698ffa79e1">&#9670;&nbsp;</a></span>getCurrentUnits()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString nmfSetup_Tab3::getCurrentUnits </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the current units set by the user in the combo box. </p>
+<dl class="section return"><dt>Returns</dt><dd>Current units QString (lbs, kg, mt) </dd></dl>
+
+</div>
+</div>
 <a id="a4441ffdeb7943bf844c701ff8c964b6e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4441ffdeb7943bf844c701ff8c964b6e">&#9670;&nbsp;</a></span>getSpeciesGuild()</h2>
 
@@ -568,6 +634,26 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>checkAndCalculateW
 
 <p>Gets the list representing the current values of all of the comboboxes for the Species Guild fields. </p>
 <dl class="section return"><dt>Returns</dt><dd>Returns the list of Species Guild values </dd></dl>
+
+</div>
+</div>
+<a id="add9f803a19c679b6358bb0d3b72e50fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add9f803a19c679b6358bb0d3b72e50fa">&#9670;&nbsp;</a></span>isConvertChecked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool nmfSetup_Tab3::isConvertChecked </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>If checked, the data table will be automatically converted as the user changes the Units combo box. </p>
+<dl class="section return"><dt>Returns</dt><dd>True if convert checkbox is checked, false otherwise </dd></dl>
 
 </div>
 </div>
@@ -617,6 +703,32 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>checkAndCalculateW
     <tr><td class="paramname">GuildName</td><td>: list of guild names </td></tr>
     <tr><td class="paramname">GrowthRate</td><td>: list of guild growth rates </td></tr>
     <tr><td class="paramname">GuildK</td><td>: list of guild carrying capacities </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a2931cb4154fb801d13f4a2f8b5daecbe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2931cb4154fb801d13f4a2f8b5daecbe">&#9670;&nbsp;</a></span>setCurrentUnits()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfSetup_Tab3::setCurrentUnits </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>currentUnits</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the Units combo box. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">currentUnits</td><td>: value with which to set the current units combo box </td></tr>
   </table>
   </dd>
 </dl>

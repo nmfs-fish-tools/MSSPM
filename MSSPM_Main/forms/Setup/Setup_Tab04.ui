@@ -504,6 +504,13 @@ This value is read-only and auto-generated.</string>
                      </widget>
                     </item>
                     <item>
+                     <widget class="QLabel" name="label_6">
+                      <property name="text">
+                       <string>years</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <spacer name="horizontalSpacer_18">
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>

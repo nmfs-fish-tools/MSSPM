@@ -136,9 +136,11 @@ public:
     void clearWidgets();
     /**
      * @brief Loads the active Competition CSV files into the appropriate Competition tables
+     * @param filePath : the directory in which the csv files are located
      * @param allTableNames : table names to load
      */
-    void loadCSVFiles(const std::vector<std::string>& allTableNames);
+    void loadCSVFiles(const QString& filePath,
+                      const std::vector<std::string>& allTableNames);
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully

@@ -87,10 +87,12 @@
 #include "TableNamesDialog.h"
 
 #include <QtDataVisualization>
+#include <QDateTime>
 #include <QImage>
 #include <QOpenGLWidget>
 #include <QPixmap>
 #include <QUiLoader>
+
 
 
 #include "REMORA_UI.h"
@@ -225,6 +227,8 @@ private:
     std::vector<boost::numeric::ublas::matrix<double> > m_OutputBiomassEnsemble;
     bool                                  m_IsMultiRun;
     std::string                           m_MultiRunType;
+    QDateTime                             m_AppStartTime;
+    int                                   m_DBTimeout;
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
@@ -328,6 +332,7 @@ private:
     void   initializeMModeMain();
     void   initializeMModeViewer();
     bool   saveSigDigState();
+    void   setDatabaseWaitTime();
     void   restoreSigDigState(bool state);
     bool   runningREMORA();
     void   getOutputBiomassEnsemble(
@@ -497,7 +502,7 @@ private:
             boost::numeric::ublas::matrix<double> &DiagnosticsValue,
             boost::numeric::ublas::matrix<double> &DiagnosticsFitness);
     std::string getFilterButtonsResult();
-    bool getFinalObservedBiomass(QList<double> &FinalBiomass);
+    bool getFinalObservedBiomass(boost::numeric::ublas::vector<double>& FinalBiomass);
     bool getForecastBiomass(const std::string &ForecastName,
                             const int   &NumSpecies,
                             const int   &RunLength,
@@ -516,7 +521,7 @@ private:
                         const int& RunLength,
                         const std::string& HarvestType,
                         boost::numeric::ublas::matrix<double>& Harvest);
-    bool getInitialObservedBiomass(QList<double> &InitBiomass);
+    bool getInitialObservedBiomass(boost::numeric::ublas::vector<double>& InitBiomass);
     void getInitialYear(int& StartYear,
                         int& RunLength);
     std::string getLegendCode(bool isAveraged,
@@ -835,28 +840,34 @@ private:
             boost::numeric::ublas::matrix<double> &DiagnosticsValue,
             boost::numeric::ublas::matrix<double> &DiagnosticsFitness,
             const double& YMinSliderVal);
-    void showBiomassVsTimeForMultipleRuns(const std::string &label,
-                                   const int         &StartYear,
-                                   const int         &NumSpecies,
-                                   const QString     &OutputSpecies,
-                                   const int         &SpeciesNum,
-                                   const int         NumYears,
-                                   std::vector<boost::numeric::ublas::matrix<double> > &Biomass,
-                                   QString           &ScaleStr,
-                                   double            &ScaleVal,
-                                   double            &YMinSliderVal,
-                                   double            &brightnessFactor,
-                                   bool              isMonteCarlo,
-                                   bool              isEnsemble,
-                                   bool              clearChart,
-                                   QStringList       ColumnLabelsForLegend);
+    void showBiomassVsTimeForMultipleRuns(
+            const std::string& ChartTitle,
+            const std::string& XAxisLabel,
+            const std::string& YAxisLabel,
+            const bool& showHistoricalData,
+            const int& StartYear,
+            const int& NumObservedYears,
+            const int& NumSpecies,
+            const QString& OutputSpecies,
+            const int& SpeciesNum,
+            const int NumYears,
+            std::vector<boost::numeric::ublas::matrix<double> >& Biomass,
+            QString& ScaleStr,
+            double& ScaleVal,
+            double& YMinSliderVal,
+            double& brightnessFactor,
+            bool isMonteCarlo,
+            bool isEnsemble,
+            bool clearChart,
+            QStringList ColumnLabelsForLegend);
     bool showForecastChart(const bool& isAggProd,
-                           std::string ForecastName,
-                           const int&  StartYear,
-                           QString&    ScaleStr,
-                           double&     ScaleVal,
-                           double&     YMinSliderVal,
-                           double      BrightnessFactor);
+                           std::string forecastName,
+                           const int&  startYear,
+                           QString&    scaleStr,
+                           double&     scaleVal,
+                           double&     yMinSliderVal,
+                           double&     brightnessFactor,
+                           const bool& showHistoricalData);
 //    void showMohnsRhoBiomassVsTime(const std::string &label,
 //                                   const int         &InitialYear,
 //                                   const int         &StartYear,
@@ -962,7 +973,7 @@ private:
     bool setFirstRowEstimatedBiomass(
             const std::string& ForecastName,
             const int& NumSpeciesOrGuilds,
-            const QList<double>& InitialBiomass,
+            const boost::numeric::ublas::vector<double>& InitialBiomass,
             boost::numeric::ublas::matrix<double>& EstInitBiomassCovariates,
             boost::numeric::ublas::matrix<double>& EstimatedBiomassBySpecies);
     void setDefaultDockWidgetsVisibility(
@@ -1535,7 +1546,7 @@ public slots:
     void menu_toggleSignificantDigits();
 
 
-    void callback_PreferencesMShotOkPB();
+    void callback_PreferencesOkPB();
     void callback_ErrorFound(std::string errorMsg);
     void callback_ManagerModeViewerClose(bool state);
     void callback_AddToReview();

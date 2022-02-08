@@ -168,9 +168,9 @@ Public Member Functions</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#ac181a0f5624567062f2de767e3053b73">clearWidgets</a> ()</td></tr>
 <tr class="memdesc:ac181a0f5624567062f2de767e3053b73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the GUI's widgets. <br /></td></tr>
 <tr class="separator:ac181a0f5624567062f2de767e3053b73"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68d1219bea4e37e043be5d089823584d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#a68d1219bea4e37e043be5d089823584d">loadCSVFiles</a> (const std::vector&lt; std::string &gt; &amp;allTableNames)</td></tr>
-<tr class="memdesc:a68d1219bea4e37e043be5d089823584d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the active Competition CSV files into the appropriate Competition tables.  <a href="classnmf_estimation___tab3.html#a68d1219bea4e37e043be5d089823584d">More...</a><br /></td></tr>
-<tr class="separator:a68d1219bea4e37e043be5d089823584d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab847cbf682a4d9e8ad032f229c852abb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#ab847cbf682a4d9e8ad032f229c852abb">loadCSVFiles</a> (const QString &amp;filePath, const std::vector&lt; std::string &gt; &amp;allTableNames)</td></tr>
+<tr class="memdesc:ab847cbf682a4d9e8ad032f229c852abb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the active Competition CSV files into the appropriate Competition tables.  <a href="classnmf_estimation___tab3.html#ab847cbf682a4d9e8ad032f229c852abb">More...</a><br /></td></tr>
+<tr class="separator:ab847cbf682a4d9e8ad032f229c852abb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae5a06add9874cf6f04c5890090a500bc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#ae5a06add9874cf6f04c5890090a500bc">loadWidgets</a> ()</td></tr>
 <tr class="memdesc:ae5a06add9874cf6f04c5890090a500bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads all widgets for this GUI from database tables.  <a href="classnmf_estimation___tab3.html#ae5a06add9874cf6f04c5890090a500bc">More...</a><br /></td></tr>
 <tr class="separator:ae5a06add9874cf6f04c5890090a500bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -429,8 +429,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a id="a68d1219bea4e37e043be5d089823584d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a68d1219bea4e37e043be5d089823584d">&#9670;&nbsp;</a></span>loadCSVFiles()</h2>
+<a id="ab847cbf682a4d9e8ad032f229c852abb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab847cbf682a4d9e8ad032f229c852abb">&#9670;&nbsp;</a></span>loadCSVFiles()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -438,9 +438,19 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
         <tr>
           <td class="memname">void nmfEstimation_Tab3::loadCSVFiles </td>
           <td>(</td>
-          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
-          <td class="paramname"><em>allTableNames</em></td><td>)</td>
+          <td class="paramtype">const QString &amp;&#160;</td>
+          <td class="paramname"><em>filePath</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>allTableNames</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -448,6 +458,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Loads the active Competition CSV files into the appropriate Competition tables. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">filePath</td><td>: the directory in which the csv files are located </td></tr>
     <tr><td class="paramname">allTableNames</td><td>: table names to load </td></tr>
   </table>
   </dd>

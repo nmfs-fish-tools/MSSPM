@@ -19,6 +19,9 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     m_ModelName    = "";
     m_ProjectDir   = projectDir;
     m_ParamNames.clear();
+    m_smodelC  = nullptr;
+    m_smodelSP = nullptr;
+    m_smodelIR = nullptr;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::nmfEstimation_Tab6");
 
@@ -126,7 +129,9 @@ nmfEstimation_Tab6::initializeSpeciesParameterTable()
 
     QStandardItemModel* smodelC = qobject_cast<QStandardItemModel*>(Estimation_Tab6_CovariateTV->model());
 
-    m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear);
+    if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear)) {
+        return;
+    }
 
     if (! m_DatabasePtr->getSpecies(m_Logger,SpeciesNames)) {
         return;
@@ -187,7 +192,9 @@ nmfEstimation_Tab6::initializeInitialValuesAndRangesTable()
 
     loadCovariateAssignmentTable();
 
-    m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear);
+    if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear)) {
+        return;
+    }
 
     if (! m_DatabasePtr->getSpecies(m_Logger,SpeciesNames)) {
         return;
@@ -383,8 +390,8 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
 {
     int m=0;
     int NumRecords;
-    int numRows = m_smodelSP->rowCount();
-    int numCols = m_smodelSP->columnCount();
+    int numRows = 0;
+    int numCols = 0;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -392,6 +399,13 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
     QComboBox* cbox;
     QModelIndex index;
     QStandardItemModel* smodelSP = qobject_cast<QStandardItemModel*>(Estimation_Tab6_SpeciesParameterTV->model());
+
+    if (m_smodelSP == nullptr) {
+        return;
+    } else {
+        numRows = m_smodelSP->rowCount();
+        numCols = m_smodelSP->columnCount();
+    }
 
     // Get data from database table
     fields     = {"ProjectName","ModelName","SpeName","ParameterName","CovariateName"};
@@ -582,51 +596,61 @@ nmfEstimation_Tab6::importTableData(const bool& firstLineReadOnly,
     if (reply == QMessageBox::Cancel) {
         return;
     } else if (reply == QMessageBox::Yes) {
-        loadCSVFile(firstLineReadOnly,tableName,tableView);
+        loadCSVFile(firstLineReadOnly,inputDataPath,QString::fromStdString(tableName),tableView);
     } else {
         // if no, raise browser and have user select the appropriate Observed Biomass file.
-        QString filename = QFileDialog::getOpenFileName(
+        QString filenameWithPath = QFileDialog::getOpenFileName(
                     Estimation_Tabs,
                     QObject::tr("Select "+type.toLatin1()+" file"), inputDataPath,
                     QObject::tr("Data Files (Covariate*.csv covariate*.csv)"));
-        QFileInfo fi(filename);
-        QString filenameNoPath = fi.baseName();
-        loadCSVFile(firstLineReadOnly,filenameNoPath.toStdString(),tableView);
+        QFileInfo fi(filenameWithPath);
+        QString filenameNoPath = fi.fileName();
+        QString absolutePath   = fi.absolutePath();
+        if (absolutePath == inputDataPath) {
+            loadCSVFile(firstLineReadOnly,inputDataPath,filenameNoPath,tableView);
+        } else {
+            loadCSVFile(firstLineReadOnly,absolutePath,filenameNoPath,tableView);
+        }
     }
 }
 
 void
 nmfEstimation_Tab6::loadCSVFile(const bool& firstLineReadOnly,
-                                const std::string& tableName,
+                                const QString& filePath,
+                                const QString& tableName,
                                 QTableView* tableView)
 {
     bool loadOK = false;
     QString errorMsg;
-    QString tableNameStr;
-    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QString tableNameStr = tableName.contains(".csv") ? tableName : tableName+".csv";
     std::pair<int,int> nonZeroCell;
 
-    tableNameStr = QString::fromStdString(tableName);
-    tableNameStr = QDir(inputDataPath).filePath(tableNameStr+".csv");
+    tableNameStr = QDir(filePath).filePath(tableNameStr);
 
     if (Estimation_Tab6_CovariateTV->isVisible()) {
         loadOK = nmfUtilsQt::loadTimeSeries(
-                    Estimation_Tabs, tableView, inputDataPath, tableNameStr,
-                    firstLineReadOnly,
+                    Estimation_Tabs, tableView, filePath,
+                    tableNameStr, firstLineReadOnly,
                     nmfConstantsMSSPM::FixedNotation,
                     nonZeroCell,errorMsg);
+        nmfUtilsQt::removeCommas(tableView);
     } else if (Estimation_Tab6_SpeciesParameterTV->isVisible()) {
         loadOK = nmfUtilsQt::loadCSVFileComboBoxes(
-                    Estimation_Tabs, tableView, inputDataPath, tableNameStr,
-                    errorMsg);
+                    Estimation_Tabs, tableView, filePath,
+                    tableNameStr, errorMsg);
     } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
         loadOK = nmfUtilsQt::loadCVSFileCovariate(
-                    Estimation_Tabs, tableView, inputDataPath,
+                    Estimation_Tabs, tableView, filePath,
                     tableNameStr, errorMsg);
     }
 
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+        QMessageBox::warning(Estimation_Tabs,"Time Series Load Error","\n"+errorMsg+"\n", QMessageBox::Ok);
+    } else {
+        QMessageBox::information(Estimation_Tabs, "Import Successful",
+                                 "\nThe CSV data file has been successfully imported.\n",
+                                 QMessageBox::Ok);
     }
 }
 
