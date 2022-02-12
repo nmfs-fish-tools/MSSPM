@@ -386,7 +386,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     for (int species=0; species<NumSpecies; ++species) {
         surveyQVal  = surveyQ[species];
         for (int time=0; time<NumYears; ++time) {
-//          surveyQTerm = surveyQVal*(1.0+surveyQCovariateCoeff*surveyQCovariate(time,species));
             surveyQTerm = nmfUtils::applyCovariate(nullptr,
                         covariateAlgorithmType,surveyQVal,
                         surveyQCovariateCoeff,surveyQCovariate(time,species));
@@ -395,7 +394,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     }
 
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-//      surveyQTerm = surveyQ[i]*(1.0+surveyQCovariateCoeff*surveyQCovariate(0,i));
         surveyQTerm = nmfUtils::applyCovariate(nullptr,
                     covariateAlgorithmType,surveyQ[i],
                     surveyQCovariateCoeff,surveyQCovariate(0,i));

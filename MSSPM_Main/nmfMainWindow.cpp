@@ -195,6 +195,16 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
 
     setOutputControlsWidth();
     setDatabaseWaitTime();
+
+
+    // Test code here....
+    std::cout << "Initializing....." << std::endl;
+
+//    boost::numeric::ublas::vector<int> vec;
+//    nmfUtils::initialize(vec,10);
+//    nmfUtils::printVector("test",6,vec);
+
+
 }
 
 
@@ -4730,7 +4740,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     std::vector<double> EstCatchability                    = {};
     std::vector<double> EstCatchabilityCovariateCoeffs     = {};
     std::vector<double> EstSurveyQ                         = {};
-    std::vector<double> HarvestRandomValues                = {};
     std::vector<double> InitBiomassRandomValues            = {};
     std::vector<double> GrowthRandomValues                 = {};
     std::vector<double> CarryingCapacityRandomValues       = {};
@@ -4818,7 +4827,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     EstCatchabilityCovariateCoeffs.clear();
     SpeciesList.clear();
     GuildList.clear();
-    HarvestRandomValues.clear();
     SurveyQRandomValues.clear();
 
     readSettings();
@@ -4835,6 +4843,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             return false;
         }
     }
+    std::vector<double> HarvestRandomValues(NumSpeciesOrGuilds,0.0);
+
 
     // Load uncertainty factors if this is a monte carlo simulation
     loadOK = loadUncertaintyData(isMonteCarlo,NumSpeciesOrGuilds,ForecastName,
@@ -5197,8 +5207,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 return false;
         }
         scaleTimeSeriesIfMonteCarlo(isMonteCarlo,HarvestUncertainty,Exploitation,HarvestRandomValues);
-    } else {
-        nmfUtils::initialize(HarvestRandomValues,NumSpeciesOrGuilds);
     }
 
     // Update the Forecast Monte Carlo Parameters table
@@ -10091,10 +10099,6 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     QString multiRunModelFilename;
     QString msg;
     bool isAMultiRun = isAMultiOrMohnsRhoRun();
-//std::cout << "⬛⬛⬛ isAMultiRun: "  << isAMultiRun << std::endl;
-
-//    bool isAMohnsRhoRunOfMultiRuns = Diagnostic_Tab2_ptr->isAMohnsRhoRunForMultiRun();
-//std::cout << "⬛⬛⬛ isAMohnsRhoRunOfMultiRuns: "  << isAMohnsRhoRunOfMultiRuns << std::endl;
 
     saveSettings();
     loadAllWidgets();
@@ -10124,7 +10128,6 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     }
 
     if (isAMultiRun) {
-
         m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableOutputBiomassEnsemble);
 
         if (! nmfUtilsQt::loadMultiRunData(m_DataStruct,MultiRunLines,TotalIndividualRuns)) {
@@ -10138,9 +10141,7 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
         }
     }
     Output_Controls_ptr->enableControls(false);
-
     callback_InitializeSubRuns(m_DataStruct.MultiRunModelFilename,TotalIndividualRuns);
-
     m_ProgressWidget->clearRunBoxes();
 
     if (isAMultiRun) {
@@ -10154,27 +10155,20 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     m_RunNumNLopt = 0;
     m_RunNumBees  = 1;
     if (isAMohnsRhoMultiRun() && isBeesAlgorithm()) {
-
         QApplication::restoreOverrideCursor();
         QMessageBox::warning(this, "Warning",
                              "\nMohns Rho not yet implemented for Bees Algorithm.\n",
                              QMessageBox::Ok);
         menu_stopRun();
-//      TBD
-//      runBeesAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);
+//      TBD runBeesAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);
         return;
     }
     else if (isAMultiRun) {
-//std::cout << "⬛⬛⬛ MultiRunLines.size(): " << MultiRunLines.size() << std::endl;
-
         // To-do: Add Bees to regular multi-run
         //      runBeesAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);
 std::cout << "----->>>> TotalIndividualRuns: " << TotalIndividualRuns << std::endl;
-
-
         runNLoptAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns); // Run through all runs and do NLopt, skipping over non-NLopt
     } else {
-
         if (Algorithm == "Bees Algorithm") {
             runBeesAlgorithm( showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);
         } else if (Algorithm == "NLopt Algorithm") {
