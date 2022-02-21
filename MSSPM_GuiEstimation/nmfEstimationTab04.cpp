@@ -305,6 +305,7 @@ nmfEstimation_Tab4::loadCSVFiles(const QString& filePath,
                         Estimation_Tabs, tv, filePath, tableName,
                         nmfConstantsMSSPM::FirstLineNotReadOnly,
                         nmfConstantsMSSPM::ScientificNotation,
+                        nmfConstantsMSSPM::DontAllowBlanks,
                         nonZeroCell,errorMsg);
             if (! loadOK) {
                 allCSVFilesLoadedOK = false;
@@ -358,6 +359,7 @@ nmfEstimation_Tab4::resetSpinBox(const std::pair<int,int>& nonZeroCell,
 void
 nmfEstimation_Tab4::callback_SavePB()
 {
+    bool okSave;
     bool systemFound = false;
     bool isTypeIIITable = true;
     bool isNotTypeIIITable = false;
@@ -392,15 +394,24 @@ nmfEstimation_Tab4::callback_SavePB()
     }
 
     if (isTypeI() || isTypeII() || isTypeIII()) { // save rho
-        saveTables(isNotTypeIIITable, SpeNames,m_TableViewsTypeI,  m_TableNamesTypeI);
+        if (! saveTables(isNotTypeIIITable, SpeNames,
+                         m_TableViewsTypeI, m_TableNamesTypeI)) {
+            return;
+        }
     }
 
     if (isTypeII() || isTypeIII()) { // save h
-        saveTables(isNotTypeIIITable, SpeNames,m_TableViewsTypeII, m_TableNamesTypeII);
+        if (! saveTables(isNotTypeIIITable,  SpeNames,
+                         m_TableViewsTypeII, m_TableNamesTypeII)) {
+            return;
+        }
     }
 
     if (isTypeIII()) { // save b
-        saveTables(isTypeIIITable,    SpeNames,m_TableViewsTypeIII,m_TableNamesTypeIII);
+        if (! saveTables(isTypeIIITable,      SpeNames,
+                         m_TableViewsTypeIII, m_TableNamesTypeIII)) {
+            return;
+        }
     }
 
     QMessageBox::information(Estimation_Tabs, "Predation Updated",
@@ -415,7 +426,7 @@ nmfEstimation_Tab4::callback_SavePB()
 
 
 
-void
+bool
 nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
                                const std::vector<std::string>& SpeNames,
                                const std::vector<QTableView*>& tableViews,
@@ -425,20 +436,17 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
     std::string errorMsg;
     std::string value;
     QModelIndex index;
-    QStandardItemModel* smodel1 = qobject_cast<QStandardItemModel*>(tableViews[1]->model());
-    QStandardItemModel* smodel2 = qobject_cast<QStandardItemModel*>(tableViews[2]->model());
+    QStandardItemModel* smodel;
+
+    // Check each of the 3 tableviews
+    if (tableViews.size() == 3 && ! nmfUtilsQt::runAllTableChecks(m_Logger,Estimation_Tabs,tableViews[0],tableViews[1],tableViews[2])) {
+        return false;
+    } else {
+        m_Logger->logMsg(nmfConstants::Warning,"Number of Predation tables should be 3. Found instead: " + std::to_string(tableViews.size()));
+    }
+
     for (unsigned int k=0; k<tableViews.size(); ++k) {
-        QStandardItemModel* smodel  = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
-        if (k == 0) {
-            if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(smodel1,smodel2)) {
-                m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab4::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
-                QMessageBox::critical(Estimation_Tabs, "Error",
-                                      "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
-                                      QMessageBox::Ok);
-                Estimation_Tabs->setCursor(Qt::ArrowCursor);
-                return;
-            }
-        }
+        smodel  = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
         cmd = "DELETE FROM " +
                tableNames[k] +
               " WHERE ProjectName = '" + m_ProjectName +
@@ -452,10 +460,24 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
                                  QString::fromStdString(tableNames[k]) + " table.\n",
                                  QMessageBox::Ok);
             Estimation_Tabs->setCursor(Qt::ArrowCursor);
-            return;
+            return false;
         }
 
-        if (! isTypeIII) {
+        if (isTypeIII) {
+            cmd = "INSERT INTO " +
+                   tableNames[k] +
+                  " (ProjectName,ModelName,SpeName,Value) VALUES ";
+            for (int i=0; i<smodel->rowCount(); ++i) {
+                for (int j=0; j<smodel->columnCount(); ++ j) {
+                    index = smodel->index(i,j);
+                    value = index.data().toString().remove(",").toStdString();
+                    cmd += "('"  + m_ProjectName +
+                           "','" + m_ModelName   +
+                           "','" + SpeNames[i]   +
+                           "',"  + value + "),";
+                }
+            }
+        } else { // if Type I or Type II
             cmd = "INSERT INTO " +
                    tableNames[k] +
                   " (ProjectName,ModelName,SpeciesA,SpeciesB,Value) VALUES ";
@@ -471,20 +493,6 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
                            "', " + value + "),";
                 }
             }
-        } else {
-            cmd = "INSERT INTO " +
-                   tableNames[k] +
-                  " (ProjectName,ModelName,SpeName,Value) VALUES ";
-            for (int i=0; i<smodel->rowCount(); ++i) {
-                for (int j=0; j<smodel->columnCount(); ++ j) {
-                    index = smodel->index(i,j);
-                    value = index.data().toString().remove(",").toStdString();
-                    cmd += "('"  + m_ProjectName +
-                           "','" + m_ModelName   +
-                           "','" + SpeNames[i]   +
-                           "',"  + value + "),";
-                }
-            }
         }
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
@@ -495,9 +503,11 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
                                  "\nError in Save command.  Check that all cells are populated.\n",
                                  QMessageBox::Ok);
             Estimation_Tabs->setCursor(Qt::ArrowCursor);
-            return;
+            return false;
         }
     }
+
+    return true;
 }
 
 

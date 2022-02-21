@@ -162,6 +162,8 @@ nmfDiagnostic_Tab2::loadWidgets(int NumPeels)
     }
 
     readSettings();
+
+    m_Logger->logMsg(nmfConstants::Normal,"nmfDiagnostic_Tab2::loadWidgets() end");
 }
 
 

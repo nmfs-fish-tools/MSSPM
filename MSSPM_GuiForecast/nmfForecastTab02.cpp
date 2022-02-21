@@ -366,6 +366,14 @@ nmfForecast_Tab2::saveHarvestData(bool verbose)
         return;
     }
 
+    if (! nmfUtilsQt::checkTableForBlanks(Forecast_Tab2_HarvestTV)) {
+        QString msg = "No blanks allowed in the Forecast Harvest table";
+        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+        QMessageBox::critical(Forecast_Tabs, "Save Error", "\n"+msg, QMessageBox::Ok);
+        Forecast_Tabs->setCursor(Qt::ArrowCursor);
+        return;
+    }
+
     modelFound = m_DatabasePtr->getAlgorithmIdentifiers(
                 Forecast_Tabs,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,Scaling,

@@ -122,7 +122,7 @@ class nmfEstimation_Tab4: public QObject
                       const QStandardItemModel* smodel1,
                       const QStandardItemModel* smodel2);
     void saveCSVFiles(std::vector<std::string>& allTableNames);
-    void saveTables(const bool& isTypeIII,
+    bool saveTables(const bool& isTypeIII,
                     const std::vector<std::string>& SpeNames,
                     const std::vector<QTableView*>& tableViews,
                     const std::vector<std::string>& tableNames);

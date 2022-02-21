@@ -194,6 +194,14 @@ nmfForecast_Tab3::callback_SavePB()
         return;
     }
 
+    if (! nmfUtilsQt::checkTableForBlanks(Forecast_Tab3_UncertaintyTV)) {
+        QString msg = "No blanks allowed in the Forecast Uncertainty table";
+        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+        QMessageBox::critical(Forecast_Tabs, "Save Error", "\n"+msg, QMessageBox::Ok);
+        Forecast_Tabs->setCursor(Qt::ArrowCursor);
+        return;
+    }
+
     for (int j=0; j<m_SModel->rowCount(); ++ j) {
         SpeNames.push_back(m_SModel->verticalHeaderItem(j)->text().toStdString());
     }

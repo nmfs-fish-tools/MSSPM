@@ -1945,7 +1945,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.0.1";
+    QString version = "MSSPM v1.0.2";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -6060,7 +6060,6 @@ nmfMainWindow::getObservedBiomassByGroup(const int& NumGuilds,
     std::string queryStr;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string ObsBiomassTableName = getObservedBiomassTableName(!nmfConstantsMSSPM::PreEstimation);
-
     if (group == "Guild") {
         m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                 "",ObsBiomassTableName,NumGuilds,RunLength,
@@ -7718,7 +7717,6 @@ nmfMainWindow::showChartTableVsTime(
         double &YMinVal,
         double &YMaxVal)
 {
-
     //
     // Draw the line chart
     //
@@ -7737,6 +7735,7 @@ nmfMainWindow::showChartTableVsTime(
     boost::numeric::ublas::matrix<double> ChartMSYData;
     boost::numeric::ublas::matrix<double> ChartLineData;
     boost::numeric::ublas::matrix<double> ChartScatterData;
+    boost::numeric::ublas::matrix<double> SkipScatterData;
     double value;
     std::string valueStr;
     std::string LineStyle = "SolidLine";
@@ -7772,6 +7771,8 @@ nmfMainWindow::showChartTableVsTime(
     ChartLineData.clear();
     ChartScatterData.resize(RunLength+1,1);
     ChartScatterData.clear();
+    SkipScatterData.resize(RunLength+1,1);
+    SkipScatterData.clear();
     RowLabelsForBars.clear();
     ColumnLabelsForLegend.clear();
 //    if ((label == nmfConstantsMSSPM::HarvestCatch.toStdString()) ||
@@ -7804,10 +7805,16 @@ nmfMainWindow::showChartTableVsTime(
     m_ChartWidget->removeAllSeries();
 
     //  Load Scatter plot points into data structure
+    double val = 0;
     for (int species=0; species<NumSpecies; ++species) {
         if (species == SpeciesNum) {
             for (int time=0; time<=RunLength; ++time) {
-                ChartScatterData(time,0) = Biomass[0](time,species)/ScaleVal;
+                val = Biomass[0](time,species);
+                if (val != nmfConstantsMSSPM::NoData) {
+                    ChartScatterData(time,0) = val/ScaleVal;
+                } else {
+                    SkipScatterData(time,0) = true;
+                }
             }
             break;
         }
@@ -7864,6 +7871,7 @@ nmfMainWindow::showChartTableVsTime(
                                      YMinVal,YMaxVal,
                                      ChartLineData,
                                      ChartScatterData,
+                                     SkipScatterData,
                                      RowLabelsForBars,
                                      ColumnLabelsForLegend,
                                      MainTitle,
@@ -8594,6 +8602,7 @@ nmfMainWindow::showChartBiomassVsTime(
     boost::numeric::ublas::matrix<double> ChartBMSYData;
     boost::numeric::ublas::matrix<double> ChartLineData;
     boost::numeric::ublas::matrix<double> ChartScatterData;
+    boost::numeric::ublas::matrix<bool>   SkipScatterData;
     int NumLines = OutputBiomass.size();
     bool isMohnsRho = isAMohnsRhoMultiRun();
     double YMaxVal = nmfConstants::NoValueDouble;
@@ -8604,6 +8613,8 @@ nmfMainWindow::showChartBiomassVsTime(
     ChartLineData.clear();
     ChartScatterData.resize(RunLength+1,1); // NumSpecies);
     ChartScatterData.clear();
+    SkipScatterData.resize(RunLength+1,1);
+    SkipScatterData.clear();
     RowLabelsForBars.clear();
     ColumnLabelsForLegend.clear();
     double value;
@@ -8640,10 +8651,16 @@ nmfMainWindow::showChartBiomassVsTime(
 //    QAbstract3DAxis* axisX = qobject_cast<QAbstract3DAxis*>(m_ChartWidget->axisX());
 //    m_ChartWidget->removeAxis(qobject_cast<QtDataVisualization::QAbstract3DAxis*>(axisX));
     //  Load Scatter plot points into data structure
+    double val = 0;
     for (int species=0; species<NumSpecies; ++species) {
         if (species == SpeciesNum) {
             for (int time=0; time<=RunLength; ++time) {
-                ChartScatterData(time,0) = ObservedBiomass(time,species)/ScaleVal;
+                val = ObservedBiomass(time,species);
+                if (val != nmfConstantsMSSPM::NoData) {
+                    ChartScatterData(time,0) = val/ScaleVal;
+                } else {
+                    SkipScatterData(time,0) = true;
+                }
             }
             break;
         }
@@ -8699,6 +8716,7 @@ nmfMainWindow::showChartBiomassVsTime(
                                                 YMinVal,YMaxVal,
                                                 ChartLineData,
                                                 ChartScatterData,
+                                                SkipScatterData,
                                                 RowLabelsForBars,
                                                 ColumnLabelsForLegend,
                                                 MainTitle,
@@ -8817,6 +8835,7 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
     boost::numeric::ublas::matrix<double> ChartBMSYData;
     boost::numeric::ublas::matrix<double> ChartLineData;
     boost::numeric::ublas::matrix<double> ChartScatterData;
+    boost::numeric::ublas::matrix<double> SkipScatterData;
     int NumLines = OutputBiomass.size();
     bool isMohnsRho = isAMohnsRhoMultiRun();
     ChartBMSYData.resize(RunLength+1,1); // NumSpecies);
@@ -8825,6 +8844,8 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
     ChartLineData.clear();
     ChartScatterData.resize(RunLength+1,1); // NumSpecies);
     ChartScatterData.clear();
+    SkipScatterData.resize(RunLength+1,1); // NumSpecies);
+    SkipScatterData.clear();
     RowLabelsForBars.clear();
     ColumnLabelsForLegend.clear();
     double value;
@@ -8858,10 +8879,16 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
     }
 
     //  Load Scatter plot points into data structure
+    double val = 0;
     for (int species=0; species<NumSpecies; ++species) {
         if (species == SpeciesNum) {
             for (int time=0; time<=RunLength; ++time) {
-                ChartScatterData(time,0) = ObservedBiomass(time,species)/ScaleVal;
+                val = ObservedBiomass(time,species);
+                if (val != nmfConstantsMSSPM::NoData) {
+                    ChartScatterData(time,0) = val/ScaleVal;
+                } else {
+                    SkipScatterData(time,0) = true;
+                }
             }
             break;
         }
@@ -8912,6 +8939,7 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
                                             YMinVal,YMaxVal,
                                             ChartLineData,
                                             ChartScatterData,
+                                            SkipScatterData,
                                             RowLabelsForBars,
                                             ColumnLabelsForLegend,
                                             MainTitle,

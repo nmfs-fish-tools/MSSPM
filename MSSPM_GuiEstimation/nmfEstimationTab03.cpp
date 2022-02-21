@@ -444,6 +444,7 @@ nmfEstimation_Tab3::loadCSVFiles(const QString& filePath,
                     Estimation_Tabs, tableViews[i], filePath, tableName,
                     nmfConstantsMSSPM::FirstLineNotReadOnly,
                     nmfConstantsMSSPM::ScientificNotation,
+                    nmfConstantsMSSPM::DontAllowBlanks,
                     nonZeroCell,
                     errorMsg);
         if (! loadOK) {
@@ -523,16 +524,12 @@ nmfEstimation_Tab3::callback_SavePB()
 
     // Alpha
     if (isNoK()) {
-
-        if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_SModels[tableInc+2],m_SModels[tableInc+3])) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 1] nmfEstimation_Tab3::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
-            QMessageBox::critical(Estimation_Tabs, "Error",
-                                 "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
-                                 QMessageBox::Ok);
-            Estimation_Tabs->setCursor(Qt::ArrowCursor);
+        if (! nmfUtilsQt::runAllTableChecks(m_Logger, Estimation_Tabs,
+                                            Estimation_Tab3_CompetitionAlphaTV,
+                                            Estimation_Tab3_CompetitionAlphaMinTV,
+                                            Estimation_Tab3_CompetitionAlphaMaxTV)) {
             return;
         }
-
         for (unsigned int k=0; k<m_AlphaTables.size(); ++k) {
             ++tableInc;
             cmd = "DELETE FROM " +
@@ -581,6 +578,12 @@ nmfEstimation_Tab3::callback_SavePB()
 
     // Beta Species
     if (isMsProd()) {
+        if (! nmfUtilsQt::runAllTableChecks(m_Logger, Estimation_Tabs,
+                                            Estimation_Tab3_CompetitionBetaSpeciesTV,
+                                            Estimation_Tab3_CompetitionBetaSpeciesMinTV,
+                                            Estimation_Tab3_CompetitionBetaSpeciesMaxTV)) {
+            return;
+        }
         tableInc = 2;
         if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(m_SModels[tableInc+2],m_SModels[tableInc+3])) {
             m_Logger->logMsg(nmfConstants::Error,"[Error 3] nmfEstimation_Tab3::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
@@ -638,24 +641,25 @@ nmfEstimation_Tab3::callback_SavePB()
 
     // Beta Guilds
     if (isMsProd() || isAggProd()) {
-        std::vector<QTableView* > tableViews = getTableViews();
         QStandardItemModel* smodel;
-        QStandardItemModel* smodel2 = qobject_cast<QStandardItemModel*>(tableViews[1]->model());
-        QStandardItemModel* smodel3 = qobject_cast<QStandardItemModel*>(tableViews[2]->model());
-        if (! nmfUtilsQt::allMaxCellsGreaterThanMinCells(smodel2,smodel3)) {
-            m_Logger->logMsg(nmfConstants::Error,"[Error 5] nmfEstimation_Tab3::callback_SavePB: At least one Max cell less than a Min cell: " + errorMsg);
-            QMessageBox::critical(Estimation_Tabs, "Error",
-                                 "\nError: There's at least one Max cell less than a Min cell. Please check tables.\n",
-                                 QMessageBox::Ok);
-            Estimation_Tabs->setCursor(Qt::ArrowCursor);
+        std::vector<QTableView* > tableViews = getTableViews();
+        if (! nmfUtilsQt::runAllTableChecks(m_Logger,Estimation_Tabs,tableViews[0],tableViews[1],tableViews[2])) {
             return;
         }
         if (isMsProd()) {
             GuildTables   = m_BetaGuildsTables;
             VariableNames = "Guild,SpeName";
+            if (tableViews.size() == 6 && ! nmfUtilsQt::runAllTableChecks(m_Logger,Estimation_Tabs,tableViews[3],tableViews[4],tableViews[5])) {
+                return;
+            } else {
+                m_Logger->logMsg(nmfConstants::Warning,"Expecting 6 MS PROD tables. Found only: "+std::to_string(tableViews.size()));
+            }
         } else {
             GuildTables   = m_BetaGuildsGuildsTables;
             VariableNames = "GuildA,GuildB";
+            if (tableViews.size() != 3) {
+                m_Logger->logMsg(nmfConstants::Warning,"Expecting 3 AGG PROD tables. Found only: "+std::to_string(tableViews.size()));
+            }
         }
         for (unsigned int k=0; k<GuildTables.size(); ++k) {
             smodel = qobject_cast<QStandardItemModel*>(tableViews[k+3]->model());
@@ -707,10 +711,6 @@ nmfEstimation_Tab3::callback_SavePB()
             }
         }
     }
-
-
-
-
 
     QMessageBox::information(Estimation_Tabs, "Competition Updated",
                              "\nCompetition tables have been successfully updated.\n",

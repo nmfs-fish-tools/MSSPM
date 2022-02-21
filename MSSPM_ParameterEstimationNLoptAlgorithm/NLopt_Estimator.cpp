@@ -386,10 +386,12 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     for (int species=0; species<NumSpecies; ++species) {
         surveyQVal  = surveyQ[species];
         for (int time=0; time<NumYears; ++time) {
-            surveyQTerm = nmfUtils::applyCovariate(nullptr,
-                        covariateAlgorithmType,surveyQVal,
-                        surveyQCovariateCoeff,surveyQCovariate(time,species));
-            ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQTerm;
+            if (ObsBiomassBySpeciesOrGuilds(time,species) != nmfConstantsMSSPM::NoData) {
+                surveyQTerm = nmfUtils::applyCovariate(nullptr,
+                                                       covariateAlgorithmType,surveyQVal,
+                                                       surveyQCovariateCoeff,surveyQCovariate(time,species));
+                ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQTerm;
+            }
         }
     }
 
@@ -515,15 +517,15 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     // Scale the data
     std::string m_Scaling = NLoptDataStruct.ScalingAlgorithm;
     if (m_Scaling == "Min Max") {
-        rescaleMinMax(EstBiomassSpecies, EstBiomassRescaled);
-        rescaleMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
+        nmfUtils::rescaleMatrixMinMax(EstBiomassSpecies, EstBiomassRescaled);
+        nmfUtils::rescaleMatrixMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     } else if (m_Scaling == "Mean") {
-        rescaleMean(EstBiomassSpecies, EstBiomassRescaled);
-        rescaleMean(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
+        nmfUtils::rescaleMatrixMean(EstBiomassSpecies, EstBiomassRescaled);
+        nmfUtils::rescaleMatrixMean(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     } else {
 //      std::cout << "Error: No Scaling Algorithm detected. Defaulting to Min Max." << std::endl;
-        rescaleMinMax(EstBiomassSpecies, EstBiomassRescaled);
-        rescaleMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
+        nmfUtils::rescaleMatrixMinMax(EstBiomassSpecies, EstBiomassRescaled);
+        nmfUtils::rescaleMatrixMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     }
 
     // temp test RSK - take this logstuff out possibly
@@ -1214,82 +1216,4 @@ NLopt_Estimator::returnCode(int result)
             break;
     }
     return retv;
-}
-
-
-void
-NLopt_Estimator::rescaleMinMax(const boost::numeric::ublas::matrix<double> &matrix,
-                                     boost::numeric::ublas::matrix<double> &rescaledMatrix)
-{
-    int numYears   = rescaledMatrix.size1();
-    int numSpecies = rescaledMatrix.size2();
-    double den;
-    double minVal;
-    double maxVal;
-    std::vector<double> minValues(numSpecies,0);
-    std::vector<double> maxValues(numSpecies,0);
-    std::vector<double> tmp(numYears,0);
-
-    // Find min,max values for each column of matrix
-    for (int species=0; species<numSpecies; ++species) {
-        for (int time=0; time<numYears; ++time) {
-            tmp[time] = matrix(time,species);
-        }
-        std::sort(tmp.begin(),tmp.end());
-        minValues[species] = tmp.front();
-        maxValues[species] = tmp.back();
-    }
-
-    // Rescale each column of the matrix with (x - min)/(max-min) formula.
-    for (int species=0; species<numSpecies; ++species) {
-        minVal = minValues[species];
-        maxVal = maxValues[species];
-        den    = maxVal - minVal;
-        for (int time=0; time<numYears; ++time) {
-            rescaledMatrix(time,species) = (matrix(time,species) - minVal) / den;  // min max normalization
-        }
-    }
-
-}
-
-
-void
-NLopt_Estimator::rescaleMean(const boost::numeric::ublas::matrix<double> &matrix,
-                                   boost::numeric::ublas::matrix<double> &rescaledMatrix)
-{
-    int numYears   = matrix.size1();
-    int numSpecies = matrix.size2();
-    double den;
-    double minVal;
-    double maxVal;
-    double avgVal;
-    std::vector<double> minValues(numSpecies,0);
-    std::vector<double> maxValues(numSpecies,0);
-    std::vector<double> avgValues(numSpecies,0);
-    std::vector<double> tmp(numYears,0);
-
-    // Find min,max values for each column of matrix
-    for (int species=0; species<numSpecies; ++species) {
-        avgVal = 0;
-        for (int time=0; time<numYears; ++time) {
-            tmp[time] = matrix(time,species);
-            avgVal += tmp[time];
-        }
-        avgVal /= numYears;
-        std::sort(tmp.begin(),tmp.end());
-        minValues[species] = tmp.front();
-        maxValues[species] = tmp.back();
-        avgValues[species] = avgVal;
-    }
-
-    // Rescale each column of the matrix with (x - ave)/(max-min) formula.
-    for (int species=0; species<numSpecies; ++species) {
-        minVal = minValues[species];
-        maxVal = maxValues[species];
-        den    = maxVal - minVal;
-        avgVal = avgValues[species];
-        for (int time=0; time<numYears; ++time) {
-            rescaledMatrix(time,species) = (matrix(time,species) - avgVal) / den; // mean normalization
-        }
-    }
 }

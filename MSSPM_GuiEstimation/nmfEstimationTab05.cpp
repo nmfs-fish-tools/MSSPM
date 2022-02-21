@@ -216,6 +216,7 @@ nmfEstimation_Tab5::loadCSVFile(const bool& firstLineReadOnly,
                 Estimation_Tabs, tableView, filePath, tableNameStr,
                 firstLineReadOnly,
                 nmfConstantsMSSPM::FixedNotation,
+                nmfConstantsMSSPM::AllowBlanks,
                 nonZeroCell,errorMsg);
 
     if (! loadOK) {
@@ -285,9 +286,14 @@ nmfEstimation_Tab5::loadTableValuesFromDatabase(
         for (int j=0; j<NumSpecies; ++j) {
             for (int i=0; i<=RunLength; ++i) {
                 if ((m < NumRecords) && (SpeciesNames[j] == dataMap["SpeName"][m])) {
-                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                                std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,6);
+                    if (std::stod(dataMap["Value"][m]) == nmfConstantsMSSPM::NoData) {
+                        valueWithComma = "";
+                    } else {
+                        valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                    std::stod(dataMap["Value"][m]),m_NumSignificantDigits,6);
+                    }
                     item = new QStandardItem(valueWithComma);
+                    ++m;
                 } else {
                     item = new QStandardItem(QString(""));
                 }
@@ -573,6 +579,7 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
             for (int time=0; time<smodel->rowCount(); ++time) {
                 index = smodel->index(time,species);
                 valueWithoutComma = index.data().toString().remove(",");
+                valueWithoutComma = (valueWithoutComma.isEmpty()) ? QString::number(nmfConstantsMSSPM::NoData) : valueWithoutComma;
                 cmd += "('"   + m_ProjectName +
                         "','" + m_ModelName +
                         "','" + SpeNames[species] +
@@ -586,6 +593,7 @@ nmfEstimation_Tab5::saveTableValuesToDatabase(
             for (int time=0; time<smodel->rowCount(); ++time) {
                 index = smodel->index(time,species);
                 valueWithoutComma = index.data().toString().remove(",");
+                valueWithoutComma = (valueWithoutComma.isEmpty()) ? QString::number(nmfConstantsMSSPM::NoData) : valueWithoutComma;
                 cmd += "('"   + m_ProjectName +
                         "','" + m_ModelName +
                         "','" + SpeNames[species] +

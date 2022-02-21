@@ -632,6 +632,7 @@ nmfEstimation_Tab6::loadCSVFile(const bool& firstLineReadOnly,
                     Estimation_Tabs, tableView, filePath,
                     tableNameStr, firstLineReadOnly,
                     nmfConstantsMSSPM::FixedNotation,
+                    nmfConstantsMSSPM::DontAllowBlanks,
                     nonZeroCell,errorMsg);
         nmfUtilsQt::removeCommas(tableView);
     } else if (Estimation_Tab6_SpeciesParameterTV->isVisible()) {
@@ -760,6 +761,15 @@ nmfEstimation_Tab6::saveCovariateTable()
     double diff = 0;
 
     m_Logger->logMsg(nmfConstants::Warning,"Saving scaled covariate data is currently disabled");
+
+    // Check covariate table for blanks
+    if (! nmfUtilsQt::checkTableForBlanks(Estimation_Tab6_CovariateTV)) {
+        msg = "No blanks allowed in covariate table.";
+        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+        QMessageBox::warning(Estimation_Tabs, "Save Error", "\n"+msg, QMessageBox::Ok);
+        Estimation_Tabs->setCursor(Qt::ArrowCursor);
+        return false;
+    }
 
     // Delete the current entry here
     deleteCmd = "DELETE FROM " + tableName +

@@ -2192,9 +2192,6 @@ nmfEstimation_Tab7::loadWidgets()
     if (dataMap["EnsembleIsUsingPct"][0] == "1") {
         Estimation_Tab6_EnsembleUsingPctPB->setText("%");
     }
-    // Not necessary since file is loaded during callback_EnsembleControlsGB.
-    // And that's done when Model is loaded.
-    //loadEnsembleFile(QString::fromStdString(dataMap["EnsembleFile"][0]),false);
 
     callback_EnsembleTotalRunsSB(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
     callback_EstimationAlgorithmCMB(QString::fromStdString(dataMap["Algorithm"][0]));
@@ -2206,13 +2203,11 @@ nmfEstimation_Tab7::loadWidgets()
 
     callback_ObjectiveCriterionCMB(objectiveCriterion);
 
-    // RSK Hack to set the CMB correctly. Remove after implementing all of the disabled items in the 3 algorithm CMB's.
-    Estimation_Tab6_ObjectiveCriterionCMB->setCurrentText(QString::fromStdString(dataMap["ObjectiveCriterion"][0]));
-
     m_IsMultiRun   = (dataMap["EnsembleIsBoxChecked"][0] == "1");
     m_MultiRunType =  dataMap["EnsembleAverageAlg"][0];
     Estimation_Tab6_EnsembleControlsGB->setChecked(m_IsMultiRun);
     callback_EnsembleControlsGB(m_IsMultiRun);
+    Estimation_Tab6_ScalingCMB->setCurrentText(QString::fromStdString(dataMap["Scaling"][0]));
 
     saveSettings();
 
@@ -2259,7 +2254,6 @@ nmfEstimation_Tab7::saveSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Estimation");
-    settings->setValue("FontSize",   Estimation_Tab6_FontSizeCMB->currentText());
     settings->setValue("FontSize",   Estimation_Tab6_FontSizeCMB->currentText());
     settings->setValue("Monospace",  (int)Estimation_Tab6_MonoCB->isChecked());
     settings->endGroup();

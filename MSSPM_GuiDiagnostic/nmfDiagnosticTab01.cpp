@@ -590,6 +590,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
                     m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
                     return;
                 }
+
                 aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[i],
                                                    diagnosticParameterValue-estParameter,
                                                    diagnosticParameterValue,
@@ -598,7 +599,6 @@ nmfDiagnostic_Tab1::callback_RunPB()
                 diagnosticParameterValue += inc;
             }
         }
-
         updateParameterTable(NumSpeciesOrGuilds, totalNumPoints,
                              Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                              isAggProdStr,parameterName,DiagnosticTupleVector);
@@ -713,13 +713,10 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
                                      const std::vector<std::pair<QString,double> >& ParameterData)
 {
     bool isAggProd;
-    bool isBiomassAbsolute;
     int NumSpecies;
     int NumGuilds;
     int NumSpeciesOrGuilds;
     int offset = 0;
-    int RunLength;
-    int InitialYear;
     unsigned unused1 = 0;
     double unused2[] = {0};
     double retv = 0;
@@ -746,10 +743,6 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
                 Algorithm,Minimizer,ObjectiveCriterion,
                 Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
     checkAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
-//    m_DatabasePtr->getModelFormData(
-//                m_Logger,m_ProjectName,m_ModelName,
-//                GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-//                RunLength,InitialYear,isBiomassAbsolute);
 
     emit LoadDataStruct();
 
@@ -789,19 +782,14 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
         offset = 0;
         if (ParameterItem.first == "Initial Biomass (B₀)") {            
             offset = initBiomassOffset;
-//qDebug() << "Init Biomass: " << offset;
         } else if (ParameterItem.first == "Growth Rate (r)") {
             offset = growthOffset;
-//qDebug() << "Growth rate: " << offset;
         } else if (ParameterItem.first == "Carrying Capacity (K)") {
             offset = growthOffset+2*NumSpeciesOrGuilds; // 2* because of growth rate covariates
-//qDebug() << "Carrying Capacity: " << offset;
         } else if (ParameterItem.first == "Catchability (q)") {
             offset = harvestOffset+NumSpeciesOrGuilds;  // +NumSpeciesOrGuilds to skip over catchability covariates
-//qDebug() << "Catchability: " << offset;
         } else if (ParameterItem.first == "SurveyQ") {
             offset = surveyQOffset;
-//qDebug() << "SurveyQ: " << offset;
         } else {
             msg = "Error: Invalid parameter name: " + ParameterItem.first.toStdString();
             m_Logger->logMsg(nmfConstants::Error,msg);

@@ -857,15 +857,13 @@ nmfOutputControls::refresh()
 {
     int currentIndex = OutputChartTypeCMB->currentIndex();
 //qDebug() << "ci: " << currentIndex;
-
     try {
-      if (currentIndex == 0) {
+//      if (currentIndex == 0) {
 //qDebug() << "num: " << OutputChartTypeCMB->count();  // RSK fix possible bug here when choose Type III in GUI
-          OutputChartTypeCMB->setCurrentIndex(1);
-      } else {
-          OutputChartTypeCMB->setCurrentIndex(0);
-      }
-//qDebug() << 11;
+//          OutputChartTypeCMB->setCurrentIndex(1);
+//      } else {
+//          OutputChartTypeCMB->setCurrentIndex(0);
+//      }
       OutputChartTypeCMB->setCurrentIndex(currentIndex);
     } catch (...) {
       return;

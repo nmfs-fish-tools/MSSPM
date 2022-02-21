@@ -226,12 +226,6 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">objectiveFunction</a> (unsigned n, const double *EstParameters, double *Gradient, void *FunctionData)</td></tr>
 <tr class="memdesc:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the objective function fitness value.  <a href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">More...</a><br /></td></tr>
 <tr class="separator:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81aa1b569fe065a3f31c2c749d723c04"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a81aa1b569fe065a3f31c2c749d723c04">rescaleMean</a> (const boost::numeric::ublas::matrix&lt; double &gt; &amp;Matrix, boost::numeric::ublas::matrix&lt; double &gt; &amp;RescaledMatrix)</td></tr>
-<tr class="memdesc:a81aa1b569fe065a3f31c2c749d723c04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rescales each column of the input matrix with (x - ave)/(max-min)  <a href="class_n_lopt___estimator.html#a81aa1b569fe065a3f31c2c749d723c04">More...</a><br /></td></tr>
-<tr class="separator:a81aa1b569fe065a3f31c2c749d723c04"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed3a40c1a9b7ddfff557458dd0c491de"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aed3a40c1a9b7ddfff557458dd0c491de">rescaleMinMax</a> (const boost::numeric::ublas::matrix&lt; double &gt; &amp;Matrix, boost::numeric::ublas::matrix&lt; double &gt; &amp;RescaledMatrix)</td></tr>
-<tr class="memdesc:aed3a40c1a9b7ddfff557458dd0c491de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rescales each column of the input matrix with (x - min)/(max-min)  <a href="class_n_lopt___estimator.html#aed3a40c1a9b7ddfff557458dd0c491de">More...</a><br /></td></tr>
-<tr class="separator:aed3a40c1a9b7ddfff557458dd0c491de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bde63559d770b088038259e9a8b888b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a3bde63559d770b088038259e9a8b888b">writeCurrentLoopFile</a> (const std::string &amp;MSSPMName, const int &amp;NumGens, const double &amp;BestFitness, const std::string &amp;ObjectiveCriterion, const int &amp;NumGensSinceBestFit)</td></tr>
 <tr class="memdesc:a3bde63559d770b088038259e9a8b888b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the output chart data file with Optimization status. Another process reads this file and updates the progress chart accordingly.  <a href="class_n_lopt___estimator.html#a3bde63559d770b088038259e9a8b888b">More...</a><br /></td></tr>
 <tr class="separator:a3bde63559d770b088038259e9a8b888b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1001,96 +995,6 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
-
-</div>
-</div>
-<a id="a81aa1b569fe065a3f31c2c749d723c04"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a81aa1b569fe065a3f31c2c749d723c04">&#9670;&nbsp;</a></span>rescaleMean()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void NLopt_Estimator::rescaleMean </td>
-          <td>(</td>
-          <td class="paramtype">const boost::numeric::ublas::matrix&lt; double &gt; &amp;&#160;</td>
-          <td class="paramname"><em>Matrix</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">boost::numeric::ublas::matrix&lt; double &gt; &amp;&#160;</td>
-          <td class="paramname"><em>RescaledMatrix</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Rescales each column of the input matrix with (x - ave)/(max-min) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">Matrix</td><td>: input matrix to be rescaled </td></tr>
-    <tr><td class="paramname">RescaledMatrix</td><td>: the output rescaled matrix </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="aed3a40c1a9b7ddfff557458dd0c491de"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed3a40c1a9b7ddfff557458dd0c491de">&#9670;&nbsp;</a></span>rescaleMinMax()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void NLopt_Estimator::rescaleMinMax </td>
-          <td>(</td>
-          <td class="paramtype">const boost::numeric::ublas::matrix&lt; double &gt; &amp;&#160;</td>
-          <td class="paramname"><em>Matrix</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">boost::numeric::ublas::matrix&lt; double &gt; &amp;&#160;</td>
-          <td class="paramname"><em>RescaledMatrix</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Rescales each column of the input matrix with (x - min)/(max-min) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">Matrix</td><td>: input matrix to be rescaled </td></tr>
-    <tr><td class="paramname">RescaledMatrix</td><td>: the output rescaled matrix </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>

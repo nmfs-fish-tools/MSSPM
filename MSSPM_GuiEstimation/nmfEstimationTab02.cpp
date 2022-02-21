@@ -118,6 +118,7 @@ nmfEstimation_Tab2::loadCSVFile(const QString& filePath,
                 filePath, tableNameStr,
                 nmfConstantsMSSPM::FirstLineNotReadOnly,
                 nmfConstantsMSSPM::FixedNotation,
+                nmfConstantsMSSPM::DontAllowBlanks,
                 nonZeroCell,errorMsg);
 
     if (! loadOK) {
@@ -462,6 +463,15 @@ nmfEstimation_Tab2::callback_SavePB()
 //            }
 //        }
 //    }
+
+    // Check harvest table for blanks
+    if (! nmfUtilsQt::checkTableForBlanks(Estimation_Tab2_HarvestTV)) {
+        msg = "No blanks allowed in harvest table.";
+        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+        QMessageBox::warning(Estimation_Tabs, "Save Error", "\n"+msg, QMessageBox::Ok);
+        Estimation_Tabs->setCursor(Qt::ArrowCursor);
+        return;
+    }
 
     for (std::string projectModel : modelsInProject)
     {

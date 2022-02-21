@@ -364,22 +364,6 @@ public:
             const double* EstParameters,
             double*       Gradient,
             void*         FunctionData);
-    /**
-     * @brief Rescales each column of the input matrix with (x - ave)/(max-min)
-     * @param Matrix : input matrix to be rescaled
-     * @param RescaledMatrix : the output rescaled matrix
-     */
-    static void rescaleMean(
-            const boost::numeric::ublas::matrix<double>& Matrix,
-            boost::numeric::ublas::matrix<double>&       RescaledMatrix);
-    /**
-     * @brief Rescales each column of the input matrix with (x - min)/(max-min)
-     * @param Matrix : input matrix to be rescaled
-     * @param RescaledMatrix : the output rescaled matrix
-     */
-    static void rescaleMinMax(
-            const boost::numeric::ublas::matrix<double>& Matrix,
-            boost::numeric::ublas::matrix<double>&       RescaledMatrix);
     bool stoppedByUser();
     void stopRun(const std::string &elapsedTimeStr,
                  const std::string &fitnessStr);
