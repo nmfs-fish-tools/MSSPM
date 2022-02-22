@@ -1822,7 +1822,7 @@ nmfMainWindow::saveRemoraDataFile(QString filename)
         return;
     }
     if (previousUnits.find(tableForecastHarvestCatch) != previousUnits.end()) {
-        nmfUtilsQt::convertMatrix(ForecastHarvest[0], previousUnits[tableForecastHarvestCatch], "mt");
+        nmfUtilsQt::convertMatrix(ForecastHarvest[0], previousUnits[tableForecastHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
     }
 
     QFile file(filename);
@@ -1945,7 +1945,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.0.2";
+    QString version = "MSSPM v1.0.3";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -4544,6 +4544,7 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     std::string errorMsg;
     double quotient;
     double estSurveyQ;
+    double relativeBiomass;
     QString Species;
     int m=0;
 
@@ -4593,7 +4594,12 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
         }
         Species    = SpeciesList[speciesNum];
         for (int year=0; year<RunLength; ++year) {
-            quotient = (estSurveyQ != 0) ? std::stod(dataMap["Value"][m++]) / estSurveyQ : 0;
+            relativeBiomass = std::stod(dataMap["Value"][m++]);
+            if (relativeBiomass == nmfConstantsMSSPM::NoData) {
+                quotient = relativeBiomass;
+            } else {
+                quotient = (estSurveyQ != 0) ? (relativeBiomass/estSurveyQ) : 0;
+            }
             // Write product to BiomassRelativeDividedByEstSurveyQ table
             cmd += "('"   + m_ProjectName +
                     "','" + m_ModelName +
@@ -5171,11 +5177,11 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         }
         if (ForecastName == "") {
             if (previousUnits.find(tableHarvestCatch) != previousUnits.end()) {
-                nmfUtilsQt::convertMatrix(Catch, previousUnits[tableHarvestCatch], "mt");
+                nmfUtilsQt::convertMatrix(Catch, previousUnits[tableHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
             }
         } else {
             if (previousUnits.find(tableForecastHarvestCatch) != previousUnits.end()) {
-                nmfUtilsQt::convertMatrix(Catch, previousUnits[tableForecastHarvestCatch], "mt");
+                nmfUtilsQt::convertMatrix(Catch, previousUnits[tableForecastHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
             }
         }
         scaleTimeSeriesIfMonteCarlo(isMonteCarlo,HarvestUncertainty,Catch,HarvestRandomValues);
@@ -5272,11 +5278,11 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     }
     if (m_DatabasePtr->isSurveyQ(m_ProjectName,m_ModelName)) {
         if (previousUnits.find(tableBiomassRelative) != previousUnits.end()) {
-            nmfUtilsQt::convertMatrix(ObservedBiomassByGuilds, previousUnits[tableBiomassRelative],"mt");
+            nmfUtilsQt::convertMatrix(ObservedBiomassByGuilds, previousUnits[tableBiomassRelative],"mt", nmfConstantsMSSPM::DontConvertBlanks);
         }
     } else {
         if (previousUnits.find(tableBiomassAbsolute) != previousUnits.end()) {
-            nmfUtilsQt::convertMatrix(ObservedBiomassByGuilds, previousUnits[tableBiomassAbsolute],"mt");
+            nmfUtilsQt::convertMatrix(ObservedBiomassByGuilds, previousUnits[tableBiomassAbsolute],"mt", nmfConstantsMSSPM::DontConvertBlanks);
         }
     }
     EstimatedBiomassByGuilds = ObservedBiomassByGuilds;
@@ -5915,7 +5921,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
     // Convert Observed Biomass to correct units
     if (previousUnits.find(BiomassTable) != previousUnits.end()) {
-        nmfUtilsQt::convertMatrix(ObservedBiomass, previousUnits[BiomassTable], "mt");
+        nmfUtilsQt::convertMatrix(ObservedBiomass, previousUnits[BiomassTable], "mt", nmfConstantsMSSPM::DontConvertBlanks);
     }
 
     TableViews.clear();
@@ -5978,7 +5984,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         HarvestVec.push_back(HarvestData);
         // Convert catch to mt for plot
         if (previousUnits.find(tableHarvestCatch) != previousUnits.end()) {
-            nmfUtilsQt::convertMatrix(HarvestData, previousUnits[tableHarvestCatch], "mt");
+            nmfUtilsQt::convertMatrix(HarvestData, previousUnits[tableHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
         }
         showChartTableVsTime(HarvestForm,
                              NumSpeciesOrGuilds,OutputSpecies,
@@ -10871,7 +10877,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
 
     // Assure all appropriate dataStruct elements are in metric tons
     if (previousUnits.find(tableHarvestCatch) != previousUnits.end()) {
-        nmfUtilsQt::convertMatrix(Catch, previousUnits[tableHarvestCatch], "mt");
+        nmfUtilsQt::convertMatrix(Catch, previousUnits[tableHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
     }
 
     double EstCarryingCapacityValue = 0;
@@ -13067,17 +13073,17 @@ std::cout << "Warning: If loading observed biomass by guild, must account for us
     // Assure all appropriate dataStruct elements are in metric tons
     if (isSurveyQ) {
         if (previousUnits.find(tableBiomassRelative) != previousUnits.end()) {
-            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassBySpecies,previousUnits[tableBiomassRelative],"mt");
-            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassByGuilds, previousUnits[tableBiomassRelative],"mt");
+            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassBySpecies,previousUnits[tableBiomassRelative],"mt", nmfConstantsMSSPM::DontConvertBlanks);
+            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassByGuilds, previousUnits[tableBiomassRelative],"mt", nmfConstantsMSSPM::DontConvertBlanks);
         }
     } else {
         if (previousUnits.find(tableBiomassAbsolute) != previousUnits.end()) {
-            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassBySpecies,previousUnits[tableBiomassAbsolute],"mt");
-            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassByGuilds, previousUnits[tableBiomassAbsolute],"mt");
+            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassBySpecies,previousUnits[tableBiomassAbsolute],"mt", nmfConstantsMSSPM::DontConvertBlanks);
+            nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassByGuilds, previousUnits[tableBiomassAbsolute],"mt", nmfConstantsMSSPM::DontConvertBlanks);
         }
     }
     if (previousUnits.find(tableHarvestCatch) != previousUnits.end()) {
-        nmfUtilsQt::convertMatrix(dataStruct.Catch,                   previousUnits[tableHarvestCatch], "mt");
+        nmfUtilsQt::convertMatrix(dataStruct.Catch,                   previousUnits[tableHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
     }
     if (previousUnits.find(tableSpecies) != previousUnits.end()) {
         nmfUtilsQt::convertVector(dataStruct.InitBiomass,             previousUnits[tableSpecies],      "mt");
