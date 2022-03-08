@@ -275,14 +275,16 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 {
     nmfStructsQt::ModelDataStruct NLoptDataStruct = *((nmfStructsQt::ModelDataStruct *)dataPtr);
     bool isAggProd = (NLoptDataStruct.CompetitionForm == "AGG-PROD");
-    double EstBiomassVal;
+    double EstBiomassTMinus1;
     double GrowthTerm;
     double HarvestTerm;
     double CompetitionTerm;
     double PredationTerm;
     double systemCarryingCapacity;
     double guildK;
-    double fitness=0;
+    double fitness = 0;
+    double eps = 0;
+    double logEstBiomassVal = 0;
     int timeMinus1;
     int NumYears   = NLoptDataStruct.RunLength+1 - m_MohnsRhoOffset;
     int NumSpecies = NLoptDataStruct.NumSpecies;    
@@ -292,6 +294,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     int NumSpeciesOrGuilds;
     double surveyQVal;
     double surveyQCovariateCoeff = 0.0; // RSK estimate this eventually
+    std::vector<double> sigmasSquared;
     std::vector<double> initBiomass;
     std::vector<double> growthRate;
     std::vector<double> growthRateCovariateCoeffs;
@@ -326,6 +329,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     boost::numeric::ublas::matrix<double> predationHandling;
     boost::numeric::ublas::matrix<double> ObsBiomassBySpeciesOrGuilds;
     boost::numeric::ublas::matrix<double> Catch        = NLoptDataStruct.Catch;
+    boost::numeric::ublas::matrix<double> qEB; // for Fit to Catch calculations
     boost::numeric::ublas::matrix<double> Effort       = NLoptDataStruct.Effort;
     boost::numeric::ublas::matrix<double> Exploitation = NLoptDataStruct.Exploitation;
     std::map<int,std::vector<int> > GuildSpecies = NLoptDataStruct.GuildSpecies;
@@ -358,6 +362,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     nmfUtils::initialize(competitionBetaGuildsGuilds,         NumGuilds,          NumGuilds);
     nmfUtils::initialize(predationRho,                        NumSpeciesOrGuilds, NumSpeciesOrGuilds);
     nmfUtils::initialize(predationHandling,                   NumSpeciesOrGuilds, NumSpeciesOrGuilds);
+    nmfUtils::initialize(qEB,                                 NumYears,           NumSpeciesOrGuilds);
 
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"InitBiomass",                   initBiomassCovariate);
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"GrowthRate",                    growthRateCovariate);
@@ -428,28 +433,31 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
     double initBiomassCoeff = 0.0; // Not estimated
     std::string speciesName;
+    sigmasSquared = nmfUtilsStatistics::calculateSigmasSquared(ObsBiomassBySpeciesOrGuilds);
+    if (sigmasSquared.size() == 0) {
+        return DefaultFitness;
+    }
     for (int time=1; time<NumYears; ++time) {
         timeMinus1 = time - 1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species) {
             speciesName = NLoptDataStruct.SpeciesNames[species];
             if (isCheckedInitBiomass) { // if estimating the initial biomass
                 if (timeMinus1 == 0) {
-                    EstBiomassVal = EstBiomassSpecies(0,species);
+                    EstBiomassTMinus1 = EstBiomassSpecies(0,species);
                 } else {
-                    EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
+                    EstBiomassTMinus1 = EstBiomassSpecies(timeMinus1,species);
                 }
             } else {
-                EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
+                EstBiomassTMinus1 = EstBiomassSpecies(timeMinus1,species);
             }
             if (timeMinus1 == 0) {
-//              EstBiomassVal *= (1.0+initBiomassCoeff*initBiomassCovariate(timeMinus1,species));
-                EstBiomassVal = nmfUtils::applyCovariate(nullptr,
-                            covariateAlgorithmType,EstBiomassVal,
+                EstBiomassTMinus1 = nmfUtils::applyCovariate(nullptr,
+                            covariateAlgorithmType,EstBiomassTMinus1,
                             initBiomassCoeff,initBiomassCovariate(timeMinus1,species));
             }
 
             GrowthTerm      = NLoptGrowthForm->evaluate(covariateAlgorithmType,
-                                                        EstBiomassVal,
+                                                        EstBiomassTMinus1,
                                                         growthRate[species],
                                                         growthRateCovariateCoeffs[species],
                                                         growthRateCovariate(timeMinus1,species),
@@ -457,13 +465,13 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                                                         carryingCapacityCovariateCoeffs[species],
                                                         carryingCapacityCovariate(timeMinus1,species));
             HarvestTerm     = NLoptHarvestForm->evaluate(covariateAlgorithmType,
-                                                         timeMinus1,species,EstBiomassVal,
+                                                         timeMinus1,species,EstBiomassTMinus1,
                                                          Catch,Effort,Exploitation,
                                                          catchability[species],
                                                          catchabilityCovariateCoeffs[species],
                                                          catchabilityCovariate(timeMinus1,species));
             CompetitionTerm = NLoptCompetitionForm->evaluate(covariateAlgorithmType,
-                                                             timeMinus1,species,EstBiomassVal,
+                                                             timeMinus1,species,EstBiomassTMinus1,
                                                              growthRate,
                                                              growthRateCovariate,
                                                              guildCarryingCapacity[guildNum],
@@ -480,7 +488,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                                                              competitionBetaGuildGuildCovariate);
             PredationTerm   = NLoptPredationForm->evaluate(covariateAlgorithmType,
                                                            timeMinus1,species,
-                                                           EstBiomassSpecies,EstBiomassVal,
+                                                           EstBiomassSpecies,EstBiomassTMinus1,
                                                            predationRho,
                                                            predationRhoCovariate,
                                                            predationHandling,
@@ -488,21 +496,24 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                                                            predationExponent,
                                                            predationExponentCovariate);
 
-            EstBiomassVal  += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
-            if (EstBiomassVal < 0) { // test code only
-//std::cout << "******* Calculated negative EstBiomass. species: " << species << ", time: " << time <<
-//             ", 4 terms: " << GrowthTerm << " - " << HarvestTerm << " - " <<
-//             CompetitionTerm << " - " << PredationTerm << std::endl;
-                EstBiomassVal = 0;
+            // Assume log normal error (eps = error term)
+//            eps = std::log(ObsBiomassBySpeciesOrGuilds(timeMinus1,species)) - std::log(EstBiomassTMinus1);
+//            logEstBiomassVal = std::log(EstBiomassTMinus1 + GrowthTerm - HarvestTerm -
+//                                        CompetitionTerm - PredationTerm) + eps;
+//            // This logic is needed for the correct calculation of eps on subsequent iterations
+//            EstBiomassTMinus1 = std::exp(logEstBiomassVal + 0.5*sigmasSquared[species]);
+//            EstBiomassSpecies(time,species) = EstBiomassTMinus1;
+            // the ½σ² term is needed due to the difference between log normal and normal distributions
+
+            EstBiomassTMinus1  += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
+            if (EstBiomassTMinus1 < 0) {
+                EstBiomassTMinus1 = 0;
             }
-
-            if ((EstBiomassVal < 0) || (std::isnan(std::fabs(EstBiomassVal)))) {
-
+            if ((EstBiomassTMinus1 < 0) || (std::isnan(std::fabs(EstBiomassTMinus1)))) {
                 incrementObjectiveFunctionCounter(MSSPMName,(double)DefaultFitness,NLoptDataStruct);
                 return DefaultFitness;
             }
-
-            EstBiomassSpecies(time,species) = EstBiomassVal;
+            EstBiomassSpecies(time,species) = EstBiomassTMinus1;
 
             // update EstBiomassGuilds for next time step
             for (int i=0; i<NumGuilds; ++i) {
@@ -514,6 +525,15 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         } // end i
     } // end time
 
+// TBD...
+//    // Calculate qEB matrix
+//    for (int time=0; time<(int)EstBiomassSpecies.size1();++time) {
+//        for (int species=0; species<(int)EstBiomassSpecies.size2();++species) {
+//            qEB(time,species) = catchability[species]*Effort(time,species)*EstBiomassSpecies(time,species);
+//        }
+//    }
+//nmfUtils::printMatrix("qEB",qEB,10,6);
+
     // Scale the data
     std::string m_Scaling = NLoptDataStruct.ScalingAlgorithm;
     if (m_Scaling == "Min Max") {
@@ -523,46 +543,30 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         nmfUtils::rescaleMatrixMean(EstBiomassSpecies, EstBiomassRescaled);
         nmfUtils::rescaleMatrixMean(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     } else {
-//      std::cout << "Error: No Scaling Algorithm detected. Defaulting to Min Max." << std::endl;
         nmfUtils::rescaleMatrixMinMax(EstBiomassSpecies, EstBiomassRescaled);
         nmfUtils::rescaleMatrixMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     }
 
-    // temp test RSK - take this logstuff out possibly
-//for (int ii=0; ii<int(ObsBiomassBySpeciesOrGuildsRescaled.size1()); ++ii) {
-//    for (int jj=0; jj<int(ObsBiomassBySpeciesOrGuildsRescaled.size2()); ++jj) {
-//        ObsBiomassBySpeciesOrGuildsRescaled(ii,jj) = myNaturalLog(ObsBiomassBySpeciesOrGuildsRescaled(ii,jj));
-//    }
-//}
     // Calculate fitness using the appropriate objective criterion
     if (NLoptDataStruct.ObjectiveCriterion == "Least Squares") {
-
         fitness =  nmfUtilsStatistics::calculateSumOfSquares(
                     EstBiomassRescaled,
                     ObsBiomassBySpeciesOrGuildsRescaled);
-//std::cout << "fitness1: " << fitness << std::endl; // OK
     } else if (NLoptDataStruct.ObjectiveCriterion == "Model Efficiency") {
-
         // Negate the MEF here since the ranges is from -inf to 1, where 1 is best.  So we negate it,
         // then minimize that, and then negate and plot the resulting value.
         fitness = -nmfUtilsStatistics::calculateModelEfficiency(
                     EstBiomassRescaled,
                     ObsBiomassBySpeciesOrGuildsRescaled);
     } else if (NLoptDataStruct.ObjectiveCriterion == "Maximum Likelihood") {
-        // The maximum likelihood calculations must use the unscaled data or else the
-        // results will be incorrect.
-
+        // The maximum likelihood calculations must use the unscaled data or else the results will be incorrect.
         fitness =  nmfUtilsStatistics::calculateMaximumLikelihoodNoRescale(
                     EstBiomassSpecies,
                     ObsBiomassBySpeciesOrGuilds);
-
-        //std::cout << "fitness2: " << fitness << std::endl; // Not OK
      }
 
     incrementObjectiveFunctionCounter(MSSPMName,fitness,NLoptDataStruct);
 
-    //std::cout << "NLopt_Estimator::objectiveFunction - end" << std::endl;
-//std::cout << "fitness: " << fitness << std::endl;
     return fitness;
 }
 
@@ -576,10 +580,10 @@ NLopt_Estimator::incrementObjectiveFunctionCounter(std::string MSSPMName,
 
     // Update progress output file
     // RSK - comment out for now, some algorithms yield 0 evals while they're calculating
-//    m_NLoptFcnEvals = m_Optimizer.get_numevals();
+    //  m_NLoptFcnEvals = m_Optimizer.get_numevals();
 
     ++m_NumObjFcnCalls;
-//std::cout << "m_NumObjFcnCalls,fitness: " << m_NumObjFcnCalls << "," << fitness << std::endl;
+
     if (m_NumObjFcnCalls%1000 == 0) {
 
         writeCurrentLoopFile(MSSPMName,

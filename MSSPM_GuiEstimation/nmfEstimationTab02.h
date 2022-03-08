@@ -47,30 +47,36 @@ class nmfEstimation_Tab2: public QObject
     std::string                       m_ProjectDir;
     std::string                       m_ProjectName;
     std::string                       m_ModelName;
-    std::string                       m_HarvestType;
-    std::map<std::string,std::string> m_GroupBoxTitle;
-    QStandardItemModel*               m_SModel;
+    std::vector<std::string>          m_HarvestTables;
+    std::vector<QTableView*>          m_TableViews;
     int                               m_NumSignificantDigits;
-    QString                           m_PreviousUnits;
+    QString                           m_PreviousEffortUnits;
+    QString                           m_PreviousCatchUnits;
 
-    QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab2_Widget;
-    QTableView*  Estimation_Tab2_HarvestTV;
+    QTabWidget*  Estimation_Tabs;
+    QTableView*  Estimation_Tab2_CatchTV;
+    QTableView*  Estimation_Tab2_EffortTV;
     QPushButton* Estimation_Tab2_PrevPB;
     QPushButton* Estimation_Tab2_NextPB;
     QPushButton* Estimation_Tab2_LoadPB;
     QPushButton* Estimation_Tab2_SavePB;
     QPushButton* Estimation_Tab2_ImportPB;
     QPushButton* Estimation_Tab2_ExportPB;
-    QLabel*      Estimation_Tab2_HarvestLBL;
-    QComboBox*   Estimation_Tab2_UnitsCMB;
-    QCheckBox*   Estimation_Tab2_ConvertCB;
+    QComboBox*   Estimation_Tab2_UnitsEffortCMB;
+    QComboBox*   Estimation_Tab2_UnitsCatchCMB;
+    QCheckBox*   Estimation_Tab2_ConvertEffortCB;
+    QCheckBox*   Estimation_Tab2_ConvertCatchCB;
+    QWidget*     Estimation_Tab2_EffortW;
+    QWidget*     Estimation_Tab2_CatchW;
 
     void loadCSVFile(const QString& absolutePath,
-                     const QString& tableName);
-    void loadUnits(const std::string& tableName);
+                     const QString& tableName,
+                     QTableView* tableView);
+    void loadUnits(const std::vector<std::string>& tableName);
     void readSettings();
-    void saveCSVFile(std::string& tableName);
+    void saveCSVFile(std::string& tableName,
+                     QTableView* tableView);
 
 public:
     /**
@@ -101,11 +107,17 @@ public:
      */
     QString getCurrentUnits();
     /**
-     * @brief If checked, the data table will be automatically
+     * @brief If checked, the Catch data table will be automatically be
      * converted as the user changes the Units combo box
      * @return True if convert checkbox is checked, false otherwise
      */
-    bool isConvertChecked();
+    bool isConvertCatchChecked();
+    /**
+     * @brief If checked, the Effort data table will be automatically be
+     * converted as the user changes the Units combo box
+     * @return True if convert checkbox is checked, false otherwise
+     */
+    bool isConvertEffortChecked();
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully
@@ -157,10 +169,15 @@ public Q_SLOTS:
      */
     void callback_SavePB();
     /**
-     * @brief Callback invoked when the user changes the Units combo box
+     * @brief Callback invoked when the user changes the Catch Units combo box
      * @param units : new units selected by the user
      */
-    void callback_UnitsCMB(QString units);
+    void callback_UnitsCatchCMB(QString units);
+    /**
+     * @brief Callback invoked when the user changes the Effort Units combo box
+     * @param units : new units selected by the user
+     */
+    void callback_UnitsEffortCMB(QString units);
 };
 
 #endif // NMFESTIMATIONTAB2_H

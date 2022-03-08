@@ -30,8 +30,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>600</width>
-        <height>583</height>
+        <width>604</width>
+        <height>569</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -808,13 +808,13 @@ This value is read-only and auto-generated.</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>80</width>
+                        <width>82</width>
                         <height>0</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>80</width>
+                        <width>82</width>
                         <height>16777215</height>
                        </size>
                       </property>
@@ -845,13 +845,13 @@ This value is read-only and auto-generated.</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>120</width>
+                        <width>135</width>
                         <height>0</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>120</width>
+                        <width>135</width>
                         <height>16777215</height>
                        </size>
                       </property>
@@ -1097,13 +1097,13 @@ This value is read-only and auto-generated.</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>80</width>
+                        <width>82</width>
                         <height>0</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>80</width>
+                        <width>82</width>
                         <height>16777215</height>
                        </size>
                       </property>
@@ -1134,13 +1134,13 @@ This value is read-only and auto-generated.</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>120</width>
+                        <width>135</width>
                         <height>0</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>120</width>
+                        <width>135</width>
                         <height>16777215</height>
                        </size>
                       </property>
@@ -1164,6 +1164,11 @@ This value is read-only and auto-generated.</string>
                       <item>
                        <property name="text">
                         <string>Effort (qE)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Effort Fit to Catch</string>
                        </property>
                       </item>
                       <item>

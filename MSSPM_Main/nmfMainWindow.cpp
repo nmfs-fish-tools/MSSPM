@@ -3224,8 +3224,10 @@ nmfMainWindow::findTableInFocus()
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_GuildPopulationTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_SpeciesPopulationTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab1_SpeciesPopulationTV");
-    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_HarvestTV")->hasFocus()) {
-        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_HarvestTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_EffortTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_EffortTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaMinTV")->hasFocus()) {
@@ -4488,7 +4490,7 @@ nmfMainWindow::setFirstRowEstimatedBiomass(
         const int& NumSpeciesOrGuilds,
         const boost::numeric::ublas::vector<double>& InitialBiomass,
         boost::numeric::ublas::matrix<double>& EstInitBiomassCovariates,
-        boost::numeric::ublas::matrix<double>& EstimatedBiomassBySpecies)
+        boost::numeric::ublas::matrix<double>& EstBiomassSpecies)
 {
     double initBiomassCovariateCoeff = 0.0; // RSK estimate this eventually
     nmfStructsQt::ModelDataStruct dataStruct;
@@ -4507,8 +4509,8 @@ nmfMainWindow::setFirstRowEstimatedBiomass(
         getOutputInitialBiomass(ForecastName,OutputInitBiomass);
         if (OutputInitBiomass.size() == NumSpeciesOrGuilds) {
             for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-//              EstimatedBiomassBySpecies(0,species) = OutputInitBiomass[species]*(1.0+initBiomassCovariateCoeff*EstInitBiomassCovariates(0,species));
-                EstimatedBiomassBySpecies(0,species) = nmfUtils::applyCovariate(m_Logger,
+//              EstBiomassSpecies(0,species) = OutputInitBiomass[species]*(1.0+initBiomassCovariateCoeff*EstInitBiomassCovariates(0,species));
+                EstBiomassSpecies(0,species) = nmfUtils::applyCovariate(m_Logger,
                             covariateAlgorithmType,OutputInitBiomass[species],
                             initBiomassCovariateCoeff,EstInitBiomassCovariates(0,species));
             }
@@ -4520,8 +4522,8 @@ nmfMainWindow::setFirstRowEstimatedBiomass(
         }
     } else {
         for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-//          EstimatedBiomassBySpecies(0,species) = InitialBiomass[species]*(1.0+initBiomassCovariateCoeff*EstInitBiomassCovariates(0,species));
-            EstimatedBiomassBySpecies(0,species) = nmfUtils::applyCovariate(m_Logger,
+//          EstBiomassSpecies(0,species) = InitialBiomass[species]*(1.0+initBiomassCovariateCoeff*EstInitBiomassCovariates(0,species));
+            EstBiomassSpecies(0,species) = nmfUtils::applyCovariate(m_Logger,
                         covariateAlgorithmType,InitialBiomass[species],
                         initBiomassCovariateCoeff,EstInitBiomassCovariates(0,species));
         }
@@ -4725,10 +4727,14 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     int    timeMinus1;
     int    guildNum;
     int    NumYears = RunLength + 1;
-    double EstimatedBiomassTimeMinus1 = 0;
+    double eps = 0;
+    double EstBiomassTMinus1 = 0;
+    double logEstBiomassVal = 0;
+    double surveyQCovariateCoeff = 0.0; // RSK estimate this eventually
     double SystemCarryingCapacity = 0;
     double GuildCarryingCapacity;
     double MonteCarloValue; // random value in the range: [val-uncertainty,val+uncertainty]
+    double surveyQVal;
     std::string cmd;
     std::string errorMsg;
     std::vector<std::string> fields;
@@ -4758,6 +4764,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     std::vector<double> PredationExponentRandomValues      = {};
     std::vector<double> PredationHandlingRandomValues      = {};
     std::vector<double> SurveyQRandomValues                = {};
+    std::vector<double> sigmasSquared;
 
     boost::numeric::ublas::matrix<double> InitBiomassCovariate;
     boost::numeric::ublas::matrix<double> GrowthRatesCovariate;
@@ -4779,16 +4786,19 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     boost::numeric::ublas::matrix<double> Catch;
     boost::numeric::ublas::matrix<double> Effort;
     boost::numeric::ublas::matrix<double> Exploitation;
-    boost::numeric::ublas::matrix<double> EstimatedBiomassBySpecies;
+    boost::numeric::ublas::matrix<double> EstBiomassSpecies;
     boost::numeric::ublas::matrix<double> EstimatedBiomassByGuilds;
     boost::numeric::ublas::matrix<double> NullMatrix;
+    boost::numeric::ublas::matrix<double> ObsBiomassBySpeciesOrGuilds;
+    boost::numeric::ublas::matrix<double> SurveyQCovariate;
+
     QList<QList<double> > BiomassData; // A Vector of row vectors
 //  QList<double> InitialBiomass;
     boost::numeric::ublas::vector<double> InitialBiomass;
-    double growthTerm;
-    double harvestTerm;
-    double competitionTerm;
-    double predationTerm;
+    double GrowthTerm;
+    double HarvestTerm;
+    double CompetitionTerm;
+    double PredationTerm;
     double randomValue = 0.0;
     std::vector<double> InitBiomassUncertainty;
     std::vector<double> GrowthRateUncertainty;
@@ -4844,10 +4854,13 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     if (isAggProd) {
         SpeciesList        = GuildList;
         NumSpeciesOrGuilds = NumGuilds;
+        ObsBiomassBySpeciesOrGuilds = m_DataStruct.ObservedBiomassByGuilds;
     } else {
+        ObsBiomassBySpeciesOrGuilds = m_DataStruct.ObservedBiomassBySpecies;
         if (! m_DatabasePtr->getSpecies(m_Logger,NumSpeciesOrGuilds,SpeciesList)) {
             return false;
         }
+        NumSpeciesOrGuilds = ObsBiomassBySpeciesOrGuilds.size2();
     }
     std::vector<double> HarvestRandomValues(NumSpeciesOrGuilds,0.0);
 
@@ -5255,6 +5268,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"GrowthRate",                    GrowthRatesCovariate);
     nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CarryingCapacity",              CarryingCapacitiesCovariate);
     nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"Catchability",                  CatchabilityCovariate);
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"SurveyQ",                       SurveyQCovariate);
     nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"PredationRho",                  PredationRhoCovariate);
     nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"PredationHandling",             PredationHandlingCovariate);
     nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"PredationExponent",             PredationExponentCovariate);
@@ -5263,10 +5277,26 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionBetaGuildSpecies",   CompetitionBetaGuildSpeciesCovariate);
     nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"CompetitionBetaGuildGuild",     CompetitionBetaGuildGuildCovariate);
 
+    // Since we may be estimating SurveyQ, need to divide the Observed Biomass by the SurveyQ
+    double surveyQTerm;
+    for (int species=0; species<NumSpeciesOrGuilds; ++species) {
+        surveyQVal  = EstSurveyQ[species];
+        for (int time=0; time<NumYears; ++time) {
+            if (ObsBiomassBySpeciesOrGuilds(time,species) != nmfConstantsMSSPM::NoData) {
+                surveyQTerm = nmfUtils::applyCovariate(nullptr,
+                                                       m_DataStruct.CovariateAlgorithmType,surveyQVal,
+                                                       surveyQCovariateCoeff,SurveyQCovariate(time,species));
+                ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQTerm;
+            }
+        }
+    }
+
+
+
     // Use estimated initial biomass if it was checked to be estimated
-    nmfUtils::initialize(EstimatedBiomassBySpecies,NumYears,NumSpeciesOrGuilds);
+    nmfUtils::initialize(EstBiomassSpecies,NumYears,NumSpeciesOrGuilds);
     if (! setFirstRowEstimatedBiomass(ForecastName,NumSpeciesOrGuilds,InitialBiomass,
-                                      InitBiomassCovariate,EstimatedBiomassBySpecies)) {
+                                      InitBiomassCovariate,EstBiomassSpecies)) {
         return false;
     }
 
@@ -5299,10 +5329,12 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         }
     }
 
+    sigmasSquared = nmfUtilsStatistics::calculateSigmasSquared(ObsBiomassBySpeciesOrGuilds);
+    if (sigmasSquared.size() == 0) {
+        return false;
+    }
     for (int time = 1; time<NumYears; time++) {
         timeMinus1 = time-1;
-        //BiomassRow.clear();
-
         for (int species=0; species<NumSpeciesOrGuilds; ++species)
         {
             // Find the guild carrying capacity for guild: guildNum
@@ -5316,31 +5348,30 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 }
             }
 
-            EstimatedBiomassTimeMinus1  = EstimatedBiomassBySpecies(timeMinus1,species);
-//std::cout << "BM-1: " << EstimatedBiomassTimeMinus1 << std::endl;
-            growthTerm      = growthForm->evaluate(CovariateAlgorithmType,
-                                                   EstimatedBiomassTimeMinus1,
+            EstBiomassTMinus1  = EstBiomassSpecies(timeMinus1,species);
+            GrowthTerm      = growthForm->evaluate(CovariateAlgorithmType,
+                                                   EstBiomassTMinus1,
                                                    EstGrowthRates[species],
                                                    EstGrowthRateCovariateCoeffs[species],
                                                    GrowthRatesCovariate(timeMinus1,species),
                                                    EstCarryingCapacities[species],
                                                    EstCarryingCapacityCovariateCoeffs[species],
                                                    CarryingCapacitiesCovariate(timeMinus1,species));
-            harvestTerm     = harvestForm->evaluate(CovariateAlgorithmType,
+            HarvestTerm     = harvestForm->evaluate(CovariateAlgorithmType,
                                                     timeMinus1,species,
-                                                    EstimatedBiomassTimeMinus1,
+                                                    EstBiomassTMinus1,
                                                     Catch,Effort,Exploitation,
                                                     EstCatchability[species],
                                                     EstCatchabilityCovariateCoeffs[species],
                                                     CatchabilityCovariate(timeMinus1,species));
-            competitionTerm = competitionForm->evaluate(CovariateAlgorithmType,
+            CompetitionTerm = competitionForm->evaluate(CovariateAlgorithmType,
                                                         timeMinus1, species,
-                                                        EstimatedBiomassTimeMinus1,
+                                                        EstBiomassTMinus1,
                                                         EstGrowthRates,
                                                         GrowthRatesCovariate,
                                                         GuildCarryingCapacity,
                                                         SystemCarryingCapacity,
-                                                        EstimatedBiomassBySpecies,
+                                                        EstBiomassSpecies,
                                                         EstimatedBiomassByGuilds,
                                                         EstCompetitionAlpha,
                                                         CompetitionAlphaCovariate,
@@ -5350,10 +5381,10 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                         CompetitionBetaGuildSpeciesCovariate,
                                                         EstCompetitionBetaGuildsGuilds,
                                                         CompetitionBetaGuildGuildCovariate);
-            predationTerm   = predationForm->evaluate(CovariateAlgorithmType,
+            PredationTerm   = predationForm->evaluate(CovariateAlgorithmType,
                                                       timeMinus1, species,
-                                                      EstimatedBiomassBySpecies,
-                                                      EstimatedBiomassTimeMinus1,
+                                                      EstBiomassSpecies,
+                                                      EstBiomassTMinus1,
                                                       EstPredationRho,
                                                       PredationRhoCovariate,
                                                       EstPredationHandling,
@@ -5361,24 +5392,29 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                       EstPredationExponent,
                                                       PredationExponentCovariate);
 
-            EstimatedBiomassTimeMinus1 += growthTerm - harvestTerm - competitionTerm - predationTerm;
+            // Assume log normal error (eps = error term)
+//            eps = std::log(ObsBiomassBySpeciesOrGuilds(timeMinus1,species)) - std::log(EstBiomassTMinus1);
+//            logEstBiomassVal = std::log(EstBiomassTMinus1 + GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm) + eps;
+//            // This logic is needed in order to properly calculate eps on subsequent loop iterations
+//            EstBiomassTMinus1 = std::exp(logEstBiomassVal + 0.5*sigmasSquared[species]);
+//            EstBiomassSpecies(time,species) = EstBiomassTMinus1;
 
-            if ( std::isnan(std::fabs(EstimatedBiomassTimeMinus1)) ||
-                (EstimatedBiomassTimeMinus1 < 0) )
-            {
-                EstimatedBiomassTimeMinus1 = 0;
+            EstBiomassTMinus1 += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
+            if ( std::isnan(std::fabs(EstBiomassTMinus1)) || (EstBiomassTMinus1 < 0) ) {
+                EstBiomassTMinus1 = 0;
             }
-            EstimatedBiomassBySpecies(time,species) = EstimatedBiomassTimeMinus1;
+            EstBiomassSpecies(time,species) = EstBiomassTMinus1;
+
 
             // update estBiomassGuilds for next time step
             if (isAggProd) {
                 for (int i=0; i<NumGuilds; ++i) {
-                    EstimatedBiomassByGuilds(time,i) = EstimatedBiomassBySpecies(time,i);
+                    EstimatedBiomassByGuilds(time,i) = EstBiomassSpecies(time,i);
                 }
             } else {
                 for (int i=0; i<NumGuilds; ++i) {
                     for (unsigned j=0; j<GuildSpecies[i].size(); ++j) {
-                        EstimatedBiomassByGuilds(time,i) += EstimatedBiomassBySpecies(time,GuildSpecies[i][j]);
+                        EstimatedBiomassByGuilds(time,i) += EstBiomassSpecies(time,GuildSpecies[i][j]);
                     }
                 }
             }
@@ -5393,8 +5429,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
               " (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
         for (int species=0; species<NumSpeciesOrGuilds; ++ species) { // Species
             for (int time=StartYear; time<=RunLength; ++time) { // Time in years
-                if (std::isnan(EstimatedBiomassBySpecies(time,species))) {
-                    EstimatedBiomassBySpecies(time,species) = -1;
+                if (std::isnan(EstBiomassSpecies(time,species))) {
+                    EstBiomassSpecies(time,species) = -1;
                 }
                 cmd += "('"   + m_ProjectName +
                         "','" + m_ModelName +
@@ -5405,7 +5441,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                         "',"  + isAggProdStr +
                         ",'"  + SpeciesList[species].toStdString() +
                         "',"  + std::to_string(time) +
-                        ","   + QString::number(EstimatedBiomassBySpecies(time,species),'f',6).toStdString() + "),";
+                        ","   + QString::number(EstBiomassSpecies(time,species),'f',6).toStdString() + "),";
             }
         }
     } else {
@@ -5415,10 +5451,10 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                   " (ProjectName,ModelName,ForecastName,RunNum,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
             for (int species=0; species<NumSpeciesOrGuilds; ++ species) { // Species
                 for (int time=0; time<=RunLength; ++time) { // Time in years
-                    if (std::isnan(EstimatedBiomassBySpecies(time,species)) ||
-                        std::isinf(EstimatedBiomassBySpecies(time,species)) ||
-                        EstimatedBiomassBySpecies(time,species) > nmfConstants::MaxBiomass) {
-                        EstimatedBiomassBySpecies(time,species) = -1;
+                    if (std::isnan(EstBiomassSpecies(time,species)) ||
+                        std::isinf(EstBiomassSpecies(time,species)) ||
+                        EstBiomassSpecies(time,species) > nmfConstants::MaxBiomass) {
+                        EstBiomassSpecies(time,species) = -1;
                     }
                     cmd += "('"   + m_ProjectName +
                             "','" + m_ModelName +
@@ -5431,7 +5467,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                             "',"  + isAggProdStr +
                             ",'"  + SpeciesList[species].toStdString() +
                             "',"  + std::to_string(time) +
-                            ","   + QString::number(EstimatedBiomassBySpecies(time,species),'f',6).toStdString() + "),";
+                            ","   + QString::number(EstBiomassSpecies(time,species),'f',6).toStdString() + "),";
                 }
             }
         } else {
@@ -5439,10 +5475,10 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                   " (ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Year,Value) VALUES ";
             for (int species=0; species<NumSpeciesOrGuilds; ++ species) { // Species
                 for (int time=0; time<=RunLength; ++time) { // Time in years
-                    if (std::isnan(EstimatedBiomassBySpecies(time,species)) ||
-                        std::isinf(EstimatedBiomassBySpecies(time,species)) ||
-                        EstimatedBiomassBySpecies(time,species) > nmfConstants::MaxBiomass) {
-                        EstimatedBiomassBySpecies(time,species) = -1;
+                    if (std::isnan(EstBiomassSpecies(time,species)) ||
+                        std::isinf(EstBiomassSpecies(time,species)) ||
+                        EstBiomassSpecies(time,species) > nmfConstants::MaxBiomass) {
+                        EstBiomassSpecies(time,species) = -1;
                     }
                     cmd += "('"   + m_ProjectName +
                             "','" + m_ModelName +
@@ -5454,7 +5490,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                             "',"  + isAggProdStr +
                             ",'"  + SpeciesList[species].toStdString() +
                             "',"  + std::to_string(time) +
-                            ","   + QString::number(EstimatedBiomassBySpecies(time,species),'f',6).toStdString() + "),";
+                            ","   + QString::number(EstBiomassSpecies(time,species),'f',6).toStdString() + "),";
                 }
             }
         }
@@ -10732,10 +10768,10 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
     double GuildCarryingCapacity;
     double EstBiomassVal = 0;
     double SystemCarryingCapacity = 0;
-    double growthTerm;
-    double harvestTerm;
-    double competitionTerm;
-    double predationTerm;
+    double GrowthTerm;
+    double HarvestTerm;
+    double CompetitionTerm;
+    double PredationTerm;
     std::string ForecastName = "";  // RSK - may need to refactor this later if going to re-use this method
     std::string GrowthForm;
     std::string HarvestForm;
@@ -10898,7 +10934,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
 
             EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
 
-            growthTerm      = growthForm->evaluate(CovariateAlgorithmType,
+            GrowthTerm      = growthForm->evaluate(CovariateAlgorithmType,
                                                    EstBiomassVal,
                                                    EstGrowthRates[species],
                                                    EstGrowthRateCovariateCoeffs[species],
@@ -10906,13 +10942,13 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                                    EstCarryingCapacities[species],
                                                    EstCarryingCapacityValue,
                                                    CarryingCapacityCovariate(timeMinus1,species));
-            harvestTerm     = harvestForm->evaluate(CovariateAlgorithmType,
+            HarvestTerm     = harvestForm->evaluate(CovariateAlgorithmType,
                                                     timeMinus1,species,EstBiomassVal,
                                                     Catch,Effort,Exploitation,
                                                     EstCatchability[species],
                                                     EstCatchabilityCovariateCoeffs[species],
                                                     CatchabilityCovariate(timeMinus1,species));
-            competitionTerm = competitionForm->evaluate(CovariateAlgorithmType,
+            CompetitionTerm = competitionForm->evaluate(CovariateAlgorithmType,
                                                         timeMinus1,
                                                         species,
                                                         EstBiomassVal,
@@ -10930,14 +10966,14 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                                         CompetitionBetaGuildSpeciesCovariate,
                                                         EstCompetitionBetaGuildsGuilds,
                                                         CompetitionBetaGuildGuildCovariate);
-            predationTerm   = predationForm->evaluate(CovariateAlgorithmType,
+            PredationTerm   = predationForm->evaluate(CovariateAlgorithmType,
                                                       timeMinus1,species,
                                                       EstBiomassSpecies,EstBiomassVal,
                                                       EstPredationRho,PredationRhoCovariate,
                                                       EstPredationHandling,PredationHandlingCovariate,
                                                       EstPredationExponent,PredationExponentCovariate);
 
-            EstBiomassVal += growthTerm - harvestTerm - competitionTerm - predationTerm;
+            EstBiomassVal += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
 
             if ( std::isnan(std::fabs(EstBiomassVal)) ||
                 (EstBiomassVal < 0) )

@@ -638,7 +638,7 @@ nmfSetup_Tab4::setEstimatedParameterNames()
     }
 
     // Load Harvest estimated parameters
-    if (harvestForm == "Effort (qE)") {
+    if ((harvestForm == "Effort (qE)") || (harvestForm == "Effort Fit to Catch")) {
         runBox.parameter = "Catchability";
         m_EstimatedParameters.push_back(nmfConstantsMSSPM::ParameterNameCatchability);
         EstimateRunBoxes.push_back(runBox);
