@@ -4708,7 +4708,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 {
     bool   loadOK;
     bool   isCarryingCapacity = (GrowthForm      == "Logistic");
-    bool   isCatchability     = (HarvestForm     ==  nmfConstantsMSSPM::HarvestEffort.toStdString());
+    bool   isCatchability     = (HarvestForm     ==  nmfConstantsMSSPM::HarvestEffort.toStdString()) ||
+                                (HarvestForm     ==  nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString());
     bool   isAggProd          = (CompetitionForm == "AGG-PROD");
     bool   isAlpha            = (CompetitionForm == "NO_K");
     bool   isBetaSpecies      = (CompetitionForm == "MS-PROD");
@@ -4764,7 +4765,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     std::vector<double> PredationExponentRandomValues      = {};
     std::vector<double> PredationHandlingRandomValues      = {};
     std::vector<double> SurveyQRandomValues                = {};
-    std::vector<double> sigmasSquared;
 
     boost::numeric::ublas::matrix<double> InitBiomassCovariate;
     boost::numeric::ublas::matrix<double> GrowthRatesCovariate;
@@ -5212,6 +5212,51 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                 return false;
         }
         scaleTimeSeriesIfMonteCarlo(isMonteCarlo,HarvestUncertainty,Effort,HarvestRandomValues);
+    } else if (HarvestForm == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()) {
+        if (isAggProd) {
+            if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
+                                                          ForecastName,nmfConstantsMSSPM::TableHarvestCatch,
+                                                          NumSpeciesOrGuilds,RunLength,
+                                                          "",NullMatrix,Catch)) {
+                QMessageBox::warning(this, "Error",
+                                     "\nError: No data found in Catch table for current Forecast.\nCheck Forecast->Harvest Data tab.",
+                                     QMessageBox::Ok);
+                return false;
+            }
+        } else {
+            if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
+                                                   ForecastName,nmfConstantsMSSPM::TableHarvestCatch,
+                                                   NumSpeciesOrGuilds,RunLength,Catch)) {
+                QMessageBox::warning(this, "Error",
+                                     "\nError: No data found in Catch table for current Forecast.\nCheck Forecast->Harvest Data tab.",
+                                     QMessageBox::Ok);
+                return false;
+            }
+        }
+        if (ForecastName == "") {
+            if (previousUnits.find(tableHarvestCatch) != previousUnits.end()) {
+                nmfUtilsQt::convertMatrix(Catch, previousUnits[tableHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
+            }
+        } else {
+            if (previousUnits.find(tableForecastHarvestCatch) != previousUnits.end()) {
+                nmfUtilsQt::convertMatrix(Catch, previousUnits[tableForecastHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
+            }
+        }
+        scaleTimeSeriesIfMonteCarlo(isMonteCarlo,HarvestUncertainty,Catch,HarvestRandomValues);
+
+        if (isAggProd) {
+            if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
+                                                          ForecastName,nmfConstantsMSSPM::TableHarvestEffort,
+                                                          NumSpeciesOrGuilds,RunLength,
+                                                          "",NullMatrix,Effort))
+                return false;
+        } else {
+            if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
+                                                   ForecastName,nmfConstantsMSSPM::TableHarvestEffort,
+                                                   NumSpeciesOrGuilds,RunLength,Effort))
+                return false;
+        }
+        scaleTimeSeriesIfMonteCarlo(isMonteCarlo,HarvestUncertainty,Effort,HarvestRandomValues);
     } else if (HarvestForm == "Exploitation (F)") {
         if (isAggProd) {
             if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
@@ -5329,14 +5374,18 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         }
     }
 
-    sigmasSquared = nmfUtilsStatistics::calculateSigmasSquared(ObsBiomassBySpeciesOrGuilds);
-    if (sigmasSquared.size() == 0) {
-        return false;
-    }
+//    std::vector<double> sigmasSquared = nmfUtilsStatistics::calculateSigmasSquared(ObsBiomassBySpeciesOrGuilds);
+//    if (sigmasSquared.size() == 0) {
+//        return false;
+//    }
+
     for (int time = 1; time<NumYears; time++) {
         timeMinus1 = time-1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species)
         {
+//if (time == 1) {
+// std::cout << "sigmasSquared[" << species << "]: " << sigmasSquared[species] << std::endl;
+//}
             // Find the guild carrying capacity for guild: guildNum
             GuildCarryingCapacity = 0;
             if (isAggProd) {
@@ -5394,9 +5443,12 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
             // Assume log normal error (eps = error term)
 //            eps = std::log(ObsBiomassBySpeciesOrGuilds(timeMinus1,species)) - std::log(EstBiomassTMinus1);
-//            logEstBiomassVal = std::log(EstBiomassTMinus1 + GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm) + eps;
-//            // This logic is needed in order to properly calculate eps on subsequent loop iterations
-//            EstBiomassTMinus1 = std::exp(logEstBiomassVal + 0.5*sigmasSquared[species]);
+//            logEstBiomassVal = std::log(
+//                        EstBiomassTMinus1 + GrowthTerm
+//                        - HarvestTerm - CompetitionTerm - PredationTerm);
+//                       // + eps;
+//            // This next assignment statement is needed in order to properly calculate eps on subsequent loop iterations
+//            EstBiomassTMinus1 = std::exp(logEstBiomassVal); // + 0.5*sigmasSquared[species]);
 //            EstBiomassSpecies(time,species) = EstBiomassTMinus1;
 
             EstBiomassTMinus1 += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
@@ -5418,9 +5470,26 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                     }
                 }
             }
+        } // end for all species
+    } // end for all years
 
-        }
-    }
+
+    // Howard's suggestion regarding adding another loop for the stats calculations
+//    std::vector<double> sigmasSquared = nmfUtilsStatistics::calculateSigmasSquared(EstBiomassSpecies);
+//    if (sigmasSquared.size() == 0) {
+//        return false;
+//    }
+//    for (int i=0; i<(int)EstBiomassSpecies.size1(); ++i) {
+//        for (int j=0; j<(int)EstBiomassSpecies.size2(); ++j) {
+//            eps = std::log(ObsBiomassBySpeciesOrGuilds(i,j)) - std::log(EstBiomassSpecies(i,j));
+//            logEstBiomassVal = std::log(EstBiomassSpecies(i,j)) + eps;
+//            EstBiomassSpecies(i,j) = std::exp(logEstBiomassVal + 0.5*sigmasSquared[j]);
+//        }
+//    }
+
+
+
+
 
     m = 0;
     if (ForecastName == "") {
@@ -10895,6 +10964,36 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                                    NumSpeciesOrGuilds,RunLength,Effort))
                 return false;
         }
+    } else if (HarvestForm == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()) {
+        if (isAggProd) {
+            if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
+                                                          ForecastName,nmfConstantsMSSPM::TableHarvestCatch,
+                                                          NumSpeciesOrGuilds,RunLength,
+                                                          "",NullMatrix,Catch)) {
+                QMessageBox::warning(this, "Error",
+                                     "\nError: No data found in Catch table for current Forecast.\nCheck Forecast->Harvest Data tab.",
+                                     QMessageBox::Ok);
+                return false;
+            }
+            if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
+                                                          ForecastName,nmfConstantsMSSPM::TableHarvestEffort,
+                                                          NumSpeciesOrGuilds,RunLength,
+                                                          "",NullMatrix,Effort))
+                return false;
+        } else {
+            if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
+                                                   ForecastName,nmfConstantsMSSPM::TableHarvestCatch,
+                                                   NumSpeciesOrGuilds,RunLength,Catch)) {
+                QMessageBox::warning(this, "Error",
+                                     "\nError: No data found in Catch table for current Forecast.\nCheck Forecast->Harvest Data tab.",
+                                     QMessageBox::Ok);
+                return false;
+            }
+            if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
+                                                   ForecastName,nmfConstantsMSSPM::TableHarvestEffort,
+                                                   NumSpeciesOrGuilds,RunLength,Effort))
+                return false;
+        }
     } else if (HarvestForm == "Exploitation (F)") {
         if (isAggProd) {
             if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
@@ -12579,14 +12678,18 @@ nmfMainWindow::loadCovariateData(std::map<std::string,std::vector<double> >& cov
                   "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     int NumCovariateParameters = (int)dataMap["CovariateName"].size()/RunLength;
-
     covariateMap.clear();
     for (int i=0; i<NumCovariateParameters; ++i) {
         covariateName = dataMap["CovariateName"][m];
         if (! covariateName.empty()) {
             covariateTimeSeries.clear();
             for (int time=0;time<RunLength;++time) {
-                covariateTimeSeries.push_back(std::stod(dataMap["ValueScaled"][m++]));
+                if (dataMap["ValueScaled"][m] == "") {
+                    covariateTimeSeries.push_back(nmfConstantsMSSPM::NoData);
+                } else {
+                    covariateTimeSeries.push_back(std::stod(dataMap["ValueScaled"][m]));
+                }
+                ++m;
             }
             covariateMap[covariateName] = covariateTimeSeries;
         }
@@ -13023,7 +13126,8 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         dataStruct.TotalNumberParameters += NumSpecies; //  K
         dataStruct.TotalNumberParameters += NumSpecies; //  K covariates
     }
-    if (harvestForm == nmfConstantsMSSPM::HarvestEffort.toStdString()) {
+    if ((harvestForm == nmfConstantsMSSPM::HarvestEffort.toStdString()) ||
+        (harvestForm == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString())) {
         dataStruct.TotalNumberParameters += NumSpecies; // q
         dataStruct.TotalNumberParameters += NumSpecies; // q covariates
     }
@@ -13068,6 +13172,17 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
             return false;
         }
         // m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Effort");
+    } else if (harvestForm == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()) {
+        if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
+                                               "",nmfConstantsMSSPM::TableHarvestCatch,
+                                               NumSpecies,RunLength,dataStruct.Catch)) {
+            return false;
+        }
+        if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
+                                               "",nmfConstantsMSSPM::TableHarvestEffort,
+                                               NumSpecies,RunLength,dataStruct.Effort)) {
+            return false;
+        }
     } else if (harvestForm == "Exploitation (F)") {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
                                                "",nmfConstantsMSSPM::TableHarvestExploitation,

@@ -83,7 +83,8 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
                                    std::vector<double>& surveyQ)
 {
     bool isLogistic     = (NLoptDataStruct.GrowthForm      == "Logistic");
-    bool isCatchability = (NLoptDataStruct.HarvestForm     == "Effort (qE)");
+    bool isCatchability = (NLoptDataStruct.HarvestForm     == nmfConstantsMSSPM::HarvestEffort.toStdString()) ||
+                          (NLoptDataStruct.HarvestForm     == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString());
     bool isAlpha        = (NLoptDataStruct.CompetitionForm == "NO_K");
     bool isMSPROD       = (NLoptDataStruct.CompetitionForm == "MS-PROD");
     bool isAGGPROD      = (NLoptDataStruct.CompetitionForm == "AGG-PROD");
@@ -211,7 +212,6 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
         offset += NumGuilds*NumGuilds;
     }
 
-
     if (isRho) {
         m = 0;
         nmfUtils::initialize(predation,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
@@ -294,7 +294,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     int NumSpeciesOrGuilds;
     double surveyQVal;
     double surveyQCovariateCoeff = 0.0; // RSK estimate this eventually
-    std::vector<double> sigmasSquared;
     std::vector<double> initBiomass;
     std::vector<double> growthRate;
     std::vector<double> growthRateCovariateCoeffs;
@@ -335,6 +334,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     std::map<int,std::vector<int> > GuildSpecies = NLoptDataStruct.GuildSpecies;
     std::string MSSPMName = "Run " + std::to_string(m_RunNum) + "-1";
     std::string covariateAlgorithmType = NLoptDataStruct.CovariateAlgorithmType;
+    bool isEffortFitToCatch = (NLoptDataStruct.HarvestForm == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString());
 //std::cout << "NLopt_Estimator::objectiveFunction - start" << std::endl;
 
     if (m_Quit) {
@@ -433,10 +433,10 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
     double initBiomassCoeff = 0.0; // Not estimated
     std::string speciesName;
-    sigmasSquared = nmfUtilsStatistics::calculateSigmasSquared(ObsBiomassBySpeciesOrGuilds);
-    if (sigmasSquared.size() == 0) {
-        return DefaultFitness;
-    }
+//    std::vector<double> sigmasSquared = nmfUtilsStatistics::calculateSigmasSquared(ObsBiomassBySpeciesOrGuilds);
+//    if (sigmasSquared.size() == 0) {
+//        return DefaultFitness;
+//    }
     for (int time=1; time<NumYears; ++time) {
         timeMinus1 = time - 1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species) {
@@ -499,9 +499,9 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
             // Assume log normal error (eps = error term)
 //            eps = std::log(ObsBiomassBySpeciesOrGuilds(timeMinus1,species)) - std::log(EstBiomassTMinus1);
 //            logEstBiomassVal = std::log(EstBiomassTMinus1 + GrowthTerm - HarvestTerm -
-//                                        CompetitionTerm - PredationTerm) + eps;
+//                                        CompetitionTerm - PredationTerm); // + eps;
 //            // This logic is needed for the correct calculation of eps on subsequent iterations
-//            EstBiomassTMinus1 = std::exp(logEstBiomassVal + 0.5*sigmasSquared[species]);
+//            EstBiomassTMinus1 = std::exp(logEstBiomassVal); // + 0.5*sigmasSquared[species]);
 //            EstBiomassSpecies(time,species) = EstBiomassTMinus1;
             // the ½σ² term is needed due to the difference between log normal and normal distributions
 
@@ -525,14 +525,20 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         } // end i
     } // end time
 
-// TBD...
-//    // Calculate qEB matrix
-//    for (int time=0; time<(int)EstBiomassSpecies.size1();++time) {
-//        for (int species=0; species<(int)EstBiomassSpecies.size2();++species) {
-//            qEB(time,species) = catchability[species]*Effort(time,species)*EstBiomassSpecies(time,species);
+
+    // Howard's suggestion regarding adding another loop for the stats calculations
+//    std::vector<double> sigmasSquared = nmfUtilsStatistics::calculateSigmasSquared(EstBiomassSpecies);
+//    if (sigmasSquared.size() == 0) {
+//        return false;
+//    }
+//    for (int i=0; i<(int)EstBiomassSpecies.size1(); ++i) {
+//        for (int j=0; j<(int)EstBiomassSpecies.size2(); ++j) {
+//            eps = std::log(ObsBiomassBySpeciesOrGuilds(i,j)) - std::log(EstBiomassSpecies(i,j));
+//            logEstBiomassVal = std::log(EstBiomassSpecies(i,j)) + eps;
+//            EstBiomassSpecies(i,j) = std::exp(logEstBiomassVal + 0.5*sigmasSquared[j]);
 //        }
 //    }
-//nmfUtils::printMatrix("qEB",qEB,10,6);
+
 
     // Scale the data
     std::string m_Scaling = NLoptDataStruct.ScalingAlgorithm;
@@ -550,8 +556,9 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     // Calculate fitness using the appropriate objective criterion
     if (NLoptDataStruct.ObjectiveCriterion == "Least Squares") {
         fitness =  nmfUtilsStatistics::calculateSumOfSquares(
-                    EstBiomassRescaled,
-                    ObsBiomassBySpeciesOrGuildsRescaled);
+                    isEffortFitToCatch,catchability,
+                    Effort, Catch, EstBiomassSpecies,
+                    EstBiomassRescaled, ObsBiomassBySpeciesOrGuildsRescaled);
     } else if (NLoptDataStruct.ObjectiveCriterion == "Model Efficiency") {
         // Negate the MEF here since the ranges is from -inf to 1, where 1 is best.  So we negate it,
         // then minimize that, and then negate and plot the resulting value.
@@ -1039,7 +1046,8 @@ NLopt_Estimator::createOutputStr(
         bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity Covariate Coeffs:  ", m_EstCarryingCapacityCovariateCoeffs,false);
     }
 
-    if (harvestForm == "Effort (qE)") {
+    if ((harvestForm == nmfConstantsMSSPM::HarvestEffort.toStdString()) ||
+        (harvestForm == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString())) {
         bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Catchability:       ",             m_EstCatchability,false);
         bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Catchability Covariate Coeffs:  ", m_EstCatchabilityCovariateCoeffs,false);
     }

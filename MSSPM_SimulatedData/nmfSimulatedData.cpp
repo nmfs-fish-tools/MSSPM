@@ -82,7 +82,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     double surveyQ;
     double SurveyQCovariateCoeff = 0.0; // RSK estimate this later
     std::string covariateAlgorithmType = m_DataStruct.CovariateAlgorithmType;
-qDebug() << "--> " << QString::fromStdString(covariateAlgorithmType);
+
     // Get some model data
     if (! m_Database->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
@@ -184,7 +184,6 @@ qDebug() << "--> " << QString::fromStdString(covariateAlgorithmType);
 
     // Load initial biomasses for all species prior to starting loop because some
     // models wlll require other species' previous year's biomass
-qDebug() << "Init Biomass for species 0: " << InitialBiomass[0];
     for (int species=0; species<NumSpecies; ++species) {
        EstBiomassSpecies(0,species) = InitialBiomass[species];
 //     EstBiomassSpecies(0,species) = InitialBiomass[species]*(1.0+InitBiomassCoeff*InitBiomassCovariate(0,species));
@@ -213,27 +212,15 @@ qDebug() << "Init Biomass for species 0: " << InitialBiomass[0];
 //              EstBiomassVal = nmfUtils::applyCovariate(m_Logger,
 //                          covariateAlgorithmType,InitialBiomass[species],
 //                          InitBiomassCoeff,InitBiomassCovariate(timeMinus1,species));
-if (time == 1) {
-    qDebug() << "EstBiomassVal: " << EstBiomassVal;
-    qDebug() << "covariateAlgorithmType: " << QString::fromStdString(covariateAlgorithmType);
-    qDebug() << "InitialBiomass[species]: " << InitialBiomass[species];
-    qDebug() << "InitBiomassCoeff: " << InitBiomassCoeff;
-    qDebug() << "InitBiomassCovariate(timeMinus1,species): " << InitBiomassCovariate(timeMinus1,species);
-}
             } else {
                 EstBiomassVal = EstBiomassSpecies(timeMinus1,species);
             }
             // Multiply Biomass by SurveyQ in case it's Relative Biomass. SurveyQ will be all 1's
             // if it's Absolute Biomass.
             surveyQ = SurveyQ[species];
-//          EstBiomassVal *= surveyQ*(1.0+SurveyQCovariateCoeff*SurveyQCovariate(time,species));
             EstBiomassVal *= nmfUtils::applyCovariate(m_Logger,
                         covariateAlgorithmType,surveyQ,
                         SurveyQCovariateCoeff,SurveyQCovariate(time,species));
-if (time == 1) {
-  qDebug() << "EstBiomassVal(2): " << EstBiomassVal;
-}
-
             speciesK  = SpeciesK[species];
             if (speciesK == 0) {
                 errorMsg = QString("nmfSimulatedData::createSimulatedBiomass: Found SpeciesK=0 for Species (") +
@@ -286,9 +273,6 @@ if (time == 1) {
                         PredationHandling,PredationHandlingCovariate,
                         PredationExponent,PredationExponentCovariate);
             val = EstBiomassVal + GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
-if (time == 1) {
- qDebug() << val << " = " << EstBiomassVal << " + " << GrowthTerm << " - " << HarvestTerm << " - " << CompetitionTerm << " - " << PredationTerm;
-}
             addError(errorPct,val);
             EstBiomassSpecies(time,species) = (val < 0) ? 0 : val;
         }

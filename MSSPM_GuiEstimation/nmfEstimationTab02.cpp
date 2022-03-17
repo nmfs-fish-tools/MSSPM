@@ -524,12 +524,16 @@ nmfEstimation_Tab2::callback_SavePB()
 //    }
 
     // Check harvest table for blanks
-    if (! nmfUtilsQt::checkTableForBlanks(Estimation_Tab2_CatchTV)) {
-        msg = "No blanks allowed in harvest table.";
-        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
-        QMessageBox::warning(Estimation_Tabs, "Save Error", "\n"+msg, QMessageBox::Ok);
-        Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return;
+    for (QTableView* harvestTable : {Estimation_Tab2_EffortTV,Estimation_Tab2_CatchTV}) {
+        if (harvestTable->isVisible()) {
+            if (! nmfUtilsQt::checkTableForBlanks(harvestTable)) {
+                msg = "No blanks allowed in harvest table: " + harvestTable->objectName();
+                m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+                QMessageBox::warning(Estimation_Tabs, "Save Error", "\n"+msg, QMessageBox::Ok);
+                Estimation_Tabs->setCursor(Qt::ArrowCursor);
+                return;
+            }
+        }
     }
 
     for (int i=0; i<numTables; ++i)

@@ -632,7 +632,7 @@ nmfEstimation_Tab6::loadCSVFile(const bool& firstLineReadOnly,
                     Estimation_Tabs, tableView, filePath,
                     tableNameStr, firstLineReadOnly,
                     nmfConstantsMSSPM::FixedNotation,
-                    nmfConstantsMSSPM::DontAllowBlanks,
+                    nmfConstantsMSSPM::AllowBlanks,
                     nonZeroCell,errorMsg);
         nmfUtilsQt::removeCommas(tableView);
     } else if (Estimation_Tab6_SpeciesParameterTV->isVisible()) {
@@ -763,13 +763,13 @@ nmfEstimation_Tab6::saveCovariateTable()
     m_Logger->logMsg(nmfConstants::Warning,"Saving scaled covariate data is currently disabled");
 
     // Check covariate table for blanks
-    if (! nmfUtilsQt::checkTableForBlanks(Estimation_Tab6_CovariateTV)) {
-        msg = "No blanks allowed in covariate table.";
-        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
-        QMessageBox::warning(Estimation_Tabs, "Save Error", "\n"+msg, QMessageBox::Ok);
-        Estimation_Tabs->setCursor(Qt::ArrowCursor);
-        return false;
-    }
+//    if (! nmfUtilsQt::checkTableForBlanks(Estimation_Tab6_CovariateTV)) {
+//        msg = "No blanks allowed in covariate table.";
+//        m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
+//        QMessageBox::warning(Estimation_Tabs, "Save Error", "\n"+msg, QMessageBox::Ok);
+//        Estimation_Tabs->setCursor(Qt::ArrowCursor);
+//        return false;
+//    }
 
     // Delete the current entry here
     deleteCmd = "DELETE FROM " + tableName +
@@ -793,14 +793,17 @@ nmfEstimation_Tab6::saveCovariateTable()
         for (int row=0; row<numRows; ++row) {
             index = m_smodelC->index(row,col);
             value = index.data().toString();
-//          valueScaled = (diff == 0.0) ? "0.0" : QString::number(2.0*(value.toDouble()-min)/diff - 1.0); // scales from -1 to 1
-            valueScaled = (diff == 0.0) ? "0.0" : QString::number((value.toDouble()-min)/diff); // scales from 0 to 1
+            valueScaled.clear();
+            if (! value.isEmpty()) {
+                // valueScaled = (diff == 0.0) ? "0.0" : QString::number(2.0*(value.toDouble()-min)/diff - 1.0); // scales from -1 to 1
+                   valueScaled = (diff == 0.0) ? "0.0" : QString::number((value.toDouble()-min)/diff); // scales from 0 to 1
+            }
             saveCmd += "('"  + m_ProjectName +
                        "','" + m_ModelName +
                        "','" + m_smodelC->horizontalHeaderItem(col)->text().toStdString() +
                        "', " + m_smodelC->verticalHeaderItem(row)->text().toStdString() +
-                       " , " + value.toStdString() +
-                       " , " + valueScaled.toStdString() + "),";
+                       " ,\""  + value.toStdString() +
+                       "\",\"" + valueScaled.toStdString() + "\"),";
         }
     }
     saveCmd = saveCmd.substr(0,saveCmd.size()-1);
@@ -837,9 +840,11 @@ nmfEstimation_Tab6::calculateCovariateScaleFactor(
     min = -max;
     for (int row=0; row<m_smodelC->rowCount(); ++row) {
         index = m_smodelC->index(row,col);
-        value = index.data().toDouble();
-        max   = (value > max) ? value : max;
-        min   = (value < min) ? value : min;
+        if (! index.data().toString().isEmpty()) {
+            value = index.data().toDouble();
+            max   = (value > max) ? value : max;
+            min   = (value < min) ? value : min;
+        }
     }
     diff = max - min;
 }

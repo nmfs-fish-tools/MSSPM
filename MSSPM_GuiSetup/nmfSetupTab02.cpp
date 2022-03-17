@@ -504,8 +504,8 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " ModelName     varchar(50) NOT NULL,";
     cmd += " CovariateName varchar(50) NOT NULL,";
     cmd += " Year          int(11)     NOT NULL,";
-    cmd += " Value         double      NOT NULL,";
-    cmd += " ValueScaled   double      NOT NULL,";
+    cmd += " Value         varchar(50) NULL,";
+    cmd += " ValueScaled   varchar(50) NULL,";
     cmd += " PRIMARY KEY (ProjectName,ModelName,CovariateName,Year))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
