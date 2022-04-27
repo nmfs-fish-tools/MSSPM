@@ -46,14 +46,16 @@ class nmfForecast_Tab2: public QObject
 
 private:
     nmfDatabase*        m_DatabasePtr;
-    std::string         m_HarvestType;
+    std::string         m_HarvestTableName;
     nmfLogger*          m_Logger;
     std::string         m_ModelName;
     std::string         m_ProjectDir;
     std::string         m_ProjectName;
     int                 m_NumSignificantDigits;
-    QStandardItemModel* m_SModel;
     QString             m_PreviousUnits;
+    QStandardItemModel* m_EstimationHarvestModel;
+    QStandardItemModel* m_EstimationHarvestModelCatchFTC;
+    QStandardItemModel* m_EstimationHarvestModelEffortFTC;
 
     QTabWidget*     Forecast_Tabs;
     QWidget*        Forecast_Tab2_Widget;
@@ -63,6 +65,8 @@ private:
     QPushButton*    Forecast_Tab2_NextPB;
     QPushButton*    Forecast_Tab2_LoadPB;
     QPushButton*    Forecast_Tab2_SavePB;
+    QPushButton*    Forecast_Tab2_SetHarvestTypePB;
+    QPushButton*    Forecast_Tab2_SetDefaultHarvestPB;
     QLineEdit*      Forecast_Tab1_NameLE;
     QCheckBox*      Forecast_Tab2_MultiplierCB;
     QComboBox*      Forecast_Tab2_MultiplierCMB;
@@ -71,11 +75,15 @@ private:
     QComboBox*      Forecast_Tab2_UnitsCMB;
     QCheckBox*      Forecast_Tab2_ConvertCB;
 
+    bool loadTable();
     void loadUnits(const std::string& tableName);
+    bool loadWidgets(const bool& readHarvestTypeFromTable);
     bool restoreData(int minRow, int minCol, int maxRow, int maxCol);
     void readSettings();
     void saveHarvestData(bool verbose);
-    void setHarvestType(std::string harvestType);
+    void setForecastHarvestLabel(const QString& harvestType);
+    bool setHarvestTypeFromModel();
+//  void setHarvestTableName(std::string harvestType);
     void updateUnitsTable(const std::string& harvestTable);
 
 public:
@@ -102,10 +110,23 @@ public:
      */
     void clearWidgets();
     /**
+     * @brief Sets the enable-ness of the Forecast Harvest button and its label
+     * @param enable : boolean describing if button should be enabled
+     * @param buttonLabelToSet : what the button label should be
+     */
+    void enableHarvestTypeButton(
+            const bool& enable,
+            const QString& buttonLabelToSet);
+    /**
      * @brief Returns the current units set by the user in the combo box
      * @return Current units QString (lbs, kg, mt)
      */
     QString getCurrentUnits();
+    /**
+     * @brief Returns the type of harvest as displayed in the harvest type pushbutton
+     * @return The currently selected type of harvest data. Either "Catch:" or "Effort:"
+     */
+    QString getHarvestType();
     /**
      * @brief If checked, the data table will be automatically
      * converted as the user changes the Units combo box
@@ -122,7 +143,16 @@ public:
      * @param currentUnits : value with which to set the current units combo box
      */
     void setCurrentUnits(QString currentUnits);
-
+    /**
+     * @brief Sets the class variable representing the Estimation Harvest model table
+     * @param Harvest_smodel : the currently set Estimation Harvest model table
+     * @param CatchFTC_smodel : the Fit to Catch - Catch Estimation Harvest model table
+     * @param EffortFTC_smodel : the Fit to Catch - Effort Estimation Harvest model table
+     */
+    void setForecastEstimationHarvestModels(
+            QStandardItemModel* Harvest_smodel,
+            QStandardItemModel* CatchFTC_smodel,
+            QStandardItemModel* EffortFTC_smodel);
 signals:
     /**
      * @brief Signal to notify the main routine to run the passed forecast
@@ -131,6 +161,17 @@ signals:
      */
     void RunForecast(std::string ForecastName,
                      bool GenerateBiomass);
+    /**
+     * @brief Gets the Estimation Harvest Model and sets m_EstimationHarvestModel to it
+     */
+    void GetEstimationHarvestModel();
+    /**
+     * @brief Signal emitted to notify the main routine that it needs to reload the
+     * Uncertainty Table in Forecast tab3. This is due to the fact that if the user
+     * changes the forecast harvest type from Catch to Effort, the Catchability (q)
+     * parameter must be exposed in the Uncertainty Parameters table.
+     */
+    void UpdateUncertaintyTable();
 
 public Q_SLOTS:
     /**
@@ -138,6 +179,11 @@ public Q_SLOTS:
      * @param checked : Boolean signifying the checked state of the checkbox
      */
     void callback_AutoSaveCB(bool checked);
+    /**
+     * @brief Callback invoked when the user clicks the Default Set button which will copy the last row of the Harvest Estimation table
+     * to every row of the Forecast Harvest table.
+     */
+    void callback_SetDefaultHarvestPB();
     /**
      * @brief Callback invoked when the user clicks the Load button
      */
@@ -178,6 +224,10 @@ public Q_SLOTS:
      */
     void callback_SelectionChanged(const QItemSelection &sel,
                                    const QItemSelection &desel);
+    /**
+     * @brief Callback invoked when the user clicks the Set Harvest Type button
+     */
+    void callback_SetHarvestTypePB();
     /**
      * @brief Callback invoked when the user changes the Units combo box
      * @param units : new units selected by the user

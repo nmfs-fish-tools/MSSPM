@@ -6,64 +6,424 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>649</width>
-    <height>336</height>
+    <width>502</width>
+    <height>451</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
+  <layout class="QVBoxLayout" name="verticalLayout_8">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2"/>
-   </item>
-   <item>
-    <widget class="QWidget" name="Estimation_Tab2_ObservedDataW" native="true">
+    <widget class="QWidget" name="widget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
-       <verstretch>10</verstretch>
+       <verstretch>100</verstretch>
       </sizepolicy>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_4">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="leftMargin">
+       <number>1</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
       <item>
-       <widget class="QSplitter" name="splitter">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+       <widget class="QWidget" name="Estimation_Tab2_EffortW" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>100</verstretch>
+         </sizepolicy>
         </property>
-        <widget class="QWidget" name="Estimation_Tab2_EffortW" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <property name="leftMargin">
-           <number>2</number>
-          </property>
-          <property name="topMargin">
-           <number>2</number>
-          </property>
-          <property name="rightMargin">
-           <number>2</number>
-          </property>
-          <property name="bottomMargin">
-           <number>2</number>
-          </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" name="Estimation_Tab2_EffortLAYT">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLabel" name="Estimation_Tab2_EffortLBL">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Effort:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>1</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Catch Units&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The user may enter data in one of the following formats: &lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;lbs (pounds) &lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;kg (kilograms) &lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;mt (metric tons)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Units:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="Estimation_Tab2_UnitsEffortCMB">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>45</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>45</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Units for table below</string>
+               </property>
+               <property name="statusTip">
+                <string>Units for table below</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Catch Units&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The user may enter data in one of the following formats: &lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;lbs (pounds) &lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;kg (kilograms) &lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;mt (metric tons)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="currentIndex">
+                <number>2</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string>lbs</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>kg</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>mt</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="Estimation_Tab2_ConvertEffortCB">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Convert data when checked</string>
+               </property>
+               <property name="statusTip">
+                <string>Convert data when checked</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Convert Checkbox&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this box is checked, then when the user changes the units pulldown, the data below will be converted. &lt;/p&gt;&lt;p&gt;If this box is not checked, then the units pulldown may be changed with no conversion applied to the data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTableView" name="Estimation_Tab2_EffortTV">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="statusTip">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="Estimation_Tab2_CatchW" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>100</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" name="Estimation_Tab2_CatchLAYT">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLabel" name="Estimation_Tab2_CatchLBL">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Catch:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>1</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Catch Units&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The user may enter data in one of the following formats: &lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;lbs (pounds) &lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;kg (kilograms) &lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;mt (metric tons)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Units:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="Estimation_Tab2_UnitsCatchCMB">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>45</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>45</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Units for table below</string>
+               </property>
+               <property name="statusTip">
+                <string>Units for table below</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Catch Units&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The user may enter data in one of the following formats: &lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;lbs (pounds) &lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;kg (kilograms) &lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;mt (metric tons)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="currentIndex">
+                <number>2</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string>lbs</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>kg</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>mt</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="Estimation_Tab2_ConvertCatchCB">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Convert data when checked</string>
+               </property>
+               <property name="statusTip">
+                <string>Convert data when checked</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Convert Checkbox&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this box is checked, then when the user changes the units pulldown, the data below will be converted. &lt;/p&gt;&lt;p&gt;If this box is not checked, then the units pulldown may be changed with no conversion applied to the data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTableView" name="Estimation_Tab2_CatchTV"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTabWidget" name="Estimation_Tab2_FitToCatchTB">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>100</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="WeightsTab">
+         <attribute name="title">
+          <string>Weights</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <layout class="QVBoxLayout" name="Estimation_Tab2_EffortLAYT">
+           <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout">
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
-               <widget class="QLabel" name="Estimation_Tab2_EffortLBL">
+               <widget class="QLabel" name="Estimation_Tab2_FTCWeightsLBL">
                 <property name="font">
                  <font>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>Weights corresponding to fitting using biomass and catch</string>
+                </property>
+                <property name="statusTip">
+                 <string>Weights corresponding to fitting using biomass and catch</string>
+                </property>
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Weights&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The values in this table are used to weight the fitting contributions from fit by biomass and fit by catch. Fitting by biomass entails fitting by (obsBiomass-estBiomass) whereas fitting by catch entails fitting by (obsCatch-estCatch), where estCatch = catchability*effort*estimatedBiomass.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
-                 <string>Effort:</string>
+                 <string>Weights:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_2">
+               <spacer name="Estimation_Tab2_FTCWeightsSP">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
@@ -76,7 +436,173 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="label">
+               <widget class="QPushButton" name="Estimation_Tab2_SetBiomassWeightsTo1PB">
+                <property name="minimumSize">
+                 <size>
+                  <width>30</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Sets all selected Biomass weights to 1</string>
+                </property>
+                <property name="statusTip">
+                 <string>Sets all selected Biomass weights to 1</string>
+                </property>
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;B = 1&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button sets all selected Biomass weights to 1 and corresponding Catch weights to 0. It's useful for &amp;quot;turning off&amp;quot; the Catch weight contribution. If no cells are selected, all cells will be set accordingly.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>B=1</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Estimation_Tab2_SetBiomassWeightsToHalfPB">
+                <property name="minimumSize">
+                 <size>
+                  <width>33</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>33</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Sets all selected weights to ½</string>
+                </property>
+                <property name="statusTip">
+                 <string>Sets all selected weights to ½</string>
+                </property>
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;B = &lt;/span&gt;&lt;a name=&quot;symbol-title&quot;/&gt;&lt;span style=&quot; font-family:'Roboto','Noto Sans','sans-serif'; font-size:14px; font-weight:600; color:#000000;&quot;&gt;½&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button will set all selected weights to &lt;a name=&quot;symbol-title&quot;/&gt;&lt;span style=&quot; font-family:'Roboto','Noto Sans','sans-serif'; font-size:14px; color:#000000;&quot;&gt;½&lt;/span&gt;. If no cells are selected, both Biomass and Catch will be equally weighted for all species with all values set to &lt;a name=&quot;symbol-title&quot;/&gt;&lt;span style=&quot; font-family:'Roboto','Noto Sans','sans-serif'; font-size:14px; color:#000000;&quot;&gt;½&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>B=½</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Estimation_Tab2_SetBiomassWeightsTo0PB">
+                <property name="minimumSize">
+                 <size>
+                  <width>30</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Sets all selected Biomass weights to 0</string>
+                </property>
+                <property name="statusTip">
+                 <string>Sets all selected Biomass weights to 0</string>
+                </property>
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;B = 0&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button sets all selected Biomass weights to 0 and corresponding Catch weights to 1. It's useful for &amp;quot;turning off&amp;quot; the Biomass weight contribution and only including the Catch weight contribution. If no cells are selected, all weights will be set accordingly.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>B=0</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Estimation_Tab2_FTCWeightsSetAllPB">
+                <property name="minimumSize">
+                 <size>
+                  <width>42</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>42</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Use the selected value to set all of the other species' values plus their complements</string>
+                </property>
+                <property name="statusTip">
+                 <string>Use the selected value to set all of the other species' values plus their complements</string>
+                </property>
+                <property name="whatsThis">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Weights Set All&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button will use the current selection to set all species' values and complement values. For example, if mackerel's biomass weight is selected and set to 0.3, this button will set &lt;span style=&quot; font-style:italic;&quot;&gt;all&lt;/span&gt; species' biomass weights to 0.3 and &lt;span style=&quot; font-style:italic;&quot;&gt;all&lt;/span&gt; species' catch weights to 0.7, and vice versa if mackerel's catch weight was selected. Each species' two weights must sum to 1.0.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>SetAll</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTableView" name="Estimation_Tab2_FTCWeightsTV">
+              <property name="toolTip">
+               <string>Weights corresponding to fitting using biomass and catch</string>
+              </property>
+              <property name="statusTip">
+               <string>Weights corresponding to fitting using biomass and catch</string>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Weights&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The values in this table are used to weight the fitting contributions from fit by biomass and fit by catch. Fitting by biomass entails fitting by (obsBiomass-estBiomass) whereas fitting by catch entails fitting by (obsCatch-estCatch), where estCatch = catchability*effort*estimatedBiomass.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="EffortTab">
+         <attribute name="title">
+          <string>Effort</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <layout class="QVBoxLayout" name="Estimation_Tab2_EffortLAYT_2">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QLabel" name="Estimation_Tab2_FTCEffortLBL">
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Effort:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>1</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_3">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -98,7 +624,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="Estimation_Tab2_UnitsEffortCMB">
+               <widget class="QComboBox" name="Estimation_Tab2_FTCUnitsEffortCMB">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -153,7 +679,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="Estimation_Tab2_ConvertEffortCB">
+               <widget class="QCheckBox" name="Estimation_Tab2_FTCConvertEffortCB">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -183,7 +709,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QTableView" name="Estimation_Tab2_EffortTV">
+             <widget class="QTableView" name="Estimation_Tab2_FTCEffortTV">
               <property name="font">
                <font>
                 <weight>50</weight>
@@ -202,26 +728,17 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="Estimation_Tab2_CatchW" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <property name="leftMargin">
-           <number>2</number>
-          </property>
-          <property name="topMargin">
-           <number>2</number>
-          </property>
-          <property name="rightMargin">
-           <number>2</number>
-          </property>
-          <property name="bottomMargin">
-           <number>2</number>
-          </property>
+        <widget class="QWidget" name="CatchTab">
+         <attribute name="title">
+          <string>Catch</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
-           <layout class="QVBoxLayout" name="Estimation_Tab2_CatchLAYT">
+           <layout class="QVBoxLayout" name="Estimation_Tab2_CatchLAYT_2">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
               <item>
-               <widget class="QLabel" name="Estimation_Tab2_CatchLBL">
+               <widget class="QLabel" name="Estimation_Tab2_FTCCatchLBL">
                 <property name="font">
                  <font>
                   <weight>75</weight>
@@ -234,7 +751,7 @@
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_3">
+               <spacer name="horizontalSpacer_5">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
@@ -247,7 +764,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="label_2">
+               <widget class="QLabel" name="label_4">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -269,7 +786,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="Estimation_Tab2_UnitsCatchCMB">
+               <widget class="QComboBox" name="Estimation_Tab2_FTCUnitsCatchCMB">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -324,7 +841,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="Estimation_Tab2_ConvertCatchCB">
+               <widget class="QCheckBox" name="Estimation_Tab2_FTCConvertCatchCB">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -354,7 +871,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QTableView" name="Estimation_Tab2_CatchTV"/>
+             <widget class="QTableView" name="Estimation_Tab2_FTCCatchTV"/>
             </item>
            </layout>
           </item>

@@ -15,6 +15,8 @@ var classnmf_estimation___tab3 =
     [ "callback_SavePB", "classnmf_estimation___tab3.html#a1e941f6d64899c4d6ebab2d1d968af95", null ],
     [ "callback_TransposePB", "classnmf_estimation___tab3.html#a95660c2f96d3ac68c0ce065ba11909dd", null ],
     [ "clearWidgets", "classnmf_estimation___tab3.html#ac181a0f5624567062f2de767e3053b73", null ],
+    [ "CompleteCompetitionSetup", "classnmf_estimation___tab3.html#a80c0f28d85c450ec4b3da9db397c52be", null ],
+    [ "completeConstructor", "classnmf_estimation___tab3.html#a4084337bbbcc9e5d4e6f31dda966f34c", null ],
     [ "loadCSVFiles", "classnmf_estimation___tab3.html#ab847cbf682a4d9e8ad032f229c852abb", null ],
     [ "loadWidgets", "classnmf_estimation___tab3.html#ae5a06add9874cf6f04c5890090a500bc", null ],
     [ "resetSpinBox", "classnmf_estimation___tab3.html#ae997041dee6b3e180949f22764a21a07", null ],

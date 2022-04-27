@@ -36,6 +36,7 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     Forecast_Tab3_PrevPB        = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab3_PrevPB");
     Forecast_Tab3_NextPB        = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab3_NextPB");
     Forecast_Tab2_HarvestGB     = Forecast_Tabs->findChild<QGroupBox   *>("Forecast_Tab2_HarvestGB");
+    Forecast_Tab2_SetHarvestTypePB = Forecast_Tabs->findChild<QPushButton   *>("Forecast_Tab2_SetHarvestTypePB");
     Forecast_Tab1_NameLE        = Forecast_Tabs->findChild<QLineEdit   *>("Forecast_Tab1_NameLE");
     Forecast_Tab3_LoadPB        = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab3_LoadPB");
     Forecast_Tab3_SavePB        = Forecast_Tabs->findChild<QPushButton *>("Forecast_Tab3_SavePB");
@@ -69,17 +70,30 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_BetaSG = QString("Competition (") + QChar(0x03B2) + QString("(SG))");
     m_BetaGG = QString("Competition (") + QChar(0x03B2) + QString("(GG))");
     m_Rho    = QString("Predation (")   + QChar(0x03C1) + QString(")");
-    m_FormMap["Linear"]   = {"Growth Rate (r)"};
-    m_FormMap["Logistic"] = {"Growth Rate (r)","Carrying Capacity (K)"};
+    m_FormMap["Linear"]   = {
+            "Growth Rate (r)",
+             nmfConstantsMSSPM::ParameterNameGrowthRateCovCoeff.toStdString()};
+    m_FormMap["Logistic"] = {
+            "Growth Rate (r)",nmfConstantsMSSPM::ParameterNameGrowthRateCovCoeff.toStdString(),
+            "Carrying Capacity (K)",nmfConstantsMSSPM::ParameterNameCarryingCapacityCovCoeff.toStdString()};
     m_FormMap["Exploitation (F)"] = {"Exploitation"};
-    m_FormMap["Effort (qE)"]      = {"Catchability (q)","Effort"};
-    m_FormMap["Catch"]    = {"Catch"};
+    m_FormMap[nmfConstantsMSSPM::HarvestEffort.toStdString()]           = {
+            "Catchability (q)", nmfConstantsMSSPM::ParameterNameCatchabilityCovCoeff.toStdString()};
+//            "Effort"};
+    m_FormMap[nmfConstantsMSSPM::HarvestCatch.toStdString()]            = {"Catch"};
+//  m_FormMap[nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()] = {"Catchability (q)","Effort"};
     m_FormMap["NO_K"]     = {m_Alpha.toStdString()};
     m_FormMap["MS-PROD"]  = {m_BetaS.toStdString(),m_BetaSG.toStdString()};
     m_FormMap["AGG-PROD"] = {m_BetaGG.toStdString()};
     m_FormMap["Type I"]   = {m_Rho.toStdString()};
     m_FormMap["Type II"]  = {m_Rho.toStdString(),"Handling (h)"};
     m_FormMap["Type III"] = {m_Rho.toStdString(),"Handling (h)","Exponent (b)"};
+    if (getHarvestType() == nmfConstantsMSSPM::ForecastHarvestTypeCatch) {
+        m_FormMap[nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()] = {};
+    } else if (getHarvestType() == nmfConstantsMSSPM::ForecastHarvestTypeEffort) {
+        m_FormMap[nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()] = {
+                "Catchability (q)", nmfConstantsMSSPM::ParameterNameCatchabilityCovCoeff.toStdString()};
+    }
 
     m_ParameterNames.clear();
     m_ParameterNames << "Initial Absolute Biomass (B₀)";
@@ -94,7 +108,11 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_ParameterNames << "Exponent (b)";
     m_ParameterNames << "Catchability (q)";
     m_ParameterNames << "SurveyQ";
-    m_ParameterNames << harvestType();
+    m_ParameterNames << getHarvestType();
+    m_ParameterNames << nmfConstantsMSSPM::ParameterNameGrowthRateCovCoeff;
+    m_ParameterNames << nmfConstantsMSSPM::ParameterNameCarryingCapacityCovCoeff;
+    m_ParameterNames << nmfConstantsMSSPM::ParameterNameCatchabilityCovCoeff;
+    m_ParameterNames << nmfConstantsMSSPM::ParameterNameSurveyQCovCoeff;
 
     readSettings();
 }
@@ -106,9 +124,10 @@ nmfForecast_Tab3::~nmfForecast_Tab3()
 }
 
 QString
-nmfForecast_Tab3::harvestType()
+nmfForecast_Tab3::getHarvestType()
 {
-    return Forecast_Tab2_HarvestGB->title();
+//    return Forecast_Tab2_HarvestGB->title();
+    return Forecast_Tab2_SetHarvestTypePB->text().remove(":");
 }
 
 
@@ -164,7 +183,6 @@ nmfForecast_Tab3::callback_NextPB()
     Forecast_Tabs->setCurrentIndex(nextPage);
 }
 
-
 void
 nmfForecast_Tab3::callback_SavePB()
 {
@@ -194,7 +212,7 @@ nmfForecast_Tab3::callback_SavePB()
         return;
     }
 
-    if (! nmfUtilsQt::checkTableForBlanks(Forecast_Tab3_UncertaintyTV)) {
+    if (! nmfUtilsQt::areAllCellsNonBlank(Forecast_Tab3_UncertaintyTV)) {
         QString msg = "No blanks allowed in the Forecast Uncertainty table";
         m_Logger->logMsg(nmfConstants::Error,msg.toStdString());
         QMessageBox::critical(Forecast_Tabs, "Save Error", "\n"+msg, QMessageBox::Ok);
@@ -245,7 +263,8 @@ nmfForecast_Tab3::callback_SavePB()
     cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableForecastUncertainty + " (" +
            "SpeName,ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling," +
            "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies," +
-           "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest) VALUES ";
+           "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest," +
+            "GrowthRateCovCoeff,CarryingCapacityCovCoeff,CatchabilityCovCoeff,SurveyQCovCoeff) VALUES ";
     for (int i=0; i<m_SModel->rowCount(); ++i) { // Species
             cmd += "('"  + SpeNames[i] +
                    "','" + m_ProjectName +
@@ -370,6 +389,14 @@ nmfForecast_Tab3::loadWidgets()
 
     readSettings();
 
+    // Reset form map table since user may have pressed the Forecast Harvest
+    // type button on Tab2.
+    if (getHarvestType() == nmfConstantsMSSPM::ForecastHarvestTypeCatch) {
+        m_FormMap[nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()] = {};
+    } else if (getHarvestType() == nmfConstantsMSSPM::ForecastHarvestTypeEffort) {
+        m_FormMap[nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()] = {"Catchability (q)"};
+    }
+
     // Get Forms to be used later
     fields    = {"ProjectName","ModelName","ForecastName","GrowthForm","HarvestForm","WithinGuildCompetitionForm","PredationForm"};
     queryStr  = "SELECT ProjectName,ModelName,ForecastName,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm FROM " +
@@ -420,10 +447,12 @@ nmfForecast_Tab3::loadWidgets()
         fields     = {"ProjectName","ModelName","SpeName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
                       "InitBiomass","GrowthRate","CarryingCapacity","Catchability",
                       "CompetitionAlpha","CompetitionBetaSpecies","CompetitionBetaGuilds","CompetitionBetaGuildsGuilds",
-                      "PredationRho","PredationHandling","PredationExponent","SurveyQ","Harvest"};
+                      "PredationRho","PredationHandling","PredationExponent","SurveyQ","Harvest",
+                      "GrowthRateCovCoeff","CarryingCapacityCovCoeff","CatchabilityCovCoeff","SurveyQCovCoeff"};
         queryStr   = "SELECT ProjectName,ModelName,SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
         queryStr  += "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies,";
-        queryStr  += "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest FROM " +
+        queryStr  += "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest,";
+        queryStr  += "GrowthRateCovCoeff,CarryingCapacityCovCoeff,CatchabilityCovCoeff,SurveyQCovCoeff FROM " +
                       nmfConstantsMSSPM::TableForecastUncertainty +
                       " WHERE ProjectName = '" + m_ProjectName +
                       "' AND ModelName = '"    + m_ModelName +
@@ -450,6 +479,10 @@ nmfForecast_Tab3::loadWidgets()
             param.emplace_back(QString::fromStdString(dataMap["PredationExponent"][m]));
             param.emplace_back(QString::fromStdString(dataMap["SurveyQ"][m]));
             param.emplace_back(QString::fromStdString(dataMap["Harvest"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["GrowthRateCovCoeff"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["CarryingCapacityCovCoeff"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["CatchabilityCovCoeff"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["SurveyQCovCoeff"][m]));
             for (int j=0; j<NumParameters; ++j) {
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                             param[j].toDouble(),m_NumSignificantDigits,2);

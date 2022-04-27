@@ -309,13 +309,13 @@
          <widget class="QComboBox" name="Diagnostic_Tab1_SurfaceParameter1CMB">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>250</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>250</width>
             <height>16777215</height>
            </size>
           </property>
@@ -377,13 +377,13 @@
          <widget class="QComboBox" name="Diagnostic_Tab1_SurfaceParameter2CMB">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>250</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>250</width>
             <height>16777215</height>
            </size>
           </property>

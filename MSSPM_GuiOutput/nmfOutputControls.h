@@ -129,150 +129,149 @@ public:
     /**
      * @brief Clears the Biomass Maximum Sustained Yield line edit widget
      */
-    void            clearOutputBMSY();
+    void clearOutputBMSY();
     /**
      * @brief Clears the Maximum Sustained Yield line edit widget
      */
-    void            clearOutputMSY();
+    void clearOutputMSY();
     /**
      * @brief Clears the Fishing Mortality Maximum Sustained Yield line edit widget
      */
-    void            clearOutputFMSY();
+    void clearOutputFMSY();
     /**
      * @brief Enables the appropriate widgets once the user has completed a Retrospective Analysis
      */
-    void            displayMohnsRho();
+    void displayMohnsRho();
     /**
      * @brief Sets the appropriate states of the widgets that allow the user to change brightness of stochastice Forecast runs
      * @param state : enabled state of the widgets (True or False)
      */
-    void            enableBrightnessWidgets(bool state);
+    void enableBrightnessWidgets(bool state);
     /**
      * @brief Returns the number of and the list of unique guilds
      * @param NumGuilds : number of guilds
      * @param GuildList : list of guild names
      * @return Returns true/false based upon if an error was encountered
      */
-    bool            getGuilds(int& NumGuilds, QStringList& GuildList);
-
-    int             getNumberSpecies();
-    void            setSpeciesNum(int speciesNum);
-    void            setAveraged(bool isAveraged);
-    bool            displaying3dChart();
-    bool            isAveraged();
-    void            enableControls(bool state);
-    bool            isSetToGuild();
+    bool getGuilds(int& NumGuilds, QStringList& GuildList);
+    int getNumberSpecies();
+    void setSpeciesNum(int speciesNum);
+    void setAveraged(bool isAveraged);
+    bool displaying3dChart();
+    bool isAveraged();
+    void enableControls(bool state);
+    bool isSetToGuild();
     /**
      * @brief Get the brightness factor set by the Forecast Run Brightness slider widget
      * @return The brightness value desired for the stochastic Forecast plots
      */
-    double          getOutputBrightnessFactor();
+    double getOutputBrightnessFactor();
     /**
      * @brief Get the currently selected Chart type
      * @return The name of the Chart type chosen by the user
      */
-    QString         getOutputChartType();
+    QString getOutputChartType();
     /**
      * @brief Get the currently selected Diagnostic method
      * @return The name of the Diagnostic method chosen by the user
      */
-    QString         getOutputDiagnostics();
+    QString getOutputDiagnostics();
     /**
      * @brief Get the currently selected group type
      * @return The name of the group type (i.e., Species, Guild, System)
      */
-    QString         getOutputGroupType();
+    QString getOutputGroupType();
     /**
      * @brief Get the currently selected Diagnostic parameter
      * @return The name of the Diagnostic parameter chosen by the user
      */
-    QString         getOutputParameter();
+    QString getOutputParameter();
     /**
      * @brief Get the currently selected scale of the y-axis
      * @return The name of the scale (in groups of 000) (i.e., "000" or "000 000")
      */
-    QString         getOutputScale();
+    QString getOutputScale();
     /**
      * @brief Get the currently selected Scenario name
      * @return The Scenario (i.e., collection of Forecasts) to view
      */
-    QString         getOutputScenario();
+    QString getOutputScenario();
     /**
      * @brief Get the currently selected Output Species name
      * @return The name of the Species whose output the user wishes to view
      */
-    QString         getOutputSpecies();
+    QString getOutputSpecies();
     /**
      * @brief  Get the currently selected Output Species index value
      * @return The integer index of the Species whose output the user wishes to view
      */
-    int             getOutputSpeciesIndex();
+    int getOutputSpeciesIndex();
     /**
      * @brief Get the Species list widget (currently disabled) used for other possible chart types
      * @return The widget representing the viewport of the species listview
      */
-    QWidget*        getListViewViewport();
+    QWidget* getListViewViewport();
     /**
      * @brief Get the list of selected indexes (currently disabled) used for other possible chart types
      * @return The list of selected model indexes
      */
     QModelIndexList getListViewSelectedIndexes();
-    /**
-     * @brief Get the Y Max slider value which allows the user to change the maximum value that appears on the y-axis.
-     * @return The value set by the user on this slider widget
-     */
-//    int             getYMaxSliderVal();
+//    /**
+//     * @brief Get the Y Max slider value which allows the user to change the maximum value that appears on the y-axis.
+//     * @return The value set by the user on this slider widget
+//     */
+//    int getYMaxSliderVal();
     /**
      * @brief Get the Y Min slider value which allows the user to change the minimum value that appears on the y-axis.
      * @return The value set by the user on this slider widget
      */
-    int             getYMinSliderVal();
+    int getYMinSliderVal();
     /**
      * @brief Gets the index of a Species from a previously created hash map
      * @param SpeciesName : the name of the species whose index is desired
      * @return The index of the Species passed as an argument
      */
-    int             getSpeciesNumFromName(QString SpeciesName);
+    int getSpeciesNumFromName(QString SpeciesName);
     /**
      * @brief Informs the user if the BMSY checkbox has been checked
      * @return The state of the BMSY checkbox
      */
-    bool            isCheckedOutputBMSY();
+    bool isCheckedOutputBMSY();
     /**
      * @brief Informs the user if the MSY checkbox has been checked
      * @return The state of the MSY checkbox
      */
-    bool            isCheckedOutputMSY();
+    bool isCheckedOutputMSY();
     /**
      * @brief Informs the user if the FMSY checkbox has been checked
      * @return The state of the FMSY checkbox
      */
-    bool            isCheckedOutputFMSY();
+    bool isCheckedOutputFMSY();
     /**
      * @brief Informs the user if the MSY checkbox has been enabled
      * @return The state of the MSY checkbox
      */
-    bool            isEnabledOutputMSY();
+    bool isEnabledOutputMSY();
     /**
      * @brief Informs the user if the FMSY checkbox has been enbled
      * @return The state of the FMSY checkbox
      */
-    bool            isEnabledOutputFMSY();
+    bool isEnabledOutputFMSY();
     /**
      * @brief Informs the user if the Method combobox is set to Retrospective Analysis
      * @return Boolean signifying if combobox is set to Retrospective Analysis
      */
-    bool            isSetToRetrospectiveAnalysis();
+    bool isSetToRetrospectiveAnalysis();
     /**
      * @brief Informs the user if the Show Historical Data checkbox is checked
      * @return The state of the Show Historical Data checkbox
      */
-    bool            isHistoricalDataShown();
+    bool isHistoricalDataShown();
     /**
      * @brief Informs the user if the Show Shadow box is checked
      * @return The state of the Show Shadow box
      */
-    bool            isShadowShown();
+    bool isShadowShown();
     /**
      * @brief Informs the user if the ZScore check box has been checked
      * @return The state of the ZScore check box
@@ -281,23 +280,27 @@ public:
     /**
      * @brief Loads the Species list view widget that's used for specific (but currently disabled) Output chart types
      */
-    void            loadSpeciesControlWidget();
+    void loadSpeciesControlWidget();
     /**
      * @brief Loads all of the Output control widgets
      */
-    void            loadWidgets();
+    void loadWidgets();
     /**
      * @brief Resets the Output Type widget as well as reloading the Scenario widget
      */
-    void            refresh();
+    void refresh();
+    /**
+     * @brief Refreshes the current chart by flipping to another chart type and back to the current
+     */
+    void refreshChart();
     /**
      * @brief Reloads the Scenario widget
      */
-    void            refreshScenarios();
+    void refreshScenarios();
     /**
      * @brief Saves any Output Controls specific values to the Qt Settings file
      */
-    void            saveSettings();
+    void saveSettings();
     /**
      * @brief Sets the Species combobox to be the passed species
      * @param species : the species to set the species combo box
@@ -312,36 +315,36 @@ public:
      * @brief Sets the current species of the Species combobox widget to the passed species
      * @param species : the species to set the output species combo box to
      */
-    void            setOutputSpecies(QString species);
+    void setOutputSpecies(QString species);
     /**
      * @brief Sets the current index of the Species combobox widget to the passed index value
      * @param index : the index with which to set the Species combobox widget
      */
-    void            setOutputSpeciesIndex(int index);
+    void setOutputSpeciesIndex(int index);
     /**
      * @brief Sets the current Output Type to the passed value
      * @param type : the name of the Output Type to set as the current Output Type
      */
-    void            setOutputType(QString type);
+    void setOutputType(QString type);
     /**
      * @brief Sets the BMSY line edit widget to the passed value
      * @param value : QString value of the BMSY value to display (as read-only) to the user
      */
-    void            setTextOutputBMSY(QString value);
+    void setTextOutputBMSY(QString value);
     /**
      * @brief Sets the MSY line edit widget to the passed value
      * @param value : QString value of the MSY value to display (as read-only) to the user
      */
-    void            setTextOutputMSY(QString text);
-    void            resetTextOutputMSY();
-    void            resetTextOutputBMSY();
-    void            resetTextOutputFMSY();
-    void            resetMSYWidgets();
+    void setTextOutputMSY(QString text);
+    void resetTextOutputMSY();
+    void resetTextOutputBMSY();
+    void resetTextOutputFMSY();
+    void resetMSYWidgets();
     /**
      * @brief Sets the FMSY line edit widget to the passed value
      * @param value : QString value of the FMSY value to display (as read-only) to the user
      */
-    void            setTextOutputFMSY(QString text);
+    void setTextOutputFMSY(QString text);
     /**
      * @brief Sets the Forecast Labels map to the passed map. This map maps a Scenario name to a QStringList of Forecast names.
      * @param sortedForecastLabelsMap : map of Forecast name lists to Scenario names
@@ -351,16 +354,16 @@ public:
      * @brief Toggles between a 2d and 3d Diagnostics view
      * @param chartType : 2d or 3d
      */
-    void            setOutputParameters2d3dPB(QString chartType);
+    void setOutputParameters2d3dPB(QString chartType);
     /**
      * @brief Sets the Output Diagnostics method widget with the passed method
      * @param method : the method to set the Output Diagnostics combobox widget
      */
-    void            setOutputDiagnostics(QString method);
+    void setOutputDiagnostics(QString method);
     /**
      * @brief Assure appropriate widgets are enabled/disabled when user selects Retrospectve Analysis
      */
-    void            setForMohnsRho();
+    void setForMohnsRho();
     void setForBiomassVsTime();
     void readSettings();
 

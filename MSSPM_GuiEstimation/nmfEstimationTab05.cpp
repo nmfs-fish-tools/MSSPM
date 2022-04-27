@@ -148,13 +148,15 @@ nmfEstimation_Tab5::importTableData(const bool& firstLineReadOnly,
                     Estimation_Tabs,
                     QObject::tr("Select "+type.toLatin1()+" file"), inputDataPath,
                     QObject::tr("Data Files (Biomass*.csv biomass*.csv)"));
-        QFileInfo fi(filenameWithPath);
-        QString fileName     = fi.fileName();
-        QString absolutePath = fi.absolutePath();
-        if (absolutePath == inputDataPath) {
-            loadCSVFile(firstLineReadOnly,inputDataPath,fileName,tableView);
-        } else {
-            loadCSVFile(firstLineReadOnly,absolutePath,filenameWithPath,tableView);
+        if (! filenameWithPath.isEmpty()) {
+            QFileInfo fi(filenameWithPath);
+            QString fileName     = fi.fileName();
+            QString absolutePath = fi.absolutePath();
+            if (absolutePath == inputDataPath) {
+                loadCSVFile(firstLineReadOnly,inputDataPath,fileName,tableView);
+            } else {
+                loadCSVFile(firstLineReadOnly,absolutePath,filenameWithPath,tableView);
+            }
         }
     }
 }
@@ -670,13 +672,15 @@ nmfEstimation_Tab5::saveTableValuesToCSVFile(const QString& type,
         QString tag = QInputDialog::getText(Estimation_Tabs, tr(type.toLatin1()+" Files"),
                                             tr("Enter "+type.toLatin1()+" CSV filename version tag (omit any '_'): "),
                                             QLineEdit::Normal, "", &ok);
-        if (ok && !tag.isEmpty()) {
-            tableNameNew = tableName+"_"+tag.toStdString();
-            saveCSVFile(type,smodel,tableNameNew);
-        } else if (tag.isEmpty()) {
-            QMessageBox::warning(Estimation_Tabs, "Tag Error",
-                                 "\nError: Please enter a valid (i.e., non-blank) tag.\n",
-                                 QMessageBox::Ok);
+        if (ok) {
+            if (! tag.isEmpty()) {
+                tableNameNew = tableName+"_"+tag.toStdString();
+                saveCSVFile(type,smodel,tableNameNew);
+            } else if (tag.isEmpty()) {
+                QMessageBox::warning(Estimation_Tabs, "Tag Error",
+                                     "\nError: Please enter a valid (i.e., non-blank) tag.\n",
+                                     QMessageBox::Ok);
+            }
         }
     }
 }

@@ -219,6 +219,7 @@
    <addaction name="actionMultiShot"/>
    <addaction name="separator"/>
    <addaction name="actionToggleSignificantDigits"/>
+   <addaction name="actionRunTB"/>
    <addaction name="actionWhatsThisTB"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -938,6 +939,23 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionRunTB">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/runEnabled.png</normalon>
+     <disabledon>:/icons/runDisabled.png</disabledon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Run</string>
+   </property>
+   <property name="toolTip">
+    <string>Run the model</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

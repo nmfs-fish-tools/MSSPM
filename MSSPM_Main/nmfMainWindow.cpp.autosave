@@ -5230,6 +5230,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     }
     OutputTableNames.push_back(OutputSurveyQTable);
     OutputTableNames.push_back(OutputSurveyQCovariateCoeffsTable);
+    
+    // RSK continue here...with SurveyQ CovCoeffs 
 
     for (unsigned j=0; j<OutputTableNames.size(); ++j) {
         fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};

@@ -73,6 +73,7 @@ private:
     QPushButton* Estimation_Tab6_SetEstOffPB;
     QPushButton* Estimation_Tab6_ClearRangesPB;
     QPushButton* Estimation_Tab6_ViewNormalizedPB;
+    QPushButton* Estimation_Tab6_SetPB;
     QSpinBox*    Estimation_Tab6_SpeciesRangeSB;
     QComboBox*   Estimation_Tab6_SpeciesRangeCMB;
     QComboBox*   Estimation_Tab6_MinMaxCMB;
@@ -97,6 +98,9 @@ private:
             const QString& tableName,
             QTableView* tableView);
     bool okSaveInitialValuesAndRangesChecks();
+    void populateCells(const double& initial,
+                       const double& min,
+                       const double& max);
     void readSettings();
     bool saveCovariateAlgorithmType();
     bool saveCovariateTable();
@@ -133,29 +137,40 @@ public:
     std::string getCovariateAlgorithmType();
     /**
      * @brief Loads the Covariate Algorithm Type into the 1st Covariate tab
+     * @return Returns true if data were loaded successfully; else false
      */
-    void loadCovariateAlgorithmType();
+    bool loadCovariateAlgorithmType();
     /**
      * @brief Loads the (2nd tab) Covariate Assignment Table
+     * @return Returns true if data were loaded successfully; else false
      */
-    void loadCovariateAssignmentTable();
+    bool loadCovariateAssignmentTable();
     /**
      * @brief Loads the (3rd tab) Covariate Initial Values and Ranges table
+     * @return Returns true if data were loaded successfully; else false
      */
-    void loadCovariateInitialValuesAndRangesTable();
+    bool loadCovariateInitialValuesAndRangesTable();
     /**
      * @brief Loads the (1st tab) Covariate table
+     * @return Returns true if data were loaded successfully; else false
      */
-    void loadCovariateTable();
+    bool loadCovariateTable();
     /**
      * @brief Loads the initial values
      */
     void loadInitialValuesAndRangesForEditableCells();
     /**
      * @brief Loads all widgets for this GUI from database tables
-     * @return Returns true if all data were loaded successfully
+     * @return Returns true if all data were loaded successfully; else false
      */
-    void loadWidgets();
+    bool loadWidgets();
+    /**
+     * @brief Resaves the covariate assignment table and resets the initial value table
+     */
+    void resaveCovariateAssignmentTable();
+
+signals:
+    void ReloadDiagnosticWidgets();
 
 public Q_SLOTS:
     /**
@@ -205,6 +220,11 @@ public Q_SLOTS:
      * corresponding database table
      */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user presses the Set button to quickly populate the initial, min,
+     * and max cells.
+     */
+    void callback_SetPB();
     /**
      * @brief Callback invoked to allow only those parameters that have code implemented for Environmental Covariates
      * @param EstimateRunBoxes : vector of parameter boxes that have been checked

@@ -1647,6 +1647,7 @@ nmfEstimation_Tab1::loadWidgets()
     if (Estimation_Tab1_SpeciesRangeSB->isEnabled()) {
         callback_SpeciesRangeSB(Estimation_Tab1_SpeciesRangeSB->value());
     }
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::loadWidgets end");
 
     return true;
 }
@@ -1666,7 +1667,7 @@ nmfEstimation_Tab1::loadGuilds()
     QLocale locale(QLocale::English);
     QString valueWithComma;
 
-    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::loadGuilds()");
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::loadGuilds");
 
     // Load Population tableview
     fields = {"GuildName","GrowthRate","GrowthRateMin","GrowthRateMax",
@@ -1708,6 +1709,7 @@ nmfEstimation_Tab1::loadGuilds()
 
     callback_GuildSuppCB(false);
     callback_GuildRangeCB(false);
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::loadGuilds end");
 
     return (NumGuilds > 0);
 }

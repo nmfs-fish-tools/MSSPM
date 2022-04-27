@@ -119,6 +119,10 @@ Public Slots</h2></td></tr>
 <tr class="memitem:a73c384f81dc45e598aca4b9316956fe1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a73c384f81dc45e598aca4b9316956fe1">callback_AutoSaveCB</a> (bool checked)</td></tr>
 <tr class="memdesc:a73c384f81dc45e598aca4b9316956fe1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user checks the Auto Save checkbox. This checkbox saves the Harvest data after each edit and then automatically runs a Forecast.  <a href="classnmf_forecast___tab2.html#a73c384f81dc45e598aca4b9316956fe1">More...</a><br /></td></tr>
 <tr class="separator:a73c384f81dc45e598aca4b9316956fe1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e6de50cf624626a629ecb1243f806f6"><td class="memItemLeft" align="right" valign="top"><a id="a4e6de50cf624626a629ecb1243f806f6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a4e6de50cf624626a629ecb1243f806f6">callback_SetDefaultHarvestPB</a> ()</td></tr>
+<tr class="memdesc:a4e6de50cf624626a629ecb1243f806f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Default Set button which will copy the last row of the Harvest Estimation table to every row of the Forecast Harvest table. <br /></td></tr>
+<tr class="separator:a4e6de50cf624626a629ecb1243f806f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae28d842bf9763b25f9f2e522598fdd3a"><td class="memItemLeft" align="right" valign="top"><a id="ae28d842bf9763b25f9f2e522598fdd3a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#ae28d842bf9763b25f9f2e522598fdd3a">callback_LoadPB</a> ()</td></tr>
 <tr class="memdesc:ae28d842bf9763b25f9f2e522598fdd3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Load button. <br /></td></tr>
@@ -147,6 +151,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a39bfa05c9cb085dd459e93d6761b08cd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a39bfa05c9cb085dd459e93d6761b08cd">callback_SelectionChanged</a> (const QItemSelection &amp;sel, const QItemSelection &amp;desel)</td></tr>
 <tr class="memdesc:a39bfa05c9cb085dd459e93d6761b08cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes the Harvest table selection. As the user changes the selection, the multiplier type and value are used to update the selection.  <a href="classnmf_forecast___tab2.html#a39bfa05c9cb085dd459e93d6761b08cd">More...</a><br /></td></tr>
 <tr class="separator:a39bfa05c9cb085dd459e93d6761b08cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d0340ce5602f6b6d74603d5ea869344"><td class="memItemLeft" align="right" valign="top"><a id="a8d0340ce5602f6b6d74603d5ea869344"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a8d0340ce5602f6b6d74603d5ea869344">callback_SetHarvestTypePB</a> ()</td></tr>
+<tr class="memdesc:a8d0340ce5602f6b6d74603d5ea869344"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Set Harvest Type button. <br /></td></tr>
+<tr class="separator:a8d0340ce5602f6b6d74603d5ea869344"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c834f03e1e554c61c7a45e80f6be458"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a8c834f03e1e554c61c7a45e80f6be458">callback_UnitsCMB</a> (QString units)</td></tr>
 <tr class="memdesc:a8c834f03e1e554c61c7a45e80f6be458"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user changes the Units combo box.  <a href="classnmf_forecast___tab2.html#a8c834f03e1e554c61c7a45e80f6be458">More...</a><br /></td></tr>
 <tr class="separator:a8c834f03e1e554c61c7a45e80f6be458"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -156,6 +164,14 @@ Signals</h2></td></tr>
 <tr class="memitem:ad1ef695f29894aa7371f7d0856f247cd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#ad1ef695f29894aa7371f7d0856f247cd">RunForecast</a> (std::string ForecastName, bool GenerateBiomass)</td></tr>
 <tr class="memdesc:ad1ef695f29894aa7371f7d0856f247cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal to notify the main routine to run the passed forecast.  <a href="classnmf_forecast___tab2.html#ad1ef695f29894aa7371f7d0856f247cd">More...</a><br /></td></tr>
 <tr class="separator:ad1ef695f29894aa7371f7d0856f247cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ae520006f6bb1ce949433ceadf94861"><td class="memItemLeft" align="right" valign="top"><a id="a4ae520006f6bb1ce949433ceadf94861"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a4ae520006f6bb1ce949433ceadf94861">GetEstimationHarvestModel</a> ()</td></tr>
+<tr class="memdesc:a4ae520006f6bb1ce949433ceadf94861"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the Estimation Harvest Model and sets m_EstimationHarvestModel to it. <br /></td></tr>
+<tr class="separator:a4ae520006f6bb1ce949433ceadf94861"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14d07f777109f597e352ed8d2eab2073"><td class="memItemLeft" align="right" valign="top"><a id="a14d07f777109f597e352ed8d2eab2073"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a14d07f777109f597e352ed8d2eab2073">UpdateUncertaintyTable</a> ()</td></tr>
+<tr class="memdesc:a14d07f777109f597e352ed8d2eab2073"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted to notify the main routine that it needs to reload the Uncertainty Table in Forecast tab3. This is due to the fact that if the user changes the forecast harvest type from Catch to Effort, the Catchability (q) parameter must be exposed in the Uncertainty Parameters table. <br /></td></tr>
+<tr class="separator:a14d07f777109f597e352ed8d2eab2073"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -169,9 +185,15 @@ Public Member Functions</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#adf481822f9373293ad86892c298a16fb">clearWidgets</a> ()</td></tr>
 <tr class="memdesc:adf481822f9373293ad86892c298a16fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears all GUI widgets. <br /></td></tr>
 <tr class="separator:adf481822f9373293ad86892c298a16fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8891bf957561da1a8b48b1e0dc7a2ccf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a8891bf957561da1a8b48b1e0dc7a2ccf">enableHarvestTypeButton</a> (const bool &amp;enable, const QString &amp;buttonLabelToSet)</td></tr>
+<tr class="memdesc:a8891bf957561da1a8b48b1e0dc7a2ccf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the enable-ness of the Forecast Harvest button and its label.  <a href="classnmf_forecast___tab2.html#a8891bf957561da1a8b48b1e0dc7a2ccf">More...</a><br /></td></tr>
+<tr class="separator:a8891bf957561da1a8b48b1e0dc7a2ccf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa76990e4d246b3beb57a4ac59cffaad1"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#aa76990e4d246b3beb57a4ac59cffaad1">getCurrentUnits</a> ()</td></tr>
 <tr class="memdesc:aa76990e4d246b3beb57a4ac59cffaad1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current units set by the user in the combo box.  <a href="classnmf_forecast___tab2.html#aa76990e4d246b3beb57a4ac59cffaad1">More...</a><br /></td></tr>
 <tr class="separator:aa76990e4d246b3beb57a4ac59cffaad1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a741c8c0c7628bb7534041b8768bf1eb0"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a741c8c0c7628bb7534041b8768bf1eb0">getHarvestType</a> ()</td></tr>
+<tr class="memdesc:a741c8c0c7628bb7534041b8768bf1eb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the type of harvest as displayed in the harvest type pushbutton.  <a href="classnmf_forecast___tab2.html#a741c8c0c7628bb7534041b8768bf1eb0">More...</a><br /></td></tr>
+<tr class="separator:a741c8c0c7628bb7534041b8768bf1eb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a274934d060587e087ff78e571cc64479"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a274934d060587e087ff78e571cc64479">isConvertChecked</a> ()</td></tr>
 <tr class="memdesc:a274934d060587e087ff78e571cc64479"><td class="mdescLeft">&#160;</td><td class="mdescRight">If checked, the data table will be automatically converted as the user changes the Units combo box.  <a href="classnmf_forecast___tab2.html#a274934d060587e087ff78e571cc64479">More...</a><br /></td></tr>
 <tr class="separator:a274934d060587e087ff78e571cc64479"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -181,6 +203,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:abc2aaab02b2cedcf4c24fe09e3ebf025"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#abc2aaab02b2cedcf4c24fe09e3ebf025">setCurrentUnits</a> (QString currentUnits)</td></tr>
 <tr class="memdesc:abc2aaab02b2cedcf4c24fe09e3ebf025"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the Units combo box.  <a href="classnmf_forecast___tab2.html#abc2aaab02b2cedcf4c24fe09e3ebf025">More...</a><br /></td></tr>
 <tr class="separator:abc2aaab02b2cedcf4c24fe09e3ebf025"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e6ed00f06447dd34a775f947d16c409"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_forecast___tab2.html#a4e6ed00f06447dd34a775f947d16c409">setForecastEstimationHarvestModels</a> (QStandardItemModel *Harvest_smodel, QStandardItemModel *CatchFTC_smodel, QStandardItemModel *EffortFTC_smodel)</td></tr>
+<tr class="memdesc:a4e6ed00f06447dd34a775f947d16c409"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the class variable representing the Estimation Harvest model table.  <a href="classnmf_forecast___tab2.html#a4e6ed00f06447dd34a775f947d16c409">More...</a><br /></td></tr>
+<tr class="separator:a4e6ed00f06447dd34a775f947d16c409"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Forecast Harvest Data. </p>
@@ -473,6 +498,43 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a id="a8891bf957561da1a8b48b1e0dc7a2ccf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8891bf957561da1a8b48b1e0dc7a2ccf">&#9670;&nbsp;</a></span>enableHarvestTypeButton()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfForecast_Tab2::enableHarvestTypeButton </td>
+          <td>(</td>
+          <td class="paramtype">const bool &amp;&#160;</td>
+          <td class="paramname"><em>enable</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const QString &amp;&#160;</td>
+          <td class="paramname"><em>buttonLabelToSet</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the enable-ness of the Forecast Harvest button and its label. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">enable</td><td>: boolean describing if button should be enabled </td></tr>
+    <tr><td class="paramname">buttonLabelToSet</td><td>: what the button label should be </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="aa76990e4d246b3beb57a4ac59cffaad1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa76990e4d246b3beb57a4ac59cffaad1">&#9670;&nbsp;</a></span>getCurrentUnits()</h2>
 
@@ -490,6 +552,26 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 <p>Returns the current units set by the user in the combo box. </p>
 <dl class="section return"><dt>Returns</dt><dd>Current units QString (lbs, kg, mt) </dd></dl>
+
+</div>
+</div>
+<a id="a741c8c0c7628bb7534041b8768bf1eb0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a741c8c0c7628bb7534041b8768bf1eb0">&#9670;&nbsp;</a></span>getHarvestType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString nmfForecast_Tab2::getHarvestType </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the type of harvest as displayed in the harvest type pushbutton. </p>
+<dl class="section return"><dt>Returns</dt><dd>The currently selected type of harvest data. Either "Catch:" or "Effort:" </dd></dl>
 
 </div>
 </div>
@@ -598,6 +680,50 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">currentUnits</td><td>: value with which to set the current units combo box </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a4e6ed00f06447dd34a775f947d16c409"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e6ed00f06447dd34a775f947d16c409">&#9670;&nbsp;</a></span>setForecastEstimationHarvestModels()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfForecast_Tab2::setForecastEstimationHarvestModels </td>
+          <td>(</td>
+          <td class="paramtype">QStandardItemModel *&#160;</td>
+          <td class="paramname"><em>Harvest_smodel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QStandardItemModel *&#160;</td>
+          <td class="paramname"><em>CatchFTC_smodel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QStandardItemModel *&#160;</td>
+          <td class="paramname"><em>EffortFTC_smodel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the class variable representing the Estimation Harvest model table. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">Harvest_smodel</td><td>: the currently set Estimation Harvest model table </td></tr>
+    <tr><td class="paramname">CatchFTC_smodel</td><td>: the Fit to Catch - Catch Estimation Harvest model table </td></tr>
+    <tr><td class="paramname">EffortFTC_smodel</td><td>: the Fit to Catch - Effort Estimation Harvest model table </td></tr>
   </table>
   </dd>
 </dl>

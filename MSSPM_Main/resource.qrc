@@ -37,5 +37,7 @@
         <file>icons/locked.png</file>
         <file>icons/unlocked.png</file>
         <file>forms/Estimation/Estimation_Tab06.ui</file>
+        <file>icons/runDisabled.png</file>
+        <file>icons/runEnabled.png</file>
     </qresource>
 </RCC>

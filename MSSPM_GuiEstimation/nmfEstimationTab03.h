@@ -75,6 +75,9 @@ private:
     QTableView*  Estimation_Tab3_CompetitionBetaGuildsGuildsTV;
     QTableView*  Estimation_Tab3_CompetitionBetaGuildsGuildsMinTV;
     QTableView*  Estimation_Tab3_CompetitionBetaGuildsGuildsMaxTV;
+    QTableView*  Estimation_Tab4_PredationRhoTV;
+    QTableView*  Estimation_Tab4_PredationRhoMinTV;
+    QTableView*  Estimation_Tab4_PredationRhoMaxTV;
     QLabel*      Estimation_Tab3_CompetitionAlphaLBL;
     QLabel*      Estimation_Tab3_CompetitionAlphaMinLBL;
     QLabel*      Estimation_Tab3_CompetitionAlphaMaxLBL;
@@ -116,6 +119,13 @@ private:
     bool isNull();
     void readSettings();
 
+signals:
+    /**
+     * @brief Signal emitted when the tab should complete loading the
+     * previous tab's widgets (which are part of this tab).
+     */
+    void CompleteCompetitionSetup();
+
 public:
     /**
      * @brief nmfEstimation_Tab3 : class constructor for the Competition Parameters GUI page
@@ -134,6 +144,11 @@ public:
      * @brief Clears the GUI's widgets
      */
     void clearWidgets();
+    /**
+     * @brief Callback invoked from a later created tab to create pointers to some of its widgets. Couldn't
+     * do this when this tab was created as calling tab wasn't yet created.
+     */
+    void completeConstructor();
     /**
      * @brief Loads the active Competition CSV files into the appropriate Competition tables
      * @param filePath : the directory in which the csv files are located

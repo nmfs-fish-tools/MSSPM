@@ -31,6 +31,8 @@
 #ifndef NMFESTIMATIONTAB2_H
 #define NMFESTIMATIONTAB2_H
 
+//#include <QSpacer>
+
 /**
  * @brief Harvest Data
  *
@@ -47,6 +49,7 @@ class nmfEstimation_Tab2: public QObject
     std::string                       m_ProjectDir;
     std::string                       m_ProjectName;
     std::string                       m_ModelName;
+    std::string                       m_HarvestType;
     std::vector<std::string>          m_HarvestTables;
     std::vector<QTableView*>          m_TableViews;
     int                               m_NumSignificantDigits;
@@ -55,28 +58,53 @@ class nmfEstimation_Tab2: public QObject
 
     QWidget*     Estimation_Tab2_Widget;
     QTabWidget*  Estimation_Tabs;
+    QTabWidget*  Estimation_Tab2_FitToCatchTB;
+    QTableView*  Estimation_Tab2_FTCWeightsTV;
     QTableView*  Estimation_Tab2_CatchTV;
+    QTableView*  Estimation_Tab2_FTCCatchTV;
     QTableView*  Estimation_Tab2_EffortTV;
+    QTableView*  Estimation_Tab2_FTCEffortTV;
     QPushButton* Estimation_Tab2_PrevPB;
     QPushButton* Estimation_Tab2_NextPB;
     QPushButton* Estimation_Tab2_LoadPB;
     QPushButton* Estimation_Tab2_SavePB;
     QPushButton* Estimation_Tab2_ImportPB;
     QPushButton* Estimation_Tab2_ExportPB;
+    QPushButton* Estimation_Tab2_SetAllWeightsPB;
+    QPushButton* Estimation_Tab2_SetBiomassWeightsTo1PB;
+    QPushButton* Estimation_Tab2_SetBiomassWeightsToHalfPB;
+    QPushButton* Estimation_Tab2_SetBiomassWeightsTo0PB;
     QComboBox*   Estimation_Tab2_UnitsEffortCMB;
+    QComboBox*   Estimation_Tab2_FTCUnitsEffortCMB;
     QComboBox*   Estimation_Tab2_UnitsCatchCMB;
+    QComboBox*   Estimation_Tab2_FTCUnitsCatchCMB;
     QCheckBox*   Estimation_Tab2_ConvertEffortCB;
+    QCheckBox*   Estimation_Tab2_FTCConvertEffortCB;
     QCheckBox*   Estimation_Tab2_ConvertCatchCB;
+    QCheckBox*   Estimation_Tab2_FTCConvertCatchCB;
     QWidget*     Estimation_Tab2_EffortW;
     QWidget*     Estimation_Tab2_CatchW;
 
-    void loadCSVFile(const QString& absolutePath,
+    bool isCatch();
+    bool isEffort();
+    bool isFitToCatch();
+    bool loadCSVFile(const QString& absolutePath,
                      const QString& tableName,
-                     QTableView* tableView);
-    void loadUnits(const std::vector<std::string>& tableName);
+                     QTableView* tableView,
+                     const bool& verbose);
+    bool loadTable(QTableView* tableView,
+                   const std::string& tableName,
+                   const bool& verbose);
+    void loadUnits(const std::string& tableName);
+    bool loadWeights(const bool& verbose);
     void readSettings();
-    void saveCSVFile(std::string& tableName,
-                     QTableView* tableView);
+    bool saveCSVFile(std::string& tableName,
+                     QTableView* tableView,
+                     const bool& verbose);
+    bool saveTable(QTableView* tableView,
+                   const std::string& tableName);
+    bool saveFitWeights(const bool& verbose);
+    void setAllBiomassWeights(const double& value);
 
 public:
     /**
@@ -106,6 +134,23 @@ public:
      * @return Current units QString (lbs, kg, mt)
      */
     QString getCurrentUnits();
+    /**
+     * @brief Gets the currently visible harvest model pointer
+     * @return Returns the harvest model pointer
+     */
+    QStandardItemModel* getHarvestModel();
+    /**
+     * @brief Gets the Fit to Catch - Catch model pointer
+     * (there's a different tableview for effort and the fit to catch effort tables)
+     * @return Returns the Fit to Catch - Catch tableview model pointer
+     */
+    QStandardItemModel* getHarvestModelFTCCatch();
+    /**
+     * @brief Gets the Fit to Catch - Effort model pointer
+     * (there's a different tableview for effort and the fit to catch effort tables)
+     * @return Returns the Fit to Catch - Effort tableview model pointer
+     */
+    QStandardItemModel* getHarvestModelFTCEffort();
     /**
      * @brief If checked, the Catch data table will be automatically be
      * converted as the user changes the Units combo box
@@ -168,6 +213,31 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
+    /**
+     * @brief Callback invoked when the user clicks the Weights Set All button
+     */
+    void callback_SetAllWeightsPB();
+    /**
+     * @brief Callback invoked when the user clicks the B=0 button. This sets all of the Biomass weights
+     * to 0 (and Catch weights to 1).
+     */
+    void callback_SetBiomassWeightsTo0PB();
+    /**
+     * @brief Callback invoked when the user clicks the B=1 button. This sets all of the biomass weights
+     * to 1 (and catch weights to 0).
+     */
+    void callback_SetBiomassWeightsTo1PB();
+    /**
+     * @brief Callback invoked when the user clicks the B=½ button
+     */
+    void callback_SetWeightsEqualPB();
+    /**
+     * @brief Callback invoked when the user changes an individual cell
+     * @param topLeftCell : index of top left tableview cell
+     * @param bottomRightCell : index of bottom right tableview cell
+     */
+    void callback_SetWeightsPB(const QModelIndex& topLeftCell,
+                               const QModelIndex& bottomRightCell);
     /**
      * @brief Callback invoked when the user changes the Catch Units combo box
      * @param units : new units selected by the user

@@ -726,6 +726,21 @@ nmfOutputControls::isSetToRetrospectiveAnalysis()
 }
 
 void
+nmfOutputControls::refreshChart()
+{
+    int currentIndex = OutputChartTypeCMB->currentIndex();
+
+    // Flip to a different chart type
+    if (currentIndex == 0) {
+        OutputChartTypeCMB->setCurrentIndex(1);
+    } else {
+        OutputChartTypeCMB->setCurrentIndex(0);
+    }
+    // Flip back to original chart type
+    OutputChartTypeCMB->setCurrentIndex(currentIndex);
+}
+
+void
 nmfOutputControls::callback_OutputChartTypeCMB(QString outputType)
 {
     bool isParameterProfiles = (OutputMethodsCMB->currentText() == "Parameter Profiles");
@@ -815,10 +830,14 @@ nmfOutputControls::callback_OutputChartTypeCMB(QString outputType)
             emit ShowChartMohnsRho();
         }
     } else if (isForecast) {
+        // Need to flip historical checkbox
+        bool showHistoricalData = OutputShowHistoricalDataCB->isChecked();
+        OutputShowHistoricalDataCB->setChecked(false);
         OutputYAxisMinSL->setValue(0);
         callback_ResetOutputWidgetsForAggProd();
         emit SetChartView2d(true);
         emit ShowChart("",""); //,m_IsAveraged);
+        OutputShowHistoricalDataCB->setChecked(showHistoricalData);
     } else if (isMultiScenario) {
         callback_ResetOutputWidgetsForAggProd();
         emit SetChartView2d(true);
@@ -898,6 +917,10 @@ nmfOutputControls::refreshScenarios()
 void
 nmfOutputControls::callback_OutputSpeciesCMB(QString outputSpecies)
 {
+    // Flip historical checkbox so as to avoid overlaying plots
+    // RSK -revisit this
+    bool isHistoricalDataChecked = isHistoricalDataShown();
+    OutputShowHistoricalDataCB->setChecked(false);
 
     QString scenario  = getOutputScenario();
     QString chartType = getOutputChartType();
@@ -915,6 +938,7 @@ nmfOutputControls::callback_OutputSpeciesCMB(QString outputSpecies)
         updateChart();
     }
 
+    OutputShowHistoricalDataCB->setChecked(isHistoricalDataChecked);
 }
 
 void

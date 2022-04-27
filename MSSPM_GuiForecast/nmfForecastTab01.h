@@ -75,7 +75,8 @@ private:
     QRadioButton* Forecast_Tab1_UseLastSingleRunRB;
     QRadioButton* Forecast_Tab1_UseLastMultiRunRB;
 
-    void loadForecast(std::string forecastToLoad);
+    void loadForecast(const std::string& forecastToLoad,
+                      const bool& verbose);
     void readSettings();
 
 public:

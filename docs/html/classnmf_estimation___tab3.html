@@ -83,6 +83,7 @@ $(document).ready(function(){initNavTree('classnmf_estimation___tab3.html',''); 
 <div class="header">
   <div class="summary">
 <a href="#pub-slots">Public Slots</a> &#124;
+<a href="#signals">Signals</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classnmf_estimation___tab3-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -159,6 +160,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memdesc:a95660c2f96d3ac68c0ce065ba11909dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the T button. This will cause the data in every Competition matrix to be transposed. <br /></td></tr>
 <tr class="separator:a95660c2f96d3ac68c0ce065ba11909dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
+Signals</h2></td></tr>
+<tr class="memitem:a80c0f28d85c450ec4b3da9db397c52be"><td class="memItemLeft" align="right" valign="top"><a id="a80c0f28d85c450ec4b3da9db397c52be"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#a80c0f28d85c450ec4b3da9db397c52be">CompleteCompetitionSetup</a> ()</td></tr>
+<tr class="memdesc:a80c0f28d85c450ec4b3da9db397c52be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when the tab should complete loading the previous tab's widgets (which are part of this tab). <br /></td></tr>
+<tr class="separator:a80c0f28d85c450ec4b3da9db397c52be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a66d00a2486349efb1fc71f6e5a83f306"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#a66d00a2486349efb1fc71f6e5a83f306">nmfEstimation_Tab3</a> (QTabWidget *tabs, nmfLogger *logger, nmfDatabase *databasePtr, std::string &amp;projectDir)</td></tr>
@@ -168,6 +176,10 @@ Public Member Functions</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#ac181a0f5624567062f2de767e3053b73">clearWidgets</a> ()</td></tr>
 <tr class="memdesc:ac181a0f5624567062f2de767e3053b73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the GUI's widgets. <br /></td></tr>
 <tr class="separator:ac181a0f5624567062f2de767e3053b73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4084337bbbcc9e5d4e6f31dda966f34c"><td class="memItemLeft" align="right" valign="top"><a id="a4084337bbbcc9e5d4e6f31dda966f34c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#a4084337bbbcc9e5d4e6f31dda966f34c">completeConstructor</a> ()</td></tr>
+<tr class="memdesc:a4084337bbbcc9e5d4e6f31dda966f34c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked from a later created tab to create pointers to some of its widgets. Couldn't do this when this tab was created as calling tab wasn't yet created. <br /></td></tr>
+<tr class="separator:a4084337bbbcc9e5d4e6f31dda966f34c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab847cbf682a4d9e8ad032f229c852abb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab3.html#ab847cbf682a4d9e8ad032f229c852abb">loadCSVFiles</a> (const QString &amp;filePath, const std::vector&lt; std::string &gt; &amp;allTableNames)</td></tr>
 <tr class="memdesc:ab847cbf682a4d9e8ad032f229c852abb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the active Competition CSV files into the appropriate Competition tables.  <a href="classnmf_estimation___tab3.html#ab847cbf682a4d9e8ad032f229c852abb">More...</a><br /></td></tr>
 <tr class="separator:ab847cbf682a4d9e8ad032f229c852abb"><td class="memSeparator" colspan="2">&#160;</td></tr>

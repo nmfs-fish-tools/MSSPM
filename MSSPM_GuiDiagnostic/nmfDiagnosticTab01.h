@@ -128,14 +128,22 @@ private:
             const std::string&   ObjectCriterion,
             const std::string&   Scaling,
             const std::string&   isAggProd,
-            std::vector<double>& Parameters);
+            std::vector<double>& Parameters,
+            const int&           CurrentOffset,
+            int&                 GrowthRateOffset,
+            int&                 GrowthRateCovarOffset,
+            int&                 CarryingCapacityOffset,
+            int&                 CarryingCapacityCovarOffset);
     void loadHarvestParameters(
             const int&           NumSpeciesOrGuilds,
             const std::string&   Algorithm,
             const std::string&   Minimizer,
             const std::string&   ObjectCriterion,
             const std::string&   Scaling,
-            std::vector<double>& Parameters);
+            std::vector<double>& Parameters,
+            const int&           CurrentOffset,
+            int&                 CatchabilityOffset,
+            int&                 CatchabilityCovarOffset);
     void loadOutputParameters(
             const std::string&   TableName,
             const int&           NumSpeciesOrGuilds,

@@ -58,6 +58,7 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
     Estimation_Tab6_MinMaxCMB          = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_MinMaxCMB");
     Estimation_Tab6_AlgTypeCMB         = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab6_AlgTypeCMB");
     Estimation_Tab6_ViewNormalizedPB   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_ViewNormalizedPB");
+    Estimation_Tab6_SetPB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab6_SetPB");
 
     Estimation_Tab6_PrevPB->setText("\u25C1--");
     Estimation_Tab6_NextPB->setText("--\u25B7");
@@ -95,7 +96,8 @@ nmfEstimation_Tab6::nmfEstimation_Tab6(QTabWidget*  tabs,
             this,                            SLOT(callback_SpeciesRangeSB(int)));
     connect(Estimation_Tab6_ViewNormalizedPB,SIGNAL(toggled(bool)),
             this,                            SLOT(callback_ViewNormalizedPB(bool)));
-
+    connect(Estimation_Tab6_SetPB,           SIGNAL(clicked()),
+            this,                            SLOT(callback_SetPB()));
 
     initializeCovariateTable();
     initializeSpeciesParameterTable();
@@ -264,6 +266,16 @@ nmfEstimation_Tab6::readSettings()
     delete settings;
 }
 
+
+void
+nmfEstimation_Tab6::resaveCovariateAssignmentTable()
+{
+    saveCovariateAssignmentTable();
+    initializeInitialValuesAndRangesTable();
+    loadInitialValuesAndRangesForEditableCells();
+    saveInitialValuesAndRangesTable();
+}
+
 void
 nmfEstimation_Tab6::addCovariateColumn(QString covariateName)
 {
@@ -291,29 +303,36 @@ nmfEstimation_Tab6::addCovariateColumn(QString covariateName)
     Estimation_Tab6_CovariateTV->resizeColumnsToContents();
 }
 
-void
+bool
 nmfEstimation_Tab6::loadWidgets()
 {
+    bool okType,okTable,okAssignment,okValues;
+
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::loadWidgets()");
-    loadCovariateAlgorithmType();
+    okType       = loadCovariateAlgorithmType();
     Estimation_Tab6_ViewNormalizedPB->setChecked(false);
-    loadCovariateTable();
-    loadCovariateAssignmentTable();
-    loadCovariateInitialValuesAndRangesTable();
+    okTable      = loadCovariateTable();
+    okAssignment = loadCovariateAssignmentTable();
+    okValues     = loadCovariateInitialValuesAndRangesTable();
+
+    return (okType && okTable && okAssignment && okValues);
 }
 
-void
+bool
 nmfEstimation_Tab6::loadCovariateAlgorithmType()
 {
     int NumRecords;
+    bool retv = true;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
+    std::string msg;
+    std::string tableName = nmfConstantsMSSPM::TableModels;
 
     // Get data from database table
     fields     = {"ProjectName","ModelName","CovariateAlgorithmType"};
     queryStr   = "SELECT ProjectName,ModelName,CovariateAlgorithmType FROM " +
-                  nmfConstantsMSSPM::TableModels +
+                  tableName +
                  " WHERE ProjectName = '" + m_ProjectName +
                  "' AND ModelName = '"    + m_ModelName + "'";
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -321,12 +340,19 @@ nmfEstimation_Tab6::loadCovariateAlgorithmType()
     if (NumRecords == 1) {
         setCovariateAlgorithmType(dataMap["CovariateAlgorithmType"][0]);
     } else {
-        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab6::loadCovariateAlgorithmType: Incorrect number of Covariate Algorithm Type records found in models table");
+        msg = "nmfEstimation_Tab6::loadCovariateAlgorithmType: Incorrect number of Covariate Algorithm Type records found in: " + tableName;
+        m_Logger->logMsg(nmfConstants::Error,msg);
+        QMessageBox::information(Estimation_Tabs, "Covariate Algorithm Type Load Error",
+                                 "\n" + QString::fromStdString(msg) + "\n",
+                                 QMessageBox::Ok);
+        retv = false;
     }
+
+    return retv;
 }
 
 
-void
+bool
 nmfEstimation_Tab6::loadCovariateTable()
 {
     int m;
@@ -335,9 +361,11 @@ nmfEstimation_Tab6::loadCovariateTable()
     int NumRecords;
     int RunLength;
     int StartYear;
+    bool retv = true;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
+    std::string msg;
     QStandardItem *item;
     QStandardItemModel* smodel;
     QStringList horizontalHeader;
@@ -382,52 +410,77 @@ nmfEstimation_Tab6::loadCovariateTable()
         Estimation_Tab6_CovariateTV->setModel(smodel);
         Estimation_Tab6_CovariateTV->resizeColumnsToContents();
         Estimation_Tab6_CovariateTV->clearSelection();
+    } else {
+        msg = "nmfEstimation_Tab6::loadCovariateTable: Incorrect number of Covariate records found in: " + tableName;
+        m_Logger->logMsg(nmfConstants::Error,msg);
+        QMessageBox::information(Estimation_Tabs, "Covariate Data Load Error",
+                                 "\n" + QString::fromStdString(msg) + "\n",
+                                 QMessageBox::Ok);
+        retv = false;
     }
+
+    return retv;
 }
 
-void
+bool
 nmfEstimation_Tab6::loadCovariateAssignmentTable()
 {
     int m=0;
     int NumRecords;
     int numRows = 0;
     int numCols = 0;
+    bool retv = true;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     std::string tableName  = nmfConstantsMSSPM::TableCovariateAssignment;
+    std::string msg = "";
     QComboBox* cbox;
     QModelIndex index;
     QStandardItemModel* smodelSP = qobject_cast<QStandardItemModel*>(Estimation_Tab6_SpeciesParameterTV->model());
 
-    if (m_smodelSP == nullptr) {
-        return;
-    } else {
+    if (m_smodelSP != nullptr) {
         numRows = m_smodelSP->rowCount();
         numCols = m_smodelSP->columnCount();
-    }
 
-    // Get data from database table
-    fields     = {"ProjectName","ModelName","SpeName","ParameterName","CovariateName"};
-    queryStr   = "SELECT ProjectName,ModelName,SpeName,ParameterName,CovariateName FROM " +
-                  tableName +
-                 " WHERE ProjectName = '" + m_ProjectName +
-                 "' AND ModelName = '"    + m_ModelName +
-                 "' ORDER BY SpeName,ParameterName ";
-    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
-    NumRecords = dataMap["CovariateName"].size();
+        // Get data from database table
+        fields     = {"ProjectName","ModelName","SpeName","ParameterName","CovariateName"};
+        queryStr   = "SELECT ProjectName,ModelName,SpeName,ParameterName,CovariateName FROM " +
+                tableName +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName +
+                "' ORDER BY SpeName,ParameterName ";
+        dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+        NumRecords = dataMap["CovariateName"].size();
 
-    if (NumRecords == numRows*numCols) {
-        for (int row=0; row<numRows; ++row) {
-            for (int col=0; col<numCols; ++col) {
-                index = smodelSP->index(row,col);
-                cbox  = qobject_cast<QComboBox*>(Estimation_Tab6_SpeciesParameterTV->indexWidget(index));
-                cbox->setCurrentText(QString::fromStdString(dataMap["CovariateName"][m++]));
-                Estimation_Tab6_SpeciesParameterTV->setIndexWidget(index,cbox);
+        if (NumRecords == numRows*numCols) {
+            for (int row=0; row<numRows; ++row) {
+                for (int col=0; col<numCols; ++col) {
+                    index = smodelSP->index(row,col);
+                    cbox  = qobject_cast<QComboBox*>(Estimation_Tab6_SpeciesParameterTV->indexWidget(index));
+                    cbox->setCurrentText(QString::fromStdString(dataMap["CovariateName"][m++]));
+                    Estimation_Tab6_SpeciesParameterTV->setIndexWidget(index,cbox);
+                }
             }
+            Estimation_Tab6_SpeciesParameterTV->resizeColumnsToContents();
+        } else {
+            return false;
+//            msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Invalid number of table records found in: " +
+//                   tableName;
         }
-        Estimation_Tab6_SpeciesParameterTV->resizeColumnsToContents();
+    } else {
+        msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Uninitialized Species Parameter table found";
     }
+
+    if (! msg.empty()) {
+        m_Logger->logMsg(nmfConstants::Error,msg);
+        QMessageBox::information(Estimation_Tabs, "Covariate Assignment Data Load Error",
+                                 "\n" + QString::fromStdString(msg) + "\n",
+                                 QMessageBox::Ok);
+        retv = false;
+    }
+
+    return retv;
 }
 
 void
@@ -497,7 +550,7 @@ nmfEstimation_Tab6::loadInitialValuesAndRangesForEditableCells()
     }
 }
 
-void
+bool
 nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
 {
     std::vector<std::string> fields;
@@ -506,12 +559,18 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
     std::string tableName = nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges;
     std::string coeffValue;
     std::string newValue;
+    std::string msg;
     std::vector<std::string> SpeciesNames;
     QStandardItem* item;
     QStandardItemModel* smodelIR = qobject_cast<QStandardItemModel*>(Estimation_Tab6_InitialValuesTV->model());
 
     if (! m_DatabasePtr->getSpecies(m_Logger,SpeciesNames)) {
-        return;
+        msg = "nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable: Couldn't find any species names";
+        m_Logger->logMsg(nmfConstants::Error,msg);
+        QMessageBox::information(Estimation_Tabs, "Covariate Initial Values and Ranges Load Error",
+                                 "\n" + QString::fromStdString(msg) + "\n",
+                                 QMessageBox::Ok);
+        return false;
     }
     int NumSpecies = SpeciesNames.size();
 
@@ -527,7 +586,12 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     int NumRecords = dataMap["CoeffName"].size();
     if (NumRecords == 0) {
-        return;
+        msg = "nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable: No data found in table: " + tableName;
+        m_Logger->logMsg(nmfConstants::Error,msg);
+        QMessageBox::information(Estimation_Tabs, "Covariate Initial Values and Ranges Load Error",
+                                 "\n" + QString::fromStdString(msg) + "\n",
+                                 QMessageBox::Ok);
+        return false;
     }
     int NumParameters = NumRecords/NumSpecies;
 
@@ -565,6 +629,8 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
 
     Estimation_Tab6_InitialValuesTV->setModel(smodelIR);
     Estimation_Tab6_InitialValuesTV->resizeColumnsToContents();
+
+    return true;
 }
 
 bool
@@ -603,13 +669,15 @@ nmfEstimation_Tab6::importTableData(const bool& firstLineReadOnly,
                     Estimation_Tabs,
                     QObject::tr("Select "+type.toLatin1()+" file"), inputDataPath,
                     QObject::tr("Data Files (Covariate*.csv covariate*.csv)"));
-        QFileInfo fi(filenameWithPath);
-        QString filenameNoPath = fi.fileName();
-        QString absolutePath   = fi.absolutePath();
-        if (absolutePath == inputDataPath) {
-            loadCSVFile(firstLineReadOnly,inputDataPath,filenameNoPath,tableView);
-        } else {
-            loadCSVFile(firstLineReadOnly,absolutePath,filenameNoPath,tableView);
+        if (! filenameWithPath.isEmpty()) {
+            QFileInfo fi(filenameWithPath);
+            QString filenameNoPath = fi.fileName();
+            QString absolutePath   = fi.absolutePath();
+            if (absolutePath == inputDataPath) {
+                loadCSVFile(firstLineReadOnly,inputDataPath,filenameNoPath,tableView);
+            } else {
+                loadCSVFile(firstLineReadOnly,absolutePath,filenameNoPath,tableView);
+            }
         }
     }
 }
@@ -679,13 +747,15 @@ nmfEstimation_Tab6::saveTableValuesToCSVFile(const QString& type,
         QString tag = QInputDialog::getText(Estimation_Tabs, tr(type.toLatin1()+" Files"),
                                             tr("Enter "+type.toLatin1()+" CSV filename version tag (omit any '_'): "),
                                             QLineEdit::Normal, "", &ok);
-        if (ok && !tag.isEmpty()) {
-            tableNameNew = tableName+"_"+tag.toStdString();
-            saveCSVFile(type,smodel,tableNameNew);
-        } else if (tag.isEmpty()) {
-            QMessageBox::warning(Estimation_Tabs, "Tag Error",
-                                 "\nError: Please enter a valid (i.e., non-blank) tag.\n",
-                                 QMessageBox::Ok);
+        if (ok) {
+            if (! tag.isEmpty()) {
+                tableNameNew = tableName+"_"+tag.toStdString();
+                saveCSVFile(type,smodel,tableNameNew);
+            } else if (tag.isEmpty()) {
+                QMessageBox::warning(Estimation_Tabs, "Tag Error",
+                                     "\nError: Please enter a valid (i.e., non-blank) tag.\n",
+                                     QMessageBox::Ok);
+            }
         }
     }
 }
@@ -954,6 +1024,68 @@ nmfEstimation_Tab6::okSaveInitialValuesAndRangesChecks()
     return true;
 }
 
+void
+nmfEstimation_Tab6::populateCells(const double& initial,
+                                  const double& min,
+                                  const double& max)
+{
+    // Set parameter min/max values to 0 for all selected cells or to all cells if none are selected
+    int col;
+    int row;
+    std::set<int> selectedParameters;
+    QLocale locale(QLocale::English);
+    QString initialValue;
+    QStandardItem* item;
+    QStandardItem* initialItem;
+    QStandardItem* minItem;
+    QStandardItem* maxItem;
+
+    QModelIndexList indexes = nmfUtilsQt::getSelectedTableViewCells(Estimation_Tab6_InitialValuesTV);
+
+    int numRows = m_smodelIR->rowCount();
+    int numCols = m_smodelIR->columnCount();
+    if (indexes.size() == 0) { // mean no selections, so set all min/max parameter values
+        for (int row=0; row<numRows; ++row) {
+            for (int col=0; col<numCols; col+=3) {
+                item = m_smodelIR->item(row,col);
+                if (item->isEditable()) {
+                    initialItem = new QStandardItem(QString::number(initial));
+                    minItem     = new QStandardItem(QString::number(min));
+                    maxItem     = new QStandardItem(QString::number(max));
+                    initialItem->setTextAlignment(Qt::AlignCenter);
+                    minItem->setTextAlignment(Qt::AlignCenter);
+                    maxItem->setTextAlignment(Qt::AlignCenter);
+                    m_smodelIR->setItem(row,col,  initialItem);
+                    m_smodelIR->setItem(row,col+1,minItem);
+                    m_smodelIR->setItem(row,col+2,maxItem);
+                }
+            }
+        }
+    } else {
+        // Find all columns with a selection and set the cell accordingly by using its modulus value
+        for (QModelIndex index : indexes) {
+            row    = index.row();
+            col    = index.column();
+            item = m_smodelIR->item(row,col);
+            if (item->isEditable()) {
+                switch (col%3) {
+                  case 0:
+                    item->setText(QString::number(initial));
+                    break;
+                  case 1:
+                    item->setText(QString::number(min));
+                    break;
+                  case 2:
+                    item->setText(QString::number(max));
+                    break;
+                }
+            }
+        }
+        nmfUtilsQt::reselectTableViewCells(Estimation_Tab6_InitialValuesTV,indexes);
+    }
+    Estimation_Tab6_InitialValuesTV->resizeColumnsToContents();
+}
+
 bool
 nmfEstimation_Tab6::saveInitialValuesAndRangesTable()
 {
@@ -990,6 +1122,9 @@ nmfEstimation_Tab6::saveInitialValuesAndRangesTable()
     // Save the new data
     saveCmd  = "INSERT INTO " + tableName +
                " (ProjectName,ModelName,SpeName,CoeffName,CoeffMinName,CoeffMaxName,CoeffValue,CoeffMinValue,CoeffMaxValue) VALUES ";
+m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::saveInitialValuesAndRangesTable saveCmd:");
+m_Logger->logMsg(nmfConstants::Normal,saveCmd);
+
     for (int row=0; row<numRows; ++row) {
         for (int col=0; col<numCols; col+=3) {
             value    = m_smodelIR->index(row,col+0).data().toString();
@@ -1016,6 +1151,8 @@ nmfEstimation_Tab6::saveInitialValuesAndRangesTable()
                              QMessageBox::Ok);
         return false;
     }
+
+    emit ReloadDiagnosticWidgets();
 
     return true;
 }
@@ -1118,7 +1255,11 @@ nmfEstimation_Tab6::callback_NextPB()
 void
 nmfEstimation_Tab6::callback_LoadPB()
 {
-    loadWidgets();
+    if (loadWidgets()) {
+        QMessageBox::information(Estimation_Tabs, "Covariate Load",
+                                 "\nCovariate table(s) successfully loaded.\n",
+                                 QMessageBox::Ok);
+    }
 }
 
 void
@@ -1322,51 +1463,13 @@ nmfEstimation_Tab6::callback_ViewNormalizedPB(bool checked)
 void
 nmfEstimation_Tab6::callback_ClearInitialValuesAndRangePB()
 {
-    // Set parameter min/max values to 0 for all selected cells or to all cells if none are selected
-    int col;
-    int row;
-    std::set<int> selectedParameters;
-    QLocale locale(QLocale::English);
-    QString initialValue;
-    QStandardItem* item;
-    QStandardItem* initialItem;
-    QStandardItem* minItem;
-    QStandardItem* maxItem;
+    populateCells(0.0,0.0,0.0);
+}
 
-    QModelIndexList indexes = nmfUtilsQt::getSelectedTableViewCells(Estimation_Tab6_InitialValuesTV);
-
-    int numRows = m_smodelIR->rowCount();
-    int numCols = m_smodelIR->columnCount();
-    if (indexes.size() == 0) { // mean no selections, so set all min/max parameter values
-        for (int row=0; row<numRows; ++row) {
-            for (int col=0; col<numCols; col+=3) {
-                item = m_smodelIR->item(row,col);
-                if (item->isEditable()) {
-                    initialItem = new QStandardItem("0");
-                    minItem = new QStandardItem("0");
-                    maxItem = new QStandardItem("0");
-                    initialItem->setTextAlignment(Qt::AlignCenter);
-                    minItem->setTextAlignment(Qt::AlignCenter);
-                    maxItem->setTextAlignment(Qt::AlignCenter);
-                    m_smodelIR->setItem(row,col,  initialItem);
-                    m_smodelIR->setItem(row,col+1,minItem);
-                    m_smodelIR->setItem(row,col+2,maxItem);
-                }
-            }
-        }
-    } else {
-        // Find all columns with a selection and that have a mod%3 = 0 which means we're on an initial value cell
-        for (QModelIndex index : indexes) {
-            row    = index.row();
-            col    = index.column();
-            item = m_smodelIR->item(row,col);
-            if (item->isEditable()) {
-               item->setText("0");
-            }
-        }
-        nmfUtilsQt::reselectTableViewCells(Estimation_Tab6_InitialValuesTV,indexes);
-    }
-    Estimation_Tab6_InitialValuesTV->resizeColumnsToContents();
+void
+nmfEstimation_Tab6::callback_SetPB()
+{
+    populateCells(0.5,0.0,1.0);
 }
 
 void

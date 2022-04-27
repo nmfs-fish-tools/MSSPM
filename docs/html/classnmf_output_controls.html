@@ -324,7 +324,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>isSetToGuild</b> ()</
 <tr class="memdesc:ad0b1451ddd58aa0b8bf30618cd7c2a84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the list of selected indexes (currently disabled) used for other possible chart types.  <a href="classnmf_output_controls.html#ad0b1451ddd58aa0b8bf30618cd7c2a84">More...</a><br /></td></tr>
 <tr class="separator:ad0b1451ddd58aa0b8bf30618cd7c2a84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f4f57fbbf776fa20a2436cb9d038fd4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_output_controls.html#a8f4f57fbbf776fa20a2436cb9d038fd4">getYMinSliderVal</a> ()</td></tr>
-<tr class="memdesc:a8f4f57fbbf776fa20a2436cb9d038fd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the Y Max slider value which allows the user to change the maximum value that appears on the y-axis.  <a href="classnmf_output_controls.html#a8f4f57fbbf776fa20a2436cb9d038fd4">More...</a><br /></td></tr>
+<tr class="memdesc:a8f4f57fbbf776fa20a2436cb9d038fd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the Y Min slider value which allows the user to change the minimum value that appears on the y-axis.  <a href="classnmf_output_controls.html#a8f4f57fbbf776fa20a2436cb9d038fd4">More...</a><br /></td></tr>
 <tr class="separator:a8f4f57fbbf776fa20a2436cb9d038fd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b3ad81fec211ceae1178807702fc0ee"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_output_controls.html#a2b3ad81fec211ceae1178807702fc0ee">getSpeciesNumFromName</a> (QString SpeciesName)</td></tr>
 <tr class="memdesc:a2b3ad81fec211ceae1178807702fc0ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the index of a Species from a previously created hash map.  <a href="classnmf_output_controls.html#a2b3ad81fec211ceae1178807702fc0ee">More...</a><br /></td></tr>
@@ -368,6 +368,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_output_controls.html#a39674f653f556f5593891792b78d9859">refresh</a> ()</td></tr>
 <tr class="memdesc:a39674f653f556f5593891792b78d9859"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the Output Type widget as well as reloading the Scenario widget. <br /></td></tr>
 <tr class="separator:a39674f653f556f5593891792b78d9859"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff945c1d288a6e176d27cff0d64b35a4"><td class="memItemLeft" align="right" valign="top"><a id="aff945c1d288a6e176d27cff0d64b35a4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_output_controls.html#aff945c1d288a6e176d27cff0d64b35a4">refreshChart</a> ()</td></tr>
+<tr class="memdesc:aff945c1d288a6e176d27cff0d64b35a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refreshes the current chart by flipping to another chart type and back to the current. <br /></td></tr>
+<tr class="separator:aff945c1d288a6e176d27cff0d64b35a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1eb6647a77870b0d42ca95e6183d7122"><td class="memItemLeft" align="right" valign="top"><a id="a1eb6647a77870b0d42ca95e6183d7122"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_output_controls.html#a1eb6647a77870b0d42ca95e6183d7122">refreshScenarios</a> ()</td></tr>
 <tr class="memdesc:a1eb6647a77870b0d42ca95e6183d7122"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reloads the Scenario widget. <br /></td></tr>
@@ -1527,9 +1531,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>readSettings</b> ()</
       </table>
 </div><div class="memdoc">
 
-<p>Get the Y Max slider value which allows the user to change the maximum value that appears on the y-axis. </p>
-<dl class="section return"><dt>Returns</dt><dd>The value set by the user on this slider widget</dd></dl>
-<p>Get the Y Min slider value which allows the user to change the minimum value that appears on the y-axis. </p><dl class="section return"><dt>Returns</dt><dd>The value set by the user on this slider widget </dd></dl>
+<p>Get the Y Min slider value which allows the user to change the minimum value that appears on the y-axis. </p>
+<dl class="section return"><dt>Returns</dt><dd>The value set by the user on this slider widget </dd></dl>
 
 </div>
 </div>

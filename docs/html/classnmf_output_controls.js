@@ -66,6 +66,7 @@ var classnmf_output_controls =
     [ "loadWidgets", "classnmf_output_controls.html#aca5113722f70b4440fea4a5f2686ea86", null ],
     [ "readSettings", "classnmf_output_controls.html#ab83a7259d8faab7d645cf21725d4dba0", null ],
     [ "refresh", "classnmf_output_controls.html#a39674f653f556f5593891792b78d9859", null ],
+    [ "refreshChart", "classnmf_output_controls.html#aff945c1d288a6e176d27cff0d64b35a4", null ],
     [ "refreshScenarios", "classnmf_output_controls.html#a1eb6647a77870b0d42ca95e6183d7122", null ],
     [ "ResetFilterButtons", "classnmf_output_controls.html#a54995a0bbf93903c2d18d9b9f6af849b", null ],
     [ "resetMSYWidgets", "classnmf_output_controls.html#a9205fb93aad74b8c51db10dc657141dc", null ],

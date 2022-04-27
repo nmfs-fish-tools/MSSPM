@@ -71,6 +71,7 @@ private:
     QPushButton* Forecast_Tab3_LoadPB;
     QPushButton* Forecast_Tab3_SavePB;
     QPushButton* Forecast_Tab3_SetPB;
+    QPushButton* Forecast_Tab2_SetHarvestTypePB;
     QGroupBox*   Forecast_Tab2_HarvestGB;
     QLineEdit*   Forecast_Tab1_NameLE;
     QCheckBox*   Forecast_Tab3_AutoSaveRunCB;
@@ -80,7 +81,7 @@ private:
     void adjustColumnVisibility();
     void clearUncertaintyTable(int& NumSpecies,
                                int& NumParameters);
-    QString harvestType();
+    QString getHarvestType();
     void readSettings();
     void saveSettings();
 

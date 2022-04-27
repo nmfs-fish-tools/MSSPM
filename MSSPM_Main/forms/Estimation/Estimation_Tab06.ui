@@ -37,7 +37,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Environmental Covariate Data Table:</string>
+              <string>Environmental Cov Data Table:</string>
              </property>
             </widget>
            </item>
@@ -264,7 +264,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Assign Covariate to Species/Parameter Pair:</string>
+            <string>Assign Cov to Species/Parameter Pair:</string>
            </property>
           </widget>
          </item>
@@ -351,7 +351,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Initial Covariate Coefficient Values and Ranges:</string>
+            <string>Initial Cov Coeff Values and Ranges:</string>
            </property>
           </widget>
          </item>
@@ -461,6 +461,34 @@
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="Estimation_Tab6_SetPB">
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Sets initial and min/max cells to default values</string>
+           </property>
+           <property name="statusTip">
+            <string>Sets initial and min/max cells to default values</string>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Quick Set&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button sets the initial values to 0.5 and the min/max values to 0 and 1, respectively. This works on the selected cells. If no cells are selected, all cells will be affected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Set</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="Estimation_Tab6_SetEstOffPB">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -490,9 +518,15 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
+             <width>30</width>
              <height>16777215</height>
             </size>
            </property>

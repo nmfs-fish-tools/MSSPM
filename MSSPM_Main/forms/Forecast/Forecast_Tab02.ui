@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>236</height>
+    <width>552</width>
+    <height>259</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,11 +23,45 @@
       </font>
      </property>
      <property name="title">
-      <string>Catch</string>
+      <string>Forecast Harvest Data</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="Forecast_Tab2_SetHarvestTypePB">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>55</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>55</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Toggles between loading Effort and Catch data</string>
+          </property>
+          <property name="statusTip">
+           <string>Toggles between loading Effort and Catch data</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Harvest Type&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button toggles between loading Effort and Catch data. Either can be used in generating forecasts.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Effort:</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QLabel" name="label">
           <property name="font">
@@ -149,6 +183,40 @@ Variable = Set rows to product of previous row and multiplier.</string>
             <string>Variable</string>
            </property>
           </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="Forecast_Tab2_SetDefaultHarvestPB">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Sets the table to the last row of the Estimation Harvest table</string>
+          </property>
+          <property name="statusTip">
+           <string>Sets the table to the last row of the Estimation Harvest table</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Default Set&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button copies the last row of the Harvest Estimation table to every row in the following table.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Set</string>
+          </property>
          </widget>
         </item>
         <item>

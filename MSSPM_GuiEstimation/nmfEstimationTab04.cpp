@@ -33,39 +33,42 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
 
     // Add the loaded widget as the new tabbed page
     Estimation_Tabs->addTab(Estimation_Tab4_Widget, tr("4. Predation Parameters"));
-    Estimation_Tab4_PredationTV     = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_PredationTV");
-    Estimation_Tab4_PredationMinTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_PredationMinTV");
-    Estimation_Tab4_PredationMaxTV  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_PredationMaxTV");
-    Estimation_Tab4_MainSP          = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_MainSP");
-    Estimation_Tab4_MinSP           = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_MinSP");
-    Estimation_Tab4_MaxSP           = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_MaxSP");
-    Estimation_Tab4_HandlingTV      = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_HandlingTV");
-    Estimation_Tab4_HandlingMinTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_HandlingMinTV");
-    Estimation_Tab4_HandlingMaxTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_HandlingMaxTV");
-    Estimation_Tab4_ExponentTV      = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_ExponentTV");
-    Estimation_Tab4_ExponentMinTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_ExponentMinTV");
-    Estimation_Tab4_ExponentMaxTV   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_ExponentMaxTV");
-    Estimation_Tab4_PredationLBL    = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_PredationLBL");
-    Estimation_Tab4_PredationMinLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_PredationMinLBL");
-    Estimation_Tab4_PredationMaxLBL = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_PredationMaxLBL");
-    Estimation_Tab4_HandlingLBL     = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_HandlingLBL");
-    Estimation_Tab4_HandlingMinLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_HandlingMinLBL");
-    Estimation_Tab4_HandlingMaxLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_HandlingMaxLBL");
-    Estimation_Tab4_ExponentLBL     = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_ExponentLBL");
-    Estimation_Tab4_ExponentMinLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_ExponentMinLBL");
-    Estimation_Tab4_ExponentMaxLBL  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_ExponentMaxLBL");
-    Estimation_Tab4_PrevPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_PrevPB");
-    Estimation_Tab4_NextPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_NextPB");
-    Estimation_Tab4_LoadPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_LoadPB");
-    Estimation_Tab4_SavePB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_SavePB");
-    Estimation_Tab4_ImportPB        = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_ImportPB");
-    Estimation_Tab4_ExportPB        = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_ExportPB");
-    Estimation_Tab4_TransposePB     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_TransposePB");
-    Estimation_Tab4_TransposePB2    = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_TransposePB2");
-    Estimation_Tab4_PredationSB     = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab4_PredationSB");
-    Estimation_Tab4_PredationSB2    = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab4_PredationSB2");
-    Estimation_Tab4_MinMaxCMB       = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab4_MinMaxCMB");
-    Estimation_Tab4_MinMaxCMB2      = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab4_MinMaxCMB2");
+    Estimation_Tab3_CompetitionAlphaTV    = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionAlphaTV");
+    Estimation_Tab3_CompetitionAlphaMinTV = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionAlphaMinTV");
+    Estimation_Tab3_CompetitionAlphaMaxTV = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab3_CompetitionAlphaMaxTV");
+    Estimation_Tab4_PredationTV           = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_PredationTV");
+    Estimation_Tab4_PredationMinTV        = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_PredationMinTV");
+    Estimation_Tab4_PredationMaxTV        = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_PredationMaxTV");
+    Estimation_Tab4_MainSP                = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_MainSP");
+    Estimation_Tab4_MinSP                 = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_MinSP");
+    Estimation_Tab4_MaxSP                 = Estimation_Tabs->findChild<QSplitter   *>("Estimation_Tab4_MaxSP");
+    Estimation_Tab4_HandlingTV            = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_HandlingTV");
+    Estimation_Tab4_HandlingMinTV         = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_HandlingMinTV");
+    Estimation_Tab4_HandlingMaxTV         = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_HandlingMaxTV");
+    Estimation_Tab4_ExponentTV            = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_ExponentTV");
+    Estimation_Tab4_ExponentMinTV         = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_ExponentMinTV");
+    Estimation_Tab4_ExponentMaxTV         = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab4_ExponentMaxTV");
+    Estimation_Tab4_PredationLBL          = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_PredationLBL");
+    Estimation_Tab4_PredationMinLBL       = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_PredationMinLBL");
+    Estimation_Tab4_PredationMaxLBL       = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_PredationMaxLBL");
+    Estimation_Tab4_HandlingLBL           = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_HandlingLBL");
+    Estimation_Tab4_HandlingMinLBL        = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_HandlingMinLBL");
+    Estimation_Tab4_HandlingMaxLBL        = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_HandlingMaxLBL");
+    Estimation_Tab4_ExponentLBL           = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_ExponentLBL");
+    Estimation_Tab4_ExponentMinLBL        = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_ExponentMinLBL");
+    Estimation_Tab4_ExponentMaxLBL        = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab4_ExponentMaxLBL");
+    Estimation_Tab4_PrevPB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_PrevPB");
+    Estimation_Tab4_NextPB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_NextPB");
+    Estimation_Tab4_LoadPB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_LoadPB");
+    Estimation_Tab4_SavePB                = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_SavePB");
+    Estimation_Tab4_ImportPB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_ImportPB");
+    Estimation_Tab4_ExportPB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_ExportPB");
+    Estimation_Tab4_TransposePB           = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_TransposePB");
+    Estimation_Tab4_TransposePB2          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab4_TransposePB2");
+    Estimation_Tab4_PredationSB           = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab4_PredationSB");
+    Estimation_Tab4_PredationSB2          = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab4_PredationSB2");
+    Estimation_Tab4_MinMaxCMB             = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab4_MinMaxCMB");
+    Estimation_Tab4_MinMaxCMB2            = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab4_MinMaxCMB2");
 
     Estimation_Tab4_PredationTV->setToolTip("Initial Values for Predation Effect of Column Predator on Row Prey");
     Estimation_Tab4_PredationMinTV->setToolTip("Minimum Values for Predation Effect of Column Predator on Row Prey");
@@ -126,6 +129,9 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     m_TableViewsTypeI.push_back(Estimation_Tab4_PredationTV);
     m_TableViewsTypeI.push_back(Estimation_Tab4_PredationMinTV);
     m_TableViewsTypeI.push_back(Estimation_Tab4_PredationMaxTV);
+    m_TableViewsTypeI.push_back(Estimation_Tab3_CompetitionAlphaTV);
+    m_TableViewsTypeI.push_back(Estimation_Tab3_CompetitionAlphaMinTV);
+    m_TableViewsTypeI.push_back(Estimation_Tab3_CompetitionAlphaMaxTV);
 
     m_TableViewsTypeII.clear();
     m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingTV);
@@ -141,16 +147,21 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TablePredationRho);
     m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TablePredationRhoMin);
     m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TablePredationRhoMax);
+    m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TableCompetitionAlpha);
+    m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TableCompetitionAlphaMin);
+    m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TableCompetitionAlphaMax);
 
     m_TableNamesTypeII.clear();
     m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandling);
     m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandlingMin);
     m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandlingMax);
+    m_TableNamesTypeII.push_back("");
 
     m_TableNamesTypeIII.clear();
     m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponent);
     m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponentMin);
     m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponentMax);
+    m_TableNamesTypeIII.push_back("");
 
     // Create models and attach to view
     int NumSpecies = getNumSpecies();
@@ -261,21 +272,23 @@ nmfEstimation_Tab4::callback_ImportPB()
                     Estimation_Tabs,
                     QObject::tr("Select predationrho*.csv file"), inputDataPath,
                     QObject::tr("Data Files (predationrho*.csv PredationRho*.csv)"));
-        QFileInfo fi(filenameWithPath);
-        QString absolutePath = fi.absolutePath();
-        if (absolutePath == inputDataPath) {
-            if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
-                for (int i=0; i<numTables; ++i) {
-                    allTableNames[i] += "_"+tag.toStdString();
+        if (! filenameWithPath.isEmpty()) {
+            QFileInfo fi(filenameWithPath);
+            QString absolutePath = fi.absolutePath();
+            if (absolutePath == inputDataPath) {
+                if (nmfUtilsQt::extractTag(fi.baseName(),tag)) {
+                    for (int i=0; i<numTables; ++i) {
+                        allTableNames[i] += "_"+tag.toStdString();
+                    }
+                    loadCSVFiles(inputDataPath,allTableNames);
+                } else if (! filenameWithPath.isEmpty()) {
+                    QMessageBox::information(Estimation_Tabs, "Predation CSV Import",
+                                             "\nPlease make sure to select the filename that begins with: predationrho\n",
+                                             QMessageBox::Ok);
                 }
-                loadCSVFiles(inputDataPath,allTableNames);
-            } else if (! filenameWithPath.isEmpty()) {
-                QMessageBox::information(Estimation_Tabs, "Predation CSV Import",
-                                         "\nPlease make sure to select the filename that begins with: predationrho\n",
-                                         QMessageBox::Ok);
+            } else {
+                loadCSVFiles(absolutePath,allTableNames);
             }
-        } else {
-            loadCSVFiles(absolutePath,allTableNames);
         }
     }
 }
@@ -359,7 +372,6 @@ nmfEstimation_Tab4::resetSpinBox(const std::pair<int,int>& nonZeroCell,
 void
 nmfEstimation_Tab4::callback_SavePB()
 {
-    bool okSave;
     bool systemFound = false;
     bool isTypeIIITable = true;
     bool isNotTypeIIITable = false;
@@ -439,7 +451,14 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
     QStandardItemModel* smodel;
 
     // Check each of the 3 tableviews
-    if (tableViews.size() == 3 && ! nmfUtilsQt::runAllTableChecks(m_Logger,Estimation_Tabs,tableViews[0],tableViews[1],tableViews[2])) {
+    if (  isTypeI() && tableViews.size() == m_TableViewsTypeI.size() &&
+        ! nmfUtilsQt::runAllTableChecks(m_Logger,Estimation_Tabs,
+                                        tableViews[0],
+                                        tableViews[1],
+                                        tableViews[2],
+                                        tableViews[3],
+                                        tableViews[4],
+                                        tableViews[5])) {
         return false;
     } else {
         m_Logger->logMsg(nmfConstants::Warning,"Number of Predation tables should be 3. Found instead: " + std::to_string(tableViews.size()));
@@ -535,15 +554,17 @@ nmfEstimation_Tab4::callback_ExportPB()
             QString tag = QInputDialog::getText(Estimation_Tabs, tr("Predation Files"),
                                                  tr("Enter Predation CSV filename version tag: "), QLineEdit::Normal,
                                                  "", &ok);
-            if (ok && !tag.isEmpty()) {
-                 for (int i=0; i<numTableNames; ++i) {
-                     allTableNames[i] += "_"+tag.toStdString();
-                 }
-                 saveCSVFiles(allTableNames);
-            } else if (tag.isEmpty()) {
-                QMessageBox::warning(Estimation_Tabs, "Tag Error",
-                                     "\nError: Please enter a valid (i.e., non-blank) tag.\n",
-                                     QMessageBox::Ok);
+            if (ok) {
+                if (! tag.isEmpty()) {
+                    for (int i=0; i<numTableNames; ++i) {
+                        allTableNames[i] += "_"+tag.toStdString();
+                    }
+                    saveCSVFiles(allTableNames);
+                } else if (tag.isEmpty()) {
+                    QMessageBox::warning(Estimation_Tabs, "Tag Error",
+                                         "\nError: Please enter a valid (i.e., non-blank) tag.\n",
+                                         QMessageBox::Ok);
+                }
             }
         }
     } else {

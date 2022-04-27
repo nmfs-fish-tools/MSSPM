@@ -65,6 +65,9 @@ class nmfEstimation_Tab4: public QObject
 
     QTabWidget*  Estimation_Tabs;
     QWidget*     Estimation_Tab4_Widget;
+    QTableView*  Estimation_Tab3_CompetitionAlphaTV;
+    QTableView*  Estimation_Tab3_CompetitionAlphaMinTV;
+    QTableView*  Estimation_Tab3_CompetitionAlphaMaxTV;
     QTableView*  Estimation_Tab4_PredationTV;
     QTableView*  Estimation_Tab4_PredationMinTV;
     QTableView*  Estimation_Tab4_PredationMaxTV;
@@ -126,6 +129,7 @@ class nmfEstimation_Tab4: public QObject
                     const std::vector<std::string>& SpeNames,
                     const std::vector<QTableView*>& tableViews,
                     const std::vector<std::string>& tableNames);
+
 
 public:
     /**

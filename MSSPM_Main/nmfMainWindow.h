@@ -92,6 +92,7 @@
 #include <QOpenGLWidget>
 #include <QPixmap>
 #include <QUiLoader>
+#include <QGraphicsScene>
 
 
 
@@ -293,11 +294,15 @@ private:
     QWidget*                 MModeViewerDataTB;
     QWidget*                 MModeViewerTab1;
 
-    bool isBeesAlgorithm();
-    bool isAMultiRun();
-    int getTabIndex(QTabWidget* tabWidget, QString tabName);
+
+    void adjustProgressWidget();
+    bool areFieldsValid(std::string table,
+                        std::vector<std::string> fields);
+    bool areFieldsValid(std::string table,
+                        std::string system,
+                        std::vector<std::string> fields);
+    void averageBiomassAndDisplay(QString& fullSpeciesPath);
     void calculateAverageBiomass();
-    void displayAverageBiomass();
     void checkForPreviousEstimations(bool& thereWasASingleRun,
                                      bool& thereWasAMultiRun);
     void clearOutputData(std::string algorithm,
@@ -312,18 +317,20 @@ private:
             std::string  Scaling,
             std::string& MonteCarloParametersTable);
     double convertUnitsStringToValue(QString& ScaleStr);
+    void displayAverageBiomass();
+    int getTabIndex(QTabWidget* tabWidget, QString tabName);
     bool   getOutputBiomassAveraged(boost::numeric::ublas::matrix<double>& AveBiomass);
     int    getNumSignificantDigits();
     int    getNumDistinctRecords(const std::string& field,
                                  const std::string& table);
-    void   loadBiomassByGroup(QString& GroupType);
-    void   updateOutputBiomassDatabaseTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
-    void   updateOutputBiomassOutputTableWithAveragedBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
-    void   setupLogWidget();
     QString getFormGrowth();
     QString getFormHarvest();
     QString getFormPredation();
     QString getFormCompetition();
+    void   getOutputBiomassEnsemble(
+            const int& NumRows,
+            const int& NumCols,
+            std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassEnsemble);
     void   initializeNavigatorTree();
     void   initLogo();
     void   initPostGuiConnections();
@@ -331,22 +338,24 @@ private:
     void   initializeMMode();
     void   initializeMModeMain();
     void   initializeMModeViewer();
+    bool isBeesAlgorithm();
+    bool isAMultiRun();
+    bool   isSufficientBiomass(int& numInsufficientSpecies);
+
+    void   loadBiomassByGroup(QString& GroupType);
+    void   updateOutputBiomassDatabaseTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
+    void   updateOutputBiomassOutputTableWithAveragedBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
+    void   setupLogWidget();
+
+
     bool   saveSigDigState();
     void   setDatabaseWaitTime();
     void   restoreSigDigState(bool state);
     bool   runningREMORA();
-    void   getOutputBiomassEnsemble(
-            const int& NumRows,
-            const int& NumCols,
-            std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassEnsemble);
+
     void   showDockWidgets(bool show);
     QList<QString> getTableNames(bool isExponent);
-    void adjustProgressWidget();
-    bool areFieldsValid(std::string table,
-                        std::vector<std::string> fields);
-    bool areFieldsValid(std::string table,
-                        std::string system,
-                        std::vector<std::string> fields);
+
     double calculateCarryingCapacityForMSY(
             const int& SpeciesNum,
             const std::vector<double>& EstCarryingCapacities,
@@ -435,6 +444,9 @@ private:
     bool checkFields(std::string& table,
                      std::map<std::string, std::vector<std::string> >& dataMap,
                      std::vector<std::string>& fields);
+    void checkModelHarvestTypeMatchesForecastButtonLabel(
+            const QString& HarvestForm,
+            const QString& ForecastButtonLabel);
     bool checkIfTablesAlreadyCreated();
     bool clearOutputBiomassTable(std::string& ForecastName,
                                  std::string  Algorithm,
@@ -625,11 +637,60 @@ private:
     bool loadCovariateAssignment(std::map<std::string,std::string>& covariateAssignment);
     bool loadCovariateData(std::map<std::string,std::vector<double> >& covariateMap);
     bool loadCovariateRanges(
-       std::map<std::string,nmfStructsQt::CovariateStruct>& growthRateCovariateRanges,
-       std::map<std::string,nmfStructsQt::CovariateStruct>& carryingCapacityCovariateRanges,
-       std::map<std::string,nmfStructsQt::CovariateStruct>& catchabilityCovariateRanges);
+            std::map<std::string,nmfStructsQt::CovariateStruct>& growthRateCovariateRanges,
+            std::map<std::string,nmfStructsQt::CovariateStruct>& carryingCapacityCovariateRanges,
+            std::map<std::string,nmfStructsQt::CovariateStruct>& catchabilityCovariateRanges);
     void loadGuis();
     void loadDatabase();
+    bool loadHarvestCatchTables(
+            const bool& isAggProd,
+            const bool& isMonteCarlo,
+            const std::string& ForecastName,
+            const std::string& HarvestFormName,
+            nmfHarvestForm* harvestFormPtr,
+            std::vector<double>& HarvestRandomValues,
+            std::vector<double>& HarvestUncertainty,
+            std::map<QString,QString>& previousUnits,
+            const int& NumSpeciesOrGuilds,
+            const int& RunLength,
+            boost::numeric::ublas::matrix<double>& Catch);
+    bool loadHarvestEffortTables(
+            const bool& isAggProd,
+            const bool& isMonteCarlo,
+            const std::string& ForecastName,
+            const std::string& HarvestFormName,
+            nmfHarvestForm* harvestFormPtr,
+            std::vector<double>& HarvestRandomValues,
+            std::vector<double>& HarvestUncertainty,
+            std::map<QString,QString>& previousUnits,
+            const int& NumSpeciesOrGuilds,
+            const int& RunLength,
+            boost::numeric::ublas::matrix<double>& Effort);
+    bool loadHarvestEffortFitToCatchTables(
+            const bool& isAggProd,
+            const bool& isMonteCarlo,
+            const std::string& ForecastName,
+            const std::string& HarvestFormName,
+            nmfHarvestForm* harvestFormPtr,
+            std::vector<double>& HarvestRandomValues,
+            std::vector<double>& HarvestUncertainty,
+            std::map<QString,QString>& previousUnits,
+            const int& NumSpeciesOrGuilds,
+            const int& RunLength,
+            boost::numeric::ublas::matrix<double>& Catch,
+            boost::numeric::ublas::matrix<double>& Effort);
+    bool loadHarvestExploitationTables(
+            const bool& isAggProd,
+            const bool& isMonteCarlo,
+            const std::string& ForecastName,
+            const std::string& HarvestFormName,
+            nmfHarvestForm* harvestFormPtr,
+            std::vector<double>& HarvestRandomValues,
+            std::vector<double>& HarvestUncertainty,
+            std::map<QString,QString>& previousUnits,
+            const int& NumSpeciesOrGuilds,
+            const int& RunLength,
+            boost::numeric::ublas::matrix<double>& Exploitation);
     bool loadInteraction(int &NumSpecies,
                          std::string InteractionType,
                          std::string InitTable,
@@ -700,7 +761,11 @@ private:
                              std::vector<double>& ExponentUncertainty,
                              std::vector<double>& CatchabilityUncertainty,
                              std::vector<double>& SurveyQUncertainty,
-                             std::vector<double>& HarvestUncertainty);
+                             std::vector<double>& HarvestUncertainty,
+                             std::vector<double>& GrowthRateCovCoeffUncertainty,
+                             std::vector<double>& CarryingCapacityCovCoeffUncertainty,
+                             std::vector<double>& CatchabilityCovCoeffUncertainty,
+                             std::vector<double>& SurveyQCovCoeffUncertainty);
 
     void queryUserPreviousDatabase();
     void readSettings(QString name);
@@ -866,8 +931,7 @@ private:
                            QString&    scaleStr,
                            double&     scaleVal,
                            double&     yMinSliderVal,
-                           double&     brightnessFactor,
-                           const bool& showHistoricalData);
+                           double&     brightnessFactor);
 //    void showMohnsRhoBiomassVsTime(const std::string &label,
 //                                   const int         &InitialYear,
 //                                   const int         &StartYear,
@@ -930,6 +994,7 @@ private:
                                   std::string& CatchabilityTable,
                                   std::string& CatchabilityCovariateCoeffsTable,
                                   std::string& SurveyQTable,
+                                  std::string& OutputSurveyQCovariateCoeffsTable,
                                   std::string& OutputBiomassTable);
     void updateProgressChartAnnotation(double xMin, double xMax, double xInc);
     void updateOutputTables(
@@ -982,7 +1047,6 @@ private:
 //    void QueryUserForMultiRunFilenames(
 //            QString& multiRunSpeciesFilename,
 //            QString& multiRunModelFilename);
-    void averageBiomassAndDisplay(QString& fullSpeciesPath);
     void updateBiomassEnsembleTable(
             const int& RunNumber,
             const std::string& Algorithm,
@@ -1248,6 +1312,10 @@ public slots:
      */
     void callback_SaveForecastOutputBiomassData(std::string ForecastName);
     /**
+     * @brief Sets the Forecast Harvest Model pointer in the Forecast Tab2 pane
+     */
+    void callback_SetForecastHarvestModel();
+    /**
      * @brief Callback invoked when user saves a new Model
      */
     void callback_ToDoAfterModelSave();
@@ -1474,6 +1542,10 @@ public slots:
      */
     void menu_resetCursor();
     /**
+     * @brief Runs the model. Activated from the Run toolbar button or ctrl+r
+     */
+    void menu_runModel();
+    /**
      * @brief Save all data generated by current run and display charts
      */
     void menu_saveAndShowCurrentRun();
@@ -1559,6 +1631,7 @@ public slots:
     void callback_SummaryLoadPB();
     void callback_SummaryExportPB();
     void callback_SummaryImportPB();
+    void callback_UpdateUncertaintyTable();
     void callback_AMohnsRhoMultiRunCompleted();
 //  /**
 //   * @brief Copy TestData into OutputGrowthRate
