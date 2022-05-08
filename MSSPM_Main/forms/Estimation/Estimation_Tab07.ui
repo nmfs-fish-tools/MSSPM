@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Estimation_Tab6_RunTab</class>
- <widget class="QWidget" name="Estimation_Tab6_RunTab">
+ <class>Estimation_Tab7_RunTab</class>
+ <widget class="QWidget" name="Estimation_Tab7_RunTab">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>729</width>
-    <height>814</height>
+    <width>727</width>
+    <height>928</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,15 +46,15 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>673</width>
-            <height>782</height>
+            <width>685</width>
+            <height>828</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_12">
              <item>
-              <widget class="QGroupBox" name="Estimation_Tab6_ModelAlgorithmsGB">
+              <widget class="QGroupBox" name="Estimation_Tab7_ModelAlgorithmsGB">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>1</horstretch>
@@ -87,7 +87,7 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_8">
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_ObjectiveCriterionLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_ObjectiveCriterionLBL">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
@@ -131,7 +131,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_ObjectiveCriterionCMB">
+                   <widget class="QComboBox" name="Estimation_Tab7_ObjectiveCriterionCMB">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
@@ -207,7 +207,7 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_26">
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_EstimationAlgorithmLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_EstimationAlgorithmLBL">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -248,7 +248,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_EstimationAlgorithmCMB">
+                   <widget class="QComboBox" name="Estimation_Tab7_EstimationAlgorithmCMB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>1</horstretch>
@@ -296,7 +296,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_BeesDetStoTypeLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_BeesDetStoTypeLBL">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -330,7 +330,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QCheckBox" name="Estimation_Tab6_BeesSetDeterministicCB">
+                   <widget class="QCheckBox" name="Estimation_Tab7_BeesSetDeterministicCB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -355,7 +355,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_BeesSetDeterministicLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_BeesSetDeterministicLBL">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                       <horstretch>0</horstretch>
@@ -406,7 +406,7 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_9">
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_MinimizerAlgorithmLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_MinimizerAlgorithmLBL">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -450,7 +450,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_MinimizerAlgorithmCMB">
+                   <widget class="QComboBox" name="Estimation_Tab7_MinimizerAlgorithmCMB">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -491,7 +491,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_MinimizerDetStoTypeLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_MinimizerDetStoTypeLBL">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -531,7 +531,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QCheckBox" name="Estimation_Tab6_MinimizerSetDeterministicCB">
+                   <widget class="QCheckBox" name="Estimation_Tab7_MinimizerSetDeterministicCB">
                     <property name="minimumSize">
                      <size>
                       <width>15</width>
@@ -565,7 +565,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_MinimizerTypeCMB">
+                   <widget class="QComboBox" name="Estimation_Tab7_MinimizerTypeCMB">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -622,7 +622,7 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_15">
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_ScalingLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_ScalingLBL">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -656,7 +656,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_ScalingCMB">
+                   <widget class="QComboBox" name="Estimation_Tab7_ScalingCMB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>1</horstretch>
@@ -732,7 +732,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_11">
              <item>
-              <widget class="QGroupBox" name="Estimation_Tab6_Bees_ParametersGB">
+              <widget class="QGroupBox" name="Estimation_Tab7_Bees_ParametersGB">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -815,7 +815,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_Bees_MaxGenerationsSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_MaxGenerationsSB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -922,7 +922,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_Bees_NumEliteBeesSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumEliteBeesSB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1012,7 +1012,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_Bees_NumBeesSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumBeesSB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1118,7 +1118,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_Bees_NumOtherBeesSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumOtherBeesSB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1208,7 +1208,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_Bees_NumBestSitesSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumBestSitesSB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1314,7 +1314,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_Bees_NeighborhoodSizeSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NeighborhoodSizeSB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1404,7 +1404,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_Bees_NumEliteSitesSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumEliteSitesSB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1470,7 +1470,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_NumberOfRunsPB">
+                   <widget class="QLabel" name="Estimation_Tab7_NumberOfRunsPB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                       <horstretch>0</horstretch>
@@ -1510,7 +1510,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_Bees_NumberOfRunsSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumberOfRunsSB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1578,7 +1578,7 @@ with the non-assigned bees being assigned to random positions.</string>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QGroupBox" name="Estimation_Tab6_NL_ParametersGB">
+              <widget class="QGroupBox" name="Estimation_Tab7_NL_ParametersGB">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1619,7 +1619,7 @@ with the non-assigned bees being assigned to random positions.</string>
                 <item row="2" column="0" rowspan="2">
                  <layout class="QHBoxLayout" name="horizontalLayout_37">
                   <item>
-                   <widget class="QCheckBox" name="Estimation_Tab6_NL_StopAfterIterCB">
+                   <widget class="QCheckBox" name="Estimation_Tab7_NL_StopAfterIterCB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1653,7 +1653,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_NL_StopAfterIterSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_NL_StopAfterIterSB">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -1716,7 +1716,7 @@ with the non-assigned bees being assigned to random positions.</string>
                 <item row="0" column="0">
                  <layout class="QHBoxLayout" name="horizontalLayout_35">
                   <item>
-                   <widget class="QCheckBox" name="Estimation_Tab6_NL_StopAfterValueCB">
+                   <widget class="QCheckBox" name="Estimation_Tab7_NL_StopAfterValueCB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1750,7 +1750,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="Estimation_Tab6_NL_StopAfterValueLE">
+                   <widget class="QLineEdit" name="Estimation_Tab7_NL_StopAfterValueLE">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -1807,7 +1807,7 @@ with the non-assigned bees being assigned to random positions.</string>
                 <item row="1" column="0">
                  <layout class="QHBoxLayout" name="horizontalLayout_36">
                   <item>
-                   <widget class="QCheckBox" name="Estimation_Tab6_NL_StopAfterTimeCB">
+                   <widget class="QCheckBox" name="Estimation_Tab7_NL_StopAfterTimeCB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1841,7 +1841,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_NL_StopAfterTimeSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_NL_StopAfterTimeSB">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -1884,7 +1884,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_NL_StopAfterTimeUnitsCMB">
+                   <widget class="QComboBox" name="Estimation_Tab7_NL_StopAfterTimeUnitsCMB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1930,7 +1930,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Estimation_Tab6_NL_TimeUnitsLockPB">
+                   <widget class="QPushButton" name="Estimation_Tab7_NL_TimeUnitsLockPB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1986,7 +1986,7 @@ with the non-assigned bees being assigned to random positions.</string>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
-              <widget class="QGroupBox" name="Estimation_Tab6_EstParametersGB">
+              <widget class="QGroupBox" name="Estimation_Tab7_EstParametersGB">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2003,40 +2003,8 @@ with the non-assigned bees being assigned to random positions.</string>
                 <string>Parameters to be Estimated:</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_2">
-                <item row="2" column="3">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimatePredationExponentCB">
-                  <property name="toolTip">
-                   <string>If checked, the Predation Exponent (b) parameter will be estimated</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>If checked, the Predation Exponent (b) parameter will be estimated</string>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text">
-                   <string>Predation Exponent (b)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateInitialBiomassCB">
-                  <property name="toolTip">
-                   <string>If checked, the Initial Biomass parameter will be estimated</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>If checked, the Initial Biomass parameter will be estimated</string>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text">
-                   <string>Initial Biomass (B₀)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateGrowthRateCB">
+                <item row="2" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateGrowthRateCB">
                   <property name="toolTip">
                    <string>If checked, the Growth Rate parameter will be estimated</string>
                   </property>
@@ -2051,8 +2019,8 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCarryingCapacityCB">
+                <item row="3" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCarryingCapacityCB">
                   <property name="toolTip">
                    <string>If checked, the Carrying Capacity parameter will be estimated</string>
                   </property>
@@ -2067,24 +2035,8 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCatchabilityCB">
-                  <property name="toolTip">
-                   <string>If checked, the Catchability parameter will be estimated</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>If checked, the Catchability parameter will be estimated</string>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text">
-                   <string>Catchability (q)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionAlphaCB">
+                <item row="1" column="1">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCompetitionAlphaCB">
                   <property name="toolTip">
                    <string>If checked, the Competition alpha parameter will be estimated</string>
                   </property>
@@ -2099,8 +2051,8 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB">
+                <item row="2" column="1">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB">
                   <property name="toolTip">
                    <string>If checked, the Competition beta Species by Species parameter will be estimated</string>
                   </property>
@@ -2115,8 +2067,8 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB">
+                <item row="3" column="1">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCompetitionBetaGuildSpeciesCB">
                   <property name="toolTip">
                    <string>If checked, the Competition beta Guild by Species parameter will be estimated</string>
                   </property>
@@ -2128,56 +2080,24 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB">
+                <item row="1" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateInitialBiomassCB">
                   <property name="toolTip">
-                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                   <string>If checked, the Initial Biomass parameter will be estimated</string>
                   </property>
                   <property name="statusTip">
-                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                   <string>If checked, the Initial Biomass parameter will be estimated</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
                   <property name="text">
-                   <string>Competition (β Guild by Guild)</string>
+                   <string>Initial Biomass (B₀)</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="3">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimatePredationRhoCB">
-                  <property name="toolTip">
-                   <string>If checked, the Predation rho parameter will be estimated</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>If checked, the Predation rho parameter will be estimated</string>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text">
-                   <string>Predation (ρ)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="3">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimatePredationHandlingCB">
-                  <property name="toolTip">
-                   <string>If checked, the Handling parameter will be estimated</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>If checked, the Handling parameter will be estimated</string>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text">
-                   <string>Predation Handling (h)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="3">
-                 <widget class="QCheckBox" name="Estimation_Tab6_EstimateSurveyQCB">
+                <item row="0" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateSurveyQCB">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
@@ -2192,6 +2112,86 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                   <property name="text">
                    <string>Survey Q</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCatchabilityCB">
+                  <property name="toolTip">
+                   <string>If checked, the Catchability parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Catchability parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Catchability (q)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB">
+                  <property name="toolTip">
+                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Competition (β Guild by Guild)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimatePredationRhoCB">
+                  <property name="toolTip">
+                   <string>If checked, the Predation rho parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Predation rho parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Predation (ρ)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimatePredationHandlingCB">
+                  <property name="toolTip">
+                   <string>If checked, the Handling parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Handling parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Predation Handling (h)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimatePredationExponentCB">
+                  <property name="toolTip">
+                   <string>If checked, the Predation Exponent (b) parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Predation Exponent (b) parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Predation Exponent (b)</string>
                   </property>
                  </widget>
                 </item>
@@ -2216,7 +2216,7 @@ with the non-assigned bees being assigned to random positions.</string>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QGroupBox" name="Estimation_Tab6_EnsembleControlsGB">
+              <widget class="QGroupBox" name="Estimation_Tab7_EnsembleControlsGB">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -2254,7 +2254,7 @@ with the non-assigned bees being assigned to random positions.</string>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_10">
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_NL_EnsembleTotalRunsLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_NL_EnsembleTotalRunsLBL">
                     <property name="minimumSize">
                      <size>
                       <width>130</width>
@@ -2282,7 +2282,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_EnsembleTotalRunsSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_EnsembleTotalRunsSB">
                     <property name="minimumSize">
                      <size>
                       <width>75</width>
@@ -2316,7 +2316,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Estimation_Tab6_EnsembleSetAllPB">
+                   <widget class="QPushButton" name="Estimation_Tab7_EnsembleSetAllPB">
                     <property name="minimumSize">
                      <size>
                       <width>70</width>
@@ -2344,7 +2344,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_EnsembleRunsSetLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_EnsembleRunsSetLBL">
                     <property name="minimumSize">
                      <size>
                       <width>80</width>
@@ -2366,7 +2366,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="Estimation_Tab6_EnsembleRunsSetLE">
+                   <widget class="QLineEdit" name="Estimation_Tab7_EnsembleRunsSetLE">
                     <property name="minimumSize">
                      <size>
                       <width>65</width>
@@ -2391,7 +2391,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QCheckBox" name="Estimation_Tab6_EnsembleSetDeterministicCB">
+                   <widget class="QCheckBox" name="Estimation_Tab7_EnsembleSetDeterministicCB">
                     <property name="toolTip">
                      <string>Check to seed stochastic algorithms for reproducibility</string>
                     </property>
@@ -2427,7 +2427,7 @@ with the non-assigned bees being assigned to random positions.</string>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_6">
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_EnsembleRunsWithSettingsLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_EnsembleRunsWithSettingsLBL">
                     <property name="minimumSize">
                      <size>
                       <width>220</width>
@@ -2452,7 +2452,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_EnsembleRunsSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_EnsembleRunsSB">
                     <property name="minimumSize">
                      <size>
                       <width>75</width>
@@ -2480,7 +2480,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Estimation_Tab6_EnsembleAddPB">
+                   <widget class="QPushButton" name="Estimation_Tab7_EnsembleAddPB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2517,7 +2517,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Estimation_Tab6_EnsembleViewPB">
+                   <widget class="QPushButton" name="Estimation_Tab7_EnsembleViewPB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2548,7 +2548,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Estimation_Tab6_EnsembleLoadPB">
+                   <widget class="QPushButton" name="Estimation_Tab7_EnsembleLoadPB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2579,7 +2579,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Estimation_Tab6_EnsembleClearPB">
+                   <widget class="QPushButton" name="Estimation_Tab7_EnsembleClearPB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2627,7 +2627,7 @@ with the non-assigned bees being assigned to random positions.</string>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_7">
                   <item>
-                   <widget class="QLabel" name="Estimation_Tab6_EnsembleAveragingAlgorithmLBL">
+                   <widget class="QLabel" name="Estimation_Tab7_EnsembleAveragingAlgorithmLBL">
                     <property name="toolTip">
                      <string>Algorithm used to combine results of multiple runs</string>
                     </property>
@@ -2643,7 +2643,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_EnsembleAveragingAlgorithmCMB">
+                   <widget class="QComboBox" name="Estimation_Tab7_EnsembleAveragingAlgorithmCMB">
                     <property name="minimumSize">
                      <size>
                       <width>110</width>
@@ -2678,7 +2678,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_EnsembleAverageByCMB">
+                   <widget class="QComboBox" name="Estimation_Tab7_EnsembleAverageByCMB">
                     <property name="minimumSize">
                      <size>
                       <width>110</width>
@@ -2719,7 +2719,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="Estimation_Tab6_EnsembleUsingByCMB">
+                   <widget class="QComboBox" name="Estimation_Tab7_EnsembleUsingByCMB">
                     <property name="toolTip">
                      <string>Determines how many of the individual runs should be averaged</string>
                     </property>
@@ -2742,7 +2742,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab6_EnsembleUsingAmountSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_EnsembleUsingAmountSB">
                     <property name="toolTip">
                      <string>How many runs should be used in the averaging calculations</string>
                     </property>
@@ -2761,7 +2761,7 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Estimation_Tab6_EnsembleUsingPctPB">
+                   <widget class="QPushButton" name="Estimation_Tab7_EnsembleUsingPctPB">
                     <property name="minimumSize">
                      <size>
                       <width>18</width>
@@ -2852,7 +2852,7 @@ with the non-assigned bees being assigned to random positions.</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <widget class="QTextEdit" name="Estimation_Tab6_RunTE">
+        <widget class="QTextEdit" name="Estimation_Tab7_RunTE">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -2877,7 +2877,7 @@ with the non-assigned bees being assigned to random positions.</string>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="Estimation_Tab6_FontSizeCMB">
+          <widget class="QComboBox" name="Estimation_Tab7_FontSizeCMB">
            <property name="minimumSize">
             <size>
              <width>50</width>
@@ -2964,7 +2964,7 @@ with the non-assigned bees being assigned to random positions.</string>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="Estimation_Tab6_MonoCB">
+          <widget class="QCheckBox" name="Estimation_Tab7_MonoCB">
            <property name="font">
             <font>
              <weight>50</weight>
@@ -3004,7 +3004,7 @@ with the non-assigned bees being assigned to random positions.</string>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_88">
      <item>
-      <widget class="QPushButton" name="Estimation_Tab6_PrevPB">
+      <widget class="QPushButton" name="Estimation_Tab7_PrevPB">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -3048,7 +3048,7 @@ with the non-assigned bees being assigned to random positions.</string>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab6_ReloadPB">
+      <widget class="QPushButton" name="Estimation_Tab7_ReloadPB">
        <property name="minimumSize">
         <size>
          <width>60</width>
@@ -3073,7 +3073,7 @@ with the non-assigned bees being assigned to random positions.</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab6_RunPB">
+      <widget class="QPushButton" name="Estimation_Tab7_RunPB">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -3104,7 +3104,7 @@ with the non-assigned bees being assigned to random positions.</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab6_SavePB">
+      <widget class="QPushButton" name="Estimation_Tab7_SavePB">
        <property name="minimumSize">
         <size>
          <width>60</width>
@@ -3129,7 +3129,7 @@ with the non-assigned bees being assigned to random positions.</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab6_AddToReviewPB">
+      <widget class="QPushButton" name="Estimation_Tab7_AddToReviewPB">
        <property name="minimumSize">
         <size>
          <width>100</width>
@@ -3173,7 +3173,7 @@ with the non-assigned bees being assigned to random positions.</string>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab6_NextPB">
+      <widget class="QPushButton" name="Estimation_Tab7_NextPB">
        <property name="enabled">
         <bool>true</bool>
        </property>

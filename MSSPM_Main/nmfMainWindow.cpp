@@ -3760,7 +3760,7 @@ nmfMainWindow::createEstimatedFile()
                                     SpeciesList,"Growth Rate:",EstGrowthRates,'f',3);
         stream << extractVectorData(Estimation_Tab7_ptr->isEstCarryingCapacityEnabled(),
                                     Estimation_Tab7_ptr->isEstCarryingCapacityChecked(),isAMultiRun,
-                                    SpeciesList,"Carrying Capacity:",EstCarryingCapacities,'f',2);
+                                    SpeciesList,"Carrying Capacit y:",EstCarryingCapacities,'f',2);
         stream << extractVectorData(Estimation_Tab7_ptr->isEstCatchabilityEnabled(),
                                     Estimation_Tab7_ptr->isEstCatchabilityChecked(),isAMultiRun,
                                     SpeciesList,"Catchability:",EstCatchability,'f',3);
@@ -3874,6 +3874,7 @@ nmfMainWindow::menu_saveCurrentRun()
     std::vector<double> EstCatchability;
     std::vector<double> EstCatchabilityCovariateCoeffs;
     std::vector<double> EstSurveyQ;
+    std::vector<double> EstSurveyQCovariateCoeffs;
     boost::numeric::ublas::matrix<double> EstCompetitionAlpha;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaSpecies;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaGuilds;
@@ -3961,6 +3962,7 @@ nmfMainWindow::menu_saveCurrentRun()
         m_Estimator_NLopt->getEstHandling(EstHandling);
         m_Estimator_NLopt->getEstExponent(EstExponent);
         m_Estimator_NLopt->getEstSurveyQ(EstSurveyQ);
+        m_Estimator_NLopt->getEstSurveyQCovariateCoeffs(EstSurveyQCovariateCoeffs);
         updateOutputTables(Algorithm, Minimizer, ObjectiveCriterion,
                            Scaling, isCompetitionAGGPROD,
                            SpeciesList, GuildList,
@@ -3978,7 +3980,8 @@ nmfMainWindow::menu_saveCurrentRun()
                            EstPredation,
                            EstHandling,
                            EstExponent,
-                           EstSurveyQ);
+                           EstSurveyQ,
+                           EstSurveyQCovariateCoeffs);
         clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,
                                 ObjectiveCriterion,Scaling,
                                 isAggProd,OutputBiomassTable);
@@ -3992,7 +3995,9 @@ nmfMainWindow::menu_saveCurrentRun()
                                  OutputSurveyQTable,OutputSurveyQCovariateCoeffsTable,
                                  OutputBiomassTable);
         if (m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName)) {
-            updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,EstSurveyQ);
+            // RSK ??? check this for covariate coefficient logic
+            updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,
+                                                    EstSurveyQ,EstSurveyQCovariateCoeffs);
         }
     } else if ((Algorithm == "Bees Algorithm") && m_Estimator_Bees) {
 
@@ -4022,6 +4027,7 @@ nmfMainWindow::menu_saveCurrentRun()
             m_Estimator_Bees->getEstExponent(EstExponent);
         }
         m_Estimator_Bees->getEstSurveyQ(EstSurveyQ);
+        m_Estimator_Bees->getEstSurveyQCovariateCoeffs(EstSurveyQCovariateCoeffs);
 
         updateOutputTables(Algorithm,Minimizer,
                            ObjectiveCriterion,Scaling,
@@ -4041,7 +4047,8 @@ nmfMainWindow::menu_saveCurrentRun()
                            EstPredation,
                            EstHandling,
                            EstExponent,
-                           EstSurveyQ);
+                           EstSurveyQ,
+                           EstSurveyQCovariateCoeffs);
         clearOutputBiomassTable(ForecastName,Algorithm,Minimizer,
                                 ObjectiveCriterion,Scaling,
                                 isAggProd,OutputBiomassTable);
@@ -4055,7 +4062,9 @@ nmfMainWindow::menu_saveCurrentRun()
                                  OutputSurveyQTable,OutputSurveyQCovariateCoeffsTable,
                                  OutputBiomassTable);
         if (m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName)) {
-            updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,EstSurveyQ);
+            // RSK ??? check this for covariate coefficient logic
+            updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,
+                                                    EstSurveyQ,EstSurveyQCovariateCoeffs);
         }
     }
 
@@ -4172,7 +4181,8 @@ nmfMainWindow::updateOutputTables(
         const boost::numeric::ublas::matrix<double>& EstPredationRho,
         const boost::numeric::ublas::matrix<double>& EstPredationHandling,
         const std::vector<double>&                   EstPredationExponent,
-        const std::vector<double>&                   EstSurveyQ)
+        const std::vector<double>&                   EstSurveyQ,
+        const std::vector<double>&                   EstSurveyQCovariateCoeffs)
 {
     int SpeciesNum;
     double value=0;
@@ -4196,7 +4206,8 @@ nmfMainWindow::updateOutputTables(
                                             nmfConstantsMSSPM::TableOutputMSYBiomass,
                                             nmfConstantsMSSPM::TableOutputMSY,
                                             nmfConstantsMSSPM::TableOutputMSYFishing,
-                                            nmfConstantsMSSPM::TableOutputSurveyQ};
+                                            nmfConstantsMSSPM::TableOutputSurveyQ,
+                                            nmfConstantsMSSPM::TableOutputSurveyQCovariateCoeffs};
 
     for (std::string tableName : OutputTableNames)
     {
@@ -4258,6 +4269,11 @@ nmfMainWindow::updateOutputTables(
             } else if (tableName == nmfConstantsMSSPM::TableOutputSurveyQ) {
                 if (! EstSurveyQ.empty()) {
                     value = EstSurveyQ[SpeciesNum++];
+                }
+            } else if (tableName == nmfConstantsMSSPM::TableOutputSurveyQCovariateCoeffs) {
+                if (! EstSurveyQCovariateCoeffs.empty()) {
+                    value = EstSurveyQCovariateCoeffs[SpeciesNum++];
+//std::cout << "SurveyQCovCoeff: " << value << std::endl;
                 }
             } else if (tableName == nmfConstantsMSSPM::TableOutputMSYBiomass) {
                 if (! EstCarryingCapacities.empty()) {
@@ -4781,7 +4797,7 @@ nmfMainWindow::setFirstRowEstimatedBiomass(
         boost::numeric::ublas::matrix<double>& EstInitBiomassCovariates,
         boost::numeric::ublas::matrix<double>& EstBiomassSpecies)
 {
-    double initBiomassCovariateCoeff = 0.0; // RSK estimate this eventually
+    double initBiomassCovariateCoeff = 0.0; // RSK possibly estimate this eventually
     nmfStructsQt::ModelDataStruct dataStruct;
     QList<double> OutputInitBiomass;
     std::string msg;
@@ -4823,8 +4839,9 @@ nmfMainWindow::setFirstRowEstimatedBiomass(
 bool
 nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
         const QStringList& SpeciesList,
-        const int& RunLength,
-        const std::vector<double>& EstSurveyQ)
+        const int& NumYears,
+        const std::vector<double>& EstSurveyQ,
+        std::vector<double>& EstSurveyQCovariateCoeffs)
 {
     bool zeroError = false;
     int NumRecords;
@@ -4839,6 +4856,12 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     QString Species;
     int m=0;
 
+    // Get SurveyQ Covariate data
+    std::vector<double> surveyQCovariateCoeffs;
+    boost::numeric::ublas::matrix<double> surveyQCovariate;
+    nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"SurveyQ",surveyQCovariate);
+
+
     // Read BiomassRelative data from table
     fields    = {"ProjectName","ModelName","SpeName","Year","Value"};
     queryStr  = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " +
@@ -4848,9 +4871,9 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
                 "' ORDER BY SpeName,Year";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["Value"].size();
-    if (NumRecords != NumSpecies*RunLength) {
+    if (NumRecords != NumSpecies*NumYears) {
         errorMsg  = "nmfMainWindow::updateObservedBiomassAndEstSurveyQTable Incorrect number of records found in: BiomassRelativeDividedByEstSurveyQ";
-        errorMsg += "\n\nFound " + std::to_string(NumRecords) + " expecting " + std::to_string(NumSpecies)+" * "+std::to_string(RunLength) + ".";
+        errorMsg += "\n\nFound " + std::to_string(NumRecords) + " expecting " + std::to_string(NumSpecies)+" * "+std::to_string(NumYears) + ".";
         m_Logger->logMsg(nmfConstants::Error, "nmfMainWindow::updateObservedBiomassAndEstSurveyQTable: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error, queryStr);
         errorMsg  = "\n" + errorMsg + "\n";
@@ -4877,19 +4900,25 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     cmd = "INSERT INTO " +
            nmfConstantsMSSPM::TableBiomassRelativeDividedByEstSurveyQ +
           " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
-    for (int speciesNum=0; speciesNum<NumSpecies; ++speciesNum) {
-        estSurveyQ = (int(EstSurveyQ.size()) == NumSpecies) ? EstSurveyQ[speciesNum] : 0;
+    double surveyQTerm;
+    for (int species=0; species<NumSpecies; ++species) {
+        // RSK - continue here....
+        std::string covariateAlgorithmType = m_DataStruct.CovariateAlgorithmType;
+        estSurveyQ = (int(EstSurveyQ.size()) == NumSpecies) ? EstSurveyQ[species] : 0;
         if (nmfUtils::isNearlyZero(estSurveyQ)) {
             zeroError = true;
             estSurveyQ = 1;
         }
-        Species    = SpeciesList[speciesNum];
-        for (int year=0; year<RunLength; ++year) {
+        surveyQTerm = nmfUtils::applyCovariate(nullptr,covariateAlgorithmType,estSurveyQ,
+                                               EstSurveyQCovariateCoeffs[species],
+                                               surveyQCovariate(0,species));
+        Species = SpeciesList[species];
+        for (int year=0; year<NumYears; ++year) {
             relativeBiomass = std::stod(dataMap["Value"][m++]);
             if (relativeBiomass == nmfConstantsMSSPM::NoData) {
                 quotient = relativeBiomass;
             } else {
-                quotient = (estSurveyQ != 0) ? (relativeBiomass/estSurveyQ) : 0;
+                quotient = (surveyQTerm != 0) ? (relativeBiomass/surveyQTerm) : 0;
             }
             // Write product to BiomassRelativeDividedByEstSurveyQ table
             cmd += "('"   + m_ProjectName +
@@ -5023,6 +5052,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     bool   isHandling         = (PredationForm   == "Type II") ||
                                 (PredationForm   == "Type III");
     bool   isExponent         = (PredationForm   == "Type III");
+//  bool   isSurveyQ          = m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName);
     int    m;
     int    NumSpeciesOrGuilds;
     int    NumGuilds;
@@ -5030,10 +5060,9 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     int    timeMinus1;
     int    guildNum;
     int    NumYears = RunLength + 1;
-    double eps = 0;
+//  double eps = 0;
     double EstBiomassTMinus1 = 0;
-    double logEstBiomassVal = 0;
-    double surveyQCovariateCoeff = 0.0; // RSK estimate this eventually
+//  double logEstBiomassVal = 0;
     double SystemCarryingCapacity = 0;
     double GuildCarryingCapacity;
     double MonteCarloValue; // random value in the range: [val-uncertainty,val+uncertainty]
@@ -5163,6 +5192,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     readSettings();
 
+    m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::updateOutputBiomassTable");
+
     // Find Guilds and Species
     if (! m_DatabasePtr->getGuilds(m_Logger,NumGuilds,GuildList)) {
         return false;
@@ -5221,16 +5252,20 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     OutputTableNames.push_back(OutputGrowthRateCovariateCoeffsTable);
     OutputTableNames.push_back(OutputCarryingCapacityTable);
     OutputTableNames.push_back(OutputCarryingCapacityCovariateCoeffsTable);
-    if (isCatchability) {
+//    if (isCatchability) {
         OutputTableNames.push_back(OutputCatchabilityTable);
         OutputTableNames.push_back(OutputCatchabilityCovariateCoeffsTable);
-    }
+//    }
+
     if (isExponent) {
         OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputPredationExponent);
     }
+
+    // Add SurveyQ
     OutputTableNames.push_back(OutputSurveyQTable);
     OutputTableNames.push_back(OutputSurveyQCovariateCoeffsTable);
 
+    // Read output table data
     for (unsigned j=0; j<OutputTableNames.size(); ++j) {
         fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value"};
         queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Value FROM " +
@@ -5279,7 +5314,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                            randomValue);
                 EstGrowthRateCovariateCoeffs.push_back(MonteCarloValue);
                 GrowthRateCovCoeffRandomValues.push_back(randomValue);
-//              EstGrowthRateCovariateCoeffs.push_back(std::stod(dataMap["Value"][i]));
             }
         } else if (OutputTableNames[j] == OutputCarryingCapacityTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -5301,7 +5335,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                            randomValue);
                 EstCarryingCapacityCovariateCoeffs.push_back(MonteCarloValue);
                 CarryingCapacityCovCoeffRandomValues.push_back(randomValue);
-//              EstCarryingCapacityCovariateCoeffs.push_back(std::stod(dataMap["Value"][i]));
             }
         } else if (OutputTableNames[j] == OutputCatchabilityTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -5318,7 +5351,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                            randomValue);
                 EstCatchabilityCovariateCoeffs.push_back(MonteCarloValue);
                 CatchabilityCovCoeffRandomValues.push_back(randomValue);
-//                EstCatchabilityCovariateCoeffs.push_back(std::stod(dataMap["Value"][i]));
             }
         } else if (OutputTableNames[j] == OutputSurveyQTable) {
             for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -5367,6 +5399,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     nmfUtils::initialize(EstCompetitionBetaSpecies,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(EstPredationRho,          NumSpeciesOrGuilds,NumSpeciesOrGuilds);
     nmfUtils::initialize(EstPredationHandling,     NumSpeciesOrGuilds,NumSpeciesOrGuilds);
+
     for (unsigned i=0; i<OutputTableNames.size(); ++i) {
 
         fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeciesA","SpeciesB","Value"};
@@ -5534,7 +5567,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             return false;
         }
     }
-// RSK continue here...
+
     // Update the Forecast Monte Carlo Parameters table
     if (! m_DatabasePtr->updateForecastMonteCarloParameters(
                 0,m_Logger,m_ProjectName,m_ModelName,
@@ -5551,8 +5584,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         return false;
     }
 
-    // If not running a forecast initial biomass is the first observed biomass.
-    // else if running a forecast initial biomass is the last observed biomass.
+    // If not running a forecast, initial biomass is the first observed biomass.
+    // else if running a forecast, initial biomass is the last observed biomass.
     if (ForecastName == "") {
         if (! getInitialObservedBiomass(InitialBiomass)) {
             return false;
@@ -5594,7 +5627,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             if (ObsBiomassBySpeciesOrGuilds(time,species) != nmfConstantsMSSPM::NoData) {
                 surveyQTerm = nmfUtils::applyCovariate(nullptr,
                                                        m_DataStruct.CovariateAlgorithmType,surveyQVal,
-                                                       surveyQCovariateCoeff,SurveyQCovariate(time,species));
+                                                       EstSurveyQCovariateCoeffs[species],SurveyQCovariate(time,species));
                 ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQTerm;
             }
         }
@@ -5613,7 +5646,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                       GuildNum,ObservedBiomassByGuilds)) {
         return false;
     }
-    if (m_DatabasePtr->isSurveyQ(m_ProjectName,m_ModelName)) {
+    if (m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName)) {
         if (previousUnits.find(tableBiomassRelative) != previousUnits.end()) {
             nmfUtilsQt::convertMatrix(ObservedBiomassByGuilds, previousUnits[tableBiomassRelative],"mt", nmfConstantsMSSPM::DontConvertBlanks);
         }
@@ -5749,10 +5782,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 //            EstBiomassSpecies(i,j) = std::exp(logEstBiomassVal + 0.5*sigmasSquared[j]);
 //        }
 //    }
-
-
-
-
 
     m = 0;
     if (ForecastName == "") {
@@ -5998,7 +6027,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     QString tableBiomassAbsolute = QString::fromStdString(nmfConstantsMSSPM::TableBiomassAbsolute);
     QString tableBiomassRelative = QString::fromStdString(nmfConstantsMSSPM::TableBiomassRelative);
     QString tableHarvestCatch    = QString::fromStdString(nmfConstantsMSSPM::TableHarvestCatch);
-    QString BiomassTable = (m_DatabasePtr->isSurveyQ(m_ProjectName,m_ModelName)) ?
+    QString BiomassTable = (m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName)) ?
                             tableBiomassRelative : tableBiomassAbsolute;
 
     m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
@@ -7116,7 +7145,7 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
     QString statisticName;
     for (QString name : EstParamNames) {
         FieldNames += "," + name.toStdString();
-std::cout << "==> " << name.toStdString() << std::endl;
+//std::cout << "==> " << name.toStdString() << std::endl;
         ++i;
         statisticName = "Mohn's Rho (" + name + ")";
         if (nmfConstantsMSSPM::SummaryDiagnosticStatisticNames.contains(statisticName)) {
@@ -10520,47 +10549,38 @@ nmfMainWindow::isSufficientBiomass(int& numInsufficientSpecies)
     return retv;
 }
 
-void
-nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
+bool
+nmfMainWindow::passEstimationChecks(
+        std::vector<QString>& MultiRunLines,
+        int& TotalIndividualRuns)
 {
-    int numInsufficientSpecies;
-    int TotalIndividualRuns = 0;
-    std::vector<QString> MultiRunLines = {};
-    QString multiRunSpeciesFilename;
-    QString multiRunModelFilename;
     QString msg;
-    bool isAMultiRun = isAMultiOrMohnsRhoRun();
 
-    saveSettings();
-    loadAllWidgets();
-    readSettings();
-
-    m_UI->OutputDockWidget->raise();
-
+    // 1. Check to see if there's an Estimation already running
     if (isEstimationRunning()) {
         QMessageBox::information(this,
                                  tr("MSSPM Run In Progress"),
                                  tr("\nStop current Run before beginning another.\n"),
                                  QMessageBox::Ok);
-        return;
+        return false;
     }
 
-    // Get current algorithm and run its estimation routine
-    std::string Algorithm = Estimation_Tab7_ptr->getCurrentAlgorithm();
-
-    // Disable Monte Carlo Output Widgets
-    Output_Controls_ptr->enableBrightnessWidgets(false);
-
-    // Load all run parameters here
-    bool loadOK = loadParameters(m_DataStruct,nmfConstantsMSSPM::VerboseOn);
-    if (! loadOK) {
-        std::cout << "Run cancelled. LoadParameters returned: " << loadOK << std::endl;
-        return;
+    // 2. Check to see if the user is trying to run a Mohn's Rho with a Bees algorithm
+    // (This functionality isn't yet allowed.)
+    if (isAMohnsRhoMultiRun() && isBeesAlgorithm()) {
+        QApplication::restoreOverrideCursor();
+        QMessageBox::warning(this, "Warning",
+                             "\nMohn's Rho not yet implemented for Bees Algorithm.\n",
+                             QMessageBox::Ok);
+        Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
+        Diagnostic_Tab2_ptr->setMohnsRhoForMultiRun(false);
+        return false;
     }
 
-    // Check if more thatn 50 pct of obserbed biomass of any species  is missing and warn user:
+    // 3. Check if more than 50 pct of observed biomass of any species is missing and warn user:
     // Warning: Insufficient data to constrain the model for species: ....
     // Cancel run?
+    int numInsufficientSpecies;
     if (! isSufficientBiomass(numInsufficientSpecies)) {
         QApplication::restoreOverrideCursor();
         QString phrase = (numInsufficientSpecies == 1) ? "that" : "those";
@@ -10572,14 +10592,14 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
                                      QMessageBox::No|QMessageBox::Yes,
                                      QMessageBox::Yes);
         if (reply == QMessageBox::Yes) {
-            return;
+            return false;
         }
-        QApplication::setOverrideCursor(Qt::WaitCursor);
     }
 
+    // 4. Check to make sure it's a properly defined multi run
+    bool isAMultiRun = isAMultiOrMohnsRhoRun();
     if (isAMultiRun) {
         m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableOutputBiomassEnsemble);
-
         if (! nmfUtilsQt::loadMultiRunData(m_DataStruct,MultiRunLines,TotalIndividualRuns)) {
             QApplication::restoreOverrideCursor();
             std::cout << "Error: Couldn't open: " << m_DataStruct.MultiRunSetupFilename << std::endl;
@@ -10587,33 +10607,61 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
                     QString::fromStdString(m_DataStruct.MultiRunSetupFilename) +
                     "\n\nPlease make sure that the multi-run has been properly configured and set.\n";
             QMessageBox::critical(this, "Error", msg, QMessageBox::Ok);
-            return;
+            return false;
         }
     }
+
+    return true;
+}
+
+void
+nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
+{
+    bool isAMultiRun = isAMultiOrMohnsRhoRun();
+    int TotalIndividualRuns = 0;
+    std::vector<QString> MultiRunLines = {};
+    QString multiRunSpeciesFilename;
+    QString multiRunModelFilename;
+    QString msg;
+
+    saveSettings();
+    loadAllWidgets();
+    readSettings();
+
+    m_UI->OutputDockWidget->raise();
+
+    // Load all run parameters
+    bool loadOK = loadParameters(m_DataStruct,nmfConstantsMSSPM::VerboseOn);
+    if (! loadOK) {
+        std::cout << "Run cancelled. LoadParameters returned: " << loadOK << std::endl;
+        return;
+    }
+
+    // Run Estimation checks
+    if (! passEstimationChecks(MultiRunLines,TotalIndividualRuns)) {
+        return;
+    }
+
+    // Get current algorithm
+    std::string Algorithm = Estimation_Tab7_ptr->getCurrentAlgorithm();
+    // Disable Monte Carlo Output Widgets
+    Output_Controls_ptr->enableBrightnessWidgets(false);
     Output_Controls_ptr->enableControls(false);
     callback_InitializeSubRuns(m_DataStruct.MultiRunModelFilename,TotalIndividualRuns);
     m_ProgressWidget->clearRunBoxes();
-
     if (isAMultiRun) {
         m_ProgressWidget->setRunBoxes(1,0,m_DataStruct.NLoptNumberOfRuns);
     }
 
-    // Start and initialize the Progress chart
+    // Start and initialize the Progress chart and set global variables to defaults
     m_ProgressWidget->startTimer(100);
     m_ProgressWidget->startRun();
-
     m_RunNumNLopt = 0;
     m_RunNumBees  = 1;
-    if (isAMohnsRhoMultiRun() && isBeesAlgorithm()) {
-        QApplication::restoreOverrideCursor();
-        QMessageBox::warning(this, "Warning",
-                             "\nMohns Rho not yet implemented for Bees Algorithm.\n",
-                             QMessageBox::Ok);
-        menu_stopRun();
-//      TBD runBeesAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);
-        return;
-    }
-    else if (isAMultiRun) {
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    if (isAMultiRun) {
         // To-do: Add Bees to regular multi-run
         //      runBeesAlgorithm(showDiagnosticsChart,MultiRunLines,TotalIndividualRuns);
 std::cout << "----->>>> TotalIndividualRuns: " << TotalIndividualRuns << std::endl;
@@ -10716,8 +10764,8 @@ nmfMainWindow::callback_SaveForecastOutputBiomassData(std::string ForecastName)
         PredationForm      = dataMap["PredationForm"][0];
         NumRuns            = std::stoi(dataMap["NumRuns"][0]);
     }
-    isAggProd = (CompetitionForm == "AGG-PROD");
-    isAggProdStr = (isAggProd) ? "1" : "0";
+    isAggProd     = (CompetitionForm == "AGG-PROD");
+    isAggProdStr  = (isAggProd) ? "1" : "0";
     usingMultiRun = checkForecastAlgorithmIdentifiersForMultiRun(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
     std::string forecastType = (isRunningREMORA) ? "REMORA: " : "Forecast: ";
     std::string msg = (usingMultiRun) ? "Using Estimated Parameters from the last Multi Run" :
@@ -11133,6 +11181,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                       std::vector<double>& EstCatchabilityCovariateCoeffs,
                                       std::vector<double>& EstPredationExponent,
                                       std::vector<double>& EstSurveyQ,
+                                      std::vector<double>& EstSurveyQCovariateCoeffs,
                                       boost::numeric::ublas::matrix<double>& InitBiomassCovariate,
                                       boost::numeric::ublas::matrix<double>& GrowthRateCovariate,
                                       boost::numeric::ublas::matrix<double>& CarryingCapacityCovariate,
@@ -11230,6 +11279,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
 
     // Even though this is EstInitBiomass, if initial biomass wasn't estimated, it
     // should be the initial biomass.
+    // RSK ???
     for (int j=0; j<int(EstInitBiomass.size()); ++j) {
 //std::cout << "---> EstSurveyQ[" << j << "]: " << EstSurveyQ[j] << std::endl;
 //      EstBiomassSpecies(0,j) = EstInitBiomass[j]/EstSurveyQ[j];
@@ -11502,6 +11552,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     std::vector<double> EstCatchability;
     std::vector<double> EstCatchabilityCovariateCoeffs;
     std::vector<double> EstSurveyQ;
+    std::vector<double> EstSurveyQCovariateCoeffs;
     boost::numeric::ublas::matrix<double> GrowthRateCovariate;
     boost::numeric::ublas::matrix<double> CarryingCapacityCovariate;
     boost::numeric::ublas::matrix<double> CatchabilityRatesCovariate;
@@ -11559,6 +11610,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     m_Estimator_NLopt->getEstCatchability(EstCatchability);
     m_Estimator_NLopt->getEstCatchabilityCovariateCoeffs(EstCatchabilityCovariateCoeffs);
     m_Estimator_NLopt->getEstSurveyQ(EstSurveyQ);
+    m_Estimator_NLopt->getEstSurveyQCovariateCoeffs(EstSurveyQCovariateCoeffs);
     m_Estimator_NLopt->getEstCompetitionAlpha(EstCompetitionAlpha);
     m_Estimator_NLopt->getEstCompetitionBetaSpecies(EstCompetitionBetaSpecies);
     m_Estimator_NLopt->getEstCompetitionBetaGuilds(EstCompetitionBetaGuilds);
@@ -11576,6 +11628,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
                                  EstCatchabilityCovariateCoeffs,
                                  EstPredationExponent,
                                  EstSurveyQ,
+                                 EstSurveyQCovariateCoeffs,
                                  InitBiomassCovariate,
                                  GrowthRateCovariate,
                                  CarryingCapacityCovariate,
@@ -11639,6 +11692,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
                                 EstCatchability,
                                 EstCatchabilityCovariateCoeffs,
                                 EstSurveyQ,
+                                EstSurveyQCovariateCoeffs,
                                 EstCompetitionAlpha,
                                 EstCompetitionBetaSpecies,
                                 EstCompetitionBetaGuilds,
@@ -11834,6 +11888,7 @@ nmfMainWindow::calculateAverageBiomass()
     std::vector<double> AveCatchability;
     std::vector<double> AveCatchabilityCovariateCoeffs;
     std::vector<double> AveSurveyQ;
+    std::vector<double> AveSurveyQCovariateCoeffs;
     boost::numeric::ublas::matrix<double> InitBiomassCovariate;
     boost::numeric::ublas::matrix<double> GrowthRateCovariate;
     boost::numeric::ublas::matrix<double> CarryingCapacityCovariate;
@@ -11907,6 +11962,7 @@ std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic 
                                AveCatchability,
                                AveCatchabilityCovariateCoeffs,
                                AveSurveyQ,
+                               AveSurveyQCovariateCoeffs,
                                AveCompetitionAlpha,
                                AveCompetitionBetaSpecies,
                                AveCompetitionBetaGuilds,
@@ -11926,6 +11982,7 @@ std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic 
                                AveCatchabilityCovariateCoeffs,
                                AvePredationExponent,
                                AveSurveyQ,
+                               AveSurveyQCovariateCoeffs,
                                InitBiomassCovariate,
                                GrowthRateCovariate,
                                CarryingCapacityCovariate,
@@ -11970,16 +12027,14 @@ std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic 
                        AvePredationRho,
                        AvePredationHandling,
                        AvePredationExponent,
-                       AveSurveyQ);
+                       AveSurveyQ,
+                       AveSurveyQCovariateCoeffs);
     updateOutputTableViews(SpeciesList,
                            GuildList,
                            AveInitBiomass,
                            AveGrowthRates,
-                           AveGrowthRateCovariateCoeffs,
                            AveCarryingCapacities,
-                           AveCarryingCapacityCovariateCoeffs,
                            AveCatchability,
-                           AveCatchabilityCovariateCoeffs,
                            AvePredationExponent,
                            AveSurveyQ,
                            AveCompetitionAlpha,
@@ -12000,11 +12055,8 @@ nmfMainWindow::updateOutputTableViews(
         const QStringList&                           GuildList,
         const std::vector<double>&                   EstInitBiomass,
         const std::vector<double>&                   EstGrowthRates,
-        const std::vector<double>&                   EstGrowthRateCovariateCoeffs,
         const std::vector<double>&                   EstCarryingCapacities,
-        const std::vector<double>&                   EstCarryingCapacityCovariateCoeffs,
         const std::vector<double>&                   EstCatchability,
-        const std::vector<double>&                   EstCatchabilityCovariateCoeffs,
         const std::vector<double>&                   EstPredationExponent,
         const std::vector<double>&                   EstSurveyQ,
         const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
@@ -12087,7 +12139,6 @@ std::cout << "Warning: TBD nmfMainWindow::updateOutputTableViews - add Competiti
     }
 
     // RSK - hide blank tables todo
-
 
     // Load the Covariate Coefficients table
     updateOutputCovariateCoefficientsTable(SpeciesList);
@@ -12559,7 +12610,7 @@ std::cout << "updateOutputBiomassOutputTableWithAveragedBiomass " << std::endl;
 }
 
 void
-nmfMainWindow:: callback_RunCompleted(std::string output,
+nmfMainWindow::callback_RunCompleted(std::string output,
                                      bool showDiagnosticChart)
 {
     std::string runName = "";
@@ -12877,10 +12928,9 @@ bool
 nmfMainWindow::loadCovariateRanges(
         std::map<std::string,nmfStructsQt::CovariateStruct>& growthRateCovariateRanges,
         std::map<std::string,nmfStructsQt::CovariateStruct>& carryingCapacityCovariateRanges,
-        std::map<std::string,nmfStructsQt::CovariateStruct>& catchabilityCovariateRanges)
+        std::map<std::string,nmfStructsQt::CovariateStruct>& catchabilityCovariateRanges,
+        std::map<std::string,nmfStructsQt::CovariateStruct>& surveyQCovariateRanges)
 {
-    growthRateCovariateRanges.clear();
-
     int NumRecords;
     int NumSpecies;
     std::vector<std::string> fields;
@@ -12895,6 +12945,11 @@ nmfMainWindow::loadCovariateRanges(
     QStringList SpeciesList;
     nmfStructsQt::CovariateStruct covariateRangeStruct;
     std::vector<nmfStructsQt::CovariateStruct> covariateRangeVector;
+
+    growthRateCovariateRanges.clear();
+    carryingCapacityCovariateRanges.clear();
+    catchabilityCovariateRanges.clear();
+    surveyQCovariateRanges.clear();
 
     if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList)) {
         return false;
@@ -12915,15 +12970,45 @@ nmfMainWindow::loadCovariateRanges(
         return false;
     }
 
-    growthRateCovariateRanges.clear();
-    carryingCapacityCovariateRanges.clear();
-    catchabilityCovariateRanges.clear();
+    bool foundSurveyQ = false;
     for (int i=0; i<NumRecords; ++i) {
         SpeName       = dataMap["SpeName"][i];
         CoeffName     = dataMap["CoeffName"][i];
         covariateRangeStruct.CoeffValue    = 0;
         covariateRangeStruct.CoeffMinValue = 0;
         covariateRangeStruct.CoeffMaxValue = 0;
+        if (QStringList({"GrowthRate",
+                         "CarryingCapacity",
+                         "Catchability",
+                         "SurveyQ"}).contains(QString::fromStdString(CoeffName))) {
+            if (! dataMap["CoeffValue"][i].empty()) {
+                CoeffValue    = dataMap["CoeffValue"][i];
+                CoeffMinValue = dataMap["CoeffMinValue"][i];
+                CoeffMaxValue = dataMap["CoeffMaxValue"][i];
+                covariateRangeStruct.CoeffValue    = std::stod(CoeffValue);
+                covariateRangeStruct.CoeffMinValue = std::stod(CoeffMinValue);
+                covariateRangeStruct.CoeffMaxValue = std::stod(CoeffMaxValue);
+            }
+            if (CoeffName == "GrowthRate") {
+                growthRateCovariateRanges[SpeName] = covariateRangeStruct;
+            } else if (CoeffName == "CarryingCapacity") {
+                carryingCapacityCovariateRanges[SpeName] = covariateRangeStruct;
+            } else if (CoeffName == "Catchability") {
+                catchabilityCovariateRanges[SpeName] = covariateRangeStruct;
+            } else if (CoeffName == "SurveyQ") {
+                foundSurveyQ = true;
+                surveyQCovariateRanges[SpeName] = covariateRangeStruct;
+            }
+        }
+    }
+
+    if (! foundSurveyQ) {
+        covariateRangeStruct.CoeffValue    = 0;
+        covariateRangeStruct.CoeffMinValue = 0;
+        covariateRangeStruct.CoeffMaxValue = 0;
+        surveyQCovariateRanges["SurveyQ"] = covariateRangeStruct;
+    }
+/*
         if (CoeffName == "GrowthRate") {
             if (! dataMap["CoeffValue"][i].empty()) {
                 CoeffValue    = dataMap["CoeffValue"][i];
@@ -12954,9 +13039,19 @@ nmfMainWindow::loadCovariateRanges(
                 covariateRangeStruct.CoeffMaxValue = std::stod(CoeffMaxValue);
             }
             catchabilityCovariateRanges[SpeName] = covariateRangeStruct;
+        } else if (CoeffName == "SurveyQ") {
+            if (! dataMap["CoeffValue"][i].empty()) {
+                CoeffValue    = dataMap["CoeffValue"][i];
+                CoeffMinValue = dataMap["CoeffMinValue"][i];
+                CoeffMaxValue = dataMap["CoeffMaxValue"][i];
+                covariateRangeStruct.CoeffValue    = std::stod(CoeffValue);
+                covariateRangeStruct.CoeffMinValue = std::stod(CoeffMinValue);
+                covariateRangeStruct.CoeffMaxValue = std::stod(CoeffMaxValue);
+            }
+            surveyQCovariateRanges[SpeName] = covariateRangeStruct;
         }
     }
-
+*/
     return true;
 }
 
@@ -13018,7 +13113,7 @@ nmfMainWindow::loadCovariateData(std::map<std::string,std::vector<double> >& cov
             covariateTimeSeries.clear();
             for (int time=0;time<RunLength;++time) {
                 if (dataMap["ValueScaled"][m] == "") {
-                    covariateTimeSeries.push_back(nmfConstantsMSSPM::NoData);
+                    covariateTimeSeries.push_back(0); // nmfConstantsMSSPM::NoData);
                 } else {
                     covariateTimeSeries.push_back(std::stod(dataMap["ValueScaled"][m]));
                 }
@@ -13040,7 +13135,6 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     int NumSpecies;
     int NumGuilds;
     int GuildNum;
-    int NumRuns;
     int NumCompetitionParameters = 0;
     int NumPredationParameters   = 0;
     int NumHandlingParameters    = 0;
@@ -13048,7 +13142,6 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     int NumBetaSpeciesParameters = 0;
     int NumBetaGuildsParameters  = 0;
     int NumSpeciesOrGuilds;
-    int StartYearForecast;
     std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling;
     std::string GrowthForm,HarvestForm,CompetitionForm,PredationForm;
     std::vector<std::string> fields;
@@ -13074,17 +13167,20 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     std::map<std::string,nmfStructsQt::CovariateStruct> growthRateCovariateRanges;
     std::map<std::string,nmfStructsQt::CovariateStruct> carryingCapacityCovariateRanges;
     std::map<std::string,nmfStructsQt::CovariateStruct> catchabilityCovariateRanges;
+    std::map<std::string,nmfStructsQt::CovariateStruct> surveyQCovariateRanges;
     std::map<QString,QString> previousUnits;
     QString tableHarvestCatch    = QString::fromStdString(nmfConstantsMSSPM::TableHarvestCatch);
     QString tableSpecies         = QString::fromStdString(nmfConstantsMSSPM::TableSpecies);
     QString tableBiomassAbsolute = QString::fromStdString(nmfConstantsMSSPM::TableBiomassAbsolute);
     QString tableBiomassRelative = QString::fromStdString(nmfConstantsMSSPM::TableBiomassRelative);
 
+    // Get covariate data for dataStruct
     loadCovariateData(covariateMap);
     loadCovariateAssignment(covariateAssignment);
     loadCovariateRanges(growthRateCovariateRanges,
                         carryingCapacityCovariateRanges,
-                        catchabilityCovariateRanges);
+                        catchabilityCovariateRanges,
+                        surveyQCovariateRanges);
 
     if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList)) {
         return false;
@@ -13147,6 +13243,8 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.GrowthRateCovariateCoeff       = growthRateCovariateRanges;
     dataStruct.CarryingCapacityCovariateCoeff = carryingCapacityCovariateRanges;
     dataStruct.CatchabilityCovariateCoeff     = catchabilityCovariateRanges;
+    dataStruct.SurveyQCovariateCoeff          = surveyQCovariateRanges;
+
     dataStruct.useFixedSeedBees    = Estimation_Tab7_ptr->isSetToDeterministicBees();
     dataStruct.EstimationAlgorithm = Estimation_Tab7_ptr->getCurrentAlgorithm();
     dataStruct.ObjectiveCriterion  = Estimation_Tab7_ptr->getCurrentObjectiveCriterion();
@@ -13168,6 +13266,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
 //    if (dataStruct.NumMohnsRhoMultiRuns > 0) {
 //        fullPath = QDir(basePath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMohnsRhoRun));
 //    }
+
     dataStruct.MultiRunSetupFilename = fullPath.toStdString();
     dataStruct.EstimateRunBoxes = Estimation_Tab7_ptr->getEstimateRunBoxes();
 
@@ -13367,13 +13466,13 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
             dataStruct.CatchabilityMin(species)     = std::stod(dataMap["CatchabilityMin"][species]);
             dataStruct.CatchabilityMax(species)     = std::stod(dataMap["CatchabilityMax"][species]);
             if (isSurveyQ) {
-                dataStruct.SurveyQ(species)             = std::stod(dataMap["SurveyQ"][species]);
-                dataStruct.SurveyQMin(species)          = std::stod(dataMap["SurveyQMin"][species]);
-                dataStruct.SurveyQMax(species)          = std::stod(dataMap["SurveyQMax"][species]);
+                dataStruct.SurveyQ(species)         = std::stod(dataMap["SurveyQ"][species]);
+                dataStruct.SurveyQMin(species)      = std::stod(dataMap["SurveyQMin"][species]);
+                dataStruct.SurveyQMax(species)      = std::stod(dataMap["SurveyQMax"][species]);
             } else {
-                dataStruct.SurveyQ(species)             = 1.0;
-                dataStruct.SurveyQMin(species)          = 1.0;
-                dataStruct.SurveyQMax(species)          = 1.0;
+                dataStruct.SurveyQ(species)         = 1.0;
+                dataStruct.SurveyQMin(species)      = 1.0;
+                dataStruct.SurveyQMax(species)      = 1.0;
             }
             guildName = dataMap["GuildName"][species];
             GuildNum  = GuildMap[guildName];
@@ -13491,7 +13590,9 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
     }
 
     // SurveyQ is always estimated...even for absolute biomass which is technically incorrect,
-    // but it's set to 1 for absolute biomass and so it just makes the code simpler and causes no issues.
+    // but it's set to 1 for absolute biomass and so it just makes the code simpler and should cause no issues.
+    dataStruct.TotalNumberParameters += NumSpecies;
+    // Also add the parameters for SurveyQ Covariate Coefficients
     dataStruct.TotalNumberParameters += NumSpecies;
 
     // Set Benchmark type and number of parameters (RSK - improve this later)

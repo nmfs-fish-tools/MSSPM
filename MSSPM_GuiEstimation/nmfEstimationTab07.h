@@ -72,79 +72,79 @@ class nmfEstimation_Tab7: public QObject
     bool            m_IsMultiRun;
     std::string     m_MultiRunType;
 
-    QWidget*     Estimation_Tab6_Widget;
-    QGroupBox*   Estimation_Tab6_ModelAlgorithmsGB;
-    QGroupBox*   Estimation_Tab6_Bees_ParametersGB;
-    QGroupBox*   Estimation_Tab6_NL_ParametersGB;
-    QGroupBox*   Estimation_Tab6_EstParametersGB;
-    QComboBox*   Estimation_Tab6_MinimizerAlgorithmCMB;
-    QComboBox*   Estimation_Tab6_ObjectiveCriterionCMB;
-    QLabel*      Estimation_Tab6_MinimizerAlgorithmLBL;
-    QLabel*      Estimation_Tab6_MinimizerDetStoTypeLBL;
-    QComboBox*   Estimation_Tab6_MinimizerTypeCMB;
+    QWidget*     Estimation_Tab7_Widget;
+    QGroupBox*   Estimation_Tab7_ModelAlgorithmsGB;
+    QGroupBox*   Estimation_Tab7_Bees_ParametersGB;
+    QGroupBox*   Estimation_Tab7_NL_ParametersGB;
+    QGroupBox*   Estimation_Tab7_EstParametersGB;
+    QComboBox*   Estimation_Tab7_MinimizerAlgorithmCMB;
+    QComboBox*   Estimation_Tab7_ObjectiveCriterionCMB;
+    QLabel*      Estimation_Tab7_MinimizerAlgorithmLBL;
+    QLabel*      Estimation_Tab7_MinimizerDetStoTypeLBL;
+    QComboBox*   Estimation_Tab7_MinimizerTypeCMB;
     QTabWidget*  Estimation_Tabs;
-    QTextEdit*   Estimation_Tab6_RunTE;
-    QPushButton* Estimation_Tab6_RunPB;
-    QPushButton* Estimation_Tab6_SavePB;
-    QPushButton* Estimation_Tab6_ReloadPB;
-    QPushButton* Estimation_Tab6_PrevPB;
-    QPushButton* Estimation_Tab6_NextPB;
-    QComboBox*   Estimation_Tab6_FontSizeCMB;
-    QCheckBox*   Estimation_Tab6_MonoCB;
-    QComboBox*   Estimation_Tab6_EstimationAlgorithmCMB;
-    QSpinBox*    Estimation_Tab6_Bees_MaxGenerationsSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumBeesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumBestSitesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumEliteSitesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumEliteBeesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumOtherBeesSB;
-    QSpinBox*    Estimation_Tab6_Bees_NeighborhoodSizeSB;
-    QSpinBox*    Estimation_Tab6_Bees_NumberOfRunsSB;
-    QLabel*      Estimation_Tab6_ScalingLBL;
-    QComboBox*   Estimation_Tab6_ScalingCMB;
-    QCheckBox*   Estimation_Tab6_NL_StopAfterValueCB;
-    QCheckBox*   Estimation_Tab6_NL_StopAfterTimeCB;
-    QCheckBox*   Estimation_Tab6_NL_StopAfterIterCB;
-    QLineEdit*   Estimation_Tab6_NL_StopAfterValueLE;
-    QSpinBox*    Estimation_Tab6_NL_StopAfterTimeSB;
-    QSpinBox*    Estimation_Tab6_NL_StopAfterIterSB;
-    QCheckBox*   Estimation_Tab6_EstimateInitialBiomassCB;
-    QCheckBox*   Estimation_Tab6_EstimateGrowthRateCB;
-    QCheckBox*   Estimation_Tab6_EstimateCarryingCapacityCB;
-    QCheckBox*   Estimation_Tab6_EstimateCatchabilityCB;
-    QCheckBox*   Estimation_Tab6_EstimateCompetitionAlphaCB;
-    QCheckBox*   Estimation_Tab6_EstimateCompetitionBetaSpeciesSpeciesCB;
-    QCheckBox*   Estimation_Tab6_EstimateCompetitionBetaGuildSpeciesCB;
-    QCheckBox*   Estimation_Tab6_EstimateCompetitionBetaGuildGuildCB;
-    QCheckBox*   Estimation_Tab6_EstimatePredationRhoCB;
-    QCheckBox*   Estimation_Tab6_EstimatePredationHandlingCB;
-    QCheckBox*   Estimation_Tab6_EstimatePredationExponentCB;
-    QCheckBox*   Estimation_Tab6_EstimateSurveyQCB;
-    QSpinBox*    Estimation_Tab6_EnsembleTotalRunsSB;
-    QLabel*      Estimation_Tab6_EnsembleAveragingAlgorithmLBL;
-    QComboBox*   Estimation_Tab6_EnsembleAveragingAlgorithmCMB;
-    QGroupBox*   Estimation_Tab6_EnsembleControlsGB;
-    QLineEdit*   Estimation_Tab6_EnsembleRunsSetLE;
-    QPushButton* Estimation_Tab6_EnsembleAddPB;
-    QSpinBox*    Estimation_Tab6_EnsembleRunsSB;
-    QPushButton* Estimation_Tab6_EnsembleClearPB;
-    QPushButton* Estimation_Tab6_EnsembleViewPB;
-    QLabel*      Estimation_Tab6_EnsembleRunsWithSettingsLBL;
-    QLabel*      Estimation_Tab6_EnsembleRunsSetLBL;
-    QPushButton* Estimation_Tab6_EnsembleSetAllPB;
-    QComboBox*   Estimation_Tab6_NL_StopAfterTimeUnitsCMB;
-    QPushButton* Estimation_Tab6_EnsembleLoadPB;
-    QComboBox*   Estimation_Tab6_EnsembleAverageByCMB;
-    QComboBox*   Estimation_Tab6_EnsembleUsingByCMB;
-    QSpinBox*    Estimation_Tab6_EnsembleUsingAmountSB;
-    QPushButton* Estimation_Tab6_EnsembleUsingPctPB;
-    QCheckBox*   Estimation_Tab6_MinimizerSetDeterministicCB;
-    QCheckBox*   Estimation_Tab6_EnsembleSetDeterministicCB;
-    QCheckBox*   Estimation_Tab6_BeesSetDeterministicCB;
-    QPushButton* Estimation_Tab6_AddToReviewPB;
-    QPushButton* Estimation_Tab6_NL_TimeUnitsLockPB;
-    QLabel*      Estimation_Tab6_BeesDetStoTypeLBL;
-    QLabel*      Estimation_Tab6_BeesSetDeterministicLBL;
+    QTextEdit*   Estimation_Tab7_RunTE;
+    QPushButton* Estimation_Tab7_RunPB;
+    QPushButton* Estimation_Tab7_SavePB;
+    QPushButton* Estimation_Tab7_ReloadPB;
+    QPushButton* Estimation_Tab7_PrevPB;
+    QPushButton* Estimation_Tab7_NextPB;
+    QComboBox*   Estimation_Tab7_FontSizeCMB;
+    QCheckBox*   Estimation_Tab7_MonoCB;
+    QComboBox*   Estimation_Tab7_EstimationAlgorithmCMB;
+    QSpinBox*    Estimation_Tab7_Bees_MaxGenerationsSB;
+    QSpinBox*    Estimation_Tab7_Bees_NumBeesSB;
+    QSpinBox*    Estimation_Tab7_Bees_NumBestSitesSB;
+    QSpinBox*    Estimation_Tab7_Bees_NumEliteSitesSB;
+    QSpinBox*    Estimation_Tab7_Bees_NumEliteBeesSB;
+    QSpinBox*    Estimation_Tab7_Bees_NumOtherBeesSB;
+    QSpinBox*    Estimation_Tab7_Bees_NeighborhoodSizeSB;
+    QSpinBox*    Estimation_Tab7_Bees_NumberOfRunsSB;
+    QLabel*      Estimation_Tab7_ScalingLBL;
+    QComboBox*   Estimation_Tab7_ScalingCMB;
+    QCheckBox*   Estimation_Tab7_NL_StopAfterValueCB;
+    QCheckBox*   Estimation_Tab7_NL_StopAfterTimeCB;
+    QCheckBox*   Estimation_Tab7_NL_StopAfterIterCB;
+    QLineEdit*   Estimation_Tab7_NL_StopAfterValueLE;
+    QSpinBox*    Estimation_Tab7_NL_StopAfterTimeSB;
+    QSpinBox*    Estimation_Tab7_NL_StopAfterIterSB;
+    QCheckBox*   Estimation_Tab7_EstimateInitialBiomassCB;
+    QCheckBox*   Estimation_Tab7_EstimateGrowthRateCB;
+    QCheckBox*   Estimation_Tab7_EstimateCarryingCapacityCB;
+    QCheckBox*   Estimation_Tab7_EstimateCatchabilityCB;
+    QCheckBox*   Estimation_Tab7_EstimateCompetitionAlphaCB;
+    QCheckBox*   Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB;
+    QCheckBox*   Estimation_Tab7_EstimateCompetitionBetaGuildSpeciesCB;
+    QCheckBox*   Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB;
+    QCheckBox*   Estimation_Tab7_EstimatePredationRhoCB;
+    QCheckBox*   Estimation_Tab7_EstimatePredationHandlingCB;
+    QCheckBox*   Estimation_Tab7_EstimatePredationExponentCB;
+    QCheckBox*   Estimation_Tab7_EstimateSurveyQCB;
+    QSpinBox*    Estimation_Tab7_EnsembleTotalRunsSB;
+    QLabel*      Estimation_Tab7_EnsembleAveragingAlgorithmLBL;
+    QComboBox*   Estimation_Tab7_EnsembleAveragingAlgorithmCMB;
+    QGroupBox*   Estimation_Tab7_EnsembleControlsGB;
+    QLineEdit*   Estimation_Tab7_EnsembleRunsSetLE;
+    QPushButton* Estimation_Tab7_EnsembleAddPB;
+    QSpinBox*    Estimation_Tab7_EnsembleRunsSB;
+    QPushButton* Estimation_Tab7_EnsembleClearPB;
+    QPushButton* Estimation_Tab7_EnsembleViewPB;
+    QLabel*      Estimation_Tab7_EnsembleRunsWithSettingsLBL;
+    QLabel*      Estimation_Tab7_EnsembleRunsSetLBL;
+    QPushButton* Estimation_Tab7_EnsembleSetAllPB;
+    QComboBox*   Estimation_Tab7_NL_StopAfterTimeUnitsCMB;
+    QPushButton* Estimation_Tab7_EnsembleLoadPB;
+    QComboBox*   Estimation_Tab7_EnsembleAverageByCMB;
+    QComboBox*   Estimation_Tab7_EnsembleUsingByCMB;
+    QSpinBox*    Estimation_Tab7_EnsembleUsingAmountSB;
+    QPushButton* Estimation_Tab7_EnsembleUsingPctPB;
+    QCheckBox*   Estimation_Tab7_MinimizerSetDeterministicCB;
+    QCheckBox*   Estimation_Tab7_EnsembleSetDeterministicCB;
+    QCheckBox*   Estimation_Tab7_BeesSetDeterministicCB;
+    QPushButton* Estimation_Tab7_AddToReviewPB;
+    QPushButton* Estimation_Tab7_NL_TimeUnitsLockPB;
+    QLabel*      Estimation_Tab7_BeesDetStoTypeLBL;
+    QLabel*      Estimation_Tab7_BeesSetDeterministicLBL;
 
     void activateCheckBox(QCheckBox* cbox,
                            std::pair<bool,bool> state);
@@ -161,6 +161,7 @@ class nmfEstimation_Tab7: public QObject
     void readSettings();
     void runEnsemble();
     bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
+    bool tryingToAddBeesAlgorithmToMultiRun();
 
 public:
     /**
@@ -405,7 +406,7 @@ public:
     int getNumSubRuns();
     /**
      * @brief Gets the list of checked and enabled Estimate run boxes
-     * @return Returns list of the Estimate run box structs from Estimation Tab6
+     * @return Returns list of the Estimate run box structs from Estimation Tab7
      */
     std::vector<nmfStructsQt::EstimateRunBox> getEstimateRunBoxes();
     /**
@@ -866,12 +867,12 @@ public Q_SLOTS:
      * @brief Callback invoked when the user changes the font in the Run Summary tab
      * @param fontSize : the font selected
      */
-    void callback_Estimation_Tab6_FontSizeCMB(QString fontSize);
+    void callback_Estimation_Tab7_FontSizeCMB(QString fontSize);
     /**
      * @brief Callback invoked when the user checks the mono font checkbox in the Run Summary tab
      * @param isChecked : check state of the checkbox
      */
-    void callback_Estimation_Tab6_MonoCB(int isChecked);
+    void callback_Estimation_Tab7_MonoCB(int isChecked);
     /**
      * @brief Callback invoked when the user changes the Estimation Algorithm
      * @param algorithm : the estimation algorithm selected

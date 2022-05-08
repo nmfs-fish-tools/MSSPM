@@ -1122,9 +1122,6 @@ nmfEstimation_Tab6::saveInitialValuesAndRangesTable()
     // Save the new data
     saveCmd  = "INSERT INTO " + tableName +
                " (ProjectName,ModelName,SpeName,CoeffName,CoeffMinName,CoeffMaxName,CoeffValue,CoeffMinValue,CoeffMaxValue) VALUES ";
-m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::saveInitialValuesAndRangesTable saveCmd:");
-m_Logger->logMsg(nmfConstants::Normal,saveCmd);
-
     for (int row=0; row<numRows; ++row) {
         for (int col=0; col<numCols; col+=3) {
             value    = m_smodelIR->index(row,col+0).data().toString();
@@ -1344,9 +1341,10 @@ nmfEstimation_Tab6::callback_SetEstimateRunCheckboxes(
     for (int i=0; i<(int)EstimateRunBoxes.size();++i) {
         if (EstimateRunBoxes[i].state.first && EstimateRunBoxes[i].state.second) {
             paramName = EstimateRunBoxes[i].parameter;
-            // Hard-coded: Only allow Growth Rate, Carrying Capacity, and
+            // Hard-coded: Only allow SurveyQ, Growth Rate, Carrying Capacity, and
             // Catchability for estimatable Covariate Cofficients
-            if ((paramName == "GrowthRate")       ||
+            if ((paramName == "SurveyQ")          ||
+                (paramName == "GrowthRate")       ||
                 (paramName == "CarryingCapacity") ||
                 (paramName == "Catchability"))
             {

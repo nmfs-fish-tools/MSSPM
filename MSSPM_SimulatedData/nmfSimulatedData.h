@@ -67,7 +67,7 @@ class nmfSimulatedData
      * @param errorPct : percent error to add to value
      * @param value : the value which receives the percent error
      */
-    void addError(const int& errorPct,
+    void addUniformError(const int& errorPct,
                   double& value);
     /**
      * @brief Sends back the system carrying capacity

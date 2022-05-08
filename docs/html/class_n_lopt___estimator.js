@@ -22,6 +22,7 @@ var class_n_lopt___estimator =
     [ "getEstInitBiomass", "class_n_lopt___estimator.html#aa98f4ba3b74efb23c14293733cdf3e83", null ],
     [ "getEstPredation", "class_n_lopt___estimator.html#af9e5da056f99b4075cdee7a770e4fcbe", null ],
     [ "getEstSurveyQ", "class_n_lopt___estimator.html#aee8e99eeb3b22d9383516f4b0c859d57", null ],
+    [ "getEstSurveyQCovariateCoeffs", "class_n_lopt___estimator.html#ab8401b2a29218aeeb9f3083925561b49", null ],
     [ "getVersion", "class_n_lopt___estimator.html#ad6f0af00b4ad11256bbd094f4b100a08", null ],
     [ "initialize", "class_n_lopt___estimator.html#aacce7b8074624c8d106babe407ed8b31", null ],
     [ "InitializeSubRuns", "class_n_lopt___estimator.html#a0ecd572a2d12d00bcf801000ed3fd2c1", null ],

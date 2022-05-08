@@ -271,7 +271,7 @@ nmfDiagnostic_Tab1::loadEstimatedParameter(const std::string& Algorithm,
                  "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
                  "' AND Scaling = '"            + Scaling +
                  "' ORDER BY SpeName";
-qDebug() << "input: " << QString::fromStdString(queryStr);
+
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     EstParameter.clear();
@@ -289,10 +289,8 @@ nmfDiagnostic_Tab1::parameterToTableName(const std::string  whichTable,
     tableName = "";
     if (whichTable == "input") {
         tableName = m_OutputTableName[parameter.toStdString()];
-qDebug() << "input mapping " << parameter << " to " << QString::fromStdString(tableName);
     } else if (whichTable == "output") {
         tableName = m_DiagnosticTableName[parameter.toStdString()];
-qDebug() << "output mapping " << parameter << " to " << QString::fromStdString(tableName);
     }
 }
 
@@ -553,7 +551,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
     }
 
     for (QString parameterName : vectorParameterNames) {
-qDebug() << "processing parameterName: " << parameterName;
+//qDebug() << "processing parameterName: " << parameterName;
         nmfUtilsQt::updateProgressDlg(m_Logger,progressDlg,"Processing parameter: "+parameterName.toStdString(),pInc);
 
         EstParameter.clear();
@@ -589,9 +587,9 @@ qDebug() << "processing parameterName: " << parameterName;
             // for certain species.
             if ((estParameter != 0) && (startVal != 0)) {
                 for (int j=0; j<=totalNumPoints; ++j) {
-if (i == 0) {
-qDebug() << "p1: " << j << parameterName << "  " << diagnosticParameterValue << "  " << estParameter << inc; // << fitness;
-}
+//if (i == 0) {
+//qDebug() << "p1: " << j << parameterName << "  " << diagnosticParameterValue << "  " << estParameter << inc; // << fitness;
+//}
                     try {
                         parameterItem = std::make_pair(parameterName,diagnosticParameterValue);
                         fitness = calculateFitness(i,{parameterItem});

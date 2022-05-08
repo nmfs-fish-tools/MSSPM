@@ -70,6 +70,7 @@ private:
     std::vector<double>                    m_EstCatchabilityCovariateCoeffs;
     std::vector<double>                    m_EstExponent;
     std::vector<double>                    m_EstSurveyQ;
+    std::vector<double>                    m_EstSurveyQCovariateCoeffs;
     boost::numeric::ublas::matrix<double>  m_EstAlpha;
     boost::numeric::ublas::matrix<double>  m_EstBetaSpecies;
     boost::numeric::ublas::matrix<double>  m_EstBetaGuilds;
@@ -224,6 +225,7 @@ public:
      * @param PredationHandling : estimated predation handling coefficient parameters
      * @param PredationExponent : estimated predation exponent parameters
      * @param SurveyQ : estimated SurveyQ parameters
+     * @param SurveyQCovariateCoeffs : estimated SurveyQ covariate coefficient parameters
      */
     static void extractParameters(
             const nmfStructsQt::ModelDataStruct&   NLoptDataStruct,
@@ -242,7 +244,8 @@ public:
             boost::numeric::ublas::matrix<double>& PredationRho,
             boost::numeric::ublas::matrix<double>& PredationHandling,
             std::vector<double>&                   PredationExponent,
-            std::vector<double>&                   SurveyQ);
+            std::vector<double>&                   SurveyQ,
+            std::vector<double>&                   SurveyQCovariateCoeffs);
     /**
      * @brief Get the estimated carrying capacity values
      * @param EstCarryingCapacities : the estimated carrying capacity values to return
@@ -269,10 +272,16 @@ public:
             std::vector<double>& EstCatchabilityCovariateCoeffs);
     /**
      * @brief Get the estimated Survey Q values
-     * @param EstSurveyQ : the estimated Surbey Q values to return
+     * @param EstSurveyQ : the estimated Survey Q values to return
      */
     void getEstSurveyQ(
             std::vector<double>& EstSurveyQ);
+    /**
+     * @brief Get the estimated Survey Q covariate coefficient values
+     * @param EstSurveyQCovariateCoeffs : the estimated Survey Q covariate coefficient values to return
+     */
+    void getEstSurveyQCovariateCoeffs(
+            std::vector<double>& EstSurveyQCovariateCoeffs);
     /**
      * @brief Get the estimated food competition alpha values
      * @param estCompAlpha : the estimated food competition alpha values to return
@@ -343,14 +352,6 @@ public:
      * @param NLoptStruct : data structure containing necessary run information
      */
     void initialize(nmfStructsQt::ModelDataStruct &NLoptStruct);
-//    /**
-//     * @brief Loads the covariate coefficient parameter ranges
-//     * @param parameterRanges : vector of parameter range pairs
-//     * @param dataStruct : structure containing the Covariate parameter range data
-//     */
-//    void loadCovariateParameterRanges(
-//            std::vector<std::pair<double,double> >& parameterRanges,
-//            const nmfStructsQt::ModelDataStruct& dataStruct);
     /**
      * @brief Calculates the objective function fitness value
      * @param n : unused (needed by NLopt library)

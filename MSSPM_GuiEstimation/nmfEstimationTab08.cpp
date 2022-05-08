@@ -55,51 +55,51 @@ nmfEstimation_Tab8::nmfEstimation_Tab8(QTabWidget*  tabs,
     // Load ui as a widget from disk
     QFile file(":/forms/Estimation/Estimation_Tab08.ui");
     file.open(QFile::ReadOnly);
-    Estimation_Tab7_Widget = loader.load(&file, Estimation_Tabs);
+    Estimation_Tab8_Widget = loader.load(&file, Estimation_Tabs);
     file.close();
 
     // Add the loaded widget as the new tabbed page
-    Estimation_Tabs->addTab(Estimation_Tab7_Widget, tr("8. Model Review"));
+    Estimation_Tabs->addTab(Estimation_Tab8_Widget, tr("8. Model Review"));
 
-    Estimation_Tab7_ModelReviewTV     = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab7_ModelReviewTV");
-    Estimation_Tab7_LoadModelPB       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_LoadModelPB");
-    Estimation_Tab7_ImportPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_ImportPB");
-    Estimation_Tab7_ExportPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_ExportPB");
-    Estimation_Tab7_GenerateSummaryPB = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_GenerateSummaryPB");
-    Estimation_Tab7_PrevPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_PrevPB");
-    Estimation_Tab7_DeletePB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_DeletePB");
-    Estimation_Tab7_LoadPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_LoadPB");
-    Estimation_Tab7_SavePB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_SavePB");
-    Estimation_Tab7_ShowHiddenCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_ShowHiddenCB");
+    Estimation_Tab8_ModelReviewTV     = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab8_ModelReviewTV");
+    Estimation_Tab8_LoadModelPB       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab8_LoadModelPB");
+    Estimation_Tab8_ImportPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab8_ImportPB");
+    Estimation_Tab8_ExportPB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab8_ExportPB");
+    Estimation_Tab8_GenerateSummaryPB = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab8_GenerateSummaryPB");
+    Estimation_Tab8_PrevPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab8_PrevPB");
+    Estimation_Tab8_DeletePB          = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab8_DeletePB");
+    Estimation_Tab8_LoadPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab8_LoadPB");
+    Estimation_Tab8_SavePB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab8_SavePB");
+    Estimation_Tab8_ShowHiddenCB      = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab8_ShowHiddenCB");
 
-    Estimation_Tab7_ModelReviewTV->setModel(m_SModel);
-    Estimation_Tab7_ModelReviewTV->setSortingEnabled(true);
-    Estimation_Tab7_ModelReviewTV->horizontalHeader()->hide();
+    Estimation_Tab8_ModelReviewTV->setModel(m_SModel);
+    Estimation_Tab8_ModelReviewTV->setSortingEnabled(true);
+    Estimation_Tab8_ModelReviewTV->horizontalHeader()->hide();
 
     resizeColumns();
 
-    connect(Estimation_Tab7_PrevPB,            SIGNAL(clicked()),
+    connect(Estimation_Tab8_PrevPB,            SIGNAL(clicked()),
             this,                              SLOT(callback_PrevPB()));
-    connect(Estimation_Tab7_DeletePB,          SIGNAL(clicked()),
+    connect(Estimation_Tab8_DeletePB,          SIGNAL(clicked()),
             this,                              SLOT(callback_DeletePB()));
-    connect(Estimation_Tab7_LoadPB,            SIGNAL(clicked()),
+    connect(Estimation_Tab8_LoadPB,            SIGNAL(clicked()),
             this,                              SLOT(callback_LoadPB()));
-    connect(Estimation_Tab7_SavePB,            SIGNAL(clicked()),
+    connect(Estimation_Tab8_SavePB,            SIGNAL(clicked()),
             this,                              SLOT(callback_SavePB()));
-    connect(Estimation_Tab7_LoadModelPB,       SIGNAL(clicked()),
+    connect(Estimation_Tab8_LoadModelPB,       SIGNAL(clicked()),
             this,                              SLOT(callback_LoadModelPB()));
-    connect(Estimation_Tab7_ImportPB,          SIGNAL(clicked()),
+    connect(Estimation_Tab8_ImportPB,          SIGNAL(clicked()),
             this,                              SLOT(callback_ImportPB()));
-    connect(Estimation_Tab7_ExportPB,          SIGNAL(clicked()),
+    connect(Estimation_Tab8_ExportPB,          SIGNAL(clicked()),
             this,                              SLOT(callback_ExportPB()));
-    connect(Estimation_Tab7_GenerateSummaryPB, SIGNAL(clicked()),
+    connect(Estimation_Tab8_GenerateSummaryPB, SIGNAL(clicked()),
             this,                              SLOT(callback_GenerateSummaryPB()));
-    connect(Estimation_Tab7_ShowHiddenCB,      SIGNAL(stateChanged(int)),
+    connect(Estimation_Tab8_ShowHiddenCB,      SIGNAL(stateChanged(int)),
             this,                              SLOT(callback_ShowHiddenCB(int)));
 
-    Estimation_Tab7_PrevPB->setText("\u25C1--");
+    Estimation_Tab8_PrevPB->setText("\u25C1--");
 
-    callback_ShowHiddenCB(Estimation_Tab7_ShowHiddenCB->isChecked());
+    callback_ShowHiddenCB(Estimation_Tab8_ShowHiddenCB->isChecked());
 }
 
 
@@ -110,23 +110,23 @@ nmfEstimation_Tab8::~nmfEstimation_Tab8()
 bool
 nmfEstimation_Tab8::showHiddenFields()
 {
-    return Estimation_Tab7_ShowHiddenCB->isChecked();
+    return Estimation_Tab8_ShowHiddenCB->isChecked();
 }
 
 void
 nmfEstimation_Tab8::resizeColumns()
 {
-    Estimation_Tab7_ModelReviewTV->resizeColumnsToContents();
-    Estimation_Tab7_ModelReviewTV->resizeRowsToContents();
+    Estimation_Tab8_ModelReviewTV->resizeColumnsToContents();
+    Estimation_Tab8_ModelReviewTV->resizeRowsToContents();
 }
 
 void
 nmfEstimation_Tab8::callback_ShowHiddenCB(int state)
 {
     bool hideField;
-    for (int i=0; i<Estimation_Tab7_ModelReviewTV->model()->columnCount(); ++i) {
+    for (int i=0; i<Estimation_Tab8_ModelReviewTV->model()->columnCount(); ++i) {
         hideField = (state==Qt::Unchecked && i>nmfConstantsMSSPM::Model_Review_Column_Last_Visible);
-        Estimation_Tab7_ModelReviewTV->setColumnHidden(i,hideField);
+        Estimation_Tab8_ModelReviewTV->setColumnHidden(i,hideField);
     }
     resizeColumns();
 }
@@ -135,8 +135,8 @@ void
 nmfEstimation_Tab8::callback_LoadModelPB()
 {
     int row;
-    QModelIndexList indexes = Estimation_Tab7_ModelReviewTV->selectionModel()->selectedRows();
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+    QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
 
     if (indexes.size() == 0) {
         QMessageBox::warning(Estimation_Tabs, "Model Load", "\nPlease select one model (i.e., row) to load.\n", QMessageBox::Ok);
@@ -176,10 +176,10 @@ nmfEstimation_Tab8::callback_ImportPB()
     if (! fileName.isEmpty()) {
         int noSigDig = -1;
         bool loadOK = nmfUtilsQt::loadModelFromCSVFile(m_Logger,m_ProjectDir,
-                                                       "Model Review",Estimation_Tab7_ModelReviewTV,
+                                                       "Model Review",Estimation_Tab8_ModelReviewTV,
                                                        fileName,numRows,noSigDig);
         if (loadOK && (numRows > 2)) {
-            callback_ShowHiddenCB(Estimation_Tab7_ShowHiddenCB->checkState());
+            callback_ShowHiddenCB(Estimation_Tab8_ShowHiddenCB->checkState());
         } else if (numRows < 2) {
             QMessageBox::warning(Estimation_Tabs, "Warning",
                                  "\nEmpty Model Review file.\n",
@@ -196,7 +196,7 @@ nmfEstimation_Tab8::callback_ImportPB()
                                  QMessageBox::Ok);
 
         adjustColumnsForReadOnly();
-        Estimation_Tab7_ModelReviewTV->horizontalHeader()->show();
+        Estimation_Tab8_ModelReviewTV->horizontalHeader()->show();
     }
 }
 
@@ -209,7 +209,7 @@ nmfEstimation_Tab8::callback_ExportPB()
                                filePath,tr("data (*.csv)"));
 
     if (! fileName.isEmpty()) {
-        nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,"Model Review","",Estimation_Tab7_ModelReviewTV,
+        nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,"Model Review","",Estimation_Tab8_ModelReviewTV,
                                        nmfConstantsMSSPM::Dont_Query_User_For_Filename,
                                        nmfConstantsMSSPM::RemoveCommas,
                                        fileName,
@@ -227,20 +227,20 @@ nmfEstimation_Tab8::callback_PrevPB()
 void
 nmfEstimation_Tab8::callback_DeletePB()
 {
-    QModelIndexList indexes = Estimation_Tab7_ModelReviewTV->selectionModel()->selectedRows();
+    QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
     int numRowsToDelete = indexes.count();
 
     if (numRowsToDelete > 0) {
         for (int row=indexes.count(); row>0; row--) {
-            Estimation_Tab7_ModelReviewTV->model()->removeRow(indexes.at(row-1).row(),QModelIndex());
+            Estimation_Tab8_ModelReviewTV->model()->removeRow(indexes.at(row-1).row(),QModelIndex());
         }
     } else {
         std::string msg  = "\nOK to delete all rows?\n";
         QMessageBox::StandardButton reply = QMessageBox::warning(Estimation_Tabs, tr("Delete"),
             tr(msg.c_str()),QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
         if (reply == QMessageBox::Yes) {
-            int totalNumRows = Estimation_Tab7_ModelReviewTV->model()->rowCount();
-            Estimation_Tab7_ModelReviewTV->model()->removeRows(0,totalNumRows);
+            int totalNumRows = Estimation_Tab8_ModelReviewTV->model()->rowCount();
+            Estimation_Tab8_ModelReviewTV->model()->removeRows(0,totalNumRows);
         }
     }
 
@@ -345,7 +345,7 @@ void
 nmfEstimation_Tab8::callback_LoadPB()
 {
     loadWidgets();
-    callback_ShowHiddenCB(Estimation_Tab7_ShowHiddenCB->checkState());
+    callback_ShowHiddenCB(Estimation_Tab8_ShowHiddenCB->checkState());
 }
 
 void
@@ -425,9 +425,9 @@ nmfEstimation_Tab8::callback_GenerateSummaryPB()
 {
     int row;
     QModelIndex index;
-    QModelIndexList indexes = Estimation_Tab7_ModelReviewTV->selectionModel()->selectedRows();
+    QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
     QString html;
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
 
     if (indexes.size() == 0) {
         QMessageBox::warning(Estimation_Tabs, "Model Summary", "\nPlease select one model (i.e., row) for which to generate a summary.\n", QMessageBox::Ok);
@@ -513,7 +513,7 @@ nmfEstimation_Tab8::updateModelReviewTable(const QStringList& rowList)
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab8::saveModelReviewTable: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab8::updateModelReviewTable: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
     }
@@ -541,15 +541,15 @@ nmfEstimation_Tab8::updateModelReviewTable(const QStringList& rowList)
 //        itemList.push_back(createNewModelReviewItem(col,itemStr));
 //    }
 //    if (m_SModel != nullptr) {
-//        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+//        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
 //    }
 //    m_SModel->appendRow(itemList);
 //    for (int i=0; i<numCols; ++i) {
 //        hideField = (! showHiddenFields()) && (i>nmfConstantsMSSPM::Model_Review_Column_Last_Visible);
-//        Estimation_Tab7_ModelReviewTV->setColumnHidden(i,hideField);
+//        Estimation_Tab8_ModelReviewTV->setColumnHidden(i,hideField);
 //    }
 //    m_SModel->setHorizontalHeaderLabels(HeaderLabels);
-//    Estimation_Tab7_ModelReviewTV->horizontalHeader()->show();
+//    Estimation_Tab8_ModelReviewTV->horizontalHeader()->show();
 //    resizeColumns();
 //    saveModelReviewTable();
 //}
@@ -574,7 +574,7 @@ nmfEstimation_Tab8::saveModelReviewTable()
     // Clear current ModelReview table
     m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableModelReview,m_ProjectName);
 
-    m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+    m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
     NumRows = m_SModel->rowCount();
     NumCols = m_SModel->columnCount();
     if (NumRows == 0) {
@@ -683,7 +683,7 @@ EnsembleFile,EstimatedParametersFile FROM " +
     int NumRecords = dataMap["ModelName"].size();
 
     if (m_SModel != nullptr) {
-        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
     } else {
         return;
     }
@@ -717,9 +717,9 @@ EnsembleFile,EstimatedParametersFile FROM " +
         }
     }
     m_SModel->setHorizontalHeaderLabels(HeaderLabels);
-    Estimation_Tab7_ModelReviewTV->setModel(m_SModel);
-    Estimation_Tab7_ModelReviewTV->horizontalHeader()->show();
-    Estimation_Tab7_ModelReviewTV->resizeColumnsToContents();
+    Estimation_Tab8_ModelReviewTV->setModel(m_SModel);
+    Estimation_Tab8_ModelReviewTV->horizontalHeader()->show();
+    Estimation_Tab8_ModelReviewTV->resizeColumnsToContents();
 }
 
 void
@@ -767,7 +767,7 @@ EnsembleFile,EstimatedParametersFile FROM " +
     int NumRecords = dataMap["ModelName"].size();
 
     if (m_SModel != nullptr) {
-        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
     } else {
         return;
     }
@@ -788,14 +788,14 @@ EnsembleFile,EstimatedParametersFile FROM " +
         }
     }
     m_SModel->setHorizontalHeaderLabels(HeaderLabels);
-    Estimation_Tab7_ModelReviewTV->setModel(m_SModel);
-    Estimation_Tab7_ModelReviewTV->resizeColumnsToContents();
+    Estimation_Tab8_ModelReviewTV->setModel(m_SModel);
+    Estimation_Tab8_ModelReviewTV->resizeColumnsToContents();
 }
 
 void
 nmfEstimation_Tab8::clearWidgets()
 {
-    nmfUtilsQt::clearTableView({Estimation_Tab7_ModelReviewTV});
+    nmfUtilsQt::clearTableView({Estimation_Tab8_ModelReviewTV});
 }
 
 QStandardItem*
@@ -819,7 +819,7 @@ nmfEstimation_Tab8::createNewModelReviewItem(const int& col,
 void
 nmfEstimation_Tab8::adjustColumnsForReadOnly()
 {
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab7_ModelReviewTV->model());
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
 
     // Adjust all but the Notes column to be read only
     for (int row=0; row<smodel->rowCount(); ++row) {
@@ -827,9 +827,9 @@ nmfEstimation_Tab8::adjustColumnsForReadOnly()
             smodel->setItem(row,col,createNewModelReviewItem(col,smodel->index(row,col).data().toString()));
         }
     }
-    Estimation_Tab7_ModelReviewTV->setModel(smodel);
-    Estimation_Tab7_ModelReviewTV->resizeColumnsToContents();
-    Estimation_Tab7_ModelReviewTV->resizeRowsToContents();
+    Estimation_Tab8_ModelReviewTV->setModel(smodel);
+    Estimation_Tab8_ModelReviewTV->resizeColumnsToContents();
+    Estimation_Tab8_ModelReviewTV->resizeRowsToContents();
 }
 
 
@@ -860,7 +860,7 @@ nmfEstimation_Tab8::saveSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Estimation");
-//    settings->setValue("FontSize",   Estimation_Tab6_FontSizeCMB->currentText());
+//  settings->setValue("FontSize",   Estimation_Tab8_FontSizeCMB->currentText());
     settings->endGroup();
 
     delete settings;

@@ -175,6 +175,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aee8e99eeb3b22d9383516f4b0c859d57"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aee8e99eeb3b22d9383516f4b0c859d57">getEstSurveyQ</a> (std::vector&lt; double &gt; &amp;EstSurveyQ)</td></tr>
 <tr class="memdesc:aee8e99eeb3b22d9383516f4b0c859d57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated Survey Q values.  <a href="class_n_lopt___estimator.html#aee8e99eeb3b22d9383516f4b0c859d57">More...</a><br /></td></tr>
 <tr class="separator:aee8e99eeb3b22d9383516f4b0c859d57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8401b2a29218aeeb9f3083925561b49"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ab8401b2a29218aeeb9f3083925561b49">getEstSurveyQCovariateCoeffs</a> (std::vector&lt; double &gt; &amp;EstSurveyQCovariateCoeffs)</td></tr>
+<tr class="memdesc:ab8401b2a29218aeeb9f3083925561b49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated Survey Q covariate coefficient values.  <a href="class_n_lopt___estimator.html#ab8401b2a29218aeeb9f3083925561b49">More...</a><br /></td></tr>
+<tr class="separator:ab8401b2a29218aeeb9f3083925561b49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab54a4a682ddade9c4eee0266737b27d2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ab54a4a682ddade9c4eee0266737b27d2">getEstCompetitionAlpha</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;estCompAlpha)</td></tr>
 <tr class="memdesc:ab54a4a682ddade9c4eee0266737b27d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated food competition alpha values.  <a href="class_n_lopt___estimator.html#ab54a4a682ddade9c4eee0266737b27d2">More...</a><br /></td></tr>
 <tr class="separator:ab54a4a682ddade9c4eee0266737b27d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -220,9 +223,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>stopRun</b> (const st
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a54d8c688269b967c0eb8dd591ee380ec"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a54d8c688269b967c0eb8dd591ee380ec">extractParameters</a> (const nmfStructsQt::ModelDataStruct &amp;NLoptDataStruct, const double *EstParameters, std::vector&lt; double &gt; &amp;InitBiomass, std::vector&lt; double &gt; &amp;GrowthRate, std::vector&lt; double &gt; &amp;GrowthRateCovariateCoeffs, std::vector&lt; double &gt; &amp;CarryingCapacity, std::vector&lt; double &gt; &amp;CarryingCapacityCovariateCoeffs, std::vector&lt; double &gt; &amp;Catchability, std::vector&lt; double &gt; &amp;CatchabilityCovariateCoeffs, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionAlpha, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaSpecies, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuildsGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;PredationRho, boost::numeric::ublas::matrix&lt; double &gt; &amp;PredationHandling, std::vector&lt; double &gt; &amp;PredationExponent, std::vector&lt; double &gt; &amp;SurveyQ)</td></tr>
-<tr class="memdesc:a54d8c688269b967c0eb8dd591ee380ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the estimated parameters from the NLopt Optimizer run.  <a href="class_n_lopt___estimator.html#a54d8c688269b967c0eb8dd591ee380ec">More...</a><br /></td></tr>
-<tr class="separator:a54d8c688269b967c0eb8dd591ee380ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a388c17270e24cb2b81e94881aa532da9"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a388c17270e24cb2b81e94881aa532da9">extractParameters</a> (const nmfStructsQt::ModelDataStruct &amp;NLoptDataStruct, const double *EstParameters, std::vector&lt; double &gt; &amp;InitBiomass, std::vector&lt; double &gt; &amp;GrowthRate, std::vector&lt; double &gt; &amp;GrowthRateCovariateCoeffs, std::vector&lt; double &gt; &amp;CarryingCapacity, std::vector&lt; double &gt; &amp;CarryingCapacityCovariateCoeffs, std::vector&lt; double &gt; &amp;Catchability, std::vector&lt; double &gt; &amp;CatchabilityCovariateCoeffs, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionAlpha, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaSpecies, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuildsGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;PredationRho, boost::numeric::ublas::matrix&lt; double &gt; &amp;PredationHandling, std::vector&lt; double &gt; &amp;PredationExponent, std::vector&lt; double &gt; &amp;SurveyQ, std::vector&lt; double &gt; &amp;SurveyQCovariateCoeffs)</td></tr>
+<tr class="memdesc:a388c17270e24cb2b81e94881aa532da9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the estimated parameters from the NLopt Optimizer run.  <a href="class_n_lopt___estimator.html#a388c17270e24cb2b81e94881aa532da9">More...</a><br /></td></tr>
+<tr class="separator:a388c17270e24cb2b81e94881aa532da9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">objectiveFunction</a> (unsigned n, const double *EstParameters, double *Gradient, void *FunctionData)</td></tr>
 <tr class="memdesc:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the objective function fitness value.  <a href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">More...</a><br /></td></tr>
 <tr class="separator:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -307,8 +310,8 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 </div>
 </div>
-<a id="a54d8c688269b967c0eb8dd591ee380ec"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a54d8c688269b967c0eb8dd591ee380ec">&#9670;&nbsp;</a></span>extractParameters()</h2>
+<a id="a388c17270e24cb2b81e94881aa532da9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a388c17270e24cb2b81e94881aa532da9">&#9670;&nbsp;</a></span>extractParameters()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -416,7 +419,13 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
-          <td class="paramname"><em>SurveyQ</em>&#160;</td>
+          <td class="paramname"><em>SurveyQ</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>SurveyQCovariateCoeffs</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -451,6 +460,7 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
     <tr><td class="paramname">PredationHandling</td><td>: estimated predation handling coefficient parameters </td></tr>
     <tr><td class="paramname">PredationExponent</td><td>: estimated predation exponent parameters </td></tr>
     <tr><td class="paramname">SurveyQ</td><td>: estimated SurveyQ parameters </td></tr>
+    <tr><td class="paramname">SurveyQCovariateCoeffs</td><td>: estimated SurveyQ covariate coefficient parameters </td></tr>
   </table>
   </dd>
 </dl>
@@ -840,7 +850,33 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <p>Get the estimated Survey Q values. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">EstSurveyQ</td><td>: the estimated Surbey Q values to return </td></tr>
+    <tr><td class="paramname">EstSurveyQ</td><td>: the estimated Survey Q values to return </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab8401b2a29218aeeb9f3083925561b49"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab8401b2a29218aeeb9f3083925561b49">&#9670;&nbsp;</a></span>getEstSurveyQCovariateCoeffs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::getEstSurveyQCovariateCoeffs </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>EstSurveyQCovariateCoeffs</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the estimated Survey Q covariate coefficient values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">EstSurveyQCovariateCoeffs</td><td>: the estimated Survey Q covariate coefficient values to return </td></tr>
   </table>
   </dd>
 </dl>

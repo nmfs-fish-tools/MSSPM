@@ -371,6 +371,7 @@ private:
                                 std::vector<double>& EstCatchabilityCovariateCoeffs,
                                 std::vector<double>& EstExponent,
                                 std::vector<double>& EstSurveyQ,
+                                std::vector<double>& EstSurveyQCovariateCoeffs,
                                 boost::numeric::ublas::matrix<double>& InitBiomassCovariates,
                                 boost::numeric::ublas::matrix<double>& GrowthRateCovariates,
                                 boost::numeric::ublas::matrix<double>& CarryingCapacityCovariates,
@@ -639,7 +640,8 @@ private:
     bool loadCovariateRanges(
             std::map<std::string,nmfStructsQt::CovariateStruct>& growthRateCovariateRanges,
             std::map<std::string,nmfStructsQt::CovariateStruct>& carryingCapacityCovariateRanges,
-            std::map<std::string,nmfStructsQt::CovariateStruct>& catchabilityCovariateRanges);
+            std::map<std::string,nmfStructsQt::CovariateStruct>& catchabilityCovariateRanges,
+            std::map<std::string,nmfStructsQt::CovariateStruct>& surveyQCovariateRanges);
     void loadGuis();
     void loadDatabase();
     bool loadHarvestCatchTables(
@@ -766,7 +768,8 @@ private:
                              std::vector<double>& CarryingCapacityCovCoeffUncertainty,
                              std::vector<double>& CatchabilityCovCoeffUncertainty,
                              std::vector<double>& SurveyQCovCoeffUncertainty);
-
+    bool passEstimationChecks(std::vector<QString>& MultiRunLines,
+                              int& TotalIndividualRuns);
     void queryUserPreviousDatabase();
     void readSettings(QString name);
     void readSettings();
@@ -971,7 +974,8 @@ private:
     bool updateObservedBiomassAndEstSurveyQTable(
             const QStringList& Species,
             const int& RunLength,
-            const std::vector<double>& EstSurveyQ);
+            const std::vector<double>& EstSurveyQ,
+            std::vector<double>& EstSurveyQCovariateCoeffs);
     bool updateOutputBiomassTable(std::string& ForecastName,
                                   int&         StartYear,
                                   int&         RunLength,
@@ -1019,7 +1023,8 @@ private:
         const boost::numeric::ublas::matrix<double>& EstPredation,
         const boost::numeric::ublas::matrix<double>& EstHandling,
         const std::vector<double>&                   EstExponent,
-        const std::vector<double>&                   EstSurveyQ);
+        const std::vector<double>&                   EstSurveyQ,
+        const std::vector<double>&                   EstSurveyQCovariateCoeffs);
     void updateModelEquationSummary();
     void updateScreenShotViewer(QString filename);
     bool getSurfaceData(
@@ -1060,11 +1065,8 @@ private:
             const QStringList&                           GuildList,
             const std::vector<double>&                   EstInitBiomass,
             const std::vector<double>&                   EstGrowthRates,
-            const std::vector<double>&                   EstGrowthRateCovariateCoeffs,
             const std::vector<double>&                   EstCarryingCapacities,
-            const std::vector<double>&                   EstCarryingCapacityCovariateCoeffs,
             const std::vector<double>&                   EstCatchability,
-            const std::vector<double>&                   EstCatchabilityCovariateCoeffs,
             const std::vector<double>&                   EstPredationExponent,
             const std::vector<double>&                   EstSurveyQ,
             const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,

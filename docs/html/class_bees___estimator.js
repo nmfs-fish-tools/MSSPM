@@ -20,6 +20,7 @@ var class_bees___estimator =
     [ "getEstInitBiomass", "class_bees___estimator.html#a1192df1f2645609d5c6d91eab2464194", null ],
     [ "getEstPredation", "class_bees___estimator.html#aa310a9452edb3ddaf230d16df54a96c5", null ],
     [ "getEstSurveyQ", "class_bees___estimator.html#a28cf2ff0c6438b3da720598c8f149c43", null ],
+    [ "getEstSurveyQCovariateCoeffs", "class_bees___estimator.html#a5950285e90d18997feb033750daf7aa9", null ],
     [ "InitializeSubRuns", "class_bees___estimator.html#a7a396be0a4382b212026f0c24edb38b2", null ],
     [ "RepetitionRunCompleted", "class_bees___estimator.html#a8e59ea1d2c1e462114b3f7eb5edc4b99", null ],
     [ "RunCompleted", "class_bees___estimator.html#ab9d93dad3c2ebf6bb3ca935aa8618f48", null ],

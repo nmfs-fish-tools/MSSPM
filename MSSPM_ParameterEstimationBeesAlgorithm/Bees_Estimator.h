@@ -78,6 +78,7 @@ private:
     std::vector<double>                   m_EstCatchability;
     std::vector<double>                   m_EstExponent;
     std::vector<double>                   m_EstSurveyQ;
+    std::vector<double>                   m_EstSurveyQCovariateCoeffs;
     boost::numeric::ublas::matrix<double> m_EstAlpha;
     boost::numeric::ublas::matrix<double> m_EstBetaSpecies;
     boost::numeric::ublas::matrix<double> m_EstBetaGuilds;
@@ -246,6 +247,11 @@ public:
      * @param EstSurveyQ : vector of SurveyQ values per species
      */
     void getEstSurveyQ(std::vector<double> &EstSurveyQ);
+    /**
+     * @brief Gets the estimated SurveyQ covariate coefficient values per species
+     * @param EstSurveyQCovariateCoeffs : vector of SurveyQ covariate coefficient values per species
+     */
+    void getEstSurveyQCovariateCoeffs(std::vector<double> &EstSurveyQCovariateCoeffs);
     /**
      * @brief Stops the current Bees run
      * @param elapsedTimeStr : elapsed time string

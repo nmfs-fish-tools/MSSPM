@@ -15,5 +15,5 @@ var searchData=
   ['ensembledialog_2eh_297',['EnsembleDialog.h',['../_ensemble_dialog_8h.html',1,'']]],
   ['errorfound_298',['ErrorFound',['../class_bees___estimator.html#ae9fed1638bc81d1bdc186a9f821fc63e',1,'Bees_Estimator']]],
   ['estimateparameters_299',['estimateParameters',['../class_bees___estimator.html#a749a4083849648eafccd5d8d02b29659',1,'Bees_Estimator::estimateParameters()'],['../class_n_lopt___estimator.html#afdcf966c3d07bf7fba6807aaf8077da3',1,'NLopt_Estimator::estimateParameters()']]],
-  ['extractparameters_300',['extractParameters',['../class_n_lopt___estimator.html#a54d8c688269b967c0eb8dd591ee380ec',1,'NLopt_Estimator']]]
+  ['extractparameters_300',['extractParameters',['../class_n_lopt___estimator.html#a388c17270e24cb2b81e94881aa532da9',1,'NLopt_Estimator']]]
 ];

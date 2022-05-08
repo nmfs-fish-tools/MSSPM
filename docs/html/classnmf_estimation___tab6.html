@@ -83,6 +83,7 @@ $(document).ready(function(){initNavTree('classnmf_estimation___tab6.html',''); 
 <div class="header">
   <div class="summary">
 <a href="#pub-slots">Public Slots</a> &#124;
+<a href="#signals">Signals</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classnmf_estimation___tab6-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -159,6 +160,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#ab9d8966d571adcbf20eb563be2cee41f">callback_SavePB</a> ()</td></tr>
 <tr class="memdesc:ab9d8966d571adcbf20eb563be2cee41f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user wants to save the currently viewed table's data into the corresponding database table. <br /></td></tr>
 <tr class="separator:ab9d8966d571adcbf20eb563be2cee41f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada1a76a3244793459f594878477a81d4"><td class="memItemLeft" align="right" valign="top"><a id="ada1a76a3244793459f594878477a81d4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#ada1a76a3244793459f594878477a81d4">callback_SetPB</a> ()</td></tr>
+<tr class="memdesc:ada1a76a3244793459f594878477a81d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user presses the Set button to quickly populate the initial, min, and max cells. <br /></td></tr>
+<tr class="separator:ada1a76a3244793459f594878477a81d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0eb5550a41b08ad7711123d0fe30d9d2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#a0eb5550a41b08ad7711123d0fe30d9d2">callback_SetEstimateRunCheckboxes</a> (std::vector&lt; nmfStructsQt::EstimateRunBox &gt; EstimateRunBoxes)</td></tr>
 <tr class="memdesc:a0eb5550a41b08ad7711123d0fe30d9d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked to allow only those parameters that have code implemented for Environmental Covariates.  <a href="classnmf_estimation___tab6.html#a0eb5550a41b08ad7711123d0fe30d9d2">More...</a><br /></td></tr>
 <tr class="separator:a0eb5550a41b08ad7711123d0fe30d9d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -175,6 +180,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:aa7b5c38ee55893e249c618d045d4d249"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#aa7b5c38ee55893e249c618d045d4d249">callback_ViewNormalizedPB</a> (bool checked)</td></tr>
 <tr class="memdesc:aa7b5c38ee55893e249c618d045d4d249"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user presses the view normalized covariate data toggle button.  <a href="classnmf_estimation___tab6.html#aa7b5c38ee55893e249c618d045d4d249">More...</a><br /></td></tr>
 <tr class="separator:aa7b5c38ee55893e249c618d045d4d249"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
+Signals</h2></td></tr>
+<tr class="memitem:a51c9b8e59ae767d379cd3d39e6cae471"><td class="memItemLeft" align="right" valign="top"><a id="a51c9b8e59ae767d379cd3d39e6cae471"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReloadDiagnosticWidgets</b> ()</td></tr>
+<tr class="separator:a51c9b8e59ae767d379cd3d39e6cae471"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -203,6 +214,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:aa491ce6e38d28a78bd96ec8d10df4f13"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#aa491ce6e38d28a78bd96ec8d10df4f13">loadWidgets</a> ()</td></tr>
 <tr class="memdesc:aa491ce6e38d28a78bd96ec8d10df4f13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads all widgets for this GUI from database tables.  <a href="classnmf_estimation___tab6.html#aa491ce6e38d28a78bd96ec8d10df4f13">More...</a><br /></td></tr>
 <tr class="separator:aa491ce6e38d28a78bd96ec8d10df4f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56a0f1361a5c679be53359d42f3d01fe"><td class="memItemLeft" align="right" valign="top"><a id="a56a0f1361a5c679be53359d42f3d01fe"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab6.html#a56a0f1361a5c679be53359d42f3d01fe">resaveCovariateAssignmentTable</a> ()</td></tr>
+<tr class="memdesc:a56a0f1361a5c679be53359d42f3d01fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resaves the covariate assignment table and resets the initial value table. <br /></td></tr>
+<tr class="separator:a56a0f1361a5c679be53359d42f3d01fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Covariate Data. </p>

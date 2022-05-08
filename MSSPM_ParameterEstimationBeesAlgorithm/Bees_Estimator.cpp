@@ -18,8 +18,8 @@ Bees_Estimator::printBee(std::string          msg,
 {
     int numParameters = parameters.size();
 
-    std::cout << msg << " ";
-    std::cout << fitness << " : ";
+    std::cout << msg << ", ";
+    std::cout << "Fitness: " << fitness << ": ";
     for (int i=0; i<numParameters; ++i) {
         std::cout << " " << parameters[i];
     }
@@ -78,6 +78,7 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     m_EstHandling.clear();
     m_EstCatchability.clear();
     m_EstSurveyQ.clear();
+    m_EstSurveyQCovariateCoeffs.clear();
     m_EstExponent.clear();
     m_EstBetaSpecies.clear();
     m_EstBetaGuilds.clear();
@@ -90,7 +91,7 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     nmfUtils::initialize(m_EstBetaGuildsGuilds, NumGuilds,   NumGuilds);
 
 //    startTimeSpecies = nmfUtils::startTimer();
-std::cout << "Bees num estimate boxes: " << beeStruct.EstimateRunBoxes.size() << std::endl;
+std::cout << "Bees: num estimate boxes: " << beeStruct.EstimateRunBoxes.size() << std::endl;
 std::cout << "Bees: isAMultiRun: " << isAMultiRun << std::endl;
     if (isAMultiRun) {
         NumMultiRuns = int(MultiRunLines.size());
@@ -133,13 +134,15 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 ok = beesAlg->estimateParameters(
                             bestFitness,EstParameters,
                             RunNumber,subRunNum,errorMsg);
+std::cout << "Bees: num est parameters: " << EstParameters.size() << std::endl;
+
                 if (! errorMsg.empty()) {
                     ok = false;
                     emit ErrorFound(errorMsg);
                     break;
                 }
                 if (ok) {
-                    msg = "Run " + std::to_string(subRunNum);
+                    msg = "Run: " + std::to_string(subRunNum);
                     printBee(msg,bestFitness,EstParameters);
                     beesStats->addData(bestFitness,EstParameters);
                     if (bestFitness < lastBestFitness) {
@@ -187,10 +190,8 @@ std::cout << "subRunNum: " << subRunNum << std::endl;
                 beesAlg->extractPredationParameters(EstParameters,startPos,m_EstPredation);
                 beesAlg->extractHandlingParameters(EstParameters,startPos,m_EstHandling);
                 beesAlg->extractExponentParameters(EstParameters,startPos,m_EstExponent);
-                beesAlg->extractSurveyQParameters(EstParameters,startPos,m_EstSurveyQ);
-for (double sq : m_EstSurveyQ) {
-   std::cout << "==> " << sq << std::endl;
-}
+                beesAlg->extractSurveyQParameters(EstParameters,startPos,
+                                                  m_EstSurveyQ,m_EstSurveyQCovariateCoeffs);
                 numEstParameters   = beesAlg->calculateActualNumEstParameters();
                 numTotalParameters = EstParameters.size();
                 createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,
@@ -276,7 +277,7 @@ Bees_Estimator::createOutputStr(
         bestFitnessStr += "<br><br>Initial Parameters:";
         bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity:",m_InitialCarryingCapacities,true);
     }
-    bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong>";
+    bestFitnessStr += "<br><br><strong>Estimated Parameters:<br></strong>";
     bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Initial Absolute Biomass:    ", m_EstInitBiomass,false);
     bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate:        ",          m_EstGrowthRates,false);
     bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ",m_EstGrowthRateCovariateCoeffs,false);
@@ -324,6 +325,7 @@ Bees_Estimator::createOutputStr(
 //        }
     }
     bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Survey Q:    ",m_EstSurveyQ,false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Survey Q Covariate Coeffs:  ",m_EstSurveyQCovariateCoeffs,false);
 
 }
 
@@ -385,6 +387,12 @@ void
 Bees_Estimator::getEstSurveyQ(std::vector<double> &estSurveyQ)
 {
     estSurveyQ = m_EstSurveyQ;
+}
+
+void
+Bees_Estimator::getEstSurveyQCovariateCoeffs(std::vector<double> &estSurveyQCovariateCoeffs)
+{
+    estSurveyQCovariateCoeffs = m_EstSurveyQCovariateCoeffs;
 }
 
 void

@@ -81,17 +81,17 @@ class nmfEstimation_Tab8: public QObject
         "EnsembleFile","EstimatedParametersFile"};
 
     QTabWidget*   Estimation_Tabs;
-    QWidget*      Estimation_Tab7_Widget;
-    QTableView*   Estimation_Tab7_ModelReviewTV;
-    QPushButton*  Estimation_Tab7_LoadModelPB;
-    QPushButton*  Estimation_Tab7_LoadPB;
-    QPushButton*  Estimation_Tab7_SavePB;
-    QPushButton*  Estimation_Tab7_GenerateSummaryPB;
-    QPushButton*  Estimation_Tab7_PrevPB;
-    QPushButton*  Estimation_Tab7_DeletePB;
-    QPushButton*  Estimation_Tab7_ExportPB;
-    QPushButton*  Estimation_Tab7_ImportPB;
-    QCheckBox*    Estimation_Tab7_ShowHiddenCB;
+    QWidget*      Estimation_Tab8_Widget;
+    QTableView*   Estimation_Tab8_ModelReviewTV;
+    QPushButton*  Estimation_Tab8_LoadModelPB;
+    QPushButton*  Estimation_Tab8_LoadPB;
+    QPushButton*  Estimation_Tab8_SavePB;
+    QPushButton*  Estimation_Tab8_GenerateSummaryPB;
+    QPushButton*  Estimation_Tab8_PrevPB;
+    QPushButton*  Estimation_Tab8_DeletePB;
+    QPushButton*  Estimation_Tab8_ExportPB;
+    QPushButton*  Estimation_Tab8_ImportPB;
+    QCheckBox*    Estimation_Tab8_ShowHiddenCB;
 
     void adjustColumnsForReadOnly();
     QStandardItem* createNewModelReviewItem(const int& col,

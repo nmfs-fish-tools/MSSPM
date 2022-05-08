@@ -781,7 +781,7 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
     else if (PredationForm == "Type III")
         NumberOfParameters += 3;
 
-    // For now, assume initial absolute biomass is always estimated (adjust this assumption in Estimation Tab6)
+    // For now, assume initial absolute biomass is always estimated (adjust this assumption in Estimation Tab7)
     NumberOfParameters += 1;
 
     // Check if Model exists, if so Update else REPLACE
@@ -833,8 +833,9 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
         return false;
     }
     if (verbose) {
-        QMessageBox::information(Setup_Tabs, "Settings Updated",
-                                 "\nSettings in Models database table have been successfully updated.\n");
+        QString msg = "\nSettings in Models database table have been successfully updated.\n";
+        msg += "\nReminder:\n\nPlease reset the Covariate Assignment and Covariate Initial Value & Ranges tables.\n";
+        QMessageBox::information(Setup_Tabs, "Settings Updated",msg);
     }
     saveSettings();
 
