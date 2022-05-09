@@ -251,7 +251,7 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         surveyQCovariateCoeffs.emplace_back(EstParameters[offset+i]);
     }
-    offset += NumSpeciesOrGuilds;
+//    offset += NumSpeciesOrGuilds;
 }
 
 double
@@ -703,7 +703,7 @@ NLopt_Estimator::loadSurveyQParameterRanges(
     }
 
     // Always load SurveyQ Covariate Coefficient values
-    for (unsigned species=0; species<dataStruct.SurveyQCovariateCoeff.size(); ++species) {
+    for (unsigned species=0; species<dataStruct.SurveyQMin.size(); ++species) {
         speciesName       = dataStruct.SpeciesNames[species];
         covariateCoeffMap = dataStruct.SurveyQCovariateCoeff;
         covariateStruct   = covariateCoeffMap[speciesName];

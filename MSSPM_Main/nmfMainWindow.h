@@ -809,19 +809,6 @@ private:
     void setupOutputViewerWidget();
     void setOutputControlsWidth();
     void setupProgressChart();
-    void showObservedBiomassScatter(
-            const std::string &ChartTitle,
-            const int &StartForecastYear,
-            const int &NumSpecies,
-            const QString &OutputSpecies,
-            const int &SpeciesNum,
-            const int NumYears,
-            boost::numeric::ublas::matrix<double> &ObservedBiomass,
-            QString &ScaleStr,
-            double &ScaleVal,
-            double &YMinSliderVal,
-            const bool& clearChart,
-            QStringList ColumnLabelsForLegend);
     void showChartBiomassVsTime(
             const int &NumSpecies,
             const QString &OutputSpecies,

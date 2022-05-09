@@ -1959,7 +1959,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.1.0";
+    QString version = "MSSPM v1.1.1";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3995,7 +3995,6 @@ nmfMainWindow::menu_saveCurrentRun()
                                  OutputSurveyQTable,OutputSurveyQCovariateCoeffsTable,
                                  OutputBiomassTable);
         if (m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName)) {
-            // RSK ??? check this for covariate coefficient logic
             updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,
                                                     EstSurveyQ,EstSurveyQCovariateCoeffs);
         }
@@ -4062,7 +4061,6 @@ nmfMainWindow::menu_saveCurrentRun()
                                  OutputSurveyQTable,OutputSurveyQCovariateCoeffsTable,
                                  OutputBiomassTable);
         if (m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName)) {
-            // RSK ??? check this for covariate coefficient logic
             updateObservedBiomassAndEstSurveyQTable(SpeciesList,RunLength+1,
                                                     EstSurveyQ,EstSurveyQCovariateCoeffs);
         }
@@ -8896,87 +8894,6 @@ nmfMainWindow::getLegendCode(bool isAveraged,
 
     return code;
 }
-
-
-
-/*
- * RSK remove this...it's not being used
- */
-void
-nmfMainWindow::showObservedBiomassScatter(
-            const std::string &ChartTitle,
-            const int &StartYearForecast,
-            const int &NumSpecies,
-            const QString &OutputSpecies,
-            const int &SpeciesNum,
-            const int NumYears,
-            boost::numeric::ublas::matrix<double> &ObservedBiomass,
-            QString &ScaleStr,
-            double &ScaleVal,
-            double &YMinSliderVal,
-            const bool& clearChart,
-            QStringList ColumnLabelsForLegend)
-
-{
-    //
-    // Draw the line chart
-    //
-    bool ShowLegend = false;
-    QStringList RowLabelsForBars;
-    boost::numeric::ublas::matrix<double> ChartScatterData;
-    ChartScatterData.resize(NumYears,1);
-    ChartScatterData.clear();
-    RowLabelsForBars.clear();
-    std::string value;
-    std::string LineStyle = "SolidLine";
-    QStringList SpeciesNames;
-    QStringList Years;
-    std::string legendCode = "";
-    std::string ChartType;
-    std::string MainTitle;
-    std::string XLabel;
-    std::string YLabel;
-    int Theme = 0; // Replace with checkbox values
-    std::vector<bool> GridLines = {true,true}; // Replace with checkbox values
-    QStringList HoverLabels;
-
-    ChartType = "Line";
-    MainTitle = ChartTitle + " for: " + OutputSpecies.toStdString();
-    XLabel    = "Year";
-    YLabel    = ChartTitle + " (" + ScaleStr.toStdString() + "metric tons)";
-
-    if (clearChart) {
-        m_ChartWidget->removeAllSeries();
-    }
-
-    // First show scatter
-    for (int species=0; species<NumSpecies; ++species) {
-        if (species == SpeciesNum) {
-            for (int time=0; time<NumYears; ++time) {
-                ChartScatterData(time,0) = ObservedBiomass(time,species)/ScaleVal;
-            }
-            break;
-        }
-    }
-
-    nmfChartScatter* scatterChart = new nmfChartScatter();
-    std::string chartType = "Scatter";
-    scatterChart->populateChart(m_ChartWidget,
-                            chartType,
-                            nmfConstantsMSSPM::ShowFirstPoint,
-                            ChartScatterData,
-                            QColor(100,100,255),
-                            {}, {},
-                            MainTitle,
-                            XLabel,
-                            YLabel,
-                            GridLines,
-                            0);
-
-
-}
-
-
 
 void
 nmfMainWindow::showChartBiomassVsTime(
