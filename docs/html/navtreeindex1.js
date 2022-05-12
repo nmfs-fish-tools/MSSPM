@@ -1,6 +1,5 @@
 var NAVTREEINDEX1 =
 {
-"classnmf_estimation___tab1.html#ac5bfc5f07973b3cff7f34a1c2fe443fd":[4,0,11,0],
 "classnmf_estimation___tab1.html#acfc7ad5a6a7e7cde280794226380109f":[4,0,11,42],
 "classnmf_estimation___tab1.html#ad13083f610289262fef099700ddd9806":[4,0,11,35],
 "classnmf_estimation___tab1.html#ad36778f2f6606f210fc9377f747029bc":[4,0,11,7],
@@ -14,6 +13,7 @@ var NAVTREEINDEX1 =
 "classnmf_estimation___tab1.html#af062b27b5d1bba356b068be15c92a0e2":[4,0,11,22],
 "classnmf_estimation___tab1.html#af077e2747c2e2bb5215ecf2ad96d4c52":[4,0,11,2],
 "classnmf_estimation___tab1.html#af2283ab9044188d70ce57f70883aa094":[4,0,11,25],
+"classnmf_estimation___tab1.html#af39201bef8b33f664a87189b3ac63c37":[4,0,11,8],
 "classnmf_estimation___tab1.html#af91f98187cb62aad9ed0b127540ca6e2":[4,0,11,38],
 "classnmf_estimation___tab2.html":[4,0,12],
 "classnmf_estimation___tab2.html#a15ea1dea534327e7caedd933f413ce9f":[4,0,12,21],
@@ -120,10 +120,10 @@ var NAVTREEINDEX1 =
 "classnmf_estimation___tab6.html#a56a0f1361a5c679be53359d42f3d01fe":[4,0,16,27],
 "classnmf_estimation___tab6.html#a588a962f6558b77c50cde66ead87f21b":[4,0,16,1],
 "classnmf_estimation___tab6.html#a612fbb70e99b17f7ec81ec3911e3e490":[4,0,16,14],
-"classnmf_estimation___tab6.html#a6485c2c7f0fa4b8790ffb7019ea65fc2":[4,0,16,24],
 "classnmf_estimation___tab6.html#a684aa30561869303fc946332a4ea39e0":[4,0,16,2],
 "classnmf_estimation___tab6.html#a76d9d96d0040005c1beac82e6b1042e7":[4,0,16,0],
 "classnmf_estimation___tab6.html#a865d20b19c821b58977299213decf548":[4,0,16,20],
+"classnmf_estimation___tab6.html#a8b2a7567c3a81bf882370a5d322c5dce":[4,0,16,24],
 "classnmf_estimation___tab6.html#a97b6d2a8ff06759ab619243834961363":[4,0,16,23],
 "classnmf_estimation___tab6.html#aa491ce6e38d28a78bd96ec8d10df4f13":[4,0,16,25],
 "classnmf_estimation___tab6.html#aa7b5c38ee55893e249c618d045d4d249":[4,0,16,18],

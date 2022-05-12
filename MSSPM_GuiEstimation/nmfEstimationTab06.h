@@ -157,8 +157,9 @@ public:
     bool loadCovariateTable();
     /**
      * @brief Loads the initial values
+     * @return boolean true if load was successful; else false
      */
-    void loadInitialValuesAndRangesForEditableCells();
+    bool loadInitialValuesAndRangesForEditableCells();
     /**
      * @brief Loads all widgets for this GUI from database tables
      * @return Returns true if all data were loaded successfully; else false

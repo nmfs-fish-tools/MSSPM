@@ -232,7 +232,6 @@ var NAVTREEINDEX0 =
 "classnmf_estimation___tab1.html#a2228ff0a3b9ec7b484b37a515baab971":[4,0,11,14],
 "classnmf_estimation___tab1.html#a242d5cfac4a1be555fb00f1ce75da2f9":[4,0,11,24],
 "classnmf_estimation___tab1.html#a3066d3c8948bd3d7801c7020107a0eb5":[4,0,11,13],
-"classnmf_estimation___tab1.html#a32c6ccf4dcdbcb2e64bab1c36c729e93":[4,0,11,6],
 "classnmf_estimation___tab1.html#a4217b8d1c837de6a31d46743c088b8f3":[4,0,11,37],
 "classnmf_estimation___tab1.html#a54aa664d088f811d8bc90efdbe23ba87":[4,0,11,29],
 "classnmf_estimation___tab1.html#a5d8fe9a643f5154567067dcd2c77a5d3":[4,0,11,3],
@@ -240,7 +239,6 @@ var NAVTREEINDEX0 =
 "classnmf_estimation___tab1.html#a64339922d063f65a7271311fe9f45e7a":[4,0,11,32],
 "classnmf_estimation___tab1.html#a66eeaa47afb6f466998f08195e65fe7a":[4,0,11,34],
 "classnmf_estimation___tab1.html#a6cf7fee3d985d84bf67539078613571c":[4,0,11,5],
-"classnmf_estimation___tab1.html#a716e0906f1dee2f31e5ecab0023daca4":[4,0,11,8],
 "classnmf_estimation___tab1.html#a732806eeb8122d872621e6ed26ec6257":[4,0,11,39],
 "classnmf_estimation___tab1.html#a7dc94e037a754d3c10da00b307d75eba":[4,0,11,33],
 "classnmf_estimation___tab1.html#a90da30669095e091b7057696bc1b72b4":[4,0,11,30],
@@ -249,5 +247,7 @@ var NAVTREEINDEX0 =
 "classnmf_estimation___tab1.html#aa8ff2a0d8c921814687c5ce9ecf2c92b":[4,0,11,18],
 "classnmf_estimation___tab1.html#ab76a3c0b8003a84c34db6fa84b35e73c":[4,0,11,40],
 "classnmf_estimation___tab1.html#abf69f53953cc1ee68b12798d281a2303":[4,0,11,4],
-"classnmf_estimation___tab1.html#ac55be00194ecaff1eb450bbc2358877c":[4,0,11,15]
+"classnmf_estimation___tab1.html#ac30f46d47b12b02605f20b46b622c0c2":[4,0,11,6],
+"classnmf_estimation___tab1.html#ac55be00194ecaff1eb450bbc2358877c":[4,0,11,15],
+"classnmf_estimation___tab1.html#ac5bfc5f07973b3cff7f34a1c2fe443fd":[4,0,11,0]
 };

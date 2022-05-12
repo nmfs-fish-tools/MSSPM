@@ -99,6 +99,10 @@ class nmfSetup_Tab3: public QObject
     void clearGuildWidgets();
     void executeDelete(std::string cmd);
     bool guildDataIsSaved();
+    bool importGuilds(QStringList& guildsList,
+                      QString& guildsFilename);
+    bool importSpecies(QStringList& guildList,
+                       QString& speciesFilename);
 //  void loadCSVFile(QTableWidget* tableWidget,
 //                   const QStringList& guildValues);
     void loadGuilds();
@@ -176,14 +180,22 @@ signals:
      * @brief Signal emitted when user wants to import a .csv file.
      * This signal is sent to the Estimation_Tab1_ptr where its import
      * method is called.
+     * @param queryUserForFilename : boolean true if user should be queried for a csv filename; if false the user won't be queried
+     * @param guildsFilename : name of the guilds csv file
      */
-    void LoadGuildSupplemental();
+    void LoadGuildSupplemental(bool queryUserForFilename,
+                               QString guildsFilename);
     /**
      * @brief Signal emitted when user wants to import a .csv file.
      * This signal is sent to the Estimation_Tab1_ptr where its import
      * method is called.
+     * @param updateSetup : boolean true if Species table in Setup should be updated; false if it shouldn't be updated
+     * @param queryUserForFilename : boolean true if user should be queried for a csv filename; if false the user won't be queried
+     * @param speciesFilename : name of the species csv file
      */
-    void LoadSpeciesSupplemental();
+    void LoadSpeciesSupplemental(bool updateSetup,
+                                 bool queryUserForFilename,
+                                 QString speciesFilename);
     /**
      * @brief Signal emitted after user saves Species. This is
      * necessary since the input Estimation tables may need to

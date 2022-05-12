@@ -135,14 +135,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ad36778f2f6606f210fc9377f747029bc">callback_ImportPB</a> ()</td></tr>
 <tr class="memdesc:ad36778f2f6606f210fc9377f747029bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Import button to load data from a .csv file. <br /></td></tr>
 <tr class="separator:ad36778f2f6606f210fc9377f747029bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a716e0906f1dee2f31e5ecab0023daca4"><td class="memItemLeft" align="right" valign="top"><a id="a716e0906f1dee2f31e5ecab0023daca4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a716e0906f1dee2f31e5ecab0023daca4">callback_ImportSpecies</a> ()</td></tr>
-<tr class="memdesc:a716e0906f1dee2f31e5ecab0023daca4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicked the Import button from the Setup GUIs - Species tab. <br /></td></tr>
-<tr class="separator:a716e0906f1dee2f31e5ecab0023daca4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a32c6ccf4dcdbcb2e64bab1c36c729e93"><td class="memItemLeft" align="right" valign="top"><a id="a32c6ccf4dcdbcb2e64bab1c36c729e93"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a32c6ccf4dcdbcb2e64bab1c36c729e93">callback_ImportGuild</a> ()</td></tr>
-<tr class="memdesc:a32c6ccf4dcdbcb2e64bab1c36c729e93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicked the Import button from the Setup GUIs - Guild tab. <br /></td></tr>
-<tr class="separator:a32c6ccf4dcdbcb2e64bab1c36c729e93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af39201bef8b33f664a87189b3ac63c37"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#af39201bef8b33f664a87189b3ac63c37">callback_ImportSpecies</a> (bool updateSetup, bool queryForFilename, QString speciesFilename)</td></tr>
+<tr class="memdesc:af39201bef8b33f664a87189b3ac63c37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicked the Import button from the Setup GUIs - Species tab.  <a href="classnmf_estimation___tab1.html#af39201bef8b33f664a87189b3ac63c37">More...</a><br /></td></tr>
+<tr class="separator:af39201bef8b33f664a87189b3ac63c37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac30f46d47b12b02605f20b46b622c0c2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#ac30f46d47b12b02605f20b46b622c0c2">callback_ImportGuild</a> (bool queryUserForFilename, QString guildsFilename)</td></tr>
+<tr class="memdesc:ac30f46d47b12b02605f20b46b622c0c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicked the Import button from the Setup GUIs - Guild tab.  <a href="classnmf_estimation___tab1.html#ac30f46d47b12b02605f20b46b622c0c2">More...</a><br /></td></tr>
+<tr class="separator:ac30f46d47b12b02605f20b46b622c0c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a111a517b2d9892c2762a13b512d9f3f7"><td class="memItemLeft" align="right" valign="top"><a id="a111a517b2d9892c2762a13b512d9f3f7"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_estimation___tab1.html#a111a517b2d9892c2762a13b512d9f3f7">callback_LoadPB</a> ()</td></tr>
 <tr class="memdesc:a111a517b2d9892c2762a13b512d9f3f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user clicks the Load button. <br /></td></tr>
@@ -358,6 +356,103 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">subtab</td><td>: sub tab clicked (Guilds or Species) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ac30f46d47b12b02605f20b46b622c0c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac30f46d47b12b02605f20b46b622c0c2">&#9670;&nbsp;</a></span>callback_ImportGuild</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfEstimation_Tab1::callback_ImportGuild </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>queryUserForFilename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>guildsFilename</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when the user clicked the Import button from the Setup GUIs - Guild tab. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">queryUserForFilename</td><td>: boolean true if user should be queried for filename; else if false the user won't be queried </td></tr>
+    <tr><td class="paramname">guildsFilename</td><td>: name of guilds csv file </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="af39201bef8b33f664a87189b3ac63c37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af39201bef8b33f664a87189b3ac63c37">&#9670;&nbsp;</a></span>callback_ImportSpecies</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfEstimation_Tab1::callback_ImportSpecies </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>updateSetup</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>queryForFilename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>speciesFilename</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when the user clicked the Import button from the Setup GUIs - Species tab. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">updateSetup</td><td>: boolean true if Species table in Setup should be updated; false if it shouldn't </td></tr>
+    <tr><td class="paramname">queryUserForFilename</td><td>: boolean true if user should be queried for filename; else if false the user won't be queried </td></tr>
+    <tr><td class="paramname">speciesFilename</td><td>: name of species csv file </td></tr>
   </table>
   </dd>
 </dl>

@@ -11,7 +11,7 @@ var searchData=
   ['savesystem_1420',['saveSystem',['../classnmf_estimation___tab7.html#ac0ccb585aaaa14f922091c6935064925',1,'nmfEstimation_Tab7']]],
   ['selectcentersurfacepoint_1421',['SelectCenterSurfacePoint',['../classnmf_output_controls.html#ad720e78e81fcc41b95b863c21c876a14',1,'nmfOutputControls']]],
   ['selectminimumsurfacepoint_1422',['SelectMinimumSurfacePoint',['../classnmf_output_controls.html#abd51156082a3d1ed4b9412486135759b',1,'nmfOutputControls']]],
-  ['setalgorithm_1423',['SetAlgorithm',['../classnmf_estimation___tab7.html#a7cf042260ecb0a14c39e1ef353639e87',1,'nmfEstimation_Tab7::SetAlgorithm()'],['../classnmf_estimation___tab7.html#a146e3b876c330ee8bd53f54bd531bb1e',1,'nmfEstimation_Tab7::setAlgorithm(QString algorithm)']]],
+  ['setalgorithm_1423',['setAlgorithm',['../classnmf_estimation___tab7.html#a146e3b876c330ee8bd53f54bd531bb1e',1,'nmfEstimation_Tab7::setAlgorithm(QString algorithm)'],['../classnmf_estimation___tab7.html#a7cf042260ecb0a14c39e1ef353639e87',1,'nmfEstimation_Tab7::SetAlgorithm()']]],
   ['setcharttype_1424',['SetChartType',['../classnmf_diagnostic___tab1.html#ad594095a64031ecd559e7b77fa3aaf6f',1,'nmfDiagnostic_Tab1::SetChartType()'],['../classnmf_forecast___tab4.html#a650cf2eaa21cda0e0c9db90a52db738a',1,'nmfForecast_Tab4::SetChartType()']]],
   ['setchartview2d_1425',['SetChartView2d',['../classnmf_output_controls.html#ae58f703e861ac68710ecffdbad39b5cf',1,'nmfOutputControls']]],
   ['setcurrentminimizertype_1426',['setCurrentMinimizerType',['../classnmf_estimation___tab7.html#acfb86bd49a52a954154b710bd7b070e3',1,'nmfEstimation_Tab7']]],

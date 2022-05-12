@@ -53,7 +53,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_bees___estimator_8h.html",
-"classnmf_estimation___tab1.html#ac5bfc5f07973b3cff7f34a1c2fe443fd",
+"classnmf_estimation___tab1.html#acfc7ad5a6a7e7cde280794226380109f",
 "classnmf_estimation___tab7.html#ab1afbf9dd0b46bcff6116a5ff51c442b",
 "classnmf_main_window.html#a974fcebad4ab095026944ae1a06eb405",
 "classnmf_setup___tab4.html#a1cd6175a26eb960f25838b4a7de34eb2"

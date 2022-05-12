@@ -208,14 +208,12 @@ Signals</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#a7fa6c5119e989916c7744421c8764b6d">LoadEstimation</a> ()</td></tr>
 <tr class="memdesc:a7fa6c5119e989916c7744421c8764b6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted so that the Guild/Species table on Estimation Tab1 will reload. <br /></td></tr>
 <tr class="separator:a7fa6c5119e989916c7744421c8764b6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a14d6c1f7bdfef3adeb210d06b11ab4ec"><td class="memItemLeft" align="right" valign="top"><a id="a14d6c1f7bdfef3adeb210d06b11ab4ec"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#a14d6c1f7bdfef3adeb210d06b11ab4ec">LoadGuildSupplemental</a> ()</td></tr>
-<tr class="memdesc:a14d6c1f7bdfef3adeb210d06b11ab4ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when user wants to import a .csv file. This signal is sent to the Estimation_Tab1_ptr where its import method is called. <br /></td></tr>
-<tr class="separator:a14d6c1f7bdfef3adeb210d06b11ab4ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18b6b19cc7172f3b0c5924cf2af3d3a7"><td class="memItemLeft" align="right" valign="top"><a id="a18b6b19cc7172f3b0c5924cf2af3d3a7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#a18b6b19cc7172f3b0c5924cf2af3d3a7">LoadSpeciesSupplemental</a> ()</td></tr>
-<tr class="memdesc:a18b6b19cc7172f3b0c5924cf2af3d3a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when user wants to import a .csv file. This signal is sent to the Estimation_Tab1_ptr where its import method is called. <br /></td></tr>
-<tr class="separator:a18b6b19cc7172f3b0c5924cf2af3d3a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c4f79a624367230264ea440e6593d26"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#a6c4f79a624367230264ea440e6593d26">LoadGuildSupplemental</a> (bool queryUserForFilename, QString guildsFilename)</td></tr>
+<tr class="memdesc:a6c4f79a624367230264ea440e6593d26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when user wants to import a .csv file. This signal is sent to the Estimation_Tab1_ptr where its import method is called.  <a href="classnmf_setup___tab3.html#a6c4f79a624367230264ea440e6593d26">More...</a><br /></td></tr>
+<tr class="separator:a6c4f79a624367230264ea440e6593d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb759498bfa66ddeca365e1da9168e36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#aeb759498bfa66ddeca365e1da9168e36">LoadSpeciesSupplemental</a> (bool updateSetup, bool queryUserForFilename, QString speciesFilename)</td></tr>
+<tr class="memdesc:aeb759498bfa66ddeca365e1da9168e36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when user wants to import a .csv file. This signal is sent to the Estimation_Tab1_ptr where its import method is called.  <a href="classnmf_setup___tab3.html#aeb759498bfa66ddeca365e1da9168e36">More...</a><br /></td></tr>
+<tr class="separator:aeb759498bfa66ddeca365e1da9168e36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcbc051bff92008c7673f08db64063fe"><td class="memItemLeft" align="right" valign="top"><a id="adcbc051bff92008c7673f08db64063fe"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#adcbc051bff92008c7673f08db64063fe">ReloadWidgets</a> ()</td></tr>
 <tr class="memdesc:adcbc051bff92008c7673f08db64063fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted after user saves Species. This is necessary since the input Estimation tables may need to be modified with new Species. <br /></td></tr>
@@ -654,6 +652,103 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>checkAndCalculateW
 
 <p>If checked, the data table will be automatically converted as the user changes the Units combo box. </p>
 <dl class="section return"><dt>Returns</dt><dd>True if convert checkbox is checked, false otherwise </dd></dl>
+
+</div>
+</div>
+<a id="a6c4f79a624367230264ea440e6593d26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c4f79a624367230264ea440e6593d26">&#9670;&nbsp;</a></span>LoadGuildSupplemental</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfSetup_Tab3::LoadGuildSupplemental </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>queryUserForFilename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>guildsFilename</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted when user wants to import a .csv file. This signal is sent to the Estimation_Tab1_ptr where its import method is called. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">queryUserForFilename</td><td>: boolean true if user should be queried for a csv filename; if false the user won't be queried </td></tr>
+    <tr><td class="paramname">guildsFilename</td><td>: name of the guilds csv file </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aeb759498bfa66ddeca365e1da9168e36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb759498bfa66ddeca365e1da9168e36">&#9670;&nbsp;</a></span>LoadSpeciesSupplemental</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfSetup_Tab3::LoadSpeciesSupplemental </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>updateSetup</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>queryUserForFilename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>speciesFilename</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted when user wants to import a .csv file. This signal is sent to the Estimation_Tab1_ptr where its import method is called. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">updateSetup</td><td>: boolean true if Species table in Setup should be updated; false if it shouldn't be updated </td></tr>
+    <tr><td class="paramname">queryUserForFilename</td><td>: boolean true if user should be queried for a csv filename; if false the user won't be queried </td></tr>
+    <tr><td class="paramname">speciesFilename</td><td>: name of the species csv file </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

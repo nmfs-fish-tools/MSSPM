@@ -196,14 +196,12 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     setOutputControlsWidth();
     setDatabaseWaitTime();
 
-
     // Test code here....
     std::cout << "Initializing....." << std::endl;
 
 //    boost::numeric::ublas::vector<int> vec;
 //    nmfUtils::initialize(vec,10);
 //    nmfUtils::printVector("test",6,vec);
-
 
 }
 
@@ -3268,10 +3266,10 @@ nmfMainWindow::initConnections()
             Setup_Tab3_ptr,      SLOT(callback_UpdateSpeciesTable(QList<QString>, QList<QString>, QList<QString>, QList<QString>, QList<QString>)));
     connect(Estimation_Tab1_ptr, SIGNAL(UpdateGuildSetupData(QList<QString>, QList<QString>, QList<QString>)),
             Setup_Tab3_ptr,      SLOT(callback_UpdateGuildTable(QList<QString>, QList<QString>, QList<QString>)));
-    connect(Setup_Tab3_ptr,      SIGNAL(LoadSpeciesSupplemental()),
-            Estimation_Tab1_ptr, SLOT(callback_ImportSpecies()));
-    connect(Setup_Tab3_ptr,      SIGNAL(LoadGuildSupplemental()),
-            Estimation_Tab1_ptr, SLOT(callback_ImportGuild()));
+    connect(Setup_Tab3_ptr,      SIGNAL(LoadSpeciesSupplemental(bool,bool,QString)),
+            Estimation_Tab1_ptr, SLOT(callback_ImportSpecies(bool,bool,QString)));
+    connect(Setup_Tab3_ptr,      SIGNAL(LoadGuildSupplemental(bool,QString)),
+            Estimation_Tab1_ptr, SLOT(callback_ImportGuild(bool,QString)));
     connect(Setup_Tab3_ptr,      SIGNAL(LoadEstimation()),
             Estimation_Tab1_ptr, SLOT(callback_LoadPBNoEmit()));
     connect(Estimation_Tab1_ptr, SIGNAL(LoadSetup()),

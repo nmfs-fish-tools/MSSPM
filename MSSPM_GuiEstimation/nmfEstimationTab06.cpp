@@ -270,10 +270,12 @@ nmfEstimation_Tab6::readSettings()
 void
 nmfEstimation_Tab6::resaveCovariateAssignmentTable()
 {
-    saveCovariateAssignmentTable();
-    initializeInitialValuesAndRangesTable();
-    loadInitialValuesAndRangesForEditableCells();
-    saveInitialValuesAndRangesTable();
+    bool saveOK = saveCovariateAssignmentTable();
+    if (saveOK) {
+        initializeInitialValuesAndRangesTable();
+        loadInitialValuesAndRangesForEditableCells();
+        saveInitialValuesAndRangesTable();
+    }
 }
 
 void
@@ -306,14 +308,23 @@ nmfEstimation_Tab6::addCovariateColumn(QString covariateName)
 bool
 nmfEstimation_Tab6::loadWidgets()
 {
-    bool okType,okTable,okAssignment,okValues;
+    bool okType = false;
+    bool okTable = false;
+    bool okAssignment = false;
+    bool okValues = false;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::loadWidgets()");
-    okType       = loadCovariateAlgorithmType();
-    Estimation_Tab6_ViewNormalizedPB->setChecked(false);
-    okTable      = loadCovariateTable();
-    okAssignment = loadCovariateAssignmentTable();
-    okValues     = loadCovariateInitialValuesAndRangesTable();
+    okType = loadCovariateAlgorithmType();
+    if (okType) {
+        Estimation_Tab6_ViewNormalizedPB->setChecked(false);
+        okTable = loadCovariateTable();
+        if (okTable) {
+            okAssignment = loadCovariateAssignmentTable();
+            if (okAssignment) {
+                okValues = loadCovariateInitialValuesAndRangesTable();
+            }
+        }
+    }
 
     return (okType && okTable && okAssignment && okValues);
 }
@@ -329,6 +340,10 @@ nmfEstimation_Tab6::loadCovariateAlgorithmType()
     std::string msg;
     std::string tableName = nmfConstantsMSSPM::TableModels;
 
+    if (m_ProjectName.empty() || m_ModelName.empty()) {
+        return false;
+    }
+
     // Get data from database table
     fields     = {"ProjectName","ModelName","CovariateAlgorithmType"};
     queryStr   = "SELECT ProjectName,ModelName,CovariateAlgorithmType FROM " +
@@ -339,7 +354,7 @@ nmfEstimation_Tab6::loadCovariateAlgorithmType()
     NumRecords = dataMap["CovariateAlgorithmType"].size();
     if (NumRecords == 1) {
         setCovariateAlgorithmType(dataMap["CovariateAlgorithmType"][0]);
-    } else {
+    } else if (NumRecords > 1) {
         msg = "nmfEstimation_Tab6::loadCovariateAlgorithmType: Incorrect number of Covariate Algorithm Type records found in: " + tableName;
         m_Logger->logMsg(nmfConstants::Error,msg);
         QMessageBox::information(Estimation_Tabs, "Covariate Algorithm Type Load Error",
@@ -439,6 +454,10 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
     QModelIndex index;
     QStandardItemModel* smodelSP = qobject_cast<QStandardItemModel*>(Estimation_Tab6_SpeciesParameterTV->model());
 
+    if (m_ProjectName.empty() || m_ModelName.empty()) {
+        return false;
+    }
+
     if (m_smodelSP != nullptr) {
         numRows = m_smodelSP->rowCount();
         numCols = m_smodelSP->columnCount();
@@ -469,7 +488,7 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
 //                   tableName;
         }
     } else {
-        msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Uninitialized Species Parameter table found";
+//        msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Uninitialized Species Parameter table found";
     }
 
     if (! msg.empty()) {
@@ -483,7 +502,7 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
     return retv;
 }
 
-void
+bool
 nmfEstimation_Tab6::loadInitialValuesAndRangesForEditableCells()
 {
     int NumRecords;
@@ -495,6 +514,10 @@ nmfEstimation_Tab6::loadInitialValuesAndRangesForEditableCells()
     std::string newValue;
     QStandardItem* item;
     QStandardItemModel* smodelIR = qobject_cast<QStandardItemModel*>(Estimation_Tab6_InitialValuesTV->model());
+
+    if (m_ProjectName.empty() || m_ModelName.empty()) {
+        return false;
+    }
 
     // Get data from database table
     fields     = {"ProjectName","ModelName","SpeName",
@@ -508,7 +531,7 @@ nmfEstimation_Tab6::loadInitialValuesAndRangesForEditableCells()
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["CoeffName"].size();
     if (NumRecords == 0) {
-        return;
+        return false;
     }
 
     std::string SpeName;
@@ -548,6 +571,8 @@ nmfEstimation_Tab6::loadInitialValuesAndRangesForEditableCells()
             }
         }
     }
+
+    return true;
 }
 
 bool
@@ -564,12 +589,16 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
     QStandardItem* item;
     QStandardItemModel* smodelIR = qobject_cast<QStandardItemModel*>(Estimation_Tab6_InitialValuesTV->model());
 
+    if (m_ProjectName.empty() || m_ModelName.empty()) {
+        return false;
+    }
+
     if (! m_DatabasePtr->getSpecies(m_Logger,SpeciesNames)) {
         msg = "nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable: Couldn't find any species names";
         m_Logger->logMsg(nmfConstants::Error,msg);
-        QMessageBox::information(Estimation_Tabs, "Covariate Initial Values and Ranges Load Error",
-                                 "\n" + QString::fromStdString(msg) + "\n",
-                                 QMessageBox::Ok);
+//        QMessageBox::information(Estimation_Tabs, "Covariate Initial Values and Ranges Load Error",
+//                                 "\n" + QString::fromStdString(msg) + "\n",
+//                                 QMessageBox::Ok);
         return false;
     }
     int NumSpecies = SpeciesNames.size();
@@ -923,6 +952,9 @@ nmfEstimation_Tab6::calculateCovariateScaleFactor(
 bool
 nmfEstimation_Tab6::saveCovariateAssignmentTable()
 {
+    if (m_smodelSP == nullptr) {
+        return false;
+    }
     int numRows = m_smodelSP->rowCount();
     int numCols = m_smodelSP->columnCount();
     std::string saveCmd;
@@ -1206,8 +1238,10 @@ nmfEstimation_Tab6::callback_DeletePB()
     }
     initializeSpeciesParameterTable();
     initializeInitialValuesAndRangesTable();
-    loadInitialValuesAndRangesForEditableCells();
-    saveInitialValuesAndRangesTable();
+    bool loadOK = loadInitialValuesAndRangesForEditableCells();
+    if (loadOK) {
+        saveInitialValuesAndRangesTable();
+    }
 }
 
 void
@@ -1316,11 +1350,13 @@ nmfEstimation_Tab6::callback_SavePB()
         ok = saveCovariateAssignmentTable();
         if (ok) {
             initializeInitialValuesAndRangesTable();
-            loadInitialValuesAndRangesForEditableCells();
-            saveInitialValuesAndRangesTable();
-            QMessageBox::information(Estimation_Tabs,"Save",
-                                     "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateAssignment),
-                                     QMessageBox::Ok);
+            bool loadOK = loadInitialValuesAndRangesForEditableCells();
+            if (loadOK) {
+                saveInitialValuesAndRangesTable();
+                QMessageBox::information(Estimation_Tabs,"Save",
+                                         "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateAssignment),
+                                         QMessageBox::Ok);
+            }
         }
     } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
         ok = saveInitialValuesAndRangesTable();

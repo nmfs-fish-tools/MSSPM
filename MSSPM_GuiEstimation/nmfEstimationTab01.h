@@ -96,9 +96,13 @@ class nmfEstimation_Tab1: public QObject
     bool getCSVFileName(QString& tableName);
     void getSelectedIndexes();
     void importGuildData(const QString& tableName,
-                         bool updateSetup);
+                         const bool& updateSetup,
+                         const bool& queryForFilename,
+                         QString guildsFilename);
     void importSpeciesData(const QString& tableName,
-                           bool updateSetup);
+                           bool updateSetup,
+                           const bool& queryForFilename,
+                           QString guildsFilename);
     bool isChecked(QCheckBox* cb);
     bool isInitBiomassLessThanSpeciesKMin();
     bool loadGuilds();
@@ -285,12 +289,20 @@ public Q_SLOTS:
     void callback_ImportPB();
     /**
      * @brief Callback invoked when the user clicked the Import button from the Setup GUIs - Species tab
+     * @param updateSetup : boolean true if Species table in Setup should be updated; false if it shouldn't
+     * @param queryUserForFilename : boolean true if user should be queried for filename; else if false the user won't be queried
+     * @param speciesFilename : name of species csv file
      */
-    void callback_ImportSpecies();
+    void callback_ImportSpecies(bool updateSetup,
+                                bool queryForFilename,
+                                QString speciesFilename);
     /**
      * @brief Callback invoked when the user clicked the Import button from the Setup GUIs - Guild tab
+     * @param queryUserForFilename : boolean true if user should be queried for filename; else if false the user won't be queried
+     * @param guildsFilename : name of guilds csv file
      */
-    void callback_ImportGuild();
+    void callback_ImportGuild(bool queryUserForFilename,
+                              QString guildsFilename);
     /**
      * @brief Callback invoked when the user clicks the Load button
      */

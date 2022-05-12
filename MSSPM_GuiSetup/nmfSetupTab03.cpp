@@ -175,6 +175,65 @@ nmfSetup_Tab3::guildDataIsSaved()
 }
 
 bool
+nmfSetup_Tab3::importGuilds(QStringList& guildsList,
+                            QString& guildsFilename)
+{
+    int numRows = 0;
+    QString inputFile = "";
+    QString errorMsg;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::vector<int> ColumnsToLoad = {0,1,4};
+
+    guildsFilename = QFileDialog::getOpenFileName(Setup_Tabs,
+                                                 QObject::tr("Select Guilds CSV file"), inputDataPath,
+                                                 QObject::tr("Data Files (*.csv)"));
+
+    nmfUtilsQt::getNumSpeciesFromImportFile(guildsFilename,numRows);
+    for (int row=0; row<numRows; ++row) {
+        callback_AddGuildPB();
+    }
+    bool loadOK = nmfUtilsQt::loadTableWidgetData(
+                Setup_Tabs, Setup_Tab3_GuildsTW, guildsFilename,
+                numRows, nmfConstantsMSSPM::Num_Columns_Guilds,
+                guildsList, ColumnsToLoad, errorMsg);
+    if (! loadOK) {
+        m_logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+    }
+
+    return true;
+}
+
+bool
+nmfSetup_Tab3::importSpecies(QStringList& guildList,
+                             QString& speciesFilename)
+{
+    int numRows = 0;
+    QString inputFile = "";
+    QString errorMsg;
+    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    std::vector<int> ColumnsToLoad = {0,1,2,5,9};
+
+    speciesFilename = QFileDialog::getOpenFileName(Setup_Tabs,
+                                                   QObject::tr("Select Species CSV file"), inputDataPath,
+                                                   QObject::tr("Data Files (*.csv)"));
+
+    nmfUtilsQt::getNumSpeciesFromImportFile(speciesFilename,numRows);
+    for (int row=0; row<numRows; ++row) {
+        callback_AddSpeciesPB();
+    }
+
+    bool loadOK = nmfUtilsQt::loadTableWidgetData(
+                Setup_Tabs, Setup_Tab3_SpeciesTW, speciesFilename,
+                numRows, nmfConstantsMSSPM::Num_Columns_Species,
+                guildList, ColumnsToLoad, errorMsg);
+    if (! loadOK) {
+        m_logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
+    }
+
+    return true;
+}
+
+bool
 nmfSetup_Tab3::isConvertChecked()
 {
     return Setup_Tab3_ConvertCB->isChecked();
@@ -718,7 +777,7 @@ nmfSetup_Tab3::saveGuildData()
     loadGuilds();
 
     // Need to reload all other Estimation GUIs since Guilds may have changed
-    emit ReloadWidgets();
+//    emit ReloadWidgets();
 
     // Remove data from all tables with species different than what's in species
     pruneTablesForGuilds(guilds);
@@ -1126,11 +1185,41 @@ nmfSetup_Tab3::callback_GuildsTableChanged(int row, int col)
 void
 nmfSetup_Tab3::callback_ImportPB()
 {
-    if (onGuildPage()) {
-        emit LoadGuildSupplemental();
-    } else {
-        emit LoadSpeciesSupplemental();
+    bool importOK;
+    QString guildsFilename = "";
+    QString speciesFilename = "";
+    QStringList guildsList = {};
+
+    importOK = importGuilds(guildsList,guildsFilename);
+    if (importOK) {
+        emit LoadGuildSupplemental(nmfConstantsMSSPM::Dont_Query_User_For_Filename,
+                                   guildsFilename);
     }
+
+    importOK = importSpecies(guildsList,speciesFilename);
+    if (importOK) {
+        emit LoadSpeciesSupplemental(nmfConstantsMSSPM::DontUpdateSetup,
+                                     nmfConstantsMSSPM::Dont_Query_User_For_Filename,
+                                     speciesFilename);
+    }
+
+//    if (onGuildPage()) {
+//        importOK = importGuilds();
+//        if (importOK) {
+//            emit LoadGuildSupplemental();
+//        }
+//    } else {
+//        importOK = importSpecies();
+//        if (importOK) {
+//            emit LoadSpeciesSupplemental();
+//        }
+//        if (importOK) {
+//            importOK = importGuilds();
+//            if (importOK) {
+//                emit LoadGuildSupplemental();
+//            }
+//        }
+//    }
 }
 
 void

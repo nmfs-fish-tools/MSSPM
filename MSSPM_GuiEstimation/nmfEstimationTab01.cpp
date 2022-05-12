@@ -368,28 +368,41 @@ nmfEstimation_Tab1::onGuildTab()
 void
 nmfEstimation_Tab1::callback_ImportPB()
 {
+    QString filename = "";
+
     if (onGuildTab()) {
-        callback_ImportGuild();
+        callback_ImportGuild(nmfConstantsMSSPM::Query_User_For_Filename,filename);
     } else {
-        callback_ImportSpecies();
+        callback_ImportSpecies(nmfConstantsMSSPM::UpdateSetup,
+                               nmfConstantsMSSPM::Query_User_For_Filename,
+                               filename);
     }
 }
 
 void
-nmfEstimation_Tab1::callback_ImportSpecies()
+nmfEstimation_Tab1::callback_ImportSpecies(
+        bool updateSetup,
+        bool queryUserForFilename,
+        QString speciesFilename)
 {
-    importSpeciesData("",nmfConstantsMSSPM::UpdateSetup);
+    importSpeciesData("",updateSetup,queryUserForFilename,speciesFilename);
 }
 
 void
-nmfEstimation_Tab1::callback_ImportGuild()
+nmfEstimation_Tab1::callback_ImportGuild(
+        bool queryUserForFilename,
+        QString guildsFilename)
 {
-    importGuildData("",nmfConstantsMSSPM::UpdateSetup);
+    importGuildData("",nmfConstantsMSSPM::UpdateSetup,
+                    queryUserForFilename,
+                    guildsFilename);
 }
 
 void
 nmfEstimation_Tab1::importGuildData(const QString& tableName,
-                                    bool updateSetup)
+                                    const bool& updateSetup,
+                                    const bool& queryForFilename,
+                                    QString guildsFilename)
 {
     QString errorMsg;
     QList<QString> SpeciesGuilds;
@@ -402,7 +415,8 @@ nmfEstimation_Tab1::importGuildData(const QString& tableName,
 
     bool loadOK = nmfUtilsQt::loadGuildsSpeciesTableview(
                 Estimation_Tabs, Estimation_Tab1_GuildPopulationTV,
-                "Guild",inputDataPath, tableName, SpeciesGuilds, errorMsg);
+                "Guild",inputDataPath, tableName, SpeciesGuilds,
+                queryForFilename, guildsFilename, errorMsg);
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return;
@@ -424,7 +438,9 @@ nmfEstimation_Tab1::importGuildData(const QString& tableName,
 
 void
 nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
-                                      bool updateSetup)
+                                      bool updateSetup,
+                                      const bool& queryForFilename,
+                                      QString speciesFilename)
 {
     QString errorMsg;
     QList<QString> SpeciesGuilds;
@@ -438,13 +454,9 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
     };
 
     bool loadOK = nmfUtilsQt::loadGuildsSpeciesTableview(
-                Estimation_Tabs,
-                Estimation_Tab1_SpeciesPopulationTV,
-                "Species",
-                inputDataPath,
-                tableName,
-                SpeciesGuilds,
-                errorMsg);
+                Estimation_Tabs, Estimation_Tab1_SpeciesPopulationTV,
+                "Species", inputDataPath, tableName, SpeciesGuilds,
+                queryForFilename, speciesFilename, errorMsg);
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return;
@@ -1445,9 +1457,11 @@ nmfEstimation_Tab1::saveSpeciesCSVFile(QString& tableName,
     }
 
     if (isExportFromSetup) {
-        importSpeciesData(tableNameStr,nmfConstantsMSSPM::DontUpdateSetup);
+        importSpeciesData(tableNameStr,nmfConstantsMSSPM::DontUpdateSetup,
+                          nmfConstantsMSSPM::Query_User_For_Filename,"");
     } else {
-        importSpeciesData(tableNameStr,nmfConstantsMSSPM::UpdateSetup);
+        importSpeciesData(tableNameStr,nmfConstantsMSSPM::UpdateSetup,
+                          nmfConstantsMSSPM::Query_User_For_Filename,"");
     }
 
 }
@@ -1495,9 +1509,11 @@ nmfEstimation_Tab1::saveGuildsCSVFile(QString& tableName,
 
 //    if (onGuildTab()) {
         if (isExportFromSetup) {
-            importGuildData(tableNameStr,nmfConstantsMSSPM::DontUpdateSetup);
+            importGuildData(tableNameStr,nmfConstantsMSSPM::DontUpdateSetup,
+                            nmfConstantsMSSPM::Query_User_For_Filename,"");
         } else {
-            importGuildData(tableNameStr,nmfConstantsMSSPM::UpdateSetup);
+            importGuildData(tableNameStr,nmfConstantsMSSPM::UpdateSetup,
+                            nmfConstantsMSSPM::Query_User_For_Filename,"");
         }
 //    }
 //    else {

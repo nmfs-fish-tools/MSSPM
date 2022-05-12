@@ -24,7 +24,7 @@ var classnmf_estimation___tab6 =
     [ "loadCovariateAssignmentTable", "classnmf_estimation___tab6.html#a00a276636aef995d14963fcb4fc8cfab", null ],
     [ "loadCovariateInitialValuesAndRangesTable", "classnmf_estimation___tab6.html#ac66c4fecf17f65e1eeff9ca29f0ec046", null ],
     [ "loadCovariateTable", "classnmf_estimation___tab6.html#a97b6d2a8ff06759ab619243834961363", null ],
-    [ "loadInitialValuesAndRangesForEditableCells", "classnmf_estimation___tab6.html#a6485c2c7f0fa4b8790ffb7019ea65fc2", null ],
+    [ "loadInitialValuesAndRangesForEditableCells", "classnmf_estimation___tab6.html#a8b2a7567c3a81bf882370a5d322c5dce", null ],
     [ "loadWidgets", "classnmf_estimation___tab6.html#aa491ce6e38d28a78bd96ec8d10df4f13", null ],
     [ "ReloadDiagnosticWidgets", "classnmf_estimation___tab6.html#a51c9b8e59ae767d379cd3d39e6cae471", null ],
     [ "resaveCovariateAssignmentTable", "classnmf_estimation___tab6.html#a56a0f1361a5c679be53359d42f3d01fe", null ]
