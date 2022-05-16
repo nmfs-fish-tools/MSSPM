@@ -202,6 +202,8 @@ nmfForecast_Tab4::loadWidgets()
 {
     m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab4::loadWidgets()");
 
+    readSettings();
+
     return true;
 }
 
@@ -225,6 +227,7 @@ nmfForecast_Tab4::readSettings()
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     settings->endGroup();
 
     delete settings;

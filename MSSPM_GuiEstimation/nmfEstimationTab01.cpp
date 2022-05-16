@@ -1934,6 +1934,7 @@ nmfEstimation_Tab1::readSettings()
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Preferences");

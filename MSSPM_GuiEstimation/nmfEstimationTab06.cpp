@@ -192,7 +192,9 @@ nmfEstimation_Tab6::initializeInitialValuesAndRangesTable()
     QComboBox* cbox;
     QModelIndex index;
 
-    loadCovariateAssignmentTable();
+    if (! loadCovariateAssignmentTable()) {
+        return;
+    }
 
     if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear)) {
         return;
@@ -234,10 +236,10 @@ nmfEstimation_Tab6::initializeInitialValuesAndRangesTable()
             } else {
                 item->setText("0");
             }
-
             m_smodelIR->setItem(row,col,item);
         }
     }
+
     m_smodelIR->setVerticalHeaderLabels(verticalHeader);
     m_smodelIR->setHorizontalHeaderLabels(horizontalHeader);
     Estimation_Tab6_InitialValuesTV->setModel(m_smodelIR);
@@ -247,8 +249,6 @@ nmfEstimation_Tab6::initializeInitialValuesAndRangesTable()
 void
 nmfEstimation_Tab6::readSettings()
 {
-    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::readSettings");
-
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Settings");
@@ -257,11 +257,8 @@ nmfEstimation_Tab6::readSettings()
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     settings->endGroup();
-
-//    settings->beginGroup("Preferences");
-//    m_NumSignificantDigits = settings->value("NumSignificantDigits",-1).toInt();
-//    settings->endGroup();
 
     delete settings;
 }
@@ -314,6 +311,11 @@ nmfEstimation_Tab6::loadWidgets()
     bool okValues = false;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::loadWidgets()");
+
+    readSettings();
+
+    initializeSpeciesParameterTable();
+
     okType = loadCovariateAlgorithmType();
     if (okType) {
         Estimation_Tab6_ViewNormalizedPB->setChecked(false);
@@ -321,7 +323,7 @@ nmfEstimation_Tab6::loadWidgets()
         if (okTable) {
             okAssignment = loadCovariateAssignmentTable();
             if (okAssignment) {
-                okValues = loadCovariateInitialValuesAndRangesTable();
+                loadCovariateInitialValuesAndRangesTable();
             }
         }
     }
@@ -472,7 +474,7 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["CovariateName"].size();
 
-        if (NumRecords == numRows*numCols) {
+        if ((NumRecords == numRows*numCols) && (NumRecords > 0)) {
             for (int row=0; row<numRows; ++row) {
                 for (int col=0; col<numCols; ++col) {
                     index = smodelSP->index(row,col);
@@ -489,6 +491,7 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
         }
     } else {
 //        msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Uninitialized Species Parameter table found";
+        return false;
     }
 
     if (! msg.empty()) {
@@ -587,9 +590,14 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
     std::string msg;
     std::vector<std::string> SpeciesNames;
     QStandardItem* item;
-    QStandardItemModel* smodelIR = qobject_cast<QStandardItemModel*>(Estimation_Tab6_InitialValuesTV->model());
+    QStandardItemModel* smodelIR = nullptr;
 
     if (m_ProjectName.empty() || m_ModelName.empty()) {
+        return false;
+    }
+
+    smodelIR = qobject_cast<QStandardItemModel*>(Estimation_Tab6_InitialValuesTV->model());
+    if (smodelIR == nullptr) {
         return false;
     }
 
@@ -602,6 +610,9 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
         return false;
     }
     int NumSpecies = SpeciesNames.size();
+    if (NumSpecies == 0) {
+        return false;
+    }
 
     // Get data from database table
     fields     = {"ProjectName","ModelName","SpeName",
@@ -623,7 +634,6 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
         return false;
     }
     int NumParameters = NumRecords/NumSpecies;
-
     int m = -1;
     int modelCol = 0;
     for (int species=0; species<NumSpecies; ++species) {
@@ -965,6 +975,12 @@ nmfEstimation_Tab6::saveCovariateAssignmentTable()
     QModelIndex index;
     QString value;
     QComboBox* cbox;
+
+    m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::saveCovariateAssignmentTable");
+
+    if (numRows == 0 || numCols == 0) {
+        return false;
+    }
 
     // Delete the current entry here
     deleteCmd = "DELETE FROM " + tableName +

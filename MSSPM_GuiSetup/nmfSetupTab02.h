@@ -190,9 +190,12 @@ public:
      * @brief Loads the currently selected Project
      * @param logger : pointer to the application logger
      * @param projectFilename : name of the Project file to load
+     * @param clearModelName : clear the model name in the settings
      * @return Boolean describing whether or not the project was loaded
      */
-    bool loadProject(nmfLogger *logger, QString projectFilename);
+    bool loadProject(nmfLogger *logger,
+                     QString projectFilename,
+                     bool clearModelName);
     /**
      * @brief Loads the widgets for this GUI from the appropriate database table(s)
      */
@@ -204,8 +207,9 @@ public:
     void saveProject(bool verbose);
     /**
      * @brief Saves this GUI's project data to the Qt Settings file
+     * @param clearModelName : boolean true if modelName should be cleared; false if it should not be
      */
-    void saveSettings();
+    void saveSettings(bool clearModelName);
     /**
      * @brief Writes the author of the project into the appropriate widget
      * @param author : the author's name

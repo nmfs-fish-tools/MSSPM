@@ -155,6 +155,7 @@ nmfDiagnostic_Tab1::readSettings()
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Diagnostics");
@@ -236,9 +237,11 @@ nmfDiagnostic_Tab1::loadWidgets()
 {
     m_Logger->logMsg(nmfConstants::Normal,"nmfDiagnostic_Tab1::loadWidgets()");
 
+    readSettings();
+
     callback_UpdateDiagnosticParameterChoices();
 
-    readSettings();
+    //readSettings();
 }
 
 
@@ -1233,7 +1236,6 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
                                          const QString&     ParameterName,
                                          std::vector<DiagnosticTuple>& DiagnosticTupleVector)
 {
-   int m;
    std::string TableName;
    std::string cmd;
    std::string errorMsg;
@@ -1263,7 +1265,6 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
        return;
    }
 
-   m = 0;
    cmd = "INSERT INTO " + TableName +
          " (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Offset,Value,Fitness) VALUES ";
    for (int m=0; m<(int)DiagnosticTupleVector.size(); ++m) {

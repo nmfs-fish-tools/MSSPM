@@ -195,7 +195,7 @@ nmfSetup_Tab2::saveProject(bool isVerbose)
 
     // Load the project
     QString fileName = QDir(m_ProjectDir).filePath(m_ProjectName+".prj");
-    loadProject(m_Logger,fileName);
+    loadProject(m_Logger,fileName,nmfConstantsMSSPM::DontClearModelName);
 
     QApplication::restoreOverrideCursor();
 
@@ -1688,7 +1688,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_DelDatabase()
         emit ClearEstimationTables();
 
     }
-    saveSettings();
+    saveSettings(nmfConstantsMSSPM::ClearModelName);
 
 } // end callback_Setup_Tab2_DelDatabase
 
@@ -1758,7 +1758,9 @@ nmfSetup_Tab2::enableSetupTabs(bool enable)
 
 
 bool
-nmfSetup_Tab2::loadProject(nmfLogger *logger, QString fileName)
+nmfSetup_Tab2::loadProject(nmfLogger *logger,
+                           QString fileName,
+                           bool clearModelName)
 {    
     std::string msg;
 
@@ -1817,7 +1819,7 @@ nmfSetup_Tab2::loadProject(nmfLogger *logger, QString fileName)
 
     initDatabase(m_ProjectDatabase);
 
-    saveSettings();
+    saveSettings(clearModelName);
     emit LoadProject();
     readSettings();
 
@@ -1852,7 +1854,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_BrowseProject()
         tr("Load a Project"), m_ProjectDir, tr("Project Files (*.prj)"));
 
     if (! fileName.isEmpty()) {
-        loadProject(m_Logger,fileName);
+        loadProject(m_Logger,fileName,nmfConstantsMSSPM::ClearModelName);
         //updateOutputWidget();
         m_NewProject = true;
     }
@@ -1984,9 +1986,15 @@ nmfSetup_Tab2::readSettings()
 
 
 void
-nmfSetup_Tab2::saveSettings()
+nmfSetup_Tab2::saveSettings(bool clearModelName)
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    if (clearModelName) {
+        settings->beginGroup("Settings");
+        settings->setValue("Name",               "");
+        settings->endGroup();
+    }
 
     settings->beginGroup("SetupTab");
     settings->setValue("ProjectName",        getProjectName());

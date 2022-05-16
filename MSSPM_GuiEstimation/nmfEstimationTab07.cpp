@@ -2100,8 +2100,6 @@ nmfEstimation_Tab7::loadWidgets()
     std::string algorithm = getCurrentAlgorithm();
     QString objectiveCriterion;
 
-    readSettings();
-
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab7::loadWidgets()");
 
     Estimation_Tab7_Bees_ParametersGB->hide();

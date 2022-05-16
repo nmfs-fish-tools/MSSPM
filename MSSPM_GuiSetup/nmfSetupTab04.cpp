@@ -309,11 +309,11 @@ nmfSetup_Tab4::readSettings()
 
     settings->beginGroup("Settings");
     m_ModelName   = settings->value("Name","").toString().toStdString();
-    m_ProjectName = settings->value("ProjectName","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     settings->endGroup();
 
     delete settings;

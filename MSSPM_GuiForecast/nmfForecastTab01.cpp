@@ -266,12 +266,13 @@ nmfForecast_Tab1::loadWidgets()
 {
     m_Logger->logMsg(nmfConstants::Normal,"nmfForecast_Tab1::loadWidgets()");
 
+    int StartForecastYear;
+    int EndForecastYear;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
 
-    int StartForecastYear;
-    int EndForecastYear;
+    readSettings();
 
     // Load years
     fields    = {"StartYear","RunLength"};
@@ -304,6 +305,7 @@ nmfForecast_Tab1::readSettings()
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Forecast");

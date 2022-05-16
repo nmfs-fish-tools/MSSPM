@@ -293,6 +293,7 @@ nmfForecast_Tab2::readSettings()
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Preferences");
@@ -613,13 +614,17 @@ nmfForecast_Tab2::callback_SetDefaultHarvestPB()
         QStringList vLabels = {};
 
         // Find Forecast info
-        m_DatabasePtr->getForecastInfo(m_ProjectName,m_ModelName,
+        if (! m_DatabasePtr->getForecastInfo(m_ProjectName,m_ModelName,
                                        ForecastName,NumYearsInForecast,StartYear,
                                        Algorithm,Minimizer,ObjCrit,Scaling,
                                        GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                                       ForecastHarvestType,NumRuns);
+                                       ForecastHarvestType,NumRuns)) {
+            return;
+        }
+
         ++NumYearsInForecast; // Add 1 to include the first year
         QStandardItemModel* forecast_smodel = new QStandardItemModel(NumYearsInForecast,NumSpecies);
+
         for (int row=0; row<NumYearsInForecast; ++row) {
             for (int col=0; col<NumSpecies; ++col) {
                 QModelIndex index = estimation_smodel->index(lastRow,col);
@@ -629,6 +634,7 @@ nmfForecast_Tab2::callback_SetDefaultHarvestPB()
             }
             vLabels << QString::number(StartYear+row);
         }
+
         // Set header labels
         for (int col=0; col<NumSpecies; ++col) {
             hLabels << estimation_smodel->headerData(col,Qt::Orientation::Horizontal).toString();

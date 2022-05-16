@@ -89,6 +89,7 @@ nmfDiagnostic_Tab2::readSettings()
 
     settings->beginGroup("SetupTab");
     m_ProjectName = settings->value("ProjectName","").toString().toStdString();
+    m_ProjectDir  = settings->value("ProjectDir","").toString().toStdString();
     settings->endGroup();
 
     settings->beginGroup("Diagnostics");
@@ -163,7 +164,6 @@ nmfDiagnostic_Tab2::loadWidgets(int NumPeels)
 
     readSettings();
 
-    m_Logger->logMsg(nmfConstants::Normal,"nmfDiagnostic_Tab2::loadWidgets() end");
 }
 
 

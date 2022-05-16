@@ -114,7 +114,6 @@ class nmfSetup_Tab4: public QObject
     bool populateNewModel();
     void readSettings();
     void setEstimatedParameterNames();
-    void saveSettings();
     void setModelPreset(std::string modelName);
     void updateOutputWidget();
     bool replaceDuplicateData(
@@ -250,6 +249,10 @@ public:
      * @param RunChecks : boolean value used to determine if Model parameter checks should be run
      */
     void saveModel(bool RunChecks);
+    /**
+     * @brief Saves the GUI's settings
+     */
+    void saveSettings();
     /**
      * @brief Sets the value of the Start Year to the passed value
      * @param StartYear : new Start Year for all application data

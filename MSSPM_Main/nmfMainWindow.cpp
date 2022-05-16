@@ -1395,7 +1395,9 @@ nmfMainWindow::menu_importDatabase()
             Setup_Tab2_ptr->setProjectName(items[0]);
             Remora_ptr->setProjectName(items[0].toStdString());
         }
-        Setup_Tab2_ptr->saveSettings();
+
+        Setup_Tab2_ptr->saveSettings(nmfConstantsMSSPM::ClearModelName);
+
         Setup_Tab2_ptr->saveProject(nmfConstantsMSSPM::VerboseOff);
         Setup_Tab2_ptr->callback_Setup_Tab2_ReloadProject();
         QMessageBox::information(this, "Load Model", "\nPlease load the desired model.\n", QMessageBox::Ok);
@@ -1957,7 +1959,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.1.2";
+    QString version = "MSSPM v1.1.3";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3047,7 +3049,7 @@ nmfMainWindow::loadGuis()
         QString filename = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(m_ProjectName));
 
         // RSK - Bug here....this causes loadGuis to get called an extra time!
-        if (! Setup_Tab2_ptr->loadProject(m_Logger,filename)) {
+        if (! Setup_Tab2_ptr->loadProject(m_Logger,filename,nmfConstantsMSSPM::DontClearModelName)) {
             enableApplicationFeatures("SetupGroup",false);
             enableApplicationFeatures("AllOtherGroups",false);
         }
@@ -10005,9 +10007,11 @@ nmfMainWindow::callback_LoadProject()
 {
   readSettings();
   loadDatabase();
+
 std::cout << "New Project Dir : " << m_ProjectDir << std::endl;
 std::cout << "New Project Name: " << m_ProjectName << std::endl;
-    disconnect(Setup_Tab2_ptr, SIGNAL(LoadProject()),
+
+  disconnect(Setup_Tab2_ptr, SIGNAL(LoadProject()),
              this,           SLOT(callback_LoadProject()));
 
   loadGuis();
@@ -10015,9 +10019,11 @@ std::cout << "New Project Name: " << m_ProjectName << std::endl;
   connect(Setup_Tab2_ptr, SIGNAL(LoadProject()),
           this,           SLOT(callback_LoadProject()));
 
-  enableApplicationFeatures("AllOtherGroups",setupIsComplete());
+//enableApplicationFeatures("AllOtherGroups",setupIsComplete());
+  enableApplicationFeatures("AllOtherGroups",false);
 
-  callback_ModelLoaded();
+//callback_ModelLoaded();
+  Setup_Tab4_ptr->callback_ClearModelName();
   Estimation_Tab7_ptr->clearEnsembleFile();
 }
 
@@ -10372,12 +10378,20 @@ nmfMainWindow::saveSettings() {
     settings->setValue("DBTimeout", m_DBTimeout);
     settings->endGroup();
 
+    // Get ModelName
+    QString modelName = Setup_Tab4_ptr->getModelName();
+
     // Save other pages' settings
-    Setup_Tab2_ptr->saveSettings();
+    Setup_Tab2_ptr->saveSettings(nmfConstantsMSSPM::DontClearModelName);
     Estimation_Tab7_ptr->saveSettings();
     Forecast_Tab1_ptr->saveSettings();
     Forecast_Tab4_ptr->saveSettings();
     Output_Controls_ptr->saveSettings();
+
+    // Restore modelName
+    settings->beginGroup("Settings");
+    settings->setValue("Name", modelName);
+    settings->endGroup();
 
     settings->beginGroup("Output");
     int width = m_UI->MSSPMOutputControlsGB->size().width();
@@ -10385,10 +10399,6 @@ nmfMainWindow::saveSettings() {
     settings->endGroup();
 
     delete settings;
-
-//    if (loadWidgets) {
-//        loadAllWidgets();
-//    }
 }
 
 void
@@ -14429,6 +14439,7 @@ nmfMainWindow::callback_ToDoAfterModelSave()
     enableApplicationFeatures("AllOtherGroups",setupIsComplete());
     Estimation_Tab7_ptr->clearEnsembleFile();
     Estimation_Tab7_ptr->enableNonEnsembleWidgets(true);
+    Setup_Tab4_ptr->saveSettings();
 }
 
 
@@ -14437,6 +14448,8 @@ nmfMainWindow::callback_ModelLoaded()
 {
     m_Logger->logMsg(nmfConstants::Normal,"nmfMainWindow::callback_ModelLoaded start");
     QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    Setup_Tab4_ptr->saveSettings();
 
     readSettings();
 
@@ -14448,7 +14461,6 @@ nmfMainWindow::callback_ModelLoaded()
     // Update the input tables when the user
     // loads a new system name
     Setup_Tab4_ptr->loadWidgets();
-
     Estimation_Tab2_ptr->loadWidgets();
     Estimation_Tab3_ptr->loadWidgets();
     Estimation_Tab4_ptr->loadWidgets();
@@ -14469,6 +14481,7 @@ nmfMainWindow::callback_ModelLoaded()
 
     // If not Effort Fit to Catch, set and disable Forecast Havest Data button
     QString modelHarvestType = Setup_Tab4_ptr->getHarvestFormCMB()->currentText();
+
     Forecast_Tab2_ptr->enableHarvestTypeButton(true,"");
     if (modelHarvestType == nmfConstantsMSSPM::HarvestCatch) {
         Forecast_Tab2_ptr->enableHarvestTypeButton(false,nmfConstantsMSSPM::ForecastHarvestTypeCatch);
