@@ -12,6 +12,7 @@ var classnmf_estimation___tab8 =
     [ "callback_SavePB", "classnmf_estimation___tab8.html#a70bb9842121959dc0a0cb48b7cf72d63", null ],
     [ "callback_ShowHiddenCB", "classnmf_estimation___tab8.html#a963e57168fc82347b68f9c287303e62e", null ],
     [ "clearWidgets", "classnmf_estimation___tab8.html#a5eccc7e58fb7e665497de4689e60bea1", null ],
+    [ "generateDatabaseSnapshot", "classnmf_estimation___tab8.html#aa32c070bde6cf7b517a5cdfb4b1696e9", null ],
     [ "LoadFromModelReview", "classnmf_estimation___tab8.html#acbc225b1ed77ffb1c736856186a28068", null ],
     [ "loadWidgets", "classnmf_estimation___tab8.html#a4d77b9015aba2415eea39cc7d44e2d0f", null ],
     [ "loadWidgetsNoSignificantDigits", "classnmf_estimation___tab8.html#a3594badd35dd39a0e901b17daefb372c", null ],

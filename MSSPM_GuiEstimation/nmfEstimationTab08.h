@@ -52,7 +52,7 @@ class nmfEstimation_Tab8: public QObject
     Q_OBJECT
 
     const int COLUMN_NAME  =  0;
-    const int COLUMN_NOTES = 13;
+    const int COLUMN_NOTES = 14;
 
     int           m_NumColumns;
     nmfDatabase*  m_DatabasePtr;
@@ -65,7 +65,7 @@ class nmfEstimation_Tab8: public QObject
     std::vector<std::string> m_ModelReviewFields = {
         "ModelName","rSquared","SSResiduals","AIC",
         "GrowthForm","HarvestForm","CompetitonForm","PredationForm","numRuns",
-        "ObjectiveCriterion","EstimationAlgorithm","Minimizer","Scaling","Notes",
+        "ObjectiveCriterion","EstimationAlgorithm","Minimizer","Scaling","DatabaseSnapshot","Notes",
         "isDeterministicBees","maxGenerations","numBees","numBestSites","numEliteSites",
         "numEliteBees","numOtherBees","neighborhoodSize","numSubRuns","isDeterministicNLopt",
         "isStopAfterValue","StopAfterValue","isStopAfterTime","StopAfterTime","isStopAfterIter",
@@ -103,7 +103,7 @@ class nmfEstimation_Tab8: public QObject
     void loadModel(QStandardItemModel* smodel,
                    const int& row);
     void resizeColumns();
-    void saveModelReviewTable();
+    bool saveModelReviewTable();
 
 public:
     /**
@@ -123,6 +123,11 @@ public:
      * @brief Clears the widgets of the Model Review table
      */
     void clearWidgets();
+    /**
+     * @brief Snapshots the data and returns the saved database filename
+     * @return The name of the database snapshot file
+     */
+    QString generateDatabaseSnapshot();
     /**
      * @brief This method is used to reload the Model Review table. If the user changes their
      * significant digits preference, this table needs to be redrawn so as to accurately reflect that

@@ -1368,6 +1368,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " EstimationAlgorithm              varchar(60)  NOT NULL,";
     cmd += " Minimizer                        varchar(60)      NULL,";
     cmd += " Scaling                          varchar(60)      NULL,";
+    cmd += " DatabaseSnapshot                 varchar(60)  NOT NULL,";
     cmd += " Notes                            varchar(100)     NULL,";
     cmd += " isDeterministicBees              varchar(10)  NOT NULL,";
     cmd += " maxGenerations                   varchar(10)  NOT NULL,";

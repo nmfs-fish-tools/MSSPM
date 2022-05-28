@@ -615,6 +615,8 @@ private:
             const QString& Species,
             QList<QString>& formattedUncertaintyData);
     bool getOutputBiomassEnsembleLineLabels(QList<QString>& lineLabels);
+    void importDatabase(const QString& DefaultFilename,
+                        const bool& VerboseOn);
     void initConnections();
     void initGUIs();
     bool isAggProd();

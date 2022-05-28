@@ -55,6 +55,7 @@ var classnmf_setup___tab4 =
     [ "SaveEstimationRunSettings", "classnmf_setup___tab4.html#a7c36a64973f1ce484c8bfe7fe21b8248", null ],
     [ "SaveMainSettings", "classnmf_setup___tab4.html#a81901d26f728e11996146cd15f3d6cc7", null ],
     [ "saveModel", "classnmf_setup___tab4.html#a2d9159164fd87089449a7ee063be90e2", null ],
+    [ "saveSettings", "classnmf_setup___tab4.html#aa5fc0dadfb6719276121ad31d60df376", null ],
     [ "SetEstimateRunCheckboxes", "classnmf_setup___tab4.html#a1bfc1402a1205fc7250b76464d379b46", null ],
     [ "setFontSize", "classnmf_setup___tab4.html#aef68282caedbb3621afaa49eb9b050d1", null ],
     [ "setHighlightColors", "classnmf_setup___tab4.html#a306c5c34cbb6a64e62e0f88c4e3dd3af", null ],

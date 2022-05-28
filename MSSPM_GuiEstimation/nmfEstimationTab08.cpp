@@ -11,13 +11,13 @@ nmfEstimation_Tab8::nmfEstimation_Tab8(QTabWidget*  tabs,
 {
     QUiLoader loader;
     QStringList horizontalHeaders =
-        {"Model Name","r²","SSResiduals","AIC",
-         "Growth Form","Harvest Form","Competition Form","Predation Form",
-         "Num Runs","Objective Criterion","Estimation Algorithm","Minimizer","Scaling",
-         "Notes",
-         "isDeterministicBees","maxGenerations","numBees","numBestSites","numEliteSites", // 14
-         "numEliteBees","numOtherBees","neighborhoodSize","numSubRuns",                   // 19
-         "isDeterministicNLopt","isStopAfterValue","StopAfterValue",                      // 23
+        {"Model Name","r²","SSResiduals","AIC",                                           // 0-3
+         "Growth Form","Harvest Form","Competition Form","Predation Form",                // 4-7
+         "Num Runs","Objective Criterion","Estimation Algorithm","Minimizer","Scaling",   // 8-12
+         "DatabaseSnapshot","Notes",                                                      // 13-14
+         "isDeterministicBees","maxGenerations","numBees","numBestSites","numEliteSites", // 15-19
+         "numEliteBees","numOtherBees","neighborhoodSize","numSubRuns",                   // 20-23
+         "isDeterministicNLopt","isStopAfterValue","StopAfterValue",                      // 24-26
          "isStopAfterTime","StopAfterTime","isStopAfterIter","StopAfterIter",
          "isEstInitBiomassEnabled","isEstInitBiomassChecked",
          "isEstGrowthRateEnabled","isEstGrowthRateChecked",
@@ -99,7 +99,6 @@ nmfEstimation_Tab8::nmfEstimation_Tab8(QTabWidget*  tabs,
 
     Estimation_Tab8_PrevPB->setText("\u25C1--");
 
-    callback_ShowHiddenCB(Estimation_Tab8_ShowHiddenCB->isChecked());
 }
 
 
@@ -248,6 +247,19 @@ nmfEstimation_Tab8::callback_DeletePB()
 }
 
 QString
+nmfEstimation_Tab8::generateDatabaseSnapshot()
+{
+//    bool ok;
+    std::string timestamp = m_Logger->getTimestamp(nmfConstants::TimestampWithUnderscore);
+
+
+    return "dbsnap_" + QString::fromStdString(timestamp) + ".sql";
+//    return QInputDialog::getText(Estimation_Tabs, tr("Database Snapshot"),
+//                                         tr("Name of desired database snapshot file:"), QLineEdit::Normal,
+//                                         filename, &ok);
+}
+
+QString
 nmfEstimation_Tab8::getModelEquation(QStandardItemModel* smodel, const int& row)
 {
     bool isAggProd = false; // RSK fix this
@@ -351,7 +363,11 @@ nmfEstimation_Tab8::callback_LoadPB()
 void
 nmfEstimation_Tab8::callback_SavePB()
 {
-    saveModelReviewTable();
+    if (saveModelReviewTable()) {
+        QMessageBox::information(Estimation_Tabs, "Save",
+            "\nSuccessfully saved table: "+QString::fromStdString(nmfConstantsMSSPM::TableModelReview),
+             QMessageBox::Ok);
+    }
 }
 
 void
@@ -365,6 +381,7 @@ nmfEstimation_Tab8::loadModel(QStandardItemModel* smodel, const int& row)
     modelReview.EstimationAlgorithm                     = smodel->index(row,10).data().toString().trimmed();
     modelReview.MinimizerAlgorithm                      = smodel->index(row,11).data().toString().trimmed();
     modelReview.ScalingAlgorithm                        = smodel->index(row,12).data().toString().trimmed();
+    modelReview.DatabaseSnapshot                        = smodel->index(row,13).data().toString().trimmed();
 
     modelReview.setToDeterministicBees                  = smodel->index(row,14).data().toString().trimmed();
     modelReview.maxGenerations                          = smodel->index(row,15).data().toString().remove(",").toInt();
@@ -483,7 +500,7 @@ nmfEstimation_Tab8::updateModelReviewTable(const QStringList& rowList)
     cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableModelReview +
             " (ProjectName,ModelNumber,ModelName,rSquared,SSResiduals,AIC," +
             "GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns," +
-            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,Notes," +
+            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,DatabaseSnapshot,Notes," +
             "isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites," +
             "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
             "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
@@ -555,7 +572,7 @@ nmfEstimation_Tab8::updateModelReviewTable(const QStringList& rowList)
 //}
 
 
-void
+bool
 nmfEstimation_Tab8::saveModelReviewTable()
 {
     int NumRows;
@@ -568,7 +585,7 @@ nmfEstimation_Tab8::saveModelReviewTable()
     QString valueStr;
 
     if (m_SModel == nullptr) {
-        return;
+        return false;
     }
 
     // Clear current ModelReview table
@@ -578,7 +595,7 @@ nmfEstimation_Tab8::saveModelReviewTable()
     NumRows = m_SModel->rowCount();
     NumCols = m_SModel->columnCount();
     if (NumRows == 0) {
-        return;
+        return false;
     }
 
 //    // Turn off significant digits in order to save with highest precision
@@ -595,7 +612,7 @@ nmfEstimation_Tab8::saveModelReviewTable()
     cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableModelReview +
             " (ProjectName,ModelNumber,ModelName,rSquared,SSResiduals,AIC," +
             "GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns," +
-            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,Notes," +
+            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,DatabaseSnapshot,Notes," +
             "isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites," +
             "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
             "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
@@ -628,7 +645,7 @@ nmfEstimation_Tab8::saveModelReviewTable()
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab8::saveModelReviewTable: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
+        return false;
     }
 
 //    // Turn on significant digits if they were turned off previously in this method
@@ -636,6 +653,8 @@ nmfEstimation_Tab8::saveModelReviewTable()
 //        m_NumSignificantDigits = remNumSignificantDigits;
 //        loadWidgets();
 //    }
+
+    return true;
 }
 
 void
@@ -664,7 +683,7 @@ nmfEstimation_Tab8::loadWidgets()
 
     queryStr = "SELECT ModelName,rSquared,SSResiduals,AIC,\
 GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns,\
-ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,Notes,\
+ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,DatabaseSnapshot,Notes,\
 isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites,\
 numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt,\
 isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter,\
@@ -720,6 +739,9 @@ EnsembleFile,EstimatedParametersFile FROM " +
     Estimation_Tab8_ModelReviewTV->setModel(m_SModel);
     Estimation_Tab8_ModelReviewTV->horizontalHeader()->show();
     Estimation_Tab8_ModelReviewTV->resizeColumnsToContents();
+
+    callback_ShowHiddenCB(Estimation_Tab8_ShowHiddenCB->checkState());
+
 }
 
 void
@@ -748,7 +770,7 @@ nmfEstimation_Tab8::loadWidgetsNoSignificantDigits()
 
     queryStr = "SELECT ModelName,rSquared,SSResiduals,AIC,\
 GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns,\
-ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,Notes,\
+ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,DatabaseSnapshot,Notes,\
 isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites,\
 numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt,\
 isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter,\

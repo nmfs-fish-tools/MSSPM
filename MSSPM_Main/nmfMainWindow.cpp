@@ -1324,6 +1324,13 @@ nmfMainWindow::menu_screenShotAll()
 void
 nmfMainWindow::menu_importDatabase()
 {
+    importDatabase("",nmfConstantsMSSPM::VerboseOn);
+}
+
+void
+nmfMainWindow::importDatabase(const QString& DefaultFilename,
+                              const bool& VerboseOn)
+{
     QMessageBox::StandardButton reply;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
@@ -1336,26 +1343,32 @@ nmfMainWindow::menu_importDatabase()
             nmfConstantsMSSPM::PageSetupProject);
 
     // Ask if user wants to clear the Project meta data
-    std::string msg  = "\nDo you want to overwrite current Project data with imported database information?";
-    msg += "\n\nYes: Overwrites Project data\nNo: Clears Project data, user enters new Project data\n";
-    reply = QMessageBox::question(this, tr("Import Database"), tr(msg.c_str()),
-                                  QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
-                                  QMessageBox::Yes);
-    if (reply == QMessageBox::Cancel) {
-        return;
+    if (VerboseOn) {
+        std::string msg  = "\nDo you want to overwrite current Project data with imported database information?";
+        msg += "\n\nYes: Overwrites Project data\nNo: Clears Project data, user enters new Project data\n";
+        reply = QMessageBox::question(this, tr("Import Database"), tr(msg.c_str()),
+                                      QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
+                                      QMessageBox::Yes);
+        if (reply == QMessageBox::Cancel) {
+            return;
+        }
     }
 
     // Do the import
-    QString dbName = m_DatabasePtr->importDatabase(this,
-                                                   m_Logger,
-                                                   m_ProjectDir,
-                                                   m_Username,
-                                                   m_Password);
+    if (! DefaultFilename.isEmpty()) {
+        QString msg = "\nImporting database file:\n\n" + DefaultFilename + "\n\n" +
+                "Please be patient. This may take several minutes.\n";
+        QMessageBox::information(this, tr("Import Database"), tr(msg.toLatin1()), QMessageBox::Ok);
+    }
+    QString dbName = m_DatabasePtr->importDatabase(this, m_Logger, m_ProjectDir,
+                                                   m_Username, m_Password, DefaultFilename);
+qDebug() << "dbName: " << dbName;
+
     m_Logger->logMsg(nmfConstants::Normal,"Imported database: "+ dbName.toStdString());
     QApplication::sync();
     QApplication::processEvents();
+    if (! dbName.isEmpty()) {
 
-    if (!dbName.isEmpty()) {
         loadGuis();
         if (reply == QMessageBox::No) {
             Setup_Tab2_ptr->clearProject();
@@ -1385,10 +1398,14 @@ nmfMainWindow::menu_importDatabase()
             QMessageBox::warning(this, "Error", qmsg, QMessageBox::Ok);
             return;
         }
-        QString selectedProjectName = QInputDialog::getItem(this, tr("Select Project"),
-                                             tr("Select initial project to load:"),
-                                             items, 0, false, &ok);
-        if (ok && !selectedProjectName.isEmpty()) {
+        ok = false;
+        QString selectedProjectName = "";
+        if (VerboseOn) {
+            selectedProjectName = QInputDialog::getItem(this, tr("Select Project"),
+                                                        tr("Select initial project to load:"),
+                                                        items, 0, false, &ok);
+        }
+        if (ok && ! selectedProjectName.isEmpty()) {
             Setup_Tab2_ptr->setProjectName(selectedProjectName);
             Remora_ptr->setProjectName(selectedProjectName.toStdString());
         } else { // the user clicked Cancel...so select the first project in the list
@@ -1400,10 +1417,13 @@ nmfMainWindow::menu_importDatabase()
 
         Setup_Tab2_ptr->saveProject(nmfConstantsMSSPM::VerboseOff);
         Setup_Tab2_ptr->callback_Setup_Tab2_ReloadProject();
-        QMessageBox::information(this, "Load Model", "\nPlease load the desired model.\n", QMessageBox::Ok);
+        if (VerboseOn) {
+            QMessageBox::information(this, "Load Model", "\nPlease load the desired model.\n", QMessageBox::Ok);
+        }
         setPage(nmfConstantsMSSPM::SectionSetup,
                 nmfConstantsMSSPM::PageSetupModel);
     }
+
 }
 
 void
@@ -1432,7 +1452,7 @@ nmfMainWindow::menu_exportDatabase()
                                   m_ProjectDir,
                                   m_Username,
                                   m_Password,
-                                  m_ProjectDatabase);
+                                  m_ProjectDatabase,"");
 }
 
 void
@@ -1451,7 +1471,7 @@ nmfMainWindow::menu_exportAllDatabases()
                                       m_ProjectDir,
                                       m_Username,
                                       m_Password,
-                                      projectDatabase);
+                                      projectDatabase,"");
     }
 }
 
@@ -1959,7 +1979,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.1.3";
+    QString version = "MSSPM v1.1.4";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3689,6 +3709,10 @@ nmfMainWindow::createEstimatedFile()
     std::vector<double> EstExponent;
     std::vector<double> EstCatchability;
     std::vector<double> EstSurveyQ;
+    std::vector<double> EstGrowthRateCovariateCoeffs;
+    std::vector<double> EstCarryingCapacityCovariateCoeffs;
+    std::vector<double> EstCatchabilityCovariateCoeffs;
+    std::vector<double> EstSurveyQCovariateCoeffs;
     boost::numeric::ublas::matrix<double> EstCompetitionAlpha;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaSpecies;
     boost::numeric::ublas::matrix<double> EstCompetitionBetaGuilds;
@@ -3733,6 +3757,10 @@ nmfMainWindow::createEstimatedFile()
         m_Estimator_NLopt->getEstHandling(EstHandling);
         m_Estimator_NLopt->getEstExponent(EstExponent);
         m_Estimator_NLopt->getEstSurveyQ(EstSurveyQ);
+        m_Estimator_NLopt->getEstGrowthRateCovariateCoeffs(EstGrowthRateCovariateCoeffs);
+        m_Estimator_NLopt->getEstCarryingCapacityCovariateCoeffs(EstCarryingCapacityCovariateCoeffs);
+        m_Estimator_NLopt->getEstCatchabilityCovariateCoeffs(EstCatchabilityCovariateCoeffs);
+        m_Estimator_NLopt->getEstSurveyQCovariateCoeffs(EstSurveyQCovariateCoeffs);
     } else if ((Algorithm == "Bees Algorithm") && m_Estimator_Bees) {
         m_Estimator_Bees->getEstInitBiomass(EstInitBiomass);
         m_Estimator_Bees->getEstGrowthRates(EstGrowthRates);
@@ -3746,6 +3774,10 @@ nmfMainWindow::createEstimatedFile()
         m_Estimator_Bees->getEstHandling(EstHandling);
         m_Estimator_Bees->getEstExponent(EstExponent);
         m_Estimator_Bees->getEstSurveyQ(EstSurveyQ);
+        m_Estimator_Bees->getEstGrowthRateCovariateCoeffs(EstGrowthRateCovariateCoeffs);
+        m_Estimator_Bees->getEstCarryingCapacityCovariateCoeffs(EstCarryingCapacityCovariateCoeffs);
+        m_Estimator_Bees->getEstCatchabilityCovariateCoeffs(EstCatchabilityCovariateCoeffs);
+        m_Estimator_Bees->getEstSurveyQCovariateCoeffs(EstSurveyQCovariateCoeffs);
     }
 
     QFile file(fullPath);
@@ -3788,6 +3820,24 @@ nmfMainWindow::createEstimatedFile()
         stream << extractVectorData(Estimation_Tab7_ptr->isEstSurveyQEnabled(),
                                     Estimation_Tab7_ptr->isEstSurveyQChecked(),isAMultiRun,
                                     SpeciesList,"SurveyQ:",EstSurveyQ,'f',3);
+        if (EstGrowthRateCovariateCoeffs.size() > 0) {
+            stream << extractVectorData(true,true, // there are no check boxes for env covariates, just assume they're always estimated (they'll be 0 if they weren't)
+                                        isAMultiRun,
+                                        SpeciesList,"Growth Rate Covariate Coeffs:",EstGrowthRateCovariateCoeffs,'f',3);
+        }
+        if (EstCarryingCapacityCovariateCoeffs.size() > 0) {
+            stream << extractVectorData(true,true,isAMultiRun,
+                                        SpeciesList,"Carrying Capacity Covariate Coeffs:",EstCarryingCapacityCovariateCoeffs,'f',3);
+        }
+        if (EstCatchabilityCovariateCoeffs.size() > 0) {
+            stream << extractVectorData(true,true,isAMultiRun,
+                                        SpeciesList,"Catchability Covariate Coeffs:",EstCatchabilityCovariateCoeffs,'f',3);
+        }
+        if (EstSurveyQCovariateCoeffs.size() > 0) {
+            stream << extractVectorData(true,true,isAMultiRun,
+                                        SpeciesList,"Survey Q Covariate Coeffs:",EstSurveyQCovariateCoeffs,'f',3);
+        }
+
         file.close();
     }
 
@@ -4900,7 +4950,6 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
           " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
     double surveyQTerm;
     for (int species=0; species<NumSpecies; ++species) {
-        // RSK - continue here....
         std::string covariateAlgorithmType = m_DataStruct.CovariateAlgorithmType;
         estSurveyQ = (int(EstSurveyQ.size()) == NumSpecies) ? EstSurveyQ[species] : 0;
         if (nmfUtils::isNearlyZero(estSurveyQ)) {
@@ -14943,6 +14992,7 @@ nmfMainWindow::callback_AddToReview()
     bool isSigDigChecked = saveSigDigState();
     QStandardItemModel* statisticsModel = qobject_cast<QStandardItemModel*>(SummaryTV->model());
     restoreSigDigState(isSigDigChecked);
+    QString dbSnapshotFile = Estimation_Tab8_ptr->generateDatabaseSnapshot();
 
     int lastColumn = statisticsModel->columnCount() - 1;
     QModelIndex indexSSResiduals = statisticsModel->index(0,lastColumn);
@@ -14971,6 +15021,7 @@ nmfMainWindow::callback_AddToReview()
         rowItems << QString::fromStdString(Estimation_Tab7_ptr->getCurrentScaling());            // 12
     }
 
+    rowItems << dbSnapshotFile;
     rowItems << ""; // Notes go here                                                             // 13
 
     // From here on out, the following columns will be hidden
@@ -15024,21 +15075,27 @@ nmfMainWindow::callback_AddToReview()
     rowItems << QString::number(Estimation_Tab7_ptr->getEnsembleUsingAmountValue());             // 58
     rowItems << QString::number(Estimation_Tab7_ptr->isEnsembleUsingPct());                      // 59
 
-    rowItems << QString::fromStdString(Estimation_Tab7_ptr->getEnsembleTimeStampedFilename());                  // 60
+    rowItems << QString::fromStdString(Estimation_Tab7_ptr->getEnsembleTimeStampedFilename());   // 60
     rowItems << createEstimatedFile();                                                           // 61
 
 //  Estimation_Tab7_ptr->updateReviewList(rowItems);
     Estimation_Tab8_ptr->updateModelReviewTable(rowItems);
+
+
+    m_DatabasePtr->exportDatabase(this, m_ProjectDir, m_Username,
+                                  m_Password, m_ProjectDatabase,dbSnapshotFile);
 }
 
 void
 nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct modelReview)
 {
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    // Load snapshoted database
+    importDatabase(modelReview.DatabaseSnapshot, nmfConstantsMSSPM::VerboseOff);
 
     // Save model name and load
     Setup_Tab4_ptr->setModelName(modelReview.ModelName);
     Setup_Tab4_ptr->loadModel();
+    callback_ToDoAfterModelSave();
 
     // Just need to additionally set:
     // 1. Parameters to be Estimated
@@ -15120,7 +15177,6 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
     Estimation_Tab7_ptr->setNeighborhoodSize(modelReview.neighborhoodSize);
     Estimation_Tab7_ptr->setNumSubRuns(modelReview.numSubRuns);
 
-    QApplication::restoreOverrideCursor();
 }
 
 void
