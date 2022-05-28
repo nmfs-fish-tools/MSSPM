@@ -102,6 +102,9 @@ class nmfEstimation_Tab8: public QObject
                              const int& row);
     void loadModel(QStandardItemModel* smodel,
                    const int& row);
+    void removeFilesAssociatedWithRow(
+            QStandardItemModel* smodel,
+            const int& row);
     void resizeColumns();
     bool saveModelReviewTable();
 

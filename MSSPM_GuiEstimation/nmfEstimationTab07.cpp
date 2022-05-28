@@ -931,7 +931,29 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
 {
     std::string cmd;
     std::string errorMsg;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
 
+    // Remove existing timestamped ensemble file as you're about to replace the entry
+    fields   = {"ProjectName","ModelName","EnsembleFile"};
+    queryStr = "SELECT ProjectName,ModelName,EnsembleFile from " +
+                nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND  ModelName = '"   + m_ModelName   + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    if (dataMap["EnsembleFile"].size() > 0) {
+        // Remove Estimated Parameters file saved with this row
+        QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+        QString fullFilename = QDir(fullPath).filePath(QString::fromStdString(dataMap["EnsembleFile"][0]));
+        if (QFile::remove(fullFilename)) {
+            m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
+        } else {
+            m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
+        }
+    }
+
+    // Update model parameters
     cmd  =  "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
     cmd +=  "   NumberOfRuns = "                    + getBeesNumberOfRuns() +
             ",  TimeStep = 1"                       + // std::to_string(Estimation_Tab7_TimeStepSB->value()) +

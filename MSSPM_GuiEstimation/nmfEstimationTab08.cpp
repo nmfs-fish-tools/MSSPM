@@ -226,12 +226,16 @@ nmfEstimation_Tab8::callback_PrevPB()
 void
 nmfEstimation_Tab8::callback_DeletePB()
 {
+    int rowIndex;
     QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
     int numRowsToDelete = indexes.count();
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
 
     if (numRowsToDelete > 0) {
         for (int row=indexes.count(); row>0; row--) {
-            Estimation_Tab8_ModelReviewTV->model()->removeRow(indexes.at(row-1).row(),QModelIndex());
+            rowIndex = indexes.at(row-1).row();
+            removeFilesAssociatedWithRow(smodel,rowIndex);
+            smodel->removeRow(rowIndex,QModelIndex());
         }
     } else {
         std::string msg  = "\nOK to delete all rows?\n";
@@ -239,11 +243,42 @@ nmfEstimation_Tab8::callback_DeletePB()
             tr(msg.c_str()),QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
         if (reply == QMessageBox::Yes) {
             int totalNumRows = Estimation_Tab8_ModelReviewTV->model()->rowCount();
-            Estimation_Tab8_ModelReviewTV->model()->removeRows(0,totalNumRows);
+            removeFilesAssociatedWithRow(smodel,0);
+            smodel->removeRows(0,totalNumRows);
         }
     }
 
     saveModelReviewTable();
+}
+
+void
+nmfEstimation_Tab8::removeFilesAssociatedWithRow(
+        QStandardItemModel* smodel,
+        const int& row)
+{
+    QString fullPath;
+    QString filename;
+    QString fullFilename;
+
+    // Remove Database Snapshot file saved with this row
+    fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("databases");
+    filename = smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_DB_Snapshot).data().toString().trimmed();
+    fullFilename = QDir(fullPath).filePath(filename);
+    if (QFile::remove(fullFilename)) {
+        m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
+    } else {
+        m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
+    }
+
+    // Remove Estimated Parameters file saved with this row
+    fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    filename = smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_Estimated_Parameters).data().toString().trimmed();
+    fullFilename = QDir(fullPath).filePath(filename);
+    if (QFile::remove(fullFilename)) {
+        m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
+    } else {
+        m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
+    }
 }
 
 QString
