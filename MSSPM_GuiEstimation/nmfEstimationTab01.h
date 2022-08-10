@@ -103,14 +103,19 @@ class nmfEstimation_Tab1: public QObject
                            bool updateSetup,
                            const bool& queryForFilename,
                            QString guildsFilename);
+    bool isAnySurveyQZero(const bool& showPopup);
     bool isChecked(QCheckBox* cb);
-    bool isInitBiomassLessThanSpeciesKMin();
+    bool isInitBiomassLessThanSpeciesKMin(const bool& showPopup);
+    bool isOkSpeciesDataSupplemental(bool showPopup);
+    bool isOkSpeciesDataRange(bool showPopup);
+    bool isOkSpeciesDataSupplementalAndRange(bool showPopup);
     bool loadGuilds();
     bool loadSpecies();
     bool onGuildTab();
     void readSettings();
     void reselectVisibleCells(QModelIndexList indexes);
     void resetModifySlider();
+    void resetPercentageCMB();
     void resetSelection();
     void resetVisibleColumns();
     bool saveGuildDataPrimary(bool showPopup);
@@ -122,6 +127,7 @@ class nmfEstimation_Tab1: public QObject
                            QList<QString>& GrowthRate,
                            QList<QString>& GuildK);
     bool savePopulationParameterGuildK();
+    bool savePopulationParameters(const bool& showPopup);
     bool savePopulationParametersGuilds(bool showPopup);
     bool savePopulationParametersSpecies(bool showPopup);
     bool savePopulationParameterSpeciesK();
@@ -132,9 +138,6 @@ class nmfEstimation_Tab1: public QObject
                             QList<QString>& SpeciesGrowthRate,
                             QList<QString>& SpeciesK);
     bool saveSpeciesDataPrimary(bool showPopup);
-    bool saveSpeciesDataSupplemental(bool showPopup);
-    bool saveSpeciesDataRange(bool showPopup);
-    bool saveSpeciesDataSupplementalAndRange(bool showPopup);
     void setupHelpSpecies();
     void setupHelpGuilds();
     void showNoColumns(QTableView* tv);
@@ -142,7 +145,6 @@ class nmfEstimation_Tab1: public QObject
     void showPrimaryColumns(QTableView* tv);
     void showSuppColumns(QTableView* tv,bool show);
     void showRangeColumns(QTableView* tv,bool show);
-    bool surveyQValid(bool showPopup);
     void updateBiomassAbsoluteTable();
 
 signals:
@@ -172,6 +174,10 @@ signals:
      * @brief Signal notifying main application to update all of its GUIs.
      */
     void ReloadWidgets();
+    /**
+     * @brief Signal notifying main application to update all of its Setup GUIs.
+     */
+    void ReloadSetupWidgets();
     /**
      * @brief Signal causes the recently saved Output Species names to be written back into the appropriate Output Controls widget
      */

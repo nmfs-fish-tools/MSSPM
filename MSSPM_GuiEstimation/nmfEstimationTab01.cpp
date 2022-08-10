@@ -414,13 +414,14 @@ nmfEstimation_Tab1::importGuildData(const QString& tableName,
     };
 
     bool loadOK = nmfUtilsQt::loadGuildsSpeciesTableview(
-                Estimation_Tabs, Estimation_Tab1_GuildPopulationTV,
+                Estimation_Tabs, m_GuildModel, //Estimation_Tab1_GuildPopulationTV,
                 "Guild",inputDataPath, tableName, SpeciesGuilds,
                 queryForFilename, guildsFilename, errorMsg);
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return;
     }
+    Estimation_Tab1_GuildPopulationTV->resizeColumnsToContents();
 
     if (updateSetup) {
         // Load signal with data to send to Species Setup tab
@@ -454,13 +455,14 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
     };
 
     bool loadOK = nmfUtilsQt::loadGuildsSpeciesTableview(
-                Estimation_Tabs, Estimation_Tab1_SpeciesPopulationTV,
+                Estimation_Tabs, m_SpeciesModel, //Estimation_Tab1_SpeciesPopulationTV,
                 "Species", inputDataPath, tableName, SpeciesGuilds,
                 queryForFilename, speciesFilename, errorMsg);
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return;
     }
+    Estimation_Tab1_SpeciesPopulationTV->resizeColumnsToContents();
 
     if (loadOK && updateSetup) {
         // Load signal with data to send to Species Setup tab
@@ -501,6 +503,8 @@ nmfEstimation_Tab1::callback_SavePB()
     if (reply == QMessageBox::No) {
         return;
     }
+//  resetPercentageCMB();
+
     if (onGuildTab()) {
         ok = savePopulationParametersGuilds(nmfConstantsMSSPM::ShowPopupError);
     } else { // if on Species tab
@@ -509,6 +513,7 @@ nmfEstimation_Tab1::callback_SavePB()
             savePopulationParameterGuildK();
         }
     }
+
     if (ok) {
         loadWidgets();
     }
@@ -621,6 +626,13 @@ nmfEstimation_Tab1::resetModifySlider()
     Estimation_Tab1_ModifySL->setValue(50);
     Estimation_Tab1_ModifySL->blockSignals(false);
     Estimation_Tab1_ModifySL->repaint(); // so widget refreshes immediately
+}
+
+void
+nmfEstimation_Tab1::resetPercentageCMB()
+{
+    Estimation_Tab1_SpeciesRangeSB->setValue(0);
+    Estimation_Tab1_SpeciesRangeCMB->setCurrentIndex(0);
 }
 
 void
@@ -945,11 +957,61 @@ nmfEstimation_Tab1::savePopulationParametersGuilds(bool showPopup)
     return true;
 }
 
+bool
+nmfEstimation_Tab1::isAnySurveyQZero(const bool& showPopup)
+{
+    std::string errorMsg,briefMsg;
+    double SurveyQ;
+    double SurveyQMin,SurveyQMax;
+    QModelIndex index;
+    QString SpeName;
+    QString valueWithoutComma;
+
+    // Check that all SurveyQ values are > 0
+    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
+        index = m_SpeciesModel->index(i,nmfConstantsMSSPM::Column_Supp_Species_Name);
+        SpeName = index.data().toString().remove(",");
+        index = m_SpeciesModel->index(i,nmfConstantsMSSPM::Column_Supp_Species_SurveyQ);
+        valueWithoutComma = index.data().toString().remove(",");
+        SurveyQ = valueWithoutComma.toDouble();
+        index = m_SpeciesModel->index(i,nmfConstantsMSSPM::Column_Supp_Species_SurveyQMin);
+        valueWithoutComma = index.data().toString().remove(",");
+        SurveyQMin = valueWithoutComma.toDouble();
+        index = m_SpeciesModel->index(i,nmfConstantsMSSPM::Column_Supp_Species_SurveyQMax);
+        valueWithoutComma = index.data().toString().remove(",");
+        SurveyQMax = valueWithoutComma.toDouble();
+
+        if (SurveyQ < nmfConstants::NearlyZero) {
+            briefMsg  = "SurveyQ values must be greater than 0.";
+            errorMsg  = "\nFound: SurveyQ value(s) less than or equal to 0 for Species: " + SpeName.toStdString();
+            errorMsg += "\n\n" + briefMsg + "\n";
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1::isAnySurveyQZero: " + briefMsg);
+            if (showPopup) {
+                QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
+                                     QMessageBox::Ok);
+            }
+            return false;
+        }
+        if ((SurveyQMin < nmfConstants::NearlyZero) || (SurveyQMax < nmfConstants::NearlyZero)) {
+            briefMsg  = "All SurveyQ Min and Max values must be greater than 0.";
+            errorMsg  = "\nFound: SurveyQ Min or Max value(s) less than or equal to 0 for Species: " + SpeName.toStdString();
+            errorMsg += "\n\n" + briefMsg + "\n";
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1::isAnySurveyQZero: " + briefMsg);
+            if (showPopup) {
+                QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
+                                     QMessageBox::Ok);
+            }
+            return false;
+        }
+    }
+
+    return true;
+}
 
 bool
-nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin()
+nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin(const bool& showPopup)
 {
-    std::string errorMsg;
+    std::string errorMsg,briefMsg;
     double InitBiomass;
     double SpeciesKMin;
     QModelIndex index;
@@ -958,77 +1020,24 @@ nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin()
 
     // Check that InitBiomass < the SpeciesKMin value in the Species table
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
-        index = m_SpeciesModel->index(i,0);
+        index = m_SpeciesModel->index(i,nmfConstantsMSSPM::Column_Supp_Species_Name);
         SpeName = index.data().toString().remove(",");
-        index = m_SpeciesModel->index(i,1);
+        index = m_SpeciesModel->index(i,nmfConstantsMSSPM::Column_Supp_Species_InitBiomass);
         valueWithoutComma = index.data().toString().remove(",");
         InitBiomass = valueWithoutComma.toDouble();
-        index = m_SpeciesModel->index(i,9);
+        index = m_SpeciesModel->index(i,nmfConstantsMSSPM::Column_Supp_Species_CarryingCapacityMin);
         valueWithoutComma = index.data().toString().remove(",");
         SpeciesKMin = valueWithoutComma.toDouble();
 
         if (InitBiomass > SpeciesKMin) {
+            briefMsg  = "InitBiomass must be less than SpeciesKMin.";
             errorMsg  = "\nFound: InitBiomass (" + QString::number(InitBiomass).toStdString() +
                     ") > SpeciesKMin (" + QString::number(SpeciesKMin).toStdString() +
                     ") for Species: " + SpeName.toStdString();
-            errorMsg += "\n\nInitBiomass must be less than SpeciesKMin.\n";
-            QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
-                                 QMessageBox::Ok);
-            return false;
-        }
-    }
-    return true;
-}
-
-bool
-nmfEstimation_Tab1::savePopulationParameterGuildK()
-{
-    // Calculate and save the guildk values and write them to the Guilds file
-    // Make sure the user can then save the Guild Parameters in Estimation Tab 1
-
-std::cout << "nmfEstimation_Tab1::savePopulationParameterGuildK tbd" << std::endl;
-
-    return true;
-}
-
-bool
-nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
-{
-    std::string errorMsg;
-    QString cmd;
-    QString SpeName,InitBiomass;
-    QString GrowthRate;
-    QString SpeciesK;
-    QModelIndex index;
-    QString valueWithoutComma;
-
-    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
-        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
-        index = m_SpeciesModel->index(i,0);
-        SpeName = index.data().toString().remove(",");
-        index = m_SpeciesModel->index(i,1);
-        valueWithoutComma = index.data().toString().remove(",");
-        InitBiomass = valueWithoutComma;
-        cmd += "InitBiomass=" + InitBiomass + ",";
-        index = m_SpeciesModel->index(i,4);
-        GrowthRate = index.data().toString().remove(",");
-        cmd += "GrowthRate=" + GrowthRate + ",";
-        index = m_SpeciesModel->index(i,8);
-        valueWithoutComma = index.data().toString().remove(",");
-        SpeciesK = valueWithoutComma;
-        cmd += "SpeciesK=" + SpeciesK;
-        cmd += " WHERE SpeName = '" + SpeName + "'";
-        if (nmfUtilsQt::emptyField({SpeName,InitBiomass,GrowthRate,SpeciesK})) {
-            checkAndShowEmptyFieldError(showPopup,"saveSpeciesDataPrimary");
-            return false;
-        }
-        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataPrimary: Write table error: " + errorMsg);
-            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
+            errorMsg += "\n\n" + briefMsg + "\n";
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin: " + briefMsg);
             if (showPopup) {
-                QMessageBox::warning(Estimation_Tabs, "Error",
-                                     "\nError in Save command.  Check that all cells are populated.\n",
+                QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
                                      QMessageBox::Ok);
             }
             return false;
@@ -1038,7 +1047,7 @@ nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
 }
 
 bool
-nmfEstimation_Tab1::saveSpeciesDataSupplemental(bool showPopup)
+nmfEstimation_Tab1::isOkSpeciesDataSupplemental(bool showPopup)
 {
     std::string errorMsg;
     QString cmd;
@@ -1070,23 +1079,24 @@ nmfEstimation_Tab1::saveSpeciesDataSupplemental(bool showPopup)
             checkAndShowEmptyFieldError(showPopup,"saveSpeciesDataSupplemental");
             return false;
         }
-        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataSupplemental: Write table error: " + errorMsg);
-            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
-            if (showPopup) {
-                QMessageBox::warning(Estimation_Tabs, "Error",
-                                     "\nError in Save command.  Check that all cells are populated.\n",
-                                     QMessageBox::Ok);
-            }
-            return false;
-        }
+        // Not necessary since we're saving in savePopulationParameters()
+        //errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
+        //if (nmfUtilsQt::isAnError(errorMsg)) {
+        //    m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataSupplemental: Write table error: " + errorMsg);
+        //    m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
+        //    if (showPopup) {
+        //        QMessageBox::warning(Estimation_Tabs, "Error",
+        //                             "\nError in Save command.  Check that all cells are populated.\n",
+        //                             QMessageBox::Ok);
+        //    }
+        //    return false;
+        //}
     }
     return true;
 }
 
 bool
-nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
+nmfEstimation_Tab1::isOkSpeciesDataRange(bool showPopup)
 {
     std::string errorMsg;
     QString cmd;
@@ -1144,44 +1154,24 @@ nmfEstimation_Tab1::saveSpeciesDataRange(bool showPopup)
             checkAndShowOutOfRangeError("Species",SpeName,BadParameter,nmfConstantsMSSPM::ShowPopupError);
             return false;
         }
-        errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
-        if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataRange: Write table error: " + errorMsg);
-            m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
-            if (showPopup) {
-                QMessageBox::warning(Estimation_Tabs, "Error",
-                                     "\nError in Save command.  Check that all cells are populated.\n",
-                                     QMessageBox::Ok);
-            }
-            return false;
-        }
+        // Not necessary since we're saving in savePopulationParameters()
+        //errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
+        //if (nmfUtilsQt::isAnError(errorMsg)) {
+        //    m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataRange: Write table error: " + errorMsg);
+        //    m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
+        //    if (showPopup) {
+        //        QMessageBox::warning(Estimation_Tabs, "Error",
+        //                             "\nError in Save command.  Check that all cells are populated.\n",
+        //                             QMessageBox::Ok);
+        //    }
+        //    return false;
+        //}
     }
     return true;
 }
 
 bool
-nmfEstimation_Tab1::surveyQValid(bool showPopup)
-{
-    QModelIndex index;
-    double surveyQ;
-
-    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
-        index = m_SpeciesModel->index(i,12);
-        surveyQ = index.data().toString().remove(",").toDouble();
-        if (surveyQ == 0) {
-            if (showPopup) {
-                QMessageBox::warning(Estimation_Tabs, "Error",
-                                     "\nError in Save command. SurveyQ values must be non-zero.\n",
-                                     QMessageBox::Ok);
-            }
-            return false;
-        }
-    }
-    return true;
-}
-
-bool
-nmfEstimation_Tab1::saveSpeciesDataSupplementalAndRange(bool showPopup)
+nmfEstimation_Tab1::isOkSpeciesDataSupplementalAndRange(bool showPopup)
 {
     std::string errorMsg;
     QString cmd;
@@ -1221,9 +1211,63 @@ nmfEstimation_Tab1::saveSpeciesDataSupplementalAndRange(bool showPopup)
             checkAndShowOutOfRangeError("Species",SpeName,BadParameter,nmfConstantsMSSPM::ShowPopupError);
             return false;
         }
+        // Not necessary since we're saving in savePopulationParameters()
+        //errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
+        //if (nmfUtilsQt::isAnError(errorMsg)) {
+        //    m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataSupplementalAndRange: Write table error: " + errorMsg);
+        //    m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
+        //    if (showPopup) {
+        //        QMessageBox::warning(Estimation_Tabs, "Error",
+        //                             "\nError in Save command.  Check that all cells are populated.\n",
+        //                             QMessageBox::Ok);
+        //    }
+        //    return false;
+        //}
+    }
+    return true;
+}
+
+bool
+nmfEstimation_Tab1::savePopulationParameters(const bool& showPopup)
+{
+    std::string errorMsg;
+    QString cmd;
+    QModelIndex index;
+    QString SpeName;
+
+    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
+
+        index = m_SpeciesModel->index(i,0);
+        SpeName = index.data().toString().remove(",");
+
+        //index = m_SpeciesModel->index(i,1);
+        //valueWithoutComma = index.data().toString().remove(",");
+        //InitBiomass = valueWithoutComma;
+        cmd += "InitBiomass="          + QString::number(m_SpeciesModel->index(i,1).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "InitBiomassMin="       + QString::number(m_SpeciesModel->index(i,2).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "InitBiomassMax="       + QString::number(m_SpeciesModel->index(i,3).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "GrowthRate="           + m_SpeciesModel->index(i, 4).data().toString().remove(",") + ",";
+        cmd += "GrowthRateMin="        + m_SpeciesModel->index(i, 5).data().toString().remove(",") + ",";
+        cmd += "GrowthRateMax="        + m_SpeciesModel->index(i, 6).data().toString().remove(",") + ",";
+        cmd += "GrowthRateCovarCoeff=" + m_SpeciesModel->index(i, 7).data().toString().remove(",") + ",";
+        cmd += "SpeciesK="             + m_SpeciesModel->index(i, 8).data().toString().remove(",") + ",";
+        cmd += "SpeciesKMin="          + m_SpeciesModel->index(i, 9).data().toString().remove(",") + ",";
+      //cmd += "SpeciesKMin="          + QString::number(SpeciesKMin.toDouble(),'f',6) + ",";
+        cmd += "SpeciesKMax="          + m_SpeciesModel->index(i,10).data().toString().remove(",") + ",";
+      //cmd += "SpeciesKMax="          + QString::number(SpeciesKMax.toDouble(),'f',6);
+        cmd += "SpeciesKCovarCoeff="   + m_SpeciesModel->index(i,11).data().toString().remove(",") + ",";
+        cmd += "SurveyQ="              + m_SpeciesModel->index(i,12).data().toString().remove(",") + ",";
+        cmd += "SurveyQMin="           + m_SpeciesModel->index(i,13).data().toString().remove(",") + ",";
+        cmd += "SurveyQMax="           + m_SpeciesModel->index(i,14).data().toString().remove(",") + ",";
+        cmd += "Catchability="         + m_SpeciesModel->index(i,15).data().toString().remove(",") + ",";
+        cmd += "CatchabilityMin="      + m_SpeciesModel->index(i,16).data().toString().remove(",") + ",";
+        cmd += "CatchabilityMax="      + m_SpeciesModel->index(i,17).data().toString().remove(",");
+        cmd += " WHERE SpeName = '" + SpeName + "'";
+
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
         if (nmfUtilsQt::isAnError(errorMsg)) {
-            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataSupplementalAndRange: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1::savePopulationParameters: Write table error: " + errorMsg);
             m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
             if (showPopup) {
                 QMessageBox::warning(Estimation_Tabs, "Error",
@@ -1237,29 +1281,90 @@ nmfEstimation_Tab1::saveSpeciesDataSupplementalAndRange(bool showPopup)
 }
 
 bool
+nmfEstimation_Tab1::savePopulationParameterGuildK()
+{
+    // Calculate and save the guildk values and write them to the Guilds file
+    // Make sure the user can then save the Guild Parameters in Estimation Tab 1
+
+std::cout << "nmfEstimation_Tab1::savePopulationParameterGuildK tbd" << std::endl;
+
+    return true;
+}
+
+bool
+nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
+{
+    std::string errorMsg;
+    QString cmd;
+    QString SpeName,InitBiomass;
+    QString GrowthRate;
+    QString SpeciesK;
+    QModelIndex index;
+    QString valueWithoutComma;
+
+    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
+        index = m_SpeciesModel->index(i,0);
+        SpeName = index.data().toString().remove(",");
+        index = m_SpeciesModel->index(i,1);
+        valueWithoutComma = index.data().toString().remove(",");
+        InitBiomass = valueWithoutComma;
+        cmd += "InitBiomass=" + InitBiomass + ",";
+        index = m_SpeciesModel->index(i,4);
+        GrowthRate = index.data().toString().remove(",");
+        cmd += "GrowthRate=" + GrowthRate + ",";
+        index = m_SpeciesModel->index(i,8);
+        valueWithoutComma = index.data().toString().remove(",");
+        SpeciesK = valueWithoutComma;
+        cmd += "SpeciesK=" + SpeciesK;
+        cmd += " WHERE SpeName = '" + SpeName + "'";
+        if (nmfUtilsQt::emptyField({SpeName,InitBiomass,GrowthRate,SpeciesK})) {
+            checkAndShowEmptyFieldError(showPopup,"saveSpeciesDataPrimary");
+            return false;
+        }
+        // Not necessary since we're saving in savePopulationParameters()
+        //errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
+        //if (nmfUtilsQt::isAnError(errorMsg)) {
+        //    m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataPrimary: Write table error: " + errorMsg);
+        //    m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
+        //    if (showPopup) {
+        //        QMessageBox::warning(Estimation_Tabs, "Error",
+        //                             "\nError in Save command.  Check that all cells are populated.\n",
+        //                             QMessageBox::Ok);
+        //    }
+        //    return false;
+        //}
+    }
+    return true;
+}
+
+
+bool
 nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
 {
-    if (isChecked(Estimation_Tab1_SpeciesSuppCB)) {
-            if (! surveyQValid(showPopup)) {
-                return false;
-            }
+    if (! isAnySurveyQZero(showPopup)) {
+        return false;
+    }
+
+    if (! isInitBiomassLessThanSpeciesKMin(showPopup)) {
+        return false;
     }
 
     if (isChecked(Estimation_Tab1_SpeciesSuppCB) &&
         isChecked(Estimation_Tab1_SpeciesRangeCB)) {
-        if (! saveSpeciesDataSupplementalAndRange(showPopup)) {
+        if (! isOkSpeciesDataSupplementalAndRange(showPopup)) {
             return false;
         }
     }
 
     if (isChecked(Estimation_Tab1_SpeciesSuppCB)) {
-        if (! saveSpeciesDataSupplemental(showPopup)) {
+        if (! isOkSpeciesDataSupplemental(showPopup)) {
             return false;
         }
     }
 
     if (isChecked(Estimation_Tab1_SpeciesRangeCB)) {
-        if (! saveSpeciesDataRange(showPopup)) {
+        if (! isOkSpeciesDataRange(showPopup)) {
             return false;
         }
     }
@@ -1268,11 +1373,8 @@ nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
         return false;
     }
 
-    if (! isInitBiomassLessThanSpeciesKMin()) {
-        return false;
-    }
-
     // update BiomassAbsolute table with the initial Biomass values
+    savePopulationParameters(showPopup);
     updateBiomassAbsoluteTable();
 
     emit ReloadSpecies(showPopup);
@@ -1321,7 +1423,7 @@ nmfEstimation_Tab1::updateBiomassAbsoluteTable()
         }
     }
 
-    emit ReloadWidgets();
+    emit ReloadSetupWidgets();
 }
 
 void
@@ -1660,9 +1762,9 @@ nmfEstimation_Tab1::loadWidgets()
         setupHelpGuilds();
     }
 
-    if (Estimation_Tab1_SpeciesRangeSB->isEnabled()) {
-        callback_SpeciesRangeSB(Estimation_Tab1_SpeciesRangeSB->value());
-    }
+//    if (Estimation_Tab1_SpeciesRangeSB->isEnabled()) {
+//        callback_SpeciesRangeSB(Estimation_Tab1_SpeciesRangeSB->value());
+//    }
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::loadWidgets end");
 
     return true;
@@ -1838,6 +1940,7 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
     // are selected, for all parameters that have min/max values.
     int col;
     int row;
+    int eeFactor;
     double pctVal = double(pct)/100.0;
     QModelIndex index;
     std::set<int> selectedParameters;
@@ -1862,16 +1965,18 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                 valueWithoutComma = index.data().toString().remove(",");
                 if ((rangeType == "min/max") || (rangeType == "min only")) {
                     newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
+                    eeFactor = (newValue < 1e-4) ? -1 : 1;
                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                                newValue,m_NumSignificantDigits,6);
+                                newValue,m_NumSignificantDigits,eeFactor*6);
                     minItem = new QStandardItem(valueWithComma);
                     minItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col+1,minItem);
                 }
                 if ((rangeType == "min/max") || (rangeType == "max only")) {
                     newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
+                    eeFactor = (newValue < 1e-4) ? -1 : 1;
                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                                newValue,m_NumSignificantDigits,6);
+                                newValue,m_NumSignificantDigits,eeFactor*6);
                     maxItem = new QStandardItem(valueWithComma);
                     maxItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col+2,maxItem);
@@ -1892,8 +1997,9 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                     index = m_SpeciesModel->index(row,col-1);
                     valueWithoutComma = index.data().toString().remove(",");
                     newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
+                    eeFactor = (newValue < 1e-4) ? -1 : 1;
                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                                newValue,m_NumSignificantDigits,6);
+                                newValue,m_NumSignificantDigits,eeFactor*6);
                     minItem = new QStandardItem(valueWithComma);
                     minItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col,minItem);
@@ -1906,8 +2012,9 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                     index    = m_SpeciesModel->index(row,col-2);
                     valueWithoutComma = index.data().toString().remove(",");
                     newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
+                    eeFactor = (newValue < 1e-4) ? -1 : 1;
                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                                newValue,m_NumSignificantDigits,6);
+                                newValue,m_NumSignificantDigits,eeFactor*6);
                     maxItem = new QStandardItem(valueWithComma);
                     maxItem->setTextAlignment(Qt::AlignCenter);
                     m_SpeciesModel->setItem(row,col,maxItem);

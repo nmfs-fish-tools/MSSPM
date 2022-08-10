@@ -95,7 +95,11 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QTableView" name="Estimation_Tab1_GuildPopulationTV"/>
+            <widget class="QTableView" name="Estimation_Tab1_GuildPopulationTV">
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Population Parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GuildName&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The name of the Guild (i.e., Group) whose data are displayed on the current row&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GrowthRate&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The population growth rate of the particular Guild (typically between 0 and 1).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GuildK&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The Guild Carrying Capacity (i.e., the maximum population size that can be sustained by the environment).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Catchability&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When Effort is selected as the Harvest type, the Catchability values are multiplied by the Effort values to give the Harvest values.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
            </item>
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -325,7 +329,11 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QTableView" name="Estimation_Tab1_SpeciesPopulationTV"/>
+            <widget class="QTableView" name="Estimation_Tab1_SpeciesPopulationTV">
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Population Parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;SpeName&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The name of the Species whose data are displayed on the current row&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;InitBiomass&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The initial absolute biomass of the particular species&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GrowthRate&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The population growth rate of the particular species (typically between 0 and 1).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;SpeciesK&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The Species Carrying Capacity (i.e., the maximum population size that can be sustained by the environment).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;SurveyQ&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When Relative Biomass is used, those values are divided by the SurveyQ values to give Absolute Biomass. N.B. The SurveyQ may never be 0.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Catchability&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When Effort is selected as the Harvest type, the Catchability values are multiplied by the Effort values to give the Harvest values.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
            </item>
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_2">

@@ -493,6 +493,7 @@ nmfMainWindow::setupOutputEstimateParametersWidgets()
     FMSYTV                  = new QTableView();
     OutputBiomassTV         = new QTableView();
     CovariateCoefficientsTV = new QTableView();
+    SurveyQTV->setObjectName("SurveyQTV");
 
     m_EstimatedParametersTW->addTab(InitBiomassTV,"Initial Absolute Biomass");
     m_EstimatedParametersTW->addTab(GrowthRateTV,"Growth Rate (r)");
@@ -1979,7 +1980,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.1.4";
+    QString version = "MSSPM v1.1.5";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2956,6 +2957,24 @@ nmfMainWindow::callback_ReloadWidgets()
 }
 
 void
+nmfMainWindow::callback_ReloadSetupWidgets()
+{
+    loadSetupWidgets();
+}
+
+void
+nmfMainWindow::loadSetupWidgets()
+{
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    Setup_Tab2_ptr->loadWidgets();
+    Setup_Tab3_ptr->loadWidgets();
+    Setup_Tab4_ptr->loadWidgets();
+
+    QApplication::restoreOverrideCursor();
+}
+
+void
 nmfMainWindow::loadAllWidgets()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -3001,10 +3020,10 @@ nmfMainWindow::refreshOutputTables()
     int colStart;
     QList<QTableView*> outputTablesNoEE =
       {InitBiomassTV, GrowthRateTV, PredationRhoTV,
-       PredationHandlingTV, PredationExponentTV, SurveyQTV,
+       PredationHandlingTV, PredationExponentTV,
        CarryingCapacityTV,  CatchabilityTV, BMSYTV,
        MSYTV, FMSYTV, CovariateCoefficientsTV, OutputBiomassTV, m_UI->OutputDataTV};
-    QList<QTableView*> outputTablesEE          = {CompetitionAlphaTV, CompetitionBetaSTV, CompetitionBetaGTV};
+    QList<QTableView*> outputTablesEE          = {SurveyQTV,CompetitionAlphaTV, CompetitionBetaSTV, CompetitionBetaGTV};
     QList<QTableView*> outputTablesDiagnostic  = {SummaryTV, DiagnosticSummaryTV};
     QList<QList<QTableView*> > allOutputTables = {outputTablesNoEE, outputTablesEE, outputTablesDiagnostic};
     QLocale locale(QLocale::English);
@@ -3025,6 +3044,7 @@ nmfMainWindow::refreshOutputTables()
             // Encoding whether to show EE notation into the numDecimals variable
             numDecimals = (outputTablesEE.indexOf(outputTable) >= 0) ? -6 : 6;
             colStart    = (outputTablesDiagnostic.indexOf(outputTable) >= 0) ? 1 : 0;
+std::cout << "Processing: " << outputTable->objectName().toStdString() << ", numDecimals: " << numDecimals << std::endl;
 
             if (outputTable != nullptr) {
                 smodel = qobject_cast<QStandardItemModel*>(outputTable->model());
@@ -3035,14 +3055,16 @@ nmfMainWindow::refreshOutputTables()
                         for (int row=0; row<numRows; ++row) {
                             for (int col=colStart; col<numCols; ++col) {
                                 valStr = smodel->index(row,col).data().toString();
-                                if ((std::fabs(valStr.toDouble()) < 0.001) &&
-                                    (outputTable == DiagnosticSummaryTV)) {
+                                if ((std::fabs(valStr.toDouble()) < 0.001) && (outputTable == DiagnosticSummaryTV)) {
                                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                                                 valStr.toDouble(),m_NumSignificantDigits,-3);
                                 } else if (valStr.contains('e') || valStr.contains('E')) {
                                     valueWithComma = (valStr.toDouble() != 0) ? valStr : "0";
                                 } else {
-                                    valueWithoutComma = valStr.remove(",");;
+                                    valueWithoutComma = valStr.remove(",");
+if (outputTable->objectName() == "SurveyQ") {
+ std::cout << "val: " << valueWithoutComma.toStdString() << std::endl;
+}
                                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                                             valueWithoutComma.toDouble(),m_NumSignificantDigits,numDecimals);
                                 }
@@ -3228,8 +3250,8 @@ nmfMainWindow::initConnections()
             this,            SLOT(callback_AddedNewDatabase()));
     connect(Setup_Tab3_ptr,  SIGNAL(ReloadWidgets()),
             this,            SLOT(callback_ReloadWidgets()));
-    connect(Estimation_Tab1_ptr, SIGNAL(ReloadWidgets()),
-            this,                SLOT(callback_ReloadWidgets()));
+    connect(Estimation_Tab1_ptr, SIGNAL(ReloadSetupWidgets()),
+            this,                SLOT(callback_ReloadSetupWidgets()));
     connect(Setup_Tab3_ptr,      SIGNAL(SaveSpeciesSupplemental(QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>)),
             Estimation_Tab1_ptr, SLOT(callback_SaveSpeciesCSVFile(QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>)));
     connect(Setup_Tab3_ptr,      SIGNAL(SaveGuildSupplemental(QList<QString>,QList<QString>,QList<QString>)),
@@ -4965,9 +4987,9 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
             if (relativeBiomass == nmfConstantsMSSPM::NoData) {
                 quotient = relativeBiomass;
             } else {
-                quotient = (surveyQTerm != 0) ? (relativeBiomass/surveyQTerm) : 0;
+                quotient = (surveyQTerm != 0) ? (relativeBiomass/surveyQTerm) : 0; // Scaling up the biomass
             }
-            // Write product to BiomassRelativeDividedByEstSurveyQ table
+            // Write quotient to BiomassRelativeDividedByEstSurveyQ table
             cmd += "('"   + m_ProjectName +
                     "','" + m_ModelName +
                     "','" + Species.toStdString() +
@@ -4978,12 +5000,12 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::updateBiomassEnsembleTable: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::updateObservedBiomassAndEstSurveyQTable: Write table error: " + errorMsg);
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return false;
     }
     if (zeroError) {
-        m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::updateBiomassEnsembleTable: Found 0 in EstSurveyQ table");
+        m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::updateObservedBiomassAndEstSurveyQTable: Found 0 in EstSurveyQ table");
         m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return false;
     }
@@ -6027,6 +6049,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     int NumRecords;
     int RunLength;
     int StartYear;
+    int eeFactor;
     int NumLines = getNumLines();
     double ScaleVal = 1.0;
     double val = 0.0;
@@ -6212,8 +6235,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         for (int line=0; line<NumLines; ++line) {
             for (int j=0; j<NumSpeciesOrGuilds; ++j) {
                 val = std::stod(dataMap["Value"][j]);
+                eeFactor = (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputSurveyQ) ? -1 : 1;
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                            val,m_NumSignificantDigits,6);
+                            val,m_NumSignificantDigits,eeFactor*6);
                 item = new QStandardItem(valueWithComma);
                 item->setTextAlignment(Qt::AlignCenter);
                 smodel->setItem(j, 0, item);
@@ -6397,6 +6421,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     // Calculate ScaleStr and Scaleval
     ScaleVal = convertUnitsStringToValue(ScaleStr);
     if (OutputType == nmfConstantsMSSPM::OutputChartBiomass) {
+//std::cout << "Herring (1,0): " << ObservedBiomass(1,0) << std::endl; RSK
         showChartBiomassVsTime(NumSpeciesOrGuilds,OutputSpecies,
                                SpeciesNum,RunLength,StartYear,
                                Algorithms,
@@ -10068,8 +10093,8 @@ std::cout << "New Project Name: " << m_ProjectName << std::endl;
   connect(Setup_Tab2_ptr, SIGNAL(LoadProject()),
           this,           SLOT(callback_LoadProject()));
 
-//enableApplicationFeatures("AllOtherGroups",setupIsComplete());
-  enableApplicationFeatures("AllOtherGroups",false);
+  enableApplicationFeatures("AllOtherGroups",setupIsComplete());
+//enableApplicationFeatures("AllOtherGroups",false);
 
 //callback_ModelLoaded();
   Setup_Tab4_ptr->callback_ClearModelName();
@@ -14161,6 +14186,7 @@ nmfMainWindow::callback_AddedNewDatabase()
 void
 nmfMainWindow::callback_ProjectSaved()
 {
+std::cout << "callback_ProjectSaved" << std::endl;
     updateWindowTitle();
     enableApplicationFeatures("SetupGroup",true);
     enableApplicationFeatures("AllOtherGroups",setupIsComplete());
@@ -14485,6 +14511,7 @@ nmfMainWindow::callback_SetChartView2d(bool setTo2d)
 void
 nmfMainWindow::callback_ToDoAfterModelSave()
 {
+std::cout << "callback_ToDoAfterModelSave" << std::endl;
     enableApplicationFeatures("AllOtherGroups",setupIsComplete());
     Estimation_Tab7_ptr->clearEnsembleFile();
     Estimation_Tab7_ptr->enableNonEnsembleWidgets(true);

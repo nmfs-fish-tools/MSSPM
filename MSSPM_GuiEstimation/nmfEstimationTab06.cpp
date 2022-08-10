@@ -628,9 +628,9 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
     if (NumRecords == 0) {
         msg = "nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable: No data found in table: " + tableName;
         m_Logger->logMsg(nmfConstants::Error,msg);
-        QMessageBox::information(Estimation_Tabs, "Covariate Initial Values and Ranges Load Error",
-                                 "\n" + QString::fromStdString(msg) + "\n",
-                                 QMessageBox::Ok);
+        //QMessageBox::information(Estimation_Tabs, "Covariate Initial Values and Ranges Load Error",
+        //                         "\n" + QString::fromStdString(msg) + "\n",
+        //                         QMessageBox::Ok);
         return false;
     }
     int NumParameters = NumRecords/NumSpecies;

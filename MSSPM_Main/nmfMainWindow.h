@@ -777,6 +777,7 @@ private:
     void readSettings();
     void readSettingsGuiOrientation(bool alsoResetPosition);
     void loadAllWidgets();
+    void loadSetupWidgets();
     void refreshOutputTables();
 //    void removeExistingMultiRuns();
     void runBeesAlgorithm(bool showDiagnosticsChart,
@@ -1250,6 +1251,10 @@ public slots:
      * @brief Callback invoked when user needs to reload the Main application's widgets
      */
     void callback_ReloadWidgets();
+    /**
+     * @brief Callback invoked when user needs to reload the Setup widgets
+     */
+    void callback_ReloadSetupWidgets();
     /**
      * @brief Callback invoked when user needs to reset the toolbar's filter buttons
      */
