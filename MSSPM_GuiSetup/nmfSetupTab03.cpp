@@ -689,8 +689,6 @@ nmfSetup_Tab3::saveGuildData()
     std::string GuildName,GuildK;
     std::string GuildKMin,GuildKMax;
     std::string GrowthRate,GrowthRateMin,GrowthRateMax,Catchability,CatchabilityMin,CatchabilityMax;
-    //double GuildKVal; //,GuildKMinVal,GuildKMaxVal;
-    //double GrowthRateVal; //,GrowthRateMinVal,GrowthRateMaxVal;
     std::vector<std::string> guilds;
     QString valueWithoutComma;
 
@@ -718,28 +716,6 @@ nmfSetup_Tab3::saveGuildData()
         } else {
             GuildList << QString::fromStdString(GuildName);
         }
-//        if (GrowthRateMinVal > GrowthRateMaxVal) {
-//            errorMsg = "\nFound: GrowthRateMinVal > GrowthRateMaxVal for Guild: " + GuildName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        } else if ((GrowthRateVal < GrowthRateMinVal) || (GrowthRateVal > GrowthRateMaxVal)) {
-//            errorMsg = "\nFound: GrowthRate value outside of its Min,Max range for Guild: " + GuildName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        }
-//        if (GuildKMinVal > GuildKMaxVal) {
-//            errorMsg = "\nFound: GuildKMinVal > GuildKMaxVal for Guild: " + GuildName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        } else if ((GuildKVal < GuildKMinVal) || (GuildKVal > GuildKMaxVal)) {
-//            errorMsg = "\nFound: GuildKVal value outside of its Min,Max range for Guild: " + GuildName;
-//            QMessageBox::warning(Setup_Tabs,"Warning", QString::fromStdString(errorMsg),
-//                                 QMessageBox::Ok);
-//            return;
-//        }
     }
 
     // Delete current Guilds table
@@ -1009,19 +985,22 @@ nmfSetup_Tab3::callback_CalcGuildsPB()
     QString guildName;
     QComboBox* guildCMB;
     std::map<QString,double> guildMap;
+    QString valueWithComma;
 
     // Load up the guild map with carrying capacity totals per guild
     int numSpecies = Setup_Tab3_SpeciesTW->rowCount();
     for (int i=0; i<numSpecies; ++i) {
         guildCMB = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(i,1));
-        guildMap[guildCMB->currentText()] += Setup_Tab3_SpeciesTW->item(i, 4)->text().toDouble();
+        guildMap[guildCMB->currentText()] += Setup_Tab3_SpeciesTW->item(i, 4)->text().remove(",").toDouble();
     }
 
     // Transfer data from the guild map to the guild table
     int numGuilds  = Setup_Tab3_GuildsTW->rowCount();
     for (int i=0; i<numGuilds; ++i) {
         guildName = Setup_Tab3_GuildsTW->item(i,0)->text();
-        Setup_Tab3_GuildsTW->item(i,2)->setText(QString::number(guildMap[guildName],'f',6));
+        valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                         guildMap[guildName],m_NumSignificantDigits,6);
+        Setup_Tab3_GuildsTW->item(i,2)->setText(valueWithComma);
     }
     Setup_Tab3_GuildsTW->resizeColumnsToContents();
 }

@@ -1980,7 +1980,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.1.5";
+    QString version = "MSSPM v1.1.6";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3044,8 +3044,6 @@ nmfMainWindow::refreshOutputTables()
             // Encoding whether to show EE notation into the numDecimals variable
             numDecimals = (outputTablesEE.indexOf(outputTable) >= 0) ? -6 : 6;
             colStart    = (outputTablesDiagnostic.indexOf(outputTable) >= 0) ? 1 : 0;
-std::cout << "Processing: " << outputTable->objectName().toStdString() << ", numDecimals: " << numDecimals << std::endl;
-
             if (outputTable != nullptr) {
                 smodel = qobject_cast<QStandardItemModel*>(outputTable->model());
                 if (smodel) {
@@ -3062,9 +3060,6 @@ std::cout << "Processing: " << outputTable->objectName().toStdString() << ", num
                                     valueWithComma = (valStr.toDouble() != 0) ? valStr : "0";
                                 } else {
                                     valueWithoutComma = valStr.remove(",");
-if (outputTable->objectName() == "SurveyQ") {
- std::cout << "val: " << valueWithoutComma.toStdString() << std::endl;
-}
                                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                                             valueWithoutComma.toDouble(),m_NumSignificantDigits,numDecimals);
                                 }
@@ -6855,7 +6850,7 @@ nmfMainWindow::callback_ShowChartBy(QString GroupType,
     }
     NumLines = OutputBiomassSpecies.size();
 
-    // Group-specific code here (i.e., Species, Guild, System)
+    // Group-specific code here (i.e., Species, Guild, System) -RSKRSK
     OutputBiomass   = getOutputBiomassByGroup(RunLength,OutputBiomassSpecies,GroupType.toStdString());
     ObservedBiomass = getObservedBiomassByGroup(NumGuilds,RunLength,GroupType.toStdString());
     if (GroupType == "Guild") {
@@ -13639,6 +13634,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                                NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
             return false;
         }
+
         //  m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Relative Biomass");
     } else {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
@@ -13663,6 +13659,7 @@ std::cout << "Warning: If loading observed biomass by guild, must account for us
     }
 
     // Assure all appropriate dataStruct elements are in metric tons
+    // dataStruct.ObservedBiomassBySpecies(row,species)
     if (isSurveyQ) {
         if (previousUnits.find(tableBiomassRelative) != previousUnits.end()) {
             nmfUtilsQt::convertMatrix(dataStruct.ObservedBiomassBySpecies,previousUnits[tableBiomassRelative],"mt", nmfConstantsMSSPM::DontConvertBlanks);
