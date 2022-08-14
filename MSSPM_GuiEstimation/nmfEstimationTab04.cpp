@@ -451,7 +451,7 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
     QStandardItemModel* smodel;
 
     // Check each of the 3 tableviews
-    if (  isTypeI() && tableViews.size() == m_TableViewsTypeI.size() &&
+    if (! isTypeI() || (tableViews.size() != m_TableViewsTypeI.size()) ||
         ! nmfUtilsQt::runAllTableChecks(m_Logger,Estimation_Tabs,
                                         tableViews[0],
                                         tableViews[1],
@@ -460,12 +460,17 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
                                         tableViews[4],
                                         tableViews[5])) {
         return false;
-    } else {
-        m_Logger->logMsg(nmfConstants::Warning,"Number of Predation tables should be 3. Found instead: " + std::to_string(tableViews.size()));
     }
+//    else {
+//        m_Logger->logMsg(nmfConstants::Warning,"Number of Predation tables should be 6. Found instead: " + std::to_string(tableViews.size()));
+//    }
 
     for (unsigned int k=0; k<tableViews.size(); ++k) {
         smodel  = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
+        // Necessary if the user doesn't have any Competition
+        if ((smodel->rowCount() == 0) || (smodel->columnCount() == 0)) {
+            continue;
+        }
         cmd = "DELETE FROM " +
                tableNames[k] +
               " WHERE ProjectName = '" + m_ProjectName +

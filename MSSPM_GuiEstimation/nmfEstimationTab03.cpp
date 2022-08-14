@@ -548,6 +548,10 @@ nmfEstimation_Tab3::callback_SavePB()
         }
         for (unsigned int k=0; k<m_AlphaTables.size(); ++k) {
             ++tableInc;
+            // Necessary if the user doesn't have any Predation
+            if ((m_SModels[tableInc]->rowCount() == 0) || (m_SModels[tableInc]->columnCount() == 0)) {
+                continue;
+            }
             cmd = "DELETE FROM " +
                    m_AlphaTables[tableInc] +
                   " WHERE ProjectName = '" + m_ProjectName +
