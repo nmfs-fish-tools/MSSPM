@@ -666,10 +666,12 @@ NLopt_Estimator::loadInitBiomassParameterRanges(
 {
     bool isCheckedInitBiomass = nmfUtils::isEstimateParameterChecked(dataStruct,"InitBiomass");
     std::pair<double,double> aPair;
-
     // Always load initial biomass values
     for (unsigned species=0; species<dataStruct.InitBiomassMin.size(); ++species) {
         if (isCheckedInitBiomass) {
+std::cout << "isCheckedInitBiomass: " << dataStruct.InitBiomassMin[species]
+             << ", " << dataStruct.InitBiomassMax[species] << std::endl;
+
             aPair = std::make_pair(dataStruct.InitBiomassMin[species],
                                    dataStruct.InitBiomassMax[species]);
         } else {
@@ -697,7 +699,8 @@ NLopt_Estimator::loadSurveyQParameterRanges(
             aPair = std::make_pair(dataStruct.SurveyQMin[species],
                                    dataStruct.SurveyQMax[species]);
         } else {
-            aPair = std::make_pair(1.0,1.0);
+            aPair = std::make_pair(dataStruct.SurveyQ[species],
+                                   dataStruct.SurveyQ[species]);
         }
         parameterRanges.emplace_back(aPair);
     }
