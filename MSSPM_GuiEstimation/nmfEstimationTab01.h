@@ -76,7 +76,9 @@ class nmfEstimation_Tab1: public QObject
     QPushButton*  Estimation_Tab1_RestorePB;
     QPushButton*  Estimation_Tab1_SavePB;
     QSlider*      Estimation_Tab1_ModifySL;
+    QSlider*      Estimation_Tab1_ModifySLGuilds;
     QPushButton*  Estimation_Tab1_ModifyRunPB;
+    QPushButton*  Estimation_Tab1_ModifyPBGuilds;
     QCheckBox*    Estimation_Tab1_GuildSuppCB;
     QCheckBox*    Estimation_Tab1_SpeciesSuppCB;
     QCheckBox*    Estimation_Tab1_GuildRangeCB;

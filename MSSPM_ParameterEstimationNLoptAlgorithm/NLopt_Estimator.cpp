@@ -669,9 +669,6 @@ NLopt_Estimator::loadInitBiomassParameterRanges(
     // Always load initial biomass values
     for (unsigned species=0; species<dataStruct.InitBiomassMin.size(); ++species) {
         if (isCheckedInitBiomass) {
-std::cout << "isCheckedInitBiomass: " << dataStruct.InitBiomassMin[species]
-             << ", " << dataStruct.InitBiomassMax[species] << std::endl;
-
             aPair = std::make_pair(dataStruct.InitBiomassMin[species],
                                    dataStruct.InitBiomassMax[species]);
         } else {

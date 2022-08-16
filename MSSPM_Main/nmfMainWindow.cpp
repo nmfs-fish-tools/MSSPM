@@ -1980,7 +1980,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.1.8";
+    QString version = "MSSPM v1.1.9";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2970,6 +2970,9 @@ nmfMainWindow::loadSetupWidgets()
     Setup_Tab2_ptr->loadWidgets();
     Setup_Tab3_ptr->loadWidgets();
     Setup_Tab4_ptr->loadWidgets();
+
+    // Necessary to reset the parameter estimation checkboxes
+    Estimation_Tab7_ptr->loadWidgets();
 
     QApplication::restoreOverrideCursor();
 }

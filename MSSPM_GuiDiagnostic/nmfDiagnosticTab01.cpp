@@ -1276,9 +1276,9 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
                "','" + Scaling +
                "',"  + isAggProd +
                ",'"  + std::get<0>(DiagnosticTupleVector[m]).toStdString() +
-               "',"  + std::to_string(std::get<1>(DiagnosticTupleVector[m])) +
-               ","   + std::to_string(std::get<2>(DiagnosticTupleVector[m])) +
-               ","   + std::to_string(std::get<3>(DiagnosticTupleVector[m])) + "),";
+               "',"  + QString::number(std::get<1>(DiagnosticTupleVector[m])).toStdString() +
+               ","   + QString::number(std::get<2>(DiagnosticTupleVector[m])).toStdString() +
+               ","   + QString::number(std::get<3>(DiagnosticTupleVector[m])).toStdString() + "),";
    }
    cmd = cmd.substr(0,cmd.size()-1);
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
@@ -1333,9 +1333,9 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
                "',"  + isAggProd +
                ",'"  + std::get<0>(DiagnosticTupleVector[m]).toStdString() +
                "','" + SurfaceType +
-               "',"  + std::to_string(std::get<1>(DiagnosticTupleVector[m])) +
-               ","   + std::to_string(std::get<2>(DiagnosticTupleVector[m])) +
-               ","   + std::to_string(std::get<3>(DiagnosticTupleVector[m])) + "),";
+               "',"  + QString::number(std::get<1>(DiagnosticTupleVector[m])).toStdString() +
+               ","   + QString::number(std::get<2>(DiagnosticTupleVector[m])).toStdString() +
+               ","   + QString::number(std::get<3>(DiagnosticTupleVector[m])).toStdString() + "),";
        ++m;
    }
    cmd = cmd.substr(0,cmd.size()-1);

@@ -50,7 +50,9 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     Estimation_Tab1_RestorePB           = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_RestorePB");
     Estimation_Tab1_SavePB              = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_SavePB");
     Estimation_Tab1_ModifySL            = Estimation_Tabs->findChild<QSlider     *>("Estimation_Tab1_ModifySL");
+    Estimation_Tab1_ModifySLGuilds      = Estimation_Tabs->findChild<QSlider     *>("Estimation_Tab1_ModifySLGuilds");
     Estimation_Tab1_ModifyRunPB         = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_ModifyRunPB");
+    Estimation_Tab1_ModifyPBGuilds      = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab1_ModifyPBGuilds");
     Estimation_Tab1_ModifyRunCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab1_ModifyRunCB");
     Estimation_Tab1_SpeciesSuppCB       = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab1_SpeciesSuppCB");
     Estimation_Tab1_GuildSuppCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab1_GuildSuppCB");
@@ -60,6 +62,8 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     Estimation_Tab1_GuildRangeCB        = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab1_GuildRangeCB");
     Estimation_Tab1_MinMaxCMB           = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab1_MinMaxCMB");
     Estimation_Tab1_ModifySL->setValue(m_StartPosSL); // Set midpoint position to start
+    // This button not currently necessary
+    Estimation_Tab1_RestorePB->hide();
 
     //nmfTableView* Estimation_Tab1_PopulationTV = new nmfTableView();
     QFont noBoldFont;
@@ -70,6 +74,8 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     Estimation_Tab1_ModifySL->hide();
     Estimation_Tab1_ModifyRunPB->hide();
     Estimation_Tab1_ModifyRunCB->hide();
+    Estimation_Tab1_ModifySLGuilds->hide();
+    Estimation_Tab1_ModifyPBGuilds->hide();
 
     connect(Estimation_Tab1_PopulationTabW, SIGNAL(currentChanged(int)),
             this,                           SLOT(callback_CurrentTabChanged(int)));
@@ -168,8 +174,8 @@ nmfEstimation_Tab1::callback_CurrentTabChanged(int tab)
 
 //  Estimation_Tab1_ModifySL->setDisabled(! isSpeciesTab);
 //  Estimation_Tab1_ModifyRunPB->setDisabled(! isSpeciesTab);
-    Estimation_Tab1_ModifySL->setEnabled(isSpeciesTab);
-    Estimation_Tab1_ModifyRunPB->setEnabled(isSpeciesTab);
+//    Estimation_Tab1_ModifySL->setEnabled(isSpeciesTab);
+//    Estimation_Tab1_ModifyRunPB->setEnabled(isSpeciesTab);
 }
 
 void
@@ -622,10 +628,10 @@ nmfEstimation_Tab1::isChecked(QCheckBox* cb)
 void
 nmfEstimation_Tab1::resetModifySlider()
 {
-    Estimation_Tab1_ModifySL->blockSignals(true);
-    Estimation_Tab1_ModifySL->setValue(50);
-    Estimation_Tab1_ModifySL->blockSignals(false);
-    Estimation_Tab1_ModifySL->repaint(); // so widget refreshes immediately
+//    Estimation_Tab1_ModifySL->blockSignals(true);
+//    Estimation_Tab1_ModifySL->setValue(50);
+//    Estimation_Tab1_ModifySL->blockSignals(false);
+//    Estimation_Tab1_ModifySL->repaint(); // so widget refreshes immediately
 }
 
 void
@@ -1373,6 +1379,7 @@ nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
         return false;
     }
 
+
     // update BiomassAbsolute table with the initial Biomass values
     savePopulationParameters(showPopup);
     updateBiomassAbsoluteTable();
@@ -1802,14 +1809,15 @@ nmfEstimation_Tab1::loadGuilds()
     for (int row=0; row<NumGuilds; ++row) {
         col = 0;
         for (QString field : PopulationFieldList) {
+            value = QString::fromStdString(dataMap[field.toStdString()][row]);
             if (PopulationFieldList[col].contains("GuildK")) {
-//              valueWithComma = locale.toString(field.toDouble());
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                            field.toDouble(),m_NumSignificantDigits,6);
+                            value.toDouble(),m_NumSignificantDigits,6);
                 value = valueWithComma;
-            } else {
-                value = QString::fromStdString(dataMap[field.toStdString()][row]);
             }
+//            else {
+//                value = QString::fromStdString(dataMap[field.toStdString()][row]);
+//            }
             item = new QStandardItem(value);
             item->setTextAlignment(Qt::AlignCenter);
             m_GuildModel->setItem(row, col++, item);

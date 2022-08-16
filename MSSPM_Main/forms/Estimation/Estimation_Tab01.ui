@@ -106,7 +106,7 @@
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_6">
                <item>
-                <widget class="QSlider" name="Estimation_Tab1_ModifySL_2">
+                <widget class="QSlider" name="Estimation_Tab1_ModifySLGuilds">
                  <property name="toolTip">
                   <string>Allows user to modify selected values and see the results in real-time</string>
                  </property>
@@ -139,7 +139,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="Estimation_Tab1_ModifyPB_2">
+              <widget class="QPushButton" name="Estimation_Tab1_ModifyPBGuilds">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
