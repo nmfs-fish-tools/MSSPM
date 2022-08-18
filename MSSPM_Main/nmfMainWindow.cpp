@@ -120,7 +120,8 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     readSettingsGuiOrientation(nmfConstantsMSSPM::ResetPositionAlso);
     readSettings();
 
-    m_TableNamesDlg = new TableNamesDialog(this, m_DatabasePtr);
+    m_TableNamesDlg      = new TableNamesDialog(   this, m_DatabasePtr);
+    m_TroubleshootingDlg = new ScrollingTextDialog(this,"Troubleshooting");
     initializePreferencesDlg();
 
     // Hide Progress Chart and Log dock widgets. Show them once user does their first MSSPM run.
@@ -1980,7 +1981,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.1.9";
+    QString version = "MSSPM v1.2.0";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2096,6 +2097,56 @@ nmfMainWindow::menu_toggleSignificantDigits()
     saveSettings();
     loadAllWidgets();
 
+}
+
+void
+nmfMainWindow::menu_troubleshooting()
+{
+    QString msg;
+    QStringList topics,solutions;
+    QMessageBox mbox;
+
+    // List troubleshooting topics here
+    topics << "Import doesn't work";
+    topics << "Accidentally closed a sub-panel";
+    topics << "How to revert back to default GUI layout";
+    topics << "Poor fit when estimating parameters";
+    topics << "How to get help";
+
+    // List troubleshooting solutions here
+    solutions << "The import feature uses the mysql exe found on disk. Please make sure the executable is found when you type it at the command prompt.<br>";
+    solutions << "To show a hidden sub-panel, right-click on the main menu bar and select the sub-panel to show.<br>";
+    solutions << "From main menu, select Layouts->Default to revert to default layout.<br>";
+    solutions << QString("Try one or more of the following:<ul>") +
+                 QString("<li>Adjust parameter initial values</li>") +
+                 QString("<li>Adjust parameter ranges</li>") +
+                 QString("<li>Adjust model algorithm and/or algorithm parameters</li>") +
+                 QString("</ul>");
+    solutions << QString("MSSPM has 2 forms of help:<ol>") +
+                 QString("<li>Hover Help<br><br>- Hold cursor over GUI item for a brief popup<br></li>") +
+                 QString("<li>\"What's This?\" Help<br><br>- Click the arrow/question mark button at the end of the "
+                         "main menu toolbar and then click over a GUI item when the cursor becomes a question mark with an arrow at the end</li>") +
+                 QString("</ol>");
+
+    // Display the troubleshooting text; first topics with links, then the solutions
+    int i=1;
+    msg = "<h3 id=\"top\"><center><b><br>Issues</b></center></h3><br>";
+    for (QString topic : topics) {
+       msg += QString::number(i) + ". " + "<a href=\"#Topic" + QString::number(i) + "\">" + topic + "</a><br><br>";
+       ++i;
+    }
+
+    i = 1;
+    msg += "<h3 id=\"solutions\"><center><b>Solutions</b></center></h3>";
+    for (QString topic : topics) {
+        msg += "<h4 id=\"Topic"+QString::number(i)+"\"><br><b>"+QString::number(i)+". "+topic+"</h4>";
+        msg +=  solutions[i-1];
+        msg += "<br><a href=\"#top\">top</a>";
+        ++i;
+    }
+
+    m_TroubleshootingDlg->loadText(msg);
+    m_TroubleshootingDlg->show();
 }
 
 void
@@ -3179,9 +3230,10 @@ nmfMainWindow::initConnections()
     connect(m_UI->actionPasteAll,           SIGNAL(triggered()),
             this,                           SLOT(menu_pasteAll()));
     connect(m_UI->actionClearOutputData,    SIGNAL(triggered()),
-            this,                           SLOT(menu_clearOutputData()));
+            this,                           SLOT(menu_clearOutputData()));   
     connect(m_UI->actionClearSpecificOutputData,       SIGNAL(triggered()),
             this,                                      SLOT(menu_clearSpecificOutputData()));
+
 //  connect(ui->actionGenerateLinearObservedBiomass,   SIGNAL(triggered()),
 //          this,                                      SLOT(menu_generateLinearObservedBiomass()));
 //  connect(ui->actionGenerateLogisticObservedBiomass, SIGNAL(triggered()),
@@ -3234,6 +3286,8 @@ nmfMainWindow::initConnections()
             this,                                                SLOT(menu_createSimulatedBiomass()));
     connect(m_UI->actionToggleSignificantDigits,                 SIGNAL(triggered()),
             this,                                                SLOT(menu_toggleSignificantDigits()));
+    connect(m_UI->actionTroubleshooting,                         SIGNAL(triggered()),
+            this,                                                SLOT(menu_troubleshooting()));
 
     // Widget connections
     connect(NavigatorTree,   SIGNAL(itemSelectionChanged()),

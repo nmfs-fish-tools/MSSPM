@@ -85,6 +85,7 @@
 #include "nmfOutputTableWidgets.h"
 #include "nmfViewerWidget.h"
 #include "TableNamesDialog.h"
+#include "ScrollingTextDialog.h"
 
 #include <QtDataVisualization>
 #include <QDateTime>
@@ -283,6 +284,7 @@ private:
     nmfSetup_Tab4*           Setup_Tab4_ptr;
     QDialog*                 m_PreferencesDlg;
     TableNamesDialog*        m_TableNamesDlg;
+    ScrollingTextDialog*     m_TroubleshootingDlg;
     QWidget*                 m_PreferencesWidget;
 	QWidget*                 m_TableNamesWidget;
     QTabWidget*              m_EstimatedParametersTW;
@@ -1612,7 +1614,7 @@ public slots:
     void menu_toggleManagerMode();
     void menu_toggleManagerModeViewer();
     void menu_toggleSignificantDigits();
-
+    void menu_troubleshooting();
 
     void callback_PreferencesOkPB();
     void callback_ErrorFound(std::string errorMsg);

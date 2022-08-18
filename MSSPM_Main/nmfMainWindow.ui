@@ -151,6 +151,8 @@
     <addaction name="actionWhatsThis"/>
     <addaction name="actionResetCursor"/>
     <addaction name="separator"/>
+    <addaction name="actionTroubleshooting"/>
+    <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuUtilities">
@@ -956,6 +958,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionTroubleshooting">
+   <property name="text">
+    <string>Troubleshooting...</string>
+   </property>
+   <property name="toolTip">
+    <string>Show list of Troubleshooting topics</string>
    </property>
   </action>
  </widget>
