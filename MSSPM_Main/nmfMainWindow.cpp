@@ -2113,21 +2113,24 @@ nmfMainWindow::menu_toggleSignificantDigits()
 void
 nmfMainWindow::menu_troubleshooting()
 {
+    QString eol;
     QString msg;
     QStringList topics,solutions;
     QMessageBox mbox;
 
     // List troubleshooting topics here
     topics << "Import doesn't work";
+    topics << "No Models available after an Import";
     topics << "Accidentally closed a sub-panel";
     topics << "How to revert back to default GUI layout";
     topics << "Poor fit when estimating parameters";
     topics << "How to get help";
 
     // List troubleshooting solutions here
-    solutions << "The import feature uses the mysql exe found on disk. Please make sure the executable is found when you type it at the command prompt. On Windows, must add mysql.exe path to Path system environment variable<br>";
-    solutions << "To show a hidden sub-panel, right-click on the main menu bar and select the sub-panel to show.<br>";
-    solutions << "From main menu, select Layouts->Default to revert to default layout.<br>";
+    solutions << "The import feature uses the mysql exe found on disk. Please make sure the executable is found when you type it at the command prompt. On Windows, must add mysql.exe path to Path system environment variable";
+    solutions << "The project name of an imported database must be the same as the current project name.";
+    solutions << "To show a hidden sub-panel, right-click on the main menu bar and select the sub-panel to show.";
+    solutions << "From main menu, select Layouts->Default to revert to default layout.";
     solutions << QString("Try one or more of the following:<ul>") +
                  QString("<li>Adjust parameter initial values</li>") +
                  QString("<li>Adjust parameter ranges</li>") +
@@ -2143,15 +2146,16 @@ nmfMainWindow::menu_troubleshooting()
     int i=1;
     msg = "<h3 id=\"top\"><center><b><br>Issues</b></center></h3><br>";
     for (QString topic : topics) {
-       msg += QString::number(i) + ". " + "<a href=\"#Topic" + QString::number(i) + "\">" + topic + "</a><br><br>";
-       ++i;
+        msg += QString::number(i) + ". " + "<a href=\"#Topic" + QString::number(i) + "\">" + topic + "</a><br><br>";
+        ++i;
     }
 
     i = 1;
     msg += "<h3 id=\"solutions\"><center><b>Solutions</b></center></h3>";
     for (QString topic : topics) {
+        eol  = (solutions[i-1].contains("<li>")) ? "" : "<br>";
         msg += "<h4 id=\"Topic"+QString::number(i)+"\"><br><b>"+QString::number(i)+". "+topic+"</h4>";
-        msg +=  solutions[i-1];
+        msg +=  solutions[i-1] + eol;
         msg += "<br><a href=\"#top\">top</a>";
         ++i;
     }
