@@ -1397,6 +1397,7 @@ qDebug() << "dbName: " << dbName;
         if (items.size() == 0) {
             std::string currentDatabase = m_DatabasePtr->nmfGetCurrentDatabase();
             QString qmsg = "\nNo projects found to load in database: "+QString::fromStdString(currentDatabase)+"\n";
+            qmsg += "Database may not have loaded properly. Check that the mysql.exe application is in the PATH environment variable.\n";
             QMessageBox::warning(this, "Error", qmsg, QMessageBox::Ok);
             return;
         }
@@ -1413,6 +1414,16 @@ qDebug() << "dbName: " << dbName;
         } else { // the user clicked Cancel...so select the first project in the list
             Setup_Tab2_ptr->setProjectName(items[0]);
             Remora_ptr->setProjectName(items[0].toStdString());
+        }
+
+        // Check that the project name is the same as at least one of the project names found in the models table
+        if (! items.contains(QString::fromStdString(m_ProjectName))) {
+            QString qmsg = "\nProject Name must be one of the following:\n\n";
+            for (QString item : items) {
+                qmsg += item + "\n";
+            }
+            qmsg += "\nPlease check current Project Name.\n";
+            QMessageBox::warning(this, "Error", qmsg, QMessageBox::Ok);
         }
 
         Setup_Tab2_ptr->saveSettings(nmfConstantsMSSPM::ClearModelName);
@@ -1981,7 +1992,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.2.0";
+    QString version = "MSSPM v1.2.1";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2114,7 +2125,7 @@ nmfMainWindow::menu_troubleshooting()
     topics << "How to get help";
 
     // List troubleshooting solutions here
-    solutions << "The import feature uses the mysql exe found on disk. Please make sure the executable is found when you type it at the command prompt.<br>";
+    solutions << "The import feature uses the mysql exe found on disk. Please make sure the executable is found when you type it at the command prompt. On Windows, must add mysql.exe path to Path system environment variable<br>";
     solutions << "To show a hidden sub-panel, right-click on the main menu bar and select the sub-panel to show.<br>";
     solutions << "From main menu, select Layouts->Default to revert to default layout.<br>";
     solutions << QString("Try one or more of the following:<ul>") +
@@ -3300,6 +3311,8 @@ nmfMainWindow::initConnections()
             this,            SLOT(callback_ProjectSaved()));
     connect(Setup_Tab2_ptr,  SIGNAL(AddedNewDatabase()),
             this,            SLOT(callback_AddedNewDatabase()));
+    connect(Setup_Tab2_ptr,  SIGNAL(ImportDatabase()),
+            this,            SLOT(callback_ImportDatabase()));
     connect(Setup_Tab3_ptr,  SIGNAL(ReloadWidgets()),
             this,            SLOT(callback_ReloadWidgets()));
     connect(Estimation_Tab1_ptr, SIGNAL(ReloadSetupWidgets()),
@@ -14235,6 +14248,15 @@ nmfMainWindow::callback_AddedNewDatabase()
     updateWindowTitle();
     enableApplicationFeatures("SetupGroup",true);
     enableApplicationFeatures("AllOtherGroups",false);
+}
+
+void
+nmfMainWindow::callback_ImportDatabase()
+{
+    QString msg = "\nPlease be patient. File import may take several minutes depending upon file size and computer speed.\n";
+    QMessageBox::information(this, tr("Import Database"), tr(msg.toLatin1()), QMessageBox::Ok);
+
+    importDatabase("",nmfConstantsMSSPM::VerboseOff);
 }
 
 void

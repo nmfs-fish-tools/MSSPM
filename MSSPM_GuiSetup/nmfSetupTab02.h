@@ -62,7 +62,8 @@ class nmfSetup_Tab2: public QObject
     QComboBox*   Setup_Tab2_ProjectDatabaseCMB;
     QPushButton* Setup_Tab2_ProjectDirBrowsePB;
     QPushButton* Setup_Tab2_DelDatabasePB;
-    QPushButton* Setup_Tab2_AddDatabasePB;
+    QPushButton* Setup_Tab2_NewDatabasePB;
+    QPushButton* Setup_Tab2_ImportDatabasePB;
     QPushButton* Setup_Tab2_SaveProjectPB;
     QPushButton* Setup_Tab2_NewProjectPB;
     QPushButton* Setup_Tab2_DelProjectPB;
@@ -86,6 +87,10 @@ signals:
      * after user has deleted the current database
      */
     void ClearEstimationTables();
+    /**
+     * @brief Signal emitted to import a database into the current project
+     */
+    void ImportDatabase();
     /**
      * @brief Signal emitted to notify the application that a new Project has been loaded
      */
@@ -238,10 +243,6 @@ public:
 
 public Q_SLOTS:
     /**
-     * @brief Callback invoked when the user adds a new database
-     */
-    void callback_Setup_Tab2_AddDatabase();
-    /**
      * @brief Callback invoked when the user wants to browse for a new Project
      */
     void callback_Setup_Tab2_BrowseProject();
@@ -259,8 +260,16 @@ public Q_SLOTS:
      */
     void callback_Setup_Tab2_DelProject();
     /**
-     * @brief Callback invoked when the user creates a new Project
+     * @brief Callback invoked when the user imports a database from a file
      */
+    void callback_Setup_Tab2_ImportDatabase();
+    /**
+     * @brief Callback invoked when the user creates a new database
+     */
+    void callback_Setup_Tab2_NewDatabase();
+    /**
+     * @brief Callback invoked when the user creates a new Project
+     */    
     void callback_Setup_Tab2_NewProject();
     /**
      * @brief Callback invoked when the user has finished editing the

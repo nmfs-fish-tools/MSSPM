@@ -41,7 +41,8 @@ nmfSetup_Tab2::nmfSetup_Tab2(QTabWidget* tabs,
     Setup_Tab2_ProjectDatabaseCMB = Setup_Tabs->findChild<QComboBox   *>("Setup_Tab2_ProjectDatabaseCMB");
     Setup_Tab2_ProjectAuthorLE    = Setup_Tabs->findChild<QLineEdit   *>("Setup_Tab2_ProjectAuthorLE");
     Setup_Tab2_ProjectDescLE      = Setup_Tabs->findChild<QLineEdit   *>("Setup_Tab2_ProjectDescriptionLE");
-    Setup_Tab2_AddDatabasePB      = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_AddDatabasePB");
+    Setup_Tab2_NewDatabasePB      = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_NewDatabasePB");
+    Setup_Tab2_ImportDatabasePB   = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_ImportDatabasePB");
     Setup_Tab2_DelDatabasePB      = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_DelDatabasePB");
     Setup_Tab2_RefreshDatabasePB  = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_RefreshDatabasePB");
     Setup_Tab2_SaveProjectPB      = Setup_Tabs->findChild<QPushButton *>("Setup_Tab2_SaveProjectPB");
@@ -80,8 +81,10 @@ nmfSetup_Tab2::nmfSetup_Tab2(QTabWidget* tabs,
             this,                          SLOT(callback_Setup_Tab2_ProjectDescAdd()));
     connect(Setup_Tab2_ProjectDirLE,       SIGNAL(returnPressed()),
             this,                          SLOT(callback_Setup_Tab2_ProjectDirAdd()));
-    connect(Setup_Tab2_AddDatabasePB,      SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_AddDatabase()));
+    connect(Setup_Tab2_NewDatabasePB,      SIGNAL(clicked()),
+            this,                          SLOT(callback_Setup_Tab2_NewDatabase()));
+    connect(Setup_Tab2_ImportDatabasePB,   SIGNAL(clicked()),
+            this,                          SLOT(callback_Setup_Tab2_ImportDatabase()));
     connect(Setup_Tab2_ProjectDatabaseCMB, SIGNAL(currentTextChanged(QString)),
             this,                          SLOT(callback_Setup_Tab2_DatabaseChanged(QString)));
 
@@ -1580,7 +1583,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
 
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
+nmfSetup_Tab2::callback_Setup_Tab2_NewDatabase()
 {
     bool ok;
     std::string msg;
@@ -1644,8 +1647,13 @@ nmfSetup_Tab2::callback_Setup_Tab2_AddDatabase()
     QApplication::restoreOverrideCursor();
 
 
-} // end callback_Setup_Tab2_AddDatabase
+}
 
+void
+nmfSetup_Tab2::callback_Setup_Tab2_ImportDatabase()
+{
+   emit ImportDatabase();
+}
 
 void
 nmfSetup_Tab2::callback_Setup_Tab2_DelDatabase()

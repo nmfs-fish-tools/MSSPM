@@ -1232,6 +1232,7 @@ public slots:
      */
     void callback_ProjectSaved();
     void callback_AddedNewDatabase();
+    void callback_ImportDatabase();
     /**
      * @brief Callback invoked when the progress chart timer times out. In this fashion,
      * the progress chart is updated while another process is running.
