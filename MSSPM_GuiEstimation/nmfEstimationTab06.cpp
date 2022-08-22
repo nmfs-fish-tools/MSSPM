@@ -897,33 +897,35 @@ nmfEstimation_Tab6::saveCovariateTable()
     // Save the new data
     saveCmd  = "INSERT INTO " + tableName +
                " (ProjectName,ModelName,CovariateName,Year,Value,ValueScaled) VALUES ";
-    for (int col=0; col<numCols; ++col) {
-        calculateCovariateScaleFactor(col,min,diff);
-        for (int row=0; row<numRows; ++row) {
-            index = m_smodelC->index(row,col);
-            value = index.data().toString();
-            valueScaled.clear();
-            if (! value.isEmpty()) {
-                // valueScaled = (diff == 0.0) ? "0.0" : QString::number(2.0*(value.toDouble()-min)/diff - 1.0); // scales from -1 to 1
-                   valueScaled = (diff == 0.0) ? "0.0" : QString::number((value.toDouble()-min)/diff); // scales from 0 to 1
+    if (numCols > 0) {
+        for (int col=0; col<numCols; ++col) {
+            calculateCovariateScaleFactor(col,min,diff);
+            for (int row=0; row<numRows; ++row) {
+                index = m_smodelC->index(row,col);
+                value = index.data().toString();
+                valueScaled.clear();
+                if (! value.isEmpty()) {
+                    // valueScaled = (diff == 0.0) ? "0.0" : QString::number(2.0*(value.toDouble()-min)/diff - 1.0); // scales from -1 to 1
+                    valueScaled = (diff == 0.0) ? "0.0" : QString::number((value.toDouble()-min)/diff); // scales from 0 to 1
+                }
+                saveCmd += "('"  + m_ProjectName +
+                        "','" + m_ModelName +
+                        "','" + m_smodelC->horizontalHeaderItem(col)->text().toStdString() +
+                        "', " + m_smodelC->verticalHeaderItem(row)->text().toStdString() +
+                        " ,\""  + value.toStdString() +
+                        "\",\"" + valueScaled.toStdString() + "\"),";
             }
-            saveCmd += "('"  + m_ProjectName +
-                       "','" + m_ModelName +
-                       "','" + m_smodelC->horizontalHeaderItem(col)->text().toStdString() +
-                       "', " + m_smodelC->verticalHeaderItem(row)->text().toStdString() +
-                       " ,\""  + value.toStdString() +
-                       "\",\"" + valueScaled.toStdString() + "\"),";
         }
-    }
-    saveCmd = saveCmd.substr(0,saveCmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(saveCmd);
-    if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab6::saveCovariateTable: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + saveCmd);
-        QMessageBox::warning(Estimation_Tabs, "Error",
-                             "\nError in nmfEstimation_Tab6::saveCovariateTable command\n",
-                             QMessageBox::Ok);
-        return false;
+        saveCmd = saveCmd.substr(0,saveCmd.size()-1);
+        errorMsg = m_DatabasePtr->nmfUpdateDatabase(saveCmd);
+        if (nmfUtilsQt::isAnError(errorMsg)) {
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab6::saveCovariateTable: Write table error: " + errorMsg);
+            m_Logger->logMsg(nmfConstants::Error,"cmd: " + saveCmd);
+            QMessageBox::warning(Estimation_Tabs, "Error",
+                                 "\nError in nmfEstimation_Tab6::saveCovariateTable command\n",
+                                 QMessageBox::Ok);
+            return false;
+        }
     }
 
     loadCovariateTable();

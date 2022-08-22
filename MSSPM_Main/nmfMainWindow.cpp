@@ -1992,7 +1992,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.2.1";
+    QString version = "MSSPM v1.2.2";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2115,49 +2115,87 @@ nmfMainWindow::menu_troubleshooting()
 {
     QString eol;
     QString msg;
-    QStringList topics,solutions;
+    QStringList groups;
+    QStringList importTopics,guiTopics,estimationTopics,helpTopics;
+    QStringList importSolutions,guiSolutions,estimationSolutions,helpSolutions;
     QMessageBox mbox;
+    std::vector<QStringList> topics;
+    std::vector<QStringList> solutions;
 
     // List troubleshooting topics here
-    topics << "Import doesn't work";
-    topics << "No Models available after an Import";
-    topics << "Accidentally closed a sub-panel";
-    topics << "How to revert back to default GUI layout";
-    topics << "Poor fit when estimating parameters";
-    topics << "How to get help";
+//    topics << "Import doesn't work";
+//    topics << "No Models available after an Import";
+//    topics << "Accidentally closed a sub-panel";
+//    topics << "How to revert back to default GUI layout";
+//    topics << "Poor fit when estimating parameters";
+//    topics << "How to get help";
 
-    // List troubleshooting solutions here
-    solutions << "The import feature uses the mysql exe found on disk. Please make sure the executable is found when you type it at the command prompt. On Windows, must add mysql.exe path to Path system environment variable";
-    solutions << "The project name of an imported database must be the same as the current project name.";
-    solutions << "To show a hidden sub-panel, right-click on the main menu bar and select the sub-panel to show.";
-    solutions << "From main menu, select Layouts->Default to revert to default layout.";
-    solutions << QString("Try one or more of the following:<ul>") +
-                 QString("<li>Adjust parameter initial values</li>") +
-                 QString("<li>Adjust parameter ranges</li>") +
-                 QString("<li>Adjust model algorithm and/or algorithm parameters</li>") +
-                 QString("</ul>");
-    solutions << QString("MSSPM has 2 forms of help:<ol>") +
-                 QString("<li>Hover Help<br><br>- Hold cursor over GUI item for a brief popup<br></li>") +
-                 QString("<li>\"What's This?\" Help<br><br>- Click the arrow/question mark button at the end of the "
-                         "main menu toolbar and then click over a GUI item when the cursor becomes a question mark with an arrow at the end</li>") +
-                 QString("</ol>");
+    // Step 1. Add topic in appropriate group, creating a group if need be
+    estimationTopics << "Poor fit when estimating parameters";
+    guiTopics        << "Accidentally closed a sub-panel";
+    guiTopics        << "How to revert back to default GUI layout";
+    helpTopics       << "How to get help";
+    helpTopics       << "Is there a log file?";
+    importTopics     << "Import doesn't work";
+    importTopics     << "No Models available after an Import";
 
-    // Display the troubleshooting text; first topics with links, then the solutions
+    // Step 2. Add the group name to the groups list
+    groups << "Estimation" << "GUI" << "Help" << "Import";
+
+    // Step 3. Add the topic solutions here
+    estimationSolutions << QString("Try one or more of the following:<ul>") +
+                           QString("<li>Adjust parameter initial values</li>") +
+                           QString("<li>Adjust parameter ranges</li>") +
+                           QString("<li>Adjust model algorithm and/or algorithm parameters</li>") +
+                           QString("</ul>");
+    guiSolutions        << "To show a hidden sub-panel, right-click on the main menu bar and select the sub-panel to show.";
+    guiSolutions        << "From main menu, select Layouts->Default to revert to default layout.";
+    helpSolutions       << QString("MSSPM has 2 forms of help:<ol>") +
+                           QString("<li>Hover Help<br><br>- Hold cursor over GUI item for a brief popup<br></li>") +
+                           QString("<li>\"What's This?\" Help<br><br>- Click the arrow/question mark button at the end of the "
+                                   "main menu toolbar and then click over a GUI item when the cursor becomes a question mark with an arrow at the end</li>") +
+                           QString("</ol>");
+    helpSolutions       << "Yes, there's a time-stamped log file that's generated on every run. To view it, click on the Log tab of the Log/Progress Chart panel at the bottom of the application and then click the Refresh button. If the panel isn't visible, right-click on the main menu bar and select \"Log\".";
+    importSolutions     << "The import feature uses the mysql exe found on disk. Please make sure the executable is found when you type it at the command prompt. On Windows, must add mysql.exe path to Path system environment variable";
+    importSolutions     << "The project name of an imported database must be the same as the current project name.";
+
+    // Display the troubleshooting topics as links
     int i=1;
-    msg = "<h3 id=\"top\"><center><b><br>Issues</b></center></h3><br>";
-    for (QString topic : topics) {
-        msg += QString::number(i) + ". " + "<a href=\"#Topic" + QString::number(i) + "\">" + topic + "</a><br><br>";
-        ++i;
+    msg = "<h3 id=\"top\"><center><b><br>Topics</b></center></h3>";
+
+// Original lines...no grouping
+//    for (QString topic : topics) {
+//        msg += QString::number(i) + ". " + "<a href=\"#Topic" + QString::number(i) + "\">" + topic + "</a><br><br>";
+//        ++i;
+//    }
+    topics = {estimationTopics,guiTopics,helpTopics,importTopics};
+    int groupNum = 0;
+    for (QString group : groups) {
+        msg += "<br><b>" + group + "</b><br>";
+        for (QString aTopic : topics[groupNum++]) {
+            msg += "&nbsp;&nbsp;" + QString::number(i) + ". " + "<a href=\"#Topic" + QString::number(i) + "\">" + aTopic + "</a><br>";
+            ++i;
+        }
     }
 
+    // Display the troubleshooting topics and solutions as anchors with a "top" link back to the list of topics
     i = 1;
+    groupNum = 0;
+    QStringList aSolution;
+    solutions = {estimationSolutions,guiSolutions,helpSolutions,importSolutions};
     msg += "<h3 id=\"solutions\"><center><b>Solutions</b></center></h3>";
-    for (QString topic : topics) {
-        eol  = (solutions[i-1].contains("<li>")) ? "" : "<br>";
-        msg += "<h4 id=\"Topic"+QString::number(i)+"\"><br><b>"+QString::number(i)+". "+topic+"</h4>";
-        msg +=  solutions[i-1] + eol;
-        msg += "<br><a href=\"#top\">top</a>";
-        ++i;
+    for (QString group : groups) {
+        int j=0;
+        for (QString aTopic : topics[groupNum]) {
+            aSolution = solutions[groupNum];
+            eol  = (aSolution[j].contains("<li>")) ? "" : "<br>";
+            msg += "<h4 id=\"Topic"+QString::number(i)+"\"><br><b>"+QString::number(i)+". "+aTopic+"</h4>";
+            msg += aSolution[j] + eol;
+            msg += "<br><a href=\"#top\">top</a>";
+            ++j;
+            ++i;
+        }
+        ++groupNum;
     }
 
     m_TroubleshootingDlg->loadText(msg);

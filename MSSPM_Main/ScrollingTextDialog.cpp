@@ -22,7 +22,7 @@ ScrollingTextDialog::ScrollingTextDialog(QWidget *parent,
     m_Layout->addWidget(m_Widget);
     this->adjustSize();
     this->setMinimumWidth(400);
-    this->setMinimumHeight(300);
+    this->setMinimumHeight(350);
     this->setLayout(m_Layout);
     this->setWindowTitle(title);
 
