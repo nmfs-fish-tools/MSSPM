@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>727</width>
-    <height>928</height>
+    <width>785</width>
+    <height>855</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,8 +46,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>685</width>
-            <height>828</height>
+            <width>729</width>
+            <height>782</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -767,298 +767,9 @@
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Bees Algorithm Parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Click the whatsThis help over each parameter for more detailed parameter information. Here are some good initial values to start off the Bees algorithm with:&lt;/p&gt;&lt;pre style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'monospace';&quot;&gt;Max Generations: 100&amp;#9;&amp;#9;Num Elite Bees: 20&lt;br/&gt;Num Bees: 100&amp;#9;&amp;#9;Num Other Bees: 10&lt;br/&gt;Num Best Sites: 8&amp;#9;&amp;#9;Neighborhood Size (%): 1&lt;br/&gt;Num Elite Sites: 1&amp;#9;&amp;#9;Number of Sub Runs: 3&lt;/span&gt;&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="title">
-                <string>Parameters:</string>
+                <string>Algorithm Parameters:</string>
                </property>
                <layout class="QGridLayout" name="gridLayout">
-                <item row="0" column="0">
-                 <layout class="QHBoxLayout" name="horizontalLayout_16">
-                  <item>
-                   <widget class="QLabel" name="label_15">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>105</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>105</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <family>KacstDigital</family>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>The number of times points (i.e., bees) are distributed and assigned to sites
-with the non-assigned bees being assigned to random positions.</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>The number of times points (i.e., bees) are distributed and assigned to sites\nwith the non-assigned bees being assigned to random positions.</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Max Generations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of times points (i.e., bees) are distributed and assigned to sites with the non-assigned bees being assigned to random positions.&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Max Generations:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_MaxGenerationsSB">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>75</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>75</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>The number of times points (i.e., bees) are distributed and assigned to sites
-with the non-assigned bees being assigned to random positions.</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>The number of times points (i.e., bees) are distributed and assigned to sites\nwith the non-assigned bees being assigned to random positions.</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Max Generations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of times points (i.e., bees) are distributed and assigned to sites with the non-assigned bees being assigned to random positions.&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>99999</number>
-                    </property>
-                    <property name="value">
-                     <number>100</number>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_20">
-                  <item>
-                   <spacer name="horizontalSpacer_8">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>10</width>
-                      <height>5</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_19">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>140</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>140</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>The number of points in parameter space to explore within an Elite Site.</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>The number of points in parameter space to explore within an Elite Site.</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within an Elite Site.&lt;/p&gt;&lt;p&gt;A good starting value is: 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Num Elite Bees:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumEliteBeesSB">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>75</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>75</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>The number of points in parameter space to explore within an Elite Site.</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>The number of points in parameter space to explore within an Elite Site.</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within an Elite Site.&lt;/p&gt;&lt;p&gt;A good starting value is: 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>99999</number>
-                    </property>
-                    <property name="value">
-                     <number>20</number>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="1" column="0">
-                 <layout class="QHBoxLayout" name="horizontalLayout_14">
-                  <item>
-                   <widget class="QLabel" name="label_11">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>105</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>105</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>Total number of bees (i.e., samples) in parameter space. (Must be &gt; Num Best Sites).</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>Total number of bees (i.e., samples) in parameter space. (Must be &gt; Num Best Sites).</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The total number of points in parameter space being explored at any one time. (Must be &amp;gt; Num Best Sites.)&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Num Bees:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumBeesSB">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>75</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>75</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>The total number of points in parameter space being explored at any one time. (Must be &gt; Num Best Sites.)</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>The total number of points in parameter space being explored at any one time. (Must be &gt; Num Best Sites.)</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The total number of points in parameter space being explored at any one time. (Must be &amp;gt; Num Best Sites.)&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>99999</number>
-                    </property>
-                    <property name="value">
-                     <number>100</number>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
                 <item row="1" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_21">
                   <item>
@@ -1165,10 +876,10 @@ with the non-assigned bees being assigned to random positions.</string>
                   </item>
                  </layout>
                 </item>
-                <item row="2" column="0">
-                 <layout class="QHBoxLayout" name="horizontalLayout_19">
+                <item row="0" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_16">
                   <item>
-                   <widget class="QLabel" name="label_18">
+                   <widget class="QLabel" name="label_15">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                       <horstretch>0</horstretch>
@@ -1189,26 +900,28 @@ with the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="font">
                      <font>
+                      <family>KacstDigital</family>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
                     <property name="toolTip">
-                     <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
+                     <string>The number of times points (i.e., bees) are distributed and assigned to sites
+with the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="statusTip">
-                     <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
+                     <string>The number of times points (i.e., bees) are distributed and assigned to sites\nwith the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Best Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)&lt;/p&gt;&lt;p&gt;A good starting value is: 8&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Max Generations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of times points (i.e., bees) are distributed and assigned to sites with the non-assigned bees being assigned to random positions.&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>Num Best Sites:</string>
+                     <string>Max Generations:</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumBestSitesSB">
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_MaxGenerationsSB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1234,13 +947,14 @@ with the non-assigned bees being assigned to random positions.</string>
                      </font>
                     </property>
                     <property name="toolTip">
-                     <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
+                     <string>The number of times points (i.e., bees) are distributed and assigned to sites
+with the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="statusTip">
-                     <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
+                     <string>The number of times points (i.e., bees) are distributed and assigned to sites\nwith the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Best Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)&lt;/p&gt;&lt;p&gt;A good starting value is: 8&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Max Generations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of times points (i.e., bees) are distributed and assigned to sites with the non-assigned bees being assigned to random positions.&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -1249,7 +963,97 @@ with the non-assigned bees being assigned to random positions.</string>
                      <number>99999</number>
                     </property>
                     <property name="value">
-                     <number>8</number>
+                     <number>100</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_14">
+                  <item>
+                   <widget class="QLabel" name="label_11">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>105</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>105</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>Total number of bees (i.e., samples) in parameter space. (Must be &gt; Num Best Sites).</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Total number of bees (i.e., samples) in parameter space. (Must be &gt; Num Best Sites).</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The total number of points in parameter space being explored at any one time. (Must be &amp;gt; Num Best Sites.)&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Num Bees:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumBeesSB">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>75</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>The total number of points in parameter space being explored at any one time. (Must be &gt; Num Best Sites.)</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The total number of points in parameter space being explored at any one time. (Must be &gt; Num Best Sites.)</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The total number of points in parameter space being explored at any one time. (Must be &amp;gt; Num Best Sites.)&lt;/p&gt;&lt;p&gt;A good starting value is: 100&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>99999</number>
+                    </property>
+                    <property name="value">
+                     <number>100</number>
                     </property>
                    </widget>
                   </item>
@@ -1557,6 +1361,202 @@ with the non-assigned bees being assigned to random positions.</string>
                   </item>
                  </layout>
                 </item>
+                <item row="2" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_19">
+                  <item>
+                   <widget class="QLabel" name="label_18">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>105</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>105</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
+                    </property>
+                    <property name="statusTip">
+                     <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Best Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)&lt;/p&gt;&lt;p&gt;A good starting value is: 8&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Num Best Sites:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumBestSitesSB">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>75</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
+                    </property>
+                    <property name="statusTip">
+                     <string> The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Best Sites&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of sites in the parameter space to explore in more detail. (They're a subset of Num Bees.)&lt;/p&gt;&lt;p&gt;A good starting value is: 8&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>99999</number>
+                    </property>
+                    <property name="value">
+                     <number>8</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_20">
+                  <item>
+                   <spacer name="horizontalSpacer_8">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Fixed</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>10</width>
+                      <height>5</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_19">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>140</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>140</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>The number of points in parameter space to explore within an Elite Site.</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The number of points in parameter space to explore within an Elite Site.</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within an Elite Site.&lt;/p&gt;&lt;p&gt;A good starting value is: 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Num Elite Bees:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="Estimation_Tab7_Bees_NumEliteBeesSB">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>75</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>The number of points in parameter space to explore within an Elite Site.</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The number of points in parameter space to explore within an Elite Site.</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Num Elite Bees&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The number of points in parameter space to explore within an Elite Site.&lt;/p&gt;&lt;p&gt;A good starting value is: 20&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>99999</number>
+                    </property>
+                    <property name="value">
+                     <number>20</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
                </layout>
               </widget>
              </item>
@@ -1613,7 +1613,7 @@ with the non-assigned bees being assigned to random positions.</string>
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="title">
-                <string>Parameters:</string>
+                <string>Algorithm Parameters:</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
                 <item row="2" column="0" rowspan="2">
@@ -1964,6 +1964,109 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                  </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="Estimation_Tab7_NL_AdditionalParametersGB">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="title">
+                <string>Add'l Algorithm Parameters:</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_7">
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_17">
+                  <item>
+                   <widget class="QCheckBox" name="Estimation_Tab7_NL_InitialPopulationSizeCB">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>150</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>150</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>The initial point population size for the CRS algorithm</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The initial point population size for the CRS algorithm</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Additional Algorithm Parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;[1] Initial Population Size&lt;/p&gt;&lt;p&gt;This stochastic Minimizer algorithm starts by generating an initial population of random points. By default, this initial population size is chosen heuristically by the library implementation. The default value may be changed here. A population size of 0 means that the heuristic default will be used, which is 10(n+1) where n = number of parameters.&lt;/p&gt;&lt;p&gt;The initial population size must be at least n+2.&lt;/p&gt;&lt;p&gt;If this box is checked, the value to the right will be used. If unchecked, the default value will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Initial population size:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="Estimation_Tab7_NL_InitialPopulationSizeLE">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>50</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>50</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>The initial point population size for the CRS algorithm</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The initial point population size for the CRS algorithm</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Additional Algorithm Parameters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;[1] Initial Population Size&lt;/p&gt;&lt;p&gt;This stochastic Minimizer algorithm starts by generating an initial population of random points. By default, this initial population size is chosen heuristically by the library implementation. The default value may be changed here. A population size of 0 means that the heuristic default will be used, which is 10(n+1) where n = number of parameters.&lt;/p&gt;&lt;p&gt;The initial population size must be at least n+2.&lt;/p&gt;&lt;p&gt;If this box is checked, the value to the right will be used. If unchecked, the default value will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>52</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </widget>

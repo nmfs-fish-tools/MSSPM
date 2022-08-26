@@ -46,6 +46,7 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
 
     Estimation_Tab7_Bees_ParametersGB          = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab7_Bees_ParametersGB");
     Estimation_Tab7_NL_ParametersGB            = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab7_NL_ParametersGB");
+    Estimation_Tab7_NL_AdditionalParametersGB  = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab7_NL_AdditionalParametersGB");
     Estimation_Tab7_EstParametersGB            = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab7_EstParametersGB");
     Estimation_Tab7_ModelAlgorithmsGB          = Estimation_Tabs->findChild<QGroupBox   *>("Estimation_Tab7_ModelAlgorithmsGB");
     Estimation_Tab7_EstimationAlgorithmCMB     = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab7_EstimationAlgorithmCMB");
@@ -73,6 +74,8 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_Bees_NeighborhoodSizeSB    = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab7_Bees_NeighborhoodSizeSB");
     Estimation_Tab7_ScalingLBL                 = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_ScalingLBL");
     Estimation_Tab7_ScalingCMB                 = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab7_ScalingCMB");
+    Estimation_Tab7_NL_InitialPopulationSizeLE = Estimation_Tabs->findChild<QLineEdit   *>("Estimation_Tab7_NL_InitialPopulationSizeLE");
+    Estimation_Tab7_NL_InitialPopulationSizeCB = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_NL_InitialPopulationSizeCB");
     Estimation_Tab7_NL_StopAfterValueCB        = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_NL_StopAfterValueCB");
     Estimation_Tab7_NL_StopAfterTimeCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_NL_StopAfterTimeCB");
     Estimation_Tab7_NL_StopAfterIterCB         = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_NL_StopAfterIterCB");
@@ -150,6 +153,8 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
             this,                                   SLOT(callback_EstimationAlgorithmCMB(QString)));
     connect(Estimation_Tab7_ObjectiveCriterionCMB,  SIGNAL(currentTextChanged(QString)),
             this,                                   SLOT(callback_ObjectiveCriterionCMB(QString)));
+    connect(Estimation_Tab7_NL_InitialPopulationSizeCB, SIGNAL(stateChanged(int)),
+            this,                                       SLOT(callback_InitialPopulationSizeCB(int)));
     connect(Estimation_Tab7_NL_StopAfterValueCB,    SIGNAL(stateChanged(int)),
             this,                                   SLOT(callback_StopValCB(int)));
     connect(Estimation_Tab7_NL_StopAfterTimeCB,     SIGNAL(stateChanged(int)),
@@ -223,6 +228,8 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     // Initialize minimize function label map
     initializeDetStoMap();
 
+    initializeHelpText();
+
     // Initialize lock button
     QIcon lockedIcon(":/icons/locked.png");
     Estimation_Tab7_NL_TimeUnitsLockPB->setIcon(lockedIcon);
@@ -268,6 +275,7 @@ nmfEstimation_Tab7::initializeDetStoMap()
     m_DetStoTypeMap["GN_DIRECT_L"]      = "(d)";
     m_DetStoTypeMap["GN_DIRECT_L_RAND"] = "(s)";
     m_DetStoTypeMap["GN_CRS2_LM"]       = "(s)";
+    m_DetStoTypeMap["GN_ESCH"]          = "(s)";
     m_DetStoTypeMap["GD_StoGO"]         = "(d)";
 
     // Local optimizations
@@ -276,6 +284,165 @@ nmfEstimation_Tab7::initializeDetStoMap()
     m_DetStoTypeMap["LN_SBPLX"]         = "(d)";
     m_DetStoTypeMap["LD_LBFGS"]         = "(d)";
     m_DetStoTypeMap["LD_MMA"]           = "(s)";
+}
+
+void
+nmfEstimation_Tab7::initializeHelpText()
+{
+    m_WhatsThisIntroGlobal = "<html>\
+<strong><center>Global Minimizer Algorithms</center></strong>\
+<br>\
+MSSPM includes several minimization (i.e., optimization) algorithms from the NLopt C++ library. \
+The algorithm name is formatted {G,L}{N,D}_xxxx where:<br><br>\
+\"G/L\" corresponds to a global/local optimization algorithm<br>\
+\"N/D\" corresponds to a derivative-free/gradient-based optimization algorithm<br>\
+</html>";
+
+    m_WhatsThisMap["GN_ORIG_DIRECT_L"] = "<html><br>\
+<strong>GN_ORIG_DIRECT_L - Original DIviding RECTangles Algorithm</strong><br>\
+<br>\
+Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", J. Global Optimization, \
+vol. 21 (1), p. 27-37 (2001)<br>\
+<br>\
+This is a deterministic-search algorithm based on systematic division \
+of the search domain into smaller and smaller hyper-rectangles. The Gablonsky version makes the algorithm \
+\"more biased towards local search\" so that it is more efficient for functions without too many \
+local minima. This algorithm, based on the original Fortran code, has a number of hard-coded limitations \
+(i.e., the number of function evaluations). There is some support for arbitrary nonlinear inequality \
+constraints.<br>\
+</html>";
+
+    m_WhatsThisMap["GN_DIRECT_L"] = "<html><br>\
+<strong>GN_DIRECT_L - Locally Biased DIviding RECTangles Algorithm</strong><br>\
+<br>\
+Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT \
+algorithm\", J. Global Optimization, vol. 21 (1), p. 27-37 (2001)<br>\
+<br>\
+This is a deterministic-search algorithm based on systematic division of the search domain into smaller and smaller \
+hyper-rectangles. The Gablonsky version makes the algorithm \"more biased towards local search\" \
+so that it is more efficient for functions without too many local minima.<br>\
+</html>";
+
+    m_WhatsThisMap["GN_DIRECT_L_RAND"] = "<html><br>\
+<strong>GN_DIRECT_L_RAND - Locally Biased DIviding RECTangles Algorithm with Randomization</strong><br>\
+<br>\
+Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", \
+J. Global Optimization, vol. 21 (1), p. 27-37 (2001)<br>\
+<br>\
+This is a deterministic-search algorithm based \
+on systematic division of the search domain into smaller and smaller hyper-rectangles. The Gablonsky \
+version makes the algorithm \"more biased towards local search\" so that it is more efficient \
+for functions without too many local minima. This is a slightly randomized variant of GN_DIRECT_L \
+which uses some randomization to help decide which dimension to halve next in the case of near-ties.<br>\
+</html>";
+
+    m_WhatsThisMap["GN_CRS2_LM"] = "<html><br>\
+<strong>GN_CRS2_LM - Controlled Random Search with Local Mutation</strong><br>\
+<br>\
+Ref: P. Kaelo and M. M. Ali, \"Some variants of the controlled random search algorithm for global optimization\", \
+J. Optim. Theory Appl. 130 (2), 253-264 (2006)<br>\
+<br>\
+This is sometimes compared to a genetic algorithm as it starts with a random population \
+of points and randomly evolves these points by heuristic rules. Mutations continue until a Stop condition is reached. \
+The \"evolution\" somewhat resembles a randomized Nelder-Mead algorithm.<br>\
+</html>";
+
+    m_WhatsThisMap["GN_ESCH"] = "<html><br>\
+<strong>GN_ESCH - Evolutionary Algorithm</strong><br>\
+<br>\
+Ref: da Silva Santos, CH, et al., \"Designing Novel Photonic Devices by Bio-Inspired Computing\", \
+IEEE Photonics Technology Letters 22(15), pp. 1177-1179 (2010).<br>\
+<br>\
+This is a global optimization algorithm which implements a modified Evolutionary Algorithm developed by \
+Carlos Henrique. The number of mutations is a function of the number of parameters. The algorithm is based on ideas from: Beyer, HG and Schwefel, HP, \"Evolution Strategies: \
+A Comprehensive Introduction\", Journal Natural Computing, 1(1), pp. 3-52 (2002). \
+</html>";
+
+    m_WhatsThisMap["GD_StoGO"] = "<html><br>\
+<strong>GD_StoGO - Stochastic Global Optimization</strong><br>\
+<br>\
+Ref: K. Madsen, S. Zertchaninov, and A. Zilinskas, \"Global Optimization using Branch-and-Bound,\" \
+unpublished (1998).<br>\
+<br>\
+This is a global optimization algorithm that works by systematically dividing the \
+search space (which must be bound-constrained) into smaller hyper-rectangles via a \
+branch-and-bound technique, and searching them by a gradient-based local-search \
+algorithm (a BFGS variant), optionally including some randomness.\
+</html>";
+
+    m_WhatsThisIntroLocal = "<html>\
+<strong><center>Local Minimizer Algorithms</center></strong><br>\
+These are local NLopt optimization functions available to the user in MSSPM.<br>\
+<br>\
+MSSPM includes several minimization (i.e., optimization) algorithms from the NLopt C++ library. \
+The algorithm name is formatted {G,L}{N,D}_xxxx where:<br><br>\
+\"G/L\" corresponds to a global/local optimization algorithm<br>\
+\"N/D\" corresponds to a derivative-free/gradient-based optimization algorithm<br>\
+</html>";
+
+    m_WhatsThisMap["LN_COBYLA"] = "<html><br>\
+<strong>LN_COBYLA - Constrained Optimization BY Linear Approximations</strong><br>\
+<br>\
+Ref: M.J.D. Powell, \"A direct search optimization method that models \
+the objective and constraint functions by linear interpolation,\" in \
+Advances in Optimization and Numerical Analysis, (Kluwer Academic: Dordrecht, 1994), p. 51-67<br>\
+<br>\
+It constructs successive linear approximations of the objective function \
+and constraints via a simplex of n+1 points (in n dimensions), and \
+optimizes these approximations in a trust region at each step.<br>\
+</html>";
+
+    m_WhatsThisMap["LN_NELDERMEAD"] = "<html><br>\
+<strong>LN_NELDERMEAD - Nelder-Mead Simplex</strong><br>\
+<br>\
+Ref: J. A. Nelder and R. Mead, \"A simplex method for function minimization,\" \
+The Computer Journal 7, p. 308-313 (1965)<br>\
+<br>\
+An implementation of almost the original Nelder-Mead simplex algorithm. N.B. It\
+does fail to converge at all for some functions and examples may be constructed in \
+which it converges to a point that is not a local minimum.<br>\
+</html>";
+
+    m_WhatsThisMap["LN_SBPLX"] = "<html><br>\
+<strong>LN_SBPLX - Subplex Nelder-Mead Variant Using Sequence of Subspaces</strong><br>\
+<br>\
+Ref: T. Rowan, \"Functional Stability Analysis of Numerical Algorithms\", \
+Ph.D. thesis, Department of Computer Sciences, University of Texas at Austin, 1990<br>\
+<br>\
+Subplex (a variant of Nelder-Mead using a sequence of subspaces) \
+is claimed to be much more efficient and robust than the original Nelder-Mead, \
+while retaining the latter's facility with discontinuous objectives. Implementation \
+exists fo explicit support for bound constraints (via the method in [M. J. \
+Box, \"A new method of constrained optimization and a comparison with other methods,\" \
+Computer J. 8 (1), 42-52 (1965)] as \
+described above). This seems to be a big improvement in the case where the optimum \
+lies against one of the constraints. <br>\
+</html>";
+
+    m_WhatsThisMap["LD_LBFGS"] = "<html><br>\
+<strong>LD_LBFGS - Low-storage BFGS (Broyden-Fletcher-Goldfarb-Shanno)</strong><br>\
+<br>\
+Ref: J. Nocedal, \"Updating quasi-Newton matrices with limited storage,\" Math. Comput. \
+35, 773-782 (1980)<br>\
+<br>\
+This algorithm is based on a Fortran implementation of the low-storage BFGS algorithm \
+written by Prof. Ladislav Luksan.<br>\
+</html>";
+
+    m_WhatsThisMap["LD_MMA"] = "<html><br>\
+<strong>LD_MMA - Method of Moving Asymptotes</strong><br>\
+<br>\
+Ref: Krister Svanberg, \"A class of globally convergent optimization methods \
+based on conservative convex separable approximations,\" SIAM J. Optim. 12 (2), \
+p. 555-573 (2002)<br>\
+<br>\
+This is a globally convergent algorithm which does not mean it converges to the \
+global optimum; it means that it is guaranteed to converge to some local minimum \
+from any feasible starting point. At each point x, MMA forms a local approximation \
+using the gradient of f and the constraint functions, plus a quadratic \"penalty\" \
+term to make the approximations \"conservative\" (upper bounds for the exact functions).\
+</html>";
+
 }
 
 void
@@ -290,6 +457,12 @@ nmfEstimation_Tab7::isAMultiRun()
     return (Estimation_Tab7_EnsembleControlsGB->isEnabled() &&
             Estimation_Tab7_EnsembleControlsGB->isChecked() &&
             Estimation_Tab7_EnsembleTotalRunsSB->value() > 1);
+}
+
+bool
+nmfEstimation_Tab7::isInitialPopulationSize()
+{
+    return Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked();
 }
 
 bool
@@ -531,6 +704,27 @@ int
 nmfEstimation_Tab7::getNumEliteBees()
 {
     return Estimation_Tab7_Bees_NumEliteBeesSB->value();
+}
+
+int
+nmfEstimation_Tab7::getNumParameters()
+{
+    int numberOfParameters = 0;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    fields   = {"ProjectName","ModelName","NumberOfParameters"};
+    queryStr = "SELECT ProjectName,ModelName,NumberOfParameters from " +
+                nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND  ModelName = '"   + m_ModelName   + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    if (dataMap["NumberOfParameters"].size() > 0) {
+        numberOfParameters = std::stoi(dataMap["NumberOfParameters"][0]);
+    }
+
+    return numberOfParameters;
 }
 
 int
@@ -926,6 +1120,30 @@ nmfEstimation_Tab7::saveSystem(bool RunChecks)
 }
 
 bool
+nmfEstimation_Tab7::okAdditionalAlgorithmParameters()
+{
+    bool retv = true;
+    int NumParameters = getNumParameters();
+    double initialPopulationSize;
+    std::string msg;
+
+    // 1. Check that Initial Population Size > NUmber of Parameters+2
+    if ((getMinimizerAlgorithm() == "GN_CRS2_LM") && Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked()) {
+        initialPopulationSize = Estimation_Tab7_NL_InitialPopulationSizeLE->text().toDouble();
+        if (initialPopulationSize < (NumParameters+2)) {
+            msg = "nmfEstimation_Tab7::okAdditionalAlgorithmParameters: InitialParameterSize (" +
+                   std::to_string((int)initialPopulationSize) +
+                  ") is less than NumParameters+2 (" +
+                   std::to_string(NumParameters+2) + ")";
+            m_Logger->logMsg(nmfConstants::Error,msg);
+            retv = false;
+        }
+    }
+
+    return retv;
+}
+
+bool
 nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
                                               std::string currentModelName)
 {
@@ -935,6 +1153,16 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
 
+    // Save number of parameters
+    adjustNumberOfParameters();
+
+    // Check additional algorithm parameters
+    if (! okAdditionalAlgorithmParameters()) {
+        QMessageBox::information(Estimation_Tabs, "Error on Save",
+                                 "\nSettings in models table has has not been updated. Please see error log for more information.\n");
+        return false;
+    }
+
     // Remove existing timestamped ensemble file as you're about to replace the entry
     fields   = {"ProjectName","ModelName","EnsembleFile"};
     queryStr = "SELECT ProjectName,ModelName,EnsembleFile from " +
@@ -942,14 +1170,18 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
                " WHERE ProjectName = '" + m_ProjectName +
                "' AND  ModelName = '"   + m_ModelName   + "'";
     dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+
     if (dataMap["EnsembleFile"].size() > 0) {
-        // Remove Estimated Parameters file saved with this row
-        QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-        QString fullFilename = QDir(fullPath).filePath(QString::fromStdString(dataMap["EnsembleFile"][0]));
-        if (QFile::remove(fullFilename)) {
-            m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
-        } else {
-            m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
+        QString ensembleFileName = QString::fromStdString(dataMap["EnsembleFile"][0]);
+        if (! ensembleFileName.trimmed().isEmpty()) {
+            // Remove Estimated Parameters file saved with this row
+            QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+            QString fullFilename = QDir(fullPath).filePath(ensembleFileName);
+            if (QFile::remove(fullFilename)) {
+                m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
+            } else {
+                m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
+            }
         }
     }
 
@@ -975,9 +1207,11 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
             ",  NLoptUseStopVal = "                 + std::to_string(isStopAfterValue() ? 1 : 0) +
             ",  NLoptUseStopAfterTime = "           + std::to_string(isStopAfterTime()  ? 1 : 0) +
             ",  NLoptUseStopAfterIter = "           + std::to_string(isStopAfterIter()  ? 1 : 0) +
+            ",  NLoptUseInitialPopulationSize = "   + std::to_string(isInitialPopulationSize() ? 1 : 0) +
             ",  NLoptStopVal = "                    + std::to_string(getCurrentStopAfterValue()) +
             ",  NLoptStopAfterTime = "              + std::to_string(getCurrentStopAfterTime()) +
             ",  NLoptStopAfterIter = "              + std::to_string(getCurrentStopAfterIter()) +
+            ",  NLoptInitialPopulationSize = "      + std::to_string(getInitialPopulationSize()) +
             ",  NLoptNumberOfRuns = "               + std::to_string(Estimation_Tab7_EnsembleTotalRunsSB->value()) +
             ",  EstimateInitialBiomass = "          + std::to_string(isEstInitialBiomassChecked()) +
             ",  EstimateGrowthRate = "              + std::to_string(isEstGrowthRateChecked()) +
@@ -1010,7 +1244,7 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
 
     if (verbose) {
         QMessageBox::information(Estimation_Tabs, "Settings Updated",
-                                 "\nSettings in Models table have been successfully updated.\n");
+                                 "\nSettings in models table have been successfully updated.\n");
     }
     saveSettings();
 
@@ -1043,81 +1277,43 @@ nmfEstimation_Tab7::callback_MinimizerAlgorithmCMB(QString algorithm)
     Estimation_Tab7_MinimizerDetStoTypeLBL->setText(detStoTypeLabel);
     Estimation_Tab7_MinimizerSetDeterministicCB->setEnabled(detStoTypeLabel == "(s)");
     enableRunButton(false);
+
+    // Set Additional Algorithm Parameter widget visibility
+    Estimation_Tab7_NL_InitialPopulationSizeCB->setEnabled(algorithm == "GN_CRS2_LM");
+    Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked());
+    if (algorithm != "GN_CRS2_LM") {
+        Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(false);
+    }
+
+    // Update WhatsThis help
+    QString msg = m_WhatsThisIntroGlobal + m_WhatsThisMap[algorithm];
+    Estimation_Tab7_MinimizerAlgorithmCMB->setWhatsThis(msg);
+    Estimation_Tab7_MinimizerAlgorithmLBL->setWhatsThis(msg);
+}
+
+QString
+nmfEstimation_Tab7::getMinimizerAlgorithm()
+{
+    return Estimation_Tab7_MinimizerAlgorithmCMB->currentText();
 }
 
 void
 nmfEstimation_Tab7::callback_MinimizerTypeCMB(QString type)
 {
     QString msg;
+
     Estimation_Tab7_MinimizerAlgorithmCMB->clear();
     if (type.toLower() == "global") {
-        msg = "<html>\
-<strong><center>Global Minimizer Algorithms</center></strong>\
-<br>\
-MSSPM includes several minimization (i.e., optimization) algorithms from the NLopt C++ library. \
-The algorithm name is formatted {G,L}{N,D}_xxxx where:<br><br>\
-\"G/L\" corresponds to a global/local optimization algorithm<br>\
-\"N/D\" corresponds to a derivative-free/gradient-based optimization algorithm<br>\
-<br>\
-The available global algorithms are as follows:<br>\
-<br>\
-<strong>[1] GN_ORIG_DIRECT_L - Original DIviding RECTangles Algorithm</strong><br>\
-<br>\
-Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", J. Global Optimization, \
-vol. 21 (1), p. 27-37 (2001)<br>\
-<br>\
-This is a deterministic-search algorithm based on systematic division \
-of the search domain into smaller and smaller hyper-rectangles. The Gablonsky version makes the algorithm \
-\"more biased towards local search\" so that it is more efficient for functions without too many \
-local minima. This algorithm, based on the original Fortran code, has a number of hard-coded limitations \
-(i.e., the number of function evaluations). There is some support for arbitrary nonlinear inequality \
-constraints.<br>\
-<br>\
-<strong>[2] GN_DIRECT_L - Locally Biased DIviding RECTangles Algorithm</strong><br>\
-<br>\
-Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT \
-algorithm\", J. Global Optimization, vol. 21 (1), p. 27-37 (2001)<br>\
-<br>\
-This is a deterministic-search algorithm based on systematic division of the search domain into smaller and smaller \
-hyper-rectangles. The Gablonsky version makes the algorithm \"more biased towards local search\" \
-so that it is more efficient for functions without too many local minima.<br>\
-<br>\
-<strong>[3] GN_DIRECT_L_RAND - Locally Biased DIviding RECTangles Algorithm with Randomization</strong><br>\
-<br>\
-Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", \
-J. Global Optimization, vol. 21 (1), p. 27-37 (2001)<br>\
-<br>\
-This is a deterministic-search algorithm based \
-on systematic division of the search domain into smaller and smaller hyper-rectangles. The Gablonsky \
-version makes the algorithm \"more biased towards local search\" so that it is more efficient \
-for functions without too many local minima. This is a slightly randomized variant of GN_DIRECT_L \
-which uses some randomization to help decide which dimension to halve next in the case of near-ties.<br>\
-<br>\
-<strong>[4] GN_CRS2_LM - Controlled Random Search with Local Mutation</strong><br>\
-<br>\
-Ref: P. Kaelo and M. M. Ali, \"Some variants of the controlled random search algorithm for global optimization\", \
-J. Optim. Theory Appl. 130 (2), 253-264 (2006)<br>\
-<br>\
-This is sometimes compared to a genetic algorithm as it starts with a random population \
-of points and randomly evolves these points by heuristic rules. \
-The \"evolution\" somewhat resembles a randomized Nelder-Mead algorithm.<br>\
-<br>\
-<strong>[5] GD_StoGO - Stochastic Global Optimization</strong><br>\
-<br>\
-Ref: K. Madsen, S. Zertchaninov, and A. Zilinskas, \"Global Optimization using Branch-and-Bound,\" \
-unpublished (1998).<br>\
-<br>\
-This is a global optimization algorithm that works by systematically dividing the \
-search space (which must be bound-constrained) into smaller hyper-rectangles via a \
-branch-and-bound technique, and searching them by a gradient-based local-search \
-algorithm (a BFGS variant), optionally including some randomness.\
-</html>";
+
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ORIG_DIRECT_L");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L_RAND");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_CRS2_LM");
+//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ISRES"); // Put in later if more algorithms are desired
+        Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ESCH");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GD_StoGO");
 
+        // Hover help
         Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(0,
             "Global, Non-Derivative Dividing Rectangles Algorithm with Hard-Coded Limitations", Qt::ToolTipRole);
         Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(1,
@@ -1126,66 +1322,18 @@ algorithm (a BFGS variant), optionally including some randomness.\
             "Global, Non-Derivative Dividing Rectangles Algorithm with Randomization", Qt::ToolTipRole);
         Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(3,
             "Global, Non-Derivative Controlled Random Search with Local Mutation Algorithm with Evolution", Qt::ToolTipRole);
+//      Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(4,
+//          "Global, Non-Derivative Stochastic Ranking Evolution Strategy", Qt::ToolTipRole);
         Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(4,
+            "Global, Non-Derivative Modified Evolutionary Algorithm", Qt::ToolTipRole);
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(5,
             "Global, Gradient-Based Stochastic Search followed by a Local Gradient-based Algorithm", Qt::ToolTipRole);
+
+        // WhatsThis help
+        msg = m_WhatsThisIntroGlobal;
+
     } else if (type.toLower() == "local") {
-        msg ="<html>\
-<strong><center>Local Minimizer Algorithms</center></strong><br>\
-These are local NLopt optimization functions available to the user in MSSPM.<br>\
-<br>\
-<strong>[1] LN_COBYLA - Constrained Optimization BY Linear Approximations</strong><br>\
-<br>\
-Ref: M.J.D. Powell, \"A direct search optimization method that models \
-the objective and constraint functions by linear interpolation,\" in \
-Advances in Optimization and Numerical Analysis, (Kluwer Academic: Dordrecht, 1994), p. 51-67<br>\
-<br>\
-It constructs successive linear approximations of the objective function \
-and constraints via a simplex of n+1 points (in n dimensions), and \
-optimizes these approximations in a trust region at each step.<br>\
-<br>\
-<strong>[2] LN_NELDERMEAD - Nelder-Mead Simplex</strong><br>\
-<br>\
-Ref: J. A. Nelder and R. Mead, \"A simplex method for function minimization,\" \
-The Computer Journal 7, p. 308-313 (1965)<br>\
-<br>\
-An implementation of almost the original Nelder-Mead simplex algorithm. N.B. It\
-does fail to converge at all for some functions and examples may be constructed in \
-which it converges to a point that is not a local minimum.<br>\
-<br>\
-<strong>[3] LN_SBPLX - Subplex Nelder-Mead Variant Using Sequence of Subspaces</strong><br>\
-<br>\
-Ref: T. Rowan, \"Functional Stability Analysis of Numerical Algorithms\", \
-Ph.D. thesis, Department of Computer Sciences, University of Texas at Austin, 1990<br>\
-<br>\
-Subplex (a variant of Nelder-Mead using a sequence of subspaces) \
-is claimed to be much more efficient and robust than the original Nelder-Mead, \
-while retaining the latter's facility with discontinuous objectives. Implementation \
-exists fo explicit support for bound constraints (via the method in [M. J. \
-Box, \"A new method of constrained optimization and a comparison with other methods,\" \
-Computer J. 8 (1), 42-52 (1965)] as \
-described above). This seems to be a big improvement in the case where the optimum \
-lies against one of the constraints. <br>\
-<br>\
-<strong>[4] LD_LBFGS - Low-storage BFGS (Broyden-Fletcher-Goldfarb-Shanno)</strong><br>\
-<br>\
-Ref: J. Nocedal, \"Updating quasi-Newton matrices with limited storage,\" Math. Comput. \
-35, 773-782 (1980)<br>\
-<br>\
-This algorithm is based on a Fortran implementation of the low-storage BFGS algorithm \
-written by Prof. Ladislav Luksan.<br>\
-<br>\
-<strong>[5] LD_MMA - Method of Moving Asymptotes</strong><br>\
-<br>\
-Ref: Krister Svanberg, \"A class of globally convergent optimization methods \
-based on conservative convex separable approximations,\" SIAM J. Optim. 12 (2), \
-p. 555-573 (2002)<br>\
-<br>\
-This is a globally convergent algorithm which does not mean it converges to the \
-global optimum; it means that it is guaranteed to converge to some local minimum \
-from any feasible starting point. At each point x, MMA forms a local approximation \
-using the gradient of f and the constraint functions, plus a quadratic \"penalty\" \
-term to make the approximations \"conservative\" (upper bounds for the exact functions).\
-</html>";
+
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("LN_COBYLA");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("LN_NELDERMEAD");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("LN_SBPLX");
@@ -1203,7 +1351,10 @@ term to make the approximations \"conservative\" (upper bounds for the exact fun
         Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(4,
             "Local, Gradient-Based Method of Moving Asymptotes Algorithm", Qt::ToolTipRole);
 
+        // WhatsThis help
+        msg = m_WhatsThisIntroLocal;
     }
+    msg += m_WhatsThisMap[getMinimizerAlgorithm()];
     Estimation_Tab7_MinimizerAlgorithmCMB->setWhatsThis(msg);
     Estimation_Tab7_MinimizerAlgorithmLBL->setWhatsThis(msg);
     enableRunButton(false);
@@ -1227,6 +1378,7 @@ nmfEstimation_Tab7::callback_EstimationAlgorithmCMB(QString algorithm)
     Estimation_Tab7_BeesSetDeterministicLBL->setEnabled(isBeesAlgorithm);
     Estimation_Tab7_Bees_ParametersGB->hide();
     Estimation_Tab7_NL_ParametersGB->hide();
+    Estimation_Tab7_NL_AdditionalParametersGB->hide();
     Estimation_Tab7_MinimizerAlgorithmCMB->setEnabled(enableMinimizer);
     Estimation_Tab7_MinimizerAlgorithmLBL->setEnabled(enableMinimizer);
     Estimation_Tab7_MinimizerDetStoTypeLBL->setEnabled(enableMinimizer);
@@ -1242,6 +1394,7 @@ nmfEstimation_Tab7::callback_EstimationAlgorithmCMB(QString algorithm)
 //      Estimation_Tab7_ObjectiveCriterionCMB->setCurrentText("Least Squares"); // override what was in the table
     }  else if (isNLoptAlgorithm) {
         Estimation_Tab7_NL_ParametersGB->show();
+        Estimation_Tab7_NL_AdditionalParametersGB->show();
 //      Estimation_Tab7_ObjectiveCriterionCMB->setCurrentText("Least Squares"); // override what was in the table
     }
 
@@ -1440,6 +1593,12 @@ nmfEstimation_Tab7::getCurrentStopAfterIter()
     return Estimation_Tab7_NL_StopAfterIterSB->value();
 }
 
+double
+nmfEstimation_Tab7::getInitialPopulationSize()
+{
+        return Estimation_Tab7_NL_InitialPopulationSizeLE->text().toDouble();
+}
+
 bool
 nmfEstimation_Tab7::tryingToAddBeesAlgorithmToMultiRun()
 {
@@ -1484,6 +1643,7 @@ nmfEstimation_Tab7::callback_EnsembleTotalRunsSB(int value)
     }
     Estimation_Tab7_EstParametersGB->setEnabled(isMultiRun);
     Estimation_Tab7_NL_ParametersGB->setEnabled(isMultiRun);
+    Estimation_Tab7_NL_AdditionalParametersGB->setEnabled(isMultiRun);
     Estimation_Tab7_ModelAlgorithmsGB->setEnabled(isMultiRun);
 
     enableRunButton(false);
@@ -1752,6 +1912,14 @@ nmfEstimation_Tab7::queryUserIfOkToClearMultiRunFile()
     return (reply == QMessageBox::Yes);
 }
 
+void
+nmfEstimation_Tab7::callback_InitialPopulationSizeCB(int isChecked)
+{
+    Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(isChecked == Qt::Checked);
+
+    // RSK - continue here.....
+    enableRunButton(false);
+}
 
 void
 nmfEstimation_Tab7::callback_StopValCB(int isChecked)
@@ -2033,6 +2201,7 @@ nmfEstimation_Tab7::enableNonEnsembleWidgets(bool enable)
 {
     Estimation_Tab7_ModelAlgorithmsGB->setEnabled(enable);
     Estimation_Tab7_NL_ParametersGB->setEnabled(enable);
+    Estimation_Tab7_NL_AdditionalParametersGB->setEnabled(enable);
     Estimation_Tab7_Bees_ParametersGB->setEnabled(enable);
     Estimation_Tab7_EstParametersGB->setEnabled(enable);
 
@@ -2126,6 +2295,7 @@ nmfEstimation_Tab7::loadWidgets()
 
     Estimation_Tab7_Bees_ParametersGB->hide();
     Estimation_Tab7_NL_ParametersGB->hide();
+    Estimation_Tab7_NL_AdditionalParametersGB->hide();
 
     if (algorithm == "Bees Algorithm") {
         Estimation_Tab7_Bees_ParametersGB->show();
@@ -2136,6 +2306,8 @@ nmfEstimation_Tab7::loadWidgets()
     } else if (algorithm == "NLopt Algorithm") {
         Estimation_Tab7_NL_ParametersGB->show();
         Estimation_Tab7_NL_ParametersGB->setVisible(true);
+        Estimation_Tab7_NL_AdditionalParametersGB->show();
+        Estimation_Tab7_NL_AdditionalParametersGB->setVisible(true);
         Estimation_Tab7_BeesSetDeterministicCB->setEnabled(false);
         Estimation_Tab7_BeesDetStoTypeLBL->setEnabled(false);
         Estimation_Tab7_BeesSetDeterministicLBL->setEnabled(false);
@@ -2153,8 +2325,8 @@ nmfEstimation_Tab7::loadWidgets()
                   "GAMutationRate","GAConvergence","BeesNumTotal","BeesNumElite","BeesNumOther",
                   "BeesNumEliteSites","BeesNumBestSites","BeesNumRepetitions",
                   "BeesMaxGenerations","BeesNeighborhoodSize",
-                  "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter",
-                  "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptNumberOfRuns",
+                  "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter","NLoptUseInitialPopulationSize",
+                  "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptInitialPopulationSize","NLoptNumberOfRuns",
                   "EstimateInitialBiomass","EstimateGrowthRate","EstimateCarryingCapacity",
                   "EstimateCatchability","EstimateCompetition","EstimateCompetitionSpecies",
                   "EstimateCompetitionGuilds","EstimateCompetitionGuildsGuilds","EstimatePredation",
@@ -2167,8 +2339,8 @@ nmfEstimation_Tab7::loadWidgets()
                  "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence," +
                  "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions," +
                  "BeesMaxGenerations,BeesNeighborhoodSize," +
-                 "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter," +
-                 "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptNumberOfRuns," +
+                 "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,NLoptUseInitialPopulationSize," +
+                 "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptInitialPopulationSize,NLoptNumberOfRuns," +
                  "EstimateInitialBiomass,EstimateGrowthRate,EstimateCarryingCapacity," +
                  "EstimateCatchability,EstimateCompetition,EstimateCompetitionSpecies," +
                  "EstimateCompetitionGuilds,EstimateCompetitionGuildsGuilds,EstimatePredation," +
@@ -2206,12 +2378,13 @@ nmfEstimation_Tab7::loadWidgets()
     Estimation_Tab7_NL_StopAfterValueCB->setChecked(dataMap["NLoptUseStopVal"][0] == "1");
     Estimation_Tab7_NL_StopAfterTimeCB->setChecked(dataMap["NLoptUseStopAfterTime"][0] == "1");
     Estimation_Tab7_NL_StopAfterIterCB->setChecked(dataMap["NLoptUseStopAfterIter"][0] == "1");
+    Estimation_Tab7_NL_InitialPopulationSizeCB->setChecked(dataMap["NLoptUseInitialPopulationSize"][0] == "1");
     Estimation_Tab7_NL_StopAfterValueLE->setText(QString::fromStdString(dataMap["NLoptStopVal"][0]));
 //  Estimation_Tab7_NL_StopAfterTimeSB->setValue(convertToAppropriateUnits(std::stoi(dataMap["NLoptStopAfterTime"][0])));
     Estimation_Tab7_NL_StopAfterTimeSB->setValue(std::stoi(dataMap["NLoptStopAfterTime"][0]));
     Estimation_Tab7_NL_StopAfterIterSB->setValue(std::stoi(dataMap["NLoptStopAfterIter"][0]));
+    Estimation_Tab7_NL_InitialPopulationSizeLE->setText(QString::fromStdString(dataMap["NLoptInitialPopulationSize"][0]));
 //  Estimation_Tab7_EnsembleTotalRunsSB->setValue(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
-
     Estimation_Tab7_EstimateInitialBiomassCB->setChecked(dataMap["EstimateInitialBiomass"][0] == "1");
     Estimation_Tab7_EstimateGrowthRateCB->setChecked(dataMap["EstimateGrowthRate"][0] == "1");
     Estimation_Tab7_EstimateCarryingCapacityCB->setChecked(dataMap["EstimateCarryingCapacity"][0] == "1");
@@ -2240,6 +2413,10 @@ nmfEstimation_Tab7::loadWidgets()
     setDeterministicMinimizerCB(dataMap["UseFixedSeedMinimizer"][0] == "1");
     Estimation_Tab7_MinimizerTypeCMB->setCurrentText(QString::fromStdString(dataMap["MinimizerType"][0]));
     Estimation_Tab7_MinimizerAlgorithmCMB->setCurrentText(QString::fromStdString(dataMap["Minimizer"][0]));
+
+    // Update additional parameters widgets
+    Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(getMinimizerAlgorithm() == "GN_CRS2_LM" &&
+                                                           Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked());
 
     callback_ObjectiveCriterionCMB(objectiveCriterion);
 

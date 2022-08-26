@@ -741,7 +741,9 @@ nmfEstimation_Tab6::loadCSVFile(const bool& firstLineReadOnly,
                     nmfConstantsMSSPM::FixedNotation,
                     nmfConstantsMSSPM::AllowBlanks,
                     nonZeroCell,errorMsg);
+qDebug() << "4: " << tableView->model()->index(0,0).data().toString();
         nmfUtilsQt::removeCommas(tableView);
+qDebug() << "5: " << tableView->model()->index(0,0).data().toString();
     } else if (Estimation_Tab6_SpeciesParameterTV->isVisible()) {
         loadOK = nmfUtilsQt::loadCSVFileComboBoxes(
                     Estimation_Tabs, tableView, filePath,

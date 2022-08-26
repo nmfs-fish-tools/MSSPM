@@ -203,7 +203,9 @@ nmfSetup_Tab2::saveProject(bool isVerbose)
     QApplication::restoreOverrideCursor();
 
     if (isVerbose) {
+        emit DisableNavigatorUntilModelLoad();
         msg = "\nSaved Project: " + m_ProjectName.toStdString() + "\n";
+        msg += "\nPlease load a model.\n";
         QMessageBox::information(Setup_Tabs, "Project Saved", tr(msg.c_str()));
     }
 }
@@ -1259,9 +1261,11 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " NLoptUseStopVal                 int(11)      NULL,";
         cmd += " NLoptUseStopAfterTime           int(11)      NULL,";
         cmd += " NLoptUseStopAfterIter           int(11)      NULL,";
+        cmd += " NLoptUseInitialPopulationSize   int(11)      NULL,";
         cmd += " NLoptStopVal                    double       NULL,";
         cmd += " NLoptStopAfterTime              int(11)      NULL,";
         cmd += " NLoptStopAfterIter              int(11)      NULL,";
+        cmd += " NLoptInitialPopulationSize      double       NULL,";
 
         cmd += " EstimateInitialBiomass          int(11)      NULL,";
         cmd += " EstimateGrowthRate              int(11)      NULL,";

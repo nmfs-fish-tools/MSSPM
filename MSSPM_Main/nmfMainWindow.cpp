@@ -1992,7 +1992,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.2.2";
+    QString version = "MSSPM v1.2.3 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2131,11 +2131,13 @@ nmfMainWindow::menu_troubleshooting()
 //    topics << "How to get help";
 
     // Step 1. Add topic in appropriate group, creating a group if need be
+    estimationTopics << "Estimation doesn't run";
     estimationTopics << "Poor fit when estimating parameters";
     guiTopics        << "Accidentally closed a sub-panel";
     guiTopics        << "How to revert back to default GUI layout";
     helpTopics       << "How to get help";
     helpTopics       << "Is there a log file?";
+    helpTopics       << "No Log file found";
     importTopics     << "Import doesn't work";
     importTopics     << "No Models available after an Import";
 
@@ -2143,6 +2145,7 @@ nmfMainWindow::menu_troubleshooting()
     groups << "Estimation" << "GUI" << "Help" << "Import";
 
     // Step 3. Add the topic solutions here
+    estimationSolutions << "If estimation doesn't produce any plots it could be a permission issue. If on Windows, exit the application and re-run as Administrator.";
     estimationSolutions << QString("Try one or more of the following:<ul>") +
                            QString("<li>Adjust parameter initial values</li>") +
                            QString("<li>Adjust parameter ranges</li>") +
@@ -2156,6 +2159,7 @@ nmfMainWindow::menu_troubleshooting()
                                    "main menu toolbar and then click over a GUI item when the cursor becomes a question mark with an arrow at the end</li>") +
                            QString("</ol>");
     helpSolutions       << "Yes, there's a time-stamped log file that's generated on every run. To view it, click on the Log tab of the Log/Progress Chart panel at the bottom of the application and then click the Refresh button. If the panel isn't visible, right-click on the main menu bar and select \"Log\".";
+    helpSolutions       << "If no Log files found on disk after clicking the Refresh button in the Log panel it could mean a permission problem. Exit the application and re-run as Administrator.";
     importSolutions     << "The import feature uses the mysql exe found on disk. Please make sure the executable is found when you type it at the command prompt. On Windows, must add mysql.exe path to Path system environment variable";
     importSolutions     << "The project name of an imported database must be the same as the current project name.";
 
@@ -3355,6 +3359,8 @@ nmfMainWindow::initConnections()
             this,            SLOT(callback_AddedNewDatabase()));
     connect(Setup_Tab2_ptr,  SIGNAL(ImportDatabase()),
             this,            SLOT(callback_ImportDatabase()));
+    connect(Setup_Tab2_ptr,  SIGNAL(DisableNavigatorUntilModelLoad()),
+            this,            SLOT(callback_ToDoAfterModelDelete()));
     connect(Setup_Tab3_ptr,  SIGNAL(ReloadWidgets()),
             this,            SLOT(callback_ReloadWidgets()));
     connect(Estimation_Tab1_ptr, SIGNAL(ReloadSetupWidgets()),
@@ -4875,6 +4881,11 @@ nmfMainWindow::calculateMonteCarloValue(const double& uncertainty,
     return retv;
 }
 
+void
+nmfMainWindow::clearChart()
+{
+    m_ChartWidget->removeAllSeries();
+}
 
 bool
 nmfMainWindow::clearMonteCarloParametersTable(
@@ -6207,6 +6218,8 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     QString BiomassTable = (m_DatabasePtr->isARelativeBiomassModel(m_ProjectName,m_ModelName)) ?
                             tableBiomassRelative : tableBiomassAbsolute;
 
+    clearChart();
+
     m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
 
     if (isAMultiOrMohnsRhoRun() && OutputType.isEmpty() &&
@@ -6528,7 +6541,6 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     // Calculate ScaleStr and Scaleval
     ScaleVal = convertUnitsStringToValue(ScaleStr);
     if (OutputType == nmfConstantsMSSPM::OutputChartBiomass) {
-//std::cout << "Herring (1,0): " << ObservedBiomass(1,0) << std::endl; RSK
         showChartBiomassVsTime(NumSpeciesOrGuilds,OutputSpecies,
                                SpeciesNum,RunLength,StartYear,
                                Algorithms,
@@ -6921,6 +6933,8 @@ nmfMainWindow::callback_ShowChartBy(QString GroupType,
     std::vector<boost::numeric::ublas::matrix<double> > HarvestVec;
     std::vector<double> EstSurveyQ;
     std::string chartLabel = "";
+
+    clearChart();
 
     if (isAMultiOrMohnsRhoRun() && (OutputChartType == nmfConstantsMSSPM::OutputChartBiomass)) {
         displayAverageBiomass();
@@ -7387,6 +7401,7 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
 void
 nmfMainWindow::callback_ShowChartMohnsRho()
 {
+    clearChart();
     callback_SetChartView2d(true);
     displayAverageBiomass();
 }
@@ -7409,6 +7424,8 @@ nmfMainWindow::callback_ShowChartMultiScenario(QStringList SortedForecastLabels)
     double ScaleVal = convertUnitsStringToValue(ScaleStr);
     QString msg;
     double YMinSliderVal = -1;
+
+    clearChart();
 
     ForecastBiomassMultiScenario.clear();
 
@@ -8258,11 +8275,10 @@ nmfMainWindow::isAMohnsRhoMultiRun()
     QString NavigatorStr = NavigatorTree->currentItem()->text(0);
 
     return ( Diagnostic_Tab2_ptr->isAMohnsRhoRunForSingleRun() ||
-
              (Output_Controls_ptr->getOutputChartType() == "Diagnostics" &&
-              Output_Controls_ptr->isSetToRetrospectiveAnalysis() &&
-              (NavigatorStr.contains("Retrospective Analysis") ||
-               NavigatorStr.contains("Parameter Profiles")) ));
+              Output_Controls_ptr->isSetToRetrospectiveAnalysis()));
+//        && (NavigatorStr.contains("Retrospective Analysis") ||
+//            NavigatorStr.contains("Parameter Profiles")) ));
 }
 
 bool
@@ -12489,7 +12505,7 @@ nmfMainWindow::displayAverageBiomass()
                 nmfConstantsMSSPM::Clear,
                 YMinSliderValue,
                 lineLabels);
-
+std::cout << "isMohnsRho: " << isAMohnsRhoMultiRun() << std::endl;
     if (! isAMohnsRhoMultiRun()) {
         // Show dark blue average line(s)
         OutputBiomassEnsembleAve.clear();
@@ -13382,13 +13398,13 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
                   "BeesNumTotal","BeesNumElite","BeesNumOther","BeesNumEliteSites",
                   "BeesNumBestSites","BeesNumRepetitions","BeesMaxGenerations","BeesNeighborhoodSize",
                   "Scaling","GAGenerations","GAConvergence",
-                  "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter",
-                  "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptNumberOfRuns"};
+                  "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter","NLoptUseInitialPopulationSize",
+                  "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptInitialPopulationSize","NLoptNumberOfRuns"};
     queryStr   = "SELECT ObsBiomassType,GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm,RunLength,Minimizer,ObjectiveCriterion,";
     queryStr  += "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions,";
     queryStr  += "BeesMaxGenerations,BeesNeighborhoodSize,Scaling,GAGenerations,GAConvergence,";
-    queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,";
-    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptNumberOfRuns FROM " +
+    queryStr  += "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,NLoptUseInitialPopulationSize,";
+    queryStr  += "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptInitialPopulationSize,NLoptNumberOfRuns FROM " +
                   nmfConstantsMSSPM::TableModels +
                   " WHERE ProjectName = '" + m_ProjectName +
                   "' AND  ModelName = '"   + m_ModelName   + "'";
@@ -13421,13 +13437,14 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.NLoptStopAfterTime    = std::stoi(dataMap["NLoptStopAfterTime"][0]);
     dataStruct.NLoptStopAfterIter    = std::stoi(dataMap["NLoptStopAfterIter"][0]);
     dataStruct.NLoptNumberOfRuns     = std::stoi(dataMap["NLoptNumberOfRuns"][0]);
+    dataStruct.NLoptUseInitialPopulationSize = std::stoi(dataMap["NLoptUseInitialPopulationSize"][0]);
+    dataStruct.NLoptInitialPopulationSize    = std::stoi(dataMap["NLoptInitialPopulationSize"][0]);
 
     growthForm      = dataStruct.GrowthForm;
     harvestForm     = dataStruct.HarvestForm;
     competitionForm = dataStruct.CompetitionForm;
     predationForm   = dataStruct.PredationForm;
     isFitToCatch    = (harvestForm == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString());
-
 
     if (growthForm == "Null") {
         msg = "\nPlease enter a non-null growth form.\n";

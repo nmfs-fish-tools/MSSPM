@@ -451,6 +451,7 @@ private:
             const QString& HarvestForm,
             const QString& ForecastButtonLabel);
     bool checkIfTablesAlreadyCreated();
+    void clearChart();
     bool clearOutputBiomassTable(std::string& ForecastName,
                                  std::string  Algorithm,
                                  std::string  Minimizer,

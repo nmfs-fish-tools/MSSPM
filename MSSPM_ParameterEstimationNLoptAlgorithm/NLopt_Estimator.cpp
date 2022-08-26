@@ -718,6 +718,14 @@ NLopt_Estimator::loadSurveyQParameterRanges(
 }
 
 void
+NLopt_Estimator::setAdditionalParameters(const nmfStructsQt::ModelDataStruct& dataStruct)
+{
+   if ((dataStruct.MinimizerAlgorithm == "GN_CRS2_LM") && dataStruct.NLoptUseInitialPopulationSize) {
+      m_Optimizer.set_population((unsigned int)dataStruct.NLoptInitialPopulationSize);
+   }
+}
+
+void
 NLopt_Estimator::setStoppingCriteria(nmfStructsQt::ModelDataStruct &NLoptStruct)
 {
     if (NLoptStruct.NLoptUseStopVal) {
@@ -900,6 +908,7 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
 
                 // Initialize the optimizer with the appropriate algorithm
                 m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
+                setAdditionalParameters(NLoptStruct);
 
                 // Set Parameter Bounds, Objective Function, and Stopping Criteria
                 setSeed(isSetToDeterministic,NLoptStruct.useFixedSeedNLopt);

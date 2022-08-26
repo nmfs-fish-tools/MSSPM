@@ -77,13 +77,11 @@ ClearOutputDialog::loadWidgets()
 
     AlgorithmCMB->addItem("All");
     fields   = {"Algorithm"};
-    queryStr = "SELECT Algorithm from OutputGrowthRate ";
+    queryStr = "SELECT DISTINCT Algorithm from " + nmfConstantsMSSPM::TableOutputGrowthRate;
     dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     for (unsigned i=0; i<dataMap["Algorithm"].size(); ++i) {
         algorithm = QString::fromStdString(dataMap["Algorithm"][i]);
-        if (AlgorithmCMB->findText(algorithm) == -1) {
-            AlgorithmCMB->addItem(algorithm);
-        }
+        AlgorithmCMB->addItem(algorithm);
     }
     MinimizerCMB->addItem("All");
     ObjectiveCriterionCMB->addItem("All");
@@ -117,8 +115,8 @@ ClearOutputDialog::callback_AlgorithmCMB(QString algorithm)
     ScalingCMB->addItem("All");
 
     fields    = {"Algorithm","Minimizer"};
-    queryStr  = "SELECT Algorithm,Minimizer from OutputGrowthRate ";
-    queryStr += "WHERE Algorithm='" + algorithm.toStdString() + "'";
+    queryStr  = "SELECT Algorithm,Minimizer from " + nmfConstantsMSSPM::TableOutputGrowthRate;
+    queryStr += " WHERE Algorithm = '" + algorithm.toStdString() + "'";
     dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     for (unsigned i=0; i<dataMap["Minimizer"].size(); ++i) {
         minimizer = QString::fromStdString(dataMap["Minimizer"][i]);
@@ -151,8 +149,8 @@ ClearOutputDialog::callback_MinimizerCMB(QString minimizer)
     ObjectiveCriterionCMB->addItem("All");
     ScalingCMB->addItem("All");
     fields    = {"Algorithm","Minimizer","ObjectiveCriterion"};
-    queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion from OutputGrowthRate ";
-    queryStr += "WHERE Algorithm='" + algorithm.toStdString() + "'";
+    queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion from " + nmfConstantsMSSPM::TableOutputGrowthRate;
+    queryStr += " WHERE Algorithm='" + algorithm.toStdString() + "'";
     if (minimizer != "All") {
         queryStr += " AND  Minimizer='" + minimizer.toStdString() + "'";
     }
@@ -186,8 +184,8 @@ ClearOutputDialog::callback_ObjectiveCriterionCMB(QString objectiveCriterion)
     ScalingCMB->blockSignals(true);
     ScalingCMB->addItem("All");
     fields    = {"Algorithm","Minimizer","ObjectiveCriterion","Scaling"};
-    queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling from OutputGrowthRate ";
-    queryStr += "WHERE Algorithm='" + algorithm.toStdString();
+    queryStr  = "SELECT Algorithm,Minimizer,ObjectiveCriterion,Scaling from " + nmfConstantsMSSPM::TableOutputGrowthRate;
+    queryStr += " WHERE Algorithm='" + algorithm.toStdString();
     if (minimizer != "All") {
         queryStr += "' AND Minimizer='" + minimizer.toStdString();
     }

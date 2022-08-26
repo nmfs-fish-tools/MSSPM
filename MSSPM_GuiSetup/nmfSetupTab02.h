@@ -88,6 +88,10 @@ signals:
      */
     void ClearEstimationTables();
     /**
+     * @brief Signal emitted to disable most of Navigator until user loads a model
+     */
+    void DisableNavigatorUntilModelLoad();
+    /**
      * @brief Signal emitted to import a database into the current project
      */
     void ImportDatabase();

@@ -71,11 +71,15 @@ class nmfEstimation_Tab7: public QObject
     std::string     m_EnsembleTimeStampedFilename;
     bool            m_IsMultiRun;
     std::string     m_MultiRunType;
+    QString         m_WhatsThisIntroGlobal;
+    QString         m_WhatsThisIntroLocal;
+    std::map<QString,QString> m_WhatsThisMap;
 
     QWidget*     Estimation_Tab7_Widget;
     QGroupBox*   Estimation_Tab7_ModelAlgorithmsGB;
     QGroupBox*   Estimation_Tab7_Bees_ParametersGB;
     QGroupBox*   Estimation_Tab7_NL_ParametersGB;
+    QGroupBox*   Estimation_Tab7_NL_AdditionalParametersGB;
     QGroupBox*   Estimation_Tab7_EstParametersGB;
     QComboBox*   Estimation_Tab7_MinimizerAlgorithmCMB;
     QComboBox*   Estimation_Tab7_ObjectiveCriterionCMB;
@@ -102,10 +106,12 @@ class nmfEstimation_Tab7: public QObject
     QSpinBox*    Estimation_Tab7_Bees_NumberOfRunsSB;
     QLabel*      Estimation_Tab7_ScalingLBL;
     QComboBox*   Estimation_Tab7_ScalingCMB;
+    QCheckBox*   Estimation_Tab7_NL_InitialPopulationSizeCB;
     QCheckBox*   Estimation_Tab7_NL_StopAfterValueCB;
     QCheckBox*   Estimation_Tab7_NL_StopAfterTimeCB;
     QCheckBox*   Estimation_Tab7_NL_StopAfterIterCB;
     QLineEdit*   Estimation_Tab7_NL_StopAfterValueLE;
+    QLineEdit*   Estimation_Tab7_NL_InitialPopulationSizeLE;
     QSpinBox*    Estimation_Tab7_NL_StopAfterTimeSB;
     QSpinBox*    Estimation_Tab7_NL_StopAfterIterSB;
     QCheckBox*   Estimation_Tab7_EstimateInitialBiomassCB;
@@ -155,7 +161,10 @@ class nmfEstimation_Tab7: public QObject
             std::string& ObjectiveCriterion,
             std::string& Scaling);
     QList<QCheckBox* > getAllEstimateCheckboxes();
+    int getNumParameters();
     void initializeDetStoMap();
+    void initializeHelpText();
+    bool okAdditionalAlgorithmParameters();
     bool passRunChecks(std::string& msg);
     bool queryUserIfOkToClearMultiRunFile();
     void readSettings();
@@ -359,10 +368,20 @@ public:
      */
     QString getEnsembleUsingBy();
     /**
+     * @brief Gets the value in the Initial Population Size line edit
+     * @return the value of the Initial Population Size
+     */
+    double getInitialPopulationSize();
+    /**
      * @brief Gets the Bees Algorithm Max Generations as an integer
      * @return Bees Algorithm Max Generations value
      */
     int getMaxGenerations();
+    /**
+     * @brief Gets the name of the current minimizer algorithm
+     * @return Name of the current minimizer algorithm
+     */
+    QString getMinimizerAlgorithm();
     /**
      * @brief Gets the Multi-Run Column data for the passed in column
      * @param col : column whose Multi-Run data will be returned
@@ -539,6 +558,11 @@ public:
      * @return
      */
     bool isEstSurveyQEnabled();
+    /**
+     * @brief Boolean representing if the Initial Population Size checkbox is checked
+     * @return true/false representing if the Initial Population Size checkbox is checked
+     */
+    bool isInitialPopulationSize();
     /**
      * @brief Boolean representing if the Bees algorithm should be run deterministically
      * (i.e. with the inherent randomness being repeatable) or stochastically
@@ -797,7 +821,6 @@ signals:
     void UpdateForecastYears();
 
 public Q_SLOTS:
-
     /**
      * @brief Callback invoked when user clicks the Add to Review button
      */
@@ -878,6 +901,11 @@ public Q_SLOTS:
      * @param algorithm : the estimation algorithm selected
      */
     void callback_EstimationAlgorithmCMB(QString algorithm);
+    /**
+     * @brief Callback invoked when the user check the Initial Population Size checkbox
+     * @param isChecked : boolean specifying whether or not the checkbox is checked
+     */
+    void callback_InitialPopulationSizeCB(int isChecked);
     /**
      * @brief Callback invoked when user changes the minimizer algorithm.
      * @param algorithm : the minimizer algorithm selected

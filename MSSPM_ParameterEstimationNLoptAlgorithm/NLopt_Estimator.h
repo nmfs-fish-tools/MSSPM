@@ -365,6 +365,11 @@ public:
             const double* EstParameters,
             double*       Gradient,
             void*         FunctionData);
+    /**
+     * @brief Sets any additional NLopt parameters as needed by the minimizer algorithm
+     * @param NLoptStruct : data structure containing necessary run information
+     */
+    void setAdditionalParameters(const nmfStructsQt::ModelDataStruct& dataStruct);
     bool stoppedByUser();
     void stopRun(const std::string &elapsedTimeStr,
                  const std::string &fitnessStr);
