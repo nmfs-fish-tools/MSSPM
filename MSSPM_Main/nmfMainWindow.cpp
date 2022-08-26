@@ -1992,7 +1992,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.2.3 ";
+    QString version = "MSSPM v1.2.4 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -12783,6 +12783,11 @@ std::cout << "=====>>>>> Run Completed" << std::endl;
                     "Elapsed Time: " + m_ProgressWidget->getElapsedTime());
         Estimation_Tab7_ptr->appendOutputTE(elapsedTime);
     }
+
+    // Update time to include table writing and chart drawing. This is required since
+    // estimating parameters without ranges will finish instantly before the elapsed time
+    // can be updated.
+    m_ProgressWidget->updateTime();
 
     Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
 
