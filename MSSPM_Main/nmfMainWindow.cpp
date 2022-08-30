@@ -1992,7 +1992,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.2.4 ";
+    QString version = "MSSPM v1.2.5 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -11967,6 +11967,9 @@ nmfMainWindow::callback_AllSubRunsCompleted()
     Estimation_Tab7_ptr->enableAddToReview(true);
 
     refreshOutputTables();
+
+    // Need to make sure timer is stopped properly before the next run
+    callback_StopTheTimer();
 
     QApplication::restoreOverrideCursor();
 }

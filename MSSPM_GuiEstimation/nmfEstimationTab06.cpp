@@ -1351,6 +1351,9 @@ void
 nmfEstimation_Tab6::callback_SavePB()
 {
     bool ok;
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
     if (Estimation_Tab6_CovariateTV->isVisible()) {
         saveCovariateAlgorithmType();
         ok = saveCovariateTable();
@@ -1359,7 +1362,7 @@ nmfEstimation_Tab6::callback_SavePB()
             initializeInitialValuesAndRangesTable();
             loadCovariateAssignmentTable();
             loadCovariateInitialValuesAndRangesTable();
-
+            QApplication::restoreOverrideCursor();
             QMessageBox::information(Estimation_Tabs,"Save",
                                      "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariate),
                                      QMessageBox::Ok);
@@ -1371,6 +1374,7 @@ nmfEstimation_Tab6::callback_SavePB()
             bool loadOK = loadInitialValuesAndRangesForEditableCells();
             if (loadOK) {
                 saveInitialValuesAndRangesTable();
+                QApplication::restoreOverrideCursor();
                 QMessageBox::information(Estimation_Tabs,"Save",
                                          "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateAssignment),
                                          QMessageBox::Ok);
@@ -1379,11 +1383,14 @@ nmfEstimation_Tab6::callback_SavePB()
     } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
         ok = saveInitialValuesAndRangesTable();
         if (ok) {
+            QApplication::restoreOverrideCursor();
             QMessageBox::information(Estimation_Tabs,"Save",
                                      "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges),
                                      QMessageBox::Ok);
         }
     }
+
+    QApplication::restoreOverrideCursor();
 }
 
 void
