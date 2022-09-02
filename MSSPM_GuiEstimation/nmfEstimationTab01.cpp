@@ -493,7 +493,7 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
 void
 nmfEstimation_Tab1::callback_SavePB()
 {
-    bool ok = true;
+    bool okSave = true;
     std::string msg = "\n";
     std::string type = (onGuildTab()) ? "Guilds" : "Species";
 
@@ -512,15 +512,15 @@ nmfEstimation_Tab1::callback_SavePB()
 //  resetPercentageCMB();
 
     if (onGuildTab()) {
-        ok = savePopulationParametersGuilds(nmfConstantsMSSPM::ShowPopupError);
+        okSave = savePopulationParametersGuilds(nmfConstantsMSSPM::ShowPopupError);
     } else { // if on Species tab
-        ok = savePopulationParametersSpecies(nmfConstantsMSSPM::ShowPopupError);
-        if (ok) {
+        okSave   = savePopulationParametersSpecies(nmfConstantsMSSPM::ShowPopupError);
+        if (okSave) {
             savePopulationParameterGuildK();
         }
     }
 
-    if (ok) {
+    if (okSave) {
         loadWidgets();
     }
     resetSelection();
@@ -663,7 +663,26 @@ nmfEstimation_Tab1::showAllColumns(QTableView* tv)
     for (int i=0; i<tv->model()->columnCount(); ++i) {
         tv->setColumnHidden( i,false);
     }
+    showCovariateColumns(tv,false); // Hide them for now as covariates are entered in their own tab (Tab 6)
 }
+
+void
+nmfEstimation_Tab1::showCovariateColumns(QTableView* tv, const bool& show)
+{
+    QString colName;
+    QStringList SpeciesSupp = {"GrowthRateCovarCoeff","SpeciesKCovarCoeff"};
+//    QStringList GuildSupp   = {"Catchability"};
+//    QStringList SuppColumns = (tv == Estimation_Tab1_SpeciesPopulationTV) ?
+//                                  SpeciesSupp : GuildSupp;
+
+    for (int i = 0; i < tv->model()->columnCount(); ++i) {
+        colName = tv->model()->headerData(i, Qt::Horizontal).toString();
+        if (SpeciesSupp.contains(colName)) {
+            tv->setColumnHidden(i,!show);
+        }
+    }
+}
+
 
 void
 nmfEstimation_Tab1::showPrimaryColumns(QTableView* tv)
@@ -685,11 +704,11 @@ nmfEstimation_Tab1::showPrimaryColumns(QTableView* tv)
 }
 
 void
-nmfEstimation_Tab1::showSuppColumns(QTableView* tv,bool show)
+nmfEstimation_Tab1::showSuppColumns(QTableView* tv, const bool& show)
 {
     QString colName;
     QStringList SpeciesSupp = {"SurveyQ","GrowthRateCovarCoeff","SpeciesKCovarCoeff",
-                              "Catchability","SpeDependence","ExploitationRate"};
+                               "Catchability","SpeDependence","ExploitationRate"};
     QStringList GuildSupp   = {"Catchability"};
     QStringList SuppColumns = (tv == Estimation_Tab1_SpeciesPopulationTV) ?
                                   SpeciesSupp : GuildSupp;
@@ -700,10 +719,11 @@ nmfEstimation_Tab1::showSuppColumns(QTableView* tv,bool show)
             tv->setColumnHidden(i,!show);
         }
     }
+    showCovariateColumns(tv,false); // Hide them for now as covariates are entered in their own tab (Tab 6)
 }
 
 void
-nmfEstimation_Tab1::showRangeColumns(QTableView* tv,bool show)
+nmfEstimation_Tab1::showRangeColumns(QTableView* tv, const bool& show)
 {
     QString     colName;
     QStringList SpeciesRange     = {"InitBiomassMin","InitBiomassMax",

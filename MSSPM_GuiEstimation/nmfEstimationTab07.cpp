@@ -745,6 +745,27 @@ nmfEstimation_Tab7::getNumSubRuns()
     return Estimation_Tab7_Bees_NumberOfRunsSB->value();
 }
 
+bool
+nmfEstimation_Tab7::passRunChecks()
+{
+    bool retv = true;
+    QString msg;
+
+    // Check 1.
+    if (isEstInitialBiomassEnabled() && isEstInitialBiomassChecked() &&
+        isEstSurveyQEnabled()        && isEstSurveyQChecked())
+    {
+        msg = "\nBoth the Survey Q and Initial Biomass estimation boxes are checked. ";
+        msg += "As both parameters influence the model scaling, estimating them simultaneously may produce spurious results.";
+        msg += "\n\nContinue with the Save?";
+        QMessageBox::StandardButton reply = QMessageBox::warning(Estimation_Tabs, tr("Warning"),
+                                            tr(msg.toLatin1()), QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
+        retv = (reply == QMessageBox::Yes);
+    }
+
+    return retv;
+}
+
 void
 nmfEstimation_Tab7::setMaxGenerations(int value)
 {
@@ -877,7 +898,7 @@ nmfEstimation_Tab7::callback_RunPB()
 }
 
 bool
-nmfEstimation_Tab7::passRunChecks(std::string& msg)
+nmfEstimation_Tab7::passEnsembleChecks(std::string& msg)
 {
     int MIN_NUMBER_RUNS_TO_AVERAGE = 2;
     int topAmount    = getEnsembleUsingAmountValue();
@@ -912,7 +933,7 @@ nmfEstimation_Tab7::runEnsemble()
 {
     std::string msg;
 
-    if (! passRunChecks(msg)) {
+    if (! passEnsembleChecks(msg)) {
         m_Logger->logMsg(nmfConstants::Error,msg);
         QMessageBox::critical(Estimation_Tabs, "Error", QString::fromStdString("\n"+msg+"\n"), QMessageBox::Ok);
         return;
@@ -1033,6 +1054,9 @@ nmfEstimation_Tab7::callback_ReloadPB()
 void
 nmfEstimation_Tab7::callback_SavePB()
 {
+    if (! passRunChecks()) {
+        return;
+    }
     createTimeStampedEnsembleFile();
 
     bool wasSaved = saveSystem(true);
@@ -2380,8 +2404,6 @@ nmfEstimation_Tab7::loadWidgets()
     Estimation_Tab7_NL_StopAfterIterCB->setChecked(dataMap["NLoptUseStopAfterIter"][0] == "1");
     Estimation_Tab7_NL_InitialPopulationSizeCB->setChecked(dataMap["NLoptUseInitialPopulationSize"][0] == "1");
     Estimation_Tab7_NL_StopAfterValueLE->setText(QString::fromStdString(dataMap["NLoptStopVal"][0]));
-//  Estimation_Tab7_NL_StopAfterTimeSB->setValue(convertToAppropriateUnits(std::stoi(dataMap["NLoptStopAfterTime"][0])));
-    Estimation_Tab7_NL_StopAfterTimeSB->setValue(std::stoi(dataMap["NLoptStopAfterTime"][0]));
     Estimation_Tab7_NL_StopAfterIterSB->setValue(std::stoi(dataMap["NLoptStopAfterIter"][0]));
     Estimation_Tab7_NL_InitialPopulationSizeLE->setText(QString::fromStdString(dataMap["NLoptInitialPopulationSize"][0]));
 //  Estimation_Tab7_EnsembleTotalRunsSB->setValue(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
@@ -2405,6 +2427,10 @@ nmfEstimation_Tab7::loadWidgets()
     if (dataMap["EnsembleIsUsingPct"][0] == "1") {
         Estimation_Tab7_EnsembleUsingPctPB->setText("%");
     }
+
+    // Set Stop after (time) with correct units
+    Estimation_Tab7_NL_StopAfterTimeSB->setValue(convertToAppropriateUnits(std::stoi(dataMap["NLoptStopAfterTime"][0])));
+//  Estimation_Tab7_NL_StopAfterTimeSB->setValue(std::stoi(dataMap["NLoptStopAfterTime"][0]));
 
     callback_EnsembleTotalRunsSB(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
     callback_EstimationAlgorithmCMB(QString::fromStdString(dataMap["Algorithm"][0]));

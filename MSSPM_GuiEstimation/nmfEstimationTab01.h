@@ -142,11 +142,12 @@ class nmfEstimation_Tab1: public QObject
     bool saveSpeciesDataPrimary(bool showPopup);
     void setupHelpSpecies();
     void setupHelpGuilds();
+    void showCovariateColumns(QTableView* tv, const bool& show);
     void showNoColumns(QTableView* tv);
     void showAllColumns(QTableView* tv);
     void showPrimaryColumns(QTableView* tv);
-    void showSuppColumns(QTableView* tv,bool show);
-    void showRangeColumns(QTableView* tv,bool show);
+    void showSuppColumns(QTableView* tv, const bool& show);
+    void showRangeColumns(QTableView* tv, const bool& show);
     void updateBiomassAbsoluteTable();
 
 signals:

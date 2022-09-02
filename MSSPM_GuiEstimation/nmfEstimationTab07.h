@@ -165,9 +165,10 @@ class nmfEstimation_Tab7: public QObject
     void initializeDetStoMap();
     void initializeHelpText();
     bool okAdditionalAlgorithmParameters();
-    bool passRunChecks(std::string& msg);
+    bool passEnsembleChecks(std::string& msg);
     bool queryUserIfOkToClearMultiRunFile();
     void readSettings();
+    bool passRunChecks();
     void runEnsemble();
     bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
     bool tryingToAddBeesAlgorithmToMultiRun();
@@ -635,8 +636,8 @@ public:
      */
     void setAlgorithm(QString algorithm);
     /**
-     * @brief Sets the current units to the passed string
-     * @param units : current units to set the time units combo box to
+     * @brief Sets the current minimizer type to the passed string
+     * @param value : the current minimizer type
      */
     void setCurrentMinimizerType(QString value);
     /**
