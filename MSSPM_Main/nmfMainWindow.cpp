@@ -1992,7 +1992,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.2.5 ";
+    QString version = "MSSPM v1.2.6 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -13351,16 +13351,22 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.Catchability.clear();
     dataStruct.CatchabilityMax.clear();
     dataStruct.CatchabilityMin.clear();
+    dataStruct.Competition.clear();
     dataStruct.CompetitionMin.clear();
     dataStruct.CompetitionMax.clear();
+    dataStruct.CompetitionBetaSpecies.clear();
     dataStruct.CompetitionBetaSpeciesMin.clear();
     dataStruct.CompetitionBetaSpeciesMax.clear();
+    dataStruct.CompetitionBetaGuilds.clear();
     dataStruct.CompetitionBetaGuildsMin.clear();
     dataStruct.CompetitionBetaGuildsMax.clear();
+    dataStruct.PredationRho.clear();
     dataStruct.PredationRhoMin.clear();
     dataStruct.PredationRhoMax.clear();
+    dataStruct.PredationHandling.clear();
     dataStruct.PredationHandlingMin.clear();
     dataStruct.PredationHandlingMax.clear();
+    dataStruct.PredationExponent.clear();
     dataStruct.PredationExponentMin.clear();
     dataStruct.PredationExponentMax.clear();
 //  dataStruct.OutputBiomass.clear();
@@ -13470,27 +13476,34 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.isRelativeBiomass = isSurveyQ;
 
     if (isAlpha) {
+        dataStruct.Competition.clear();
         dataStruct.CompetitionMin.clear();
         dataStruct.CompetitionMax.clear();
     }
     if (isRho) {
+        dataStruct.PredationRho.clear();
         dataStruct.PredationRhoMin.clear();
         dataStruct.PredationRhoMax.clear();
     }
     if (isHandling) {
+        dataStruct.PredationHandling.clear();
         dataStruct.PredationHandlingMin.clear();
         dataStruct.PredationHandlingMax.clear();
     }
     if (isExponent) {
+        dataStruct.PredationExponent.clear();
         dataStruct.PredationExponentMin.clear();
         dataStruct.PredationExponentMax.clear();
     }
     if (isMSPROD) {
+        dataStruct.CompetitionBetaSpecies.clear();
         dataStruct.CompetitionBetaSpeciesMin.clear();
         dataStruct.CompetitionBetaSpeciesMax.clear();
+        dataStruct.CompetitionBetaGuilds.clear();
         dataStruct.CompetitionBetaGuildsMin.clear();
         dataStruct.CompetitionBetaGuildsMax.clear();
     } else if (isAGGPROD) {
+        dataStruct.CompetitionBetaGuildsGuilds.clear();
         dataStruct.CompetitionBetaGuildsGuildsMin.clear();
         dataStruct.CompetitionBetaGuildsGuildsMax.clear();
     }
@@ -13623,7 +13636,9 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                  nmfConstantsMSSPM::TableCompetitionAlpha,
                                  nmfConstantsMSSPM::TableCompetitionAlphaMin,
                                  nmfConstantsMSSPM::TableCompetitionAlphaMax,
-                                 dataStruct.CompetitionMin, dataStruct.CompetitionMax,
+                                 dataStruct.Competition,
+                                 dataStruct.CompetitionMin,
+                                 dataStruct.CompetitionMax,
                                  NumCompetitionParameters);
         if (! loadOK) return false;
     }
@@ -13632,7 +13647,9 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                  nmfConstantsMSSPM::TablePredationRho,
                                  nmfConstantsMSSPM::TablePredationRhoMin,
                                  nmfConstantsMSSPM::TablePredationRhoMax,
-                                 dataStruct.PredationRhoMin, dataStruct.PredationRhoMax,
+                                 dataStruct.PredationRho,
+                                 dataStruct.PredationRhoMin,
+                                 dataStruct.PredationRhoMax,
                                  NumPredationParameters);
         if (! loadOK) return false;
     }
@@ -13641,7 +13658,9 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                  nmfConstantsMSSPM::TablePredationHandling,
                                  nmfConstantsMSSPM::TablePredationHandlingMin,
                                  nmfConstantsMSSPM::TablePredationHandlingMax,
-                                 dataStruct.PredationHandlingMin, dataStruct.PredationHandlingMax,
+                                 dataStruct.PredationHandling,
+                                 dataStruct.PredationHandlingMin,
+                                 dataStruct.PredationHandlingMax,
                                  NumHandlingParameters);
         if (! loadOK) return false;
     }
@@ -13650,7 +13669,9 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                  nmfConstantsMSSPM::TablePredationExponent,
                                  nmfConstantsMSSPM::TablePredationExponentMin,
                                  nmfConstantsMSSPM::TablePredationExponentMax,
-                                 dataStruct.PredationExponentMin, dataStruct.PredationExponentMax,
+                                 dataStruct.PredationExponent,
+                                 dataStruct.PredationExponentMin,
+                                 dataStruct.PredationExponentMax,
                                  NumExponentParameters);
         if (! loadOK) return false;
     }
@@ -13660,6 +13681,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                  nmfConstantsMSSPM::TableCompetitionBetaSpecies,
                                  nmfConstantsMSSPM::TableCompetitionBetaSpeciesMin,
                                  nmfConstantsMSSPM::TableCompetitionBetaSpeciesMax,
+                                 dataStruct.CompetitionBetaSpecies,
                                  dataStruct.CompetitionBetaSpeciesMin,
                                  dataStruct.CompetitionBetaSpeciesMax,
                                  NumBetaSpeciesParameters);
@@ -13669,6 +13691,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                        nmfConstantsMSSPM::TableCompetitionBetaGuilds,
                                        nmfConstantsMSSPM::TableCompetitionBetaGuildsMin,
                                        nmfConstantsMSSPM::TableCompetitionBetaGuildsMax,
+                                       dataStruct.CompetitionBetaGuilds,
                                        dataStruct.CompetitionBetaGuildsMin,
                                        dataStruct.CompetitionBetaGuildsMax,
                                        NumBetaGuildsParameters);
@@ -13679,6 +13702,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                              nmfConstantsMSSPM::TableCompetitionBetaGuildsGuilds,
                                              nmfConstantsMSSPM::TableCompetitionBetaGuildsGuildsMin,
                                              nmfConstantsMSSPM::TableCompetitionBetaGuildsGuildsMax,
+                                             dataStruct.CompetitionBetaGuildsGuilds,
                                              dataStruct.CompetitionBetaGuildsGuildsMin,
                                              dataStruct.CompetitionBetaGuildsGuildsMax,
                                              NumBetaGuildsParameters);
@@ -13886,6 +13910,7 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
                                std::string InitTable,
                                std::string MinTable,
                                std::string MaxTable,
+                               std::vector<double> &InitialData,
                                std::vector<double> &MinData,
                                std::vector<double> &MaxData,
                                int &NumInteractionParameters)
@@ -13954,16 +13979,20 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
         minVal  = std::stod(dataMapMin["Value"][m]);
         maxVal  = std::stod(dataMapMax["Value"][m]);
         ++NumInteractionParameters;
-        if ((InteractionType == "Exponent") && Estimation_Tab7_ptr->isEstPredationExponentEnabled() && Estimation_Tab7_ptr->isEstPredationExponentChecked()) {
+        if ((InteractionType == "Exponent") &&
+             Estimation_Tab7_ptr->isEstPredationExponentEnabled() &&
+             Estimation_Tab7_ptr->isEstPredationExponentChecked())
+        {
             MinData.push_back(minVal);
             MaxData.push_back(maxVal);
         } else {
             if (InteractionType != "Exponent") {
                 m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (1) of: "+InteractionType);
             }
-            MinData.push_back(initVal);
+            MinData.push_back(initVal); // RSK check this logic
             MaxData.push_back(initVal);
         }
+        InitialData.push_back(initVal);
         ++m;
     }
     return true;
@@ -13975,6 +14004,7 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
                                std::string InitTable,
                                std::string MinTable,
                                std::string MaxTable,
+                               std::vector<std::vector<double> > &InitialData,
                                std::vector<std::vector<double> > &MinData,
                                std::vector<std::vector<double> > &MaxData,
                                int &NumInteractionParameters)
@@ -14080,6 +14110,7 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
             MinData.push_back(InitRow);
             MaxData.push_back(InitRow);
         }
+        InitialData.push_back(InitRow);
     }
     return true;
 }
@@ -14093,6 +14124,7 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
                                      std::string InitTable,
                                      std::string MinTable,
                                      std::string MaxTable,
+                                     std::vector<std::vector<double> > &InitialData,
                                      std::vector<std::vector<double> > &MinData,
                                      std::vector<std::vector<double> > &MaxData,
                                      int &NumInteractionParameters)
@@ -14183,7 +14215,10 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
             ++m;
         }
 
-        if ((InteractionType == "Competition-MSPROD") && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsEnabled() && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsChecked()) {
+        if ((InteractionType == "Competition-MSPROD") &&
+             Estimation_Tab7_ptr->isEstCompetitionBetaGuildsEnabled() &&
+             Estimation_Tab7_ptr->isEstCompetitionBetaGuildsChecked())
+        {
             MinData.push_back(MinRow);
             MaxData.push_back(MaxRow);
         } else {
@@ -14193,6 +14228,7 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
             MinData.push_back(InitRow);
             MaxData.push_back(InitRow);
         }
+        InitialData.push_back(InitRow);
     }
     return true;
 }
@@ -14205,6 +14241,7 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
                                            std::string InitTable,
                                            std::string MinTable,
                                            std::string MaxTable,
+                                           std::vector<std::vector<double> > &InitialData,
                                            std::vector<std::vector<double> > &MinData,
                                            std::vector<std::vector<double> > &MaxData,
                                            int &NumInteractionParameters)
@@ -14304,6 +14341,7 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
             MinData.push_back(InitRow);
             MaxData.push_back(InitRow);
         }
+        InitialData.push_back(InitRow);
     }
     return true;
 }

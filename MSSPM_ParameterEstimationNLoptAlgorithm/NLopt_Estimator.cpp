@@ -661,6 +661,7 @@ NLopt_Estimator::writeCurrentLoopFile(const std::string &MSSPMName,
 
 void
 NLopt_Estimator::loadInitBiomassParameterRanges(
+        std::vector<double>& parameterInitialValues,
         std::vector<std::pair<double,double> >& parameterRanges,
         const nmfStructsQt::ModelDataStruct& dataStruct)
 {
@@ -676,11 +677,13 @@ NLopt_Estimator::loadInitBiomassParameterRanges(
                                    dataStruct.InitBiomass[species]);
         }
         parameterRanges.emplace_back(aPair);
+        parameterInitialValues.emplace_back(dataStruct.InitBiomass[species]);
     }
 }
 
 void
 NLopt_Estimator::loadSurveyQParameterRanges(
+        std::vector<double>& parameterInitialValues,
         std::vector<std::pair<double,double> >& parameterRanges,
         const nmfStructsQt::ModelDataStruct& dataStruct)
 {
@@ -689,6 +692,7 @@ NLopt_Estimator::loadSurveyQParameterRanges(
     std::string speciesName;
     std::map<std::string,nmfStructsQt::CovariateStruct> covariateCoeffMap;
     nmfStructsQt::CovariateStruct covariateStruct;
+    double initialValue;
 
     // Always load SurveyQ values
     for (unsigned species=0; species<dataStruct.SurveyQMin.size(); ++species) {
@@ -700,6 +704,7 @@ NLopt_Estimator::loadSurveyQParameterRanges(
                                    dataStruct.SurveyQ[species]);
         }
         parameterRanges.emplace_back(aPair);
+        parameterInitialValues.emplace_back(dataStruct.SurveyQ[species]);
     }
 
     // Always load SurveyQ Covariate Coefficient values
@@ -711,9 +716,11 @@ NLopt_Estimator::loadSurveyQParameterRanges(
             aPair = std::make_pair(covariateStruct.CoeffMinValue,
                                    covariateStruct.CoeffMaxValue);
         } else {
-            aPair = std::make_pair(0.0,0.0);
+            initialValue = covariateStruct.CoeffValue;
+            aPair = std::make_pair(initialValue,initialValue);
         }
         parameterRanges.emplace_back(aPair);
+        parameterInitialValues.emplace_back(covariateStruct.CoeffValue);
     }
 }
 
@@ -778,6 +785,7 @@ NLopt_Estimator::setSeed(const bool& isSetToDeterministic,
 
 void
 NLopt_Estimator::setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
+                                    std::vector<double>& ParameterInitialValues,
                                     std::vector<std::pair<double,double> >& ParameterRanges,
                                     const int& NumEstParameters)
 {
@@ -785,18 +793,14 @@ NLopt_Estimator::setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
     // points are not exactly equal to the input parameter points. This may be a bug with NLopt or perhaps
     // there's a tolerance or stop condition that I'm not specifying.  As a work-around, I've found that if I
     // tweak every parameter range by the following eps value, NLopt estimates correctly. RSK 03-24-2021
-    double eps = 1e-10;
-    double lowerVal;
-    double upperVal;
+//  double eps = 1e-10;
     std::vector<double> lowerBounds(NumEstParameters);
     std::vector<double> upperBounds(NumEstParameters);
 
     // Set parameter bounds for all parameters
     for (int i=0; i<NumEstParameters; ++i) {
-        lowerVal = ParameterRanges[i].first;
-        upperVal = ParameterRanges[i].second;
-        lowerBounds[i] = lowerVal;
-        upperBounds[i] = upperVal;
+        lowerBounds[i] = ParameterRanges[i].first;
+        upperBounds[i] = ParameterRanges[i].second;
     }
     m_Optimizer.set_lower_bounds(lowerBounds);
     m_Optimizer.set_upper_bounds(upperBounds);
@@ -807,7 +811,9 @@ NLopt_Estimator::setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
         if (lowerBounds[i] == upperBounds[i]) {
             m_Parameters.push_back(lowerBounds[i]);
         } else {
-            m_Parameters.push_back(lowerBounds[i] + (upperBounds[i]-lowerBounds[i])/2.0);
+            // Initial value should be the user entered initial value and not always the mid-point
+//          m_Parameters.push_back((lowerBounds[i] + upperBounds[i])/2.0);
+            m_Parameters.push_back(ParameterInitialValues[i]);
         }
     }
     NLoptStruct.Parameters = m_Parameters;
@@ -840,6 +846,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     double fitnessStdDev = 0;
     std::string bestFitnessStr = "TBD";
     std::string MaxOrMin;
+    std::vector<double> ParameterInitialValues;
     std::vector<std::pair<double,double> > ParameterRanges;
     QDateTime startTime = nmfUtilsQt::getCurrentTime();
 
@@ -848,21 +855,19 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     m_Quit           = false;
     m_RunNum        += 1;
 
-    NumSubRuns  =  NLoptStruct.BeesNumRepetitions; // RSK fix this
-
     // Define forms
-    NLoptGrowthForm      = std::make_unique<nmfGrowthForm>(     NLoptStruct.GrowthForm);
-    NLoptHarvestForm     = std::make_unique<nmfHarvestForm>(    NLoptStruct.HarvestForm);
+    NLoptGrowthForm      = std::make_unique<nmfGrowthForm>     (NLoptStruct.GrowthForm);
+    NLoptHarvestForm     = std::make_unique<nmfHarvestForm>    (NLoptStruct.HarvestForm);
     NLoptCompetitionForm = std::make_unique<nmfCompetitionForm>(NLoptStruct.CompetitionForm);
-    NLoptPredationForm   = std::make_unique<nmfPredationForm>(  NLoptStruct.PredationForm);
+    NLoptPredationForm   = std::make_unique<nmfPredationForm>  (NLoptStruct.PredationForm);
 
     // Load parameter ranges
-    loadInitBiomassParameterRanges(           ParameterRanges, NLoptStruct);
-    NLoptGrowthForm->loadParameterRanges(     ParameterRanges, NLoptStruct);
-    NLoptHarvestForm->loadParameterRanges(    ParameterRanges, NLoptStruct);
-    NLoptCompetitionForm->loadParameterRanges(ParameterRanges, NLoptStruct);
-    NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
-    loadSurveyQParameterRanges(               ParameterRanges, NLoptStruct);
+    loadInitBiomassParameterRanges(           ParameterInitialValues, ParameterRanges, NLoptStruct);
+    NLoptGrowthForm->loadParameterRanges(     ParameterInitialValues, ParameterRanges, NLoptStruct);
+    NLoptHarvestForm->loadParameterRanges(    ParameterInitialValues, ParameterRanges, NLoptStruct);
+    NLoptCompetitionForm->loadParameterRanges(ParameterInitialValues, ParameterRanges, NLoptStruct);
+    NLoptPredationForm->loadParameterRanges(  ParameterInitialValues, ParameterRanges, NLoptStruct);
+    loadSurveyQParameterRanges(               ParameterInitialValues, ParameterRanges, NLoptStruct);
     NumEstParameters = ParameterRanges.size();
 std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
 //for (int i=0; i< NumEstParameters; ++i) {
@@ -883,13 +888,14 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                 NLoptCompetitionForm->setType(NLoptStruct.CompetitionForm);
                 NLoptPredationForm->setType(  NLoptStruct.PredationForm);
                 ParameterRanges.clear();
+                ParameterInitialValues.clear();
 
-                loadInitBiomassParameterRanges(           ParameterRanges, NLoptStruct);
-                NLoptGrowthForm->loadParameterRanges(     ParameterRanges, NLoptStruct);
-                NLoptHarvestForm->loadParameterRanges(    ParameterRanges, NLoptStruct);
-                NLoptCompetitionForm->loadParameterRanges(ParameterRanges, NLoptStruct);
-                NLoptPredationForm->loadParameterRanges(  ParameterRanges, NLoptStruct);
-                loadSurveyQParameterRanges(               ParameterRanges, NLoptStruct);
+                loadInitBiomassParameterRanges(           ParameterInitialValues, ParameterRanges, NLoptStruct);
+                NLoptGrowthForm->loadParameterRanges(     ParameterInitialValues, ParameterRanges, NLoptStruct);
+                NLoptHarvestForm->loadParameterRanges(    ParameterInitialValues, ParameterRanges, NLoptStruct);
+                NLoptCompetitionForm->loadParameterRanges(ParameterInitialValues, ParameterRanges, NLoptStruct);
+                NLoptPredationForm->loadParameterRanges(  ParameterInitialValues, ParameterRanges, NLoptStruct);
+                loadSurveyQParameterRanges(               ParameterInitialValues, ParameterRanges, NLoptStruct);
                 NumEstParameters = ParameterRanges.size();
             }
 
@@ -912,7 +918,7 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
 
                 // Set Parameter Bounds, Objective Function, and Stopping Criteria
                 setSeed(isSetToDeterministic,NLoptStruct.useFixedSeedNLopt);
-                setParameterBounds(NLoptStruct,ParameterRanges,NumEstParameters);
+                setParameterBounds(NLoptStruct,ParameterInitialValues,ParameterRanges,NumEstParameters);
                 setObjectiveFunction(NLoptStruct,MaxOrMin);
                 setStoppingCriteria(NLoptStruct);
 
@@ -924,6 +930,7 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                         // ******************************************************
                         // *
                         std::cout << "====> Running Optimizer <====" << std::endl;
+//for (int j=10;j<20;++j) {std::cout << "before: " << m_Parameters[j] << std::endl;}
                         result = m_Optimizer.optimize(m_Parameters, fitness);
                         std::cout << "Optimizer return code: " << returnCode(result) << std::endl;
                         // *
@@ -935,7 +942,7 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                         std::cout << "Error: Unknown error from NLopt_Estimator::estimateParameters m_Optimizer.optimize()" << std::endl;
                         return;
                     }
-
+//for (int j=10;j<20;++j) {std::cout << "after: " << m_Parameters[j] << std::endl;}
                     extractParameters(NLoptStruct, &m_Parameters[0],
                             m_EstInitBiomass,
                             m_EstGrowthRates,        m_EstGrowthRateCovariateCoeffs,

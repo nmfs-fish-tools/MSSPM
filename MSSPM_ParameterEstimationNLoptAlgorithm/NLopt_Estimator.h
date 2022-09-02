@@ -95,9 +95,11 @@ private:
             const nmfStructsQt::ModelDataStruct& beeStruct,
             std::string&       bestFitnessStr);
     void loadInitBiomassParameterRanges(
+            std::vector<double>& parameterInitialValues,
             std::vector<std::pair<double,double> >& parameterRanges,
             const nmfStructsQt::ModelDataStruct& dataStruct);
     void loadSurveyQParameterRanges(
+            std::vector<double>& parameterInitialValues,
             std::vector<std::pair<double,double> >& parameterRanges,
             const nmfStructsQt::ModelDataStruct& dataStruct);
     void reloadNLoptStruct(
@@ -109,6 +111,7 @@ private:
             std::string& MaxOrMin);
     void setParameterBounds(
             nmfStructsQt::ModelDataStruct& NLoptStruct,
+            std::vector<double>& ParameterInitialValues,
             std::vector<std::pair<double,double> >& ParameterRanges,
             const int& NumEstParameters);
     void setSeed(

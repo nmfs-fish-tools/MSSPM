@@ -703,6 +703,7 @@ private:
                          std::string InitTable,
                          std::string MinTable,
                          std::string MaxTable,
+                         std::vector<double> &InitialData,
                          std::vector<double> &MinData,
                          std::vector<double> &MaxData,
                          int &NumInteractionParameters);
@@ -711,6 +712,7 @@ private:
                          std::string InitTable,
                          std::string MinTable,
                          std::string MaxTable,
+                         std::vector<std::vector<double> > &InitialData,
                          std::vector<std::vector<double> > &MinData,
                          std::vector<std::vector<double> > &MaxData,
                          int &NumInteractionParameters);
@@ -721,6 +723,7 @@ private:
                                std::string InitTable,
                                std::string MinTable,
                                std::string MaxTable,
+                               std::vector<std::vector<double> > &InitialData,
                                std::vector<std::vector<double> > &MinData,
                                std::vector<std::vector<double> > &MaxData,
                                int &NumInteractionParameters);
@@ -731,6 +734,7 @@ private:
                                      std::string InitTable,
                                      std::string MinTable,
                                      std::string MaxTable,
+                                     std::vector<std::vector<double> > &InitialData,
                                      std::vector<std::vector<double> > &MinData,
                                      std::vector<std::vector<double> > &MaxData,
                                      int &NumInteractionParameters);
