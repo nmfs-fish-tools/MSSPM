@@ -1151,10 +1151,10 @@ nmfEstimation_Tab7::okAdditionalAlgorithmParameters()
     double initialPopulationSize;
     std::string msg;
 
-    // 1. Check that Initial Population Size > NUmber of Parameters+2
+    // 1. Check that Initial Population Size > Number of Parameters+2 but 0 is allowed for the value
     if ((getMinimizerAlgorithm() == "GN_CRS2_LM") && Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked()) {
         initialPopulationSize = Estimation_Tab7_NL_InitialPopulationSizeLE->text().toDouble();
-        if (initialPopulationSize < (NumParameters+2)) {
+        if ((initialPopulationSize < (NumParameters+2)) && (initialPopulationSize != 0)) {
             msg = "nmfEstimation_Tab7::okAdditionalAlgorithmParameters: InitialParameterSize (" +
                    std::to_string((int)initialPopulationSize) +
                   ") is less than NumParameters+2 (" +

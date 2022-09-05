@@ -25,6 +25,7 @@ NLopt_Estimator::NLopt_Estimator()
     m_Seed = 0;
     m_MinimizerToEnum.clear();
     m_MohnsRhoOffset = 0;
+    m_MaxFitness = 999999999;
 
     // Load Minimizer Name Map with global algorithms
     m_MinimizerToEnum["GN_ORIG_DIRECT_L"] = nlopt::GN_ORIG_DIRECT_L;
@@ -400,6 +401,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                       competitionBetaGuilds,competitionBetaGuildsGuilds,
                       predationRho,predationHandling,predationExponent,
                       surveyQ,surveyQCovariateCoeffs);
+//std::cout << "extracting cov: " << growthRateCovariateCoeffs[0] << std::endl;
 
     // Since we may be estimating SurveyQ, need to divide the Observed Biomass by the SurveyQ
     double surveyQTerm;
@@ -598,6 +600,20 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 //if (nUnused == 0) {
 //std::cout << "objcri: " << fitness << std::endl;
 //}
+
+// Debug code to print out the CarryingCapacity covariates
+//if (fitness < m_MaxFitness) {
+//    for (int i=0; i<70; ++i) {
+//        if (i == 0) {std::cout << std::endl;}
+//        if ((i>=40) and (i<= 49)) {
+//            std::cout << "parameter:  " << EstParameters[i] <<
+//                         ", fitness: " << fitness << std::endl;
+//        }
+//    }
+//    m_MaxFitness = fitness;
+//}
+
+
     incrementObjectiveFunctionCounter(MSSPMName,fitness,NLoptDataStruct);
 
     return fitness;
@@ -956,6 +972,7 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                             m_EstHandling,
                             m_EstExponent,
                             m_EstSurveyQ,            m_EstSurveyQCovariateCoeffs);
+//for (int j=0;j<(int)m_Parameters.size();++j) {std::cout << j << ": est param: " << m_Parameters[j] << std::endl;}
 
                     createOutputStr(m_Parameters.size(),
                                     NLoptStruct.TotalNumberParameters,

@@ -192,8 +192,9 @@ std::cout << "Bees: num est parameters: " << EstParameters.size() << std::endl;
                 beesAlg->extractExponentParameters(EstParameters,startPos,m_EstExponent);
                 beesAlg->extractSurveyQParameters(EstParameters,startPos,
                                                   m_EstSurveyQ,m_EstSurveyQCovariateCoeffs);
-                numEstParameters   = beesAlg->calculateActualNumEstParameters();
+//              numEstParameters   = beesAlg->calculateActualNumEstParameters();
                 numTotalParameters = EstParameters.size();
+                numEstParameters   = numTotalParameters; // All parameters are estimated
                 createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,
                                 bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
 

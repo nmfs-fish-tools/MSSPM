@@ -50,6 +50,7 @@
 #include <random>
 
 static int m_MohnsRhoOffset = 0;
+static double m_MaxFitness;
 
 /**
  * @brief This class acts as an interface class to the NLopt library.
