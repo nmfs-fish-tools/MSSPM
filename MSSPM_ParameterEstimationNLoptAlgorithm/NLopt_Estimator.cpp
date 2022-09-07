@@ -306,7 +306,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     int NumSpeciesOrGuilds;
     double surveyQVal;
     std::string speciesName;
-    std::vector<double> initBiomass;
+    std::vector<double> initAbsBiomass;
     std::vector<double> growthRate;
     std::vector<double> growthRateCovariateCoeffs;
     std::vector<double> carryingCapacity;
@@ -393,7 +393,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"CompetitionBetaGuildSpecies",   competitionBetaGuildSpeciesCovariate);
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"CompetitionBetaGuildGuild",     competitionBetaGuildGuildCovariate);
 
-    extractParameters(NLoptDataStruct, EstParameters, initBiomass,
+    extractParameters(NLoptDataStruct, EstParameters, initAbsBiomass,
                       growthRate,growthRateCovariateCoeffs,
                       carryingCapacity,carryingCapacityCovariateCoeffs,
                       catchability,catchabilityCovariateCoeffs,
@@ -432,7 +432,11 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         surveyQTerm = nmfUtils::applyCovariate(nullptr,
                     covariateAlgorithmType,surveyQ[species],
                     surveyQCovariateCoeffs[species],surveyQCovariate(0,species));
-        EstBiomassSpecies(0,species) = NLoptDataStruct.ObservedBiomassBySpecies(0,species)/surveyQTerm;
+        //EstBiomassSpecies(0,species) = NLoptDataStruct.ObservedBiomassBySpecies(0,species)/surveyQTerm;
+        // Always use the initial biomass for B(0) and never the estimated year=0 biomass
+        EstBiomassSpecies(0,species) = initAbsBiomass[species];
+//std::cout << "Comparing: " << NLoptDataStruct.ObservedBiomassBySpecies(0,species)/surveyQTerm
+//          << " to " << initAbsBiomass[species] << std::endl;
         if (isEffortFitToCatch) {
             EstCatch(0,species) = catchability[species]*Effort(0,species)*EstBiomassSpecies(0,species);
         }
@@ -463,15 +467,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         timeMinus1 = time - 1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species) {
             speciesName = NLoptDataStruct.SpeciesNames[species];
-//            if (isCheckedInitBiomass) { // if estimating the initial biomass
-//                if (timeMinus1 == 0) {
-//                    EstBiomassTMinus1 = EstBiomassSpecies(0,species);
-//                } else {
-//                    EstBiomassTMinus1 = EstBiomassSpecies(timeMinus1,species);
-//                }
-//            } else {
-//                EstBiomassTMinus1 = EstBiomassSpecies(timeMinus1,species);
-//            }
+
             EstBiomassTMinus1 = EstBiomassSpecies(timeMinus1,species);
 
             if (isCheckedInitBiomass && timeMinus1 == 0) {
@@ -574,27 +570,39 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 //    }
 
 
+    // Remove first row from all matrices because we don't want to include
+    // the initial biomass in the fitness calculations.
+    boost::numeric::ublas::matrix<double> ObsCatchTrimmed;
+    boost::numeric::ublas::matrix<double> ObsBiomassTrimmed;
+    boost::numeric::ublas::matrix<double> EstCatchTrimmed;
+    boost::numeric::ublas::matrix<double> EstBiomassTrimmed;
+
+    nmfUtils::removeFirstRow(ObsCatchRescaled,                   ObsCatchTrimmed);
+    nmfUtils::removeFirstRow(ObsBiomassBySpeciesOrGuildsRescaled,ObsBiomassTrimmed);
+    nmfUtils::removeFirstRow(EstCatchRescaled,                   EstCatchTrimmed);
+    nmfUtils::removeFirstRow(EstBiomassRescaled,                 EstBiomassTrimmed);
+
     // Calculate fitness using the appropriate objective criterion
     if (NLoptDataStruct.ObjectiveCriterion == "Least Squares") {
         fitness =  nmfUtilsStatistics::calculateLeastSquares(
                     isEffortFitToCatch,
-                    ObsCatchRescaled, ObsBiomassBySpeciesOrGuildsRescaled,
-                    EstCatchRescaled, EstBiomassRescaled,
+                    ObsCatchTrimmed, ObsBiomassTrimmed,
+                    EstCatchTrimmed, EstBiomassTrimmed,
                     NLoptDataStruct.FitWeights);
     } else if (NLoptDataStruct.ObjectiveCriterion == "Model Efficiency") {
         // Negate the MEF here since the ranges is from -inf to 1, where 1 is best.  So we negate it,
         // then minimize that, and then negate and plot the resulting value.
         fitness = -nmfUtilsStatistics::calculateModelEfficiency(
                     isEffortFitToCatch,
-                    ObsCatchRescaled, ObsBiomassBySpeciesOrGuildsRescaled,
-                    EstCatchRescaled, EstBiomassRescaled,
+                    ObsCatchTrimmed, ObsBiomassTrimmed,
+                    EstCatchTrimmed, EstBiomassTrimmed,
                     NLoptDataStruct.FitWeights);
     } else if (NLoptDataStruct.ObjectiveCriterion == "Maximum Likelihood") {
         // The maximum likelihood calculations must use the unscaled data or else the results will be incorrect.
         fitness =  nmfUtilsStatistics::calculateMaximumLikelihoodNoRescale(
                     isEffortFitToCatch,
-                    ObsCatchRescaled, ObsBiomassBySpeciesOrGuildsRescaled,
-                    EstCatchRescaled, EstBiomassRescaled,
+                    ObsCatchTrimmed, ObsBiomassTrimmed,
+                    EstCatchTrimmed, EstBiomassTrimmed,
                     NLoptDataStruct.FitWeights);
     }
 //if (nUnused == 0) {

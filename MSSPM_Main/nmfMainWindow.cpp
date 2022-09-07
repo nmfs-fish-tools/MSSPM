@@ -1992,7 +1992,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.2.8 ";
+    QString version = "MSSPM v1.2.9 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -13795,7 +13795,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                                NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
             return false;
         }
-
+std::cout << "Loaded OBS: " << dataStruct.ObservedBiomassBySpecies(0,0) << std::endl;
         //  m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Relative Biomass");
     } else {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,

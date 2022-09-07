@@ -747,7 +747,6 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     int GrowthRateOffset,GrowthRateCovarOffset,CarryingCapacityOffset,CarryingCapacityCovarOffset;
     int CatchabilityOffset,CatchabilityCovarOffset;
     int SurveyQOffset,SurveyQCovarOffset;
-    unsigned unused1 = 0;
     double unused2[] = {0};
     double retv = 0;
     std::string Algorithm;
@@ -809,16 +808,16 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
 
     // Append all of the Estimated Parameters to: parameters
     nmfUtils::append(initBiomassParameters,parameters);
-    nmfUtils::append(growthParameters,parameters);
-    nmfUtils::append(harvestParameters,parameters);
+    nmfUtils::append(growthParameters,     parameters);
+    nmfUtils::append(harvestParameters,    parameters);
     nmfUtils::append(competitionParameters,parameters);
-    nmfUtils::append(predationParameters,parameters);
-    nmfUtils::append(surveyQParameters,parameters);
+    nmfUtils::append(predationParameters,  parameters);
+    nmfUtils::append(surveyQParameters,    parameters);
 
     // Modify the estimated parameter data with the diagnostic "tweaks" to the estimated parameters
     for (std::pair<QString,double> ParameterItem : ParameterData) {
         offset = 0;
-        if (ParameterItem.first == "Initial Biomass (B₀)") {
+        if (ParameterItem.first        == "Initial Biomass (B₀)") {
             offset = initBiomassOffset;
         } else if (ParameterItem.first == "Growth Rate (r)") { // RSK revisit this...make all the constants more consistent
             offset = GrowthRateOffset;
