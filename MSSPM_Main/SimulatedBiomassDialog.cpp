@@ -55,7 +55,7 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
     NormalRB   = new QRadioButton("Normal:");
     NormalSB   = new QDoubleSpinBox();
     UniformLB  = new QLabel("% error");
-    NormalLB   = new QLabel("CV");
+    NormalLB   = new QLabel("% CV");
     QHBoxLayout* NoneLT    = new QHBoxLayout();
     QHBoxLayout* NormalLT  = new QHBoxLayout();
     QHBoxLayout* UniformLT = new QHBoxLayout();
@@ -102,8 +102,18 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
 
     SavePB->setToolTip("Continue with Simulated Biomass calculations and Save");
     SavePB->setStatusTip("Continue with Simulated Biomass calculations and Save");
+    NoneRB->setToolTip("No error will be applied to the data");
+    NoneRB->setStatusTip("No error will be applied to the data");
+    UniformLB->setToolTip("A randomized ±% error applied to the Simulated Biomass");
+    UniformLB->setStatusTip("A randomized ±% error applied to the Simulated Biomass");
+    UniformRB->setToolTip("A randomized ±% error applied to the Simulated Biomass");
+    UniformRB->setStatusTip("A randomized ±% error applied to the Simulated Biomass");
     UniformSB->setToolTip("A randomized ±% error applied to the Simulated Biomass");
     UniformSB->setStatusTip("A randomized ±% error applied to the Simulated Biomass");
+    NormalLB->setToolTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
+    NormalLB->setStatusTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
+    NormalRB->setToolTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
+    NormalRB->setStatusTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
     NormalSB->setToolTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
     NormalSB->setStatusTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
     ErrorLE->setToolTip("The name of the Simulated Biomass file");
