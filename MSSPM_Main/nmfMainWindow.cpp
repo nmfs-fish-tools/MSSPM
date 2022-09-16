@@ -542,6 +542,73 @@ nmfMainWindow::setupOutputEstimateParametersWidgets()
 
 }
 
+bool
+nmfMainWindow::getFinalEstimatedBiomass(boost::numeric::ublas::vector<double>& FinalBiomass)
+{
+    int NumRecords;
+    int NumSpecies;
+    int RunLength;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    QStringList SpeciesList;
+    boost::numeric::ublas::matrix<double> EstimatedBiomass;
+    std::string Algorithm;
+    std::string Minimizer;
+    std::string ObjectiveCriterion;
+    std::string Scaling;
+    std::string CompetitionForm;
+
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectName,m_ModelName,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,nmfConstantsMSSPM::DontShowPopupError);
+
+    // Get RunLength
+    fields     = {"ProjectName","ModelName","RunLength"};
+    queryStr   = "SELECT ProjectName,ModelName,RunLength from " +
+                  nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName = '" +  m_ProjectName +
+                 "' AND ModelName = '"    +  m_ModelName + "'";
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["ModelName"].size();
+    if (NumRecords == 0) {
+        m_Logger->logMsg(nmfConstants::Error,"[Error 1] getFinalEstimatedBiomass: No records found.");
+        m_Logger->logMsg(nmfConstants::Error,queryStr);
+        return false;
+    }
+    RunLength = std::stoi(dataMap["RunLength"][0]);
+
+    // Get NumSpecies
+    if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList)) {
+        return false;
+    }
+
+    // Get final estimated biomass values
+    fields     = {"ProjectName","ModelName","Value"};
+    queryStr   = "SELECT ProjectName,ModelName,Value from " +
+                  nmfConstantsMSSPM::TableOutputBiomass +
+                 " WHERE ProjectName = '" +  m_ProjectName +
+                 "' AND ModelName = '"    +  m_ModelName +
+                 "' AND Algorithm = '"    +  Algorithm +
+                 "' AND Minimizer = '"    +  Minimizer +
+                 "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                 "' AND Year = "                + std::to_string(RunLength);
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["ModelName"].size();
+    if (NumRecords == NumSpecies) {
+        nmfUtils::initialize(FinalBiomass,NumSpecies);
+        for (int species=0; species<NumSpecies; ++species) {
+            FinalBiomass[species] = QString::fromStdString(dataMap["Value"][species]).toDouble();
+        }
+    } else {
+        m_Logger->logMsg(nmfConstants::Error,"[Error 2] getFinalEstimatedBiomass: NumRecords found does not equal NumSpecies");
+        m_Logger->logMsg(nmfConstants::Error,queryStr);
+        return false;
+    }
+
+    return true;
+}
 
 bool
 nmfMainWindow::getFinalObservedBiomass(boost::numeric::ublas::vector<double>& FinalBiomass)
@@ -573,8 +640,10 @@ nmfMainWindow::getFinalObservedBiomass(boost::numeric::ublas::vector<double>& Fi
     // Get NumSpecies
     if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList))
         return false;
+
     // Get final observed biomass values
     std::string ObsBiomassTableName = getObservedBiomassTableName(!nmfConstantsMSSPM::PreEstimation);
+
     if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,
                                            "",ObsBiomassTableName,
                                            NumSpecies,RunLength,ObservedBiomass)) {
@@ -1666,6 +1735,7 @@ nmfMainWindow::menu_toggleManagerMode()
             QString msg = "\nPlease make sure a Forecast has been run for: "+forecastName+"\n";
             QMessageBox::warning(this, "Warning", msg, QMessageBox::Ok);
             m_UI->actionToggleManagerMode->setChecked(false);
+            menu_layoutDefault();
             return;
         }
         if (forecastName.isEmpty()) {
@@ -1992,7 +2062,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.2.9 ";
+    QString version = "MSSPM v1.3.0 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3557,6 +3627,9 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_SaveForecastOutputBiomassData(std::string)));
     connect(Remora_ptr,          SIGNAL(UpdateSeedValue(int)),
             this,                SLOT(callback_UpdateSeedValue(int)));
+
+
+
 
     callback_Setup_Tab4_GrowthFormCMB("Null");
     callback_Setup_Tab4_HarvestFormCMB("Null");
@@ -5729,6 +5802,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     // Load the appropriate Harvest tables
     if (HarvestFormName == nmfConstantsMSSPM::HarvestCatch.toStdString()) {
+std::cout << "isMonteCarlo,ForecastName: " << isMonteCarlo << "," << ForecastName << std::endl;
         if (! loadHarvestCatchTables(isAggProd,isMonteCarlo,ForecastName,HarvestFormName,
                                      harvestFormPtr,HarvestRandomValues,HarvestUncertainty,
                                      previousUnits,NumSpeciesOrGuilds,RunLength,Catch)) {
@@ -5771,14 +5845,14 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         return false;
     }
 
-    // If not running a forecast, initial biomass is the first observed biomass.
-    // else if running a forecast, initial biomass is the last observed biomass.
+    // If not  running a forecast, initial biomass is the first observed biomass.
+    // else if running a forecast, initial biomass is the last  observed biomass.
     if (ForecastName == "") {
         if (! getInitialObservedBiomass(InitialBiomass)) {
             return false;
         }
     } else {
-        if (! getFinalObservedBiomass(InitialBiomass)) {
+        if (! getFinalEstimatedBiomass(InitialBiomass)) {
             std::cout << "Error: getFinalObservedBiomass" << std::endl;
             return false;
         }
@@ -8968,7 +9042,6 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
 //          ShowLegend = true;
         }
 
-
         lineChart->populateChart(m_ChartWidget,
                                  ChartType,
                                  LineStyleSolid,
@@ -9030,7 +9103,7 @@ nmfMainWindow::getLegendCode(bool isAveraged,
 {
     std::string code;
     std::string theMinimizer = Minimizer;
-//std::cout << "******getLegendCode********** " << Algorithm << std::endl;
+
     if (Algorithm == "NLopt Algorithm") {
         code += "NL-";
         if (Minimizer == "GN_ORIG_DIRECT_L")
@@ -9041,6 +9114,8 @@ nmfMainWindow::getLegendCode(bool isAveraged,
             code += "GnDLR-";
         else if (Minimizer == "GN_CRS2_LM")
             code += "GnCRS2-";
+        else if (Minimizer == "GN_ESCH")
+            code += "GnESCH-";
         else if (Minimizer == "GD_StoGO")
             code += "GdStoGO-";
         else if (Minimizer == "LN_COBYLA")
@@ -9054,7 +9129,7 @@ nmfMainWindow::getLegendCode(bool isAveraged,
         else if (Minimizer == "LD_MMA")
             code += "LdMMA-";
         else
-            code += "GnODL-";
+            code += "?-";
     } else if (Algorithm == "Bees Algorithm") {
         code += "BE-";
     } else if (Algorithm == "Genetic Algorithm") {
@@ -9176,7 +9251,8 @@ nmfMainWindow::showChartBiomassVsTime(
         if (species == SpeciesNum) {
             for (int time=0; time<=RunLength; ++time) {
                 val = ObservedBiomass(time,species);
-                if (val != nmfConstantsMSSPM::NoData) {
+                // Check for missing biomass data and don't display the first year's observed biomass
+                if ((val != nmfConstantsMSSPM::NoData) && (time != 0)) {
                     ChartScatterData(time,0) = val/ScaleVal;
                 } else {
                     SkipScatterData(time,0) = true;
@@ -9404,7 +9480,7 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
         if (species == SpeciesNum) {
             for (int time=0; time<=RunLength; ++time) {
                 val = ObservedBiomass(time,species);
-                if (val != nmfConstantsMSSPM::NoData) {
+                if ((val != nmfConstantsMSSPM::NoData) && (time != 0)) {
                     ChartScatterData(time,0) = val/ScaleVal;
                 } else {
                     SkipScatterData(time,0) = true;
@@ -11234,6 +11310,10 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
     connect(m_Estimator_NLopt, SIGNAL(AMohnsRhoMultiRunCompleted()),
             this,              SLOT(callback_AMohnsRhoMultiRunCompleted()));
 
+    connect(m_Estimator_NLopt, SIGNAL(NLoptFailureStopRunsAndReset()),
+            m_ProgressWidget,  SLOT(callback_stopPB()));
+
+
     connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
             this,              SLOT(callback_StopAllRuns()));
 
@@ -11399,12 +11479,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
 
     nmfUtils::initialize(EstBiomassSpecies,RunLength+1,NumSpeciesOrGuilds);
 
-    // Even though this is EstInitBiomass, if initial biomass wasn't estimated, it
-    // should be the initial biomass.
-    // RSK ???
     for (int j=0; j<int(EstInitBiomass.size()); ++j) {
-//std::cout << "---> EstSurveyQ[" << j << "]: " << EstSurveyQ[j] << std::endl;
-//      EstBiomassSpecies(0,j) = EstInitBiomass[j]/EstSurveyQ[j];
         EstBiomassSpecies(0,j) = EstInitBiomass[j];
     }
 
@@ -12508,7 +12583,7 @@ nmfMainWindow::displayAverageBiomass()
                 nmfConstantsMSSPM::Clear,
                 YMinSliderValue,
                 lineLabels);
-std::cout << "isMohnsRho: " << isAMohnsRhoMultiRun() << std::endl;
+//std::cout << "isMohnsRho: " << isAMohnsRhoMultiRun() << std::endl;
     if (! isAMohnsRhoMultiRun()) {
         // Show dark blue average line(s)
         OutputBiomassEnsembleAve.clear();
@@ -13795,7 +13870,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
                                                NumSpecies,RunLength,dataStruct.ObservedBiomassBySpecies)) {
             return false;
         }
-std::cout << "Loaded OBS: " << dataStruct.ObservedBiomassBySpecies(0,0) << std::endl;
+//std::cout << "Loaded OBS: " << dataStruct.ObservedBiomassBySpecies(0,0) << std::endl;
         //  m_Logger->logMsg(nmfConstants::Normal,"LoadParameters Read: Relative Biomass");
     } else {
         if (! m_DatabasePtr->getTimeSeriesData(this,m_Logger,m_ProjectName,m_ModelName,

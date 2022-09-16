@@ -376,6 +376,8 @@ nmfEstimation_Tab1::callback_ImportPB()
 {
     QString filename = "";
 
+    showCovariateColumns(Estimation_Tab1_SpeciesPopulationTV,true);
+
     if (onGuildTab()) {
         callback_ImportGuild(nmfConstantsMSSPM::Query_User_For_Filename,filename);
     } else {
@@ -383,6 +385,8 @@ nmfEstimation_Tab1::callback_ImportPB()
                                nmfConstantsMSSPM::Query_User_For_Filename,
                                filename);
     }
+
+    showCovariateColumns(Estimation_Tab1_SpeciesPopulationTV,false);
 }
 
 void

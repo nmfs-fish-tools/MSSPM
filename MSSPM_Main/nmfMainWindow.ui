@@ -928,6 +928,9 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>Create Simulated Biomass Dataset</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="actionToggleSignificantDigits">
    <property name="checkable">

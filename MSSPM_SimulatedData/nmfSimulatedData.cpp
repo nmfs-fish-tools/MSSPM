@@ -18,9 +18,11 @@ nmfSimulatedData::nmfSimulatedData(
 }
 
 bool
-nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
-                                         QString& filename,
-                                         QString& errorMsg)
+nmfSimulatedData::createSimulatedBiomass(
+        const QString& errorType,
+        const double&  errorValue,
+        QString& filename,
+        QString& errorMsg)
 {
     bool retv = true;
     bool isBiomassAbsolute;
@@ -66,11 +68,11 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     boost::numeric::ublas::matrix<double> CompetitionBetaSpecies;
     boost::numeric::ublas::matrix<double> CompetitionBetaGuild;
     boost::numeric::ublas::matrix<double> CompetitionBetaGuildGuild;
-    boost::numeric::ublas::matrix<double> SimBiomassBySpecies;
+    boost::numeric::ublas::matrix<double> SimBiomassSpecies;
     boost::numeric::ublas::matrix<double> SimBiomassByGuilds;
     std::vector<double> PredationExponent;
     std::vector<double> Catchability;
-    double SimBiomassVal=0;
+    double SimBiomassTMinus1=0;
     double speciesK=0;
     double GrowthTerm=0;
     double HarvestTerm=0;
@@ -144,7 +146,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
         return false;
     }
 
-    nmfUtils::initialize(SimBiomassBySpecies,NumYears,NumSpecies);
+    nmfUtils::initialize(SimBiomassSpecies,NumYears,NumSpecies);
     nmfUtils::initialize(Catch,              NumYears,NumSpecies);
     nmfUtils::initialize(Effort,             NumYears,NumSpecies);
     nmfUtils::initialize(Exploitation,       NumYears,NumSpecies);
@@ -184,22 +186,21 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     // Load initial biomasses for all species prior to starting loop because some
     // models wlll require other species' previous year's biomass
     for (int species=0; species<NumSpecies; ++species) {
-        SimBiomassBySpecies(0,species) = InitialBiomass[species];
+        SimBiomassSpecies(0,species) = InitialBiomass[species];
     }
 
     //
     // Create simulated biomass
     //
-    double val;
-    nmfGrowthForm SimGrowthForm(GrowthForm);
-    nmfHarvestForm SimHarvestForm(HarvestForm);
-    nmfPredationForm SimPredationForm(PredationForm);
+    nmfGrowthForm      SimGrowthForm(GrowthForm);
+    nmfHarvestForm     SimHarvestForm(HarvestForm);
+    nmfPredationForm   SimPredationForm(PredationForm);
     nmfCompetitionForm SimCompetitionForm(CompetitionForm);
     for (int time=1; time<NumYears; ++time) {
         timeMinus1 = time - 1;
         for (int species=0; species<NumSpecies; ++species) {
 
-            SimBiomassVal = SimBiomassBySpecies(timeMinus1,species);
+            SimBiomassTMinus1 = SimBiomassSpecies(timeMinus1,species);
 
             speciesK  = SpeciesK[species];
             if (speciesK == 0) {
@@ -224,7 +225,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
 
             GrowthTerm = SimGrowthForm.evaluate(
                         covariateAlgorithmType,
-                        SimBiomassVal,
+                        SimBiomassTMinus1,
                         GrowthRate[species],
                         GrowthRateCovariateCoeffs[species],
                         GrowthRateCovariate(timeMinus1,species),
@@ -233,19 +234,19 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
                         SpeciesKCovariate(timeMinus1,species));
             HarvestTerm = SimHarvestForm.evaluate(
                         covariateAlgorithmType,
-                        timeMinus1,species,SimBiomassVal,
+                        timeMinus1,species,SimBiomassTMinus1,
                         Catch,Effort,Exploitation,
                         Catchability[species],
                         CatchabilityCovariateCoeffs[species],
                         CatchabilityCovariate(timeMinus1,species));
             CompetitionTerm = SimCompetitionForm.evaluate(
                         covariateAlgorithmType,
-                        timeMinus1,species,SimBiomassVal,
+                        timeMinus1,species,SimBiomassTMinus1,
                         GrowthRate,
                         GrowthRateCovariate,
                         GuildCarryingCapacity,
                         SystemCarryingCapacity,
-                        SimBiomassBySpecies,
+                        SimBiomassSpecies,
                         SimulatedBiomassGuild,
                         CompetitionAlpha,
                         CompetitionAlphaCovariate,
@@ -258,13 +259,20 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
             PredationTerm = SimPredationForm.evaluate(
                         covariateAlgorithmType,
                         timeMinus1, species,
-                        SimBiomassBySpecies,SimBiomassVal,
+                        SimBiomassSpecies,SimBiomassTMinus1,
                         PredationRho,PredationRhoCovariate,
                         PredationHandling,PredationHandlingCovariate,
                         PredationExponent,PredationExponentCovariate);
-            val = SimBiomassVal + GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
-            addUniformError(errorPct,val);
-            SimBiomassBySpecies(time,species) = (val < 0) ? 0 : val;
+
+            SimBiomassTMinus1 += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
+
+            if (errorType == "Normal") {
+                addNormalError(errorValue,SimBiomassTMinus1);
+            } else if (errorType == "Uniform") {
+                addUniformError(errorValue,SimBiomassTMinus1);
+            }
+
+            SimBiomassSpecies(time,species) = (SimBiomassTMinus1 < 0) ? 0 : SimBiomassTMinus1;
 
 
             // RSK - Calculate EstCatch = qEB if need be
@@ -279,7 +287,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
                                                SurveyQCovariateCoeffs[species],
                                                SurveyQCovariate(0,species));
         for (int time=0; time<NumYears; ++time) {
-            SimBiomassBySpecies(time,species) *= surveyQTerm;
+            SimBiomassSpecies(time,species) *= surveyQTerm;
         }
     }
 
@@ -293,8 +301,8 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
     QString value;
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
-        int numRows = SimBiomassBySpecies.size1();
-        int numCols = SimBiomassBySpecies.size2();
+        int numRows = SimBiomassSpecies.size1();
+        int numCols = SimBiomassSpecies.size2();
         for (int col=0; col<numCols; ++col) {
             stream << "," << SpeciesList[col];
         }
@@ -302,7 +310,7 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
         for (int row=0; row<numRows; ++row) {
             stream << QString::number(row+InitialYear);
             for (int col=0; col<numCols; ++col) {
-                value = QString::number(SimBiomassBySpecies(row,col),'f',6);
+                value = QString::number(SimBiomassSpecies(row,col),'f',6);
                 stream << "," << value;
             }
             stream << "\n";
@@ -314,14 +322,31 @@ nmfSimulatedData::createSimulatedBiomass(const int& errorPct,
 }
 
 void
-nmfSimulatedData::addUniformError(const int& errorPct,
+nmfSimulatedData::addUniformError(const double& errorPct,
                                   double& value)
 {
-    double factor = nmfUtils::getRandomNumber(m_FixedSeed++,-1,1);
+    //double factor = nmfUtils::getRandomNumber(m_FixedSeed++,-1,1);
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::uniform_real_distribution<> uniformDist(-1.0,1.0);
+
+    double factor = uniformDist(gen);
     double error  = value * (errorPct/100.0);
 
     value += factor*error;
     value  = (value < 0) ? 0 : value;
+}
+
+void
+nmfSimulatedData::addNormalError(const double& cv,
+                                 double& value)
+{
+    double mu = value;
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::normal_distribution<> normalDist(mu,(cv/100.0)*mu); // sigma = cv*mu
+
+    value = std::fabs(normalDist(gen));
 }
 
 void

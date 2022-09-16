@@ -771,7 +771,7 @@ nmfEstimation_Tab6::saveTableValuesToCSVFile(const QString& type,
     std::string tableNameNew;
 
     // Save time series data to a .csv file
-    msg = "\nOK to use default file name for "+type+" .csv file and overwrite any previous file?";
+    msg = "\nOK to use default file name for "+type+".csv file and overwrite any previous file?";
     QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs,
                                                               tr("Default "+type.toLatin1()+" CSV File"),
                                                               tr(msg.toLatin1()),

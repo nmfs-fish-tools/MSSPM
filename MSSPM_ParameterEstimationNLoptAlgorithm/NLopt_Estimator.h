@@ -148,6 +148,10 @@ signals:
      */
     void QueryUserForMultiRunFilenames();
     /**
+     * @brief Signal emitted to reset the GUI after NLopt errored out of a run.
+     */
+    void NLoptFailureStopRunsAndReset();
+    /**
      * @brief Signal emitted with NLopt Estimation run has complete
      * @param bestFitness : string representing the best fitness value
      * @param showDiagnosticsChart : boolean signfying whether the

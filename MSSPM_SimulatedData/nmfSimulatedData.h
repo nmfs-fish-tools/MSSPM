@@ -63,12 +63,19 @@ class nmfSimulatedData
     nmfStructsQt::ModelDataStruct m_DataStruct;
 
     /**
-     * @brief Adds a percent error to the passed value
+     * @brief Adds a normal (i.e., Gaussian) error to the passed value
+     * @param cv : coefficient of variation percentage
+     * @param value : the value which receives the normal error
+     */
+    void addNormalError(const double& cv,
+                        double& value);
+    /**
+     * @brief Adds a uniform percent error to the passed value
      * @param errorPct : percent error to add to value
      * @param value : the value which receives the percent error
      */
-    void addUniformError(const int& errorPct,
-                  double& value);
+    void addUniformError(const double& errorPct,
+                         double& value);
     /**
      * @brief Sends back the system carrying capacity
      * @param isAggProd : true if is an AggProd, otherwise false
@@ -157,14 +164,17 @@ public:
 
     /**
      * @brief Creates a simulated Biomass time series with the current model settings
-     * @param errorPct : percent error to add around values
+     * @param errorType : type of error: None, Normal, Uniform
+     * @param errorValue : error value to be used to calculate noise
      * @param filename : filename where to write out simulated biomass
      * @param errorMsg : error message to pass back to the calling routine
      * @return true if data were read correctly, false otherwise
      */
-    bool createSimulatedBiomass(const int& errorPct,
-                                QString& filename,
-                                QString& errorMsg);
+    bool createSimulatedBiomass(
+            const QString& errorType,
+            const double& errorValue,
+            QString& filename,
+            QString& errorMsg);
 };
 
 #endif // nmfSimulatedData_H

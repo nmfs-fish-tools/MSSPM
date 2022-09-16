@@ -46,14 +46,20 @@ class SimulatedBiomassDialog : public QDialog
 {
     Q_OBJECT
 
-    QLabel*      InfoLBL;
-    QLabel*      ErrorLBL1;
-    QLabel*      ErrorLBL2;
-    QLabel*      ErrorLBL3;
-    QPushButton* ContinuePB;
-    QPushButton* CancelPB;
-    QLineEdit*   ErrorLE;
-    QSpinBox*    ErrorSB;
+    QLabel*         InfoLBL;
+    QLabel*         ErrorLBL1;
+    QLabel*         ErrorLBL2;
+    QLabel*         UniformLB;
+    QLabel*         NormalLB;
+    QPushButton*    SavePB;
+    QPushButton*    CancelPB;
+    QLineEdit*      ErrorLE;
+    QDoubleSpinBox* UniformSB;
+    QGroupBox*      ErrorGB;
+    QRadioButton*   NormalRB;
+    QRadioButton*   UniformRB;
+    QRadioButton*   NoneRB;
+    QDoubleSpinBox* NormalSB;
 
     QVBoxLayout* MainLT;
     QHBoxLayout* BtnLT;
@@ -65,7 +71,9 @@ class SimulatedBiomassDialog : public QDialog
     nmfDatabase* m_Database;
     nmfLogger*   m_Logger;
     nmfStructsQt::ModelDataStruct m_DataStruct;
+    bool m_IsBiomassAbsolute;
 
+    void setFileName(double suffixValue);
 
 public:
     /**
@@ -87,9 +95,15 @@ public:
                            nmfStructsQt::ModelDataStruct& dataStruct);
     virtual ~SimulatedBiomassDialog() {}
     QString getFilename();
-    int getErrorPct();
+    void getError(QString& errorType, double& errorValue);
 
 private Q_SLOTS:
     void callback_ContinuePB();
+    void callback_NoneRB();
+    void callback_NormalRB();
+    void callback_NormalSB(double value);
+    void callback_UniformRB();
+    void callback_UniformSB(double value);
+
 };
 

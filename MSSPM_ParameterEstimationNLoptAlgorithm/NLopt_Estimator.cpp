@@ -32,6 +32,7 @@ NLopt_Estimator::NLopt_Estimator()
     m_MinimizerToEnum["GN_DIRECT_L"]      = nlopt::GN_DIRECT_L;
     m_MinimizerToEnum["GN_DIRECT_L_RAND"] = nlopt::GN_DIRECT_L_RAND;
     m_MinimizerToEnum["GN_CRS2_LM"]       = nlopt::GN_CRS2_LM;
+    m_MinimizerToEnum["GN_ESCH"]          = nlopt::GN_ESCH;
     m_MinimizerToEnum["GD_StoGO"]         = nlopt::GD_STOGO;
 
     // Load Minimizer Name Map with local algorithms
@@ -937,6 +938,8 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                 }
 
                 // Initialize the optimizer with the appropriate algorithm
+std::cout << "LOADING: " << NLoptStruct.MinimizerAlgorithm
+          << " with " << m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm] << std::endl;
                 m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
                 setAdditionalParameters(NLoptStruct);
 
@@ -954,19 +957,20 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                         // ******************************************************
                         // *
                         std::cout << "====> Running Optimizer <====" << std::endl;
-//for (int j=10;j<20;++j) {std::cout << "before: " << m_Parameters[j] << std::endl;}
                         result = m_Optimizer.optimize(m_Parameters, fitness);
                         std::cout << "Optimizer return code: " << returnCode(result) << std::endl;
                         // *
                         // ******************************************************
                     } catch (const std::exception& e) {
                         std::cout << "Exception thrown: " << e.what() << std::endl;
+                        emit NLoptFailureStopRunsAndReset();
                         return;
                     } catch (...) {
                         std::cout << "Error: Unknown error from NLopt_Estimator::estimateParameters m_Optimizer.optimize()" << std::endl;
+                        emit NLoptFailureStopRunsAndReset();
                         return;
                     }
-//for (int j=10;j<20;++j) {std::cout << "after: " << m_Parameters[j] << std::endl;}
+
                     extractParameters(NLoptStruct, &m_Parameters[0],
                             m_EstInitBiomass,
                             m_EstGrowthRates,        m_EstGrowthRateCovariateCoeffs,
@@ -1032,8 +1036,6 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
 //    }
 
     std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtilsQt::elapsedTime(startTime);
-std::cout << elapsedTimeStr << std::endl;
-
     stopRun(elapsedTimeStr,bestFitnessStr);
 
 }

@@ -518,6 +518,7 @@ private:
             boost::numeric::ublas::matrix<double> &DiagnosticsValue,
             boost::numeric::ublas::matrix<double> &DiagnosticsFitness);
     std::string getFilterButtonsResult();
+    bool getFinalEstimatedBiomass(boost::numeric::ublas::vector<double>& FinalBiomass);
     bool getFinalObservedBiomass(boost::numeric::ublas::vector<double>& FinalBiomass);
     bool getForecastBiomass(const std::string &ForecastName,
                             const int   &NumSpecies,
