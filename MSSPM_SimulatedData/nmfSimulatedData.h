@@ -63,12 +63,12 @@ class nmfSimulatedData
     nmfStructsQt::ModelDataStruct m_DataStruct;
 
     /**
-     * @brief Adds a normal (i.e., Gaussian) error to the passed value
+     * @brief Adds a lognormal (i.e., Gaussian) error to the passed value
      * @param cv : coefficient of variation percentage
-     * @param value : the value which receives the normal error
+     * @param value : the value which receives the lognormal error
      */
-    void addNormalError(const double& cv,
-                        double& value);
+    void addLognormalError(const double& cv,
+                           double& value);
     /**
      * @brief Adds a uniform percent error to the passed value
      * @param errorPct : percent error to add to value

@@ -20,6 +20,8 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
     std::string CompetitionForm;
     std::string PredationForm;
     QString msg;
+    QString uniformTooltip;
+    QString lognormalTooltip;
 
     m_ProjectDir  = projectDir;
     m_ProjectName = projectName;
@@ -51,8 +53,8 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
     ErrorGB    = new QGroupBox("Data Noise:");
     NoneRB     = new QRadioButton("No noise");
     UniformSB  = new QDoubleSpinBox();
-    UniformRB  = new QRadioButton("Uniform:");
-    NormalRB   = new QRadioButton("Normal:");
+    UniformRB  = new QRadioButton(nmfConstantsMSSPM::DistributionUniform  +":");
+    NormalRB   = new QRadioButton(nmfConstantsMSSPM::DistributionLognormal+":");
     NormalSB   = new QDoubleSpinBox();
     UniformLB  = new QLabel("% error");
     NormalLB   = new QLabel("% CV");
@@ -68,17 +70,17 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
     UniformSB->setMaximum(99.9);
     UniformSB->setValue(1.0);
     NormalSB->setMinimum(0.1);
-    NormalSB->setMaximum(99.9);
+    NormalSB->setMaximum(50.0);
     NormalSB->setValue(1.0);
     NormalSB->setEnabled(false);
     NormalLB->setEnabled(false);
     UniformSB->setEnabled(false);
     UniformLB->setEnabled(false);
     NoneRB->setChecked(true);
-    UniformRB->setMinimumWidth(80);
-    UniformRB->setMinimumWidth(80);
-    NormalRB->setMinimumWidth(80);
-    NormalRB->setMinimumWidth(80);
+    UniformRB->setMinimumWidth(90);
+    UniformRB->setMinimumWidth(90);
+    NormalRB->setMinimumWidth(90);
+    NormalRB->setMinimumWidth(90);
 
     // Create error group box
     NoneLT->addWidget(NoneRB);
@@ -100,23 +102,26 @@ SimulatedBiomassDialog::SimulatedBiomassDialog(QWidget *parent,
     msg += "(and not the range data) will be used to generate the simulated data.";
     InfoLBL->setText(msg);
 
-    SavePB->setToolTip("Continue with Simulated Biomass calculations and Save");
+    uniformTooltip   = "A uniformly randomized ±% error applied to the Simulated Biomass";
+    // lognormalTooltip = "The stddev value used to generate the lognormal (i.e., Gaussian) error on the Simulated Biomass";
+    lognormalTooltip = "A Coefficient of Variation (CV) percentage used for the lognormal (i.e., Gaussian) error on the Simulated Biomass";
+    SavePB->setToolTip(  "Continue with Simulated Biomass calculations and Save");
     SavePB->setStatusTip("Continue with Simulated Biomass calculations and Save");
-    NoneRB->setToolTip("No error will be applied to the data");
+    NoneRB->setToolTip(  "No error will be applied to the data");
     NoneRB->setStatusTip("No error will be applied to the data");
-    UniformLB->setToolTip("A randomized ±% error applied to the Simulated Biomass");
-    UniformLB->setStatusTip("A randomized ±% error applied to the Simulated Biomass");
-    UniformRB->setToolTip("A randomized ±% error applied to the Simulated Biomass");
-    UniformRB->setStatusTip("A randomized ±% error applied to the Simulated Biomass");
-    UniformSB->setToolTip("A randomized ±% error applied to the Simulated Biomass");
-    UniformSB->setStatusTip("A randomized ±% error applied to the Simulated Biomass");
-    NormalLB->setToolTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
-    NormalLB->setStatusTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
-    NormalRB->setToolTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
-    NormalRB->setStatusTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
-    NormalSB->setToolTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
-    NormalSB->setStatusTip("A Coefficient of Variation (CV) percentage used for the normal (i.e., Gaussian) error on the Simulated Biomass");
-    ErrorLE->setToolTip("The name of the Simulated Biomass file");
+    UniformLB->setToolTip(  uniformTooltip);
+    UniformLB->setStatusTip(uniformTooltip);
+    UniformRB->setToolTip(  uniformTooltip);
+    UniformRB->setStatusTip(uniformTooltip);
+    UniformSB->setToolTip(  uniformTooltip);
+    UniformSB->setStatusTip(uniformTooltip);
+    NormalLB->setToolTip(  lognormalTooltip);
+    NormalLB->setStatusTip(lognormalTooltip);
+    NormalRB->setToolTip(  lognormalTooltip);
+    NormalRB->setStatusTip(lognormalTooltip);
+    NormalSB->setToolTip(  lognormalTooltip);
+    NormalSB->setStatusTip(lognormalTooltip);
+    ErrorLE->setToolTip(  "The name of the Simulated Biomass file");
     ErrorLE->setStatusTip("The name of the Simulated Biomass file");
 
     ErrorLT1->addWidget(ErrorLBL1);
@@ -158,9 +163,11 @@ SimulatedBiomassDialog::setFileName(double value)
     QString defaultName = "";
 
     if (UniformRB->isChecked()) {
-        suffix = "_uniform_" + QString::number(value,'f',1) + "_pct";
+        suffix = "_" + nmfConstantsMSSPM::DistributionUniform.toLower()   +
+                 "_" + QStringLiteral("%1").arg(value,4,'f',1,QChar('0')) + "_pct";
     } else if (NormalRB->isChecked()) {
-        suffix = "_normal_"  + QString::number(value,'f',1)  + "_cv";
+        suffix = "_" + nmfConstantsMSSPM::DistributionLognormal.toLower() +
+                 "_" + QStringLiteral("%1").arg(value,4,'f',1,QChar('0')) + "_cv";
     }
 
     defaultName = ( m_IsBiomassAbsolute ?
@@ -179,14 +186,14 @@ SimulatedBiomassDialog::getFilename()
 void
 SimulatedBiomassDialog::getError(QString& errorType, double& errorValue)
 {
-    errorType = "None";
+    errorType = nmfConstantsMSSPM::DistributionNone;
     errorValue = 0;
 
     if (NormalRB->isChecked()) {
-        errorType = "Normal";
+        errorType = nmfConstantsMSSPM::DistributionLognormal;
         errorValue = NormalSB->value();
     } else if (UniformRB->isChecked()) {
-        errorType  = "Uniform";
+        errorType  = nmfConstantsMSSPM::DistributionUniform;
         errorValue = (double)UniformSB->value();
     }
 }

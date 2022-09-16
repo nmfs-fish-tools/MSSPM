@@ -266,9 +266,9 @@ nmfSimulatedData::createSimulatedBiomass(
 
             SimBiomassTMinus1 += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
 
-            if (errorType == "Normal") {
-                addNormalError(errorValue,SimBiomassTMinus1);
-            } else if (errorType == "Uniform") {
+            if (errorType == nmfConstantsMSSPM::DistributionLognormal) {
+                addLognormalError(errorValue,SimBiomassTMinus1);
+            } else if (errorType == nmfConstantsMSSPM::DistributionUniform) {
                 addUniformError(errorValue,SimBiomassTMinus1);
             }
 
@@ -338,15 +338,16 @@ nmfSimulatedData::addUniformError(const double& errorPct,
 }
 
 void
-nmfSimulatedData::addNormalError(const double& cv,
-                                 double& value)
+nmfSimulatedData::addLognormalError(const double& cv,
+                                    double& value)
 {
-    double mu = value;
+//  double mu = value;
     std::random_device rd{};
     std::mt19937 gen{rd()};
-    std::normal_distribution<> normalDist(mu,(cv/100.0)*mu); // sigma = cv*mu
+    std::lognormal_distribution<> logNormalDist(0, cv/100.0); // stddev = cv*mu
 
-    value = std::fabs(normalDist(gen));
+    value *= logNormalDist(gen);
+    value  = (value < 0) ? 0 : value;
 }
 
 void
