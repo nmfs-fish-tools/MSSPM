@@ -203,7 +203,7 @@
            <string>The name of your project. </string>
           </property>
           <property name="whatsThis">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Project Name&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The Project Name defines a disk file that contains all of the information in these Setup screens that uniquely defines a collection of data used to run a set of models.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Project Name&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The Project Name defines a disk file that contains all of the information in these Setup screens that uniquely defines a collection of data used to run a set of models.&lt;/p&gt;&lt;p&gt;N.B. The project name must be the same as the project name used in any imported files.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -665,6 +665,9 @@
           </property>
           <property name="statusTip">
            <string>Import database file into MSSPM and set Project Name</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Import Database&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Imports a MySQL .sql database.&lt;/p&gt;&lt;p&gt;Please note that the current Project Name must match the Project Name that was used when the database to be imported was created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Import...</string>
