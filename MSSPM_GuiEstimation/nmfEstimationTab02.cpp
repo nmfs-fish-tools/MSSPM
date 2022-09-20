@@ -34,12 +34,12 @@ nmfEstimation_Tab2::nmfEstimation_Tab2(QTabWidget  *tabs,
     // Add the loaded widget as the new tabbed page
     Estimation_Tabs->addTab(Estimation_Tab2_Widget, tr("2. Harvest Data"));
     Estimation_Tab2_FitToCatchTB              = Estimation_Tabs->findChild<QTabWidget  *>("Estimation_Tab2_FitToCatchTB");
+    Estimation_Tab2_WeightsFTCTV              = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_WeightsFTCTV");
     Estimation_Tab2_CatchTV                   = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_CatchTV");
-    Estimation_Tab2_FTCCatchTV                = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_FTCCatchTV");
+    Estimation_Tab2_CatchFTCTV                = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_CatchFTCTV");
     Estimation_Tab2_EffortTV                  = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_EffortTV");
-    Estimation_Tab2_FTCEffortTV               = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_FTCEffortTV");
-    Estimation_Tab2_FTCWeightsTV              = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_FTCWeightsTV");
-    Estimation_Tab2_SetAllWeightsPB        = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_FTCWeightsSetAllPB");
+    Estimation_Tab2_EffortFTCTV               = Estimation_Tabs->findChild<QTableView  *>("Estimation_Tab2_EffortFTCTV");
+    Estimation_Tab2_SetAllWeightsPB           = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_FTCWeightsSetAllPB");
     Estimation_Tab2_PrevPB                    = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_PrevPB");
     Estimation_Tab2_NextPB                    = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_NextPB");
     Estimation_Tab2_LoadPB                    = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab2_LoadPB");
@@ -110,15 +110,17 @@ nmfEstimation_Tab2::areTablesOK()
                 nmfConstantsMSSPM::DontShowError) &&
             nmfUtilsQt::allCellsArePopulated(
                 Estimation_Tabs,
-                Estimation_Tab2_FTCCatchTV,
+                Estimation_Tab2_CatchFTCTV,
                 nmfConstantsMSSPM::DontShowError));
 }
 
 void
 nmfEstimation_Tab2::clearWidgets()
 {
-    nmfUtilsQt::clearTableView({Estimation_Tab2_CatchTV,Estimation_Tab2_FTCCatchTV,
-                                Estimation_Tab2_EffortTV,Estimation_Tab2_EffortTV});
+    nmfUtilsQt::clearTableView({Estimation_Tab2_CatchTV,
+                                Estimation_Tab2_CatchFTCTV,
+                                Estimation_Tab2_EffortTV,
+                                Estimation_Tab2_EffortFTCTV});
 }
 
 QString
@@ -310,8 +312,8 @@ nmfEstimation_Tab2::loadWeights(const bool& verbose)
     }
     smodel->setVerticalHeaderLabels(SpeciesList);
     smodel->setHorizontalHeaderLabels(WeightNameList);
-    Estimation_Tab2_FTCWeightsTV->setModel(smodel);
-    Estimation_Tab2_FTCWeightsTV->resizeColumnsToContents();
+    Estimation_Tab2_WeightsFTCTV->setModel(smodel);
+    Estimation_Tab2_WeightsFTCTV->resizeColumnsToContents();
 
     if (verbose) {
         QMessageBox::information(Estimation_Tabs, "Harvest Load",
@@ -328,7 +330,8 @@ nmfEstimation_Tab2::loadWeights(const bool& verbose)
 }
 
 bool
-nmfEstimation_Tab2::loadWidgets()
+nmfEstimation_Tab2::
+loadWidgets()
 {
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab2::loadWidgets()");
 
@@ -341,9 +344,9 @@ nmfEstimation_Tab2::loadWidgets()
     }
 
     loadTable(Estimation_Tab2_CatchTV,    nmfConstantsMSSPM::TableHarvestCatch, nmfConstantsMSSPM::VerboseOff);
-    loadTable(Estimation_Tab2_FTCCatchTV, nmfConstantsMSSPM::TableHarvestCatch, nmfConstantsMSSPM::VerboseOff);
+    loadTable(Estimation_Tab2_CatchFTCTV, nmfConstantsMSSPM::TableHarvestCatch, nmfConstantsMSSPM::VerboseOff);
     loadTable(Estimation_Tab2_EffortTV,   nmfConstantsMSSPM::TableHarvestEffort,nmfConstantsMSSPM::VerboseOff);
-    loadTable(Estimation_Tab2_FTCEffortTV,nmfConstantsMSSPM::TableHarvestEffort,nmfConstantsMSSPM::VerboseOff);
+    loadTable(Estimation_Tab2_EffortFTCTV,nmfConstantsMSSPM::TableHarvestEffort,nmfConstantsMSSPM::VerboseOff);
     loadWeights(nmfConstantsMSSPM::VerboseOff);
 
     return true;
@@ -462,7 +465,8 @@ nmfEstimation_Tab2::saveCSVFile(std::string& tableName,
     QString inputDataPath     = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
     QString tableNameWithPath = QDir(inputDataPath).filePath(QString::fromStdString(tableName));
     QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(tableView->model());
-
+//std::cout << "Saving: " << tableView->objectName().toStdString() << ", tableName: " << tableName <<
+//             ", smodel(0,0): " << smodel->index(0,0).data().toDouble() << std::endl;
     bool okSave = nmfUtilsQt::saveTimeSeries(Estimation_Tabs,smodel,inputDataPath,tableNameWithPath);
     if (verbose) {
         if (okSave) {
@@ -501,13 +505,13 @@ nmfEstimation_Tab2::getHarvestModel()
 QStandardItemModel*
 nmfEstimation_Tab2::getHarvestModelFTCCatch()
 {
-    return qobject_cast<QStandardItemModel*>(Estimation_Tab2_FTCCatchTV->model());
+    return qobject_cast<QStandardItemModel*>(Estimation_Tab2_CatchFTCTV->model());
 }
 
 QStandardItemModel*
 nmfEstimation_Tab2::getHarvestModelFTCEffort()
 {
-    return qobject_cast<QStandardItemModel*>(Estimation_Tab2_FTCEffortTV->model());
+    return qobject_cast<QStandardItemModel*>(Estimation_Tab2_EffortFTCTV->model());
 }
 
 void
@@ -519,24 +523,29 @@ nmfEstimation_Tab2::setHarvestType(std::string harvestType)
     Estimation_Tab2_FitToCatchTB->setVisible(false);
     Estimation_Tab2_CatchW->setVisible(false);
     Estimation_Tab2_EffortW->setVisible(false);
+
     if (harvestType == nmfConstantsMSSPM::HarvestCatch.toStdString()) {
         Estimation_Tab2_CatchW->setVisible(true);
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableHarvestCatch);
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableHarvestCatch);
-        m_TableViews = {Estimation_Tab2_CatchTV,Estimation_Tab2_FTCCatchTV};
+        m_TableViews = {Estimation_Tab2_CatchTV,
+                        Estimation_Tab2_CatchFTCTV};
     } else if (harvestType == nmfConstantsMSSPM::HarvestEffort.toStdString()) {
         Estimation_Tab2_EffortW->setVisible(true);
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableHarvestEffort);
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableHarvestEffort);
-        m_TableViews = {Estimation_Tab2_EffortTV,Estimation_Tab2_FTCEffortTV};
+        m_TableViews = {Estimation_Tab2_EffortTV,
+                        Estimation_Tab2_EffortFTCTV};
     } else if (harvestType == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()) {
         Estimation_Tab2_FitToCatchTB->setVisible(true);
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableHarvestEffort);
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableHarvestEffort);
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableHarvestCatch);
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableHarvestCatch);
-        m_TableViews = {Estimation_Tab2_EffortTV,Estimation_Tab2_FTCEffortTV,
-                        Estimation_Tab2_CatchTV,Estimation_Tab2_FTCCatchTV};
+        m_TableViews = {Estimation_Tab2_EffortTV,
+                        Estimation_Tab2_EffortFTCTV,
+                        Estimation_Tab2_CatchTV,
+                        Estimation_Tab2_CatchFTCTV};
     }
 //    else if (harvestType == "Exploitation") {
 //        m_HarvestTables.push_back(nmfConstantsMSSPM::TableHarvestExploitation);
@@ -551,7 +560,7 @@ nmfEstimation_Tab2::callback_ExportPB()
     bool allSaveOK = true;
     bool saveOK;
     int numTables = (int)m_HarvestTables.size();
-//    bool isFitToCatch = (numTables == 2);
+//  bool isFitToCatch = (numTables == 2);
     std::string tableName;
     std::vector<std::string> tableNames = m_HarvestTables;
     QString msg = "\nOK to use default file name(s) for Harvest .csv file(s) and overwrite any previous file(s)?";
@@ -559,11 +568,18 @@ nmfEstimation_Tab2::callback_ExportPB()
                                                               tr(msg.toLatin1()),
                                                               QMessageBox::No|QMessageBox::Yes|QMessageBox::Cancel,
                                                               QMessageBox::Yes);
-
+//std::cout << "num tables: " << numTables << std::endl;
+//std::cout << "isFitToCatch: " << isFitToCatch() << std::endl;
+//for (int i=0; i<tableNames.size();++i) {
+//std::cout << "-> " << tableNames[i] << std::endl;
+//}
+//for (int i=0;i<m_HarvestTables.size(); ++i) {
+// std::cout << "table name: " << m_HarvestTables[i] << std::endl;
+//}
     // Temporarily add the FitWeights table to the table lists if Fit to Catch
     if (isFitToCatch()) {
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableFitWeights);
-        m_TableViews.push_back(Estimation_Tab2_FTCWeightsTV);
+        m_TableViews.push_back(Estimation_Tab2_WeightsFTCTV);
         ++numTables;
     }
 
@@ -589,12 +605,14 @@ nmfEstimation_Tab2::callback_ExportPB()
             } else if (QString::fromStdString(m_HarvestTables[i]).contains("catch")) {
                 effortOrCatch = "Harvest Catch";
             }
+
             QString msg = "Enter " + effortOrCatch + " filename version tag: ";
             QString tag = QInputDialog::getText(Estimation_Tabs, tr("Harvest Files"),
                                                 tr(msg.toLatin1()), QLineEdit::Normal,"", &ok);
             if (ok) {
                 if (! tag.isEmpty()) {
                     tableName = m_HarvestTables[i] + "_" + tag.toStdString();
+//std::cout << "1 tableNName: " << tableName << std::endl;
                     saveCSVFile(tableName,m_TableViews[i],nmfConstantsMSSPM::VerboseOff);
                 } else if (tag.isEmpty()) {
                     QMessageBox::warning(Estimation_Tabs, "Tag Error",
@@ -603,7 +621,10 @@ nmfEstimation_Tab2::callback_ExportPB()
                 }
             }
         }
-        saveCSVFile(tableName,Estimation_Tab2_FTCWeightsTV,nmfConstantsMSSPM::VerboseOff);
+//std::cout << "2 tableNName: " << tableName << std::endl;
+        if (isFitToCatch()) {
+            saveCSVFile(tableName,Estimation_Tab2_WeightsFTCTV,nmfConstantsMSSPM::VerboseOff);
+        }
     }
 
     // Now remove the FitWeights tables to the table lists
@@ -639,7 +660,7 @@ nmfEstimation_Tab2::callback_ImportPB()
     // Temporarily add the FitWeights table to the table lists
     if (isFitToCatch()) {
         m_HarvestTables.push_back(nmfConstantsMSSPM::TableFitWeights);
-        m_TableViews.push_back(Estimation_Tab2_FTCWeightsTV);
+        m_TableViews.push_back(Estimation_Tab2_WeightsFTCTV);
         ++numTables;
     }
 
@@ -752,9 +773,11 @@ nmfEstimation_Tab2::callback_SavePB()
     Estimation_Tabs->setCursor(Qt::WaitCursor);
 
     // Check harvest table for blanks
-    for (QTableView* harvestTable : {Estimation_Tab2_FTCWeightsTV,
-                                     Estimation_Tab2_EffortTV, Estimation_Tab2_FTCEffortTV,
-                                     Estimation_Tab2_CatchTV,  Estimation_Tab2_FTCCatchTV})
+    for (QTableView* harvestTable : {Estimation_Tab2_WeightsFTCTV,
+                                     Estimation_Tab2_EffortTV,
+                                     Estimation_Tab2_EffortFTCTV,
+                                     Estimation_Tab2_CatchTV,
+                                     Estimation_Tab2_CatchFTCTV})
     {
         if (harvestTable->isVisible()) {
             if (! nmfUtilsQt::areAllCellsNonBlank(harvestTable)) {
@@ -768,9 +791,11 @@ nmfEstimation_Tab2::callback_SavePB()
     }
 
     if (isCatch()) {
-        saveTable(Estimation_Tab2_CatchTV,nmfConstantsMSSPM::TableHarvestCatch);
+        saveTable(Estimation_Tab2_CatchTV,
+                  nmfConstantsMSSPM::TableHarvestCatch);
     } else if (isEffort()) {
-        saveTable(Estimation_Tab2_EffortTV,nmfConstantsMSSPM::TableHarvestEffort);
+        saveTable(Estimation_Tab2_EffortTV,
+                  nmfConstantsMSSPM::TableHarvestEffort);
     } else { // FitToCatch
         int currentIndex = Estimation_Tab2_FitToCatchTB->currentIndex();
         switch (currentIndex) {
@@ -780,10 +805,12 @@ nmfEstimation_Tab2::callback_SavePB()
             }
             break;
           case 1: // Effort
-            saveTable(Estimation_Tab2_FTCEffortTV,nmfConstantsMSSPM::TableHarvestEffort);
+            saveTable(Estimation_Tab2_EffortFTCTV,
+                      nmfConstantsMSSPM::TableHarvestEffort);
             break;
           case 2: // Catch
-            saveTable(Estimation_Tab2_FTCCatchTV,nmfConstantsMSSPM::TableHarvestCatch);
+            saveTable(Estimation_Tab2_CatchFTCTV,
+                      nmfConstantsMSSPM::TableHarvestCatch);
             break;
           default:
             break;
@@ -879,7 +906,7 @@ nmfEstimation_Tab2::saveFitWeights(const bool& verbose)
     std::string errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     QModelIndex indexBiomass,indexCatch;
     QStringList SpeciesList;
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab2_FTCWeightsTV->model());
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab2_WeightsFTCTV->model());
 
     if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList)) {
         return false;
@@ -944,8 +971,8 @@ nmfEstimation_Tab2::saveFitWeights(const bool& verbose)
 void
 nmfEstimation_Tab2::setAllBiomassWeights(const double& value)
 {
-    QModelIndexList selection = Estimation_Tab2_FTCWeightsTV->selectionModel()->selectedIndexes();
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab2_FTCWeightsTV->model());
+    QModelIndexList selection = Estimation_Tab2_WeightsFTCTV->selectionModel()->selectedIndexes();
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab2_WeightsFTCTV->model());
 
     if (selection.size() > 0) {
         for (int i=0; i<selection.size(); ++i) {
@@ -962,7 +989,7 @@ nmfEstimation_Tab2::setAllBiomassWeights(const double& value)
             smodel->setItem(row,0,item);
         }
     }
-    Estimation_Tab2_FTCWeightsTV->resizeColumnsToContents();
+    Estimation_Tab2_WeightsFTCTV->resizeColumnsToContents();
 }
 
 void
@@ -984,7 +1011,7 @@ nmfEstimation_Tab2::callback_UnitsEffortCMB(QString currentEffortUnits)
         nmfUtilsQt::convertTableView(Estimation_Tab2_EffortTV,
                                      m_NumSignificantDigits,
                                      m_PreviousEffortUnits,currentEffortUnits);
-        nmfUtilsQt::convertTableView(Estimation_Tab2_FTCEffortTV,
+        nmfUtilsQt::convertTableView(Estimation_Tab2_EffortFTCTV,
                                      m_NumSignificantDigits,
                                      m_PreviousEffortUnits,currentEffortUnits);
     }
@@ -997,10 +1024,12 @@ nmfEstimation_Tab2::callback_UnitsCatchCMB(QString currentCatchUnits)
     if (isConvertCatchChecked()) {
         nmfUtilsQt::convertTableView(Estimation_Tab2_CatchTV,
                                      m_NumSignificantDigits,
-                                     m_PreviousCatchUnits,currentCatchUnits);
-        nmfUtilsQt::convertTableView(Estimation_Tab2_FTCCatchTV,
+                                     m_PreviousCatchUnits,
+                                     currentCatchUnits);
+        nmfUtilsQt::convertTableView(Estimation_Tab2_CatchFTCTV,
                                      m_NumSignificantDigits,
-                                     m_PreviousCatchUnits,currentCatchUnits);
+                                     m_PreviousCatchUnits,
+                                     currentCatchUnits);
     }
     m_PreviousCatchUnits = currentCatchUnits;
 }
@@ -1016,7 +1045,7 @@ void
 nmfEstimation_Tab2::callback_SetWeightsPB(const QModelIndex& indexTopLeft,
                                           const QModelIndex& indexBottomRight)
 {
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab2_FTCWeightsTV->model());
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab2_WeightsFTCTV->model());
 
     // Find the selected cell and set its complement cell to be
     // 1.0 minus its value. Clamp in case used enters in a number out of 0-1 range.
@@ -1035,7 +1064,7 @@ nmfEstimation_Tab2::callback_SetWeightsPB(const QModelIndex& indexTopLeft,
     smodel->setItem(currRow,compCol,item);
     // Reset original in case it was clamped
     smodel->setItem(currRow,currCol,itemOrig);
-    Estimation_Tab2_FTCWeightsTV->resizeColumnsToContents();
+    Estimation_Tab2_WeightsFTCTV->resizeColumnsToContents();
     smodel->blockSignals(false);
 }
 
@@ -1043,8 +1072,8 @@ void
 nmfEstimation_Tab2::callback_SetAllWeightsPB()
 {
     // Get current selection
-    QModelIndexList selection = Estimation_Tab2_FTCWeightsTV->selectionModel()->selectedIndexes();
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab2_FTCWeightsTV->model());
+    QModelIndexList selection = Estimation_Tab2_WeightsFTCTV->selectionModel()->selectedIndexes();
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab2_WeightsFTCTV->model());
 
     // Find the selected cell and set its complement cell to be
     // 1.0 minus its value.
@@ -1066,7 +1095,7 @@ nmfEstimation_Tab2::callback_SetAllWeightsPB()
             }
             smodel->setItem(row,compCol,compItem);
         }
-        Estimation_Tab2_FTCWeightsTV->resizeColumnsToContents();
+        Estimation_Tab2_WeightsFTCTV->resizeColumnsToContents();
     } else {
         QMessageBox::information(Estimation_Tabs, "No Selection Found",
                                  "\nPlease select a cell to be copied to the rest of the column.\n",

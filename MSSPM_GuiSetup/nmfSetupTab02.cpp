@@ -148,7 +148,7 @@ nmfSetup_Tab2::saveProject(bool isVerbose)
     // Build the filename, add the .prj prefix if one isn't already there and
     // check to see if the file already exists.
     fullFilename = QDir(m_ProjectDir).filePath(m_ProjectName);
-    fileSuffix =  QFileInfo(fullFilename).suffix();
+    fileSuffix   = QFileInfo(fullFilename).suffix();
     if (fileSuffix != "prj")
         fullFilename += ".prj";
     if (QFileInfo(fullFilename).exists() && isVerbose) {
@@ -443,13 +443,17 @@ nmfSetup_Tab2::createTables(QString databaseName)
     }
 
     // 17 of 85: Catch
+    //     18 of 87: CatchFTC
     // 18 of 85: Effort
+    //     20 of 87: EffortFTC
     // 19 of 85: Exploitation
     // 20 of 85: BiomassAbsolute
     // 21 of 85: BiomassRelative
     // 22 of 85: BiomassRelativeDividedByEstSurveyQ
     for (std::string tableName : {nmfConstantsMSSPM::TableHarvestCatch,
+//                                nmfConstantsMSSPM::TableHarvestCatchFTC,
                                   nmfConstantsMSSPM::TableHarvestEffort,
+//                                nmfConstantsMSSPM::TableHarvestEffortFTC,
                                   nmfConstantsMSSPM::TableHarvestExploitation,
                                   nmfConstantsMSSPM::TableBiomassAbsolute,
                                   nmfConstantsMSSPM::TableBiomassRelative,

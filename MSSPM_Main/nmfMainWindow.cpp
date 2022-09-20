@@ -1465,8 +1465,15 @@ qDebug() << "dbName: " << dbName;
         }
         if (items.size() == 0) {
             std::string currentDatabase = m_DatabasePtr->nmfGetCurrentDatabase();
-            QString qmsg = "\nNo projects found to load in database: "+QString::fromStdString(currentDatabase)+"\n";
-            qmsg += "Database may not have loaded properly. Check that the mysql.exe application is in the PATH environment variable.\n";
+            QString qmsg = "\nNo projects found to load in database: "+QString::fromStdString(currentDatabase)+"\n\n";
+            qmsg += "This means that there were no table entries in the models table, meaning either: \n";
+            qmsg += " 1. the database didn't import properly or\n";
+            qmsg += " 2. the database didn't have any models saved in it\n\n";
+            qmsg += "To do:\n";
+            qmsg += " 1. Check that the mysql.exe application is in the PATH environment variable.\n";
+            qmsg += " 2. At the MySQL command prompt check that there's data in the species table with the following MySQL commands:\n";
+            qmsg += "    use keyrun_2022;\n";
+            qmsg += "    select * from species;\n";
             QMessageBox::warning(this, "Error", qmsg, QMessageBox::Ok);
             return;
         }
@@ -2062,7 +2069,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.3.1 ";
+    QString version = "MSSPM v1.3.2 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3719,12 +3726,12 @@ nmfMainWindow::findTableInFocus()
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_EffortTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchTV");
-    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_FTCWeightsTV")->hasFocus()) {
-        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_FTCWeightsTV");
-    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_FTCEffortTV")->hasFocus()) {
-        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_FTCEffortTV");
-    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_FTCCatchTV")->hasFocus()) {
-        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_FTCCatchTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_WeightsFTCTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_WeightsFTCTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_EffortFTCTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_EffortFTCTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchFTCTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab2_CatchFTCTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab3_CompetitionAlphaMinTV")->hasFocus()) {
@@ -4000,7 +4007,7 @@ nmfMainWindow::createEstimatedFile()
                                     SpeciesList,"Growth Rate:",EstGrowthRates,'f',3);
         stream << extractVectorData(Estimation_Tab7_ptr->isEstCarryingCapacityEnabled(),
                                     Estimation_Tab7_ptr->isEstCarryingCapacityChecked(),isAMultiRun,
-                                    SpeciesList,"Carrying Capacit y:",EstCarryingCapacities,'f',2);
+                                    SpeciesList,"Carrying Capacity:",EstCarryingCapacities,'f',2);
         stream << extractVectorData(Estimation_Tab7_ptr->isEstCatchabilityEnabled(),
                                     Estimation_Tab7_ptr->isEstCatchabilityChecked(),isAMultiRun,
                                     SpeciesList,"Catchability:",EstCatchability,'f',3);
@@ -14433,10 +14440,17 @@ nmfMainWindow::callback_AddedNewDatabase()
 void
 nmfMainWindow::callback_ImportDatabase()
 {
-    QString msg = "\nPlease be patient. File import may take several minutes depending upon file size and computer speed.\n";
-    QMessageBox::information(this, tr("Import Database"), tr(msg.toLatin1()), QMessageBox::Ok);
+    QString msg = "\nPlease Note:\n";
+    msg += "\n1. The Project Name must match the name of the Project from the imported database.\n";
+    msg += "\n2. File import may take several minutes depending upon file size and computer speed.\n";
+//  QMessageBox::information(this, tr("Import Database"), tr(msg.toLatin1()), QMessageBox::Ok);
 
-    importDatabase("",nmfConstantsMSSPM::VerboseOff);
+    QMessageBox::StandardButton reply =
+            QMessageBox::question(this, tr("Import Database"),
+                                  tr(msg.toLatin1()), QMessageBox::Ok|QMessageBox::Cancel);
+    if (reply == QMessageBox::Ok) {
+      importDatabase("",nmfConstantsMSSPM::VerboseOff);
+    }
 }
 
 void

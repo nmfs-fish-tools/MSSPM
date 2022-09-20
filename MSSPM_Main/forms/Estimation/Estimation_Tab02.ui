@@ -550,7 +550,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QTableView" name="Estimation_Tab2_FTCWeightsTV">
+             <widget class="QTableView" name="Estimation_Tab2_WeightsFTCTV">
               <property name="toolTip">
                <string>Weights corresponding to fitting using biomass and catch</string>
               </property>
@@ -709,7 +709,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QTableView" name="Estimation_Tab2_FTCEffortTV">
+             <widget class="QTableView" name="Estimation_Tab2_EffortFTCTV">
               <property name="font">
                <font>
                 <weight>50</weight>
@@ -871,7 +871,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QTableView" name="Estimation_Tab2_FTCCatchTV"/>
+             <widget class="QTableView" name="Estimation_Tab2_CatchFTCTV"/>
             </item>
            </layout>
           </item>

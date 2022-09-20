@@ -59,11 +59,11 @@ class nmfEstimation_Tab2: public QObject
     QWidget*     Estimation_Tab2_Widget;
     QTabWidget*  Estimation_Tabs;
     QTabWidget*  Estimation_Tab2_FitToCatchTB;
-    QTableView*  Estimation_Tab2_FTCWeightsTV;
+    QTableView*  Estimation_Tab2_WeightsFTCTV;
     QTableView*  Estimation_Tab2_CatchTV;
-    QTableView*  Estimation_Tab2_FTCCatchTV;
+    QTableView*  Estimation_Tab2_CatchFTCTV;
     QTableView*  Estimation_Tab2_EffortTV;
-    QTableView*  Estimation_Tab2_FTCEffortTV;
+    QTableView*  Estimation_Tab2_EffortFTCTV;
     QPushButton* Estimation_Tab2_PrevPB;
     QPushButton* Estimation_Tab2_NextPB;
     QPushButton* Estimation_Tab2_LoadPB;
