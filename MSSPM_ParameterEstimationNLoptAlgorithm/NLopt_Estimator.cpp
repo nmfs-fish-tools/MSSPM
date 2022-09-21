@@ -938,8 +938,8 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                 }
 
                 // Initialize the optimizer with the appropriate algorithm
-std::cout << "LOADING: " << NLoptStruct.MinimizerAlgorithm
-          << " with " << m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm] << std::endl;
+//std::cout << "LOADING: " << NLoptStruct.MinimizerAlgorithm
+//          << " with " << m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm] << std::endl;
                 m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
                 setAdditionalParameters(NLoptStruct);
 

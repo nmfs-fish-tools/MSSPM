@@ -1094,9 +1094,11 @@ nmfEstimation_Tab1::isOkSpeciesDataSupplemental(bool showPopup)
         SpeName = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,7);
         GrowthRateCovarCoeff = index.data().toString().remove(",");
+        if (GrowthRateCovarCoeff.trimmed().isEmpty()) {GrowthRateCovarCoeff = "0";} // unused table field, may remove later
         cmd += "GrowthRateCovarCoeff=" + GrowthRateCovarCoeff + ",";
         index = m_SpeciesModel->index(i,11);
         SpeciesKCovarCoeff = index.data().toString().remove(",");
+        if (SpeciesKCovarCoeff.trimmed().isEmpty()) {SpeciesKCovarCoeff = "0";} // unused table field, may remove later
         cmd += "SpeciesKCovarCoeff=" + SpeciesKCovarCoeff + ",";
         index = m_SpeciesModel->index(i,12);
         SurveyQ = index.data().toString().remove(",");
@@ -1280,13 +1282,13 @@ nmfEstimation_Tab1::savePopulationParameters(const bool& showPopup)
         cmd += "GrowthRate="           + m_SpeciesModel->index(i, 4).data().toString().remove(",") + ",";
         cmd += "GrowthRateMin="        + m_SpeciesModel->index(i, 5).data().toString().remove(",") + ",";
         cmd += "GrowthRateMax="        + m_SpeciesModel->index(i, 6).data().toString().remove(",") + ",";
-        cmd += "GrowthRateCovarCoeff=" + m_SpeciesModel->index(i, 7).data().toString().remove(",") + ",";
+        cmd += "GrowthRateCovarCoeff=" + QString("0,"); // this is unused currently // m_SpeciesModel->index(i, 7).data().toString().remove(",") + ",";
         cmd += "SpeciesK="             + m_SpeciesModel->index(i, 8).data().toString().remove(",") + ",";
         cmd += "SpeciesKMin="          + m_SpeciesModel->index(i, 9).data().toString().remove(",") + ",";
       //cmd += "SpeciesKMin="          + QString::number(SpeciesKMin.toDouble(),'f',6) + ",";
         cmd += "SpeciesKMax="          + m_SpeciesModel->index(i,10).data().toString().remove(",") + ",";
       //cmd += "SpeciesKMax="          + QString::number(SpeciesKMax.toDouble(),'f',6);
-        cmd += "SpeciesKCovarCoeff="   + m_SpeciesModel->index(i,11).data().toString().remove(",") + ",";
+        cmd += "SpeciesKCovarCoeff="   + QString("0,"); // this is unused currently // m_SpeciesModel->index(i,11).data().toString().remove(",") + ",";
         cmd += "SurveyQ="              + m_SpeciesModel->index(i,12).data().toString().remove(",") + ",";
         cmd += "SurveyQMin="           + m_SpeciesModel->index(i,13).data().toString().remove(",") + ",";
         cmd += "SurveyQMax="           + m_SpeciesModel->index(i,14).data().toString().remove(",") + ",";

@@ -1169,12 +1169,14 @@ nmfSetup_Tab3::callback_ImportPB()
     QString speciesFilename = "";
     QStringList guildsList = {};
 
+    QMessageBox::information(Setup_Tabs,"Import","\nSelect Guild CSV file to import first.\n",QMessageBox::Ok);
     importOK = importGuilds(guildsList,guildsFilename);
     if (importOK) {
         emit LoadGuildSupplemental(nmfConstantsMSSPM::Dont_Query_User_For_Filename,
                                    guildsFilename);
     }
 
+    QMessageBox::information(Setup_Tabs,"Import","\nSelect Species CSV file to import next.\n",QMessageBox::Ok);
     importOK = importSpecies(guildsList,speciesFilename);
     if (importOK) {
         emit LoadSpeciesSupplemental(nmfConstantsMSSPM::DontUpdateSetup,

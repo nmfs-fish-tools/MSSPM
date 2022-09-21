@@ -408,7 +408,7 @@ nmfEstimation_Tab2::loadTable(QTableView* tableView,
         for (int i=0; i<=RunLength; ++i) {
             if ((m < NumRecords) && (SpeciesList[j].toStdString() == dataMap["SpeName"][m])) {
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                            std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,2);
+                            std::stod(dataMap["Value"][m++]),m_NumSignificantDigits,6);
                 item = new QStandardItem(valueWithComma);
             } else {
                 item = new QStandardItem(QString(""));
