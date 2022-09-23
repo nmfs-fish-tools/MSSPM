@@ -141,6 +141,11 @@ public:
      */
     bool isAMohnsRhoRunForMultiRun();
     /**
+     * @brief Notifies the user if the page is visible
+     * @return true if visible, false otherwise
+     */
+    bool isPageVisible();
+    /**
      * @brief Loads the GUI widgets without any peels.  It calls the overloaded loadWidgets with a -1.
      */
     void loadWidgets();
@@ -178,7 +183,7 @@ signals:
      * @brief Signals to the main routine to run the Mohn's Rho anaylsis with the passed year ranges
      * @param YearRanges : year ranges to run for Mohn's Rho analysis
      */
-    void RunDiagnosticEstimation(std::vector<std::pair<int,int> > YearRanges);
+    void RunRetrospectiveAnalysis(std::vector<std::pair<int,int> > YearRanges);
     /**
      * @brief Signals to the main routine to run the Mohn's Rho anaylsis on a Multi Run with the passed year ranges
      * @param YearRanges : year ranges to run for Mohn's Rho analysis on a Multi Run

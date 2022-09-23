@@ -241,6 +241,12 @@ nmfDiagnostic_Tab2::isAMohnsRhoRunForSingleRun()
     return m_isMohnsRhoRunForSingleRun;
 }
 
+bool
+nmfDiagnostic_Tab2::isPageVisible()
+{
+    return m_Diagnostic_Tab2_RunPB->isVisible();
+}
+
 void
 nmfDiagnostic_Tab2::setMohnsRhoForSingleRun(bool state)
 {
@@ -349,7 +355,7 @@ std::cout << "range: " << StartYear << ", " << EndYear-i << std::endl;
 //    } else {
         m_isMohnsRhoRunForMultiRun  = false;
         m_isMohnsRhoRunForSingleRun = true;
-        emit RunDiagnosticEstimation(ranges);
+        emit RunRetrospectiveAnalysis(ranges);
 //    }
 }
 

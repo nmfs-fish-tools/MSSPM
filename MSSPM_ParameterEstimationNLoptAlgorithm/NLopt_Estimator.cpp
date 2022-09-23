@@ -861,7 +861,6 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                                     std::vector<QString>& MultiRunLines,
                                     int& TotalIndividualRuns)
 {
-
     bool isAMultiRun = bools.first;
     bool isSetToDeterministic = bools.second;
     bool foundOneNLoptRun = false;
@@ -896,7 +895,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     NumEstParameters = ParameterRanges.size();
 std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
 //for (int i=0; i< NumEstParameters; ++i) {
-// std::cout << "  " << ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
+// std::cout << "  (1) " << ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
 //}
 
         if (isAMultiRun) {
@@ -930,16 +929,12 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
             }
             m_Seed = 0;
             foundOneNLoptRun = true;
+
             for (int run=0; run<NumSubRuns; ++run) {
                 m_Quit = false;
-
-                if (NLoptStruct.isMohnsRho) {
-                    m_MohnsRhoOffset = run;
-                }
+                m_MohnsRhoOffset = (NLoptStruct.isMohnsRho) ? run : m_MohnsRhoOffset;
 
                 // Initialize the optimizer with the appropriate algorithm
-//std::cout << "LOADING: " << NLoptStruct.MinimizerAlgorithm
-//          << " with " << m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm] << std::endl;
                 m_Optimizer = nlopt::opt(m_MinimizerToEnum[NLoptStruct.MinimizerAlgorithm],NumEstParameters);
                 setAdditionalParameters(NLoptStruct);
 
@@ -1056,7 +1051,6 @@ NLopt_Estimator::stoppedByUser()
     return retv;
 }
 
-
 void
 NLopt_Estimator::callback_StopAllRuns()
 {
@@ -1064,7 +1058,6 @@ std::cout << "Stopping all runs" << std::endl;
    m_Quit = true;
    nlopt::forced_stop();
 }
-
 
 void
 NLopt_Estimator::callback_StopTheOptimizer()

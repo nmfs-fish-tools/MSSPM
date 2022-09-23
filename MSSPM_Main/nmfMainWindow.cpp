@@ -1749,6 +1749,7 @@ nmfMainWindow::menu_toggleManagerMode()
             QString msg = "\nAt least one forecast must be created prior to using REMORA.\n";
             QMessageBox::warning(this, "Warning", msg, QMessageBox::Ok);
             m_UI->actionToggleManagerMode->setChecked(false);
+            menu_layoutDefault();
             return;
         }
 
@@ -1792,6 +1793,8 @@ nmfMainWindow::setVisibilityToolbarButtons(bool isVisible)
     m_UI->actionNLoptTB->setEnabled(isVisible);
     m_UI->actionScreenShotAll->setEnabled(isVisible);
     m_UI->actionMultiShot->setEnabled(isVisible);
+    m_UI->actionRunTB->setEnabled(isVisible);
+    m_UI->actionToggleSignificantDigits->setEnabled(isVisible);
 }
 
 bool
@@ -2069,7 +2072,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.3.2 ";
+    QString version = "MSSPM v1.3.3 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2193,19 +2196,11 @@ nmfMainWindow::menu_troubleshooting()
     QString eol;
     QString msg;
     QStringList groups;
-    QStringList importTopics,guiTopics,estimationTopics,helpTopics;
-    QStringList importSolutions,guiSolutions,estimationSolutions,helpSolutions;
+    QStringList importTopics,guiTopics,estimationTopics,helpTopics,mysqlTopics;
+    QStringList importSolutions,guiSolutions,estimationSolutions,helpSolutions,mysqlSolutions;
     QMessageBox mbox;
     std::vector<QStringList> topics;
     std::vector<QStringList> solutions;
-
-    // List troubleshooting topics here
-//    topics << "Import doesn't work";
-//    topics << "No Models available after an Import";
-//    topics << "Accidentally closed a sub-panel";
-//    topics << "How to revert back to default GUI layout";
-//    topics << "Poor fit when estimating parameters";
-//    topics << "How to get help";
 
     // Step 1. Add topic in appropriate group, creating a group if need be
     estimationTopics << "Estimation doesn't run";
@@ -2217,9 +2212,10 @@ nmfMainWindow::menu_troubleshooting()
     helpTopics       << "No Log file found";
     importTopics     << "Import doesn't work";
     importTopics     << "No Models available after an Import";
+    mysqlTopics      << "Can't connect to MySQL";
 
     // Step 2. Add the group name to the groups list
-    groups << "Estimation" << "GUI" << "Help" << "Import";
+    groups << "Estimation" << "GUI" << "Help" << "Import" << "MySQL";
 
     // Step 3. Add the topic solutions here
     estimationSolutions << "If estimation doesn't produce any plots it could be a permission issue. If on Windows, exit the application and re-run as Administrator.";
@@ -2239,17 +2235,13 @@ nmfMainWindow::menu_troubleshooting()
     helpSolutions       << "If no Log files found on disk after clicking the Refresh button in the Log panel it could mean a permission problem. Exit the application and re-run as Administrator.";
     importSolutions     << "The import feature uses the mysql exe found on disk. Please make sure the executable is found when you type it at the command prompt. On Windows, must add mysql.exe path to Path system environment variable";
     importSolutions     << "The project name of an imported database must be the same as the current project name.";
+    mysqlSolutions      << "This will happen if the user enters the incorrect MySQL password when starting the application or if the MySQL server needs to be restarted.";
 
     // Display the troubleshooting topics as links
     int i=1;
     msg = "<h3 id=\"top\"><center><b><br>Topics</b></center></h3>";
 
-// Original lines...no grouping
-//    for (QString topic : topics) {
-//        msg += QString::number(i) + ". " + "<a href=\"#Topic" + QString::number(i) + "\">" + topic + "</a><br><br>";
-//        ++i;
-//    }
-    topics = {estimationTopics,guiTopics,helpTopics,importTopics};
+    topics = {estimationTopics,guiTopics,helpTopics,importTopics,mysqlTopics};
     int groupNum = 0;
     for (QString group : groups) {
         msg += "<br><b>" + group + "</b><br>";
@@ -2263,7 +2255,7 @@ nmfMainWindow::menu_troubleshooting()
     i = 1;
     groupNum = 0;
     QStringList aSolution;
-    solutions = {estimationSolutions,guiSolutions,helpSolutions,importSolutions};
+    solutions = {estimationSolutions,guiSolutions,helpSolutions,importSolutions,mysqlSolutions};
     msg += "<h3 id=\"solutions\"><center><b>Solutions</b></center></h3>";
     for (QString group : groups) {
         int j=0;
@@ -3580,7 +3572,7 @@ nmfMainWindow::initConnections()
             Output_Controls_ptr, SLOT(callback_ResetOutputWidgetsForAggProd()));
     connect(Diagnostic_Tab1_ptr, SIGNAL(SetChartType(std::string,std::string)),
             this,                SLOT(callback_SetChartType(std::string,std::string)));
-    connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimation(std::vector<std::pair<int,int> >)),
+    connect(Diagnostic_Tab2_ptr, SIGNAL(RunRetrospectiveAnalysis(std::vector<std::pair<int,int> >)),
             this,                SLOT(callback_RunRetrospectiveAnalysisEstimation(std::vector<std::pair<int,int> >)));
 //  connect(Diagnostic_Tab2_ptr, SIGNAL(RunDiagnosticEstimationMultiRun(std::vector<std::pair<int,int> >)),
 //          this,                SLOT(callback_RunRetrospectiveAnalysisEstimationMultiRun(std::vector<std::pair<int,int> >)));
@@ -4120,6 +4112,7 @@ nmfMainWindow::menu_saveCurrentRun()
     int NumSpecies;
     int StartYear=0;
     int NumGuilds;
+    int NumYears;
     int RunLength;
     int RunNum=0;
     int InitialYear=0;
@@ -4177,6 +4170,7 @@ nmfMainWindow::menu_saveCurrentRun()
                 RunLength,InitialYear,isBiomassAbsolute)) {
         return;
     }
+    NumYears = RunLength + 1;
 
     //std::cout << "#######: StartYear: " << StartYear << std::endl;
     //std::cout << "#######: RunLength: " << RunLength << std::endl;
@@ -5809,7 +5803,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     // Load the appropriate Harvest tables
     if (HarvestFormName == nmfConstantsMSSPM::HarvestCatch.toStdString()) {
-std::cout << "isMonteCarlo,ForecastName: " << isMonteCarlo << "," << ForecastName << std::endl;
+//std::cout << "isMonteCarlo,ForecastName: " << isMonteCarlo << "," << ForecastName << std::endl;
         if (! loadHarvestCatchTables(isAggProd,isMonteCarlo,ForecastName,HarvestFormName,
                                      harvestFormPtr,HarvestRandomValues,HarvestUncertainty,
                                      previousUnits,NumSpeciesOrGuilds,RunLength,Catch)) {
@@ -5837,19 +5831,21 @@ std::cout << "isMonteCarlo,ForecastName: " << isMonteCarlo << "," << ForecastNam
     }
 
     // Update the Forecast Monte Carlo Parameters table
-    if (! m_DatabasePtr->updateForecastMonteCarloParameters(
-                0,m_Logger,m_ProjectName,m_ModelName,
-                ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                SpeciesList,RunNum,
-                GrowthRateRandomValues,
-                CarryingCapacityRandomValues,CatchabilityRandomValues,
-                PredationExponentRandomValues,CompetitionAlphaRandomValues,
-                CompetitionBetaSpeciesRandomValues,CompetitionBetaGuildsRandomValues,
-                CompetitionBetaGuildsGuildsRandomValues,
-                PredationRhoRandomValues,PredationHandlingRandomValues,HarvestRandomValues,
-                GrowthRateCovCoeffRandomValues,CarryingCapacityCovCoeffRandomValues,
-                CatchabilityCovCoeffRandomValues,SurveyQCovCoeffRandomValues)) {
-        return false;
+    if (!ForecastName.empty()) {
+        if (! m_DatabasePtr->updateForecastMonteCarloParameters(
+                    0,m_Logger,m_ProjectName,m_ModelName,
+                    ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                    SpeciesList,RunNum,
+                    GrowthRateRandomValues,
+                    CarryingCapacityRandomValues,CatchabilityRandomValues,
+                    PredationExponentRandomValues,CompetitionAlphaRandomValues,
+                    CompetitionBetaSpeciesRandomValues,CompetitionBetaGuildsRandomValues,
+                    CompetitionBetaGuildsGuildsRandomValues,
+                    PredationRhoRandomValues,PredationHandlingRandomValues,HarvestRandomValues,
+                    GrowthRateCovCoeffRandomValues,CarryingCapacityCovCoeffRandomValues,
+                    CatchabilityCovCoeffRandomValues,SurveyQCovCoeffRandomValues)) {
+            return false;
+        }
     }
 
     // If not  running a forecast, initial biomass is the first observed biomass.
@@ -8046,10 +8042,10 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
 
     // Calculate the meanObserved from the observed
     m = 0;
-    for (int i=0;i<NumSpeciesOrGuilds;++i) {
+    for (int species=0; species<NumSpeciesOrGuilds; ++species) {
         meanVal = 0;
-        for (int j=0; j<=RunLength;++j) {
-            meanVal += ObservedBiomass(j,i);
+        for (int time=0; time<=RunLength; ++time) {
+            meanVal += ObservedBiomass(time,species);
         }
         meanVal /= (RunLength+1);
         meanObserved.push_back(meanVal);
@@ -8349,17 +8345,8 @@ nmfMainWindow::loadSummaryStatisticsModel(
 bool
 nmfMainWindow::isAMohnsRhoMultiRun()
 {
-//    return Diagnostic_Tab2_ptr->isAMohnsRhoRun() ||
-//           (Output_Controls_ptr->getOutputChartType() == "Diagnostics" &&
-//            Output_Controls_ptr->isSetToRetrospectiveAnalysis());
-
-    QString NavigatorStr = NavigatorTree->currentItem()->text(0);
-
     return ( Diagnostic_Tab2_ptr->isAMohnsRhoRunForSingleRun() ||
-             (Output_Controls_ptr->getOutputChartType() == "Diagnostics" &&
-              Output_Controls_ptr->isSetToRetrospectiveAnalysis()));
-//        && (NavigatorStr.contains("Retrospective Analysis") ||
-//            NavigatorStr.contains("Parameter Profiles")) ));
+             Diagnostic_Tab2_ptr->isPageVisible());
 }
 
 bool
@@ -8880,6 +8867,7 @@ nmfMainWindow::getMonteCarloUncertaintyData(
     std::string str;
     std::string ForecastHarvestType;
     std::string GrowthForm,HarvestForm,CompetitionForm,PredationForm;
+    std::string msg;
 
     if (! m_DatabasePtr->getForecastInfo(
                 m_ProjectName,m_ModelName,ForecastName,RunLength,StartYearForecast,
@@ -8906,7 +8894,11 @@ nmfMainWindow::getMonteCarloUncertaintyData(
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["SpeName"].size();
     if (NumRecords < NumRuns) {
-        m_Logger->logMsg(nmfConstants::Error,"Couldn't find sufficient uncertainty records in ForecastMonteCarloParameters");
+        msg  = "Couldn't find sufficient uncertainty records in ForecastMonteCarloParameters ";
+        msg += "Found " + std::to_string(NumRecords) + " table records, but there are " +
+                std::to_string(NumRuns) + " runs.";
+        m_Logger->logMsg(nmfConstants::Error,msg);
+        m_Logger->logMsg(nmfConstants::Error,queryStr);
         for (int i=0; i<NumRuns; ++i) {
             formattedUncertaintyData << "";
         }
@@ -11316,14 +11308,10 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
             this,              SLOT(callback_AllSubRunsCompleted()));
     connect(m_Estimator_NLopt, SIGNAL(AMohnsRhoMultiRunCompleted()),
             this,              SLOT(callback_AMohnsRhoMultiRunCompleted()));
-
     connect(m_Estimator_NLopt, SIGNAL(NLoptFailureStopRunsAndReset()),
             m_ProgressWidget,  SLOT(callback_stopPB()));
-
-
     connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
             this,              SLOT(callback_StopAllRuns()));
-
 
     updateProgressChartAnnotation(0,(double)m_DataStruct.NLoptStopAfterIter,5.0);
 
@@ -11596,7 +11584,6 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
         nmfUtilsQt::convertMatrix(Catch, previousUnits[tableHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
     }
 
-    double EstCarryingCapacityValue = 0;
     for (int time = 1; time <= RunLength; time++) {
         timeMinus1 = time-1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species)
@@ -11620,7 +11607,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                                    EstGrowthRateCovariateCoeffs[species],
                                                    GrowthRateCovariate(timeMinus1,species),
                                                    EstCarryingCapacities[species],
-                                                   EstCarryingCapacityValue,
+                                                   EstCarryingCapacityCovariateCoeffs[species],
                                                    CarryingCapacityCovariate(timeMinus1,species));
             HarvestTerm     = harvestForm->evaluate(CovariateAlgorithmType,
                                                     timeMinus1,species,EstBiomassVal,
