@@ -1189,6 +1189,7 @@ nmfEstimation_Tab6::saveInitialValuesAndRangesTable()
         }
     }
     saveCmd = saveCmd.substr(0,saveCmd.size()-1);
+//std::cout << "saveCmd: " << saveCmd << std::endl;
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(saveCmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab6::saveInitialValuesAndRangesTable: Write table error: " + errorMsg);
@@ -1374,15 +1375,40 @@ nmfEstimation_Tab6::callback_SavePB()
             bool loadOK = loadInitialValuesAndRangesForEditableCells();
             if (loadOK) {
                 saveInitialValuesAndRangesTable();
+//                QApplication::restoreOverrideCursor();
+//                QMessageBox::information(Estimation_Tabs,"Save",
+//                                         "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges),
+//                                         QMessageBox::Ok);
+            }
+            QApplication::restoreOverrideCursor();
+            QMessageBox::information(Estimation_Tabs,"Save",
+                                     "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateAssignment),
+                                     QMessageBox::Ok);
+
+            // Call reload callback
+            loadWidgets(); // Needed to ensure that after loading a new model, all of the covariate tabs load properly and the estimation runs properly
+        } else {
+            QApplication::restoreOverrideCursor();
+            QMessageBox::information(Estimation_Tabs,"Save",
+                                     "\nCould not save table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateAssignment),
+                                     QMessageBox::Ok);
+        }
+    } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
+        ok = saveInitialValuesAndRangesTable();
+        if (ok) {
+            saveCovariateAssignmentTable();
+
+            ok = saveCovariateAssignmentTable();
+            if (ok) {
+                initializeInitialValuesAndRangesTable();
+                bool loadOK = loadInitialValuesAndRangesForEditableCells();
                 QApplication::restoreOverrideCursor();
                 QMessageBox::information(Estimation_Tabs,"Save",
                                          "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateAssignment),
                                          QMessageBox::Ok);
             }
-        }
-    } else if (Estimation_Tab6_InitialValuesTV->isVisible()) {
-        ok = saveInitialValuesAndRangesTable();
-        if (ok) {
+
+
             QApplication::restoreOverrideCursor();
             QMessageBox::information(Estimation_Tabs,"Save",
                                      "\nSuccessful save of table: "+QString::fromStdString(nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges),
