@@ -1227,6 +1227,7 @@ nmfSetup_Tab4::copyModelDataInAllTables(const QString& currentModelName,
 
     QProgressDialog progressDlg("\nCopying tables...", "Abort Copy", 0, NumTables, Setup_Tabs);
     progressDlg.setWindowModality(Qt::WindowModal);
+    progressDlg.show();
 
     for (int i=0; i<NumTables; ++i) {
 
