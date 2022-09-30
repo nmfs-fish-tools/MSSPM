@@ -554,7 +554,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
     }
 
     for (QString parameterName : vectorParameterNames) {
-//qDebug() << "processing parameterName: " << parameterName;
+//qDebug() << "\nprocessing parameterName: " << parameterName;
         nmfUtilsQt::updateProgressDlg(m_Logger,progressDlg,"Processing parameter: "+parameterName.toStdString(),pInc);
 
         EstParameter.clear();
@@ -571,7 +571,8 @@ nmfDiagnostic_Tab1::callback_RunPB()
             m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
-
+//qDebug() << "loaded name: " << parameterName;
+//qDebug() << EstParameter;
         if (parameterName == surfaceParameter1Name) {
             surfaceParameter1 = EstParameter;
         } else if (parameterName == surfaceParameter2Name) {
@@ -585,47 +586,59 @@ nmfDiagnostic_Tab1::callback_RunPB()
             inc          = (estParameter - startVal)/numPoints;
             diagnosticParameterValue = startVal;
 
-            // Skip the current species if there's no estimated data for it. This cold be
+            // Skip the current species if there's no estimated data for it. This could be
             // the case for the covariate coefficient parameters if non have been estimated
             // for certain species.
-            if ((estParameter != 0) && (startVal != 0)) {
+            if (1) { // ((estParameter != 0) && (startVal != 0)) { // RSK revisit this logic
                 for (int j=0; j<=totalNumPoints; ++j) {
-//if (i == 0) {
-//qDebug() << "p1: " << j << parameterName << "  " << diagnosticParameterValue << "  " << estParameter << inc; // << fitness;
+//if (i == 9 && parameterName == "SurveyQ") {
+//  qDebug() << "\nparameter name: " << parameterName << estParameter << startVal << inc << diagnosticParameterValue; // << fitness;
 //}
-                    try {
-                        parameterItem = std::make_pair(parameterName,diagnosticParameterValue);
-                        fitness = calculateFitness(i,{parameterItem});
-                    } catch (...) {
-                        msg = "Warning (2): Please run an Estimation prior to running this Diagnostic.";
-                        m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
-                        QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
-                        progressDlg->close();
-                        emit EnableRunButtons(true);
-                        m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
-                        return;
-                    }
 
-                    if (fitness == -1) {
-                        m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
-                        progressDlg->close();
-                        emit EnableRunButtons(true);
-                        m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
-                        return;
-                    }
+                    if ((estParameter == 0) || (startVal == 0)) {
+                        aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[i],j,0,0);
+                        DiagnosticTupleVector.push_back(aDiagnosticTuple);
+                    } else {
+                      try {
+                          parameterItem = std::make_pair(parameterName,diagnosticParameterValue);
+//if (i == 9 && parameterName == "SurveyQ") {
+//  qDebug() << "before calculateFitness call";
+//}
+                          fitness = calculateFitness(i,{parameterItem});
+//if (i == 9 && parameterName == "SurveyQ") {
+//qDebug() << "after calculateFitness call, fitness: " << fitness;
+//}
+                      } catch (...) {
+                          msg = "Warning (2): Please run an Estimation prior to running this Diagnostic.";
+                          m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
+                          QMessageBox::warning(m_Diagnostic_Tabs,tr("Warning"),"\n"+msg,QMessageBox::Ok);
+                          progressDlg->close();
+                          emit EnableRunButtons(true);
+                          m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
+                          return;
+                      }
 
-                    aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[i],
-                                                       diagnosticParameterValue-estParameter,
-                                                       diagnosticParameterValue,
-                                                       fitness);
+                      if (fitness == -1) {
+                          m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
+                          progressDlg->close();
+                          emit EnableRunButtons(true);
+                          m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
+                          return;
+                      }
 
-                    DiagnosticTupleVector.push_back(aDiagnosticTuple);
-                    diagnosticParameterValue += inc;
+                      aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[i],
+                                                         diagnosticParameterValue-estParameter,
+                                                         diagnosticParameterValue,
+                                                         fitness);
+
+                      DiagnosticTupleVector.push_back(aDiagnosticTuple);
+                      diagnosticParameterValue += inc;
+                    } // end else
                 } // end for
             } // end if
 
         } // end for
-
+//std::cout << "Upt: before updateParameterTable" << std::endl;
         updateParameterTable(NumSpeciesOrGuilds, totalNumPoints,
                              Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                              isAggProdStr,parameterName,DiagnosticTupleVector);
@@ -747,6 +760,7 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     int GrowthRateOffset,GrowthRateCovarOffset,CarryingCapacityOffset,CarryingCapacityCovarOffset;
     int CatchabilityOffset,CatchabilityCovarOffset;
     int SurveyQOffset,SurveyQCovarOffset;
+    int InitBiomassOffset = 0;
     double unused2[] = {0};
     double retv = 0;
     std::string Algorithm;
@@ -784,12 +798,16 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     isAggProdStr = std::to_string(isAggProd);
 
     // Load up parameters (covariates are included from within the following load methods)
-    int initBiomassOffset = 0;
     loadOutputParameters(nmfConstantsMSSPM::TableOutputInitBiomass,NumSpeciesOrGuilds,
                          Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,initBiomassParameters);
     offset = initBiomassParameters.size();
     loadGrowthParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,growthParameters,
                          offset,GrowthRateOffset,GrowthRateCovarOffset,CarryingCapacityOffset,CarryingCapacityCovarOffset);
+//std::cout << "GrowthRateOffset: " << GrowthRateOffset << std::endl;
+//std::cout << "GrowthRateCovarOffset: " << GrowthRateCovarOffset << std::endl;
+//std::cout << "CarryingCapacityOffset: " << CarryingCapacityOffset << std::endl;
+//std::cout << "CarryingCapacityCovarOffset: " << CarryingCapacityCovarOffset << std::endl;
+
     offset = CarryingCapacityCovarOffset;
     loadHarvestParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                           harvestParameters,offset,CatchabilityOffset,CatchabilityCovarOffset);
@@ -798,27 +816,34 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     offset += competitionParameters.size();
     loadPredationParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,predationParameters);
     offset += predationParameters.size();
-    SurveyQOffset = offset;
+//    SurveyQOffset = offset;
     loadOutputParameters(nmfConstantsMSSPM::TableOutputSurveyQ,NumSpeciesOrGuilds,
                          Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,surveyQParameters);
     SurveyQCovarOffset = offset + surveyQParameters.size();
-//    loadOutputParameters(nmfConstantsMSSPM::TableOutputSurveyQCovariateCoeffs,NumSpeciesOrGuilds,
-//                         Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,surveyQCovCoeffParameters);
+    loadOutputParameters(nmfConstantsMSSPM::TableOutputSurveyQCovariateCoeffs,NumSpeciesOrGuilds,
+                         Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,surveyQCovCoeffParameters);
 //qDebug() << "RSK - TBD implement surveyQCovCoeff logic";
+//qDebug() << "SurveyQCovarOffset: " << SurveyQCovarOffset;
 
     // Append all of the Estimated Parameters to: parameters
+    InitBiomassOffset  = parameters.size();
     nmfUtils::append(initBiomassParameters,parameters);
     nmfUtils::append(growthParameters,     parameters);
     nmfUtils::append(harvestParameters,    parameters);
     nmfUtils::append(competitionParameters,parameters);
     nmfUtils::append(predationParameters,  parameters);
+    SurveyQOffset      = parameters.size();
     nmfUtils::append(surveyQParameters,    parameters);
+    SurveyQCovarOffset = parameters.size();
+    nmfUtils::append(surveyQCovCoeffParameters, parameters);
 
+//std::cout << "ParameterData size: " << ParameterData.size() << std::endl;
     // Modify the estimated parameter data with the diagnostic "tweaks" to the estimated parameters
     for (std::pair<QString,double> ParameterItem : ParameterData) {
-        offset = 0;
+//std::cout << "parameter first: " << ParameterItem.first.toStdString() << std::endl;
+        offset = 0; // RSK bug is here I think...
         if (ParameterItem.first        == "Initial Biomass (B₀)") {
-            offset = initBiomassOffset;
+            offset = InitBiomassOffset;
         } else if (ParameterItem.first == "Growth Rate (r)") { // RSK revisit this...make all the constants more consistent
             offset = GrowthRateOffset;
         } else if (ParameterItem.first == "Carrying Capacity (K)") {
@@ -827,6 +852,7 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
             offset = CatchabilityOffset+NumSpeciesOrGuilds;
         } else if (ParameterItem.first == nmfConstantsMSSPM::ParameterNameSurveyQ) {
             offset = SurveyQOffset;
+//std::cout << "SurveyQ offset: " << offset << std::endl;
         } else if (ParameterItem.first == nmfConstantsMSSPM::ParameterNameGrowthRateCovCoeff) {
             offset = GrowthRateCovarOffset;
         } else if (ParameterItem.first == nmfConstantsMSSPM::ParameterNameCarryingCapacityCovCoeff) {
@@ -834,6 +860,7 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
         } else if (ParameterItem.first == nmfConstantsMSSPM::ParameterNameCatchabilityCovCoeff) {
             offset = CatchabilityCovarOffset;
         } else if (ParameterItem.first == nmfConstantsMSSPM::ParameterNameSurveyQCovCoeff) {
+//qDebug() << "found SQCovCoeff";
             offset = SurveyQCovarOffset;
         } else {
             msg = "Error: Invalid parameter name: " + ParameterItem.first.toStdString();
@@ -841,18 +868,14 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
             return -1;
         }
         parameters[offset+SpeciesOrGuildNum] = ParameterItem.second;
-//if (SpeciesOrGuildNum == 0 && ParameterItem.first == nmfConstantsMSSPM::ParameterNameGrowthRateCovCoeff) {
-//std::cout << "Assigning: parameters[" << offset+SpeciesOrGuildNum << "]: " << ParameterItem.second << std::endl;
-//}
     }
-// InitBiomass, r, r cov coeff, ...
-//if (SpeciesOrGuildNum == 0) {
-//    std::cout << "rcv: ";
-//for (int i=20; i<30; ++i) {
-//    std::cout << parameters[i] << ", ";
+
+//for (int i=150;i<160;++i) {
+//std::cout << "  parameters[159]: " << parameters[159] << std::endl;
 //}
-//std::cout << std::endl;
-//}
+
+
+
     m_DatabasePtr->getAlgorithmIdentifiers(
                 m_Diagnostic_Tabs,m_Logger,m_ProjectName,m_ModelName,
                 Algorithm,Minimizer,ObjectiveCriterion,
@@ -1247,6 +1270,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
        m_Logger->logMsg(nmfConstants::Error,"nmfDiagnostic_Tab1::updateParameterTable: DiagnosticTupleVector is empty");
        return;
    }
+//std::cout << "Upt: " << TableName << std::endl;
 
    cmd = "DELETE FROM " + TableName +
          "  WHERE ProjectName = '"      + m_ProjectName +
@@ -1282,8 +1306,9 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
    cmd = cmd.substr(0,cmd.size()-1);
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
    if (nmfUtilsQt::isAnError(errorMsg)) {
-       m_Logger->logMsg(nmfConstants::Error,"[Error 2] UpdateParameterTable: Write table error: " + errorMsg);
-       m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+       m_Logger->logMsg(nmfConstants::Warning,"[Warning 2] UpdateParameterTable: Write table error: " + errorMsg);
+       m_Logger->logMsg(nmfConstants::Warning,"This may be due to no covariate diagnostic data available.");
+       m_Logger->logMsg(nmfConstants::Warning,"cmd: " + cmd);
        return;
    }
 

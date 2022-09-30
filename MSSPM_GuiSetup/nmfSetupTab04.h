@@ -84,42 +84,46 @@ class nmfSetup_Tab4: public QObject
     QWidget*     Setup_Tab4_Widget;
     QPushButton* Setup_Tab4_SavePB;
     QPushButton* Setup_Tab4_LoadPB;
-    QPushButton* Setup_Tab4_DelPB;
     QPushButton* Setup_Tab4_NextPB;
     QPushButton* Setup_Tab4_PrevPB;
-    QPushButton* Setup_Tab4_NewModelPB;
+    QPushButton* Setup_Tab4_ModelNewPB;
+    QPushButton* Setup_Tab4_ModelCopyPB;
+    QPushButton* Setup_Tab4_ModelDelPB;
     QSpinBox*    Setup_Tab4_NumberOfRunsSB;
     QSpinBox*    Setup_Tab4_StartYearSB;
     QLineEdit*   Setup_Tab4_EndYearLE;
     QSpinBox*    Setup_Tab4_RunLengthSB;
 
     double calculateSystemCarryingCapacity();
+    bool copyModelDataInAllTables(const QString& currentModelName,
+                                  const QString& newModelName);
     void   getHighlightColors(QString& growthHighlightColor,
-                            QString& harvestHighlightColor,
-                            QString& competitionHighlightColor,
-                            QString& predationHighlightColor,
-                            QString& growthColorName,
-                            QString& harvestColorName,
-                            QString& competitionColorName,
-                            QString& predationColorName);
+                              QString& harvestHighlightColor,
+                              QString& competitionHighlightColor,
+                              QString& predationHighlightColor,
+                              QString& growthColorName,
+                              QString& harvestColorName,
+                              QString& competitionColorName,
+                              QString& predationColorName);
+    QString getNewModelName();
     bool   modelExists(QString ModelName);
-    bool   saveModelData(bool verbose,
-                                     std::string CurrentSettingsName);
+    bool   saveModelData(bool verbose,std::string CurrentSettingsName);
 
     void clearWidgets();
     /**
      * @brief Populates new model data with data from other models in the project
      * @return True for success, false otherwise
      */
-    bool populateNewModel();
+//  bool populateNewModel();
     void readSettings();
     void setEstimatedParameterNames();
     void setModelPreset(std::string modelName);
     void updateOutputWidget();
-    bool replaceDuplicateData(
-            const std::string& tableName,
-            const QStringList& SpeciesList,
-            const boost::numeric::ublas::matrix<double>& data);
+//  bool replaceDuplicateData(
+//          const std::string& tableName,
+//          const QStringList& SpeciesList,
+//          const boost::numeric::ublas::matrix<double>& data);
+
 public:
     /**
      * @brief nmfSetup_Tab4 : class constructor
@@ -369,10 +373,6 @@ public Q_SLOTS:
      */
     void callback_CompetitionHighlightPB();
     /**
-     * @brief Callback invoked when the user clicks the Delete Model button
-     */
-    void callback_DelPB();
-    /**
      * @brief Callback invoked when the user changes the Model Equation text box font size
      * @param fontSize : new font size chosen by the user
      */
@@ -400,15 +400,23 @@ public Q_SLOTS:
      */
     void callback_LoadPB();
     /**
+     * @brief Callback invoked when the user clicks the Copy Model button
+     */
+    void callback_ModelCopyPB();
+    /**
+     * @brief Callback invoked when the user clicks the Delete Model button
+     */
+    void callback_ModelDelPB();
+    /**
+     * @brief Callback invoked when the user clicks the New Model button
+     */
+    void callback_ModelNewPB();
+    /**
      * @brief Callback invoked when the user selects a Preset from the Model
      * Presets combo box
      * @param preset : name of Model Preset selected by the user
      */
     void callback_ModelPresetsCMB(QString preset);
-    /**
-     * @brief Callback invoked when the user clicks the New Model button
-     */
-    void callback_NewModelPB();
     /**
      * @brief Callback invoked when the user clicks the Next Page button
      */

@@ -789,6 +789,8 @@ nmfMainWindow::getDiagnosticsData(
 
     DiagnosticsValue.clear();
     DiagnosticsFitness.clear();
+    nmfUtils::initialize(DiagnosticsValue,  TotalNumPoints,NumSpeciesOrGuilds);
+    nmfUtils::initialize(DiagnosticsFitness,TotalNumPoints,NumSpeciesOrGuilds);
 
     // Load Diagnostics data
     fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Value","Fitness"};
@@ -808,12 +810,17 @@ nmfMainWindow::getDiagnosticsData(
         errorMsg  = "[Warning] getDiagnosticsData: No records found in table: " + TableName;
 //      errorMsg += "\n" + queryStr;
         m_Logger->logMsg(nmfConstants::Warning,errorMsg);
+        for (int j=0; j<NumSpeciesOrGuilds; ++j) {
+            for (int i=0; i<TotalNumPoints; ++i) {
+                DiagnosticsValue(i,j)   = 0;
+                DiagnosticsFitness(i,j) = 0;
+            }
+        }
         return false;
     }
 
     int speciesNum;
-    nmfUtils::initialize(DiagnosticsValue,  TotalNumPoints,NumSpeciesOrGuilds);
-    nmfUtils::initialize(DiagnosticsFitness,TotalNumPoints,NumSpeciesOrGuilds);
+
     int NumSpecies;
     QStringList SpeciesList;
     if (! m_DatabasePtr->getSpecies(m_Logger,NumSpecies,SpeciesList)) {
@@ -2072,7 +2079,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.3.4 ";
+    QString version = "MSSPM v1.3.5 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -7662,17 +7669,15 @@ nmfMainWindow::showDiagnosticsChart2d(const QString& ScaleStr,
                              Algorithm,Minimizer,ObjectiveCriterion,Scaling,
                              isAggProdStr,DiagnosticsValue,DiagnosticsFitness))
     {
-        Output_Controls_ptr->setOutputParameters2d3dPB(nmfConstantsMSSPM::ChartType2d);
-        m_ChartView2d->hide();
-        msg = "No Diagnostic records found. Please make sure a Diagnostic has been run.";
+        //Output_Controls_ptr->setOutputParameters2d3dPB(nmfConstantsMSSPM::ChartType2d);
+        //m_ChartView2d->hide();
+        msg = "No Diagnostic records found. Please make sure a Diagnostic has been run for all parameters.";
         m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());
-//        msg = "\nNo Diagnostic records found.\n\nPlease make sure a Diagnostic has been run.\n";
-//        QMessageBox::warning(this, "Warning", msg, QMessageBox::Ok);
-        return false;
+        //return false;
     }
 
     showDiagnosticsFitnessVsParameter(NumPoints,ParameterName,
-                                      "Fitness Value",
+                                      "Fitness",
                                       NumSpeciesOrGuilds,OutputSpecies,
                                       SpeciesNum,
                                       DiagnosticsValue,
@@ -8652,7 +8657,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    QStringList HoverLabels;
 
    ChartType = "Line";
-   XLabel += " Percent Deviation";
+   XLabel += " % Deviation";
    MainTitle = YLabel + " vs " + XLabel + " for: " + OutputSpecies.toStdString();
 
 //   LineColors.push_back(QColor(  0,114,178)); // blue

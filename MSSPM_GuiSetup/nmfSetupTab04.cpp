@@ -49,7 +49,9 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tab4_HarvestHighlightPB       = Setup_Tabs->findChild<QPushButton  *>("HarvestHighlightPB");
     Setup_Tab4_PredationHighlightPB     = Setup_Tabs->findChild<QPushButton  *>("PredationHighlightPB");
     Setup_Tab4_CompetitionHighlightPB   = Setup_Tabs->findChild<QPushButton  *>("CompetitionHighlightPB");
-    Setup_Tab4_NewModelPB               = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_NewModelPB");
+    Setup_Tab4_ModelNewPB               = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_ModelNewPB");
+    Setup_Tab4_ModelCopyPB              = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_ModelCopyPB");
+    Setup_Tab4_ModelDelPB               = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_ModelDelPB");
     Setup_Tab4_StartYearSB              = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab4_StartYearSB");
     Setup_Tab4_EndYearLE                = Setup_Tabs->findChild<QLineEdit    *>("Setup_Tab4_EndYearLE");
     Setup_Tab4_RunLengthSB              = Setup_Tabs->findChild<QSpinBox     *>("Setup_Tab4_RunLengthSB");
@@ -63,9 +65,11 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tab4_PrevPB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_PrevPB");
     Setup_Tab4_NextPB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_NextPB");
     Setup_Tab4_LoadPB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_LoadPB");
-    Setup_Tab4_DelPB                    = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_DelModelPB");
     Setup_Tab4_SavePB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_SavePB");
     Setup_Tab4_CalcPB                   = Setup_Tabs->findChild<QPushButton  *>("Setup_Tab4_CalcPB");
+
+    // RSK - Just do this temporarily until functionality is complete
+//    Setup_Tab4_ModelCopyPB->setVisible(false);
 
     // Set widget parameters
     Setup_Tab4_LoadPB->show();
@@ -101,14 +105,16 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
             this,                              SLOT(callback_PredationHighlightPB()));
     connect(Setup_Tab4_CompetitionHighlightPB, SIGNAL(clicked()),
             this,                              SLOT(callback_CompetitionHighlightPB()));
-    connect(Setup_Tab4_NewModelPB,             SIGNAL(clicked()),
-            this,                              SLOT(callback_NewModelPB()));
+    connect(Setup_Tab4_ModelNewPB,             SIGNAL(clicked()),
+            this,                              SLOT(callback_ModelNewPB()));
+    connect(Setup_Tab4_ModelCopyPB,            SIGNAL(clicked()),
+            this,                              SLOT(callback_ModelCopyPB()));
+    connect(Setup_Tab4_ModelDelPB,             SIGNAL(clicked()),
+            this,                              SLOT(callback_ModelDelPB()));
     connect(Setup_Tab4_CalcPB,                 SIGNAL(clicked()),
             this,                              SLOT(callback_CalcPB()));
     connect(Setup_Tab4_LoadPB,                 SIGNAL(clicked()),
             this,                              SLOT(callback_LoadPB()));
-    connect(Setup_Tab4_DelPB,                  SIGNAL(clicked()),
-            this,                              SLOT(callback_DelPB()));
     connect(Setup_Tab4_SavePB,                 SIGNAL(clicked()),
             this,                              SLOT(callback_SavePB()));
     connect(Setup_Tab4_PrevPB,                 SIGNAL(clicked()),
@@ -538,7 +544,7 @@ nmfSetup_Tab4::calculateSystemCarryingCapacity()
 
 
 void
-nmfSetup_Tab4::callback_DelPB()
+nmfSetup_Tab4::callback_ModelDelPB()
 {
     QMessageBox::StandardButton reply;
     QString msg;
@@ -1185,17 +1191,98 @@ nmfSetup_Tab4::callback_CalcPB()
 }
 
 void
-nmfSetup_Tab4::callback_NewModelPB()
+nmfSetup_Tab4::callback_ModelCopyPB()
 {
-    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_NewModelPB start");
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_CopyModelPB start");
+    QString currentModelName = QString::fromStdString(m_ModelName);
+    QString newModelName     = getNewModelName();
+    if (! newModelName.isEmpty()) {
+        // Copy all currentModelName datasets to newModelName
+        copyModelDataInAllTables(currentModelName,newModelName);
+        setModelName(newModelName);
+        callback_SavePB();
+    }
+}
 
+bool
+nmfSetup_Tab4::copyModelDataInAllTables(const QString& currentModelName,
+                                        const QString& newModelName)
+{
+    bool modelCopyAborted = false;
+    int NumTables = 0;
+    std::string temp_table = "temp_table";
+    std::vector<std::string> cmds;
+    std::vector<std::string> allTables;
+    std::string table;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap,dataMap2;
+    std::string queryStr;
+    std::string currentDBName = m_databasePtr->nmfGetCurrentDatabase();
+
+    // Get list of table names that have a ModelName column
+    fields    = {"TABLE_NAME"};
+    queryStr  = "SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME IN ('ModelName') and TABLE_SCHEMA='" + currentDBName + "'";
+    dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+    NumTables = dataMap["TABLE_NAME"].size();
+
+    QProgressDialog progressDlg("\nCopying tables...", "Abort Copy", 0, NumTables, Setup_Tabs);
+    progressDlg.setWindowModality(Qt::WindowModal);
+
+    for (int i=0; i<NumTables; ++i) {
+
+        progressDlg.setValue(i);
+        if (progressDlg.wasCanceled()) {
+            modelCopyAborted = true;
+            break;
+        }
+
+        table = dataMap["TABLE_NAME"][i];
+
+        // Process the table only if it isn't empty
+        fields   = {"HasData"};
+        queryStr = "SELECT EXISTS (SELECT 1 FROM `" + table + "`) AS HasData";
+        dataMap2 = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+        if (dataMap2["HasData"][0] == "1") {
+            // These commands copy all rows with the currentModelName to new rows with
+            // the newModelName replacing the currentModelName.
+            cmds.clear();
+            cmds.push_back("CREATE TABLE " + temp_table + " AS SELECT * FROM " + table +
+                           " WHERE ModelName=\"" + currentModelName.toStdString() + "\"");
+            cmds.push_back("UPDATE " + temp_table + " SET ModelName=\"" + newModelName.toStdString() + "\"");
+            cmds.push_back("INSERT INTO " + table + " SELECT * FROM " + temp_table);
+            cmds.push_back("DROP TABLE " + temp_table);
+            for (std::string cmd : cmds) {
+                std::string errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+                if (nmfUtilsQt::isAnError(errorMsg)) {
+                    m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab4::copyModelDataInAllTables: " + errorMsg);
+                    m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+                }
+            }
+        }
+    }
+    progressDlg.setValue(NumTables);
+
+    QString msg = (modelCopyAborted) ? "\nModel copy incomplete. Copy was aborted.\n" : "\nModel copy complete.\n";
+    QMessageBox::information(Setup_Tabs, tr("Copy"),
+                             tr(msg.toLatin1()),
+                             QMessageBox::Ok);
+
+    return true;
+}
+
+QString
+nmfSetup_Tab4::getNewModelName()
+{
     bool ok;
-    QString ModelName = QInputDialog::getText(Setup_Tabs,
-                                               tr("New Model Name"),
-                                               tr("Enter New Model Name:"),
-                                               QLineEdit::Normal, "", &ok);
-    if (ok) {
-        if (ModelName.isEmpty()) {
+    bool ModelNameOK = false;
+    QString ModelName = "";
+
+    while (! ModelNameOK) {
+        ModelName = QInputDialog::getText(Setup_Tabs,
+                                          tr("New Model Name"),
+                                          tr("Enter New Model Name:"),
+                                          QLineEdit::Normal, "", &ok);
+        if (ok && ModelName.isEmpty()) {
             QMessageBox::warning(Setup_Tabs,
                                  tr("Illegal Name"),
                                  tr("\nModel Name cannot be blank.\n"),
@@ -1207,143 +1294,152 @@ nmfSetup_Tab4::callback_NewModelPB()
                                      tr("\nModel Name already exists. Please select another name.\n"),
                                      QMessageBox::Ok);
             } else {
-                Setup_Tab4_ModelNameLE->setText(ModelName);
-                m_ModelName = ModelName.toStdString();
-
-                callback_SavePB();
-
-                populateNewModel();
+                ModelNameOK = true;
             }
         }
     }
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_NewModelPB end");
+    return ModelName;
 }
 
-bool
-nmfSetup_Tab4::populateNewModel()
+void
+nmfSetup_Tab4::callback_ModelNewPB()
 {
-    // Find another model in same project
-    bool ok = false;
-    int RunLength;
-    int StartYear;
-    int NumSpeciesOrGuilds;
-    std::string queryStr;
-    std::string harvestTableName = "";
-    std::string obsBiomassTableName;
-    std::string obsBiomassType;
-    std::string projectModel;
-    boost::numeric::ublas::matrix<double> harvestData;
-    boost::numeric::ublas::matrix<double> biomassData;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::vector<std::pair<std::string,std::string> > allOtherProjectModelData;
-    std::pair<std::string,std::string> projectModelToCopyDataFrom;
-    QStringList SpeciesList;
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_ModelNewPB start");
 
-    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel start");
-
-    // Get Harvest table name
-    std::string HarvestForm = getHarvestFormCMB()->currentText().toStdString();
-    if (HarvestForm == nmfConstantsMSSPM::HarvestCatch.toStdString()) {
-        harvestTableName = nmfConstantsMSSPM::TableHarvestCatch;
-    } else if (HarvestForm == nmfConstantsMSSPM::HarvestEffort.toStdString()) {
-        harvestTableName = nmfConstantsMSSPM::TableHarvestEffort;
+    QString newModelName = getNewModelName();
+    if (! newModelName.isEmpty()) {
+        setModelName(newModelName);
+        callback_SavePB();
     }
 
-    // Get data from other models in current project
-    fields    = {"ProjectName","ModelName","HarvestForm","ObsBiomassType"};
-    queryStr  = "SELECT ProjectName,ModelName,HarvestForm,ObsBiomassType FROM " +
-                nmfConstantsMSSPM::TableModels +
-                " WHERE ProjectName = '" + m_ProjectName +
-                "' AND ModelName != '"   + m_ModelName + "'";
-    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
-    int NumModels = (int)dataMap["ModelName"].size();
-    if (NumModels == 0) {
-        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel No other models found in project");
-        return false;
-    } else {
-        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel Found " + std::to_string(NumModels) + " other model(s) in project");
-        m_logger->logMsg(nmfConstants::Normal,queryStr);
-    }
-    for (int numModel=0; numModel<NumModels; ++numModel) {
-        projectModel   = dataMap["ModelName"][numModel];
-        obsBiomassType = dataMap["ObsBiomassType"][numModel];
-        if (projectModel != m_ModelName) {
-            if (HarvestForm == dataMap["HarvestForm"][numModel]) {
-                allOtherProjectModelData.push_back(std::make_pair(projectModel,obsBiomassType));
-            }
-        }
-    }
-
-    // Copy data from the found model into the current model
-    if (allOtherProjectModelData.size() > 0) {
-        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel Start copy data from found model into current model");
-
-        projectModelToCopyDataFrom = allOtherProjectModelData[0];
-
-        // Get Harvest Data
-        if (! m_databasePtr->getSpecies(m_logger,NumSpeciesOrGuilds,SpeciesList)) {
-            return false;
-        }
-        if (! m_databasePtr->getRunLengthAndStartYear(m_logger,m_ProjectName,projectModelToCopyDataFrom.first,
-                                                RunLength,StartYear)) {
-            return false;
-        }
-        if (! m_databasePtr->getTimeSeriesData(Setup_Tabs,m_logger,m_ProjectName,projectModelToCopyDataFrom.first,
-                                               "",harvestTableName,NumSpeciesOrGuilds,RunLength,harvestData)) {
-            return false;
-        }
-        ok = replaceDuplicateData(harvestTableName,SpeciesList,harvestData);
-        if (! ok ) {
-            return false;
-        }
-
-        // Copy Observation Data
-        obsBiomassTableName = "Biomass" + projectModelToCopyDataFrom.second;
-        if (! m_databasePtr->getTimeSeriesData(Setup_Tabs,m_logger,m_ProjectName,projectModelToCopyDataFrom.first,
-                                               "",obsBiomassTableName,NumSpeciesOrGuilds,RunLength,biomassData)) {
-            return false;
-        }
-        ok = replaceDuplicateData(obsBiomassTableName,SpeciesList,biomassData);
-
-        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel emitting ModelLoaded");
-        if (ok) {
-            emit ModelLoaded();
-        }
-        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel End copy data from found model into current model");
-    }
-    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel end");
-
-    return true;
+    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_ModelNewPB end");
 }
 
-bool
-nmfSetup_Tab4::replaceDuplicateData(
-        const std::string& tableName,
-        const QStringList& SpeciesList,
-        const boost::numeric::ublas::matrix<double>& data)
-{
-    // Now put Biomass Data with new model name back into table (there might be an easier MySQL way to do this)
-    std::string cmd = "REPLACE INTO " + tableName + " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
-    for (int species=0; species<(int)data.size2(); ++species) {
-        for (int time=0; time<(int)data.size1(); ++time) {
-            cmd += "('"   + m_ProjectName +
-                    "','" + m_ModelName +
-                    "','" + SpeciesList[species].toStdString() +
-                    "',"  + std::to_string(time) +
-                    ","   + std::to_string(data(time,species)) + "),";
-        }
-    }
-    cmd = cmd.substr(0,cmd.size()-1);
-    std::string errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
-    if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab4::populateNewModel: Write table error: " + errorMsg);
-        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return false;
-    }
-    return true;
-}
+//bool
+//nmfSetup_Tab4::populateNewModel()
+//{
+//    // Find another model in same project
+//    bool ok = false;
+//    int RunLength;
+//    int StartYear;
+//    int NumSpeciesOrGuilds;
+//    std::string queryStr;
+//    std::string harvestTableName = "";
+//    std::string obsBiomassTableName;
+//    std::string obsBiomassType;
+//    std::string projectModel;
+//    boost::numeric::ublas::matrix<double> harvestData;
+//    boost::numeric::ublas::matrix<double> biomassData;
+//    std::vector<std::string> fields;
+//    std::map<std::string, std::vector<std::string> > dataMap;
+//    std::vector<std::pair<std::string,std::string> > allOtherProjectModelData;
+//    std::pair<std::string,std::string> projectModelToCopyDataFrom;
+//    QStringList SpeciesList;
+
+//    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel start");
+
+//    // Get Harvest table name
+//    std::string HarvestForm = getHarvestFormCMB()->currentText().toStdString();
+//    if (HarvestForm == nmfConstantsMSSPM::HarvestCatch.toStdString()) {
+//        harvestTableName = nmfConstantsMSSPM::TableHarvestCatch;
+//    } else if (HarvestForm == nmfConstantsMSSPM::HarvestEffort.toStdString()) {
+//        harvestTableName = nmfConstantsMSSPM::TableHarvestEffort;
+//    }
+
+//    // Get data from other models in current project
+//    fields    = {"ProjectName","ModelName","HarvestForm","ObsBiomassType"};
+//    queryStr  = "SELECT ProjectName,ModelName,HarvestForm,ObsBiomassType FROM " +
+//                nmfConstantsMSSPM::TableModels +
+//                " WHERE ProjectName = '" + m_ProjectName +
+//                "' AND ModelName != '"   + m_ModelName + "'";
+//    dataMap  = m_databasePtr->nmfQueryDatabase(queryStr, fields);
+//    int NumModels = (int)dataMap["ModelName"].size();
+//    if (NumModels == 0) {
+//        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel No other models found in project");
+//        return false;
+//    } else {
+//        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel Found " + std::to_string(NumModels) + " other model(s) in project");
+//        m_logger->logMsg(nmfConstants::Normal,queryStr);
+//    }
+//    for (int numModel=0; numModel<NumModels; ++numModel) {
+//        projectModel   = dataMap["ModelName"][numModel];
+//        obsBiomassType = dataMap["ObsBiomassType"][numModel];
+//        if (projectModel != m_ModelName) {
+//            if (HarvestForm == dataMap["HarvestForm"][numModel]) {
+//                allOtherProjectModelData.push_back(std::make_pair(projectModel,obsBiomassType));
+//            }
+//        }
+//    }
+
+//    // Copy data from the found model into the current model
+//    if (allOtherProjectModelData.size() > 0) {
+//        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel Start copy data from found model into current model");
+
+//        projectModelToCopyDataFrom = allOtherProjectModelData[0];
+
+//        // Get Harvest Data
+//        if (! m_databasePtr->getSpecies(m_logger,NumSpeciesOrGuilds,SpeciesList)) {
+//            return false;
+//        }
+//        if (! m_databasePtr->getRunLengthAndStartYear(m_logger,m_ProjectName,projectModelToCopyDataFrom.first,
+//                                                RunLength,StartYear)) {
+//            return false;
+//        }
+//        if (! m_databasePtr->getTimeSeriesData(Setup_Tabs,m_logger,m_ProjectName,projectModelToCopyDataFrom.first,
+//                                               "",harvestTableName,NumSpeciesOrGuilds,RunLength,harvestData)) {
+//            return false;
+//        }
+//        ok = replaceDuplicateData(harvestTableName,SpeciesList,harvestData);
+//        if (! ok ) {
+//            return false;
+//        }
+
+//        // Copy Observation Data
+//        obsBiomassTableName = QString::fromStdString("biomass" + projectModelToCopyDataFrom.second).toLower().toStdString();
+//        if (! m_databasePtr->getTimeSeriesData(Setup_Tabs,m_logger,m_ProjectName,projectModelToCopyDataFrom.first,
+//                                               "",obsBiomassTableName,NumSpeciesOrGuilds,RunLength,biomassData)) {
+//            return false;
+//        }
+//        ok = replaceDuplicateData(obsBiomassTableName,SpeciesList,biomassData);
+
+//        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel emitting ModelLoaded");
+//        if (ok) {
+//            emit ModelLoaded();
+//        }
+//        m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel End copy data from found model into current model");
+//    }
+//    m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::populateNewModel end");
+
+//    return true;
+//}
+
+//bool
+//nmfSetup_Tab4::replaceDuplicateData(
+//        const std::string& tableName,
+//        const QStringList& SpeciesList,
+//        const boost::numeric::ublas::matrix<double>& data)
+//{
+//    // Now put Biomass Data with new model name back into table (there might be an easier MySQL way to do this)
+//    std::string cmd = "REPLACE INTO " + tableName + " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
+//    for (int species=0; species<(int)data.size2(); ++species) {
+//        for (int time=0; time<(int)data.size1(); ++time) {
+//            cmd += "('"   + m_ProjectName +
+//                    "','" + m_ModelName +
+//                    "','" + SpeciesList[species].toStdString() +
+//                    "',"  + std::to_string(time) +
+//                    ","   + std::to_string(data(time,species)) + "),";
+//        }
+//    }
+//    cmd = cmd.substr(0,cmd.size()-1);
+//    std::string errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
+//    if (nmfUtilsQt::isAnError(errorMsg)) {
+//        m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab4::populateNewModel: Write table error: " + errorMsg);
+//        m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+//        return false;
+//    }
+//    return true;
+//}
 
 bool
 nmfSetup_Tab4::modelExists(QString ModelName)

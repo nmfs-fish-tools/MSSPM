@@ -160,7 +160,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Setup_Tab4_NewModelPB">
+                   <widget class="QPushButton" name="Setup_Tab4_ModelNewPB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -169,24 +169,24 @@
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>50</width>
+                      <width>45</width>
                       <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>50</width>
+                      <width>45</width>
                       <height>16777215</height>
                      </size>
                     </property>
                     <property name="toolTip">
-                     <string>Add new model to current project</string>
+                     <string>Add a new model to the current project</string>
                     </property>
                     <property name="statusTip">
-                     <string>Add new model to current project</string>
+                     <string>Add a new model to the current project</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;New&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This adds a new model to the current project. If the current project already has models associated with it, the data associated with those models, are copied to the new model. This assures that all models associated with a given project use the same data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;New&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This adds a new model to the current project. All tables must be populated by the user either entering the data manually or by importing CSV files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>New...</string>
@@ -194,7 +194,41 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="Setup_Tab4_DelModelPB">
+                   <widget class="QPushButton" name="Setup_Tab4_ModelCopyPB">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>45</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>45</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Make a copy of the current model</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Make a copy of the current model</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copy&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This adds a new model to the current project and copies all of the data from the current model into the new model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Copy...</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="Setup_Tab4_ModelDelPB">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>

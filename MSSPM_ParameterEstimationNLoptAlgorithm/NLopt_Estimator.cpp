@@ -85,6 +85,12 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
                                    std::vector<double>& surveyQ,
                                    std::vector<double>& surveyQCovariateCoeffs)
 {
+//std::cout << "extractParameters: " << std::endl;
+//for (int i=0; i<170; ++i) {
+//    if (i%10 == 0) {std::cout << std::endl;}
+//    std::cout << "EstParameters[" << i << "]: " << EstParameters[i] << std::endl;
+//}
+
     bool isLogistic     = (NLoptDataStruct.GrowthForm      == "Logistic");
     bool isCatchability = (NLoptDataStruct.HarvestForm     == nmfConstantsMSSPM::HarvestEffort.toStdString()) ||
                           (NLoptDataStruct.HarvestForm     == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString());
@@ -164,7 +170,7 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
         offset += NumSpeciesOrGuilds; // 2* because of the Covariate Coeffs
     }
 
-    if (isCatchability) {
+    if (isCatchability) {       
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
             catchability.emplace_back(EstParameters[offset+i]);
         }
@@ -408,15 +414,19 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     double surveyQTerm;
     for (int species=0; species<NumSpecies; ++species) {
         surveyQVal = surveyQ[species];
+        surveyQTerm = nmfUtils::applyCovariate(nullptr,covariateAlgorithmType,surveyQVal,
+                                               surveyQCovariateCoeffs[species],
+                                               surveyQCovariate(0,species));
+//if (species == 9) {
+//  std::cout << "surveyQTerm: " << surveyQTerm << ", surveyQVal: " << surveyQVal << std::endl;
+//}
         for (int time=0; time<NumYears; ++time) {
             if (ObsBiomassBySpeciesOrGuilds(time,species) != nmfConstantsMSSPM::NoData) {
-                surveyQTerm = nmfUtils::applyCovariate(nullptr,covariateAlgorithmType,surveyQVal,
-                                                       surveyQCovariateCoeffs[species],
-                                                       surveyQCovariate(0,species));
                 ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQTerm;
             }
         }
     }
+//std::cout << "ObsBiomass(" << NumYears-1 << ",9): " <<  ObsBiomassBySpeciesOrGuilds(NumYears-1,NumSpecies-1) << std::endl;
 
     // If user has selected Effort, set ObsCatch = catchability * Effort * ObsBiomass
     if (isEffortFitToCatch || isEffort) {
@@ -430,9 +440,9 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
     // Set year 0's estimated biomass and catch values
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-        surveyQTerm = nmfUtils::applyCovariate(nullptr,
-                    covariateAlgorithmType,surveyQ[species],
-                    surveyQCovariateCoeffs[species],surveyQCovariate(0,species));
+//        surveyQTerm = nmfUtils::applyCovariate(nullptr,
+//                    covariateAlgorithmType,surveyQ[species],
+//                    surveyQCovariateCoeffs[species],surveyQCovariate(0,species));
         //EstBiomassSpecies(0,species) = NLoptDataStruct.ObservedBiomassBySpecies(0,species)/surveyQTerm;
         // Always use the initial biomass for B(0) and never the estimated year=0 biomass
         EstBiomassSpecies(0,species) = initAbsBiomass[species];
@@ -600,12 +610,19 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                     NLoptDataStruct.FitWeights);
     } else if (NLoptDataStruct.ObjectiveCriterion == "Maximum Likelihood") {
         // The maximum likelihood calculations must use the unscaled data or else the results will be incorrect.
+        nmfUtils::removeFirstRow(ObsCatch,                   ObsCatchTrimmed);
+        nmfUtils::removeFirstRow(ObsBiomassBySpeciesOrGuilds,ObsBiomassTrimmed);
+        nmfUtils::removeFirstRow(EstCatch,                   EstCatchTrimmed);
+        nmfUtils::removeFirstRow(EstBiomassSpecies,          EstBiomassTrimmed);
         fitness =  nmfUtilsStatistics::calculateMaximumLikelihoodNoRescale(
                     isEffortFitToCatch,
                     ObsCatchTrimmed, ObsBiomassTrimmed,
                     EstCatchTrimmed, EstBiomassTrimmed,
                     NLoptDataStruct.FitWeights);
     }
+//std::cout << std::setprecision (8) << "ffitness: " << fitness << std::endl;
+
+
 //if (nUnused == 0) {
 //std::cout << "objcri: " << fitness << std::endl;
 //}
