@@ -1239,6 +1239,16 @@ nmfSetup_Tab4::copyModelDataInAllTables(const QString& currentModelName,
 
         table = dataMap["TABLE_NAME"][i];
 
+        // Skip over any tables that begin with: summary*, diagnostic*, output*, forecast*, modelreview*
+        QString tableStr = QString::fromStdString(table);
+        if (tableStr.startsWith("diagnostic") ||
+            tableStr.startsWith("output")     ||
+            tableStr.startsWith("forecast")   ||
+            tableStr.startsWith("summary")    ||
+            tableStr.startsWith("modelreview")) {
+              continue; // skip the table
+        }
+
         // Process the table only if it isn't empty
         fields   = {"HasData"};
         queryStr = "SELECT EXISTS (SELECT 1 FROM `" + table + "`) AS HasData";
@@ -1247,16 +1257,17 @@ nmfSetup_Tab4::copyModelDataInAllTables(const QString& currentModelName,
             // These commands copy all rows with the currentModelName to new rows with
             // the newModelName replacing the currentModelName.
             cmds.clear();
+            cmds.push_back("DROP TABLE IF EXISTS `" + temp_table + "`");
             cmds.push_back("CREATE TABLE " + temp_table + " AS SELECT * FROM " + table +
                            " WHERE ModelName=\"" + currentModelName.toStdString() + "\"");
             cmds.push_back("UPDATE " + temp_table + " SET ModelName=\"" + newModelName.toStdString() + "\"");
             cmds.push_back("INSERT INTO " + table + " SELECT * FROM " + temp_table);
-            cmds.push_back("DROP TABLE " + temp_table);
+            cmds.push_back("DROP TABLE IF EXISTS `" + temp_table + "`");
             for (std::string cmd : cmds) {
                 std::string errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
                 if (nmfUtilsQt::isAnError(errorMsg)) {
                     m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab4::copyModelDataInAllTables: " + errorMsg);
-                    m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+                    m_logger->logMsg(nmfConstants::Error,"==> cmd: " + cmd);
                 }
             }
         }

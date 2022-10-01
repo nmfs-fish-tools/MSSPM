@@ -305,10 +305,10 @@ nmfEstimation_Tab6::addCovariateColumn(QString covariateName)
 bool
 nmfEstimation_Tab6::loadWidgets()
 {
-    bool okType = false;
-    bool okTable = false;
+    bool okType       = false;
+    bool okTable      = false;
     bool okAssignment = false;
-    bool okValues = false;
+    bool okValues     = false;
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab6::loadWidgets()");
 
@@ -323,9 +323,18 @@ nmfEstimation_Tab6::loadWidgets()
         if (okTable) {
             okAssignment = loadCovariateAssignmentTable();
             if (okAssignment) {
-                loadCovariateInitialValuesAndRangesTable();
+                okValues = loadCovariateInitialValuesAndRangesTable();
+                if (! okValues) {
+                    m_Logger->logMsg(nmfConstants::Error,"Problem loading covariate values and ranges table");
+                }
+            } else {
+                m_Logger->logMsg(nmfConstants::Error,"Problem loading covariate assignment table");
             }
+        } else {
+            m_Logger->logMsg(nmfConstants::Error,"Problem loading covariate table");
         }
+    } else {
+        m_Logger->logMsg(nmfConstants::Error,"Problem loading covariate type");
     }
 
     return (okType && okTable && okAssignment && okValues);
