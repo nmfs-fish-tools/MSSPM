@@ -353,6 +353,10 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     boost::numeric::ublas::matrix<double> EstCatchRescaled;
     boost::numeric::ublas::matrix<double> Effort       = NLoptDataStruct.Effort;
     boost::numeric::ublas::matrix<double> Exploitation = NLoptDataStruct.Exploitation;
+    boost::numeric::ublas::matrix<double> ObsCatchTrimmed;
+    boost::numeric::ublas::matrix<double> ObsBiomassTrimmed;
+    boost::numeric::ublas::matrix<double> EstCatchTrimmed;
+    boost::numeric::ublas::matrix<double> EstBiomassTrimmed;
     std::map<int,std::vector<int> > GuildSpecies = NLoptDataStruct.GuildSpecies;
     std::string MSSPMName = "Run " + std::to_string(m_RunNum) + "-1";
     std::string covariateAlgorithmType = NLoptDataStruct.CovariateAlgorithmType;
@@ -417,8 +421,8 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         surveyQTerm = nmfUtils::applyCovariate(nullptr,covariateAlgorithmType,surveyQVal,
                                                surveyQCovariateCoeffs[species],
                                                surveyQCovariate(0,species));
-//if (species == 9) {
-//  std::cout << "surveyQTerm: " << surveyQTerm << ", surveyQVal: " << surveyQVal << std::endl;
+//if (species == 8 || species == 9) {
+//  std::cout << "species: " << species << ", surveyQTerm: " << surveyQTerm << ", surveyQVal: " << surveyQVal << std::endl;
 //}
         for (int time=0; time<NumYears; ++time) {
             if (ObsBiomassBySpeciesOrGuilds(time,species) != nmfConstantsMSSPM::NoData) {
@@ -426,7 +430,9 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
             }
         }
     }
-//std::cout << "ObsBiomass(" << NumYears-1 << ",9): " <<  ObsBiomassBySpeciesOrGuilds(NumYears-1,NumSpecies-1) << std::endl;
+//std::cout << "ObsBiomass(" << NumYears-1 << ",8): " <<  ObsBiomassBySpeciesOrGuilds(NumYears-1,8) <<
+//             ", ObsBiomass(" << NumYears-1 << ",9): " <<  ObsBiomassBySpeciesOrGuilds(NumYears-1,9) <<
+//             std::endl;
 
     // If user has selected Effort, set ObsCatch = catchability * Effort * ObsBiomass
     if (isEffortFitToCatch || isEffort) {
@@ -440,14 +446,8 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
     // Set year 0's estimated biomass and catch values
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-//        surveyQTerm = nmfUtils::applyCovariate(nullptr,
-//                    covariateAlgorithmType,surveyQ[species],
-//                    surveyQCovariateCoeffs[species],surveyQCovariate(0,species));
-        //EstBiomassSpecies(0,species) = NLoptDataStruct.ObservedBiomassBySpecies(0,species)/surveyQTerm;
         // Always use the initial biomass for B(0) and never the estimated year=0 biomass
         EstBiomassSpecies(0,species) = initAbsBiomass[species];
-//std::cout << "Comparing: " << NLoptDataStruct.ObservedBiomassBySpecies(0,species)/surveyQTerm
-//          << " to " << initAbsBiomass[species] << std::endl;
         if (isEffortFitToCatch) {
             EstCatch(0,species) = catchability[species]*Effort(0,species)*EstBiomassSpecies(0,species);
         }
@@ -551,7 +551,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     } // end time
 
     // Scale the data
-    // Rescale the EstCatch
     std::string m_Scaling = NLoptDataStruct.ScalingAlgorithm;
     if (m_Scaling == "Min Max") {
         nmfUtils::rescaleMatrixMinMax(ObsCatch, ObsCatchRescaled);
@@ -570,24 +569,9 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         nmfUtils::rescaleMatrixMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     }
 
-//    for (int species=0; species<NumSpecies; ++species) {
-//        surveyQVal = surveyQ[species];
-//        for (int time=0; time<NumYears; ++time) {
-//            surveyQTerm = nmfUtils::applyCovariate(nullptr,covariateAlgorithmType,surveyQVal,
-//                                                   surveyQCovariateCoeffs[species],
-//                                                   surveyQCovariate(0,species));
-//            EstBiomassRescaled(time,species) /= surveyQTerm;
-//        }
-//    }
-
 
     // Remove first row from all matrices because we don't want to include
     // the initial biomass in the fitness calculations.
-    boost::numeric::ublas::matrix<double> ObsCatchTrimmed;
-    boost::numeric::ublas::matrix<double> ObsBiomassTrimmed;
-    boost::numeric::ublas::matrix<double> EstCatchTrimmed;
-    boost::numeric::ublas::matrix<double> EstBiomassTrimmed;
-
     nmfUtils::removeFirstRow(ObsCatchRescaled,                   ObsCatchTrimmed);
     nmfUtils::removeFirstRow(ObsBiomassBySpeciesOrGuildsRescaled,ObsBiomassTrimmed);
     nmfUtils::removeFirstRow(EstCatchRescaled,                   EstCatchTrimmed);
@@ -620,25 +604,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                     EstCatchTrimmed, EstBiomassTrimmed,
                     NLoptDataStruct.FitWeights);
     }
-//std::cout << std::setprecision (8) << "ffitness: " << fitness << std::endl;
-
-
-//if (nUnused == 0) {
-//std::cout << "objcri: " << fitness << std::endl;
-//}
-
-// Debug code to print out the CarryingCapacity covariates
-//if (fitness < m_MaxFitness) {
-//    for (int i=0; i<70; ++i) {
-//        if (i == 0) {std::cout << std::endl;}
-//        if ((i>=40) and (i<= 49)) {
-//            std::cout << "parameter:  " << EstParameters[i] <<
-//                         ", fitness: " << fitness << std::endl;
-//        }
-//    }
-//    m_MaxFitness = fitness;
-//}
-
 
     incrementObjectiveFunctionCounter(MSSPMName,fitness,NLoptDataStruct);
 

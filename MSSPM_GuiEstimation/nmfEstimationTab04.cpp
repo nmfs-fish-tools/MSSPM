@@ -133,16 +133,6 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     m_TableViewsTypeI.push_back(Estimation_Tab3_CompetitionAlphaMinTV);
     m_TableViewsTypeI.push_back(Estimation_Tab3_CompetitionAlphaMaxTV);
 
-    m_TableViewsTypeII.clear();
-    m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingTV);
-    m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMinTV);
-    m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMaxTV);
-
-    m_TableViewsTypeIII.clear();
-    m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentTV);
-    m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMinTV);
-    m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMaxTV);
-
     m_TableNamesTypeI.clear();
     m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TablePredationRho);
     m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TablePredationRhoMin);
@@ -151,17 +141,27 @@ nmfEstimation_Tab4::nmfEstimation_Tab4(QTabWidget*  tabs,
     m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TableCompetitionAlphaMin);
     m_TableNamesTypeI.push_back(nmfConstantsMSSPM::TableCompetitionAlphaMax);
 
+    m_TableViewsTypeII.clear();
+    m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingTV);
+    m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMinTV);
+    m_TableViewsTypeII.push_back(Estimation_Tab4_HandlingMaxTV);
+
     m_TableNamesTypeII.clear();
     m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandling);
     m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandlingMin);
     m_TableNamesTypeII.push_back(nmfConstantsMSSPM::TablePredationHandlingMax);
-    m_TableNamesTypeII.push_back("");
+//    m_TableNamesTypeII.push_back("");
+
+    m_TableViewsTypeIII.clear();
+    m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentTV);
+    m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMinTV);
+    m_TableViewsTypeIII.push_back(Estimation_Tab4_ExponentMaxTV);
 
     m_TableNamesTypeIII.clear();
     m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponent);
     m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponentMin);
     m_TableNamesTypeIII.push_back(nmfConstantsMSSPM::TablePredationExponentMax);
-    m_TableNamesTypeIII.push_back("");
+//    m_TableNamesTypeIII.push_back("");
 
     // Create models and attach to view
     int NumSpecies = getNumSpecies();
@@ -398,7 +398,7 @@ nmfEstimation_Tab4::callback_SavePB()
         return;
     }
 
-    Estimation_Tabs->setCursor(Qt::WaitCursor);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 
     // Get Species names
     for (int j=0; j<m_smodels2d[0]->columnCount(); ++ j) {
@@ -408,6 +408,7 @@ nmfEstimation_Tab4::callback_SavePB()
     if (isTypeI() || isTypeII() || isTypeIII()) { // save rho
         if (! saveTables(isNotTypeIIITable, SpeNames,
                          m_TableViewsTypeI, m_TableNamesTypeI)) {
+            QApplication::restoreOverrideCursor();
             return;
         }
     }
@@ -415,6 +416,7 @@ nmfEstimation_Tab4::callback_SavePB()
     if (isTypeII() || isTypeIII()) { // save h
         if (! saveTables(isNotTypeIIITable,  SpeNames,
                          m_TableViewsTypeII, m_TableNamesTypeII)) {
+            QApplication::restoreOverrideCursor();
             return;
         }
     }
@@ -422,9 +424,11 @@ nmfEstimation_Tab4::callback_SavePB()
     if (isTypeIII()) { // save b
         if (! saveTables(isTypeIIITable,      SpeNames,
                          m_TableViewsTypeIII, m_TableNamesTypeIII)) {
+            QApplication::restoreOverrideCursor();
             return;
         }
     }
+    QApplication::restoreOverrideCursor();
 
     QMessageBox::information(Estimation_Tabs, "Predation Updated",
                              "\nPredation tables have been successfully updated.\n",
@@ -432,8 +436,6 @@ nmfEstimation_Tab4::callback_SavePB()
 
     // Reload so that columns resize appropriately
     loadWidgets();
-
-    Estimation_Tabs->setCursor(Qt::ArrowCursor);
 }
 
 
@@ -444,28 +446,26 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
                                const std::vector<QTableView*>& tableViews,
                                const std::vector<std::string>& tableNames)
 {
+    bool tableChecksOK;
     std::string cmd;
     std::string errorMsg;
     std::string value;
     QModelIndex index;
     QStandardItemModel* smodel;
 
-    // Check each of the 3 tableviews
-    if (! isTypeI() || (tableViews.size() != m_TableViewsTypeI.size()) ||
-        ! nmfUtilsQt::runAllTableChecks(m_Logger,Estimation_Tabs,
-                                        tableViews[0],
-                                        tableViews[1],
-                                        tableViews[2],
-                                        tableViews[3],
-                                        tableViews[4],
-                                        tableViews[5])) {
-        return false;
+    if (isTypeI()) {
+        tableChecksOK = nmfUtilsQt::runAllTableChecks(
+                    m_Logger,Estimation_Tabs,
+                    tableViews[0], tableViews[1], tableViews[2],
+                    tableViews[3], tableViews[4], tableViews[5]);
+    } else {
+        tableChecksOK = nmfUtilsQt::runAllTableChecks(
+                    m_Logger,Estimation_Tabs,
+                    tableViews[0], tableViews[1], tableViews[2]);
     }
-//    else {
-//        m_Logger->logMsg(nmfConstants::Warning,"Number of Predation tables should be 6. Found instead: " + std::to_string(tableViews.size()));
-//    }
 
     for (unsigned int k=0; k<tableViews.size(); ++k) {
+        cmd.clear();
         smodel  = qobject_cast<QStandardItemModel*>(tableViews[k]->model());
         // Necessary if the user doesn't have any Competition
         if ((smodel->rowCount() == 0) || (smodel->columnCount() == 0)) {
@@ -483,7 +483,6 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
                                  "\nError in Save command.  Couldn't delete all records from " +
                                  QString::fromStdString(tableNames[k]) + " table.\n",
                                  QMessageBox::Ok);
-            Estimation_Tabs->setCursor(Qt::ArrowCursor);
             return false;
         }
 
@@ -518,6 +517,7 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
                 }
             }
         }
+
         cmd = cmd.substr(0,cmd.size()-1);
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -526,7 +526,6 @@ nmfEstimation_Tab4::saveTables(const bool& isTypeIII,
             QMessageBox::warning(Estimation_Tabs, "Error",
                                  "\nError in Save command.  Check that all cells are populated.\n",
                                  QMessageBox::Ok);
-            Estimation_Tabs->setCursor(Qt::ArrowCursor);
             return false;
         }
     }
@@ -901,10 +900,13 @@ nmfEstimation_Tab4::loadWidgets()
         }
         resetSpinBox(nonZeroCell,m_smodels2d[0],m_smodels2d[1],m_smodels2d[2]);
     }
-    if (isTypeIII()) {
 
+    if (isTypeIII()) {
         QStandardItemModel* smodel;
         for (unsigned int k=0; k<m_TableNamesTypeIII.size(); ++k) {
+//            if (m_TableNamesTypeIII[k].empty()) {
+//                continue;
+//            }
             if (isAggProd) {
                 smodel = new QStandardItemModel(NumGuilds, 1);
                 m_TableViewsTypeIII[k]->setModel(smodel);

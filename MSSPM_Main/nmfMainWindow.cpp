@@ -2079,7 +2079,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.3.5 ";
+    QString version = "MSSPM v1.3.6 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -6379,9 +6379,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                                                  nmfConstantsMSSPM::TableOutputMSYFishing,
                                                  nmfConstantsMSSPM::TableOutputPredationExponent,
                                                  nmfConstantsMSSPM::TableOutputSurveyQ};
-    if (isExponent) {
-      OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputPredationExponent);
-    }
+
     QList<QString>     TableLabels = {"B₀","r","K","q","BMSY","MSY","FMSY","b","Q"};
     QList<QTableView*> TableViews  = {InitBiomassTV,
                                       GrowthRateTV,
@@ -6396,7 +6394,6 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
     if (! isAMohnsRhoMultiRun())
     {
-
     // Load 1d tables
     m = 0;
     for (int i=0; i<(int)OutputTableNames.size(); ++i) {
@@ -6423,6 +6420,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         }
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
+
         if (NumRecords == 0) {
             msg = "\n[nmfMainWindow::callback_ShowChart] No data found in: " + OutputTableNames[i] + " for current configuration.\n\n";
             msg += "Please run an Estimation with the current algorithm configuration.";
@@ -6460,6 +6458,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
         smodel->setVerticalHeaderLabels(SpeciesList);
         hLabels << TableLabels[i];
+
         smodel->setHorizontalHeaderLabels(hLabels);
         TableViews[i]->setModel(smodel);
         TableViews[i]->resizeColumnsToContents();
@@ -6524,15 +6523,15 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         smodel    = new QStandardItemModel( NumSpeciesOrGuilds, NumGuilds );
         fields    = {"ProjectName","ModelName","Algorithm","Minimizer","ObjectiveCriterion","Scaling","isAggProd","SpeName","Guild","Value"};
         queryStr  = "SELECT ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeName,Guild,Value FROM " +
-                     OutputTableNames[ii];
+                OutputTableNames[ii];
         queryStr += " WHERE ProjectName = '"       + m_ProjectName +
-                    "' AND ModelName = '"          + m_ModelName +
-                    "' AND Algorithm = '"          + Algorithm +
-                    "' AND Minimizer = '"          + Minimizer +
-                    "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
-                    "' AND Scaling = '"            + Scaling +
-                    "' AND isAggProd = "           + isAggProdStr +
-                    " ORDER by SpeName,Guild";
+                "' AND ModelName = '"          + m_ModelName +
+                "' AND Algorithm = '"          + Algorithm +
+                "' AND Minimizer = '"          + Minimizer +
+                "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                "' AND Scaling = '"            + Scaling +
+                "' AND isAggProd = "           + isAggProdStr +
+                " ORDER by SpeName,Guild";
         dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumRecords = dataMap["SpeName"].size();
         if ((NumRecords != NumSpeciesOrGuilds*NumGuilds) && (NumRecords != 0)) {
@@ -6567,8 +6566,6 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
 
 
     } // end if
-
-
 
     if (! getOutputBiomass(NumLines,NumSpeciesOrGuilds,RunLength,
                            Algorithms,Minimizers,ObjectiveCriteria,Scalings,
