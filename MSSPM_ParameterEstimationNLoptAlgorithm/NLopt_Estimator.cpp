@@ -535,19 +535,19 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
             }
             EstBiomassSpecies(time,species) = EstBiomassTMinus1;
 
-            // update EstBiomassGuilds for next time step
-            for (int i=0; i<NumGuilds; ++i) {
-                for (unsigned j=0; j<GuildSpecies[i].size(); ++j) {
-                    EstBiomassGuilds(time,i) += EstBiomassSpecies(time,GuildSpecies[i][j]);
-                }
-            }
-
             // Calculate EstCatch = qEB if need be
             if (isEffortFitToCatch) {
                 EstCatch(time,species) = catchability[species]*Effort(time,species)*EstBiomassSpecies(time,species);
             }
 
-        } // end i
+        } // end species
+
+        // update EstBiomassGuilds for next time step
+        for (int guild=0; guild<NumGuilds; ++guild) {
+            for (unsigned j=0; j<GuildSpecies[guild].size(); ++j) {
+                EstBiomassGuilds(time,guild) += EstBiomassSpecies(time,GuildSpecies[guild][j]);
+            }
+        }
     } // end time
 
     // Scale the data

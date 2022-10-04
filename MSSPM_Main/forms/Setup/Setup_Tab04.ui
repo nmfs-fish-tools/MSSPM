@@ -253,6 +253,9 @@
                     <property name="statusTip">
                      <string>Delete the current Model</string>
                     </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Delete Model&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This deletes the current model. The user should be sure they want to do this before pressing this button as it's not undoable. After deleting the model, the user must then load an existing model or create a new one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
                     <property name="text">
                      <string>Del</string>
                     </property>
@@ -901,6 +904,9 @@ This value is read-only and auto-generated.</string>
                       <property name="statusTip">
                        <string>Sets the Growth Form term in the Model below.</string>
                       </property>
+                      <property name="whatsThis">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Growth Form&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The two types of growth forms available are &lt;span style=&quot; font-weight:600;&quot;&gt;Linear&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;Logistic&lt;/span&gt;, the latter being an S-shaped growth curve. With a Logistic growth curve the population will approach a maximum value, the carrying capacity. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
                       <item>
                        <property name="text">
                         <string>Null</string>
@@ -1040,6 +1046,9 @@ This value is read-only and auto-generated.</string>
                       </property>
                       <property name="statusTip">
                        <string>Sets the Competition Form term in the Model below.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Competition Form&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The available competition forms are:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1. NO_K&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The simplest of the competition forms. It's the sum of a matrix of competition parameters * biomass multiplied by the biomass of the particular species:&lt;br/&gt;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;span style=&quot; font-size:11pt;&quot;&gt;- B&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;i,t&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;∑α&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;i,j&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;B&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;j,t&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. MS-PROD&lt;/span&gt;&lt;/p&gt;&lt;p&gt;A complex competition form with uses guild, as well as species, competition coefficients and guild, as well as system, carrying capacity values. The expression is given below and the terms are defined in the Model Equation window below when MS-PROD is selected.&lt;/p&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;span style=&quot; font-size:11pt;&quot;&gt;- r&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;i&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;B&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;i,t&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;[(∑β&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;i,j&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;B&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;j,t&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;)/K&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;G&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; - (∑β&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;i,G&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;B&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;G,t&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;)/(K&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;σ&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; - K&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;G&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;)]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <item>
                        <property name="text">
@@ -1190,6 +1199,9 @@ This value is read-only and auto-generated.</string>
                       <property name="statusTip">
                        <string>Sets the Harvest Form term in the Model below.</string>
                       </property>
+                      <property name="whatsThis">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Harvest Form&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The available harvest forms are:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;1. Catch&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Harvest data consists of commercial catch data and is subtracted from the biomass in the population model equation.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;2. Effort&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Harvest data consists of the product of catchability*effort. The effort values are entered as a time series in the Harvest Data page whereas the catchability values are not a time-series and are entered, per-species, in the Population Parameters page.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;3. Effort Fit to Catch&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The fit is done by finding the Catch(obs) - Catch(est) difference, where Catch(est) is the product of the catchability*effort*biomass(est).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
                       <item>
                        <property name="text">
                         <string>Null</string>
@@ -1334,6 +1346,9 @@ This value is read-only and auto-generated.</string>
                       </property>
                       <property name="statusTip">
                        <string>Sets the Predation Form term in the Model below.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Predation Form&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The available predation forms are the 3 Holling's functional responses: &lt;span style=&quot; font-weight:600;&quot;&gt;Type I, Type II, &lt;/span&gt;and&lt;span style=&quot; font-weight:600;&quot;&gt; Type III&lt;/span&gt;. Upon selection, the user can view exactly what these are in the Model Equation window below.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <item>
                        <property name="text">

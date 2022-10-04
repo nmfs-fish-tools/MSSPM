@@ -2079,7 +2079,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.3.6 ";
+    QString version = "MSSPM v1.3.7 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -8161,7 +8161,7 @@ std::cout << "Warning: TBD nmfMainWindow::calculateSummaryStatisticsStruct: Add 
     ok = nmfUtilsStatistics::calculateMEF(NumSpeciesOrGuilds,RunLength,meanObserved,observed,estimated,mef);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 4] calculateSummaryStatistics: Found 0 denominator in MEF calculations.");
-        return false;
+        //return false;
     }
 
     stats = {SSresiduals, SSdeviations,

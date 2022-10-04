@@ -595,14 +595,13 @@ nmfEstimation_Tab3::callback_SavePB()
         }
     }
 
-
     // Beta Species
     if (isMsProd()) {
         if (! nmfUtilsQt::runAllTableChecks(m_Logger, Estimation_Tabs,
                                             Estimation_Tab3_CompetitionBetaSpeciesTV,
                                             Estimation_Tab3_CompetitionBetaSpeciesMinTV,
-                                            Estimation_Tab3_CompetitionBetaSpeciesMaxTV,
-                                            nullptr,nullptr,nullptr)) {
+                                            Estimation_Tab3_CompetitionBetaSpeciesMaxTV))
+        {
             return;
         }
         tableInc = 2;
@@ -667,24 +666,23 @@ nmfEstimation_Tab3::callback_SavePB()
     if (isMsProd() || isAggProd()) {
         QStandardItemModel* smodel;
         std::vector<QTableView* > tableViews = getTableViews();
-        QTableView* tv4    = (isNoK()) ? Estimation_Tab4_PredationRhoTV : nullptr;
-        QTableView* tv4Min = (isNoK()) ? Estimation_Tab4_PredationRhoMinTV : nullptr;
-        QTableView* tv4Max = (isNoK()) ? Estimation_Tab4_PredationRhoMaxTV : nullptr;
+//        QTableView* tv4    = (isNoK()) ? Estimation_Tab4_PredationRhoTV : nullptr;
+//        QTableView* tv4Min = (isNoK()) ? Estimation_Tab4_PredationRhoMinTV : nullptr;
+//        QTableView* tv4Max = (isNoK()) ? Estimation_Tab4_PredationRhoMaxTV : nullptr;
         if (! nmfUtilsQt::runAllTableChecks(m_Logger,Estimation_Tabs,
                                             tableViews[0],
                                             tableViews[1],
-                                            tableViews[2],
-                                            tv4,tv4Min,tv4Max)) {
+                                            tableViews[2])) {
             return;
         }
+
         if (isMsProd()) {
             GuildTables   = m_BetaGuildsTables;
             VariableNames = "Guild,SpeName";
             if (tableViews.size() == 6 && ! nmfUtilsQt::runAllTableChecks(m_Logger,Estimation_Tabs,
                                                                           tableViews[3],
                                                                           tableViews[4],
-                                                                          tableViews[5],
-                                                                          nullptr,nullptr,nullptr)) {
+                                                                          tableViews[5])) {
                 return;
             } else {
                 m_Logger->logMsg(nmfConstants::Warning,"Expecting 6 MS PROD tables. Found only: "+std::to_string(tableViews.size()));
