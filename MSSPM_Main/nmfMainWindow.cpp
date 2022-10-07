@@ -2081,7 +2081,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.3.8 ";
+    QString version = "MSSPM v1.3.9 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -7793,8 +7793,8 @@ nmfMainWindow::showForecastChart(const bool&  isAggProd,
             return false;
         }
     }
+
     // Plot ForecastBiomassMonteCarlo data
-//    if (!showHistoricalData && NumRuns > 0) {
     if (NumRuns > 0) {
         if (! m_DatabasePtr->getForecastBiomassMonteCarlo(this,m_Logger,
               m_ProjectName,m_ModelName,ForecastName,NumSpeciesOrGuilds,RunLength,NumRuns,
@@ -14432,9 +14432,11 @@ void
 nmfMainWindow::callback_ImportDatabase()
 {
     QString msg = "\nPlease Note:\n";
-    msg += "\n1. The Project Name must match the name of the Project from the imported database.\n";
-    msg += "\n2. File import may take several minutes depending upon file size and computer speed.\n";
-//  QMessageBox::information(this, tr("Import Database"), tr(msg.toLatin1()), QMessageBox::Ok);
+    msg += "\n1. The name of the .sql file will be the name of the database. If you want, ";
+    msg += "or are expecting, a particular database name for use in your model, be sure to ";
+    msg += "rename the .sql file appropriately prior to importing.\n";
+    msg += "\n2. The Project Name must match the name of the Project from the imported database.\n";
+    msg += "\n3. File import may take several minutes depending upon file size and computer speed.\n";
 
     QMessageBox::StandardButton reply =
             QMessageBox::question(this, tr("Import Database"),

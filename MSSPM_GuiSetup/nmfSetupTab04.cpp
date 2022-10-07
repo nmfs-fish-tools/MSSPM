@@ -1225,7 +1225,8 @@ nmfSetup_Tab4::copyModelDataInAllTables(const QString& currentModelName,
     dataMap   = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumTables = dataMap["TABLE_NAME"].size();
 
-    QProgressDialog progressDlg("\nCopying tables...", "Abort Copy", 0, NumTables, Setup_Tabs);
+//  QProgressDialog progressDlg("\nCopying tables...", "Abort Copy", 0, NumTables, Setup_Tabs);
+    QProgressDialog progressDlg("\nCopying tables...", QString(), 0, NumTables, Setup_Tabs); // Hide the cancel button
     progressDlg.setWindowModality(Qt::WindowModal);
     progressDlg.show();
 
