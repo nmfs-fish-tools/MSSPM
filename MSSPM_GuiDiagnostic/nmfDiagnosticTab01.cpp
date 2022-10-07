@@ -570,8 +570,7 @@ nmfDiagnostic_Tab1::callback_RunPB()
             m_Diagnostic_Tabs->setCursor(Qt::ArrowCursor);
             return;
         }
-qDebug() << "loaded name: " << parameterName;
-qDebug() << EstParameter;
+
         if (parameterName == surfaceParameter1Name) {
             surfaceParameter1 = EstParameter;
         } else if (parameterName == surfaceParameter2Name) {
@@ -590,10 +589,6 @@ qDebug() << EstParameter;
             // for certain species.
             if (1) { // ((estParameter != 0) && (startVal != 0)) { // RSK revisit this logic
                 for (int j=0; j<=totalNumPoints; ++j) {
-if ((i == 8 or i == 9) && parameterName == "SurveyQ") {
-  qDebug() << "\nparameter name: " << i << parameterName << estParameter << startVal << inc << diagnosticParameterValue; // << fitness;
-}
-
                     if ((estParameter == 0) || (startVal == 0)) {
                         aDiagnosticTuple = std::make_tuple(SpeciesOrGuildNames[i],j,0,0);
                         DiagnosticTupleVector.push_back(aDiagnosticTuple);
@@ -601,9 +596,6 @@ if ((i == 8 or i == 9) && parameterName == "SurveyQ") {
                       try {
                           parameterItem = std::make_pair(parameterName,diagnosticParameterValue);
                           fitness = calculateFitness(i,{parameterItem});
-if ((i == 8 or i == 9) && parameterName == "SurveyQ") {
-qDebug() << "after calculateFitness call, fitness: " << fitness;
-}
                       } catch (...) {
                           msg = "Warning (2): Please run an Estimation prior to running this Diagnostic.";
                           m_Logger->logMsg(nmfConstants::Warning,msg.toStdString());

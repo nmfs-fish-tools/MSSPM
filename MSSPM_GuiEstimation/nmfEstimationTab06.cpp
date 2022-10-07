@@ -495,11 +495,11 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
             Estimation_Tab6_SpeciesParameterTV->resizeColumnsToContents();
         } else {
             return false;
-//            msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Invalid number of table records found in: " +
-//                   tableName;
+//          msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Invalid number of table records found in: " +
+//                 tableName;
         }
     } else {
-//        msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Uninitialized Species Parameter table found";
+//      msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Uninitialized Species Parameter table found";
         return false;
     }
 
@@ -891,8 +891,8 @@ nmfEstimation_Tab6::saveCovariateTable()
 
     // Delete the current entry here
     deleteCmd = "DELETE FROM " + tableName +
-            " WHERE ProjectName = '" + m_ProjectName +
-            "' AND ModelName = '" + m_ModelName + "'";
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND ModelName = '"    + m_ModelName   + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(deleteCmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         msg = "\nError in nmfEstimation_Tab6:saveCovariateTable: Couldn't delete all records from " +
@@ -996,7 +996,7 @@ nmfEstimation_Tab6::saveCovariateAssignmentTable()
     // Delete the current entry here
     deleteCmd = "DELETE FROM " + tableName +
                 " WHERE ProjectName = '" + m_ProjectName +
-                "' AND ModelName = '" + m_ModelName + "'";
+                "' AND ModelName = '"    + m_ModelName   + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(deleteCmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         msg = "\nError in nmfEstimation_Tab6:saveCovariateAssignmentTable: Couldn't delete all records from " +
@@ -1167,7 +1167,7 @@ nmfEstimation_Tab6::saveInitialValuesAndRangesTable()
     // Delete the current entry here
     deleteCmd = "DELETE FROM " + tableName +
                 " WHERE ProjectName = '" + m_ProjectName +
-                "' AND ModelName = '" + m_ModelName + "'";
+                "' AND ModelName = '"    + m_ModelName   + "'";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(deleteCmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         msg = "\nError in nmfEstimation_Tab6:saveInitialValuesAndRangesTable: Couldn't delete all records from " +

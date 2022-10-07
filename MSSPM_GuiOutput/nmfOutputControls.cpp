@@ -188,6 +188,13 @@ nmfOutputControls::initWidgets()
     OutputSpeListLV->setSelectionMode(QAbstractItemView::ExtendedSelection);
     OutputGroupTypeCMB->setToolTip("Type of Entity to plot (Species, Guild, or entire System)");
     OutputGroupTypeCMB->setStatusTip("Type of Entity to plot (Species, Guild, or entire System)");
+    msg = "<html>\
+<strong><center>Entity Type</center></strong><br>\
+Plots may show individual Species, Guilds, or the entire System. When viewing \
+Guilds or the System, keep in mind that the scale of each Species may not be \
+the same.\
+</html>";
+    OutputGroupTypeCMB->setWhatsThis(msg);
 
     msg ="<html>\
 <strong><center>B MSY</center></strong><br>\
@@ -196,7 +203,7 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).<br><br>\
 If K is not 0, then:<br><br>\
 &nbsp;&nbsp;For Species:&nbsp;B MSY = K(i)/2, where r(i) = carrying capacity for that species<br><br>\
 &nbsp;&nbsp;For Guilds:&nbsp;&nbsp;B MSY = Σ[K(i)]/2, where Σ is over all species in the selected guild<br><br>\
-&nbsp;&nbsp;For System:&nbsp;&nbsp;B MSY = Σ[K(i)]/2, where Σ is over all species<br>\
+&nbsp;&nbsp;For System:&nbsp;&nbsp;B MSY = Σ[K(i)]/2, where Σ is over all species\
 </html>";
     OutputShowBMSYCB->setToolTip("Biomass Maximum Sustained Yield (K/2)");
     OutputShowBMSYCB->setStatusTip("Biomass Maximum Sustained Yield (K/2)");
@@ -211,7 +218,7 @@ the equation used for K becomes K(i) = r(i)/alpha(i,i).<br><br>\
 If K is not 0, then:<br><br>\
 &nbsp;&nbsp;For Species: MSY = [r(i)K(i)]/4, where r(i) and K(i) are the growth rate and carrying capacity for that species<br><br>\
 &nbsp;&nbsp;For Guilds: MSY = Σ[r(i)K(i)]/4, where Σ is over all species in the selected guild<br><br>\
-&nbsp;&nbsp;For System: MSY = Σ[r(i)K(i)]/4, where Σ is over all species<br>\
+&nbsp;&nbsp;For System: MSY = Σ[r(i)K(i)]/4, where Σ is over all species\
 </html>";
     OutputShowMSYCB->setToolTip("Maximum Sustained Yield (rK/4)");
     OutputShowMSYCB->setStatusTip("Maximum Sustained Yield (rK/4)");
@@ -223,7 +230,7 @@ If K is not 0, then:<br><br>\
 <strong><center>F MSY</center></strong><br>\
 For Species: F MSY = r(i) where r(i) = growth rate for that species<br><br>\
 For Guilds: F MSY = guildAverage[r(i)] / NumSpeciesInGuild, where the guildAverage is the average for the selected guild<br><br>\
-For System: F MSY = average[r(i)] / NumSpecies, where the average is over all species<br>\
+For System: F MSY = average[r(i)] / NumSpecies, where the average is over all species\
 </html>";
     OutputShowFMSYCB->setToolTip("Fishing Mortality Maximum Sustained Yield (r/2)");
     OutputShowFMSYCB->setStatusTip("Fishing Mortality Maximum Sustained Yield (r/2)");
@@ -257,6 +264,8 @@ For System: F MSY = average[r(i)] / NumSpecies, where the average is over all sp
     OutputShowBMSYLE->setAlignment(Qt::AlignRight);
     OutputShowMSYLE->setAlignment(Qt::AlignRight);
     OutputShowFMSYLE->setAlignment(Qt::AlignRight);
+    OutputShowHistoricalDataCB->setToolTip("Toggles historical data for a Forecast plot");
+    OutputShowHistoricalDataCB->setStatusTip("Toggles historical data for a Forecast plot");
     OutputShowHistoricalDataLBL->setToolTip("Toggles historical data for a Forecast plot");
     OutputShowHistoricalDataLBL->setStatusTip("Toggles historical data for a Forecast plot");
     OutputShowShadowCB->setToolTip("Toggles the 3d surface's shadow");
@@ -284,7 +293,7 @@ This plot will show the Monte Carlo n% variation forecasts overlayed onto the 0%
 <strong>6. Multi-Scenario Plots</strong><br><br>\
 This plot shows combined user selected forecasts. That is, after the user runs a forecast,<br>\
 they can elect to save the forecast into a multi-forecast scenario. In this fashion, they<br>\
-can compare several forecasts simultaneously.<br><br>\
+can compare several forecasts simultaneously.<br>\
 </html>";
     OutputChartTypeLBL->setWhatsThis(msg);
     OutputChartTypeCMB->setWhatsThis(msg);
@@ -333,6 +342,12 @@ The ZScore value is calculated by the following formula: \
     OutputParametersCenterPB->setToolTip("Selects center point on surface\n(i.e., the estimated r and K values)");
     OutputParametersCenterPB->setStatusTip("Selects center point on surface\n(i.e., the estimated r and K values)");
     OutputParametersCenterPB->setEnabled(false);
+    msg ="<html>\
+<strong><center>Center</center></strong><br>\
+This button will move the surface marker to the center of the surface. The marker displays \
+the coordinates of the point as well as the y-value (i.e., fitness) of the point.\
+</html>";
+    OutputParametersCenterPB->setWhatsThis(msg);
     OutputParametersMinimumPB->setText("");
     OutputParametersMinimumPB->setIcon(minimumIcon);
     OutputParametersMinimumPB->setFixedWidth(20);
@@ -340,31 +355,73 @@ The ZScore value is calculated by the following formula: \
     OutputParametersMinimumPB->setToolTip("Selects minimum point on surface\n(i.e., the estimated r and K values)");
     OutputParametersMinimumPB->setStatusTip("Selects minimum point on surface\n(i.e., the estimated r and K values)");
     OutputParametersMinimumPB->setEnabled(false);
+    msg ="<html>\
+<strong><center>Minimum</center></strong><br>\
+This button will move the surface marker to the lowest point of the surface. The marker displays \
+the coordinates of the point as well as the y-value (i.e., fitness) of the minimum fitness point.\
+</html>";
+    OutputParametersMinimumPB->setWhatsThis(msg);
     OutputParameters2d3dPB->setFixedWidth(20);
     OutputParameters2d3dPB->setFixedHeight(20);
     OutputParameters2d3dPB->setEnabled(false);
     OutputParameters2d3dPB->setToolTip("Displays a 1-parameter 2d chart or 2-parameter 3d chart.");
     OutputParameters2d3dPB->setStatusTip("Displays a 1-parameter 2d chart or 2-parameter 3d chart.");
+    msg ="<html>\
+<strong><center>Plot Type Toggle</center></strong><br>\
+This button is a toggle that will switch the plot from a 1-parameter 2d line chart to a 2-parameter 3d surface plot. \
+The 3d surface plot can be manipulated with the right mouse button.\
+</html>";
+    OutputParameters2d3dPB->setWhatsThis(msg);
+
     OutputScenariosLBL->setEnabled(false);
     OutputScenariosCMB->setEnabled(false);
     OutputMethodsCMB->setEnabled(false);
     OutputMethodsLBL->setEnabled(false);
-    OutputSpeciesCMB->setToolTip("The species reflected in the current chart");
-    OutputSpeciesCMB->setStatusTip("The species reflected in the current chart");
-    OutputSpeciesLBL->setToolTip("The species reflected in the current chart");
-    OutputSpeciesLBL->setStatusTip("The species reflected in the current chart");
-    OutputMethodsCMB->setToolTip("Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
+    OutputSpeciesCMB->setToolTip("The species/guild reflected in the current chart");
+    OutputSpeciesCMB->setStatusTip("The species/guild reflected in the current chart");
+    OutputSpeciesLBL->setToolTip("The species/guild reflected in the current chart");
+    OutputSpeciesLBL->setStatusTip("The species/guild reflected in the current chart");
+    msg ="<html>\
+<strong><center>Species/Guilds</center></strong><br>\
+This pulldown lists the species or guilds available to the user in the current project. \
+To select species/guilds use the previous pulldown to select entity type.\
+</html>";
+    OutputSpeciesCMB->setWhatsThis(msg);
+    OutputSpeciesLBL->setWhatsThis(msg);
+    OutputMethodsCMB->setToolTip(  "Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
     OutputMethodsCMB->setStatusTip("Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
-    OutputMethodsLBL->setToolTip("Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
+    OutputMethodsLBL->setToolTip(  "Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
     OutputMethodsLBL->setStatusTip("Allows user to select between viewing Parameter Profiles or a Retrospective Analysis");
+    msg ="<html>\
+<strong><center>Diagnostic Methods</center></strong><br>\
+This pulldown allows the user to choose which type of diagnostic plot is to be viewed. \
+Currently, the user may view either Profile Parameters or a Retrospective Analysis.\
+</html>";
+    OutputMethodsCMB->setWhatsThis(msg);
+    OutputMethodsLBL->setWhatsThis(msg);
     OutputParametersCMB->setToolTip("Allows user to select which Parameter to view graphically");
     OutputParametersCMB->setStatusTip("Allows user to select which Parameter to view graphically");
     OutputParametersLBL->setToolTip("Allows user to select which Parameter to view graphically");
     OutputParametersLBL->setStatusTip("Allows user to select which Parameter to view graphically");
+    msg ="<html>\
+<strong><center>Estimated Parameters</center></strong><br>\
+This pulldown allows the user to choose which estimated parameter's diagnostic plots \
+they wish to view. Plots may be views as either a 2d line plot or a 3d surface plot.\
+</html>";
+    OutputParametersCMB->setWhatsThis(msg);
+    OutputParametersLBL->setWhatsThis(msg);
     OutputScenariosLBL->setToolTip("Allows user to select which Scenario to view");
     OutputScenariosLBL->setStatusTip("Allows user to select which Scenario to view");
     OutputScenariosCMB->setToolTip("Allows user to select which Scenario to view");
     OutputScenariosCMB->setStatusTip("Allows user to select which Scenario to view");
+    msg ="<html>\
+<strong><center>Scenarios</center></strong><br>\
+This pulldown allows the user to choose which forecast scenario to view. From the \
+forecast run page, the user may create scenarios that show multiple forecasts. These \
+are named and can be viewed with this pulldown.\
+</html>";
+    OutputScenariosCMB->setWhatsThis(msg);
+    OutputScenariosLBL->setWhatsThis(msg);
     OutputScaleCMB->addItem("Default");
     OutputScaleCMB->addItem("000");
     OutputScaleCMB->addItem("000 000");
@@ -373,6 +430,14 @@ The ZScore value is calculated by the following formula: \
     OutputScaleLBL->setStatusTip("Sets the scale of the y-axis");
     OutputScaleCMB->setToolTip("Sets the scale of the y-axis");
     OutputScaleCMB->setStatusTip("Sets the scale of the y-axis");
+    msg ="<html>\
+<strong><center>Scale Factor</center></strong><br>\
+This pulldown allows the user to select the y-axis scale of the current plot. \
+Note that changing this will change the scale of the plot as well as updating the \
+y-axis label.\
+</html>";
+    OutputScaleCMB->setWhatsThis(msg);
+    OutputScaleLBL->setWhatsThis(msg);
 
     loadSpeciesControlWidget();
     callback_LoadScenariosWidget();
@@ -385,7 +450,7 @@ The ZScore value is calculated by the following formula: \
     OutputYAxisMinSB->setEnabled(false);
     OutputYAxisMaxSB->setEnabled(false);
     OutputShowShadowCB->setEnabled(false);
-    OutputShowShadowCB->setChecked(true);
+    OutputShowShadowCB->setChecked(false);
     OutputShowShadowLBL->setEnabled(false);
     OutputShowHistoricalDataCB->setChecked(false);
     OutputShowHistoricalDataCB->setEnabled(false);
