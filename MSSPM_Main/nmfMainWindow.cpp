@@ -2081,7 +2081,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.3.9 ";
+    QString version = "MSSPM v1.3.10 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -5812,7 +5812,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 
     // Load the appropriate Harvest tables
     if (HarvestFormName == nmfConstantsMSSPM::HarvestCatch.toStdString()) {
-//std::cout << "isMonteCarlo,ForecastName: " << isMonteCarlo << "," << ForecastName << std::endl;
         if (! loadHarvestCatchTables(isAggProd,isMonteCarlo,ForecastName,HarvestFormName,
                                      harvestFormPtr,HarvestRandomValues,HarvestUncertainty,
                                      previousUnits,NumSpeciesOrGuilds,RunLength,Catch)) {
@@ -5967,7 +5966,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             }
 
             EstBiomassTMinus1  = EstBiomassSpecies(timeMinus1,species);
-
             GrowthTerm      = growthForm->evaluate(CovariateAlgorithmType,
                                                    EstBiomassTMinus1,
                                                    EstGrowthRates[species],

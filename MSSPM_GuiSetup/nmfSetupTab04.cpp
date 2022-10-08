@@ -489,6 +489,7 @@ nmfSetup_Tab4::callback_LoadPB()
 
     if (m_LoadDialog->exec() == QDialog::Accepted) {
         loadModel();
+        QMessageBox::information(Setup_Tabs, "Load", "\nSuccessfully loaded Model.\n");
         emit ModelSaved();
     }
 }
