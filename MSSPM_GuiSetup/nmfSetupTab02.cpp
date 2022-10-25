@@ -856,9 +856,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " InitBiomass          double NULL,";
     cmd += " SurveyQ              float NULL,";
     cmd += " SpeciesK             double NULL,";
-    cmd += " SpeciesKCovarCoeff   float NULL,";
     cmd += " GrowthRate           float NULL,";
-    cmd += " GrowthRateCovarCoeff float NULL,";
     cmd += " Habitat              varchar(50) NULL,";
     cmd += " Catchability         float NULL,";
     cmd += " InitBiomassMin       double NULL,";
@@ -873,6 +871,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd += " CatchabilityMax      float NULL,";
     cmd += " SpeDependence        float NULL,";
     cmd += " ExploitationRate     float NULL,";
+    cmd += " Weight               float NULL,";
     cmd += " PRIMARY KEY (SpeName))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {

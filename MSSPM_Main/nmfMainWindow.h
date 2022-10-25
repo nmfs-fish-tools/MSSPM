@@ -100,27 +100,6 @@
 #include "REMORA_UI.h"
 
 
-/**
- * @brief Struct to hold initial Species data
- */
-struct InitSpeciesDataStruct {
-    std::vector<double>      GrowthRate;
-    std::vector<double>      GrowthRateCovarCoeff;
-    std::vector<double>      GrowthRateMax;
-    std::vector<double>      GrowthRateMin;
-    std::vector<std::string> GuildName;
-    std::vector<double>      InitBiomassMax;
-    std::vector<double>      InitBiomassMin;
-    std::vector<double>      SpeciesK;
-    std::vector<double>      SpeciesKCovarCoeff;
-    std::vector<int>         SpeciesKMax;
-    std::vector<int>         SpeciesKMin;
-    std::vector<std::string> SpeciesName;
-    std::vector<int>         SurveyQ;
-    std::vector<int>         SurveyQMin;
-    std::vector<int>         SurveyQMax;
-};
-
 namespace Ui {
     class nmfMainWindow;
 }
@@ -826,7 +805,7 @@ private:
             const int &SpeciesNum,
             const int &RunLength,
             const int &StartYear,
-//            const int &m_NumLines,
+//          const int &m_NumLines,
             std::vector<std::string> &Algorithms,
             std::vector<std::string> &Minimizers,
             std::vector<std::string> &ObjectiveCriteria,
@@ -837,7 +816,8 @@ private:
             QString &ScaleStr,
             double &ScaleVal,
             const bool& clearChart,
-            double &YMin);
+            double &YMin,
+            const std::string& title);
     void showChartBiomassVsTimeMultiRunWithScatter(
             const int &NumSpecies,
             const QString &OutputSpecies,
@@ -1144,8 +1124,9 @@ protected:
 public slots:
     /**
      * @brief Callback invoked when main receives an AllSubRunsCompleted signal from NLopt_Estimator
+     * @param allRunsConverged : boolean signifying if all the multi-run's subruns have converged
      */
-    void callback_AllSubRunsCompleted();
+    void callback_AllSubRunsCompleted(bool allRunsConverged);
     void callback_UpdateSeedValue(int isDeterministic);
     /**
      * @brief Callback invoked when user Runs an Estimation
@@ -1442,6 +1423,7 @@ public slots:
             int RunNumber,
             int SubRunNum,
             int NumSubRuns);
+    void callback_RunCompletedMsg(std::string msg);
     /**
      * @brief Callback invoked to stop the progress widget's elapsed run timer
      */
@@ -1455,14 +1437,13 @@ public slots:
      * @brief Callback invoked when the run has completed and user wants to update the Run Statistics
      */
     void callback_UpdateSummaryStatistics();
+//  void callback_UpdateStopAfterTime(int timeInSeconds);
     /**
      * @brief Callback invoked to update the Model Equation in the Setup page 4 summary text box
      */
     void callback_UpdateModelEquationSummary();
     void callback_openCSVFile(QPoint pos);
     void context_Action(bool triggered);
-
-
     /**
      * @brief Raises an About MSSPM Dialog
      *

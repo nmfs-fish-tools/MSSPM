@@ -278,19 +278,21 @@ For System: F MSY = average[r(i)] / NumSpecies, where the average is over all sp
 <strong><center>Chart Types</center></strong><br>\
 The various output chart types are: <br><br>\
 <strong>1. Biomass vs Time</strong><br><br> \
-This is a plot of calculated (i.e., estimated) biomass vs time. <br><br>\
-<strong>2. Harvest vs Time</strong><br><br> \
+This is a plot of calculated (i.e., estimated) biomass vs time.<br><br>\
+<strong>2. Biomass & Catch vs Time</strong><br><br> \
+This is a plot of observed biomass with catch vs time.<br><br>\
+<strong>3. Harvest vs Time</strong><br><br> \
 This plot will show either catch vs time or (catchability * effort * calculated biomass) vs time.<br><br>\
-<strong>3. Exploitation Rate</strong><br><br> \
+<strong>4. Exploitation Rate</strong><br><br> \
 This plot will show (catchability * effort) vs time and will typically \
 range from 0 to 1 in the y-axis. The guild calculations are: \
 (total catch) / (total estBiomass) or if using effort: Σ(catchability*effort*estBiomass)/Σ(estBiomass).<br><br>\
-<strong>4. Diagnostics</strong><br><br> \
+<strong>5. Diagnostics</strong><br><br> \
 These plots will show either the parameter estimation diagnostics \
 (2d or 3d) or the retrospective analysis (i.e., Mohn's Rho).<br><br>\
-<strong>5. Forecasts</strong><br><br>\
+<strong>6. Forecasts</strong><br><br>\
 This plot will show the Monte Carlo n% variation forecasts overlayed onto the 0% variation forecast.<br><br>\
-<strong>6. Multi-Scenario Plots</strong><br><br>\
+<strong>7. Multi-Scenario Plots</strong><br><br>\
 This plot shows combined user selected forecasts. That is, after the user runs a forecast,<br>\
 they can elect to save the forecast into a multi-forecast scenario. In this fashion, they<br>\
 can compare several forecasts simultaneously.<br>\
@@ -298,6 +300,7 @@ can compare several forecasts simultaneously.<br>\
     OutputChartTypeLBL->setWhatsThis(msg);
     OutputChartTypeCMB->setWhatsThis(msg);
     OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartBiomass);
+    OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartBiomassAndCatch);
     OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartHarvest);
     OutputChartTypeCMB->addItem(nmfConstantsMSSPM::OutputChartExploitation);
     OutputChartTypeCMB->addItem("(Abs) Bc vs Time");
@@ -307,11 +310,12 @@ can compare several forecasts simultaneously.<br>\
     OutputChartTypeCMB->addItem("Forecast");
     OutputChartTypeCMB->addItem("Multi-Scenario Plots");
     OutputChartTypeCMB->setItemData(0, "Calculated and Observed Biomass vs Time for a Species",    Qt::ToolTipRole);
+    OutputChartTypeCMB->setItemData(0, "Observed Biomass and Catch vs Time for a Species",         Qt::ToolTipRole);
     OutputChartTypeCMB->setItemData(1, "Calculated Biomass vs Time for one or more Species",       Qt::ToolTipRole);
     OutputChartTypeCMB->setItemData(2, "Catch vs Calculated Biomass for a Species",                Qt::ToolTipRole);
     OutputChartTypeCMB->setItemData(8, "Allows the user to view multiple Forecasts simultaneously",Qt::ToolTipRole);
     // Disable 3 items for now....
-    for (int i=3; i<6; ++i) {
+    for (int i=4; i<7; ++i) {
         index = OutputChartTypeCMB->model()->index(i, 0);
         OutputChartTypeCMB->model()->setData(index, vNull, Qt::UserRole-1);
     }

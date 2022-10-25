@@ -271,12 +271,15 @@ void
 nmfEstimation_Tab7::initializeDetStoMap()
 {
     // Global optimizations
-    m_DetStoTypeMap["GN_ORIG_DIRECT_L"] = "(d)";
+
     m_DetStoTypeMap["GN_DIRECT_L"]      = "(d)";
     m_DetStoTypeMap["GN_DIRECT_L_RAND"] = "(s)";
     m_DetStoTypeMap["GN_CRS2_LM"]       = "(s)";
-    m_DetStoTypeMap["GN_ESCH"]          = "(s)";
-    m_DetStoTypeMap["GD_StoGO"]         = "(d)";
+//  m_DetStoTypeMap["GN_ESCH"]          = "(s)";
+    m_DetStoTypeMap["GN_ISRES"]         = "(s)";
+//  m_DetStoTypeMap["GN_ORIG_DIRECT_L"] = "(d)";
+//  m_DetStoTypeMap["GN_AGS"]           = "(d)";
+//  m_DetStoTypeMap["GD_StoGO"]         = "(d)";
 
     // Local optimizations
     m_DetStoTypeMap["LN_COBYLA"]        = "(d)";
@@ -298,18 +301,49 @@ The algorithm name is formatted {G,L}{N,D}_xxxx where:<br><br>\
 \"N/D\" corresponds to a derivative-free/gradient-based optimization algorithm<br>\
 </html>";
 
-    m_WhatsThisMap["GN_ORIG_DIRECT_L"] = "<html><br>\
-<strong>GN_ORIG_DIRECT_L - Original DIviding RECTangles Algorithm</strong><br>\
+//    m_WhatsThisMap["GN_ORIG_DIRECT_L"] = "<html><br>\
+//<strong>GN_ORIG_DIRECT_L - Original DIviding RECTangles Algorithm</strong><br>\
+//<br>\
+//Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", J. Global Optimization, \
+//vol. 21 (1), p. 27-37 (2001)<br>\
+//<br>\
+//This is a deterministic-search algorithm based on systematic division \
+//of the search domain into smaller and smaller hyper-rectangles. The Gablonsky version makes the algorithm \
+//\"more biased towards local search\" so that it is more efficient for functions without too many \
+//local minima. This algorithm, based on the original Fortran code, has a number of hard-coded limitations \
+//(i.e., the number of function evaluations). There is some support for arbitrary nonlinear inequality \
+//constraints.<br>\
+//</html>";
+
+//    m_WhatsThisMap["GN_AGS"] = "<html><br>\
+//<strong>GN_AGS - Divides the Univariate Space into Intervals with Lipschitzian Functions</strong><br>\
+//<br>\
+//Ref: Yaroslav D. Sergeyev, Dmitri L. Markin: An algorithm for solving global \
+//optimization problems with nonlinear constraints, Journal of Global Optimization, 7(4), pp 407–419, 1995<br>\
+//<br>\
+//The algorithm divides the univariate space into intervals, generating new points by using \
+//posterior probabilities. On each trial, AGS tries to evaluate the constraints consequently \
+//one by one. If some constraint is violated at this point, the next ones won't be evaluated. \
+//If all constraints are preserved, i.e. the trial point is feasible, AGS will evaluate the \
+//objective. Thus, some of constraints (except the first one) and objective can be partially \
+//undefined inside the search hyper-rectangle.<br>\
+//</html>";
+
+  m_WhatsThisMap["GN_ISRES"] = "<html><br>\
+<strong>GN_ISRES - Improved Stochastic Ranking Evolution Strategy</strong><br>\
 <br>\
-Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", J. Global Optimization, \
-vol. 21 (1), p. 27-37 (2001)<br>\
+Ref: Thomas Philip Runarsson and Xin Yao, \"Search biases in constrained evolutionary optimization,\" \
+IEEE Trans. on Systems, Man, and Cybernetics Part C: Applications and Reviews, \
+vol. 35 (no. 2), pp. 233-243 (2005).<br>\
 <br>\
-This is a deterministic-search algorithm based on systematic division \
-of the search domain into smaller and smaller hyper-rectangles. The Gablonsky version makes the algorithm \
-\"more biased towards local search\" so that it is more efficient for functions without too many \
-local minima. This algorithm, based on the original Fortran code, has a number of hard-coded limitations \
-(i.e., the number of function evaluations). There is some support for arbitrary nonlinear inequality \
-constraints.<br>\
+The evolution strategy is based on a combination of a mutation rule (with a \
+log-normal step-size update and exponential smoothing) and differential variation \
+(a Nelder–Mead-like update rule). The fitness ranking is simply via the \
+objective function for problems without nonlinear constraints, but when \
+nonlinear constraints are included the stochastic ranking proposed by \
+Runarsson and Yao is employed. The population size for ISRES defaults to \
+20×(n+1) in n dimensions, but this can be changed with the \
+\"Initial population size\" additional parameter below.<br>\
 </html>";
 
     m_WhatsThisMap["GN_DIRECT_L"] = "<html><br>\
@@ -1064,7 +1098,19 @@ nmfEstimation_Tab7::callback_SavePB()
         enableRunButton(true);
         enableAddToReview(false);
     }
+//  checkAndRunStopParameterSettings();
 }
+
+// Emitting this signal doesn't seem to do anything after
+// a model has already started. The model would need to be
+// restarted for it to have any effect.
+//void
+//nmfEstimation_Tab7::checkAndRunStopParameterSettings()
+//{
+//    if (isStopAfterTime()) {
+//        emit UpdateStopAfterTime(getCurrentStopAfterTime());
+//    }
+//}
 
 void
 nmfEstimation_Tab7::callback_SaveSettings()
@@ -1232,7 +1278,8 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
             ",  NLoptUseStopAfterTime = "           + std::to_string(isStopAfterTime()  ? 1 : 0) +
             ",  NLoptUseStopAfterIter = "           + std::to_string(isStopAfterIter()  ? 1 : 0) +
             ",  NLoptUseInitialPopulationSize = "   + std::to_string(isInitialPopulationSize() ? 1 : 0) +
-            ",  NLoptStopVal = "                    + std::to_string(getCurrentStopAfterValue()) +
+            ",  NLoptStopVal = "                    + QString::number(getCurrentStopAfterValue()).toStdString() +
+          //",  NLoptStopVal = "                    + std::to_string(getCurrentStopAfterValue()) +
             ",  NLoptStopAfterTime = "              + std::to_string(getCurrentStopAfterTime()) +
             ",  NLoptStopAfterIter = "              + std::to_string(getCurrentStopAfterIter()) +
             ",  NLoptInitialPopulationSize = "      + std::to_string(getInitialPopulationSize()) +
@@ -1303,9 +1350,10 @@ nmfEstimation_Tab7::callback_MinimizerAlgorithmCMB(QString algorithm)
     enableRunButton(false);
 
     // Set Additional Algorithm Parameter widget visibility
-    Estimation_Tab7_NL_InitialPopulationSizeCB->setEnabled(algorithm == "GN_CRS2_LM");
+    Estimation_Tab7_NL_InitialPopulationSizeCB->setEnabled(algorithm == "GN_CRS2_LM" ||
+                                                           algorithm == "GN_ISRES");
     Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked());
-    if (algorithm != "GN_CRS2_LM") {
+    if (algorithm != "GN_CRS2_LM" && algorithm != "GN_ISRES") {
         Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(false);
     }
 
@@ -1324,35 +1372,41 @@ nmfEstimation_Tab7::getMinimizerAlgorithm()
 void
 nmfEstimation_Tab7::callback_MinimizerTypeCMB(QString type)
 {
+    int i=0;
     QString msg;
 
     Estimation_Tab7_MinimizerAlgorithmCMB->clear();
     if (type.toLower() == "global") {
 
-        Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ORIG_DIRECT_L");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L_RAND");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_CRS2_LM");
-//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ISRES"); // Put in later if more algorithms are desired
-        Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ESCH");
-        Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GD_StoGO");
+//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ESCH"); // *** Doesn't converge
+        Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ISRES");
+// The following algorithms don't converge to a function tolerance value.
+//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ORIG_DIRECT_L");
+//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_AGS");
+//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GD_StoGO");
 
         // Hover help
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(0,
-            "Global, Non-Derivative Dividing Rectangles Algorithm with Hard-Coded Limitations", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(1,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
             "Global, Non-Derivative Dividing Rectangles Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(2,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
             "Global, Non-Derivative Dividing Rectangles Algorithm with Randomization", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(3,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
             "Global, Non-Derivative Controlled Random Search with Local Mutation Algorithm with Evolution", Qt::ToolTipRole);
-//      Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(4,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+             "Global, Non-Derivative Modified Evolutionary Algorithm", Qt::ToolTipRole);
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+             "Global, Non-Derivative Improved Stochastic Ranking Evolution Strategy", Qt::ToolTipRole);
+//      Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+//          "Global, Non-Derivative Dividing Rectangles Algorithm with Hard-Coded Limitations", Qt::ToolTipRole);
+//      Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+//          "Global, Non-Derivative Algorithm Dividing the Univariate Space into Intervals", Qt::ToolTipRole);
+//      Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
 //          "Global, Non-Derivative Stochastic Ranking Evolution Strategy", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(4,
-            "Global, Non-Derivative Modified Evolutionary Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(5,
-            "Global, Gradient-Based Stochastic Search followed by a Local Gradient-based Algorithm", Qt::ToolTipRole);
-
+//        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+//            "Global, Gradient-Based Stochastic Search followed by a Local Gradient-based Algorithm", Qt::ToolTipRole);
         // WhatsThis help
         msg = m_WhatsThisIntroGlobal;
 
@@ -1364,15 +1418,15 @@ nmfEstimation_Tab7::callback_MinimizerTypeCMB(QString type)
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("LD_LBFGS");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("LD_MMA");
 
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(0,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
             "Local, Non-Derivative Constrained Optimization BY Linear Approximations Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(1,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
             "Local, Non-Derivative Nelder-Mead Simplex Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(2,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
             "Local, Non-Derivative Nelder-Mead Variant Using a Sequence of Subspaces Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(3,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
             "Local, Gradient-Based Low-Storage BFGS (Broyden-Fletcher-Goldfarb-Shanno) Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(4,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
             "Local, Gradient-Based Method of Moving Asymptotes Algorithm", Qt::ToolTipRole);
 
         // WhatsThis help
@@ -1430,12 +1484,12 @@ nmfEstimation_Tab7::callback_EstimationAlgorithmCMB(QString algorithm)
 void
 nmfEstimation_Tab7::callback_ObjectiveCriterionCMB(QString objCrit)
 {
-    bool isMaximumLikelihood = (objCrit == "Maximum Likelihood");
-
+    // bool isMaximumLikelihood = (objCrit == "Maximum Likelihood");
     Estimation_Tab7_ScalingCMB->clear();
-    Estimation_Tab7_ScalingLBL->setEnabled(! isMaximumLikelihood);
-    Estimation_Tab7_ScalingCMB->setEnabled(! isMaximumLikelihood);
-    if (! isMaximumLikelihood) {
+    // Allow the following scaling algorithms for Maximum Likelihood
+    // Estimation_Tab7_ScalingLBL->setEnabled(! isMaximumLikelihood);
+    // Estimation_Tab7_ScalingCMB->setEnabled(! isMaximumLikelihood);
+    if (1) { // (! isMaximumLikelihood) {
         Estimation_Tab7_ScalingCMB->addItem("Mean");
         Estimation_Tab7_ScalingCMB->addItem("Min Max");
     }
@@ -1620,7 +1674,7 @@ nmfEstimation_Tab7::getCurrentStopAfterIter()
 double
 nmfEstimation_Tab7::getInitialPopulationSize()
 {
-        return Estimation_Tab7_NL_InitialPopulationSizeLE->text().toDouble();
+    return Estimation_Tab7_NL_InitialPopulationSizeLE->text().toDouble();
 }
 
 bool
@@ -1941,7 +1995,6 @@ nmfEstimation_Tab7::callback_InitialPopulationSizeCB(int isChecked)
 {
     Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(isChecked == Qt::Checked);
 
-    // RSK - continue here.....
     enableRunButton(false);
 }
 
@@ -2441,8 +2494,10 @@ nmfEstimation_Tab7::loadWidgets()
     Estimation_Tab7_MinimizerAlgorithmCMB->setCurrentText(QString::fromStdString(dataMap["Minimizer"][0]));
 
     // Update additional parameters widgets
-    Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(getMinimizerAlgorithm() == "GN_CRS2_LM" &&
-                                                           Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked());
+    QString minimizer = getMinimizerAlgorithm();
+    Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(
+                (minimizer == "GN_CRS2_LM" || minimizer == "GN_ISRES") &&
+                Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked());
 
     callback_ObjectiveCriterionCMB(objectiveCriterion);
 

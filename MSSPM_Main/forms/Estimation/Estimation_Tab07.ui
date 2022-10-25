@@ -46,8 +46,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>729</width>
-            <height>782</height>
+            <width>712</width>
+            <height>773</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -1736,16 +1736,16 @@ with the non-assigned bees being assigned to random positions.</string>
                      </size>
                     </property>
                     <property name="toolTip">
-                     <string>Estimation execution stops when the fitness value reaches this number</string>
+                     <string>Estimation execution stops when the fitness tolerance reaches this number</string>
                     </property>
                     <property name="statusTip">
-                     <string>Estimation execution stops when the fitness value reaches this number</string>
+                     <string>Estimation execution stops when the fitness tolerance reaches this number</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness value has been reached&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Estimation Halting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This set of Stop checkboxes will halt Estimation execution after either:&lt;/p&gt;&lt;p&gt;[1] A particular fitness tolerance has been reached. A tolerance is defined as the difference between the current fitness value and the previous fitness value.&lt;/p&gt;&lt;p&gt;[2] A specific number of seconds have passed&lt;/p&gt;&lt;p&gt;[3] A specific number of iterations have been completed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
-                     <string>Stop when reach (value):</string>
+                     <string>Stop tolerance (value):</string>
                     </property>
                    </widget>
                   </item>

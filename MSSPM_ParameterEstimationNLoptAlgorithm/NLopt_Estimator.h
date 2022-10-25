@@ -87,6 +87,8 @@ private:
     std::map<std::string,nlopt::algorithm> m_MinimizerToEnum;
     std::vector<double>                    m_Parameters;
 
+    std::string completedMsg(
+            std::string code);
     void createOutputStr(
             const int&         numEstParameters,
             const int&         numTotalParameters,
@@ -123,15 +125,17 @@ private:
     static void incrementObjectiveFunctionCounter(
             std::string MSSPMName,
             double fitness,
+            double tolerance,
             nmfStructsQt::ModelDataStruct NLoptDataStruct);
-    static double myExp(double value);
+//  static double myExp(double value);
     static double myNaturalLog(double value);
 
 signals:
     /**
      * @brief Signal emitted at the end of a multi-run set of runs
+     * @param allRunsConverged : boolean signifying if all of the multi-runs converged
      */
-    void AllSubRunsCompleted();
+    void AllSubRunsCompleted(bool allRunsConverged);
     /**
      * @brief Signal emitted when a Mohn's Rho multi run has completed
      */
@@ -159,6 +163,11 @@ signals:
      */
     void RunCompleted(std::string bestFitness,
                       bool showDiagnosticsChart);
+    /**
+     * @brief Signal emitted notifying the main program the estimation termination message
+     * @param msg : the message to display to the user as to why the estimation stopped
+     */
+    void RunCompletedMsg(std::string msg);
     /**
      * @brief Signal emitted when NLopt Estimation sub run of a multi run has completed
      * @param run : current run
@@ -381,12 +390,14 @@ public:
     bool stoppedByUser();
     void stopRun(const std::string &elapsedTimeStr,
                  const std::string &fitnessStr);
+//  void updateStopAfterTime(int timeInSeconds);
     /**
      * @brief Updates the output chart data file with Optimization status. Another
      * process reads this file and updates the progress chart accordingly.
      * @param MSSPMName : name of the run
      * @param NumGens : iteration number counted by thousand
      * @param BestFitness : fitness value
+     * @param Tolerance : tolerance value (difference of last two fitness values)
      * @param ObjectiveCriterion : name of objective criterion (Least Squares, Maximum Likelihood, or Model Efficiency)
      * @param NumGensSinceBestFit : unused
      */
@@ -394,6 +405,7 @@ public:
             const std::string& MSSPMName,
             const int&         NumGens,
             const double&      BestFitness,
+            const double&      Tolerance,
             const std::string& ObjectiveCriterion,
             const int&         NumGensSinceBestFit);
 

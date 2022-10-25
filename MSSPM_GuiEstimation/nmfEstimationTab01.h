@@ -46,21 +46,22 @@ class nmfEstimation_Tab1: public QObject
 {
     Q_OBJECT
 
-    bool                 m_runFromModifySlider;
-    int                  m_NumSignificantDigits;
-    nmfLogger*           m_Logger;
-    nmfDatabase*         m_DatabasePtr;
-    QStandardItemModel*  m_GuildModel;
-    QStandardItemModel*  m_SpeciesModel;
-    std::string          m_ProjectDir;
-    std::string          m_ProjectName;
-    std::string          m_ModelName;
-    QModelIndexList      m_selIndexes;
-    QList<QString>       m_originalSpeciesValuesAll;
-    std::vector<double>  m_originalValuesSelected;
-    int                  m_StartPosSL;
-    QString              m_OutputSpecies;
-    QList<QString>       m_SpeciesGuild;
+    bool                  m_runFromModifySlider;
+    int                   m_NumSignificantDigits;
+    nmfLogger*            m_Logger;
+    nmfDatabase*          m_DatabasePtr;
+    QStandardItemModel*   m_GuildModel;
+    QStandardItemModel*   m_SpeciesModel;
+    std::string           m_ProjectDir;
+    std::string           m_ProjectName;
+    std::string           m_ModelName;
+    QModelIndexList       m_selIndexes;
+    QList<QString>        m_originalSpeciesValuesAll;
+    std::vector<double>   m_originalValuesSelected;
+    int                   m_StartPosSL;
+    QString               m_OutputSpecies;
+    QList<QString>        m_SpeciesGuild;
+    std::map<QString,int> m_ColumnMap;
 
     QTabWidget*   Estimation_Tabs;
     QTabWidget*   Estimation_Tab1_PopulationTabW;
@@ -95,6 +96,7 @@ class nmfEstimation_Tab1: public QObject
                                      QString name,
                                      QString badParameter,
                                      bool showPopup);
+    bool checkSpeciesDataPrimary(bool showPopup);
     bool getCSVFileName(QString& tableName);
     void getSelectedIndexes();
     void importGuildData(const QString& tableName,
@@ -139,10 +141,9 @@ class nmfEstimation_Tab1: public QObject
                             QList<QString>& SpeciesInitialBiomass,
                             QList<QString>& SpeciesGrowthRate,
                             QList<QString>& SpeciesK);
-    bool saveSpeciesDataPrimary(bool showPopup);
     void setupHelpSpecies();
     void setupHelpGuilds();
-    void showCovariateColumns(QTableView* tv, const bool& show);
+//    void showCovariateColumns(QTableView* tv, const bool& show);
     void showNoColumns(QTableView* tv);
     void showAllColumns(QTableView* tv);
     void showPrimaryColumns(QTableView* tv);
@@ -359,20 +360,20 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Save button
      */
     void callback_SavePB();
-    /**
-     * @brief Callback invoked when the user saves the Species from
-     * the Species Setup tab
-     * @param SpeciesName : list of species names
-     * @param SpeciesGuild : list of guilds that each species is a member of
-     * @param SpeciesInitialBiomass : list of initial biomass per species
-     * @param SpeciesGrowthRate : list of growth rate per species
-     * @param SpeciesK : list of carrying capacities per species
-     */
-    void callback_SaveSpeciesCSVFile(QList<QString> SpeciesName,
-                                     QList<QString> SpeciesGuild,
-                                     QList<QString> SpeciesInitialBiomass,
-                                     QList<QString> SpeciesGrowthRate,
-                                     QList<QString> SpeciesK);
+//    /**
+//     * @brief Callback invoked when the user saves the Species from
+//     * the Species Setup tab
+//     * @param SpeciesName : list of species names
+//     * @param SpeciesGuild : list of guilds that each species is a member of
+//     * @param SpeciesInitialBiomass : list of initial biomass per species
+//     * @param SpeciesGrowthRate : list of growth rate per species
+//     * @param SpeciesK : list of carrying capacities per species
+//     */
+//    void callback_SaveSpeciesCSVFile(QList<QString> SpeciesName,
+//                                     QList<QString> SpeciesGuild,
+//                                     QList<QString> SpeciesInitialBiomass,
+//                                     QList<QString> SpeciesGrowthRate,
+//                                     QList<QString> SpeciesK);
     /**
      * @brief Callback invoked when the user makes a selection in the tableview
      * @param selection : the selection just made

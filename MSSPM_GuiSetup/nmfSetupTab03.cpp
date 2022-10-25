@@ -22,6 +22,7 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     m_colLabelsGuilds.clear();
     m_NumSignificantDigits   = -1;
     m_PreviousUnits.clear();
+    m_ColumnMap.clear();
 
     readSettings();
 
@@ -148,7 +149,7 @@ nmfSetup_Tab3::getSpeciesGuild()
     QComboBox* cbox;
     QList<QString> SpeciesGuild;
 
-    int col = nmfConstantsMSSPM::Column_Species_Guild;
+    int col = m_ColumnMap["Guild"];
     for (int row=0; row<Setup_Tab3_SpeciesTW->rowCount(); ++row) {
         cbox = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(row,col));
         SpeciesGuild.push_back(cbox->currentText());
@@ -400,6 +401,7 @@ nmfSetup_Tab3::loadWidgets()
     loadGuilds();
     loadSpecies();
 
+    nmfUtilsQt::buildColumnMap(m_logger,Setup_Tab3_SpeciesTW,m_ColumnMap);
 }
 
 int
@@ -780,7 +782,7 @@ nmfSetup_Tab3::saveSpeciesData()
     std::string errorMsg;
     std::string GuildName;
     std::string SpeciesName;
-    std::string InitBiomass,SurveyQ,SpeciesK,SpeciesKCovarCoeff,GrowthRate,GrowthRateCovarCoeff;
+    std::string InitBiomass,SurveyQ,SpeciesK,GrowthRate;
     std::string InitBiomassMin,InitBiomassMax,SurveyQMin,SurveyQMax,GrowthRateMin;
     std::string GrowthRateMax,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SpeDependence;
     std::map<std::string,double> guildKMap;
@@ -1134,17 +1136,17 @@ nmfSetup_Tab3::callback_ExportPB()
         QComboBox* cbox;
         for (int col=0; col<Setup_Tab3_SpeciesTW->columnCount(); ++col) {
             for (int row=0; row<Setup_Tab3_SpeciesTW->rowCount(); ++row) {
-                if (col == nmfConstantsMSSPM::Column_Species_SpeName) {
+                if (col == m_ColumnMap["Name"]) {
                     SpeciesName.push_back(Setup_Tab3_SpeciesTW->item(row,col)->text());
-                } else if (col == nmfConstantsMSSPM::Column_Species_Guild) {
+                } else if (col == m_ColumnMap["Guild"]) {
                     cbox = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(row,col));
                     SpeciesGuild.push_back(cbox->currentText());
-                } else if (col == nmfConstantsMSSPM::Column_Species_InitBiomass) {
+                } else if (col == m_ColumnMap["Initial Absolute Biomass"]) {
                     valueWithoutComma = Setup_Tab3_SpeciesTW->item(row,col)->text().remove(",");
                     SpeciesInitialBiomass.push_back(valueWithoutComma);
-                } else if (col == nmfConstantsMSSPM::Column_Species_GrowthRate) {
+                } else if (col == m_ColumnMap["Growth Rate"]) {
                     SpeciesGrowthRate.push_back(Setup_Tab3_SpeciesTW->item(row,col)->text());
-                } else if (col == nmfConstantsMSSPM::Column_Species_SpeciesK) {
+                } else if (col == m_ColumnMap["Species K"]) {
                     valueWithoutComma = Setup_Tab3_SpeciesTW->item(row,col)->text().remove(",");
                     SpeciesK.push_back(valueWithoutComma);
                 }
@@ -1433,26 +1435,26 @@ nmfSetup_Tab3::callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
 
     callback_ReloadSpeciesPB(nmfConstantsMSSPM::DontShowPopupError);
 
-    QList<int> columns = {nmfConstantsMSSPM::Column_Species_SpeName,
-                          nmfConstantsMSSPM::Column_Species_Guild,
-                          nmfConstantsMSSPM::Column_Species_InitBiomass,
-                          nmfConstantsMSSPM::Column_Species_GrowthRate,
-                          nmfConstantsMSSPM::Column_Species_SpeciesK};
+    QList<int> columns = {m_ColumnMap["Name"],
+                          m_ColumnMap["Guild"],
+                          m_ColumnMap["Initial Absolute Biomass"],
+                          m_ColumnMap["Growth Rate"],
+                          m_ColumnMap["Species K"]};
     for (QList<QString> list : {SpeciesNames,SpeciesGuild,SpeciesInitBiomass,SpeciesGrowthRate,SpeciesK}) {
         col = columns[index++];
         for (int row=0; row<SpeciesNames.size(); ++row) {
-            if (col == nmfConstantsMSSPM::Column_Species_Guild) {
+            if (col == m_ColumnMap["Guild"]) {
                 cbox = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(row,col));
                 cbox->setCurrentText(list[row]);
             } else {
                 item = new QTableWidgetItem();
-                if ((col == nmfConstantsMSSPM::Column_Species_InitBiomass) ||
-                    (col == nmfConstantsMSSPM::Column_Species_SpeciesK)) {
+                if ((col == m_ColumnMap["Initial Absolute Biomass"]) ||
+                    (col == m_ColumnMap["Species K"])) {
                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                                 list[row].toDouble(),m_NumSignificantDigits,6);
                     item->setText(valueWithComma);
 
-                } else if (col == nmfConstantsMSSPM::Column_Species_GrowthRate) {
+                } else if (col == m_ColumnMap["Growth Rate"]) {
                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                                 list[row].toDouble(),m_NumSignificantDigits,3);
                     item->setText(valueWithComma);

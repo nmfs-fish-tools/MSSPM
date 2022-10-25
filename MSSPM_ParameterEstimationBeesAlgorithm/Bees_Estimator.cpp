@@ -34,6 +34,7 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
 {
     bool foundOneBeesRun = false;
     bool ok=false;
+    bool endAllRuns = false;
     bool isAggProd   = (beeStruct.CompetitionForm == "AGG-PROD");
     bool isAMultiRun = (beeStruct.NLoptNumberOfRuns > 1) && (MultiRunLines.size() > 0);
     int startPos = 0;
@@ -104,6 +105,11 @@ std::cout << "Bees: isAMultiRun: " << isAMultiRun << std::endl;
     }
 
     for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
+        // If user hits the Stop button, all runs should stop but the
+        // parameters estimated so far should be presented to the user.
+        if (endAllRuns) {
+            break;
+        }
 
         NumSubRuns = 1;
         if (isAMultiRun) {
@@ -157,9 +163,8 @@ std::cout << "Bees: num est parameters: " << EstParameters.size() << std::endl;
                 // Break out if user has stopped the run
                 if (wasStoppedByUser()) {
                     std::cout << "=== === ===> Bees_Estimator StoppedByUser" << std::endl;
-                    ok = false;
-//                  break;
-                    return;
+                    ok = true;
+                    endAllRuns = true;
                 }
             }
 
@@ -199,7 +204,6 @@ std::cout << "Bees: num est parameters: " << EstParameters.size() << std::endl;
                                 bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
 
                 emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
-
             }
 
         } // end for run

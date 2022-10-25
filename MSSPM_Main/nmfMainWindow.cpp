@@ -475,8 +475,8 @@ nmfMainWindow::setup2dChart()
 void
 nmfMainWindow::setupOutputEstimateParametersWidgets()
 {
-    m_EstimatedParametersTW  = new QTabWidget();
-    QVBoxLayout* mainLayt    = new QVBoxLayout();
+    m_EstimatedParametersTW = new QTabWidget();
+    QVBoxLayout* mainLayt   = new QVBoxLayout();
 
     InitBiomassTV           = new QTableView();
     GrowthRateTV            = new QTableView();
@@ -1176,8 +1176,9 @@ nmfMainWindow::getOutputCompetition(std::vector<double> &EstCompetition)
 void
 nmfMainWindow::menu_stopRun()
 {
-    m_ProgressWidget->stopAllRuns(true);
+//  m_ProgressWidget->stopAllRuns(true);
 //  m_ProgressWidget->writeToStopRunFile();
+    m_ProgressWidget->callback_stopPB();
     enableRunWidgets(true);
 }
 
@@ -2081,7 +2082,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.3.10 ";
+    QString version = "MSSPM v1.3.10a ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2609,6 +2610,7 @@ nmfMainWindow::setupProgressChart()
                                             0.0,(double)NumGenerations,5.0,
                                             0.0,40.0,2.0);
 //    m_ProgressWidget->startTimer(100); //Move this later
+
     m_ProgressWidget->setupConnections();
     updateProgressChartAnnotation(0,(double)NumGenerations,5.0);
     m_UI->ProgressWidget->setLayout(m_ProgressWidget->hMainLayt);
@@ -3252,7 +3254,6 @@ nmfMainWindow::refreshOutputTables()
                                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                                             valueWithoutComma.toDouble(),m_NumSignificantDigits,numDecimals);
                                 }
-
                                 item = new QStandardItem(valueWithComma);
                                 item->setTextAlignment(Qt::AlignCenter);
                                 smodel->setItem(row, col, item);
@@ -3537,6 +3538,8 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_AddToReview()));
     connect(Estimation_Tab7_ptr, SIGNAL(EnableRunButtons(bool)),
             this,                SLOT(callback_EnableRunButtons(bool)));
+//  connect(Estimation_Tab7_ptr, SIGNAL(UpdateStopAfterTime(int)),
+//          this,                SLOT(callback_UpdateStopAfterTime(int)));
     connect(Estimation_Tab8_ptr, SIGNAL(LoadFromModelReview(nmfStructsQt::ModelReviewStruct)),
             this,                SLOT(callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct)));
     connect(Estimation_Tab6_ptr, SIGNAL(ReloadDiagnosticWidgets()),
@@ -3635,8 +3638,6 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_SaveForecastOutputBiomassData(std::string)));
     connect(Remora_ptr,          SIGNAL(UpdateSeedValue(int)),
             this,                SLOT(callback_UpdateSeedValue(int)));
-
-
 
 
     callback_Setup_Tab4_GrowthFormCMB("Null");
@@ -6436,8 +6437,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         EstCatchability.clear();
         for (int line=0; line<NumLines; ++line) {
             for (int j=0; j<NumSpeciesOrGuilds; ++j) {
-                val = std::stod(dataMap["Value"][j]);
-                eeFactor = (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputSurveyQ) ? -1 : 1;
+                val = QString::fromStdString(dataMap["Value"][j]).toDouble();
+                eeFactor = (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputSurveyQ ||
+                            OutputTableNames[i] == nmfConstantsMSSPM::TableOutputPredationExponent) ? -1 : 1;
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                             val,m_NumSignificantDigits,eeFactor*6);
                 item = new QStandardItem(valueWithComma);
@@ -6633,13 +6635,39 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                                BMSYValues,
                                ScaleStr,ScaleVal,
                                nmfConstantsMSSPM::Clear,
-                               YMinVal);
+                               YMinVal,
+                               nmfConstantsMSSPM::TitleChartBiomass);
         Output_Controls_ptr->clearOutputBMSY();
         if (Output_Controls_ptr->isCheckedOutputBMSY() and (NumLines == 1)) {
             Output_Controls_ptr->setTextOutputBMSY(QString::number(BMSYValues[SpeciesNum]/ScaleVal));
         }
     }
-
+    else if (OutputType == nmfConstantsMSSPM::OutputChartBiomassAndCatch) {
+        if (! m_DatabasePtr->getHarvestData(this,m_Logger,m_ProjectName,m_ModelName,
+                                            NumSpeciesOrGuilds,
+                                            nmfConstantsMSSPM::DontDivideTableByOutputBiomass,
+                                            nmfConstantsMSSPM::MultiplyTableByOutputBiomass,
+                                            nmfConstantsMSSPM::MultiplyTableByCatchability,
+                                            EstCatchability,OutputBiomass,HarvestData)) {
+            return false;
+        }
+        HarvestVec.clear();
+        HarvestVec.push_back(HarvestData);
+        showChartBiomassVsTime(NumSpeciesOrGuilds,OutputSpecies,
+                               SpeciesNum,RunLength,StartYear,
+                               Algorithms,
+                               Minimizers,
+                               ObjectiveCriteria,
+                               Scalings,
+                               HarvestVec,
+                               ObservedBiomass,
+                               BMSYValues,
+                               ScaleStr,ScaleVal,
+                               nmfConstantsMSSPM::Clear,
+                               YMinVal,
+                               nmfConstantsMSSPM::TitleChartBiomassAndCatch);
+        Output_Controls_ptr->clearOutputBMSY();
+    }
     else if (OutputType == nmfConstantsMSSPM::OutputChartHarvest) {
         if (! m_DatabasePtr->getHarvestData(this,m_Logger,m_ProjectName,m_ModelName,
                                             NumSpeciesOrGuilds,
@@ -6664,12 +6692,11 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                              MSYValues,
                              ScaleStr,ScaleVal,
                              YMinVal,YMaxVal);
-
         Output_Controls_ptr->clearOutputMSY();
-        if (Output_Controls_ptr->isCheckedOutputMSY() and (NumLines == 1))
+        if (Output_Controls_ptr->isCheckedOutputMSY() and (NumLines == 1)) {
             Output_Controls_ptr->setTextOutputMSY(QString::number(MSYValues[SpeciesNum]/ScaleVal));
+        }
     }
-
     else if (OutputType == nmfConstantsMSSPM::OutputChartExploitation) {
         if (! m_DatabasePtr->getHarvestData(this,m_Logger,m_ProjectName,m_ModelName,
                                             NumSpeciesOrGuilds,
@@ -7095,7 +7122,8 @@ nmfMainWindow::callback_ShowChartBy(QString GroupType,
                                BMSYValues,
                                ScaleStr,ScaleVal,
                                nmfConstantsMSSPM::Clear,
-                               YMinVal);
+                               YMinVal,
+                               nmfConstantsMSSPM::TitleChartBiomass);
         Output_Controls_ptr->clearOutputBMSY();
         if (Output_Controls_ptr->isCheckedOutputBMSY() and (NumLines == 1)) {
             Output_Controls_ptr->setTextOutputBMSY(QString::number(BMSYValues[SpeciesNum]/ScaleVal));
@@ -9185,7 +9213,8 @@ nmfMainWindow::showChartBiomassVsTime(
         QString &ScaleStr,
         double &ScaleVal,
         const bool& clearChart,
-        double &YMinVal)
+        double &YMinVal,
+        const std::string& title)
 {
     //
     // Draw the line chart
@@ -9235,7 +9264,7 @@ nmfMainWindow::showChartBiomassVsTime(
     bool isAveraged = isAMultiOrMohnsRhoRun();
     std::string TitlePrefix = (isAveraged) ? "Average " : "";
     ChartType = "Line";
-    MainTitle = TitlePrefix + "B(calc) with B(obs) points for: " + OutputSpecies.toStdString();
+    MainTitle = TitlePrefix + title + " for: " + OutputSpecies.toStdString();
     XLabel    = "Year";
     YLabel    = "Biomass (" + ScaleStr.toStdString() + "metric tons)";
     ScatterColor = QColor(0,191,255); // deepskyblue
@@ -9265,13 +9294,16 @@ nmfMainWindow::showChartBiomassVsTime(
 
     nmfChartLineWithScatter* lineWithScatterChart = new nmfChartLineWithScatter();
 
-    for (int line=0; line<NumLines; ++line)
-    {
-        legendCode.push_back(getLegendCode(isAveraged,
-                                           Algorithms[line],
-                                           Minimizers[line],
-                                           ObjectiveCriteria[line],
-                                           Scalings[line]));
+    for (int line=0; line<NumLines; ++line) {
+        if (title == nmfConstantsMSSPM::TitleChartBiomassAndCatch) {
+            legendCode.push_back("Catch");
+        } else {
+            legendCode.push_back(getLegendCode(isAveraged,
+                                               Algorithms[line],
+                                               Minimizers[line],
+                                               ObjectiveCriteria[line],
+                                               Scalings[line]));
+        }
     }
 
     // Load Line plot points into data structure and update the chart
@@ -9465,7 +9497,7 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
     bool isAveraged = isAMultiOrMohnsRhoRun();
     std::string TitlePrefix = (isAveraged) ? "Average " : "";
     ChartType = "Line";
-    MainTitle = TitlePrefix + "B(calc) with B(obs) points for: " + OutputSpecies.toStdString();
+    MainTitle = TitlePrefix + nmfConstantsMSSPM::TitleChartBiomass + " for: " + OutputSpecies.toStdString();
     XLabel    = "Year";
     YLabel    = "Biomass (" + ScaleStr.toStdString() + "metric tons)";
     ScatterColor = QColor(0,191,255); // deepskyblue
@@ -10699,7 +10731,7 @@ nmfMainWindow::closeEvent(QCloseEvent *event)
         menu_toggleManagerMode();
     }
 
-    m_ProgressWidget->stopAllRuns(false);
+    m_ProgressWidget->stopAllRuns();
     //m_ProgressWidget->stopTimer();
     disconnect(m_ProgressWidget,0,0,0);
     if (m_ProgressChartTimer != nullptr) {
@@ -11306,12 +11338,14 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
             this,              SLOT(callback_RunCompleted(std::string,bool)));
     connect(m_Estimator_NLopt, SIGNAL(SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)),
             this,              SLOT(callback_SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)));
-    connect(m_Estimator_NLopt, SIGNAL(AllSubRunsCompleted()),
-            this,              SLOT(callback_AllSubRunsCompleted()));
+    connect(m_Estimator_NLopt, SIGNAL(AllSubRunsCompleted(bool)),
+            this,              SLOT(callback_AllSubRunsCompleted(bool)));
     connect(m_Estimator_NLopt, SIGNAL(AMohnsRhoMultiRunCompleted()),
             this,              SLOT(callback_AMohnsRhoMultiRunCompleted()));
     connect(m_Estimator_NLopt, SIGNAL(NLoptFailureStopRunsAndReset()),
             m_ProgressWidget,  SLOT(callback_stopPB()));
+    connect(m_Estimator_NLopt, SIGNAL(RunCompletedMsg(std::string)),
+            this,              SLOT(callback_RunCompletedMsg(std::string)));
     connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
             this,              SLOT(callback_StopAllRuns()));
 
@@ -11997,6 +12031,15 @@ nmfMainWindow::updateBiomassEnsembleTable(
     }
 }
 
+void
+nmfMainWindow::callback_RunCompletedMsg(std::string msg)
+{
+    if (! m_IsMultiRun) {
+        QMessageBox::information(this, tr("Estimation Completion"),
+                                 tr(QString::fromStdString("\n"+msg+"\n").toLatin1()),
+                                 QMessageBox::Ok);
+    }
+}
 
 void
 nmfMainWindow::callback_AMohnsRhoMultiRunCompleted()
@@ -12007,14 +12050,16 @@ std::cout << "callback_AMohnsRhoMultiRunCompleted" << std::endl;
 
 }
 void
-nmfMainWindow::callback_AllSubRunsCompleted()
+nmfMainWindow::callback_AllSubRunsCompleted(bool allRunsConverged)
 {
     m_Logger->logMsg(nmfConstants::Normal,"callback_AllSubRunsCompleted");
 
     // Notify user the multi-run has completed
+    QString msg2 = allRunsConverged ? "All subruns have converged." : "Not all subruns converged.";
     QString msg  = (isAMohnsRhoMultiRun()) ?
                 "\nThe Mohn's Rho Run has successfully completed.\n" :
                 "\nThe Multi-Run has successfully completed.\n";
+    msg += "\n"+msg2+"\n";
     QMessageBox::information(this, tr("Multi-Run Completed"),
                              tr(msg.toLatin1()),QMessageBox::Ok);
 
@@ -12044,6 +12089,12 @@ nmfMainWindow::callback_AllSubRunsCompleted()
 
     QApplication::restoreOverrideCursor();
 }
+
+//void
+//nmfMainWindow::callback_UpdateStopAfterTime(int timeInSeconds)
+//{
+//    m_Estimator_NLopt->updateStopAfterTime(timeInSeconds);
+//}
 
 void
 nmfMainWindow::callback_EnableRunButtons(bool state)
@@ -12303,7 +12354,7 @@ std::cout << "Warning: TBD nmfMainWindow::updateOutputTableViews - add Competiti
         smodel = new QStandardItemModel( NumSpeciesOrGuilds, 1 );
         for (int row=0; row<NumSpeciesOrGuilds; ++row) {
             val  = ListVectors[i][row];
-            item = new QStandardItem(QString::number(val,'f',6));
+            item = new QStandardItem(QString::number(val,'e',3)); // 'f',6));
             item->setTextAlignment(Qt::AlignCenter);
             smodel->setItem(row, 0, item);
         }
@@ -12817,11 +12868,11 @@ nmfMainWindow::callback_RunCompleted(std::string output,
     m_isRunning = false;
 
     nmfUtils::isStopped(runName,msg1,msg2,stopRunFile,state);
-    if (state == "StoppedByUser")
-    {
-        m_Logger->logMsg(nmfConstants::Normal,"Run Stopped by User");
-        return;
-    }
+//    if (state == "StoppedByUser")
+//    {
+//        m_Logger->logMsg(nmfConstants::Normal,"Run Stopped by User");
+//        return;
+//    }
 
 std::cout << "=====>>>>> Run Completed" << std::endl;
     m_Logger->logMsg(nmfConstants::Normal,"Run Completed");
@@ -13391,7 +13442,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
         dataStruct.SpeciesNames.push_back(species.toStdString());
     }
 
-//  dataStruct.NumMohnsRhoMultiRuns = getNumMohnsRhoMultiRuns();
+    //  dataStruct.NumMohnsRhoMultiRuns = getNumMohnsRhoMultiRuns();
     dataStruct.isMohnsRho = Diagnostic_Tab2_ptr->isAMohnsRhoRunForSingleRun();
 
     initialGuildBiomass.clear();
@@ -13445,6 +13496,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.ObjectiveCriterion.clear();
     dataStruct.ScalingAlgorithm.clear();
     dataStruct.EstimateRunBoxes.clear();
+    dataStruct.SpeciesWeights.clear();
     dataStruct.CovariateMap                   = covariateMap;
     dataStruct.CovariateAssignment            = covariateAssignment;
     dataStruct.GrowthRateCovariateCoeff       = growthRateCovariateRanges;
@@ -13452,11 +13504,11 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.CatchabilityCovariateCoeff     = catchabilityCovariateRanges;
     dataStruct.SurveyQCovariateCoeff          = surveyQCovariateRanges;
 
-    dataStruct.useFixedSeedBees    = Estimation_Tab7_ptr->isSetToDeterministicBees();
-    dataStruct.EstimationAlgorithm = Estimation_Tab7_ptr->getCurrentAlgorithm();
-    dataStruct.ObjectiveCriterion  = Estimation_Tab7_ptr->getCurrentObjectiveCriterion();
-    dataStruct.MinimizerAlgorithm  = Estimation_Tab7_ptr->getCurrentMinimizer();
-    dataStruct.ScalingAlgorithm    = Estimation_Tab7_ptr->getCurrentScaling();
+    dataStruct.useFixedSeedBees       = Estimation_Tab7_ptr->isSetToDeterministicBees();
+    dataStruct.EstimationAlgorithm    = Estimation_Tab7_ptr->getCurrentAlgorithm();
+    dataStruct.ObjectiveCriterion     = Estimation_Tab7_ptr->getCurrentObjectiveCriterion();
+    dataStruct.MinimizerAlgorithm     = Estimation_Tab7_ptr->getCurrentMinimizer();
+    dataStruct.ScalingAlgorithm       = Estimation_Tab7_ptr->getCurrentScaling();
     dataStruct.CovariateAlgorithmType = m_DatabasePtr->getCovariateAlgorithmType(m_Logger,m_ProjectName,m_ModelName);
 
     m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
@@ -13643,15 +13695,16 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         dataStruct.NumSpecies = NumSpecies;
         checkGuildRanges(NumGuilds,dataStruct);
     } else {
-        fields     = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax","GrowthRate","GrowthRateMin","GrowthRateMax",
+        fields     = {"Weight","SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax","GrowthRate","GrowthRateMin","GrowthRateMax",
                       "SpeciesK","SpeciesKMin","SpeciesKMax","Catchability","CatchabilityMin","CatchabilityMax","SurveyQ","SurveyQMin","SurveyQMax"};
-        queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax,GrowthRate,GrowthRateMin,GrowthRateMax,";
+        queryStr   = "SELECT Weight,SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax,GrowthRate,GrowthRateMin,GrowthRateMax,";
         queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SurveyQ,SurveyQMin,SurveyQMax from " +
                       nmfConstantsMSSPM::TableSpecies +
                      " ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
         NumSpecies = dataMap["SpeName"].size();
         dataStruct.NumSpecies = NumSpecies;
+        nmfUtils::initialize(dataStruct.SpeciesWeights,     NumSpecies);
         nmfUtils::initialize(dataStruct.InitBiomass,        NumSpecies);
         nmfUtils::initialize(dataStruct.InitBiomassMin,     NumSpecies);
         nmfUtils::initialize(dataStruct.InitBiomassMax,     NumSpecies);
@@ -13668,6 +13721,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         nmfUtils::initialize(dataStruct.SurveyQMin,         NumSpecies);
         nmfUtils::initialize(dataStruct.SurveyQMax,         NumSpecies);
         for (int species=0; species<NumSpecies; ++species) {
+            dataStruct.SpeciesWeights(species)      = std::stod(dataMap["Weight"][species]);
             dataStruct.InitBiomass(species)         = std::stod(dataMap["InitBiomass"][species]);
             dataStruct.InitBiomassMin(species)      = std::stod(dataMap["InitBiomassMin"][species]);
             dataStruct.InitBiomassMax(species)      = std::stod(dataMap["InitBiomassMax"][species]);
@@ -13930,17 +13984,6 @@ std::cout << "Warning: If loading observed biomass by guild, must account for us
             //return false;
         }
     }
-
-    // If loading for a forecast, set the Forecast Harvest Type
-//    if (! m_DatabasePtr->getForecastInfo(
-//                m_ProjectName,m_ModelName,ForecastName.toStdString(),
-//                RunLength,StartYearForecast,
-//                Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-//                GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-//                ForecastHarvestType,NumRuns)) {
-//        //return false; // It might not be a forecast, so no error if fcn returns false
-//    }
-//    dataStruct.ForecastHarvestType = ForecastHarvestType;
 
     return true;
 

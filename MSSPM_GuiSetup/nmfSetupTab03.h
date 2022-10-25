@@ -45,17 +45,18 @@ class nmfSetup_Tab3: public QObject
 {
     Q_OBJECT
 
-    nmfLogger*          m_logger;
-    nmfDatabase*        m_databasePtr;
-    int                 m_NumSignificantDigits;
-    std::string         m_ProjectDir;
-    std::string         m_ProjectName;
-    std::string         m_ModelName;
-    QStringList         m_colLabelsSpecies;
-    QStringList         m_colLabelsGuilds;
+    nmfLogger*            m_logger;
+    nmfDatabase*          m_databasePtr;
+    int                   m_NumSignificantDigits;
+    std::string           m_ProjectDir;
+    std::string           m_ProjectName;
+    std::string           m_ModelName;
+    QStringList           m_colLabelsSpecies;
+    QStringList           m_colLabelsGuilds;
     std::vector<std::string> m_ModelPresetNames;
     std::map<std::string,std::vector<std::string> > m_ModelPresets;
-    QString             m_PreviousUnits;
+    QString               m_PreviousUnits;
+    std::map<QString,int> m_ColumnMap;
 
     QTabWidget*   Setup_Tabs;
     QTabWidget*   Setup_Tab3_GuildsSpeciesTabW;

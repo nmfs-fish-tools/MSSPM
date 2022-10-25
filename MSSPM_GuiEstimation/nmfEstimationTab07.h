@@ -204,6 +204,7 @@ public:
      * @param the message to append to the text widget
      */
     void appendOutputTE(QString msg);
+//  void checkAndRunStopParameterSettings();
     /**
      * @brief Removes the disk file which populates the Multi-Run popup when the user clicks View
      */
@@ -816,6 +817,7 @@ signals:
      * @param algorithm : the new algorithm selected
      */
     void SetAlgorithm(QString algorithm);
+//  void UpdateStopAfterTime(int timeInSeconds);
     /**
      * @brief Signal sent to refresh the Forecast Year Range in the Forecast->Setup GUI.
      */
