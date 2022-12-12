@@ -193,7 +193,7 @@ nmfEstimation_Tab6::initializeInitialValuesAndRangesTable()
     QModelIndex index;
 
     if (! loadCovariateAssignmentTable()) {
-//        return;
+        return;
     }
 
     if (! m_DatabasePtr->getRunLengthAndStartYear(m_Logger,m_ProjectName,m_ModelName,RunLength,StartYear)) {
@@ -325,16 +325,16 @@ nmfEstimation_Tab6::loadWidgets()
             if (okAssignment) {
                 okValues = loadCovariateInitialValuesAndRangesTable();
                 if (! okValues) {
-                    m_Logger->logMsg(nmfConstants::Error,"No covariate values and ranges data to load");
+                    m_Logger->logMsg(nmfConstants::Error,"Problem loading covariate values and ranges table");
                 }
             } else {
-                m_Logger->logMsg(nmfConstants::Error,"No covariate assignment data to load");
+                m_Logger->logMsg(nmfConstants::Error,"Problem loading covariate assignment table");
             }
         } else {
-            m_Logger->logMsg(nmfConstants::Error,"No covariate data to load");
+            m_Logger->logMsg(nmfConstants::Error,"Problem loading covariate table");
         }
     } else {
-        m_Logger->logMsg(nmfConstants::Error,"No covariate type data to load");
+        m_Logger->logMsg(nmfConstants::Error,"Problem loading covariate type");
     }
 
     return (okType && okTable && okAssignment && okValues);
@@ -387,7 +387,7 @@ nmfEstimation_Tab6::loadCovariateTable()
     int NumRecords;
     int RunLength;
     int StartYear;
-    bool retv = false;
+    bool retv = true;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -429,7 +429,6 @@ nmfEstimation_Tab6::loadCovariateTable()
                 }
             }
         }
-        retv = true;
         // Setup headers
         smodel->setHorizontalHeaderLabels(horizontalHeader);
         smodel->setVerticalHeaderLabels(verticalHeader);
@@ -456,14 +455,12 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
     int NumRecords;
     int numRows = 0;
     int numCols = 0;
-    bool retv = false;
-    bool allBlank = true;
+    bool retv = true;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     std::string tableName  = nmfConstantsMSSPM::TableCovariateAssignment;
     std::string msg = "";
-    QString value;
     QComboBox* cbox;
     QModelIndex index;
     QStandardItemModel* smodelSP = qobject_cast<QStandardItemModel*>(Estimation_Tab6_SpeciesParameterTV->model());
@@ -491,24 +488,19 @@ nmfEstimation_Tab6::loadCovariateAssignmentTable()
                 for (int col=0; col<numCols; ++col) {
                     index = smodelSP->index(row,col);
                     cbox  = qobject_cast<QComboBox*>(Estimation_Tab6_SpeciesParameterTV->indexWidget(index));
-                    value = QString::fromStdString(dataMap["CovariateName"][m++]);
-                    if (! value.isEmpty()) {
-                        allBlank = false;
-                    }
-                    cbox->setCurrentText(value);
+                    cbox->setCurrentText(QString::fromStdString(dataMap["CovariateName"][m++]));
                     Estimation_Tab6_SpeciesParameterTV->setIndexWidget(index,cbox);
                 }
             }
             Estimation_Tab6_SpeciesParameterTV->resizeColumnsToContents();
-            retv = allBlank ? false : true;
         } else {
-            return retv;
+            return false;
 //          msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Invalid number of table records found in: " +
 //                 tableName;
         }
     } else {
 //      msg = "nmfEstimation_Tab6::loadCovariateAssignmentTable: Uninitialized Species Parameter table found";
-        return retv;
+        return false;
     }
 
     if (! msg.empty()) {
@@ -598,7 +590,6 @@ nmfEstimation_Tab6::loadInitialValuesAndRangesForEditableCells()
 bool
 nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
 {
-    bool retv = false;
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
@@ -611,12 +602,12 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
     QStandardItemModel* smodelIR = nullptr;
 
     if (m_ProjectName.empty() || m_ModelName.empty()) {
-        return retv;
+        return false;
     }
 
     smodelIR = qobject_cast<QStandardItemModel*>(Estimation_Tab6_InitialValuesTV->model());
     if (smodelIR == nullptr) {
-        return retv;
+        return false;
     }
 
     if (! m_DatabasePtr->getSpecies(m_Logger,SpeciesNames)) {
@@ -625,11 +616,11 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
 //        QMessageBox::information(Estimation_Tabs, "Covariate Initial Values and Ranges Load Error",
 //                                 "\n" + QString::fromStdString(msg) + "\n",
 //                                 QMessageBox::Ok);
-        return retv;
+        return false;
     }
     int NumSpecies = SpeciesNames.size();
     if (NumSpecies == 0) {
-        return retv;
+        return false;
     }
 
     // Get data from database table
@@ -649,7 +640,7 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
         //QMessageBox::information(Estimation_Tabs, "Covariate Initial Values and Ranges Load Error",
         //                         "\n" + QString::fromStdString(msg) + "\n",
         //                         QMessageBox::Ok);
-        return retv;
+        return false;
     }
     int NumParameters = NumRecords/NumSpecies;
     int m = -1;
@@ -684,11 +675,10 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
         } // end for param
     } // end for species
 
-    retv = true;
     Estimation_Tab6_InitialValuesTV->setModel(smodelIR);
     Estimation_Tab6_InitialValuesTV->resizeColumnsToContents();
 
-    return retv;
+    return true;
 }
 
 bool
@@ -1328,10 +1318,6 @@ nmfEstimation_Tab6::callback_LoadPB()
         QMessageBox::information(Estimation_Tabs, "Covariate Load",
                                  "\nCovariate table(s) successfully loaded.\n",
                                  QMessageBox::Ok);
-    } else {
-        QMessageBox::warning(Estimation_Tabs, "Covariate Load",
-                             "\nCovariate table(s) not loaded. Check that data have been created for all tables.\n",
-                             QMessageBox::Ok);
     }
 }
 

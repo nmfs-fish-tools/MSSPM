@@ -21,6 +21,7 @@ nmfEstimation_Tab8::nmfEstimation_Tab8(QTabWidget*  tabs,
          "isStopAfterTime","StopAfterTime","isStopAfterIter","StopAfterIter",
          "isEstInitBiomassEnabled","isEstInitBiomassChecked",
          "isEstGrowthRateEnabled","isEstGrowthRateChecked",
+         "isEstGrowthRateShapeEnabled","isEstGrowthRateShapeChecked",
          "isEstCarryingCapacityEnabled","isEstCarryingCapacityChecked",
          "isEstCatchabilityEnabled","isEstCatchabilityChecked",
          "isEstCompAlphaEnabled","isEstCompAlphaChecked",
@@ -75,6 +76,18 @@ nmfEstimation_Tab8::nmfEstimation_Tab8(QTabWidget*  tabs,
     Estimation_Tab8_ModelReviewTV->setModel(m_SModel);
     Estimation_Tab8_ModelReviewTV->setSortingEnabled(true);
     Estimation_Tab8_ModelReviewTV->horizontalHeader()->hide();
+    QString msg  = "<html><strong><center>Model Review Table</center></strong><br>";
+    msg += "When the user adds a model run to this model review table, all data necessary \
+for the replication of the model are contained herein. Not all of the \
+necessary data are displayed in this table, but they are saved along with the visible data.<br>\
+<center>Data Interpretation</center><br>\
+r² - the closer to 1, the better the fit<br>\
+SSResiduals - the smaller the number, the better the fit<br>\
+AIC - the smaller the number, the better the fit<br>\
+Notes - user editable field for model details<br>\
+</html>";
+
+    Estimation_Tab8_ModelReviewTV->setWhatsThis(msg);
 
     resizeColumns();
 
@@ -408,66 +421,69 @@ nmfEstimation_Tab8::callback_SavePB()
 void
 nmfEstimation_Tab8::loadModel(QStandardItemModel* smodel, const int& row)
 {
+    int col = 9;
     nmfStructsQt::ModelReviewStruct modelReview;
 
     modelReview.ModelName                               = smodel->index(row, 0).data().toString().trimmed(); // Reload this model
 
-    modelReview.ObjectiveCriterion                      = smodel->index(row, 9).data().toString().trimmed();
-    modelReview.EstimationAlgorithm                     = smodel->index(row,10).data().toString().trimmed();
-    modelReview.MinimizerAlgorithm                      = smodel->index(row,11).data().toString().trimmed();
-    modelReview.ScalingAlgorithm                        = smodel->index(row,12).data().toString().trimmed();
-    modelReview.DatabaseSnapshot                        = smodel->index(row,13).data().toString().trimmed();
+    modelReview.ObjectiveCriterion                      = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.EstimationAlgorithm                     = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.MinimizerAlgorithm                      = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.ScalingAlgorithm                        = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.DatabaseSnapshot                        = smodel->index(row,col++).data().toString().trimmed();
 
-    modelReview.setToDeterministicBees                  = smodel->index(row,14).data().toString().trimmed();
-    modelReview.maxGenerations                          = smodel->index(row,15).data().toString().remove(",").toInt();
-    modelReview.numBees                                 = smodel->index(row,16).data().toString().remove(",").toInt();
-    modelReview.numBestSites                            = smodel->index(row,17).data().toString().remove(",").toInt();
-    modelReview.numEliteSites                           = smodel->index(row,18).data().toString().remove(",").toInt();
-    modelReview.numEliteBees                            = smodel->index(row,19).data().toString().remove(",").toInt();
-    modelReview.numOtherBees                            = smodel->index(row,20).data().toString().remove(",").toInt();
-    modelReview.neighborhoodSize                        = smodel->index(row,21).data().toString().remove(",").toInt();
-    modelReview.numSubRuns                              = smodel->index(row,22).data().toString().remove(",").toInt();
+    modelReview.setToDeterministicBees                  = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.maxGenerations                          = smodel->index(row,col++).data().toString().remove(",").toInt();
+    modelReview.numBees                                 = smodel->index(row,col++).data().toString().remove(",").toInt();
+    modelReview.numBestSites                            = smodel->index(row,col++).data().toString().remove(",").toInt();
+    modelReview.numEliteSites                           = smodel->index(row,col++).data().toString().remove(",").toInt();
+    modelReview.numEliteBees                            = smodel->index(row,col++).data().toString().remove(",").toInt();
+    modelReview.numOtherBees                            = smodel->index(row,col++).data().toString().remove(",").toInt();
+    modelReview.neighborhoodSize                        = smodel->index(row,col++).data().toString().remove(",").toInt();
+    modelReview.numSubRuns                              = smodel->index(row,col++).data().toString().remove(",").toInt();
 
-    modelReview.setToDeterministicNLopt                 = smodel->index(row,23).data().toString().remove(",").trimmed();
-    modelReview.isStopAfterValue                        = smodel->index(row,24).data().toString().remove(",").trimmed();
-    modelReview.stopAfterValue                          = smodel->index(row,25).data().toString().remove(",").trimmed();
-    modelReview.isStopAfterTime                         = smodel->index(row,26).data().toString().remove(",").trimmed();
-    modelReview.stopAfterTime                           = smodel->index(row,27).data().toString().remove(",").trimmed();
-    modelReview.isStopAfterIter                         = smodel->index(row,28).data().toString().remove(",").trimmed();
-    modelReview.stopAfterIter                           = smodel->index(row,29).data().toString().remove(",").trimmed();
+    modelReview.setToDeterministicNLopt                 = smodel->index(row,col++).data().toString().remove(",").trimmed();
+    modelReview.isStopAfterValue                        = smodel->index(row,col++).data().toString().remove(",").trimmed();
+    modelReview.stopAfterValue                          = smodel->index(row,col++).data().toString().remove(",").trimmed();
+    modelReview.isStopAfterTime                         = smodel->index(row,col++).data().toString().remove(",").trimmed();
+    modelReview.stopAfterTime                           = smodel->index(row,col++).data().toString().remove(",").trimmed();
+    modelReview.isStopAfterIter                         = smodel->index(row,col++).data().toString().remove(",").trimmed();
+    modelReview.stopAfterIter                           = smodel->index(row,col++).data().toString().remove(",").trimmed();
 
-    modelReview.isEstInitialBiomassEnabled              = smodel->index(row,30).data().toString().trimmed();
-    modelReview.isEstInitialBiomassChecked              = smodel->index(row,31).data().toString().trimmed();
-    modelReview.isEstGrowthRateEnabled                  = smodel->index(row,32).data().toString().trimmed();
-    modelReview.isEstGrowthRateChecked                  = smodel->index(row,33).data().toString().trimmed();
-    modelReview.isEstCarryingCapacityEnabled            = smodel->index(row,34).data().toString().trimmed();
-    modelReview.isEstCarryingCapacityChecked            = smodel->index(row,35).data().toString().trimmed();
-    modelReview.isEstCatchabilityEnabled                = smodel->index(row,36).data().toString().trimmed();
-    modelReview.isEstCatchabilityChecked                = smodel->index(row,37).data().toString().trimmed();
-    modelReview.isEstCompetitionAlphaEnabled            = smodel->index(row,38).data().toString().trimmed();
-    modelReview.isEstCompetitionAlphaChecked            = smodel->index(row,39).data().toString().trimmed();
-    modelReview.isEstCompetitionBetaSpeciesEnabled      = smodel->index(row,40).data().toString().trimmed();
-    modelReview.isEstCompetitionBetaSpeciesChecked      = smodel->index(row,41).data().toString().trimmed();
-    modelReview.isEstCompetitionBetaGuildsEnabled       = smodel->index(row,42).data().toString().trimmed();
-    modelReview.isEstCompetitionBetaGuildsChecked       = smodel->index(row,43).data().toString().trimmed();
-    modelReview.isEstCompetitionBetaGuildsGuildsEnabled = smodel->index(row,44).data().toString().trimmed();
-    modelReview.isEstCompetitionBetaGuildsGuildsChecked = smodel->index(row,45).data().toString().trimmed();
-    modelReview.isEstPredationRhoEnabled                = smodel->index(row,46).data().toString().trimmed();
-    modelReview.isEstPredationRhoChecked                = smodel->index(row,47).data().toString().trimmed();
-    modelReview.isEstPredationHandlingEnabled           = smodel->index(row,48).data().toString().trimmed();
-    modelReview.isEstPredationHandlingChecked           = smodel->index(row,49).data().toString().trimmed();
-    modelReview.isEstPredationExponentEnabled           = smodel->index(row,50).data().toString().trimmed();
-    modelReview.isEstPredationExponentChecked           = smodel->index(row,51).data().toString().trimmed();
-    modelReview.isEstSurveyQEnabled                     = smodel->index(row,52).data().toString().trimmed();
-    modelReview.isEstSurveyQChecked                     = smodel->index(row,53).data().toString().trimmed();
+    modelReview.isEstInitialBiomassEnabled              = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstInitialBiomassChecked              = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstGrowthRateEnabled                  = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstGrowthRateChecked                  = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstGrowthRateShapeEnabled             = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstGrowthRateShapeChecked             = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCarryingCapacityEnabled            = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCarryingCapacityChecked            = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCatchabilityEnabled                = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCatchabilityChecked                = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCompetitionAlphaEnabled            = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCompetitionAlphaChecked            = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCompetitionBetaSpeciesEnabled      = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCompetitionBetaSpeciesChecked      = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCompetitionBetaGuildsEnabled       = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCompetitionBetaGuildsChecked       = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCompetitionBetaGuildsGuildsEnabled = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstCompetitionBetaGuildsGuildsChecked = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstPredationRhoEnabled                = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstPredationRhoChecked                = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstPredationHandlingEnabled           = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstPredationHandlingChecked           = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstPredationExponentEnabled           = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstPredationExponentChecked           = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstSurveyQEnabled                     = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEstSurveyQChecked                     = smodel->index(row,col++).data().toString().trimmed();
 
-    modelReview.isAMultiRun                             = smodel->index(row,54).data().toString().trimmed();
-    modelReview.ensembleAveragingAlgorithm              = smodel->index(row,55).data().toString().trimmed();
-    modelReview.ensembleAverageBy                       = smodel->index(row,56).data().toString().trimmed();
-    modelReview.ensembleUsingBy                         = smodel->index(row,57).data().toString().trimmed();
-    modelReview.ensembleUsingAmountValue                = smodel->index(row,58).data().toString().trimmed();
-    modelReview.isEnsembleUsingPct                      = smodel->index(row,59).data().toString().trimmed();
-    modelReview.ensembleFilename                        = smodel->index(row,60).data().toString().trimmed();
+    modelReview.isAMultiRun                             = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.ensembleAveragingAlgorithm              = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.ensembleAverageBy                       = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.ensembleUsingBy                         = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.ensembleUsingAmountValue                = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.isEnsembleUsingPct                      = smodel->index(row,col++).data().toString().trimmed();
+    modelReview.ensembleFilename                        = smodel->index(row,col++).data().toString().trimmed();
 std::cout << "===> modelReview.isAMultiRun: " << modelReview.isAMultiRun.toStdString() << std::endl;
     emit LoadFromModelReview(modelReview);
 }
@@ -540,8 +556,9 @@ nmfEstimation_Tab8::updateModelReviewTable(const QStringList& rowList)
             "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
             "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
             "StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked," +
-            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstCarryingCapacityEnabled," +
-            "isEstCarryingCapacityChecked,isEstCatchabilityEnabled,isEstCatchabilityChecked," +
+            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstGrowthRateShapeEnabled,isEstGrowthRateShapeChecked," +
+            "isEstCarryingCapacityEnabled,isEstCarryingCapacityChecked," +
+            "isEstCatchabilityEnabled,isEstCatchabilityChecked," +
             "isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled," +
             "isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked," +
             "isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled," +
@@ -652,8 +669,9 @@ nmfEstimation_Tab8::saveModelReviewTable()
             "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
             "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
             "StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked," +
-            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstCarryingCapacityEnabled," +
-            "isEstCarryingCapacityChecked,isEstCatchabilityEnabled,isEstCatchabilityChecked," +
+            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstGrowthRateShapeEnabled,isEstGrowthRateShapeChecked," +
+            "isEstCarryingCapacityEnabled,isEstCarryingCapacityChecked," +
+            "isEstCatchabilityEnabled,isEstCatchabilityChecked," +
             "isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled," +
             "isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked," +
             "isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled," +
@@ -723,8 +741,9 @@ isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites,\
 numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt,\
 isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter,\
 StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked,\
-isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstCarryingCapacityEnabled,\
-isEstCarryingCapacityChecked,isEstCatchabilityEnabled,isEstCatchabilityChecked,\
+isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstGrowthRateShapeEnabled,isEstGrowthRateShapeChecked,\
+isEstCarryingCapacityEnabled,isEstCarryingCapacityChecked,\
+isEstCatchabilityEnabled,isEstCatchabilityChecked,\
 isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled,\
 isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked,\
 isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled,\
@@ -810,8 +829,10 @@ isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites,\
 numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt,\
 isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter,\
 StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked,\
-isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstCarryingCapacityEnabled,\
-isEstCarryingCapacityChecked,isEstCatchabilityEnabled,isEstCatchabilityChecked,\
+isEstGrowthRateEnabled,isEstGrowthRateChecked,\
+isEstGrowthRateShapeEnabled,isEstGrowthRateShapeChecked,\
+isEstCarryingCapacityEnabled,isEstCarryingCapacityChecked,\
+isEstCatchabilityEnabled,isEstCatchabilityChecked,\
 isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled,\
 isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked,\
 isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled,\

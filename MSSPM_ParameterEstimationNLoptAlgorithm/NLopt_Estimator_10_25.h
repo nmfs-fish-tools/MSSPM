@@ -80,7 +80,6 @@ private:
     std::vector<double>                    m_EstCarryingCapacityCovariateCoeffs;
     std::vector<double>                    m_EstInitBiomass;
     std::vector<double>                    m_EstGrowthRates;
-    std::vector<double>                    m_EstGrowthRateShape;
     std::vector<double>                    m_EstGrowthRateCovariateCoeffs;
     std::vector<double>                    m_EstInitialBiomass;
     boost::numeric::ublas::matrix<double>  m_EstPredation;
@@ -221,7 +220,6 @@ public:
      * @param EstParameters : output estimated parameters from the NLopt Optimizer
      * @param InitBiomass : estimated initial biomass parameters
      * @param GrowthRate : estimated growth rate parameters
-     * @param GrowthRateShape : estimated growth rate shape parameters
      * @param GrowthRateCovariateCoeffs : estimated growth rate covariate coefficient parameters
      * @param CarryingCapacity : estimated carrying capacity parameters
      * @param CarryingCapacityCovariateCoeffs : estimated carrying capacity covariate coefficient parameters
@@ -242,7 +240,6 @@ public:
             const double*                          EstParameters,
             std::vector<double>&                   InitBiomass,
             std::vector<double>&                   GrowthRate,
-            std::vector<double>&                   GrowthRateShape,
             std::vector<double>&                   GrowthRateCovariateCoeffs,
             std::vector<double>&                   CarryingCapacity,
             std::vector<double>&                   CarryingCapacityCovariateCoeffs,
@@ -335,12 +332,6 @@ public:
      */
     void getEstGrowthRateCovariateCoeffs(
             std::vector<double>& EstGrowthRateCovariateCoeffs);
-    /**
-     * @brief Get the estimated growth rate shape parameters
-     * @param EstGrowthRateShape : the estimated growth rate shape parameters to return
-     */
-    void getEstGrowthRateShape(
-            std::vector<double>& EstGrowthRateShape);
     /**
      * @brief Get the estimated handling values
      * @param EstHandling : the estimated handling values to return

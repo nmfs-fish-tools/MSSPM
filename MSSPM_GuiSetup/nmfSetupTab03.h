@@ -218,8 +218,14 @@ signals:
      * @brief Signal emitted after user saves Species. This will
      * allow the user to save the current Species data into a .csv
      * file.
+     * @param SpeciesName : list of species names
+     * @param SpeciesGuild : list of species guilds
+     * @param SpeciesInitialBiomass : list of initial biomasses per species
+     * @param SpeciesGrowthRate : list of growth rates per species
+     * @param SpeciesK : list of carrying capacities per species
      */
-    void SaveSpeciesSupplemental(QList<QString> SpeciesName,
+    void SaveSpeciesSupplemental(QString,
+                                 QList<QString> SpeciesName,
                                  QList<QString> SpeciesGuild,
                                  QList<QString> SpeciesInitialBiomass,
                                  QList<QString> SpeciesGrowthRate,

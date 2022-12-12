@@ -46,8 +46,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>712</width>
-            <height>773</height>
+            <width>729</width>
+            <height>810</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -682,8 +682,13 @@
                      <string>The type of normalization desired for the Biomass time series data</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Scaling Algorithms&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Since the biomass values for each species most likely are not scaled the same, these algorithms will rescale those data so that the final fitness values for each species may be combined.&lt;/p&gt;&lt;p&gt;N.B. This option is not available for the Maximum Likelihood Objective Criterion since rescaling data for that algorithm causes erroneous results when calculating the necessary sigma value.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[1] Mean&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This algorithm rescales each year's biomass data according to:&lt;/p&gt;&lt;p&gt;(B - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;ave&lt;/span&gt;) / (B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;)&lt;/p&gt;&lt;p&gt;where B is the biomass value for a particular species at a particular year, B&lt;span style=&quot; vertical-align:sub;&quot;&gt;ave&lt;/span&gt; is the average biomass over all years for a particular species, and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt; are the maximum and minimum biomass values for a particular species.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[2] Min Max&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This algorithm rescales each year's biomass data according to:&lt;/p&gt;&lt;p&gt;(B - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;) / (B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;)&lt;/p&gt;&lt;p&gt;where B is the biomass value for a particular species at a particular year and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt; are the maximum and minimum biomass values for a particular species.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Scaling Algorithms&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Since the biomass values for each species most likely are not scaled the same, these algorithms will rescale those data so that the final fitness values for each species may be combined.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[1] None&lt;/span&gt;&lt;/p&gt;&lt;p&gt;No rescaling is done on the biomass data.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[2] Mean&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This algorithm rescales each year's biomass data according to:&lt;/p&gt;&lt;p&gt;(B - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;ave&lt;/span&gt;) / (B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;)&lt;/p&gt;&lt;p&gt;where B is the biomass value for a particular species at a particular year, B&lt;span style=&quot; vertical-align:sub;&quot;&gt;ave&lt;/span&gt; is the average biomass over all years for a particular species, and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt; are the maximum and minimum biomass values for a particular species.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[3] Min Max&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This algorithm rescales each year's biomass data according to:&lt;/p&gt;&lt;p&gt;(B - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;) / (B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; - B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt;)&lt;/p&gt;&lt;p&gt;where B is the biomass value for a particular species at a particular year and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;max&lt;/span&gt; and B&lt;span style=&quot; vertical-align:sub;&quot;&gt;min&lt;/span&gt; are the maximum and minimum biomass values for a particular species.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
+                    <item>
+                     <property name="text">
+                      <string>None</string>
+                     </property>
+                    </item>
                     <item>
                      <property name="text">
                       <string>Mean</string>
@@ -2123,18 +2128,47 @@ with the non-assigned bees being assigned to random positions.</string>
                  </widget>
                 </item>
                 <item row="3" column="0">
-                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCarryingCapacityCB">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateGrowthRateShapeCB">
                   <property name="toolTip">
-                   <string>If checked, the Carrying Capacity parameter will be estimated</string>
+                   <string>If checked, the Growth Rate Shape  parameter will be estimated</string>
                   </property>
                   <property name="statusTip">
-                   <string>If checked, the Carrying Capacity parameter will be estimated</string>
+                   <string>If checked, the Growth Rate Shape  parameter will be estimated</string>
+                  </property>
+                  <property name="text">
+                   <string>Growth Rate Shape (p)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB">
+                  <property name="toolTip">
+                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
                   <property name="text">
-                   <string>Carrying Capacity (K)</string>
+                   <string>Competition (β Guild by Guild)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCatchabilityCB">
+                  <property name="toolTip">
+                   <string>If checked, the Catchability parameter will be estimated</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>If checked, the Catchability parameter will be estimated</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="text">
+                   <string>Catchability (q)</string>
                   </property>
                  </widget>
                 </item>
@@ -2154,19 +2188,19 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
-                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB">
+                <item row="1" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimatePredationHandlingCB">
                   <property name="toolTip">
-                   <string>If checked, the Competition beta Species by Species parameter will be estimated</string>
+                   <string>If checked, the Handling parameter will be estimated</string>
                   </property>
                   <property name="statusTip">
-                   <string>If checked, the Competition beta Species by Species parameter will be estimated</string>
+                   <string>If checked, the Handling parameter will be estimated</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
                   <property name="text">
-                   <string>Competition (β Species by Species)</string>
+                   <string>Predation Handling (h)</string>
                   </property>
                  </widget>
                 </item>
@@ -2183,19 +2217,19 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
-                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateInitialBiomassCB">
+                <item row="0" column="2">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimatePredationRhoCB">
                   <property name="toolTip">
-                   <string>If checked, the Initial Biomass parameter will be estimated</string>
+                   <string>If checked, the Predation rho parameter will be estimated</string>
                   </property>
                   <property name="statusTip">
-                   <string>If checked, the Initial Biomass parameter will be estimated</string>
+                   <string>If checked, the Predation rho parameter will be estimated</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
                   <property name="text">
-                   <string>Initial Biomass (B₀)</string>
+                   <string>Predation (ρ)</string>
                   </property>
                  </widget>
                 </item>
@@ -2218,71 +2252,55 @@ with the non-assigned bees being assigned to random positions.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1">
-                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCatchabilityCB">
+                <item row="4" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCarryingCapacityCB">
                   <property name="toolTip">
-                   <string>If checked, the Catchability parameter will be estimated</string>
+                   <string>If checked, the Carrying Capacity parameter will be estimated</string>
                   </property>
                   <property name="statusTip">
-                   <string>If checked, the Catchability parameter will be estimated</string>
+                   <string>If checked, the Carrying Capacity parameter will be estimated</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
                   <property name="text">
-                   <string>Catchability (q)</string>
+                   <string>Carrying Capacity (K)</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2">
-                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB">
+                <item row="1" column="0">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateInitialBiomassCB">
                   <property name="toolTip">
-                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                   <string>If checked, the Initial Biomass parameter will be estimated</string>
                   </property>
                   <property name="statusTip">
-                   <string>If checked, the Competition beta Guild by Guild parameter will be estimated</string>
+                   <string>If checked, the Initial Biomass parameter will be estimated</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
                   <property name="text">
-                   <string>Competition (β Guild by Guild)</string>
+                   <string>Initial Biomass (B₀)</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2">
-                 <widget class="QCheckBox" name="Estimation_Tab7_EstimatePredationRhoCB">
+                <item row="2" column="1">
+                 <widget class="QCheckBox" name="Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB">
                   <property name="toolTip">
-                   <string>If checked, the Predation rho parameter will be estimated</string>
+                   <string>If checked, the Competition beta Species by Species parameter will be estimated</string>
                   </property>
                   <property name="statusTip">
-                   <string>If checked, the Predation rho parameter will be estimated</string>
+                   <string>If checked, the Competition beta Species by Species parameter will be estimated</string>
                   </property>
                   <property name="layoutDirection">
                    <enum>Qt::LeftToRight</enum>
                   </property>
                   <property name="text">
-                   <string>Predation (ρ)</string>
+                   <string>Competition (β Species by Species)</string>
                   </property>
                  </widget>
                 </item>
                 <item row="2" column="2">
-                 <widget class="QCheckBox" name="Estimation_Tab7_EstimatePredationHandlingCB">
-                  <property name="toolTip">
-                   <string>If checked, the Handling parameter will be estimated</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>If checked, the Handling parameter will be estimated</string>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="text">
-                   <string>Predation Handling (h)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="2">
                  <widget class="QCheckBox" name="Estimation_Tab7_EstimatePredationExponentCB">
                   <property name="toolTip">
                    <string>If checked, the Predation Exponent (b) parameter will be estimated</string>

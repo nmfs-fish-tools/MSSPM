@@ -70,6 +70,7 @@ private:
     double                                m_EstSystemCarryingCapacity;
     std::vector<double>                   m_EstInitBiomass;
     std::vector<double>                   m_EstGrowthRates;
+    std::vector<double>                   m_EstGrowthRateShape;
     std::vector<double>                   m_EstGrowthRateCovariateCoeffs;
     std::vector<double>                   m_EstCarryingCapacities;
     std::vector<double>                   m_EstCarryingCapacityCovariateCoeffs;
@@ -227,6 +228,11 @@ public:
      * @param EstGrowthRates : vector of growth rate values per species
      */
     void getEstGrowthRates(std::vector<double> &EstGrowthRates);
+    /**
+     * @brief Gets the estimated growth rate shape parameters per species
+     * @param EstGrowthRateShape : vector of growth rate shape parameter values per species
+     */
+    void getEstGrowthRateShape(std::vector<double> &EstGrowthRateShape);
     /**
      * @brief Gets the estimated handling values per species
      * @param EstHandling : vector of handling values per species

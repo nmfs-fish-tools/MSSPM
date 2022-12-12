@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <vector>
 
-//bool m_TakeLogOfParameters = false;
-
 bool m_Quit;
 //int NLopt_Estimator::m_NLoptIters   = 0;
 int NLopt_Estimator::m_NLoptFcnEvals  = 0;
@@ -72,7 +70,6 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
                                    const double* EstParameters,
                                    std::vector<double>& initBiomass,
                                    std::vector<double>& growthRate,
-                                   std::vector<double>& growthRateShape,
                                    std::vector<double>& growthRateCovariateCoeffs,
                                    std::vector<double>& carryingCapacity,
                                    std::vector<double>& carryingCapacityCovariateCoeffs,
@@ -115,7 +112,6 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
 
     initBiomass.clear();
     growthRate.clear();
-    growthRateShape.clear();
     growthRateCovariateCoeffs.clear();
     carryingCapacity.clear();
     carryingCapacityCovariateCoeffs.clear();
@@ -151,18 +147,6 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
         growthRate.emplace_back(EstParameters[offset+i]);
     }
     offset += NumSpeciesOrGuilds;
-
-    // Extract growth rate shape parameters if is logistic
-    if (isLogistic) {
-        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-//            if (m_TakeLogOfParameters) {
-//                growthRateShape.emplace_back(std::exp(EstParameters[offset+i]));
-//            } else {
-                growthRateShape.emplace_back(EstParameters[offset+i]);
-//            }
-        }
-      offset += NumSpeciesOrGuilds;
-    }
 
     // Always extract growth rate covariates
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -331,7 +315,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     std::string speciesName;
     std::vector<double> initAbsBiomass;
     std::vector<double> growthRate;
-    std::vector<double> growthRateShape;
     std::vector<double> growthRateCovariateCoeffs;
     std::vector<double> carryingCapacity;
     std::vector<double> carryingCapacityCovariateCoeffs;
@@ -422,14 +405,13 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     nmfUtilsQt::getCovariates(NLoptDataStruct,NumYears,"CompetitionBetaGuildGuild",     competitionBetaGuildGuildCovariate);
 
     extractParameters(NLoptDataStruct, EstParameters, initAbsBiomass,
-                      growthRate,growthRateShape,growthRateCovariateCoeffs,
+                      growthRate,growthRateCovariateCoeffs,
                       carryingCapacity,carryingCapacityCovariateCoeffs,
                       catchability,catchabilityCovariateCoeffs,
                       competitionAlpha,competitionBetaSpecies,
                       competitionBetaGuilds,competitionBetaGuildsGuilds,
                       predationRho,predationHandling,predationExponent,
                       surveyQ,surveyQCovariateCoeffs);
-
 //std::cout << "extracting cov: " << growthRateCovariateCoeffs[0] << std::endl;
 
     // Since we may be estimating SurveyQ, need to divide the Observed Biomass by the SurveyQ
@@ -508,7 +490,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
             GrowthTerm      = NLoptGrowthForm->evaluate(covariateAlgorithmType,
                                                         EstBiomassTMinus1,
                                                         growthRate[species],
-                                                        growthRateShape[species],
                                                         growthRateCovariateCoeffs[species],
                                                         growthRateCovariate(timeMinus1,species),
                                                         carryingCapacity[species],
@@ -569,39 +550,37 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         }
     } // end time
 
-    // Scale the data if the user has chosen Mean or Min Max
+    // Scale the data
     std::string m_Scaling = NLoptDataStruct.ScalingAlgorithm;
-
     if (m_Scaling == "Min Max") {
-        nmfUtils::rescaleMatrixMinMax(ObsCatch,                    ObsCatchRescaled);
-        nmfUtils::rescaleMatrixMinMax(EstCatch,                    EstCatchRescaled);
-        nmfUtils::rescaleMatrixMinMax(EstBiomassSpecies,           EstBiomassRescaled);
+        nmfUtils::rescaleMatrixMinMax(ObsCatch, ObsCatchRescaled);
+        nmfUtils::rescaleMatrixMinMax(EstCatch, EstCatchRescaled);
+        nmfUtils::rescaleMatrixMinMax(EstBiomassSpecies, EstBiomassRescaled);
         nmfUtils::rescaleMatrixMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     } else if (m_Scaling == "Mean") {
-        nmfUtils::rescaleMatrixMean(ObsCatch,                      ObsCatchRescaled);
-        nmfUtils::rescaleMatrixMean(EstCatch,                      EstCatchRescaled);
-        nmfUtils::rescaleMatrixMean(EstBiomassSpecies,             EstBiomassRescaled);
-        nmfUtils::rescaleMatrixMean(ObsBiomassBySpeciesOrGuilds,   ObsBiomassBySpeciesOrGuildsRescaled);
+        nmfUtils::rescaleMatrixMean(ObsCatch, ObsCatchRescaled);
+        nmfUtils::rescaleMatrixMean(EstCatch, EstCatchRescaled);
+        nmfUtils::rescaleMatrixMean(EstBiomassSpecies, EstBiomassRescaled);
+        nmfUtils::rescaleMatrixMean(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
+    } else {
+        nmfUtils::rescaleMatrixMinMax(ObsCatch, ObsCatchRescaled);
+        nmfUtils::rescaleMatrixMinMax(EstCatch, EstCatchRescaled);
+        nmfUtils::rescaleMatrixMinMax(EstBiomassSpecies, EstBiomassRescaled);
+        nmfUtils::rescaleMatrixMinMax(ObsBiomassBySpeciesOrGuilds, ObsBiomassBySpeciesOrGuildsRescaled);
     }
+
 
     // Remove first row from all matrices because we don't want to include
     // the initial biomass in the fitness calculations.
-    if ((m_Scaling == "None") || (m_Scaling == "")) { // use the unscaled data
-        nmfUtils::removeFirstRow(ObsCatch,                           ObsCatchTrimmed);
-        nmfUtils::removeFirstRow(ObsBiomassBySpeciesOrGuilds,        ObsBiomassTrimmed);
-        nmfUtils::removeFirstRow(EstCatch,                           EstCatchTrimmed);
-        nmfUtils::removeFirstRow(EstBiomassSpecies,                  EstBiomassTrimmed);
-    } else {                   // use the rescaled data
-        nmfUtils::removeFirstRow(ObsCatchRescaled,                   ObsCatchTrimmed);
-        nmfUtils::removeFirstRow(ObsBiomassBySpeciesOrGuildsRescaled,ObsBiomassTrimmed);
-        nmfUtils::removeFirstRow(EstCatchRescaled,                   EstCatchTrimmed);
-        nmfUtils::removeFirstRow(EstBiomassRescaled,                 EstBiomassTrimmed);
-    }
+    nmfUtils::removeFirstRow(ObsCatchRescaled,                   ObsCatchTrimmed);
+    nmfUtils::removeFirstRow(ObsBiomassBySpeciesOrGuildsRescaled,ObsBiomassTrimmed);
+    nmfUtils::removeFirstRow(EstCatchRescaled,                   EstCatchTrimmed);
+    nmfUtils::removeFirstRow(EstBiomassRescaled,                 EstBiomassTrimmed);
 
     // Calculate fitness using the appropriate objective criterion
     if (NLoptDataStruct.ObjectiveCriterion == "Least Squares") {
         fitness =  nmfUtilsStatistics::calculateLeastSquares(
-                    NLoptDataStruct.SpeciesWeights,isEffortFitToCatch,
+                    isEffortFitToCatch,
                     ObsCatchTrimmed, ObsBiomassTrimmed,
                     EstCatchTrimmed, EstBiomassTrimmed,
                     NLoptDataStruct.FitWeights);
@@ -609,13 +588,18 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         // Negate the MEF here since the ranges is from -inf to 1, where 1 is best.  So we negate it,
         // then minimize that, and then negate and plot the resulting value.
         fitness = -nmfUtilsStatistics::calculateModelEfficiency(
-                    NLoptDataStruct.SpeciesWeights,isEffortFitToCatch,
+                    isEffortFitToCatch,
                     ObsCatchTrimmed, ObsBiomassTrimmed,
                     EstCatchTrimmed, EstBiomassTrimmed,
                     NLoptDataStruct.FitWeights);
     } else if (NLoptDataStruct.ObjectiveCriterion == "Maximum Likelihood") {
+        // The maximum likelihood calculations must use the unscaled data or else the results will be incorrect.
+        nmfUtils::removeFirstRow(ObsCatch,                   ObsCatchTrimmed);
+        nmfUtils::removeFirstRow(ObsBiomassBySpeciesOrGuilds,ObsBiomassTrimmed);
+        nmfUtils::removeFirstRow(EstCatch,                   EstCatchTrimmed);
+        nmfUtils::removeFirstRow(EstBiomassSpecies,          EstBiomassTrimmed);
         fitness =  nmfUtilsStatistics::calculateMaximumLikelihoodNoRescale(
-                    NLoptDataStruct.SpeciesWeights,isEffortFitToCatch,
+                    isEffortFitToCatch,
                     ObsCatchTrimmed, ObsBiomassTrimmed,
                     EstCatchTrimmed, EstBiomassTrimmed,
                     NLoptDataStruct.FitWeights);
@@ -963,15 +947,12 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                         emit NLoptFailureStopRunsAndReset();
                         return;
                     }
+
                     extractParameters(NLoptStruct, &m_Parameters[0],
                             m_EstInitBiomass,
-                            m_EstGrowthRates,
-                            m_EstGrowthRateShape,
-                            m_EstGrowthRateCovariateCoeffs,
-                            m_EstCarryingCapacities,
-                            m_EstCarryingCapacityCovariateCoeffs,
-                            m_EstCatchability,
-                            m_EstCatchabilityCovariateCoeffs,
+                            m_EstGrowthRates,        m_EstGrowthRateCovariateCoeffs,
+                            m_EstCarryingCapacities, m_EstCarryingCapacityCovariateCoeffs,
+                            m_EstCatchability,       m_EstCatchabilityCovariateCoeffs,
                             m_EstAlpha,
                             m_EstBetaSpecies,
                             m_EstBetaGuilds,
@@ -979,9 +960,7 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                             m_EstPredation,
                             m_EstHandling,
                             m_EstExponent,
-                            m_EstSurveyQ,
-                            m_EstSurveyQCovariateCoeffs);
-
+                            m_EstSurveyQ,            m_EstSurveyQCovariateCoeffs);
 //for (int j=0;j<(int)m_Parameters.size();++j) {std::cout << j << ": est param: " << m_Parameters[j] << std::endl;}
 
                     createOutputStr(m_Parameters.size(),
@@ -1095,10 +1074,9 @@ NLopt_Estimator::createOutputStr(
     bestFitnessStr += "<br>Best Fitness (SSE) value of all runs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + QString::number(bestFitness,'f',2).toStdString();
     bestFitnessStr += "<br>Std dev of Best Fitness values from all runs:&nbsp;&nbsp;" + QString::number(fitnessStdDev,'f',2).toStdString();
     bestFitnessStr += "<br><br><strong>Estimated Parameters:</strong><br>";
-    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Initial Absolute Biomass:    ",  m_EstInitBiomass,               false);
-    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate:          ",         m_EstGrowthRates,               false);
-    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate Shape Parameters: ", m_EstGrowthRateShape,           false);
-    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ", m_EstGrowthRateCovariateCoeffs, false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Initial Absolute Biomass:    ",  m_EstInitBiomass,  false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate:          ",         m_EstGrowthRates,  false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ", m_EstGrowthRateCovariateCoeffs,  false);
 
     if (growthForm == "Logistic") {
         bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity:  ",                  m_EstCarryingCapacities,             true);
@@ -1172,12 +1150,6 @@ void
 NLopt_Estimator::getEstGrowthRateCovariateCoeffs(std::vector<double>& estGrowthRateCovariateCoeffs)
 {
     estGrowthRateCovariateCoeffs = m_EstGrowthRateCovariateCoeffs;
-}
-
-void
-NLopt_Estimator::getEstGrowthRateShape(std::vector<double>& estGrowthRateShape)
-{
-    estGrowthRateShape = m_EstGrowthRateShape;
 }
 
 void

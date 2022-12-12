@@ -122,7 +122,6 @@ nmfEstimation_Tab1::nmfEstimation_Tab1(QTabWidget*  tabs,
     Estimation_Tab1_SpeciesRangeSB->setEnabled(false);
     Estimation_Tab1_MinMaxCMB->setEnabled(false);
 
-
     readSettings();
 
 } // end constructor
@@ -378,6 +377,8 @@ nmfEstimation_Tab1::callback_ImportPB()
 {
     QString filename = "";
 
+    showCovariateColumns(Estimation_Tab1_SpeciesPopulationTV,true);
+
     if (onGuildTab()) {
         callback_ImportGuild(nmfConstantsMSSPM::Query_User_For_Filename,filename);
     } else {
@@ -386,6 +387,7 @@ nmfEstimation_Tab1::callback_ImportPB()
                                filename);
     }
 
+    showCovariateColumns(Estimation_Tab1_SpeciesPopulationTV,false);
 }
 
 void
@@ -423,15 +425,14 @@ nmfEstimation_Tab1::importGuildData(const QString& tableName,
     };
 
     bool loadOK = nmfUtilsQt::loadGuildsSpeciesTableview(
-                Estimation_Tabs, m_GuildModel, m_ColumnMap,
+                Estimation_Tabs, m_GuildModel,
                 "Guild",inputDataPath, tableName, SpeciesGuilds,
-                queryForFilename, guildsFilename, errorMsg);
+                queryForFilename, guildsFilename, 0, errorMsg);
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return;
     }
     Estimation_Tab1_GuildPopulationTV->resizeColumnsToContents();
-
     if (updateSetup) {
         // Load signal with data to send to Species Setup tab
         QList<QString> GuildNames;
@@ -439,8 +440,8 @@ nmfEstimation_Tab1::importGuildData(const QString& tableName,
         QList<QString> GuildK;
         for (int row=0; row<m_GuildModel->rowCount(); ++row) {
             GuildNames.push_back( m_GuildModel->item(row,ColumnNumbers[0])->text());
-            GrowthRate.push_back( m_GuildModel->item(row,ColumnNumbers[1])->text());
-            GuildK.push_back(     m_GuildModel->item(row,ColumnNumbers[2])->text());
+            GrowthRate.push_back( m_GuildModel->item(row,ColumnNumbers[1])->text().remove(","));
+            GuildK.push_back(     m_GuildModel->item(row,ColumnNumbers[2])->text().remove(","));
         }
         emit UpdateGuildSetupData(GuildNames,GrowthRate,GuildK);
     }
@@ -457,9 +458,10 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
 
     bool loadOK = nmfUtilsQt::loadGuildsSpeciesTableview(
-                Estimation_Tabs, m_SpeciesModel, m_ColumnMap,
+                Estimation_Tabs, m_SpeciesModel,
                 "Species", inputDataPath, tableName, SpeciesGuilds,
-                queryForFilename, speciesFilename, errorMsg);
+                queryForFilename, speciesFilename, m_ColumnMap["SpeName"], errorMsg);
+
     if (! loadOK) {
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return;
@@ -478,6 +480,7 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
             SpeciesGrowthRate.push_back( m_SpeciesModel->item(row,m_ColumnMap["GrowthRate"])->text());
             SpeciesK.push_back(          m_SpeciesModel->item(row,m_ColumnMap["SpeciesK"])->text().remove(","));
         }
+
         emit UpdateSpeciesSetupData(SpeciesNames,SpeciesGuilds,SpeciesInitBiomass,
                                     SpeciesGrowthRate,SpeciesK);
         QMessageBox::information(Estimation_Tabs, "Data Updated",
@@ -591,6 +594,44 @@ nmfEstimation_Tab1::callback_SpeciesSuppCB(bool isBoxChecked)
     }
 }
 
+
+bool
+nmfEstimation_Tab1::checkSpeciesDataPrimary(bool showPopup)
+{
+    double WeightVal = 0;
+    QString SpeName;
+    QString InitBiomass;
+    QString GrowthRate;
+    QString SpeciesK;
+    QString Weight;
+    QString msg;
+    QModelIndex index;
+
+    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
+        index = m_SpeciesModel->index(i,m_ColumnMap["Weight"]);
+        Weight = index.data().toString().remove(",");
+        WeightVal = Weight.toDouble();
+        index = m_SpeciesModel->index(i,m_ColumnMap["SpeName"]);
+        SpeName = index.data().toString().remove(",");
+        index = m_SpeciesModel->index(i,m_ColumnMap["InitBiomass"]);
+        InitBiomass = index.data().toString().remove(",");
+        index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRate"]);
+        GrowthRate = index.data().toString().remove(",");
+        index = m_SpeciesModel->index(i,m_ColumnMap["SpeciesK"]);
+        SpeciesK = index.data().toString().remove(",");
+        if (nmfUtilsQt::emptyField({Weight,SpeName,InitBiomass,GrowthRate,SpeciesK})) {
+            checkAndShowEmptyFieldError(showPopup,"checkSpeciesDataPrimary");
+            return false;
+        }
+        if (WeightVal < 0.0 || WeightVal > 1.0) {
+            msg = "\nFound out of range species weight. All species weights must be between 0 and 1, inclusive.\n";
+            QMessageBox::critical(Estimation_Tabs, "Error", msg, QMessageBox::Ok);
+            return false;
+        }
+    }
+    return true;
+}
+
 void
 nmfEstimation_Tab1::clearWidgets()
 {
@@ -659,6 +700,24 @@ nmfEstimation_Tab1::showAllColumns(QTableView* tv)
     for (int i=0; i<tv->model()->columnCount(); ++i) {
         tv->setColumnHidden( i,false);
     }
+    showCovariateColumns(tv,false); // Hide them for now as covariates are entered in their own tab (Tab 6)
+}
+
+void
+nmfEstimation_Tab1::showCovariateColumns(QTableView* tv, const bool& show)
+{
+    QString colName;
+    QStringList SpeciesSupp = {"GrowthRateCovarCoeff","SpeciesKCovarCoeff"};
+//    QStringList GuildSupp   = {"Catchability"};
+//    QStringList SuppColumns = (tv == Estimation_Tab1_SpeciesPopulationTV) ?
+//                                  SpeciesSupp : GuildSupp;
+
+    for (int i = 0; i < tv->model()->columnCount(); ++i) {
+        colName = tv->model()->headerData(i, Qt::Horizontal).toString();
+        if (SpeciesSupp.contains(colName)) {
+            tv->setColumnHidden(i,!show);
+        }
+    }
 }
 
 
@@ -685,7 +744,7 @@ void
 nmfEstimation_Tab1::showSuppColumns(QTableView* tv, const bool& show)
 {
     QString colName;
-    QStringList SpeciesSupp = {"SurveyQ","Catchability","SpeDependence","ExploitationRate"};
+    QStringList SpeciesSupp = {"GrowthRateShape","SurveyQ","Catchability","SpeDependence","ExploitationRate"};
     QStringList GuildSupp   = {"Catchability"};
     QStringList SuppColumns = (tv == Estimation_Tab1_SpeciesPopulationTV) ?
                                   SpeciesSupp : GuildSupp;
@@ -696,6 +755,7 @@ nmfEstimation_Tab1::showSuppColumns(QTableView* tv, const bool& show)
             tv->setColumnHidden(i,!show);
         }
     }
+    showCovariateColumns(tv,false); // Hide them for now as covariates are entered in their own tab (Tab 6)
 }
 
 void
@@ -706,6 +766,7 @@ nmfEstimation_Tab1::showRangeColumns(QTableView* tv, const bool& show)
                                     "GrowthRateMin","GrowthRateMax",
                                     "SpeciesKMin","SpeciesKMax"};
     QStringList SpeciesRangeSupp = {"SurveyQMin","SurveyQMax",
+                                    "GrowthRateShapeMin","GrowthRateShapeMax",
                                     "CatchabilityMin","CatchabilityMax"};
     QStringList GuildRange       = {"GrowthRateMin","GrowthRateMax",
                                     "GuildKMin","GuildKMax"};
@@ -959,6 +1020,7 @@ nmfEstimation_Tab1::savePopulationParametersGuilds(bool showPopup)
     return true;
 }
 
+
 bool
 nmfEstimation_Tab1::isAnySurveyQZero(const bool& showPopup)
 {
@@ -1097,6 +1159,7 @@ nmfEstimation_Tab1::isOkSpeciesDataRange(bool showPopup)
     QString BadParameter;
     QString SpeName,InitBiomass,InitBiomassMin,InitBiomassMax;
     QString GrowthRate,GrowthRateMin,GrowthRateMax;
+    QString GrowthRateShape,GrowthRateShapeMin,GrowthRateShapeMax;
     QString SpeciesK,SpeciesKMin,SpeciesKMax;
     QModelIndex index;
     QString valueWithoutComma;
@@ -1124,6 +1187,14 @@ nmfEstimation_Tab1::isOkSpeciesDataRange(bool showPopup)
         index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRateMax"]);
         GrowthRateMax = index.data().toString().remove(",");
         cmd += "GrowthRateMax=" + GrowthRateMax + ",";
+        index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShape"]);
+        GrowthRateShape = index.data().toString().remove(",");
+        index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMin"]);
+        GrowthRateShapeMin = index.data().toString().remove(",");
+        cmd += "GrowthRateShapeMin=" + GrowthRateShapeMin + ",";
+        index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMax"]);
+        GrowthRateShapeMax = index.data().toString().remove(",");
+        cmd += "GrowthRateShapeMax=" + GrowthRateShapeMax + ",";
         index = m_SpeciesModel->index(i,m_ColumnMap["SpeciesK"]);
         valueWithoutComma = index.data().toString().remove(",");
         SpeciesK = valueWithoutComma;
@@ -1138,12 +1209,14 @@ nmfEstimation_Tab1::isOkSpeciesDataRange(bool showPopup)
         cmd += " WHERE SpeName = '" + SpeName + "'";
         if (nmfUtilsQt::emptyField({SpeName,InitBiomassMin,InitBiomassMax,
                                     GrowthRateMin,GrowthRateMax,
+                                    GrowthRateShapeMin,GrowthRateShapeMax,
                                     SpeciesKMin,SpeciesKMax})) {
             checkAndShowEmptyFieldError(showPopup,"saveSpeciesDataRange");
             return false;
         }
         if (nmfUtilsQt::outOfRange({"InitBiomass",InitBiomass,InitBiomassMin,InitBiomassMax,
                                     "GrowthRate",GrowthRate,GrowthRateMin,GrowthRateMax,
+                                    "GrowthRateShape",GrowthRateShape,GrowthRateShapeMin,GrowthRateShapeMax,
                                     "SpeciesK",SpeciesK,SpeciesKMin,SpeciesKMax},BadParameter)) {
             checkAndShowOutOfRangeError("Species",SpeName,BadParameter,nmfConstantsMSSPM::ShowPopupError);
             return false;
@@ -1235,23 +1308,26 @@ nmfEstimation_Tab1::savePopulationParameters(const bool& showPopup)
         index = m_SpeciesModel->index(i,m_ColumnMap["SpeName"]);
         SpeName = index.data().toString().remove(",");
 
-        cmd += "Weight="               + QString::number(m_SpeciesModel->index(i,m_ColumnMap["Weight"]).data().toString().remove(",").toDouble(),'f',6) + ",";
-        cmd += "InitBiomass="          + QString::number(m_SpeciesModel->index(i,m_ColumnMap["InitBiomass"]).data().toString().remove(",").toDouble(),'f',6) + ",";
-        cmd += "InitBiomassMin="       + QString::number(m_SpeciesModel->index(i,m_ColumnMap["InitBiomassMin"]).data().toString().remove(",").toDouble(),'f',6) + ",";
-        cmd += "InitBiomassMax="       + QString::number(m_SpeciesModel->index(i,m_ColumnMap["InitBiomassMax"]).data().toString().remove(",").toDouble(),'f',6) + ",";
-        cmd += "GrowthRate="           + m_SpeciesModel->index(i, m_ColumnMap["GrowthRate"]).data().toString().remove(",") + ",";
-        cmd += "GrowthRateMin="        + m_SpeciesModel->index(i, m_ColumnMap["GrowthRateMin"]).data().toString().remove(",") + ",";
-        cmd += "GrowthRateMax="        + m_SpeciesModel->index(i, m_ColumnMap["GrowthRateMax"]).data().toString().remove(",") + ",";
-        cmd += "SpeciesK="             + m_SpeciesModel->index(i, m_ColumnMap["SpeciesK"]).data().toString().remove(",") + ",";
-        cmd += "SpeciesKMin="          + m_SpeciesModel->index(i, m_ColumnMap["SpeciesKMin"]).data().toString().remove(",") + ",";
-        cmd += "SpeciesKMax="          + m_SpeciesModel->index(i,m_ColumnMap["SpeciesKMax"]).data().toString().remove(",") + ",";
-        cmd += "SurveyQ="              + m_SpeciesModel->index(i,m_ColumnMap["SurveyQ"]).data().toString().remove(",") + ",";
-        cmd += "SurveyQMin="           + m_SpeciesModel->index(i,m_ColumnMap["SurveyQMin"]).data().toString().remove(",") + ",";
-        cmd += "SurveyQMax="           + m_SpeciesModel->index(i,m_ColumnMap["SurveyQMax"]).data().toString().remove(",") + ",";
-        cmd += "Catchability="         + m_SpeciesModel->index(i,m_ColumnMap["Catchability"]).data().toString().remove(",") + ",";
-        cmd += "CatchabilityMin="      + m_SpeciesModel->index(i,m_ColumnMap["CatchabilityMin"]).data().toString().remove(",") + ",";
-        cmd += "CatchabilityMax="      + m_SpeciesModel->index(i,m_ColumnMap["CatchabilityMax"]).data().toString().remove(",");
-        cmd += " WHERE SpeName = '" + SpeName + "'";
+        cmd += "Weight="             + QString::number(m_SpeciesModel->index(i,m_ColumnMap["Weight"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "InitBiomass="        + QString::number(m_SpeciesModel->index(i,m_ColumnMap["InitBiomass"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "InitBiomassMin="     + QString::number(m_SpeciesModel->index(i,m_ColumnMap["InitBiomassMin"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "InitBiomassMax="     + QString::number(m_SpeciesModel->index(i,m_ColumnMap["InitBiomassMax"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "GrowthRate="         + m_SpeciesModel->index(i,m_ColumnMap["GrowthRate"]).data().toString().remove(",") + ",";
+        cmd += "GrowthRateMin="      + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateMin"]).data().toString().remove(",") + ",";
+        cmd += "GrowthRateMax="      + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateMax"]).data().toString().remove(",") + ",";
+        cmd += "GrowthRateShape="    + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShape"]).data().toString().remove(",") + ",";
+        cmd += "GrowthRateShapeMin=" + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMin"]).data().toString().remove(",") + ",";
+        cmd += "GrowthRateShapeMax=" + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMax"]).data().toString().remove(",") + ",";
+        cmd += "SpeciesK="           + m_SpeciesModel->index(i,m_ColumnMap["SpeciesK"]).data().toString().remove(",") + ",";
+        cmd += "SpeciesKMin="        + m_SpeciesModel->index(i,m_ColumnMap["SpeciesKMin"]).data().toString().remove(",") + ",";
+        cmd += "SpeciesKMax="        + m_SpeciesModel->index(i,m_ColumnMap["SpeciesKMax"]).data().toString().remove(",") + ",";
+        cmd += "SurveyQ="            + m_SpeciesModel->index(i,m_ColumnMap["SurveyQ"]).data().toString().remove(",") + ",";
+        cmd += "SurveyQMin="         + m_SpeciesModel->index(i,m_ColumnMap["SurveyQMin"]).data().toString().remove(",") + ",";
+        cmd += "SurveyQMax="         + m_SpeciesModel->index(i,m_ColumnMap["SurveyQMax"]).data().toString().remove(",") + ",";
+        cmd += "Catchability="       + m_SpeciesModel->index(i,m_ColumnMap["Catchability"]).data().toString().remove(",") + ",";
+        cmd += "CatchabilityMin="    + m_SpeciesModel->index(i,m_ColumnMap["CatchabilityMin"]).data().toString().remove(",") + ",";
+        cmd += "CatchabilityMax="    + m_SpeciesModel->index(i,m_ColumnMap["CatchabilityMax"]).data().toString().remove(",");
+        cmd += " WHERE SpeName = '"  + SpeName + "'";
 
         errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
         if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -1280,38 +1356,48 @@ std::cout << "nmfEstimation_Tab1::savePopulationParameterGuildK tbd" << std::end
 }
 
 bool
-nmfEstimation_Tab1::checkSpeciesDataPrimary(bool showPopup)
+nmfEstimation_Tab1::saveSpeciesDataPrimary(bool showPopup)
 {
-    double WeightVal = 0;
-    QString SpeName;
-    QString InitBiomass;
+    std::string errorMsg;
+    QString cmd;
+    QString SpeName,InitBiomass;
     QString GrowthRate;
     QString SpeciesK;
-    QString Weight;
-    QString msg;
     QModelIndex index;
+    QString valueWithoutComma;
 
     for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
-        index = m_SpeciesModel->index(i,m_ColumnMap["Weight"]);
-        Weight = index.data().toString().remove(",");
-        WeightVal = Weight.toDouble();
-        index = m_SpeciesModel->index(i,m_ColumnMap["SpeName"]);
+        cmd  = "UPDATE " + QString::fromStdString(nmfConstantsMSSPM::TableSpecies) + " SET ";
+        index = m_SpeciesModel->index(i,0);
         SpeName = index.data().toString().remove(",");
-        index = m_SpeciesModel->index(i,m_ColumnMap["InitBiomass"]);
-        InitBiomass = index.data().toString().remove(",");
-        index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRate"]);
+        index = m_SpeciesModel->index(i,1);
+        valueWithoutComma = index.data().toString().remove(",");
+        InitBiomass = valueWithoutComma;
+        cmd += "InitBiomass=" + InitBiomass + ",";
+        index = m_SpeciesModel->index(i,4);
         GrowthRate = index.data().toString().remove(",");
-        index = m_SpeciesModel->index(i,m_ColumnMap["SpeciesK"]);
-        SpeciesK = index.data().toString().remove(",");
-        if (nmfUtilsQt::emptyField({Weight,SpeName,InitBiomass,GrowthRate,SpeciesK})) {
-            checkAndShowEmptyFieldError(showPopup,"checkSpeciesDataPrimary");
+        cmd += "GrowthRate=" + GrowthRate + ",";
+        index = m_SpeciesModel->index(i,8);
+        valueWithoutComma = index.data().toString().remove(",");
+        SpeciesK = valueWithoutComma;
+        cmd += "SpeciesK=" + SpeciesK;
+        cmd += " WHERE SpeName = '" + SpeName + "'";
+        if (nmfUtilsQt::emptyField({SpeName,InitBiomass,GrowthRate,SpeciesK})) {
+            checkAndShowEmptyFieldError(showPopup,"saveSpeciesDataPrimary");
             return false;
         }
-        if (WeightVal < 0.0 || WeightVal > 1.0) {
-            msg = "\nFound out of range species weight. All species weights must be between 0 and 1, inclusive.\n";
-            QMessageBox::critical(Estimation_Tabs, "Error", msg, QMessageBox::Ok);
-            return false;
-        }
+        // Not necessary since we're saving in savePopulationParameters()
+        //errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd.toStdString());
+        //if (nmfUtilsQt::isAnError(errorMsg)) {
+        //    m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1 saveSpeciesDataPrimary: Write table error: " + errorMsg);
+        //    m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd.toStdString());
+        //    if (showPopup) {
+        //        QMessageBox::warning(Estimation_Tabs, "Error",
+        //                             "\nError in Save command.  Check that all cells are populated.\n",
+        //                             QMessageBox::Ok);
+        //    }
+        //    return false;
+        //}
     }
     return true;
 }
@@ -1347,7 +1433,7 @@ nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
         }
     }
 
-    if (! checkSpeciesDataPrimary(showPopup)) {
+    if (! saveSpeciesDataPrimary(showPopup)) {
         return false;
     }
 
@@ -1366,6 +1452,8 @@ nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
 
     return true;
 }
+
+
 
 void
 nmfEstimation_Tab1::updateBiomassAbsoluteTable()
@@ -1405,6 +1493,7 @@ nmfEstimation_Tab1::updateBiomassAbsoluteTable()
     emit ReloadSetupWidgets();
 }
 
+
 void
 nmfEstimation_Tab1::callback_ExportPB()
 {
@@ -1417,18 +1506,18 @@ nmfEstimation_Tab1::callback_ExportPB()
     QList<QString> GuildGrowthRate;
     QList<QString> GuildK;
     QList<QString> SpeciesName;
-    QList<QString> SpeciesGuild;
+//    QList<QString> SpeciesGuild;
     QList<QString> SpeciesInitialBiomass;
     QList<QString> SpeciesGrowthRate;
     QList<QString> SpeciesK;
 
-    isValidFilename = getCSVFileName(tableNameStr);
+    isValidFilename = nmfUtilsQt::getCSVFileName(Estimation_Tabs,tableNameStr);
     if (isValidFilename) {
         if (isGuildVisible) {
             saveGuildsCSVFile(tableNameStr,GuildName,GuildGrowthRate,GuildK);
         } else {
             emit LoadSpeciesGuild();
-            saveSpeciesCSVFile(tableNameStr,SpeciesName,m_SpeciesGuild,
+            callback_SaveSpeciesCSVFile(tableNameStr,SpeciesName,m_SpeciesGuild,
                                SpeciesInitialBiomass,SpeciesGrowthRate,SpeciesK);
         }
     }
@@ -1440,74 +1529,36 @@ nmfEstimation_Tab1::setSpeciesGuild(QList<QString> SpeciesGuildList)
     m_SpeciesGuild = SpeciesGuildList;
 }
 
-//void
-//nmfEstimation_Tab1::callback_SaveSpeciesCSVFile(
-//        QList<QString> SpeciesName,
-//        QList<QString> SpeciesGuild,
-//        QList<QString> SpeciesInitialBiomass,
-//        QList<QString> SpeciesGrowthRate,
-//        QList<QString> SpeciesK)
-//{
-//    QString tableName = QString::fromStdString(nmfConstantsMSSPM::TableSpecies);
-//    bool isValidFilename = getCSVFileName(tableName);
-//    if (isValidFilename) {
-//        saveSpeciesCSVFile(tableName,SpeciesName,SpeciesGuild,SpeciesInitialBiomass,
-//                           SpeciesGrowthRate,SpeciesK);
-//    }
-//}
 
 void
-nmfEstimation_Tab1::callback_SaveGuildsCSVFile(
-        QList<QString> GuildName,
-        QList<QString> GrowthRate,
-        QList<QString> GuildK)
+nmfEstimation_Tab1::callback_QueryAndSaveSpeciesCSVFile(
+        QString tableNameStr,
+        QList<QString> SpeciesName,
+        QList<QString> SpeciesGuild,
+        QList<QString> SpeciesInitialBiomass,
+        QList<QString> SpeciesGrowthRate,
+        QList<QString> SpeciesK)
 {
-    QString tableName = QString::fromStdString(nmfConstantsMSSPM::TableGuilds);
-    bool isValidFilename = getCSVFileName(tableName);
-
+    bool isValidFilename = nmfUtilsQt::getCSVFileName(Estimation_Tabs,tableNameStr);
     if (isValidFilename) {
-        saveGuildsCSVFile(tableName,GuildName,GrowthRate,GuildK);
+        callback_SaveSpeciesCSVFile(
+                tableNameStr,
+                SpeciesName,
+                SpeciesGuild,
+                SpeciesInitialBiomass,
+                SpeciesGrowthRate,
+                SpeciesK);
     }
-}
-
-bool
-nmfEstimation_Tab1::getCSVFileName(QString& tableName)
-{
-    bool retv = true;
-    // Save time series data to a .csv file
-    QString msg = "\nOK to use default file name for " + tableName + " .csv file and overwrite any previous file?";
-    QMessageBox::StandardButton reply = QMessageBox::question(Estimation_Tabs, tr("Default "+tableName.toLatin1()+" CSV File"),
-                                                              tr(msg.toLatin1()),
-                                                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
-                                                              QMessageBox::Yes);
-    if (reply == QMessageBox::Cancel) {
-        retv = false;
-    } else if (reply == QMessageBox::No) {
-        bool ok;
-        QString tag = QInputDialog::getText(Estimation_Tabs, tr(tableName.toLatin1()+" Files"),
-                                            tr("Enter "+tableName.toLatin1()+" CSV filename version tag (omit any '_'): "),
-                                            QLineEdit::Normal, "", &ok);
-        if (ok && !tag.isEmpty()) {
-            tableName += "_"+tag;
-            retv = true;
-        } else if (tag.isEmpty()) {
-            QMessageBox::warning(Estimation_Tabs, "Tag Error",
-                                 "\nError: Please enter a valid (i.e., non-blank) tag.\n",
-                                 QMessageBox::Ok);
-            retv = false;
-        }
-    }
-
-    return retv;
 }
 
 void
-nmfEstimation_Tab1::saveSpeciesCSVFile(QString& tableName,
-                                       QList<QString>& SpeciesName,
-                                       QList<QString>& SpeciesGuild,
-                                       QList<QString>& SpeciesInitialBiomass,
-                                       QList<QString>& SpeciesGrowthRate,
-                                       QList<QString>& SpeciesK)
+nmfEstimation_Tab1::callback_SaveSpeciesCSVFile(
+        QString tableName,
+        QList<QString> SpeciesName,
+        QList<QString> SpeciesGuild,
+        QList<QString> SpeciesInitialBiomass,
+        QList<QString> SpeciesGrowthRate,
+        QList<QString> SpeciesK)
 {
     bool okSave;
     bool isExportFromSetup = (SpeciesName.size() > 0);
@@ -1546,6 +1597,20 @@ nmfEstimation_Tab1::saveSpeciesCSVFile(QString& tableName,
                           nmfConstantsMSSPM::Query_User_For_Filename,"");
     }
 
+}
+
+void
+nmfEstimation_Tab1::callback_SaveGuildsCSVFile(
+        QList<QString> GuildName,
+        QList<QString> GrowthRate,
+        QList<QString> GuildK)
+{
+    QString tableName = QString::fromStdString(nmfConstantsMSSPM::TableGuilds);
+    bool isValidFilename = nmfUtilsQt::getCSVFileName(Estimation_Tabs,tableName);
+
+    if (isValidFilename) {
+        saveGuildsCSVFile(tableName,GuildName,GrowthRate,GuildK);
+    }
 }
 
 void
@@ -1678,6 +1743,9 @@ nmfEstimation_Tab1::setupHelpSpecies()
     smodel->horizontalHeaderItem(m_ColumnMap["GrowthRate"])->setToolTip("Initial Growth Rate");
     smodel->horizontalHeaderItem(m_ColumnMap["GrowthRateMin"])->setToolTip("Minimum Growth Rate");
     smodel->horizontalHeaderItem(m_ColumnMap["GrowthRateMax"])->setToolTip("Maximum Growth Rate");
+    smodel->horizontalHeaderItem(m_ColumnMap["GrowthRateShape"])->setToolTip("Growth Rate Shape Parameter");
+    smodel->horizontalHeaderItem(m_ColumnMap["GrowthRateShapeMin"])->setToolTip("Minimum Growth Rate Shape Parameter Value");
+    smodel->horizontalHeaderItem(m_ColumnMap["GrowthRateShapeMax"])->setToolTip("Maximum Growth Rate Shape Parameter Value");
     smodel->horizontalHeaderItem(m_ColumnMap["SpeciesK"])->setToolTip("Initial Carrying Capacity");
     smodel->horizontalHeaderItem(m_ColumnMap["SpeciesKMin"])->setToolTip("Minimum Carrying Capacity");
     smodel->horizontalHeaderItem(m_ColumnMap["SpeciesKMax"])->setToolTip("Maximum Carrying Capacity");
@@ -1708,6 +1776,15 @@ nmfEstimation_Tab1::setupHelpSpecies()
     msg  = "</html><strong><center>Maximum Growth Rate</center></strong><br>";
     msg += "The maximum growth rate must be greater than or equal to the initial growth rate";
     smodel->horizontalHeaderItem(m_ColumnMap["GrowthRateMax"])->setWhatsThis(prefix+msg+suffix);
+    msg  = "</html><strong><center>Growth Rate Shape Parameter</center></strong><br>";
+    msg += "The Species growth rate shape parameter (p) is a unit-less value which acts as an exponent inside the growth term.";
+    smodel->horizontalHeaderItem(m_ColumnMap["GrowthRateShape"])->setWhatsThis(prefix+msg+suffix);
+    msg  = "</html><strong><center>Minimum Growth Rate Shape Parameter</center></strong><br>";
+    msg += "The minimum growth rate shape parameter must be less than or equal to the maximum shape parameter.";
+    smodel->horizontalHeaderItem(m_ColumnMap["GrowthRateShapeMin"])->setWhatsThis(prefix+msg+suffix);
+    msg  = "</html><strong><center>Maximum Growth Rate Shape Parameter</center></strong><br>";
+    msg += "The maximum growth rate shape parameter must be greater than or equal to the minimum shape paramter.";
+    smodel->horizontalHeaderItem(m_ColumnMap["GrowthRateShapeMax"])->setWhatsThis(prefix+msg+suffix);
     msg  = "</html><strong><center>Species K</center></strong><br>";
     msg += "The Species carrying capacity (K) is the number of individuals<br>";
     msg += "in a population that can be supported by the habitat's resources.";
@@ -1728,6 +1805,7 @@ nmfEstimation_Tab1::setupHelpSpecies()
     msg  = "</html><strong><center>Maximum Catchability</center></strong><br>";
     msg += "The maximum catchability must be greater than or equal to the initial catchability.";
     smodel->horizontalHeaderItem(m_ColumnMap["CatchabilityMax"])->setWhatsThis(prefix+msg+suffix);
+
 }
 
 
@@ -1747,6 +1825,9 @@ nmfEstimation_Tab1::loadWidgets()
         setupHelpGuilds();
     }
 
+//    if (Estimation_Tab1_SpeciesRangeSB->isEnabled()) {
+//        callback_SpeciesRangeSB(Estimation_Tab1_SpeciesRangeSB->value());
+//    }
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::loadWidgets end");
 
     return true;
@@ -1790,6 +1871,9 @@ nmfEstimation_Tab1::loadGuilds()
                             value.toDouble(),m_NumSignificantDigits,6);
                 value = valueWithComma;
             }
+//            else {
+//                value = QString::fromStdString(dataMap[field.toStdString()][row]);
+//            }
             item = new QStandardItem(value);
             item->setTextAlignment(Qt::AlignCenter);
             m_GuildModel->setItem(row, col++, item);
@@ -1798,6 +1882,12 @@ nmfEstimation_Tab1::loadGuilds()
     m_GuildModel->setHorizontalHeaderLabels(PopulationFieldList);
     Estimation_Tab1_GuildPopulationTV->setModel(m_GuildModel);
     Estimation_Tab1_GuildPopulationTV->resizeColumnsToContents();
+
+//    disconnect(Estimation_Tab1_GuildPopulationTV->selectionModel(),0,0,0);
+//    connect(Estimation_Tab1_GuildPopulationTV->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&,
+//                                                                                         const QItemSelection&)),
+//            this, SLOT(callback_SelectionChangedTV(const QItemSelection&,
+//                                                   const QItemSelection&)));
 
     callback_GuildSuppCB(false);
     callback_GuildRangeCB(false);
@@ -1823,11 +1913,13 @@ nmfEstimation_Tab1::loadSpecies()
     // Load Population tableview
     fields = {"Weight","SpeName","InitBiomass","InitBiomassMin","InitBiomassMax",
               "GrowthRate","GrowthRateMin","GrowthRateMax",
+              "GrowthRateShape","GrowthRateShapeMin","GrowthRateShapeMax",
               "SpeciesK","SpeciesKMin","SpeciesKMax",
               "SurveyQ","SurveyQMin","SurveyQMax","Catchability",
               "CatchabilityMin","CatchabilityMax"};
     queryStr   = "SELECT Weight,SpeName,InitBiomass,InitBiomassMin,InitBiomassMax,";
     queryStr  += "GrowthRate,GrowthRateMin,GrowthRateMax,";
+    queryStr  += "GrowthRateShape,GrowthRateShapeMin,GrowthRateShapeMax,";
     queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,";
     queryStr  += "SurveyQ,SurveyQMin,SurveyQMax,Catchability,CatchabilityMin,";
     queryStr  += "CatchabilityMax FROM " + nmfConstantsMSSPM::TableSpecies;
@@ -1849,6 +1941,7 @@ nmfEstimation_Tab1::loadSpecies()
             m_originalSpeciesValuesAll.push_back(value);
             if ((fields[col].find("InitBiomass") != std::string::npos) ||
                 (fields[col].find("SpeciesK")    != std::string::npos)) {
+//              valueWithComma = locale.toString(value.toDouble());
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                             value.toDouble(),m_NumSignificantDigits,6);
                 item = new QStandardItem(valueWithComma);
@@ -1863,15 +1956,15 @@ nmfEstimation_Tab1::loadSpecies()
     Estimation_Tab1_SpeciesPopulationTV->setModel(m_SpeciesModel);
     Estimation_Tab1_SpeciesPopulationTV->resizeColumnsToContents();
 
-    disconnect(Estimation_Tab1_SpeciesPopulationTV->selectionModel(),
-               SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-               this,
-               SLOT(callback_SelectionChangedTV(const QItemSelection&,const QItemSelection&)));
+    disconnect(Estimation_Tab1_SpeciesPopulationTV->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&,
+                                                                                    const QItemSelection&)),
+            this, SLOT(callback_SelectionChangedTV(const QItemSelection&,
+                                                   const QItemSelection&)));
 
-    connect(Estimation_Tab1_SpeciesPopulationTV->selectionModel(),
-            SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-            this,
-            SLOT(callback_SelectionChangedTV(const QItemSelection&,const QItemSelection&)));
+    connect(Estimation_Tab1_SpeciesPopulationTV->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&,
+                                                                                    const QItemSelection&)),
+            this, SLOT(callback_SelectionChangedTV(const QItemSelection&,
+                                                   const QItemSelection&)));
 
     callback_SpeciesSuppCB(false);
     callback_SpeciesRangeCB(false);
@@ -1928,6 +2021,7 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
     std::vector<int> parameters = {
         m_ColumnMap["InitBiomass"],
         m_ColumnMap["GrowthRate"],
+        m_ColumnMap["GrowthRateShape"],
         m_ColumnMap["SpeciesK"],
         m_ColumnMap["SurveyQ"],
         m_ColumnMap["Catchability"]};
@@ -2008,6 +2102,103 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
     }
     Estimation_Tab1_SpeciesPopulationTV->resizeColumnsToContents();
 }
+
+/*
+void
+nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
+{
+    // Change parameter min/max values for the selected parameters or if none
+    // are selected, for all parameters that have min/max values.
+    int col;
+    int row;
+    int eeFactor;
+    double pctVal = double(pct)/100.0;
+    QModelIndex index;
+    std::set<int> selectedParameters;
+    QStandardItem* minItem;
+    QStandardItem* maxItem;
+    QString rangeType = Estimation_Tab1_MinMaxCMB->currentText();
+    // Column number of parameters that have min/max values associated with them
+    // Update this as necessary when implementing supplemental parameters.
+    std::vector<int> parameters = {1,4,8,12,15};  // RSK - shouldn't be hard-coded.
+    QLocale locale(QLocale::English);
+    QString valueWithoutComma;
+    QString valueWithComma;
+    double newValue;
+
+    QModelIndexList indexes = nmfUtilsQt::getSelectedTableViewCells(Estimation_Tab1_SpeciesPopulationTV);
+
+    int numRows = m_SpeciesModel->rowCount();
+    if (indexes.size() == 0) { // mean no selections, so set all min/max parameter values
+        for (int row=0; row<numRows; ++row) {
+            for (int col : parameters) {
+                index    = m_SpeciesModel->index(row,col);
+                valueWithoutComma = index.data().toString().remove(",");
+                if ((rangeType == "min/max") || (rangeType == "min only")) {
+                    newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
+                    eeFactor = (newValue < 1e-4) ? -1 : 1;
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                newValue,m_NumSignificantDigits,eeFactor*6);
+                    minItem = new QStandardItem(valueWithComma);
+                    minItem->setTextAlignment(Qt::AlignCenter);
+                    m_SpeciesModel->setItem(row,col+1,minItem);
+                }
+                if ((rangeType == "min/max") || (rangeType == "max only")) {
+                    newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
+                    eeFactor = (newValue < 1e-4) ? -1 : 1;
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                newValue,m_NumSignificantDigits,eeFactor*6);
+                    maxItem = new QStandardItem(valueWithComma);
+                    maxItem->setTextAlignment(Qt::AlignCenter);
+                    m_SpeciesModel->setItem(row,col+2,maxItem);
+                }
+            }
+        }
+    } else {
+        // Find all columns with a selection
+        for (QModelIndex index : indexes) {
+            row = index.row();
+            col = index.column();
+            switch (col) {
+                case 2:
+                case 5:
+                case 9:
+                case 13:
+                case 16:
+                    index = m_SpeciesModel->index(row,col-1);
+                    valueWithoutComma = index.data().toString().remove(",");
+                    newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
+                    eeFactor = (newValue < 1e-4) ? -1 : 1;
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                newValue,m_NumSignificantDigits,eeFactor*6);
+                    minItem = new QStandardItem(valueWithComma);
+                    minItem->setTextAlignment(Qt::AlignCenter);
+                    m_SpeciesModel->setItem(row,col,minItem);
+                    break;
+                case 3:
+                case 6:
+                case 10:
+                case 14:
+                case 17:
+                    index    = m_SpeciesModel->index(row,col-2);
+                    valueWithoutComma = index.data().toString().remove(",");
+                    newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
+                    eeFactor = (newValue < 1e-4) ? -1 : 1;
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                newValue,m_NumSignificantDigits,eeFactor*6);
+                    maxItem = new QStandardItem(valueWithComma);
+                    maxItem->setTextAlignment(Qt::AlignCenter);
+                    m_SpeciesModel->setItem(row,col,maxItem);
+                    break;
+                default:
+                    break;
+            }
+        }
+        nmfUtilsQt::reselectTableViewCells(Estimation_Tab1_SpeciesPopulationTV,indexes);
+    }
+    Estimation_Tab1_SpeciesPopulationTV->resizeColumnsToContents();
+}
+*/
 
 void
 nmfEstimation_Tab1::readSettings()

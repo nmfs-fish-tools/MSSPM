@@ -34,7 +34,6 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
 {
     bool foundOneBeesRun = false;
     bool ok=false;
-    bool endAllRuns = false;
     bool isAggProd   = (beeStruct.CompetitionForm == "AGG-PROD");
     bool isAMultiRun = (beeStruct.NLoptNumberOfRuns > 1) && (MultiRunLines.size() > 0);
     int startPos = 0;
@@ -70,6 +69,7 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     m_EstSystemCarryingCapacity = 0;
     m_EstInitBiomass.clear();
     m_EstGrowthRates.clear();
+    m_EstGrowthRateShape.clear();
     m_EstGrowthRateCovariateCoeffs.clear();
     m_EstCarryingCapacities.clear();
     m_EstCarryingCapacityCovariateCoeffs.clear();
@@ -105,11 +105,6 @@ std::cout << "Bees: isAMultiRun: " << isAMultiRun << std::endl;
     }
 
     for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
-        // If user hits the Stop button, all runs should stop but the
-        // parameters estimated so far should be presented to the user.
-        if (endAllRuns) {
-            break;
-        }
 
         NumSubRuns = 1;
         if (isAMultiRun) {
@@ -163,8 +158,9 @@ std::cout << "Bees: num est parameters: " << EstParameters.size() << std::endl;
                 // Break out if user has stopped the run
                 if (wasStoppedByUser()) {
                     std::cout << "=== === ===> Bees_Estimator StoppedByUser" << std::endl;
-                    ok = true;
-                    endAllRuns = true;
+                    ok = false;
+//                  break;
+                    return;
                 }
             }
 
@@ -180,6 +176,7 @@ std::cout << "Bees: num est parameters: " << EstParameters.size() << std::endl;
                                             m_EstInitBiomass);
                 beesAlg->extractGrowthParameters(EstParameters,startPos,
                                                  m_EstGrowthRates,
+                                                 m_EstGrowthRateShape,
                                                  m_EstGrowthRateCovariateCoeffs,
                                                  m_EstCarryingCapacities,
                                                  m_EstCarryingCapacityCovariateCoeffs,
@@ -204,6 +201,7 @@ std::cout << "Bees: num est parameters: " << EstParameters.size() << std::endl;
                                 bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
 
                 emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
+
             }
 
         } // end for run
@@ -283,9 +281,10 @@ Bees_Estimator::createOutputStr(
         bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity:",m_InitialCarryingCapacities,true);
     }
     bestFitnessStr += "<br><br><strong>Estimated Parameters:<br></strong>";
-    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Initial Absolute Biomass:    ", m_EstInitBiomass,false);
-    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate:        ",          m_EstGrowthRates,false);
-    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ",m_EstGrowthRateCovariateCoeffs,false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Initial Absolute Biomass:    ",  m_EstInitBiomass,              false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate:        ",           m_EstGrowthRates,              false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate Shape Parameters: ", m_EstGrowthRateShape,          false);
+    bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Growth Rate Covariate Coeffs: ", m_EstGrowthRateCovariateCoeffs,false);
     if (growthForm == "Logistic") {
         bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity:  ",                 m_EstCarryingCapacities,true);
         bestFitnessStr += nmfUtils::convertValues1DToOutputStr("Carrying Capacity Covariate Coeffs:  ",m_EstCarryingCapacityCovariateCoeffs,true);
@@ -362,6 +361,12 @@ void
 Bees_Estimator::getEstGrowthRateCovariateCoeffs(std::vector<double> &estGrowthRateCovariateCoeffs)
 {
     estGrowthRateCovariateCoeffs = m_EstGrowthRateCovariateCoeffs;
+}
+
+void
+Bees_Estimator::getEstGrowthRateShape(std::vector<double> &estGrowthRateShape)
+{
+    estGrowthRateShape = m_EstGrowthRateShape;
 }
 
 void

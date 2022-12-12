@@ -238,7 +238,6 @@ private:
     QGroupBox*               DiagnosticSummaryGB;
     QTableView*              InitBiomassTV;
     QTableView*              GrowthRateTV;
-    QTableView*              GrowthRateShapeTV;
     QTableView*              CompetitionAlphaTV;
     QTableView*              CompetitionBetaSTV;
     QTableView*              CompetitionBetaGTV;
@@ -367,7 +366,6 @@ private:
             const boost::numeric::ublas::matrix<double>& EstPredationRho);
     bool calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
                                 std::vector<double>& EstGrowthRates,
-                                std::vector<double>& EstGrowthRateShape,
                                 std::vector<double>& EstGrowthRateCovariateCoeffs,
                                 std::vector<double>& EstCarryingCapacities,
                                 std::vector<double>& EstCarryingCapacityCovariateCoeffs,
@@ -765,7 +763,6 @@ private:
                              std::string          Scaling,
                              std::vector<double>& InitBiomassUncertainty,
                              std::vector<double>& GrowthRateUncertainty,
-                             std::vector<double>& GrowthRateShapeUncertainty,
                              std::vector<double>& CarryingCapacityUncertainty,
                              std::vector<double>& PredationUncertainty,
                              std::vector<double>& CompetitionUncertainty,
@@ -840,8 +837,7 @@ private:
             QString &ScaleStr,
             double &ScaleVal,
             const bool& clearChart,
-            double &YMin,
-            const std::string& title);
+            double &YMin);
     void showChartBiomassVsTimeMultiRunWithScatter(
             const int &NumSpecies,
             const QString &OutputSpecies,
@@ -994,7 +990,6 @@ private:
                                   std::string& PredationForm,
                                   std::string& InitBiomassTable,
                                   std::string& GrowthRateTable,
-                                  std::string& GrowthRateShapeTable,
                                   std::string& GrowthRateCovariateCoeffsTable,
                                   std::string& CarryingCapacityTable,
                                   std::string& CarryingCapacityCovariateCoeffsTable,
@@ -1014,7 +1009,6 @@ private:
         const QStringList&                           GuildList,
         const std::vector<double>&                   EstInitBiomass,
         const std::vector<double>&                   EstGrowthRates,
-        const std::vector<double>&                   EstGrowthRateShape,
         const std::vector<double>&                   EstGrowthRateCovariateCoeffs,
         const std::vector<double>&                   EstCarryingCapacities,
         const std::vector<double>&                   EstCarryingCapacityCovariateCoeffs,
@@ -1069,7 +1063,6 @@ private:
             const QStringList&                           GuildList,
             const std::vector<double>&                   EstInitBiomass,
             const std::vector<double>&                   EstGrowthRates,
-            const std::vector<double>&                   EstGrowthRateShape,
             const std::vector<double>&                   EstCarryingCapacities,
             const std::vector<double>&                   EstCatchability,
             const std::vector<double>&                   EstPredationExponent,

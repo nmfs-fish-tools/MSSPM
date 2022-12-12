@@ -639,6 +639,9 @@ nmfSetup_Tab4::setEstimatedParameterNames()
         runBox.parameter = "GrowthRate";
         m_EstimatedParameters.push_back(nmfConstantsMSSPM::ParameterNameGrowthRate);
         EstimateRunBoxes.push_back(runBox);
+        runBox.parameter = "GrowthRateShape";
+        m_EstimatedParameters.push_back(nmfConstantsMSSPM::ParameterNameGrowthRateShape);
+        EstimateRunBoxes.push_back(runBox);
         runBox.parameter = "CarryingCapacity";
         m_EstimatedParameters.push_back(nmfConstantsMSSPM::ParameterNameCarryingCapacity);
         EstimateRunBoxes.push_back(runBox);

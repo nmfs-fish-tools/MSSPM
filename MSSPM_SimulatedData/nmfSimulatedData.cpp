@@ -36,6 +36,7 @@ nmfSimulatedData::createSimulatedBiomass(
     QStringList SpeciesList;
     std::vector<double> InitialBiomass;
     std::vector<double> GrowthRate;
+    std::vector<double> GrowthRateShape;
     std::vector<double> GrowthRateCovariateCoeffs;
     std::vector<double> SpeciesK;
     std::vector<double> SpeciesKCovariateCoeffs;
@@ -124,7 +125,7 @@ nmfSimulatedData::createSimulatedBiomass(
     // Get initial data: B(0), r, and K (just to start with the Schaefer model)
     if (! m_Database->getSpeciesInitialData(
                 m_Logger,NumSpecies,SpeciesList,InitialBiomass,
-                GrowthRate,SpeciesK)) {
+                GrowthRate,GrowthRateShape,SpeciesK)) {
         errorMsg = "nmfSimulatedData::createSimulatedBiomass: Error calling getSpeciesInitialData";
         m_Logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
         return false;
@@ -227,6 +228,7 @@ nmfSimulatedData::createSimulatedBiomass(
                         covariateAlgorithmType,
                         SimBiomassTMinus1,
                         GrowthRate[species],
+                        GrowthRateShape[species],
                         GrowthRateCovariateCoeffs[species],
                         GrowthRateCovariate(timeMinus1,species),
                         SpeciesK[species],

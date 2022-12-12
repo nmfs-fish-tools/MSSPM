@@ -85,6 +85,7 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_NL_StopAfterTimeUnitsCMB   = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab7_NL_StopAfterTimeUnitsCMB");
     Estimation_Tab7_EstimateInitialBiomassCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EstimateInitialBiomassCB");
     Estimation_Tab7_EstimateGrowthRateCB       = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EstimateGrowthRateCB");
+    Estimation_Tab7_EstimateGrowthRateShapeCB  = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EstimateGrowthRateShapeCB");
     Estimation_Tab7_EstimateCarryingCapacityCB = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EstimateCarryingCapacityCB");
     Estimation_Tab7_EstimateCatchabilityCB     = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EstimateCatchabilityCB");
     Estimation_Tab7_EstimateCompetitionAlphaCB = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EstimateCompetitionAlphaCB");
@@ -134,6 +135,7 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_RunTE->setFont(font);
     Estimation_Tab7_PrevPB->setText("\u25C1--");
     Estimation_Tab7_NextPB->setText("--\u25B7");
+    Estimation_Tab7_EstimateGrowthRateShapeCB->setObjectName("Estimation_Tab7_EstimateGrowthRateShapeCB");
 
     connect(Estimation_Tab7_PrevPB,                 SIGNAL(clicked()),
             this,                                   SLOT(callback_PrevPB()));
@@ -208,7 +210,7 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     connect(Estimation_Tab7_NL_TimeUnitsLockPB,           SIGNAL(clicked(bool)),
             this,                                         SLOT(callback_TimeUnitsLockPB(bool)));
 
-
+int i=0;
     // Wire up signals/slots for the Estimate Run checkboxes
     for (QCheckBox* cbox : getAllEstimateCheckboxes()) {
         connect(cbox, SIGNAL(stateChanged(int)),
@@ -271,15 +273,12 @@ void
 nmfEstimation_Tab7::initializeDetStoMap()
 {
     // Global optimizations
-
+    m_DetStoTypeMap["GN_ORIG_DIRECT_L"] = "(d)";
     m_DetStoTypeMap["GN_DIRECT_L"]      = "(d)";
     m_DetStoTypeMap["GN_DIRECT_L_RAND"] = "(s)";
     m_DetStoTypeMap["GN_CRS2_LM"]       = "(s)";
-//  m_DetStoTypeMap["GN_ESCH"]          = "(s)";
-    m_DetStoTypeMap["GN_ISRES"]         = "(s)";
-//  m_DetStoTypeMap["GN_ORIG_DIRECT_L"] = "(d)";
-//  m_DetStoTypeMap["GN_AGS"]           = "(d)";
-//  m_DetStoTypeMap["GD_StoGO"]         = "(d)";
+    m_DetStoTypeMap["GN_ESCH"]          = "(s)";
+    m_DetStoTypeMap["GD_StoGO"]         = "(d)";
 
     // Local optimizations
     m_DetStoTypeMap["LN_COBYLA"]        = "(d)";
@@ -301,49 +300,18 @@ The algorithm name is formatted {G,L}{N,D}_xxxx where:<br><br>\
 \"N/D\" corresponds to a derivative-free/gradient-based optimization algorithm<br>\
 </html>";
 
-//    m_WhatsThisMap["GN_ORIG_DIRECT_L"] = "<html><br>\
-//<strong>GN_ORIG_DIRECT_L - Original DIviding RECTangles Algorithm</strong><br>\
-//<br>\
-//Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", J. Global Optimization, \
-//vol. 21 (1), p. 27-37 (2001)<br>\
-//<br>\
-//This is a deterministic-search algorithm based on systematic division \
-//of the search domain into smaller and smaller hyper-rectangles. The Gablonsky version makes the algorithm \
-//\"more biased towards local search\" so that it is more efficient for functions without too many \
-//local minima. This algorithm, based on the original Fortran code, has a number of hard-coded limitations \
-//(i.e., the number of function evaluations). There is some support for arbitrary nonlinear inequality \
-//constraints.<br>\
-//</html>";
-
-//    m_WhatsThisMap["GN_AGS"] = "<html><br>\
-//<strong>GN_AGS - Divides the Univariate Space into Intervals with Lipschitzian Functions</strong><br>\
-//<br>\
-//Ref: Yaroslav D. Sergeyev, Dmitri L. Markin: An algorithm for solving global \
-//optimization problems with nonlinear constraints, Journal of Global Optimization, 7(4), pp 407–419, 1995<br>\
-//<br>\
-//The algorithm divides the univariate space into intervals, generating new points by using \
-//posterior probabilities. On each trial, AGS tries to evaluate the constraints consequently \
-//one by one. If some constraint is violated at this point, the next ones won't be evaluated. \
-//If all constraints are preserved, i.e. the trial point is feasible, AGS will evaluate the \
-//objective. Thus, some of constraints (except the first one) and objective can be partially \
-//undefined inside the search hyper-rectangle.<br>\
-//</html>";
-
-  m_WhatsThisMap["GN_ISRES"] = "<html><br>\
-<strong>GN_ISRES - Improved Stochastic Ranking Evolution Strategy</strong><br>\
+    m_WhatsThisMap["GN_ORIG_DIRECT_L"] = "<html><br>\
+<strong>GN_ORIG_DIRECT_L - Original DIviding RECTangles Algorithm</strong><br>\
 <br>\
-Ref: Thomas Philip Runarsson and Xin Yao, \"Search biases in constrained evolutionary optimization,\" \
-IEEE Trans. on Systems, Man, and Cybernetics Part C: Applications and Reviews, \
-vol. 35 (no. 2), pp. 233-243 (2005).<br>\
+Ref: J. M. Gablonsky and C. T. Kelley, \"A locally-biased form of the DIRECT algorithm\", J. Global Optimization, \
+vol. 21 (1), p. 27-37 (2001)<br>\
 <br>\
-The evolution strategy is based on a combination of a mutation rule (with a \
-log-normal step-size update and exponential smoothing) and differential variation \
-(a Nelder–Mead-like update rule). The fitness ranking is simply via the \
-objective function for problems without nonlinear constraints, but when \
-nonlinear constraints are included the stochastic ranking proposed by \
-Runarsson and Yao is employed. The population size for ISRES defaults to \
-20×(n+1) in n dimensions, but this can be changed with the \
-\"Initial population size\" additional parameter below.<br>\
+This is a deterministic-search algorithm based on systematic division \
+of the search domain into smaller and smaller hyper-rectangles. The Gablonsky version makes the algorithm \
+\"more biased towards local search\" so that it is more efficient for functions without too many \
+local minima. This algorithm, based on the original Fortran code, has a number of hard-coded limitations \
+(i.e., the number of function evaluations). There is some support for arbitrary nonlinear inequality \
+constraints.<br>\
 </html>";
 
     m_WhatsThisMap["GN_DIRECT_L"] = "<html><br>\
@@ -584,6 +552,17 @@ bool
 nmfEstimation_Tab7::isEstGrowthRateChecked()
 {
     return Estimation_Tab7_EstimateGrowthRateCB->isChecked();
+}
+
+bool
+nmfEstimation_Tab7::isEstGrowthRateShapeEnabled()
+{
+    return Estimation_Tab7_EstimateGrowthRateShapeCB->isEnabled();
+}
+bool
+nmfEstimation_Tab7::isEstGrowthRateShapeChecked()
+{
+    return Estimation_Tab7_EstimateGrowthRateShapeCB->isChecked();
 }
 
 bool
@@ -864,6 +843,9 @@ nmfEstimation_Tab7::adjustNumberOfParameters()
     if (Estimation_Tab7_EstimateGrowthRateCB->isEnabled()) {
         numberOfParameters += (Estimation_Tab7_EstimateGrowthRateCB->isChecked()) ? 1 : 0;
     }
+    if (Estimation_Tab7_EstimateGrowthRateShapeCB->isEnabled()) {
+        numberOfParameters += (Estimation_Tab7_EstimateGrowthRateShapeCB->isChecked()) ? 1 : 0;
+    }
     if (Estimation_Tab7_EstimateCarryingCapacityCB->isEnabled()) {
         numberOfParameters += (Estimation_Tab7_EstimateCarryingCapacityCB->isChecked()) ? 1 : 0;
     }
@@ -1098,19 +1080,7 @@ nmfEstimation_Tab7::callback_SavePB()
         enableRunButton(true);
         enableAddToReview(false);
     }
-//  checkAndRunStopParameterSettings();
 }
-
-// Emitting this signal doesn't seem to do anything after
-// a model has already started. The model would need to be
-// restarted for it to have any effect.
-//void
-//nmfEstimation_Tab7::checkAndRunStopParameterSettings()
-//{
-//    if (isStopAfterTime()) {
-//        emit UpdateStopAfterTime(getCurrentStopAfterTime());
-//    }
-//}
 
 void
 nmfEstimation_Tab7::callback_SaveSettings()
@@ -1278,14 +1248,14 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
             ",  NLoptUseStopAfterTime = "           + std::to_string(isStopAfterTime()  ? 1 : 0) +
             ",  NLoptUseStopAfterIter = "           + std::to_string(isStopAfterIter()  ? 1 : 0) +
             ",  NLoptUseInitialPopulationSize = "   + std::to_string(isInitialPopulationSize() ? 1 : 0) +
-            ",  NLoptStopVal = "                    + QString::number(getCurrentStopAfterValue()).toStdString() +
-          //",  NLoptStopVal = "                    + std::to_string(getCurrentStopAfterValue()) +
+            ",  NLoptStopVal = "                    + std::to_string(getCurrentStopAfterValue()) +
             ",  NLoptStopAfterTime = "              + std::to_string(getCurrentStopAfterTime()) +
             ",  NLoptStopAfterIter = "              + std::to_string(getCurrentStopAfterIter()) +
             ",  NLoptInitialPopulationSize = "      + std::to_string(getInitialPopulationSize()) +
             ",  NLoptNumberOfRuns = "               + std::to_string(Estimation_Tab7_EnsembleTotalRunsSB->value()) +
             ",  EstimateInitialBiomass = "          + std::to_string(isEstInitialBiomassChecked()) +
             ",  EstimateGrowthRate = "              + std::to_string(isEstGrowthRateChecked()) +
+            ",  EstimateGrowthRateShape = "         + std::to_string(isEstGrowthRateShapeChecked()) +
             ",  EstimateCarryingCapacity = "        + std::to_string(isEstCarryingCapacityChecked()) +
             ",  EstimateCatchability = "            + std::to_string(isEstCatchabilityChecked()) +
             ",  EstimateCompetition = "             + std::to_string(isEstCompetitionAlphaChecked()) +
@@ -1350,10 +1320,9 @@ nmfEstimation_Tab7::callback_MinimizerAlgorithmCMB(QString algorithm)
     enableRunButton(false);
 
     // Set Additional Algorithm Parameter widget visibility
-    Estimation_Tab7_NL_InitialPopulationSizeCB->setEnabled(algorithm == "GN_CRS2_LM" ||
-                                                           algorithm == "GN_ISRES");
+    Estimation_Tab7_NL_InitialPopulationSizeCB->setEnabled(algorithm == "GN_CRS2_LM");
     Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked());
-    if (algorithm != "GN_CRS2_LM" && algorithm != "GN_ISRES") {
+    if (algorithm != "GN_CRS2_LM") {
         Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(false);
     }
 
@@ -1372,41 +1341,35 @@ nmfEstimation_Tab7::getMinimizerAlgorithm()
 void
 nmfEstimation_Tab7::callback_MinimizerTypeCMB(QString type)
 {
-    int i=0;
     QString msg;
 
     Estimation_Tab7_MinimizerAlgorithmCMB->clear();
     if (type.toLower() == "global") {
 
+        Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ORIG_DIRECT_L");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_DIRECT_L_RAND");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_CRS2_LM");
-//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ESCH"); // *** Doesn't converge
-        Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ISRES");
-// The following algorithms don't converge to a function tolerance value.
-//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ORIG_DIRECT_L");
-//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_AGS");
-//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GD_StoGO");
+//      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ISRES"); // Put in later if more algorithms are desired
+        Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ESCH");
+        Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GD_StoGO");
 
         // Hover help
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(0,
+            "Global, Non-Derivative Dividing Rectangles Algorithm with Hard-Coded Limitations", Qt::ToolTipRole);
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(1,
             "Global, Non-Derivative Dividing Rectangles Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(2,
             "Global, Non-Derivative Dividing Rectangles Algorithm with Randomization", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(3,
             "Global, Non-Derivative Controlled Random Search with Local Mutation Algorithm with Evolution", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
-             "Global, Non-Derivative Modified Evolutionary Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
-             "Global, Non-Derivative Improved Stochastic Ranking Evolution Strategy", Qt::ToolTipRole);
-//      Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
-//          "Global, Non-Derivative Dividing Rectangles Algorithm with Hard-Coded Limitations", Qt::ToolTipRole);
-//      Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
-//          "Global, Non-Derivative Algorithm Dividing the Univariate Space into Intervals", Qt::ToolTipRole);
-//      Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+//      Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(4,
 //          "Global, Non-Derivative Stochastic Ranking Evolution Strategy", Qt::ToolTipRole);
-//        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
-//            "Global, Gradient-Based Stochastic Search followed by a Local Gradient-based Algorithm", Qt::ToolTipRole);
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(4,
+            "Global, Non-Derivative Modified Evolutionary Algorithm", Qt::ToolTipRole);
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(5,
+            "Global, Gradient-Based Stochastic Search followed by a Local Gradient-based Algorithm", Qt::ToolTipRole);
+
         // WhatsThis help
         msg = m_WhatsThisIntroGlobal;
 
@@ -1418,15 +1381,15 @@ nmfEstimation_Tab7::callback_MinimizerTypeCMB(QString type)
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("LD_LBFGS");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("LD_MMA");
 
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(0,
             "Local, Non-Derivative Constrained Optimization BY Linear Approximations Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(1,
             "Local, Non-Derivative Nelder-Mead Simplex Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(2,
             "Local, Non-Derivative Nelder-Mead Variant Using a Sequence of Subspaces Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(3,
             "Local, Gradient-Based Low-Storage BFGS (Broyden-Fletcher-Goldfarb-Shanno) Algorithm", Qt::ToolTipRole);
-        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(i++,
+        Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(4,
             "Local, Gradient-Based Method of Moving Asymptotes Algorithm", Qt::ToolTipRole);
 
         // WhatsThis help
@@ -1484,15 +1447,22 @@ nmfEstimation_Tab7::callback_EstimationAlgorithmCMB(QString algorithm)
 void
 nmfEstimation_Tab7::callback_ObjectiveCriterionCMB(QString objCrit)
 {
-    // bool isMaximumLikelihood = (objCrit == "Maximum Likelihood");
     Estimation_Tab7_ScalingCMB->clear();
-    // Allow the following scaling algorithms for Maximum Likelihood
-    // Estimation_Tab7_ScalingLBL->setEnabled(! isMaximumLikelihood);
-    // Estimation_Tab7_ScalingCMB->setEnabled(! isMaximumLikelihood);
-    if (1) { // (! isMaximumLikelihood) {
-        Estimation_Tab7_ScalingCMB->addItem("Mean");
-        Estimation_Tab7_ScalingCMB->addItem("Min Max");
-    }
+    Estimation_Tab7_ScalingLBL->setEnabled(true);
+    Estimation_Tab7_ScalingCMB->setEnabled(true);
+    Estimation_Tab7_ScalingCMB->addItem("None");
+    Estimation_Tab7_ScalingCMB->addItem("Mean");
+    Estimation_Tab7_ScalingCMB->addItem("Min Max");
+
+//    bool isMaximumLikelihood = (objCrit == "Maximum Likelihood");
+//    Estimation_Tab7_ScalingCMB->clear();
+//    Estimation_Tab7_ScalingLBL->setEnabled(! isMaximumLikelihood);
+//    Estimation_Tab7_ScalingCMB->setEnabled(! isMaximumLikelihood);
+//    if (! isMaximumLikelihood) {
+//        Estimation_Tab7_ScalingCMB->addItem("Mean");
+//        Estimation_Tab7_ScalingCMB->addItem("Min Max");
+//    }
+
     enableRunButton(false);
 }
 
@@ -1674,7 +1644,7 @@ nmfEstimation_Tab7::getCurrentStopAfterIter()
 double
 nmfEstimation_Tab7::getInitialPopulationSize()
 {
-    return Estimation_Tab7_NL_InitialPopulationSizeLE->text().toDouble();
+        return Estimation_Tab7_NL_InitialPopulationSizeLE->text().toDouble();
 }
 
 bool
@@ -1995,6 +1965,7 @@ nmfEstimation_Tab7::callback_InitialPopulationSizeCB(int isChecked)
 {
     Estimation_Tab7_NL_InitialPopulationSizeLE->setEnabled(isChecked == Qt::Checked);
 
+    // RSK - continue here.....
     enableRunButton(false);
 }
 
@@ -2067,6 +2038,7 @@ nmfEstimation_Tab7::getAllEstimateCheckboxes()
     QList<QCheckBox*> AllCheckboxes = {
         Estimation_Tab7_EstimateInitialBiomassCB,
         Estimation_Tab7_EstimateGrowthRateCB,
+        Estimation_Tab7_EstimateGrowthRateShapeCB,
         Estimation_Tab7_EstimateCarryingCapacityCB,
         Estimation_Tab7_EstimateCatchabilityCB,
         Estimation_Tab7_EstimatePredationHandlingCB,
@@ -2105,6 +2077,8 @@ nmfEstimation_Tab7::callback_SetEstimateRunCheckboxes(
             activateCheckBox(Estimation_Tab7_EstimateInitialBiomassCB,runBox.state);
         } else if (runBox.parameter == "GrowthRate") {
             activateCheckBox(Estimation_Tab7_EstimateGrowthRateCB,runBox.state);
+        } else if (runBox.parameter == "GrowthRateShape") {
+            activateCheckBox(Estimation_Tab7_EstimateGrowthRateShapeCB,runBox.state);
         } else if (runBox.parameter == "CarryingCapacity") {
             activateCheckBox(Estimation_Tab7_EstimateCarryingCapacityCB,runBox.state);
         } else if (runBox.parameter == "Catchability") {
@@ -2363,7 +2337,7 @@ nmfEstimation_Tab7::loadWidgets()
 {
     int NumRecords;
     std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
+    std::map<std::string, std::vector<std::string> > dataMap,dataMap2;
     std::string queryStr;
     std::string algorithm = getCurrentAlgorithm();
     QString objectiveCriterion;
@@ -2404,7 +2378,7 @@ nmfEstimation_Tab7::loadWidgets()
                   "BeesMaxGenerations","BeesNeighborhoodSize",
                   "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter","NLoptUseInitialPopulationSize",
                   "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptInitialPopulationSize","NLoptNumberOfRuns",
-                  "EstimateInitialBiomass","EstimateGrowthRate","EstimateCarryingCapacity",
+                  "EstimateInitialBiomass","EstimateGrowthRate","EstimateGrowthRateShape","EstimateCarryingCapacity",
                   "EstimateCatchability","EstimateCompetition","EstimateCompetitionSpecies",
                   "EstimateCompetitionGuilds","EstimateCompetitionGuildsGuilds","EstimatePredation",
                   "EstimatePredationHandling","EstimatePredationExponent","EstimateSurveyQ",
@@ -2418,7 +2392,7 @@ nmfEstimation_Tab7::loadWidgets()
                  "BeesMaxGenerations,BeesNeighborhoodSize," +
                  "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,NLoptUseInitialPopulationSize," +
                  "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptInitialPopulationSize,NLoptNumberOfRuns," +
-                 "EstimateInitialBiomass,EstimateGrowthRate,EstimateCarryingCapacity," +
+                 "EstimateInitialBiomass,EstimateGrowthRate,EstimateGrowthRateShape,EstimateCarryingCapacity," +
                  "EstimateCatchability,EstimateCompetition,EstimateCompetitionSpecies," +
                  "EstimateCompetitionGuilds,EstimateCompetitionGuildsGuilds,EstimatePredation," +
                  "EstimatePredationHandling,EstimatePredationExponent,EstimateSurveyQ," +
@@ -2430,9 +2404,41 @@ nmfEstimation_Tab7::loadWidgets()
     dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumRecords = dataMap["ModelName"].size();
     if (NumRecords == 0) {
-        m_Logger->logMsg(nmfConstants::Warning,"No records found in Models");
+        m_Logger->logMsg(nmfConstants::Warning,"No records found in table: "+nmfConstantsMSSPM::TableModels);
         return false;
     }
+
+    // Check the enable-ness of the estimated parameter checkboxes
+    // continue here....
+    fields = {"isEstInitBiomassEnabled","isEstInitBiomassChecked",
+              "isEstGrowthRateEnabled","isEstGrowthRateChecked",
+              "isEstGrowthRateShapeEnabled","isEstGrowthRateShapeChecked",
+              "isEstCarryingCapacityEnabled","isEstCarryingCapacityChecked",
+              "isEstCatchabilityEnabled","isEstCatchabilityChecked",
+              "isEstCompAlphaEnabled","isEstCompAlphaChecked",
+              "isEstCompBetaSpeciesEnabled","isEstCompBetaSpeciesChecked",
+              "isEstCompBetaGuildsEnabled","isEstCompBetaGuildsChecked",
+              "isEstCompBetaGuildsGuildsEnabled","isEstCompBetaGuildsGuildsChecked",
+              "isEstPredRhoEnabled","isEstPredRhoChecked",
+              "isEstPredHandlingEnabled","isEstPredHandlingChecked",
+              "isEstPredExponentEnabled","isEstPredExponentChecked",
+              "isEstSurveyQEnabled","isEstSurveyQChecked"};
+    queryStr = "SELECT isEstInitBiomassEnabled,isEstInitBiomassChecked,\
+isEstGrowthRateEnabled,isEstGrowthRateChecked,\
+isEstGrowthRateShapeEnabled,isEstGrowthRateShapeChecked,\
+isEstCarryingCapacityEnabled,isEstCarryingCapacityChecked,\
+isEstCatchabilityEnabled,isEstCatchabilityChecked,\
+isEstCompAlphaEnabled,isEstCompAlphaChecked,\
+isEstCompBetaSpeciesEnabled,isEstCompBetaSpeciesChecked,\
+isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked,\
+isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,\
+isEstPredRhoEnabled,isEstPredRhoChecked,\
+isEstPredHandlingEnabled,isEstPredHandlingChecked,\
+isEstPredExponentEnabled,isEstPredExponentChecked,\
+isEstSurveyQEnabled,isEstSurveyQChecked FROM " +
+            nmfConstantsMSSPM::TableModelReview +
+            " WHERE ProjectName = '" + m_ProjectName + "'";
+    dataMap2  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
 
     m_GrowthForm      = dataMap["GrowthForm"][0];
     m_HarvestForm     = dataMap["HarvestForm"][0];
@@ -2460,8 +2466,10 @@ nmfEstimation_Tab7::loadWidgets()
     Estimation_Tab7_NL_StopAfterIterSB->setValue(std::stoi(dataMap["NLoptStopAfterIter"][0]));
     Estimation_Tab7_NL_InitialPopulationSizeLE->setText(QString::fromStdString(dataMap["NLoptInitialPopulationSize"][0]));
 //  Estimation_Tab7_EnsembleTotalRunsSB->setValue(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
+
     Estimation_Tab7_EstimateInitialBiomassCB->setChecked(dataMap["EstimateInitialBiomass"][0] == "1");
     Estimation_Tab7_EstimateGrowthRateCB->setChecked(dataMap["EstimateGrowthRate"][0] == "1");
+    Estimation_Tab7_EstimateGrowthRateShapeCB->setChecked(dataMap["EstimateGrowthRateShape"][0] == "1");
     Estimation_Tab7_EstimateCarryingCapacityCB->setChecked(dataMap["EstimateCarryingCapacity"][0] == "1");
     Estimation_Tab7_EstimateCatchabilityCB->setChecked(dataMap["EstimateCatchability"][0] == "1");
     Estimation_Tab7_EstimateCompetitionAlphaCB->setChecked(dataMap["EstimateCompetition"][0] == "1");
@@ -2472,6 +2480,22 @@ nmfEstimation_Tab7::loadWidgets()
     Estimation_Tab7_EstimatePredationHandlingCB->setChecked(dataMap["EstimatePredationHandling"][0] == "1");
     Estimation_Tab7_EstimatePredationExponentCB->setChecked(dataMap["EstimatePredationExponent"][0] == "1");
     Estimation_Tab7_EstimateSurveyQCB->setChecked(dataMap["EstimateSurveyQ"][0] == "1");
+
+    if (dataMap2["isEstInitBiomassEnabled"].size() > 0) {
+        Estimation_Tab7_EstimateInitialBiomassCB->setEnabled(dataMap2["isEstInitBiomassEnabled"][0] == "1");
+        Estimation_Tab7_EstimateGrowthRateCB->setEnabled(dataMap2["isEstGrowthRateEnabled"][0] == "1");
+        Estimation_Tab7_EstimateGrowthRateShapeCB->setEnabled(dataMap2["isEstGrowthRateShapeEnabled"][0] == "1");
+        Estimation_Tab7_EstimateCarryingCapacityCB->setEnabled(dataMap2["isEstCarryingCapacityEnabled"][0] == "1");
+        Estimation_Tab7_EstimateCatchabilityCB->setEnabled(dataMap2["isEstCatchabilityEnabled"][0] == "1");
+        Estimation_Tab7_EstimateCompetitionAlphaCB->setEnabled(dataMap2["isEstCompAlphaEnabled"][0] == "1");
+        Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB->setEnabled(dataMap2["isEstCompBetaSpeciesEnabled"][0] == "1");
+        Estimation_Tab7_EstimateCompetitionBetaGuildSpeciesCB->setEnabled(dataMap2["isEstCompBetaGuildsEnabled"][0] == "1");
+        Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB->setEnabled(dataMap2["isEstCompBetaGuildsGuildsEnabled"][0] == "1");
+        Estimation_Tab7_EstimatePredationRhoCB->setEnabled(dataMap2["isEstPredRhoEnabled"][0] == "1");
+        Estimation_Tab7_EstimatePredationHandlingCB->setEnabled(dataMap2["isEstPredHandlingEnabled"][0] == "1");
+        Estimation_Tab7_EstimatePredationExponentCB->setEnabled(dataMap2["isEstPredExponentEnabled"][0] == "1");
+        Estimation_Tab7_EstimateSurveyQCB->setEnabled(dataMap2["isEstSurveyQEnabled"][0] == "1");
+    }
 
     Estimation_Tab7_EnsembleAveragingAlgorithmCMB->setCurrentText(QString::fromStdString(dataMap["EnsembleAverageAlg"][0]));
     Estimation_Tab7_EnsembleAverageByCMB->setCurrentText(QString::fromStdString(dataMap["EnsembleAverageBy"][0]));

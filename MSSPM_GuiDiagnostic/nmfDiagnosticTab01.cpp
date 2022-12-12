@@ -25,6 +25,7 @@ nmfDiagnostic_Tab1::nmfDiagnostic_Tab1(QTabWidget*  tabs,
 
     // RSK - create constants for these strings...
     m_OutputTableName["Growth Rate (r)"]                                 = nmfConstantsMSSPM::TableOutputGrowthRate;
+    m_OutputTableName["Growth Rate Shape (p)"]                           = nmfConstantsMSSPM::TableOutputGrowthRateShape;
     m_OutputTableName["Carrying Capacity (K)"]                           = nmfConstantsMSSPM::TableOutputCarryingCapacity;
     m_OutputTableName["Initial Biomass (B₀)"]                            = nmfConstantsMSSPM::TableOutputInitBiomass;
     m_OutputTableName["Catchability (q)"]                                = nmfConstantsMSSPM::TableOutputCatchability;
@@ -35,6 +36,7 @@ nmfDiagnostic_Tab1::nmfDiagnostic_Tab1(QTabWidget*  tabs,
     m_OutputTableName["SurveyQ Covariate Coefficient"]                   = nmfConstantsMSSPM::TableOutputSurveyQCovariateCoeffs;
 
     m_DiagnosticTableName["Growth Rate (r)"]                             = nmfConstantsMSSPM::TableDiagnosticGrowthRate;
+    m_DiagnosticTableName["Growth Rate Shape (p)"]                       = nmfConstantsMSSPM::TableDiagnosticGrowthRateShape;
     m_DiagnosticTableName["Carrying Capacity (K)"]                       = nmfConstantsMSSPM::TableDiagnosticCarryingCapacity;
     m_DiagnosticTableName["Initial Biomass (B₀)"]                        = nmfConstantsMSSPM::TableDiagnosticInitBiomass;
     m_DiagnosticTableName["Catchability (q)"]                            = nmfConstantsMSSPM::TableDiagnosticCatchability;
@@ -291,7 +293,7 @@ nmfDiagnostic_Tab1::parameterToTableName(const std::string  whichTable,
 {
     tableName = "";
     if (whichTable == "input") {
-        tableName = m_OutputTableName[parameter.toStdString()];
+        tableName = m_OutputTableName[parameter.toStdString()];        
     } else if (whichTable == "output") {
         tableName = m_DiagnosticTableName[parameter.toStdString()];
     }
@@ -745,7 +747,7 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     int NumGuilds;
     int NumSpeciesOrGuilds;
     int offset = 0;
-    int GrowthRateOffset,GrowthRateCovarOffset,CarryingCapacityOffset,CarryingCapacityCovarOffset;
+    int GrowthRateOffset,GrowthRateShapeOffset,GrowthRateCovarOffset,CarryingCapacityOffset,CarryingCapacityCovarOffset;
     int CatchabilityOffset,CatchabilityCovarOffset;
     int SurveyQOffset,SurveyQCovarOffset;
     int InitBiomassOffset = 0;
@@ -789,8 +791,11 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     loadOutputParameters(nmfConstantsMSSPM::TableOutputInitBiomass,NumSpeciesOrGuilds,
                          Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,initBiomassParameters);
     offset = initBiomassParameters.size();
-    loadGrowthParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,growthParameters,
-                         offset,GrowthRateOffset,GrowthRateCovarOffset,CarryingCapacityOffset,CarryingCapacityCovarOffset);
+    loadGrowthParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,
+                         ObjectiveCriterion,Scaling,
+                         isAggProdStr,growthParameters,
+                         offset,GrowthRateOffset,GrowthRateShapeOffset,GrowthRateCovarOffset,
+                         CarryingCapacityOffset,CarryingCapacityCovarOffset);
 //std::cout << "GrowthRateOffset: " << GrowthRateOffset << std::endl;
 //std::cout << "GrowthRateCovarOffset: " << GrowthRateCovarOffset << std::endl;
 //std::cout << "CarryingCapacityOffset: " << CarryingCapacityOffset << std::endl;
@@ -832,8 +837,10 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
         offset = 0; // RSK bug is here I think...
         if (ParameterItem.first        == "Initial Biomass (B₀)") {
             offset = InitBiomassOffset;
-        } else if (ParameterItem.first == "Growth Rate (r)") { // RSK revisit this...make all the constants more consistent
+        } else if (ParameterItem.first == "Growth Rate (r)") {
             offset = GrowthRateOffset;
+        } else if (ParameterItem.first == "Growth Rate Shape (p)") {
+            offset = GrowthRateShapeOffset;
         } else if (ParameterItem.first == "Carrying Capacity (K)") {
             offset = CarryingCapacityOffset;
         } else if (ParameterItem.first == "Catchability (q)") {
@@ -947,6 +954,7 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
         std::vector<double>& Parameters,
         const int&           CurrentOffset,
         int&                 GrowthRateOffset,
+        int&                 GrowthRateShapeOffset,
         int&                 GrowthRateCovarOffset,
         int&                 CarryingCapacityOffset,
         int&                 CarryingCapacityCovarOffset)
@@ -958,6 +966,7 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
     std::vector<std::string> tableNames = {};
 
     GrowthRateOffset            = CurrentOffset;
+    GrowthRateShapeOffset       = CurrentOffset;
     GrowthRateCovarOffset       = CurrentOffset;
     CarryingCapacityOffset      = CurrentOffset;
     CarryingCapacityCovarOffset = CurrentOffset;
@@ -969,11 +978,13 @@ nmfDiagnostic_Tab1::loadGrowthParameters(
         CarryingCapacityCovarOffset = GrowthRateCovarOffset;
     } else if (m_DataStruct.GrowthForm == "Logistic") {
         tableNames.push_back(nmfConstantsMSSPM::TableOutputGrowthRate);
+        tableNames.push_back(nmfConstantsMSSPM::TableOutputGrowthRateShape);
         tableNames.push_back(nmfConstantsMSSPM::TableOutputGrowthRateCovariateCoeffs);
         tableNames.push_back(nmfConstantsMSSPM::TableOutputCarryingCapacity);
         tableNames.push_back(nmfConstantsMSSPM::TableOutputCarryingCapacityCovariateCoeffs);
-        GrowthRateCovarOffset       = CurrentOffset         + NumSpeciesOrGuilds;
-        CarryingCapacityOffset      = GrowthRateCovarOffset + NumSpeciesOrGuilds;
+        GrowthRateShapeOffset       = CurrentOffset          + NumSpeciesOrGuilds;
+        GrowthRateCovarOffset       = CurrentOffset          + NumSpeciesOrGuilds;
+        CarryingCapacityOffset      = GrowthRateCovarOffset  + NumSpeciesOrGuilds;
         CarryingCapacityCovarOffset = CarryingCapacityOffset + NumSpeciesOrGuilds;
     }
     for (std::string table : tableNames) {

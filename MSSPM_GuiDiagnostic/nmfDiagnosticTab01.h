@@ -131,6 +131,7 @@ private:
             std::vector<double>& Parameters,
             const int&           CurrentOffset,
             int&                 GrowthRateOffset,
+            int&                 GrowthRateShapeOffset,
             int&                 GrowthRateCovarOffset,
             int&                 CarryingCapacityOffset,
             int&                 CarryingCapacityCovarOffset);

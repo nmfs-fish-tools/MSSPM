@@ -116,6 +116,7 @@ class nmfEstimation_Tab7: public QObject
     QSpinBox*    Estimation_Tab7_NL_StopAfterIterSB;
     QCheckBox*   Estimation_Tab7_EstimateInitialBiomassCB;
     QCheckBox*   Estimation_Tab7_EstimateGrowthRateCB;
+    QCheckBox*   Estimation_Tab7_EstimateGrowthRateShapeCB;
     QCheckBox*   Estimation_Tab7_EstimateCarryingCapacityCB;
     QCheckBox*   Estimation_Tab7_EstimateCatchabilityCB;
     QCheckBox*   Estimation_Tab7_EstimateCompetitionAlphaCB;
@@ -204,7 +205,6 @@ public:
      * @param the message to append to the text widget
      */
     void appendOutputTE(QString msg);
-//  void checkAndRunStopParameterSettings();
     /**
      * @brief Removes the disk file which populates the Multi-Run popup when the user clicks View
      */
@@ -510,6 +510,16 @@ public:
      * @return
      */
     bool isEstGrowthRateEnabled();
+    /**
+     * @brief Returns whether or not the Estimated Growth Rate Shape Parameter checkbox has been checked
+     * @return
+     */
+    bool isEstGrowthRateShapeChecked();
+    /**
+     * @brief Returns whether or not the Estimated Growth Rate Shape Parameter checkbox has been enabled
+     * @return
+     */
+    bool isEstGrowthRateShapeEnabled();
     /**
      * @brief Returns whether or not the Estimated Initial Biomass checkbox has been checked
      * @return
@@ -817,7 +827,6 @@ signals:
      * @param algorithm : the new algorithm selected
      */
     void SetAlgorithm(QString algorithm);
-//  void UpdateStopAfterTime(int timeInSeconds);
     /**
      * @brief Signal sent to refresh the Forecast Year Range in the Forecast->Setup GUI.
      */

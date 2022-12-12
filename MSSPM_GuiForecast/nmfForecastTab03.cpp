@@ -71,14 +71,14 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_BetaGG = QString("Competition (") + QChar(0x03B2) + QString("(GG))");
     m_Rho    = QString("Predation (")   + QChar(0x03C1) + QString(")");
     m_FormMap["Linear"]   = {
-            "Growth Rate (r)",
-             nmfConstantsMSSPM::ParameterNameGrowthRateCovCoeff.toStdString()};
+            "Growth Rate (r)",      nmfConstantsMSSPM::ParameterNameGrowthRateCovCoeff.toStdString()};
     m_FormMap["Logistic"] = {
-            "Growth Rate (r)",nmfConstantsMSSPM::ParameterNameGrowthRateCovCoeff.toStdString(),
+            "Growth Rate (r)",      nmfConstantsMSSPM::ParameterNameGrowthRate.toStdString(),
+            "Growth Rate Shape (p)",nmfConstantsMSSPM::ParameterNameGrowthRateShape.toStdString(),
             "Carrying Capacity (K)",nmfConstantsMSSPM::ParameterNameCarryingCapacityCovCoeff.toStdString()};
     m_FormMap["Exploitation (F)"] = {"Exploitation"};
     m_FormMap[nmfConstantsMSSPM::HarvestEffort.toStdString()]           = {
-            "Catchability (q)", nmfConstantsMSSPM::ParameterNameCatchabilityCovCoeff.toStdString()};
+            "Catchability (q)",     nmfConstantsMSSPM::ParameterNameCatchabilityCovCoeff.toStdString()};
 //            "Effort"};
     m_FormMap[nmfConstantsMSSPM::HarvestCatch.toStdString()]            = {"Catch"};
 //  m_FormMap[nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString()] = {"Catchability (q)","Effort"};
@@ -98,6 +98,7 @@ nmfForecast_Tab3::nmfForecast_Tab3(QTabWidget*  tabs,
     m_ParameterNames.clear();
     m_ParameterNames << "Initial Absolute Biomass (B₀)";
     m_ParameterNames << "Growth Rate (r)";
+    m_ParameterNames << "Growth Rate Shape (p)";
     m_ParameterNames << "Carrying Capacity (K)";
     m_ParameterNames << m_Rho;
     m_ParameterNames << m_Alpha;
@@ -262,7 +263,7 @@ nmfForecast_Tab3::callback_SavePB()
     // Update ForecastUncertainty table
     cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableForecastUncertainty + " (" +
            "SpeName,ProjectName,ModelName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling," +
-           "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies," +
+           "InitBiomass,GrowthRate,GrowthRateShape,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies," +
            "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest," +
             "GrowthRateCovCoeff,CarryingCapacityCovCoeff,CatchabilityCovCoeff,SurveyQCovCoeff) VALUES ";
     for (int i=0; i<m_SModel->rowCount(); ++i) { // Species
@@ -446,12 +447,12 @@ nmfForecast_Tab3::loadWidgets()
     if (ForecastNameExists) {
         // Find Forecast info
         fields     = {"ProjectName","ModelName","SpeName","ForecastName","Algorithm","Minimizer","ObjectiveCriterion","Scaling",
-                      "InitBiomass","GrowthRate","CarryingCapacity","Catchability",
+                      "InitBiomass","GrowthRate","GrowthRateShape","CarryingCapacity","Catchability",
                       "CompetitionAlpha","CompetitionBetaSpecies","CompetitionBetaGuilds","CompetitionBetaGuildsGuilds",
                       "PredationRho","PredationHandling","PredationExponent","SurveyQ","Harvest",
                       "GrowthRateCovCoeff","CarryingCapacityCovCoeff","CatchabilityCovCoeff","SurveyQCovCoeff"};
         queryStr   = "SELECT ProjectName,ModelName,SpeName,ForecastName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,";
-        queryStr  += "InitBiomass,GrowthRate,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies,";
+        queryStr  += "InitBiomass,GrowthRate,GrowthRateShape,CarryingCapacity,Catchability,CompetitionAlpha,CompetitionBetaSpecies,";
         queryStr  += "CompetitionBetaGuilds,CompetitionBetaGuildsGuilds,PredationRho,PredationHandling,PredationExponent,SurveyQ,Harvest,";
         queryStr  += "GrowthRateCovCoeff,CarryingCapacityCovCoeff,CatchabilityCovCoeff,SurveyQCovCoeff FROM " +
                       nmfConstantsMSSPM::TableForecastUncertainty +
@@ -469,6 +470,7 @@ nmfForecast_Tab3::loadWidgets()
             param.clear();
             param.emplace_back(QString::fromStdString(dataMap["InitBiomass"][m]));
             param.emplace_back(QString::fromStdString(dataMap["GrowthRate"][m]));
+            param.emplace_back(QString::fromStdString(dataMap["GrowthRateShape"][m]));
             param.emplace_back(QString::fromStdString(dataMap["CarryingCapacity"][m]));
             param.emplace_back(QString::fromStdString(dataMap["Catchability"][m]));
             param.emplace_back(QString::fromStdString(dataMap["CompetitionAlpha"][m]));

@@ -190,8 +190,14 @@ nmfSetup_Tab3::importGuilds(QStringList& guildsList,
                                                  QObject::tr("Data Files (*.csv)"));
 
     nmfUtilsQt::getNumSpeciesFromImportFile(guildsFilename,numRows);
-    for (int row=0; row<numRows; ++row) {
-        callback_AddGuildPB();
+
+    if (Setup_Tab3_GuildsTW->rowCount() == 0) {
+        for (int row=0; row<numRows; ++row) {
+            callback_AddGuildPB();
+        }
+    } else if (Setup_Tab3_GuildsTW->rowCount() != numRows){
+        m_logger->logMsg(nmfConstants::Warning,"Number of rows in imported file is different from number of rows in current guild table.");
+        return false;
     }
     bool loadOK = nmfUtilsQt::loadTableWidgetData(
                 Setup_Tabs, Setup_Tab3_GuildsTW, guildsFilename,
@@ -209,24 +215,28 @@ nmfSetup_Tab3::importSpecies(QStringList& guildList,
                              QString& speciesFilename)
 {
     int numRows = 0;
-    QString inputFile = "";
     QString errorMsg;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    std::vector<int> ColumnsToLoad = {0,1,2,5,9};
+    std::vector<int> ColumnsToLoad = {1,2,3,6,10}; // {1,2,3,6,12}; // modify this when implement GrowthRateShape
 
     speciesFilename = QFileDialog::getOpenFileName(Setup_Tabs,
                                                    QObject::tr("Select Species CSV file"), inputDataPath,
                                                    QObject::tr("Data Files (*.csv)"));
 
     nmfUtilsQt::getNumSpeciesFromImportFile(speciesFilename,numRows);
-    for (int row=0; row<numRows; ++row) {
-        callback_AddSpeciesPB();
+
+    // Add rows to species table only if the species table is empty
+    if (Setup_Tab3_SpeciesTW->rowCount() == 0) {
+        for (int row=0; row<numRows; ++row) {
+            callback_AddSpeciesPB();
+        }
     }
 
     bool loadOK = nmfUtilsQt::loadTableWidgetData(
                 Setup_Tabs, Setup_Tab3_SpeciesTW, speciesFilename,
                 numRows, nmfConstantsMSSPM::Num_Columns_Species,
                 guildList, ColumnsToLoad, errorMsg);
+    Setup_Tab3_SpeciesTW->setHorizontalHeaderLabels(m_colLabelsSpecies);
     if (! loadOK) {
         m_logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
     }
@@ -239,20 +249,6 @@ nmfSetup_Tab3::isConvertChecked()
 {
     return Setup_Tab3_ConvertCB->isChecked();
 }
-
-//void
-//nmfSetup_Tab3::loadCSVFile(QTableWidget* tableWidget,
-//                           const QStringList& guildValues)
-//{
-//    QString errorMsg;
-//    QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-//    bool loadOK = nmfUtilsQt::loadTableWidgetData(
-//                Setup_Tabs, tableWidget, inputDataPath,
-//                guildValues, errorMsg);
-//    if (! loadOK) {
-//        m_logger->logMsg(nmfConstants::Error,errorMsg.toStdString());
-//    }
-//}
 
 void
 nmfSetup_Tab3::loadGuilds()
@@ -1133,6 +1129,7 @@ nmfSetup_Tab3::callback_ExportPB()
         }
         emit SaveGuildSupplemental(GuildName,GuildGrowthRate,GuildK);
     } else {
+        QString tableName = QString::fromStdString(nmfConstantsMSSPM::TableSpecies);
         QComboBox* cbox;
         for (int col=0; col<Setup_Tab3_SpeciesTW->columnCount(); ++col) {
             for (int row=0; row<Setup_Tab3_SpeciesTW->rowCount(); ++row) {
@@ -1152,9 +1149,14 @@ nmfSetup_Tab3::callback_ExportPB()
                 }
             }
         }
-        emit SaveSpeciesSupplemental(SpeciesName,SpeciesGuild,SpeciesInitialBiomass,
-                                     SpeciesGrowthRate,SpeciesK);
+        emit SaveSpeciesSupplemental(tableName,
+                                     SpeciesName,
+                                     SpeciesGuild,
+                                     SpeciesInitialBiomass,
+                                     SpeciesGrowthRate,
+                                     SpeciesK);
     }
+
 }
 
 void
