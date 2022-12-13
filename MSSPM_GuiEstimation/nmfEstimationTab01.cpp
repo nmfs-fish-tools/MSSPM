@@ -1816,6 +1816,9 @@ nmfEstimation_Tab1::loadWidgets()
 
     bool okSpecies = loadSpecies();
     bool okGuilds  = loadGuilds();
+    if (! okSpecies || ! okGuilds) {
+        return false;
+    }
 
     resetVisibleColumns();
     if (okSpecies) {
@@ -1928,6 +1931,10 @@ nmfEstimation_Tab1::loadSpecies()
     QStringList fieldList;
     QLocale locale(QLocale::English);
     QString valueWithComma;
+
+    if (NumSpecies == 0) {
+        return false;
+    }
 
     m_originalSpeciesValuesAll.clear();
     m_SpeciesModel = new QStandardItemModel( NumSpecies, fields.size() );

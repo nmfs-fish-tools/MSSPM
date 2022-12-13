@@ -2087,7 +2087,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.4.0a ";
+    QString version = "MSSPM v1.4.1a ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
