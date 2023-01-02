@@ -88,6 +88,31 @@ private:
     std::map<std::string,nlopt::algorithm> m_MinimizerToEnum;
     std::vector<double>                    m_Parameters;
 
+    std::string completedMsg(
+            std::string code);
+    void checkAndApplyLogScale(
+            const bool& useLogScale,
+            std::vector<double>& parameterInitialValues,
+            std::vector<std::pair<double,double> >& parameterRanges);
+    static void checkAndUnapplyLogScale(
+            const bool& usedLogScale,
+            std::vector<double>& initBiomass,
+            std::vector<double>& growthRate,
+            std::vector<double>& growthRateShape,
+            std::vector<double>& growthRateCovariateCoeffs,
+            std::vector<double>& carryingCapacity,
+            std::vector<double>& carryingCapacityCovariateCoeffs,
+            std::vector<double>& catchability,
+            std::vector<double>& catchabilityCovariateCoeffs,
+            boost::numeric::ublas::matrix<double>& competitionAlpha,
+            boost::numeric::ublas::matrix<double>& competitionBetaSpecies,
+            boost::numeric::ublas::matrix<double>& competitionBetaGuilds,
+            boost::numeric::ublas::matrix<double>& competitionBetaGuildsGuilds,
+            boost::numeric::ublas::matrix<double>& predation,
+            boost::numeric::ublas::matrix<double>& handling,
+            std::vector<double>& exponent,
+            std::vector<double>& surveyQ,
+            std::vector<double>& surveyQCovariateCoeffs);
     void createOutputStr(
             const int&         numEstParameters,
             const int&         numTotalParameters,
@@ -107,7 +132,7 @@ private:
     void reloadNLoptStruct(
             nmfStructsQt::ModelDataStruct& NLoptStruct,
             const QString& MultiRunLine);
-    std::string returnCode(int result);
+    std::string returnCodeStr(int result);
     void setObjectiveFunction(
             nmfStructsQt::ModelDataStruct& NLoptStruct,
             std::string& MaxOrMin);
@@ -120,7 +145,6 @@ private:
             const bool& isSetToDeterministic,
             const bool& useFixedSeed);
     void setStoppingCriteria(nmfStructsQt::ModelDataStruct&  NLoptStruct);
-
     static void incrementObjectiveFunctionCounter(
             std::string MSSPMName,
             double fitness,
@@ -131,8 +155,9 @@ private:
 signals:
     /**
      * @brief Signal emitted at the end of a multi-run set of runs
+     * @param msg : message for output string denoting if all sub-runs converged
      */
-    void AllSubRunsCompleted();
+    void AllSubRunsCompleted(QString msg);
     /**
      * @brief Signal emitted when a Mohn's Rho multi run has completed
      */
@@ -160,6 +185,13 @@ signals:
      */
     void RunCompleted(std::string bestFitness,
                       bool showDiagnosticsChart);
+    /**
+     * @brief Signal emitted notifying the main program the estimation termination message
+     * @param returnCode : the numeric code signifying why the estimation stopped
+     * @param returnCodeMsg : the message to display to the user as to why the estimation stopped
+     */
+    void RunCompletedMsg(int returnCode,
+                         std::string returnCodeMsg);
     /**
      * @brief Signal emitted when NLopt Estimation sub run of a multi run has completed
      * @param run : current run
@@ -388,6 +420,10 @@ public:
      */
     void setAdditionalParameters(const nmfStructsQt::ModelDataStruct& dataStruct);
     bool stoppedByUser();
+    /**
+     * @brief Stops the run gracefully and allows the display to use the estimated values as have been estimated so far
+     */
+    void stopGracefully();
     void stopRun(const std::string &elapsedTimeStr,
                  const std::string &fitnessStr);
     /**

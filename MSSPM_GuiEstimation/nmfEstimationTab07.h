@@ -74,6 +74,8 @@ class nmfEstimation_Tab7: public QObject
     QString         m_WhatsThisIntroGlobal;
     QString         m_WhatsThisIntroLocal;
     std::map<QString,QString> m_WhatsThisMap;
+    QList<QCheckBox *> m_EnabledList;
+    std::vector<int> m_EstStates;
 
     QWidget*     Estimation_Tab7_Widget;
     QGroupBox*   Estimation_Tab7_ModelAlgorithmsGB;
@@ -85,6 +87,7 @@ class nmfEstimation_Tab7: public QObject
     QComboBox*   Estimation_Tab7_ObjectiveCriterionCMB;
     QLabel*      Estimation_Tab7_MinimizerAlgorithmLBL;
     QLabel*      Estimation_Tab7_MinimizerDetStoTypeLBL;
+    QLabel*      Estimation_Tab7_ToleranceLBL;
     QComboBox*   Estimation_Tab7_MinimizerTypeCMB;
     QTabWidget*  Estimation_Tabs;
     QTextEdit*   Estimation_Tab7_RunTE;
@@ -93,6 +96,7 @@ class nmfEstimation_Tab7: public QObject
     QPushButton* Estimation_Tab7_ReloadPB;
     QPushButton* Estimation_Tab7_PrevPB;
     QPushButton* Estimation_Tab7_NextPB;
+    QPushButton* Estimation_Tab7_NL_SetDefTolerancePB;
     QComboBox*   Estimation_Tab7_FontSizeCMB;
     QCheckBox*   Estimation_Tab7_MonoCB;
     QComboBox*   Estimation_Tab7_EstimationAlgorithmCMB;
@@ -127,6 +131,7 @@ class nmfEstimation_Tab7: public QObject
     QCheckBox*   Estimation_Tab7_EstimatePredationHandlingCB;
     QCheckBox*   Estimation_Tab7_EstimatePredationExponentCB;
     QCheckBox*   Estimation_Tab7_EstimateSurveyQCB;
+    QCheckBox*   Estimation_Tab7_LogScaleCB;
     QSpinBox*    Estimation_Tab7_EnsembleTotalRunsSB;
     QLabel*      Estimation_Tab7_EnsembleAveragingAlgorithmLBL;
     QComboBox*   Estimation_Tab7_EnsembleAveragingAlgorithmCMB;
@@ -156,11 +161,14 @@ class nmfEstimation_Tab7: public QObject
     void activateCheckBox(QCheckBox* cbox,
                            std::pair<bool,bool> state);
     void adjustNumberOfParameters();
+    void setInitialState(int &stateVar);
     void checkAlgorithmIdentifiersForMultiRun(
             std::string& Algorithm,
             std::string& Minimizer,
             std::string& ObjectiveCriterion,
             std::string& Scaling);
+    int codedState(bool enabled,
+                   bool checked);
     QList<QCheckBox* > getAllEstimateCheckboxes();
     int getNumParameters();
     void initializeDetStoMap();
@@ -171,9 +179,32 @@ class nmfEstimation_Tab7: public QObject
     void readSettings();
     bool passRunChecks();
     void runEnsemble();
-    bool saveSettingsConfiguration(bool verbose,std::string currentSettingsName);
+    void getStatesEstCheckboxes(
+            std::vector<int>& estStates);
+    bool saveStatesEstCheckboxes(
+            const std::vector<int>& estStates);
+    bool saveSettingsConfiguration(bool verbose,
+                                   bool resetCheckboxes,
+                                   std::string currentSettingsName);
     bool tryingToAddBeesAlgorithmToMultiRun();
-
+    void setEstimatedCheckBoxStates(
+            const bool& resetCheckboxes,
+            std::map<std::string,std::vector<std::string> >& dataMap,
+            int& stateEstGrowthRate,
+            int& stateEstGrowthRateShape,
+            int& stateEstCarryingCapacity,
+            int& stateEstCatchability,
+            int& stateEstCompetitionAlpha,
+            int& stateEstCompetitionBetaSpecies,
+            int& stateEstCompetitionBetaGuilds,
+            int& stateEstCompetitionBetaGuildsGuilds,
+            int& stateEstPredationRho,
+            int& stateEstPredationHandling,
+            int& stateEstPredationExponent,
+            int& stateEstSurveyQ,
+            int& stateEstInitialBiomass);
+    void updateState(QCheckBox* checkbox,
+                     const std::string& field);
 public:
     /**
      * @brief nmfEstimation_Tab7 : class constructor for the Run Estimation GUI page
@@ -298,6 +329,11 @@ public:
      */
     std::string getCurrentAlgorithm();
     /**
+     * @brief Gets the current Log Scale checkbox state from the GUI
+     * @return true if checked, false otherwise
+     */
+    bool getCurrentLogScale();
+    /**
      * @brief Gets the current Minimizer routine chosen from the GUI
      * @return Returns the minimizer chosen
      */
@@ -369,6 +405,23 @@ public:
      * @return the Using By value
      */
     QString getEnsembleUsingBy();
+    /**
+     * @brief Gets the coded enabled/checked state of the estimation run boxes
+     * @return Encoded int (0, 1, 10, or 11) signifying enabled/checked state of the estimation run boxes
+     */
+    int getStateEstInitialBiomass();
+    int getStateEstGrowthRate();
+    int getStateEstGrowthRateShape();
+    int getStateEstCarryingCapacity();
+    int getStateEstCatchability();
+    int getStateEstCompetitionAlpha();
+    int getStateEstPredationExponent();
+    int getStateEstSurveyQ();
+    int getStateEstPredationRho();
+    int getStateEstPredationHandling();
+    int getStateEstCompetitionBetaSpecies();
+    int getStateEstCompetitionBetaGuilds();
+    int getStateEstCompetitionBetaGuildsGuilds();
     /**
      * @brief Gets the value in the Initial Population Size line edit
      * @return the value of the Initial Population Size
@@ -638,9 +691,11 @@ public:
     /**
      * @brief Saves application settings but checking with user first
      * @param RunChecks : boolean checking to see if program should check with user prior to saving Model algorithm settings
+     * @param ResetCheckboxes : boolean designating whether or not an estimation checkbox should be set to it's disabled unchecked state
      * @return Returns true if the user acknowledged the Save
      */
-    bool saveSystem(bool RunChecks);
+    bool saveSystem(bool RunChecks,
+                    bool ResetCheckboxes);
     /**
      * @brief Sets the algorithm combo box to the passed value
      * @param algorithm : name of algorithm to set as current
@@ -816,6 +871,10 @@ signals:
      */
     void EnableRunButtons(bool state);
     /**
+     * @brief Signal emitted to refresh the estimation box states
+     */
+    void SetEstimatedParameterNames();
+    /**
      * @brief Signal sent after the user checks the Mono Font box. It causes
      * the displayed output edit widget to use a monospaced font.
      * @param font : the monospaced font to use in the output edit widget
@@ -954,6 +1013,7 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Load button
      */
     void callback_ReloadPB();
+    void callback_ReloadWidgets();
     /**
      * @brief Callback invoked when the user clicks the Save button
      */
@@ -967,6 +1027,10 @@ public Q_SLOTS:
      * @param scalingAlgorithm : new scaling algorithm selected
      */
     void callback_ScalingCMB(QString scalingAlgorithm);
+    /**
+     * @brief Callbck invoked when the user clicks the set default tolerance button.
+     */
+    void callback_SetDefTolerancePB();
     /**
      * @brief Callback invoked when the user checks or unchecks the Model Algorithm Set Deterministic button
      * @param state : if true - deterministic, else if false - stochastic

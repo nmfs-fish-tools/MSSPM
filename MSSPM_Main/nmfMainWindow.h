@@ -46,6 +46,7 @@
 #include "nmfChartSurface.h"
 #include "nmfProgressWidget.h"
 #include "ClearOutputDialog.h"
+#include "EstimationCompleteDialog.h"
 #include "nmfDatabaseConnectDialog.h"
 #include "nmfSimulatedData.h"
 #include "SimulatedBiomassDialog.h"
@@ -231,6 +232,7 @@ private:
     std::string                           m_MultiRunType;
     QDateTime                             m_AppStartTime;
     int                                   m_DBTimeout;
+    EstimationCompleteDialog*             m_EstimationCompleteDlg;
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
@@ -715,9 +717,9 @@ private:
                          std::string InitTable,
                          std::string MinTable,
                          std::string MaxTable,
-                         std::vector<std::vector<double> > &InitialData,
-                         std::vector<std::vector<double> > &MinData,
-                         std::vector<std::vector<double> > &MaxData,
+                         boost::numeric::ublas::matrix<double> &InitialData,
+                         boost::numeric::ublas::matrix<double> &MinData,
+                         boost::numeric::ublas::matrix<double> &MaxData,
                          int &NumInteractionParameters);
     bool loadInteractionGuilds(int &NumSpecies,
                                int &NumGuilds,
@@ -726,9 +728,9 @@ private:
                                std::string InitTable,
                                std::string MinTable,
                                std::string MaxTable,
-                               std::vector<std::vector<double> > &InitialData,
-                               std::vector<std::vector<double> > &MinData,
-                               std::vector<std::vector<double> > &MaxData,
+                               boost::numeric::ublas::matrix<double> &InitialData,
+                               boost::numeric::ublas::matrix<double> &MinData,
+                               boost::numeric::ublas::matrix<double> &MaxData,
                                int &NumInteractionParameters);
     bool loadInteractionGuildsGuilds(int &NumSpecies,
                                      int &NumGuilds,
@@ -737,9 +739,9 @@ private:
                                      std::string InitTable,
                                      std::string MinTable,
                                      std::string MaxTable,
-                                     std::vector<std::vector<double> > &InitialData,
-                                     std::vector<std::vector<double> > &MinData,
-                                     std::vector<std::vector<double> > &MaxData,
+                                     boost::numeric::ublas::matrix<double> &InitialData,
+                                     boost::numeric::ublas::matrix<double> &MinData,
+                                     boost::numeric::ublas::matrix<double> &MaxData,
                                      int &NumInteractionParameters);
     bool loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
                         const bool& verbose);
@@ -1151,8 +1153,9 @@ protected:
 public slots:
     /**
      * @brief Callback invoked when main receives an AllSubRunsCompleted signal from NLopt_Estimator
+     * @param : msgSuffix : an addendum to the multi-run termination message
      */
-    void callback_AllSubRunsCompleted();
+    void callback_AllSubRunsCompleted(QString msgSuffix);
     void callback_UpdateSeedValue(int isDeterministic);
     /**
      * @brief Callback invoked when user Runs an Estimation
@@ -1450,6 +1453,10 @@ public slots:
             int SubRunNum,
             int NumSubRuns);
     /**
+     * @brief Callback invoked after user stops a run via the Stop button in the progress widget
+     */
+    void callback_SetAllRunsComplete();
+    /**
      * @brief Callback invoked to stop the progress widget's elapsed run timer
      */
     void callback_StopTheTimer();
@@ -1636,7 +1643,10 @@ public slots:
     void callback_AddToReview();
     void callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct modeReview);
     void callback_EnableRunButtons(bool state);
-    void callback_StopAllRuns();
+    void callback_RunCompletedMsg(int returnCode,
+                                  std::string returnMsg);
+    void callback_SetEstimatedParameterNames();
+    void callback_StopTimer();
     void callback_SummaryLoadDiagnosticPB();
     void callback_SummaryExportDiagnosticPB();
     void callback_SummaryImportDiagnosticPB();

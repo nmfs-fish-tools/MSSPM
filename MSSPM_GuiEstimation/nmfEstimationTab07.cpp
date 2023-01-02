@@ -30,6 +30,7 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     m_EnsembleTimeStampedFilename = nmfConstantsMSSPM::FilenameMultiRun;
     m_IsMultiRun = false;
     m_MultiRunType.clear();
+    m_EnabledList.clear();
 
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab7::nmfEstimation_Tab7");
 
@@ -55,12 +56,14 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_MinimizerAlgorithmLBL      = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_MinimizerAlgorithmLBL");
     Estimation_Tab7_MinimizerDetStoTypeLBL     = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_MinimizerDetStoTypeLBL");
     Estimation_Tab7_MinimizerTypeCMB           = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab7_MinimizerTypeCMB");
+    Estimation_Tab7_LogScaleCB                 = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_LogScaleCB");
     Estimation_Tab7_RunTE                      = Estimation_Tabs->findChild<QTextEdit   *>("Estimation_Tab7_RunTE");
     Estimation_Tab7_RunPB                      = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_RunPB");
     Estimation_Tab7_ReloadPB                   = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_ReloadPB");
     Estimation_Tab7_SavePB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_SavePB");
     Estimation_Tab7_PrevPB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_PrevPB");
     Estimation_Tab7_NextPB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_NextPB");
+    Estimation_Tab7_NL_SetDefTolerancePB       = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_NL_SetDefTolerancePB");
     Estimation_Tab7_FontSizeCMB                = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab7_FontSizeCMB");
     Estimation_Tab7_MonoCB                     = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_MonoCB");
     Estimation_Tab7_Bees_NumberOfRunsSB        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab7_Bees_NumberOfRunsSB");
@@ -120,6 +123,7 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_NL_TimeUnitsLockPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_NL_TimeUnitsLockPB");
     Estimation_Tab7_BeesDetStoTypeLBL             = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_BeesDetStoTypeLBL");
     Estimation_Tab7_BeesSetDeterministicLBL       = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_BeesSetDeterministicLBL");
+    Estimation_Tab7_ToleranceLBL                  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_ToleranceLBL");
 
     Estimation_Tab7_AddToReviewPB->setEnabled(false);
 
@@ -205,12 +209,13 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
              this,                                        SLOT(callback_EnsembleSetDeterministicCB(int)));
     connect(Estimation_Tab7_AddToReviewPB,                SIGNAL(clicked()),
             this,                                         SLOT(callback_AddToReviewPB()));
-//    connect(Estimation_Tab7_EstimateSurveyQCB,            SIGNAL(stateChanged(int)),
-//            this,                                         SLOT(callback_EstimateSurveyQCB(int)));
+//  connect(Estimation_Tab7_EstimateSurveyQCB,            SIGNAL(stateChanged(int)),
+//          this,                                         SLOT(callback_EstimateSurveyQCB(int)));
     connect(Estimation_Tab7_NL_TimeUnitsLockPB,           SIGNAL(clicked(bool)),
-            this,                                         SLOT(callback_TimeUnitsLockPB(bool)));
+            this,                                         SLOT(callback_TimeUnitsLockPB(bool))); 
+    connect(Estimation_Tab7_NL_SetDefTolerancePB,         SIGNAL(clicked()),
+            this,                                         SLOT(callback_SetDefTolerancePB()));
 
-int i=0;
     // Wire up signals/slots for the Estimate Run checkboxes
     for (QCheckBox* cbox : getAllEstimateCheckboxes()) {
         connect(cbox, SIGNAL(stateChanged(int)),
@@ -532,6 +537,107 @@ nmfEstimation_Tab7::callback_NextPB()
     Estimation_Tabs->setCurrentIndex(nextPage);
 }
 
+int
+nmfEstimation_Tab7::codedState(bool enabled,
+                               bool checked)
+{
+   if (enabled && checked) {
+       return nmfConstantsMSSPM::EnabledAndChecked;
+   } else if (enabled && ! checked) {
+       return nmfConstantsMSSPM::EnabledAndNotChecked;
+   } else if (!enabled and checked) {
+       return nmfConstantsMSSPM::NotEnabledButChecked;
+   } else {
+       return nmfConstantsMSSPM::NotEnabledAndNotChecked;
+   }
+}
+
+int
+nmfEstimation_Tab7::getStateEstInitialBiomass()
+{
+    return codedState(isEstInitialBiomassEnabled(),
+                      isEstInitialBiomassChecked());
+}
+
+int
+nmfEstimation_Tab7::getStateEstGrowthRate()
+{
+    return codedState(isEstGrowthRateEnabled(),
+                      isEstGrowthRateChecked());
+}
+
+int
+nmfEstimation_Tab7::getStateEstGrowthRateShape()
+{
+    return codedState(isEstGrowthRateShapeEnabled(),
+                      isEstGrowthRateShapeChecked());
+}
+int
+nmfEstimation_Tab7::getStateEstCarryingCapacity()
+{
+    return codedState(isEstCarryingCapacityEnabled(),
+                      isEstCarryingCapacityChecked());
+}
+int
+nmfEstimation_Tab7::getStateEstCatchability()
+{
+    return codedState(isEstCatchabilityEnabled(),
+                      isEstCatchabilityChecked());
+}
+int
+nmfEstimation_Tab7::getStateEstCompetitionAlpha()
+{
+    return codedState(isEstCompetitionAlphaEnabled(),
+                      isEstCompetitionAlphaChecked());
+}
+int
+nmfEstimation_Tab7::getStateEstPredationExponent()
+{
+    return codedState(isEstPredationExponentEnabled(),
+                      isEstPredationExponentChecked());
+}
+int
+nmfEstimation_Tab7::getStateEstSurveyQ()
+{
+    return codedState(isEstSurveyQEnabled(),
+                      isEstSurveyQChecked());
+}
+
+int
+nmfEstimation_Tab7::getStateEstPredationRho()
+{
+    return codedState(isEstPredationRhoEnabled(),
+                      isEstPredationRhoChecked());
+}
+
+int
+nmfEstimation_Tab7::getStateEstPredationHandling()
+{
+    return codedState(isEstPredationHandlingEnabled(),
+                      isEstPredationHandlingChecked());
+}
+
+int
+nmfEstimation_Tab7::getStateEstCompetitionBetaSpecies()
+{
+    return codedState(isEstCompetitionBetaSpeciesEnabled(),
+                      isEstCompetitionBetaSpeciesChecked());
+}
+
+int
+nmfEstimation_Tab7::getStateEstCompetitionBetaGuilds()
+{
+    return codedState(isEstCompetitionBetaGuildsEnabled(),
+                      isEstCompetitionBetaGuildsChecked());
+}
+
+int
+nmfEstimation_Tab7::getStateEstCompetitionBetaGuildsGuilds()
+{
+    return codedState(isEstCompetitionBetaGuildsGuildsEnabled(),
+                      isEstCompetitionBetaGuildsGuildsChecked());
+}
+
 bool
 nmfEstimation_Tab7::isEstInitialBiomassEnabled()
 {
@@ -542,6 +648,7 @@ nmfEstimation_Tab7::isEstInitialBiomassChecked()
 {
     return Estimation_Tab7_EstimateInitialBiomassCB->isChecked();
 }
+
 
 bool
 nmfEstimation_Tab7::isEstGrowthRateEnabled()
@@ -1059,33 +1166,106 @@ nmfEstimation_Tab7::getEstimateRunBoxes()
 void
 nmfEstimation_Tab7::callback_ReloadPB()
 {
+    callback_ReloadWidgets();
+    /*
+    emit SetEstimatedParameterNames();
+
     if (loadWidgets()) {
         enableRunButton(true);
         QMessageBox::information(Estimation_Tabs, "Run Settings Load",
                                  "\nRun Settings successfully loaded.\n",
                                  QMessageBox::Ok);
     }
+    */
+}
+
+void
+nmfEstimation_Tab7::getStatesEstCheckboxes(
+        std::vector<int>& estStates)
+{
+    estStates.clear();
+    estStates.push_back(getStateEstInitialBiomass());
+    estStates.push_back(getStateEstGrowthRate());
+    estStates.push_back(getStateEstGrowthRateShape());
+    estStates.push_back(getStateEstCarryingCapacity());
+    estStates.push_back(getStateEstCatchability());
+    estStates.push_back(getStateEstCompetitionAlpha());
+    estStates.push_back(getStateEstCompetitionBetaSpecies());
+    estStates.push_back(getStateEstCompetitionBetaGuilds());
+    estStates.push_back(getStateEstCompetitionBetaGuildsGuilds());
+    estStates.push_back(getStateEstPredationRho());
+    estStates.push_back(getStateEstPredationHandling());
+    estStates.push_back(getStateEstPredationExponent());
+    estStates.push_back(getStateEstSurveyQ());
+}
+
+
+bool
+nmfEstimation_Tab7::saveStatesEstCheckboxes(
+        const std::vector<int>& estStates)
+{
+    if (estStates.size() != nmfConstantsMSSPM::Num_Estimatable_Parameter_Groups) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab7::saveStatesEstCheckboxes: Incorrect number of estimated checkboxes found");
+        return false;
+    }
+
+    std::string cmd;
+    cmd  = "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
+    cmd += "  EstimateInitialBiomass = "          + std::to_string(estStates[0]) +
+           ", EstimateGrowthRate = "              + std::to_string(estStates[1]) +
+           ", EstimateGrowthRateShape = "         + std::to_string(estStates[2]) +
+           ", EstimateCarryingCapacity = "        + std::to_string(estStates[3]) +
+           ", EstimateCatchability = "            + std::to_string(estStates[4]) +
+           ", EstimateCompetition = "             + std::to_string(estStates[5]) +
+           ", EstimateCompetitionSpecies = "      + std::to_string(estStates[6]) +
+           ", EstimateCompetitionGuilds = "       + std::to_string(estStates[7]) +
+           ", EstimateCompetitionGuildsGuilds = " + std::to_string(estStates[8]) +
+           ", EstimatePredation = "               + std::to_string(estStates[9]) +
+           ", EstimatePredationHandling = "       + std::to_string(estStates[10]) +
+           ", EstimatePredationExponent = "       + std::to_string(estStates[11]) +
+           ", EstimateSurveyQ = "                 + std::to_string(estStates[12]) +
+           "  WHERE ProjectName = '"              + m_ProjectName +
+           "' AND ModelName = '"                  + m_ModelName + "'";
+
+    std::string errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab7::saveStatesEstCheckboxes: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        return false;
+    }
+    return true;
 }
 
 void
 nmfEstimation_Tab7::callback_SavePB()
 {
+    if (! Estimation_Tab7_EnsembleControlsGB->isChecked()) {
+        // Get state of all est checkboxes
+        getStatesEstCheckboxes(m_EstStates);
+    }
+
     if (! passRunChecks()) {
         return;
     }
     createTimeStampedEnsembleFile();
 
-    bool wasSaved = saveSystem(true);
+    bool wasSaved = saveSystem(nmfConstantsMSSPM::RunChecks,
+                               nmfConstantsMSSPM::DontResetCheckboxes);
     if (wasSaved) {
         enableRunButton(true);
         enableAddToReview(false);
     }
+
+    // Resave state of all est checkboxes
+    saveStatesEstCheckboxes(m_EstStates);
+    callback_ReloadWidgets();
 }
 
 void
 nmfEstimation_Tab7::callback_SaveSettings()
 {
-    saveSystem(false);
+    saveSystem(nmfConstantsMSSPM::DontRunChecks,
+               nmfConstantsMSSPM::ResetCheckboxes);
 }
 
 bool
@@ -1120,7 +1300,8 @@ nmfEstimation_Tab7::runBeesCheck(QString& errorMsg)
 }
 
 bool
-nmfEstimation_Tab7::saveSystem(bool RunChecks)
+nmfEstimation_Tab7::saveSystem(bool RunChecks,
+                               bool ResetCheckboxes)
 {
     bool ok;
     bool okToSave = true;
@@ -1150,7 +1331,7 @@ nmfEstimation_Tab7::saveSystem(bool RunChecks)
     }
     if (okToSave) {
         m_ModelName = ModelName;
-        saveSettingsConfiguration(RunChecks,ModelName);
+        saveSettingsConfiguration(RunChecks,ResetCheckboxes,ModelName);
         readSettings();
     }
 
@@ -1183,8 +1364,114 @@ nmfEstimation_Tab7::okAdditionalAlgorithmParameters()
     return retv;
 }
 
+void
+nmfEstimation_Tab7::setInitialState(int &stateVar)
+{
+      stateVar = 11;
+}
+
+void
+nmfEstimation_Tab7::setEstimatedCheckBoxStates(
+        const bool& resetCheckboxes,
+        std::map<std::string, std::vector<std::string> >& dataMap,
+        int& stateEstGrowthRate,
+        int& stateEstGrowthRateShape,
+        int& stateEstCarryingCapacity,
+        int& stateEstCatchability,
+        int& stateEstCompetitionAlpha,
+        int& stateEstCompetitionBetaSpecies,
+        int& stateEstCompetitionBetaGuilds,
+        int& stateEstCompetitionBetaGuildsGuilds,
+        int& stateEstPredationRho,
+        int& stateEstPredationHandling,
+        int& stateEstPredationExponent,
+        int& stateEstSurveyQ,
+        int& stateEstInitialBiomass)
+{
+    stateEstSurveyQ                     = 0;
+    stateEstGrowthRate                  = 0;
+    stateEstGrowthRateShape             = 0;
+    stateEstCarryingCapacity            = 0;
+    stateEstCatchability                = 0;
+    stateEstCompetitionAlpha            = 0;
+    stateEstCompetitionBetaSpecies      = 0;
+    stateEstCompetitionBetaGuilds       = 0;
+    stateEstCompetitionBetaGuildsGuilds = 0;
+    stateEstPredationRho                = 0;
+    stateEstPredationHandling           = 0;
+    stateEstPredationExponent           = 0;
+    stateEstInitialBiomass              = 0;
+    if (! resetCheckboxes) {
+        stateEstSurveyQ                     = getStateEstSurveyQ();
+        stateEstGrowthRate                  = getStateEstGrowthRate();
+        stateEstGrowthRateShape             = getStateEstGrowthRateShape();
+        stateEstCarryingCapacity            = getStateEstCarryingCapacity();
+        stateEstCatchability                = getStateEstCatchability();
+        stateEstCompetitionAlpha            = getStateEstCompetitionAlpha();
+        stateEstCompetitionBetaSpecies      = getStateEstCompetitionBetaSpecies();
+        stateEstCompetitionBetaGuilds       = getStateEstCompetitionBetaGuilds();
+        stateEstCompetitionBetaGuildsGuilds = getStateEstCompetitionBetaGuildsGuilds();
+        stateEstPredationRho                = getStateEstPredationRho();
+        stateEstPredationHandling           = getStateEstPredationHandling();
+        stateEstPredationExponent           = getStateEstPredationExponent();
+        stateEstInitialBiomass              = getStateEstInitialBiomass();
+        return;
+    }
+
+    // Initial Biomass
+    setInitialState(stateEstInitialBiomass);
+
+    // Biomass type
+    if (dataMap["ObsBiomassType"][0] == "Relative") {
+        setInitialState(stateEstSurveyQ);
+    }
+
+    // Set Growth state
+    std::string GrowthForm = dataMap["GrowthForm"][0];
+    if (GrowthForm == "Linear") {
+        setInitialState(stateEstGrowthRate);
+    } else if (GrowthForm == "Logistic") {
+        setInitialState(stateEstGrowthRate);
+        setInitialState(stateEstGrowthRateShape);
+        setInitialState(stateEstCarryingCapacity);
+    }
+
+    // Set Harvest state
+    std::string HarvestForm = dataMap["HarvestForm"][0];
+    if ((HarvestForm == "Effort (qE)") || (HarvestForm == "Effort Fit to Catch")) {
+        setInitialState(stateEstCatchability);
+    }
+
+    // Set Competition state
+    std::string CompetitionForm = dataMap["WithinGuildCompetitionForm"][0];
+    if (CompetitionForm == "NO_K") {
+        setInitialState(stateEstCompetitionAlpha);
+    } else if (CompetitionForm == "MS-PROD") {
+        setInitialState(stateEstCompetitionAlpha);
+        setInitialState(stateEstCompetitionBetaSpecies);
+        setInitialState(stateEstCompetitionBetaGuilds);
+    } else if (CompetitionForm == "AGG-PROD") {
+        setInitialState(stateEstCompetitionBetaGuildsGuilds);
+    }
+
+    // Set Predation state
+    std::string PredationForm = dataMap["PredationForm"][0];
+    if (PredationForm == "Type I") {
+        setInitialState(stateEstPredationRho);
+    } else if (PredationForm == "Type II") {
+        setInitialState(stateEstPredationRho);
+        setInitialState(stateEstPredationHandling);
+    } else if (PredationForm == "Type III") {
+        setInitialState(stateEstPredationRho);
+        setInitialState(stateEstPredationHandling);
+        setInitialState(stateEstPredationExponent);
+    }
+
+}
+
 bool
 nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
+                                              bool resetCheckboxes,
                                               std::string currentModelName)
 {
     std::string cmd;
@@ -1192,6 +1479,10 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
+    int stateEstGrowthRate,stateEstGrowthRateShape,stateEstCarryingCapacity,stateEstCatchability;
+    int stateEstCompetitionAlpha,stateEstCompetitionBetaSpecies,stateEstCompetitionBetaGuilds,stateEstCompetitionBetaGuildsGuilds;
+    int stateEstPredationRho,stateEstPredationHandling,stateEstPredationExponent;
+    int stateEstSurveyQ,stateEstInitialBiomass;
 
     // Save number of parameters
     adjustNumberOfParameters();
@@ -1204,12 +1495,14 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
     }
 
     // Remove existing timestamped ensemble file as you're about to replace the entry
-    fields   = {"ProjectName","ModelName","EnsembleFile"};
-    queryStr = "SELECT ProjectName,ModelName,EnsembleFile from " +
-                nmfConstantsMSSPM::TableModels +
-               " WHERE ProjectName = '" + m_ProjectName +
-               "' AND  ModelName = '"   + m_ModelName   + "'";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    fields    = {"ProjectName","ModelName","EnsembleFile","ObsBiomassType","GrowthForm",
+                 "HarvestForm","WithinGuildCompetitionForm","PredationForm"};
+    queryStr  = "SELECT ProjectName,ModelName,EnsembleFile,ObsBiomassType,";
+    queryStr += "GrowthForm,HarvestForm,WithinGuildCompetitionForm,PredationForm FROM " +
+                 nmfConstantsMSSPM::TableModels +
+                " WHERE ProjectName = '" + m_ProjectName +
+                "' AND  ModelName = '"   + m_ModelName   + "'";
+    dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
 
     if (dataMap["EnsembleFile"].size() > 0) {
         QString ensembleFileName = QString::fromStdString(dataMap["EnsembleFile"][0]);
@@ -1224,6 +1517,20 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
             }
         }
     }
+
+    // Create an output string stream for the tolerance double most likely in scientific notation
+    std::ostringstream toleranceStreamObj;
+    // Add the double to the stream
+    toleranceStreamObj << getCurrentStopAfterValue();
+    // Get string from output string stream
+    std::string tolerance = toleranceStreamObj.str();
+
+    // Set Checked state of estimation check boxes
+    setEstimatedCheckBoxStates(resetCheckboxes,dataMap,stateEstGrowthRate,stateEstGrowthRateShape,
+                               stateEstCarryingCapacity,stateEstCatchability,stateEstCompetitionAlpha,
+                               stateEstCompetitionBetaSpecies,stateEstCompetitionBetaGuilds,
+                               stateEstCompetitionBetaGuildsGuilds,stateEstPredationRho,stateEstPredationHandling,
+                               stateEstPredationExponent,stateEstSurveyQ,stateEstInitialBiomass);
 
     // Update model parameters
     cmd  =  "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
@@ -1248,24 +1555,26 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
             ",  NLoptUseStopAfterTime = "           + std::to_string(isStopAfterTime()  ? 1 : 0) +
             ",  NLoptUseStopAfterIter = "           + std::to_string(isStopAfterIter()  ? 1 : 0) +
             ",  NLoptUseInitialPopulationSize = "   + std::to_string(isInitialPopulationSize() ? 1 : 0) +
-            ",  NLoptStopVal = "                    + std::to_string(getCurrentStopAfterValue()) +
+            ",  NLoptStopVal = "                    + tolerance + // std::to_string(getCurrentStopAfterValue()) +
             ",  NLoptStopAfterTime = "              + std::to_string(getCurrentStopAfterTime()) +
             ",  NLoptStopAfterIter = "              + std::to_string(getCurrentStopAfterIter()) +
             ",  NLoptInitialPopulationSize = "      + std::to_string(getInitialPopulationSize()) +
             ",  NLoptNumberOfRuns = "               + std::to_string(Estimation_Tab7_EnsembleTotalRunsSB->value()) +
-            ",  EstimateInitialBiomass = "          + std::to_string(isEstInitialBiomassChecked()) +
-            ",  EstimateGrowthRate = "              + std::to_string(isEstGrowthRateChecked()) +
-            ",  EstimateGrowthRateShape = "         + std::to_string(isEstGrowthRateShapeChecked()) +
-            ",  EstimateCarryingCapacity = "        + std::to_string(isEstCarryingCapacityChecked()) +
-            ",  EstimateCatchability = "            + std::to_string(isEstCatchabilityChecked()) +
-            ",  EstimateCompetition = "             + std::to_string(isEstCompetitionAlphaChecked()) +
-            ",  EstimateCompetitionSpecies = "      + std::to_string(isEstCompetitionBetaSpeciesChecked()) +
-            ",  EstimateCompetitionGuilds = "       + std::to_string(isEstCompetitionBetaGuildsChecked()) +
-            ",  EstimateCompetitionGuildsGuilds = " + std::to_string(isEstCompetitionBetaGuildsGuildsChecked()) +
-            ",  EstimatePredation = "               + std::to_string(isEstPredationRhoChecked()) +
-            ",  EstimatePredationHandling = "       + std::to_string(isEstPredationHandlingChecked()) +
-            ",  EstimatePredationExponent = "       + std::to_string(isEstPredationExponentChecked()) +
-            ",  EstimateSurveyQ = "                 + std::to_string(isEstSurveyQChecked()) +
+
+            ",  EstimateGrowthRate = "              + std::to_string(stateEstGrowthRate) +                  // isEstGrowthRateChecked()) +
+            ",  EstimateGrowthRateShape = "         + std::to_string(stateEstGrowthRateShape) +             // isEstGrowthRateShapeChecked()) +
+            ",  EstimateCarryingCapacity = "        + std::to_string(stateEstCarryingCapacity) +            // isEstCarryingCapacityChecked()) +
+            ",  EstimateCatchability = "            + std::to_string(stateEstCatchability) +                // isEstCatchabilityChecked()) +
+            ",  EstimateCompetition = "             + std::to_string(stateEstCompetitionAlpha) +            // isEstCompetitionAlphaChecked()) +
+            ",  EstimateCompetitionSpecies = "      + std::to_string(stateEstCompetitionBetaSpecies) +      // isEstCompetitionBetaSpeciesChecked()) +
+            ",  EstimateCompetitionGuilds = "       + std::to_string(stateEstCompetitionBetaGuilds) +       // isEstCompetitionBetaGuildsChecked()) +
+            ",  EstimateCompetitionGuildsGuilds = " + std::to_string(stateEstCompetitionBetaGuildsGuilds) + // isEstCompetitionBetaGuildsGuildsChecked()) +
+            ",  EstimatePredation = "               + std::to_string(stateEstPredationRho) +                // isEstPredationRhoChecked()) +
+            ",  EstimatePredationHandling = "       + std::to_string(stateEstPredationHandling) +           // isEstPredationHandlingChecked()) +
+            ",  EstimatePredationExponent = "       + std::to_string(stateEstPredationExponent) +           // isEstPredationExponentChecked()) +
+            ",  EstimateSurveyQ = "                 + std::to_string(stateEstSurveyQ) +                     // isEstSurveyQChecked()) +
+            ",  EstimateInitialBiomass = "          + std::to_string(stateEstInitialBiomass) +              // isEstInitialBiomassChecked()) +
+
             ",  EnsembleIsBoxChecked = "            + std::to_string(isAMultiRun()) +
             ",  EnsembleAverageAlg = '"             + getEnsembleAveragingAlgorithm().toStdString() +
             "', EnsembleAverageBy = '"              + getEnsembleAverageBy().toStdString() +
@@ -1314,6 +1623,18 @@ nmfEstimation_Tab7::setRunButtonLabel(QString label)
 void
 nmfEstimation_Tab7::callback_MinimizerAlgorithmCMB(QString algorithm)
 {
+    // Update tolerance label
+    bool isGlobal = Estimation_Tab7_MinimizerTypeCMB->currentText() == "global";
+    Estimation_Tab7_ToleranceLBL->setText("(no tol)");
+    if (isGlobal) {
+        if (algorithm == "GN_DIRECT_L" || algorithm == "GN_DIRECT_L_RAND") {
+            Estimation_Tab7_ToleranceLBL->setText("(tol)");
+        }
+    } else { // if it's "local"
+        Estimation_Tab7_ToleranceLBL->setText("(tol)");
+    }
+
+    // Update deterministic/stochastic widgets
     QString detStoTypeLabel = m_DetStoTypeMap[algorithm];
     Estimation_Tab7_MinimizerDetStoTypeLBL->setText(detStoTypeLabel);
     Estimation_Tab7_MinimizerSetDeterministicCB->setEnabled(detStoTypeLabel == "(s)");
@@ -1344,6 +1665,7 @@ nmfEstimation_Tab7::callback_MinimizerTypeCMB(QString type)
     QString msg;
 
     Estimation_Tab7_MinimizerAlgorithmCMB->clear();
+
     if (type.toLower() == "global") {
 
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ORIG_DIRECT_L");
@@ -1353,6 +1675,7 @@ nmfEstimation_Tab7::callback_MinimizerTypeCMB(QString type)
 //      Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ISRES"); // Put in later if more algorithms are desired
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GN_ESCH");
         Estimation_Tab7_MinimizerAlgorithmCMB->addItem("GD_StoGO");
+        Estimation_Tab7_ToleranceLBL->setText("(no tol)");
 
         // Hover help
         Estimation_Tab7_MinimizerAlgorithmCMB->setItemData(0,
@@ -1542,6 +1865,12 @@ std::string
 nmfEstimation_Tab7::getCurrentMinimizerType()
 {
     return Estimation_Tab7_MinimizerTypeCMB->currentText().toStdString();
+}
+
+bool
+nmfEstimation_Tab7::getCurrentLogScale()
+{
+    return Estimation_Tab7_LogScaleCB->isChecked();
 }
 
 std::string
@@ -1939,7 +2268,6 @@ nmfEstimation_Tab7::clearMohnsRhoFile()
     file.remove();
 }
 
-
 void
 nmfEstimation_Tab7::callback_EnsembleViewPB()
 {
@@ -2013,7 +2341,6 @@ nmfEstimation_Tab7::callback_StopAfterValueLE(QString value)
 {
     enableRunButton(false);
 }
-
 
 void
 nmfEstimation_Tab7::callback_RefreshEstimateRunBoxes(int unused)
@@ -2134,7 +2461,6 @@ nmfEstimation_Tab7::callback_EnsembleControlsGB(bool isChecked)
         loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun),
                          nmfConstantsMSSPM::VerboseOff);
     }
-
 }
 
 
@@ -2163,6 +2489,12 @@ nmfEstimation_Tab7::setDeterministicMinimizerCB(bool state)
 }
 
 void
+nmfEstimation_Tab7::callback_SetDefTolerancePB()
+{
+    Estimation_Tab7_NL_StopAfterValueLE->setText(QString::number(nmfConstantsMSSPM::DefaultTolerance));
+}
+
+void
 nmfEstimation_Tab7::callback_SetDeterministicCB(int state)
 {
     Estimation_Tab7_EnsembleSetDeterministicCB->blockSignals(true);
@@ -2183,6 +2515,10 @@ nmfEstimation_Tab7::callback_AddToReviewPB()
 {
     emit AddToReview();
     enableRunButton(true);
+
+    // Resave state of all est checkboxes
+    saveStatesEstCheckboxes(m_EstStates);
+    callback_ReloadWidgets();
 }
 
 bool
@@ -2253,6 +2589,7 @@ nmfEstimation_Tab7::enableNonEnsembleWidgets(bool enable)
     Estimation_Tab7_ModelAlgorithmsGB->setEnabled(enable);
     Estimation_Tab7_NL_ParametersGB->setEnabled(enable);
     Estimation_Tab7_NL_AdditionalParametersGB->setEnabled(enable);
+    Estimation_Tab7_NL_ParametersGB->setEnabled(enable);
     Estimation_Tab7_Bees_ParametersGB->setEnabled(enable);
     Estimation_Tab7_EstParametersGB->setEnabled(enable);
 
@@ -2332,6 +2669,121 @@ nmfEstimation_Tab7::callback_EnsembleSetAllPB()
     }
 }
 
+void
+nmfEstimation_Tab7::callback_ReloadWidgets()
+{
+    int NumRecords;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap,dataMap2;
+    std::string queryStr;
+
+    emit SetEstimatedParameterNames();
+
+    fields     = {"ProjectName","ModelName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
+                  "NumberOfRuns","StartYear","RunLength","TimeStep","Algorithm","Minimizer",
+                  "UseFixedSeedBees","UseFixedSeedMinimizer","MinimizerType",
+                  "ObjectiveCriterion","Scaling","GAGenerations","GAPopulationSize",
+                  "GAMutationRate","GAConvergence","BeesNumTotal","BeesNumElite","BeesNumOther",
+                  "BeesNumEliteSites","BeesNumBestSites","BeesNumRepetitions",
+                  "BeesMaxGenerations","BeesNeighborhoodSize",
+                  "NLoptUseStopVal","NLoptUseStopAfterTime","NLoptUseStopAfterIter","NLoptUseInitialPopulationSize",
+                  "NLoptStopVal","NLoptStopAfterTime","NLoptStopAfterIter","NLoptInitialPopulationSize","NLoptNumberOfRuns",
+                  "EstimateInitialBiomass","EstimateGrowthRate","EstimateGrowthRateShape","EstimateCarryingCapacity",
+                  "EstimateCatchability","EstimateCompetition","EstimateCompetitionSpecies",
+                  "EstimateCompetitionGuilds","EstimateCompetitionGuildsGuilds","EstimatePredation",
+                  "EstimatePredationHandling","EstimatePredationExponent","EstimateSurveyQ",
+                  "EnsembleIsBoxChecked","EnsembleAverageAlg","EnsembleAverageBy","EnsembleUsingWhat",
+                  "EnsembleUsingValue","EnsembleIsUsingPct","EnsembleFile"};
+    queryStr   = std::string("SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,") +
+                 "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer," +
+                 "UseFixedSeedBees,UseFixedSeedMinimizer,MinimizerType,ObjectiveCriterion,Scaling," +
+                 "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence," +
+                 "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions," +
+                 "BeesMaxGenerations,BeesNeighborhoodSize," +
+                 "NLoptUseStopVal,NLoptUseStopAfterTime,NLoptUseStopAfterIter,NLoptUseInitialPopulationSize," +
+                 "NLoptStopVal,NLoptStopAfterTime,NLoptStopAfterIter,NLoptInitialPopulationSize,NLoptNumberOfRuns," +
+                 "EstimateInitialBiomass,EstimateGrowthRate,EstimateGrowthRateShape,EstimateCarryingCapacity," +
+                 "EstimateCatchability,EstimateCompetition,EstimateCompetitionSpecies," +
+                 "EstimateCompetitionGuilds,EstimateCompetitionGuildsGuilds,EstimatePredation," +
+                 "EstimatePredationHandling,EstimatePredationExponent,EstimateSurveyQ," +
+                 "EnsembleIsBoxChecked,EnsembleAverageAlg,EnsembleAverageBy,EnsembleUsingWhat," +
+                 "EnsembleUsingValue,EnsembleIsUsingPct,EnsembleFile FROM " +
+                  nmfConstantsMSSPM::TableModels +
+                 " WHERE ProjectName = '" + m_ProjectName +
+                 "' AND ModelName = '"    + m_ModelName   + "'";
+
+    dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    NumRecords = dataMap["ModelName"].size();
+    if (NumRecords == 0) {
+        m_Logger->logMsg(nmfConstants::Warning,"No records found in table: "+nmfConstantsMSSPM::TableModels);
+        return;
+    }
+
+    // Refresh all estimation check box enable states
+
+
+    // Refresh all estimation check box check states
+    updateState(Estimation_Tab7_EstimateInitialBiomassCB,               dataMap["EstimateInitialBiomass"][0]);
+    updateState(Estimation_Tab7_EstimateGrowthRateCB,                   dataMap["EstimateGrowthRate"][0]);
+    updateState(Estimation_Tab7_EstimateGrowthRateShapeCB,              dataMap["EstimateGrowthRateShape"][0]);
+    updateState(Estimation_Tab7_EstimateCarryingCapacityCB,             dataMap["EstimateCarryingCapacity"][0]);
+    updateState(Estimation_Tab7_EstimateCatchabilityCB,                 dataMap["EstimateCatchability"][0]);
+    updateState(Estimation_Tab7_EstimateCompetitionAlphaCB,             dataMap["EstimateCompetition"][0]);
+    updateState(Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB,dataMap["EstimateCompetitionSpecies"][0]);
+    updateState(Estimation_Tab7_EstimateCompetitionBetaGuildSpeciesCB,  dataMap["EstimateCompetitionGuilds"][0]);
+    updateState(Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB,    dataMap["EstimateCompetitionGuildsGuilds"][0]);
+    updateState(Estimation_Tab7_EstimatePredationRhoCB,                 dataMap["EstimatePredation"][0]);
+    updateState(Estimation_Tab7_EstimatePredationHandlingCB,            dataMap["EstimatePredationHandling"][0]);
+    updateState(Estimation_Tab7_EstimatePredationExponentCB,            dataMap["EstimatePredationExponent"][0]);
+    updateState(Estimation_Tab7_EstimateSurveyQCB,                      dataMap["EstimateSurveyQ"][0]);
+
+//    Estimation_Tab7_EstimateInitialBiomassCB->setChecked(dataMap["EstimateInitialBiomass"][0] == "1");
+//    Estimation_Tab7_EstimateGrowthRateCB->setChecked(dataMap["EstimateGrowthRate"][0] == "1");
+//    Estimation_Tab7_EstimateGrowthRateShapeCB->setChecked(dataMap["EstimateGrowthRateShape"][0] == "1");
+//    Estimation_Tab7_EstimateCarryingCapacityCB->setChecked(dataMap["EstimateCarryingCapacity"][0] == "1");
+//    Estimation_Tab7_EstimateCatchabilityCB->setChecked(dataMap["EstimateCatchability"][0] == "1");
+//    Estimation_Tab7_EstimateCompetitionAlphaCB->setChecked(dataMap["EstimateCompetition"][0] == "1");
+//    Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB->setChecked(dataMap["EstimateCompetitionSpecies"][0] == "1");
+//    Estimation_Tab7_EstimateCompetitionBetaGuildSpeciesCB->setChecked(dataMap["EstimateCompetitionGuilds"][0] == "1");
+//    Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB->setChecked(dataMap["EstimateCompetitionGuildsGuilds"][0] == "1");
+//    Estimation_Tab7_EstimatePredationRhoCB->setChecked(dataMap["EstimatePredation"][0] == "1");
+//    Estimation_Tab7_EstimatePredationHandlingCB->setChecked(dataMap["EstimatePredationHandling"][0] == "1");
+//    Estimation_Tab7_EstimatePredationExponentCB->setChecked(dataMap["EstimatePredationExponent"][0] == "1");
+//    Estimation_Tab7_EstimateSurveyQCB->setChecked(dataMap["EstimateSurveyQ"][0] == "1");
+
+    // Refresh NLopt widgets
+    Estimation_Tab7_NL_StopAfterValueCB->setChecked(dataMap["NLoptUseStopVal"][0] == "1");
+    Estimation_Tab7_NL_StopAfterTimeCB->setChecked(dataMap["NLoptUseStopAfterTime"][0] == "1");
+    Estimation_Tab7_NL_StopAfterIterCB->setChecked(dataMap["NLoptUseStopAfterIter"][0] == "1");
+    Estimation_Tab7_NL_InitialPopulationSizeCB->setChecked(dataMap["NLoptUseInitialPopulationSize"][0] == "1");
+    Estimation_Tab7_NL_StopAfterValueLE->setText(QString::fromStdString(dataMap["NLoptStopVal"][0]));
+    Estimation_Tab7_NL_StopAfterIterSB->setValue(std::stoi(dataMap["NLoptStopAfterIter"][0]));
+
+    enableRunButton(true);
+
+}
+
+void
+nmfEstimation_Tab7::updateState(QCheckBox* checkbox,
+                                const std::string& field)
+{
+    int checkboxState = std::stoi(field);
+
+    if (checkboxState ==        nmfConstantsMSSPM::EnabledAndChecked) {
+        checkbox->setEnabled(true);
+        checkbox->setChecked(true);
+    } else if (checkboxState == nmfConstantsMSSPM::EnabledAndNotChecked) {
+        checkbox->setEnabled(true);
+        checkbox->setChecked(false);
+    } else if (checkboxState == nmfConstantsMSSPM::NotEnabledButChecked) {
+        checkbox->setEnabled(false);
+        checkbox->setChecked(true);
+    } else if (checkboxState == nmfConstantsMSSPM::NotEnabledAndNotChecked) {
+        checkbox->setEnabled(false);
+        checkbox->setChecked(false);
+    }
+}
+
 bool
 nmfEstimation_Tab7::loadWidgets()
 {
@@ -2407,6 +2859,10 @@ nmfEstimation_Tab7::loadWidgets()
         m_Logger->logMsg(nmfConstants::Warning,"No records found in table: "+nmfConstantsMSSPM::TableModels);
         return false;
     }
+
+
+    // Move this to a separate function if loading from a modal review...
+
 
     // Check the enable-ness of the estimated parameter checkboxes
     // continue here....
@@ -2532,6 +2988,8 @@ isEstSurveyQEnabled,isEstSurveyQChecked FROM " +
     Estimation_Tab7_ScalingCMB->setCurrentText(QString::fromStdString(dataMap["Scaling"][0]));
 
     saveSettings();
+
+    callback_ReloadWidgets();
 
     return true;
 }

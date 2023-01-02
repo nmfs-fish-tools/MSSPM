@@ -40,5 +40,6 @@
         <file>icons/runDisabled.png</file>
         <file>icons/runEnabled.png</file>
         <file>forms/Main/ScrollingTextDlg.ui</file>
+        <file>forms/Main/EstimationCompleteDlg.ui</file>
     </qresource>
 </RCC>

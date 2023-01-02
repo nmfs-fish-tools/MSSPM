@@ -605,6 +605,22 @@
                    </widget>
                   </item>
                   <item>
+                   <widget class="QLabel" name="Estimation_Tab7_ToleranceLBL">
+                    <property name="toolTip">
+                     <string>This label shows whether tolerance values work for this algorithm</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>This label shows whether tolerance values work for this algorithm</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Tolerance Label&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Not all NLopt algorithms honor a tolerance stop value. This label shows whether the tolerance stop value works with the current Minimizer algorithm.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>(tol)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <spacer name="horizontalSpacer">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -699,6 +715,25 @@
                       <string>Min Max</string>
                      </property>
                     </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="Estimation_Tab7_LogScaleCB">
+                    <property name="toolTip">
+                     <string>Log scales the parameter ranges</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Log scales the parameter ranges</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Log Scale&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When checked, parameter ranges are log scaled prior to estimation and the resultant estimated values are then exponentiated.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::RightToLeft</enum>
+                    </property>
+                    <property name="text">
+                     <string>Log Scale:</string>
+                    </property>
                    </widget>
                   </item>
                   <item>
@@ -1792,6 +1827,34 @@ with the non-assigned bees being assigned to random positions.</string>
                    </widget>
                   </item>
                   <item>
+                   <widget class="QPushButton" name="Estimation_Tab7_NL_SetDefTolerancePB">
+                    <property name="minimumSize">
+                     <size>
+                      <width>30</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>30</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Sets tolerance value to default</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Sets tolerance value to default</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Default Tolerance&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button sets the tolerance value to a default value. If the estimation algorithm's objective function value reaches this number, the estimation will exit successfully. &lt;/p&gt;&lt;p&gt;N.B. Not all algorithms comply with a tolerance value. Therefore, it is highly recommended to set a time stop value as well.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>def</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <spacer name="horizontalSpacer_18">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -1801,7 +1864,7 @@ with the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>84</width>
+                      <width>52</width>
                       <height>20</height>
                      </size>
                     </property>
@@ -1975,6 +2038,9 @@ with the non-assigned bees being assigned to random positions.</string>
              </item>
              <item>
               <widget class="QGroupBox" name="Estimation_Tab7_NL_AdditionalParametersGB">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="font">
                 <font>
                  <weight>50</weight>
@@ -2095,6 +2161,9 @@ with the non-assigned bees being assigned to random positions.</string>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
               <widget class="QGroupBox" name="Estimation_Tab7_EstParametersGB">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2106,6 +2175,15 @@ with the non-assigned bees being assigned to random positions.</string>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>These  options allow the user to select which parameters to estimate</string>
+               </property>
+               <property name="statusTip">
+                <string>These  options allow the user to select which parameters to estimate</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Parameters to be Estimated&lt;/span&gt;&lt;/p&gt;&lt;p&gt;These checkboxes allow the user to select which parameters to estimate. The enable-ness of the parameters is decided by the current model form.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="title">
                 <string>Parameters to be Estimated:</string>
@@ -2236,7 +2314,7 @@ with the non-assigned bees being assigned to random positions.</string>
                 <item row="0" column="0">
                  <widget class="QCheckBox" name="Estimation_Tab7_EstimateSurveyQCB">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="toolTip">
                    <string>If checked, Survey Q will be estimated</string>

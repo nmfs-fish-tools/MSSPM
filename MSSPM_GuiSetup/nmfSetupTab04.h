@@ -116,7 +116,6 @@ class nmfSetup_Tab4: public QObject
      */
 //  bool populateNewModel();
     void readSettings();
-    void setEstimatedParameterNames();
     void setModelPreset(std::string modelName);
     void updateOutputWidget();
 //  bool replaceDuplicateData(
@@ -268,6 +267,10 @@ public:
      */
     void setRunLength(int RunLength);
     /**
+     * @brief Sets current state of estimated check boxes
+     */
+    void setEstimatedParameterNames();
+    /**
      * @brief Sets the Model Equation font size to the passed value
      * @param fontSize : new font size for the Model Equation
      */
@@ -309,6 +312,7 @@ signals:
      * @brief Signal emitted when the user needs to redraw the equation in the Model Equation text box
      */
     void RedrawEquation();
+    void ReloadTab7Widgets();
     /**
      * @brief Signal emitted when the user needs to reload the current widgets
      */

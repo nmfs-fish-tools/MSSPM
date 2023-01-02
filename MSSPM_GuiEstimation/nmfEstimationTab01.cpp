@@ -2073,9 +2073,10 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
             switch (col) {
                 case 3:
                 case 6:
-                case 10:
-                case 14:
-                case 17:
+                case 9:
+                case 12:
+                case 15:
+                case 18:
                     index = m_SpeciesModel->index(row,col-1);
                     valueWithoutComma = index.data().toString().remove(",");
                     newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
@@ -2088,9 +2089,10 @@ nmfEstimation_Tab1::callback_SpeciesRangeSB(int pct)
                     break;
                 case 4:
                 case 7:
-                case 11:
-                case 15:
-                case 18:
+                case 10:
+                case 13:
+                case 16:
+                case 19:
                     index    = m_SpeciesModel->index(row,col-2);
                     valueWithoutComma = index.data().toString().remove(",");
                     newValue = valueWithoutComma.toDouble()*(1.0+pctVal);

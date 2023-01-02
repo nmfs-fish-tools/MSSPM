@@ -589,8 +589,9 @@ void
 nmfSetup_Tab4::callback_SavePB()
 {
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_SavePB start");
-    saveModel(true);
-    setEstimatedParameterNames();
+    saveModel(nmfConstantsMSSPM::RunChecks);
+//    setEstimatedParameterNames();
+//    emit ReloadTab7Widgets();
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_SavePB end");
 }
 
@@ -851,6 +852,7 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
 
     emit SaveEstimationRunSettings();
     emit ReloadWidgets();
+    emit ReloadTab7Widgets();
 
     return true;
 }

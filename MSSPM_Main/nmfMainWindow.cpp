@@ -37,7 +37,8 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_AveBiomass.clear();
     m_OutputBiomassEnsemble.clear();
     m_ProgressChartTimer = nullptr;
-    m_MModeViewerWidget = nullptr;
+    m_ProgressWidget     = nullptr;
+    m_MModeViewerWidget  = nullptr;
     m_ViewerWidget = nullptr;
     m_NumSignificantDigits = -1;
     m_IsMultiRun = false;
@@ -121,8 +122,9 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     readSettingsGuiOrientation(nmfConstantsMSSPM::ResetPositionAlso);
     readSettings();
 
-    m_TableNamesDlg      = new TableNamesDialog(   this, m_DatabasePtr);
-    m_TroubleshootingDlg = new ScrollingTextDialog(this,"Troubleshooting");
+    m_EstimationCompleteDlg = new EstimationCompleteDialog(this,"Estimation Completed");
+    m_TableNamesDlg         = new TableNamesDialog(   this, m_DatabasePtr);
+    m_TroubleshootingDlg    = new ScrollingTextDialog(this,"Troubleshooting");
     initializePreferencesDlg();
 
     // Hide Progress Chart and Log dock widgets. Show them once user does their first MSSPM run.
@@ -2087,7 +2089,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.4.1a ";
+    QString version = "MSSPM v1.5.0 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2600,29 +2602,29 @@ nmfMainWindow::setupProgressChart()
         NumGenerations = std::stoi(dataMap["GAGenerations"][0]);
     }
 
-    m_ProgressChartTimer = new QTimer(this);
+    if (m_ProgressChartTimer == nullptr) {
+        m_ProgressChartTimer = new QTimer(this);
+        disconnect(m_ProgressChartTimer,0,0,0);
+        connect(m_ProgressChartTimer, SIGNAL(timeout()),
+                this,                 SLOT(callback_ReadProgressChartDataFile()));
+    }
 
-    disconnect(m_ProgressChartTimer,0,0,0);
-    connect(m_ProgressChartTimer, SIGNAL(timeout()),
-            this,                 SLOT(callback_ReadProgressChartDataFile()));
-
-    m_ProgressWidget = new nmfProgressWidget(m_ProgressChartTimer,
-                                           m_Logger,
-                                           "MSSPM",
-                                           "<b>Fitness Convergence Value per Generation</b>",
-                                           "Generations",
-                                           "Fitness Convergence Value",
-                                            0.0,(double)NumGenerations,5.0,
-                                            0.0,40.0,2.0);
-//    m_ProgressWidget->startTimer(100); //Move this later
-    m_ProgressWidget->setupConnections();
-    updateProgressChartAnnotation(0,(double)NumGenerations,5.0);
-    m_UI->ProgressWidget->setLayout(m_ProgressWidget->hMainLayt);
+    if (m_ProgressWidget == nullptr) {
+        m_ProgressWidget = new nmfProgressWidget(m_ProgressChartTimer,
+                                                 m_Logger,
+                                                 "MSSPM",
+                                                 "<b>Fitness Convergence Value per Generation</b>",
+                                                 "Generations",
+                                                 "Fitness Convergence Value",
+                                                 0.0,(double)NumGenerations,5.0,
+                                                 0.0,40.0,2.0);
+        m_ProgressWidget->setupConnections();
+        updateProgressChartAnnotation(0,(double)NumGenerations,5.0);
+        m_UI->ProgressWidget->setLayout(m_ProgressWidget->hMainLayt);
+    }
 
     // Initialize progress output file
     m_ProgressWidget->clearChartData(nmfConstantsMSSPM::MSSPMProgressChartFile);
-//    std::ofstream outputFileMSSPM(nmfConstantsMSSPM::MSSPMProgressChartFile);
-//    outputFileMSSPM.close();
 
     // Initialize progress StopRun file
     std::ofstream outputFile(nmfConstantsMSSPM::MSSPMStopRunFile);
@@ -3510,6 +3512,12 @@ nmfMainWindow::initConnections()
     connect(Setup_Tab4_ptr,      SIGNAL(ObservedBiomassType(QString)),
             Estimation_Tab5_ptr, SLOT(callback_ObservedBiomassType(QString)));
 
+    connect(Setup_Tab4_ptr,      SIGNAL(ReloadTab7Widgets()),
+            Estimation_Tab7_ptr, SLOT(callback_ReloadWidgets()));
+
+
+
+
     connect(Estimation_Tab1_ptr, SIGNAL(StoreOutputSpecies()),
             this,                SLOT(callback_StoreOutputSpecies()));
     connect(Estimation_Tab1_ptr, SIGNAL(RestoreOutputSpecies()),
@@ -3556,6 +3564,9 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_AddToReview()));
     connect(Estimation_Tab7_ptr, SIGNAL(EnableRunButtons(bool)),
             this,                SLOT(callback_EnableRunButtons(bool)));
+    connect(Estimation_Tab7_ptr, SIGNAL(SetEstimatedParameterNames()),
+            this,                SLOT(callback_SetEstimatedParameterNames()));
+
     connect(Estimation_Tab8_ptr, SIGNAL(LoadFromModelReview(nmfStructsQt::ModelReviewStruct)),
             this,                SLOT(callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct)));
     connect(Estimation_Tab6_ptr, SIGNAL(ReloadDiagnosticWidgets()),
@@ -4261,6 +4272,7 @@ nmfMainWindow::menu_saveCurrentRun()
         m_Estimator_NLopt->getEstExponent(EstExponent);
         m_Estimator_NLopt->getEstSurveyQ(EstSurveyQ);
         m_Estimator_NLopt->getEstSurveyQCovariateCoeffs(EstSurveyQCovariateCoeffs);
+
         updateOutputTables(Algorithm, Minimizer, ObjectiveCriterion,
                            Scaling, isCompetitionAGGPROD,
                            SpeciesList, GuildList,
@@ -4661,7 +4673,6 @@ nmfMainWindow::updateOutputTables(
                     QMessageBox::warning(this, "Error", msg, QMessageBox::Ok);
             return;
         }
-
         cmd = "REPLACE INTO " +
                tableName +
               " (ProjectName,ModelName,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProd,SpeciesA,SpeciesB,Value) VALUES ";
@@ -5179,7 +5190,6 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     boost::numeric::ublas::matrix<double> surveyQCovariate;
     nmfUtilsQt::getCovariates(m_DataStruct,NumYears,"SurveyQ",surveyQCovariate);
 
-
     // Read BiomassRelative data from table
     fields    = {"ProjectName","ModelName","SpeName","Year","Value"};
     queryStr  = "SELECT ProjectName,ModelName,SpeName,Year,Value FROM " +
@@ -5218,7 +5228,7 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
     cmd = "INSERT INTO " +
            nmfConstantsMSSPM::TableBiomassRelativeDividedByEstSurveyQ +
           " (ProjectName,ModelName,SpeName,Year,Value) VALUES ";
-    double surveyQTerm;
+    double surveyQTerm = 0;
     for (int species=0; species<NumSpecies; ++species) {
         std::string covariateAlgorithmType = m_DataStruct.CovariateAlgorithmType;
         estSurveyQ = (int(EstSurveyQ.size()) == NumSpecies) ? EstSurveyQ[species] : 0;
@@ -5226,9 +5236,20 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
             zeroError = true;
             estSurveyQ = 1;
         }
-        surveyQTerm = nmfUtils::applyCovariate(nullptr,covariateAlgorithmType,estSurveyQ,
-                                               EstSurveyQCovariateCoeffs[species],
-                                               surveyQCovariate(0,species));
+
+        if (EstSurveyQCovariateCoeffs.size() > 0) {
+            surveyQTerm = nmfUtils::applyCovariate(nullptr,
+                                                   covariateAlgorithmType,
+                                                   estSurveyQ,
+                                                   EstSurveyQCovariateCoeffs[species],
+                                                   surveyQCovariate(0,species));
+        } else {
+           surveyQTerm = estSurveyQ;
+        }
+        if (EstSurveyQ.size() == 0) {
+           surveyQTerm = estSurveyQ;
+        }
+
         Species = SpeciesList[species];
         for (int year=0; year<NumYears; ++year) {
             relativeBiomass = std::stod(dataMap["Value"][m++]);
@@ -5245,6 +5266,7 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
                     ","   + QString::number(quotient).toStdString() + "),";
         }
     }
+
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -5576,10 +5598,10 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
     OutputTableNames.push_back(OutputGrowthRateCovariateCoeffsTable);
     OutputTableNames.push_back(OutputCarryingCapacityTable);
     OutputTableNames.push_back(OutputCarryingCapacityCovariateCoeffsTable);
-//    if (isCatchability) {
-        OutputTableNames.push_back(OutputCatchabilityTable);
-        OutputTableNames.push_back(OutputCatchabilityCovariateCoeffsTable);
-//    }
+//  if (isCatchability) {
+    OutputTableNames.push_back(OutputCatchabilityTable);
+    OutputTableNames.push_back(OutputCatchabilityCovariateCoeffsTable);
+//  }
 
     if (isExponent) {
         OutputTableNames.push_back(nmfConstantsMSSPM::TableOutputPredationExponent);
@@ -5756,8 +5778,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         }
         // In row major order
         m = 0;
-        for (int row=0; row<NumSpeciesOrGuilds; ++row) {
-            for (int col=0; col<NumSpeciesOrGuilds; ++col) {
+        for (int col=0; col<NumSpeciesOrGuilds; ++col) {
+            for (int row=0; row<NumSpeciesOrGuilds; ++row) {
                 if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionAlpha) {
                     EstCompetitionAlpha(row,col) = calculateMonteCarloValue(
                                 CompetitionUncertainty[col],
@@ -5816,8 +5838,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         }
         // In row major order
         m = 0;
-        for (int row=0; row<NumSpeciesOrGuilds; ++row) {
-            for (int col=0; col<NumGuilds; ++col) {
+        for (int col=0; col<NumGuilds; ++col) {
+            for (int row=0; row<NumSpeciesOrGuilds; ++row) {
                 if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) {
                     EstCompetitionBetaGuilds(row,col) = calculateMonteCarloValue(
                             BetaGuildsUncertainty[row],
@@ -5858,8 +5880,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
         }
         // In row major order
         m = 0;
-        for (int row=0; row<NumGuilds; ++row) {
-            for (int col=0; col<NumGuilds; ++col) {
+        for (int col=0; col<NumGuilds; ++col) {
+            for (int row=0; row<NumGuilds; ++row) {
                 if (OutputTableNames[i] == nmfConstantsMSSPM::TableOutputCompetitionBetaGuilds) {
                     EstCompetitionBetaGuildsGuilds(row,col) = calculateMonteCarloValue(
                             BetaGuildsGuildsUncertainty[row],
@@ -6191,7 +6213,6 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             }
         }
     }
-
     cmd = cmd.substr(0,cmd.size()-1);
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
@@ -8101,7 +8122,7 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     std::vector<std::string> aveOrSum;
     double total;
 
-    m_Logger->logMsg(nmfConstants::Normal,"calculateSummaryStatisticsStruct from: "+m_ModelName);
+//  m_Logger->logMsg(nmfConstants::Normal,"calculateSummaryStatisticsStruct from: "+m_ModelName);
 
     // Get NumParameters value used in AIC calculation below
     fields    = {"NumberOfParameters"};
@@ -8239,14 +8260,14 @@ std::cout << "Warning: TBD nmfMainWindow::calculateSummaryStatisticsStruct: Add 
     // Calculate RMSE
     ok = nmfUtilsStatistics::calculateRMSE(NumSpeciesOrGuilds,RunLength,observed,estimated,rmse);
     if (! ok) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 2] calculateSummaryStatistics: Found 0 RunLength in RMSE calculations.");
+        m_Logger->logMsg(nmfConstants::Error,"[Error 3] calculateSummaryStatistics: Found 0 RunLength in RMSE calculations.");
         return false;
     }
 
     // Calculate RI
     ok = nmfUtilsStatistics::calculateRI(NumSpeciesOrGuilds,RunLength,observed,estimated,ri);
     if (! ok) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 3] calculateSummaryStatistics: Found 0 RunLength in RI calculations.");
+        m_Logger->logMsg(nmfConstants::Error,"[Error 4] calculateSummaryStatistics: Found 0 RunLength in RI calculations.");
         return false;
     }
 
@@ -8259,7 +8280,7 @@ std::cout << "Warning: TBD nmfMainWindow::calculateSummaryStatisticsStruct: Add 
     // Calculate MEF
     ok = nmfUtilsStatistics::calculateMEF(NumSpeciesOrGuilds,RunLength,meanObserved,observed,estimated,mef);
     if (! ok) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 4] calculateSummaryStatistics: Found 0 denominator in MEF calculations.");
+        m_Logger->logMsg(nmfConstants::Error,"[Error 5] calculateSummaryStatistics: Found 0 denominator in MEF calculations.");
         //return false;
     }
 
@@ -10957,6 +10978,7 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     }
 
     // Start and initialize the Progress chart and set global variables to defaults
+    m_ProgressWidget->stopTimer();
     m_ProgressWidget->startTimer(100);
     m_ProgressWidget->startRun();
     m_RunNumNLopt = 0;
@@ -11334,10 +11356,12 @@ nmfMainWindow::runBeesAlgorithm(bool showDiagnosticChart,
             this,              SLOT(callback_RepetitionRunCompleted(int,int,int)));
     connect(m_Estimator_Bees,  SIGNAL(ErrorFound(std::string)),
             this,              SLOT(callback_ErrorFound(std::string)));
-//    connect(m_Estimator_Bees,  SIGNAL(AllSubRunsCompleted()),
-//            this,              SLOT(callback_AllSubRunsCompleted()));
-    connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
-            this,              SLOT(callback_StopAllRuns()));
+//    connect(m_Estimator_Bees,  SIGNAL(AllSubRunsCompleted(QString)),
+//            this,              SLOT(callback_AllSubRunsCompleted(QString)));
+    connect(m_ProgressWidget,  SIGNAL(StopTimer()),
+            this,              SLOT(callback_StopTimer()));
+    connect(m_ProgressWidget,  SIGNAL(SetAllRunsComplete()),
+            this,              SLOT(callback_SetAllRunsComplete()));
 
 //    // Set up progress widget to show fitness vs generation
 //    m_ProgressWidget->startTimer(100);
@@ -11386,6 +11410,7 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
 {
     QString multiRunSpeciesFilename;
     QString multiRunModelFilename;
+std::cout << "RUNNING" << std::endl;
 
     bool isAMultiRun          = isAMultiOrMohnsRhoRun();
     bool isSetToDeterministic = Estimation_Tab7_ptr->isSetToDeterministicMinimizer();
@@ -11414,14 +11439,18 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
             this,              SLOT(callback_RunCompleted(std::string,bool)));
     connect(m_Estimator_NLopt, SIGNAL(SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)),
             this,              SLOT(callback_SubRunCompleted(int,int,std::string,std::string,std::string,std::string,std::string,double)));
-    connect(m_Estimator_NLopt, SIGNAL(AllSubRunsCompleted()),
-            this,              SLOT(callback_AllSubRunsCompleted()));
+    connect(m_Estimator_NLopt, SIGNAL(AllSubRunsCompleted(QString)),
+            this,              SLOT(callback_AllSubRunsCompleted(QString)));
     connect(m_Estimator_NLopt, SIGNAL(AMohnsRhoMultiRunCompleted()),
             this,              SLOT(callback_AMohnsRhoMultiRunCompleted()));
     connect(m_Estimator_NLopt, SIGNAL(NLoptFailureStopRunsAndReset()),
             m_ProgressWidget,  SLOT(callback_stopPB()));
-    connect(m_ProgressWidget,  SIGNAL(StopAllRuns()),
-            this,              SLOT(callback_StopAllRuns()));
+    connect(m_Estimator_NLopt, SIGNAL(RunCompletedMsg(int,std::string)),
+            this,              SLOT(callback_RunCompletedMsg(int,std::string)));
+    connect(m_ProgressWidget,  SIGNAL(StopTimer()),
+            this,              SLOT(callback_StopTimer()));
+    connect(m_ProgressWidget,  SIGNAL(SetAllRunsComplete()),
+            this,              SLOT(callback_SetAllRunsComplete()));
 
     updateProgressChartAnnotation(0,(double)m_DataStruct.NLoptStopAfterIter,5.0);
 
@@ -11451,21 +11480,61 @@ nmfMainWindow::runNLoptAlgorithm(bool showDiagnosticChart,
 }
 
 void
-nmfMainWindow::callback_StopAllRuns()
+nmfMainWindow::callback_RunCompletedMsg(int returnCode,
+                                        std::string msg)
 {
-    if (m_Estimator_Bees != nullptr) {
-        m_Estimator_Bees->stopRun("--:--:--","n/a");
+    if (! m_IsMultiRun) {
+        QString msgStrLog = QString::fromStdString(msg).replace("\n"," ");
+        QString msgStrDlg = QString::fromStdString(msg).replace("\n","\n\n");
+        int msgType = (returnCode < 0) ? nmfConstants::Error : nmfConstants::Normal;
+
+        // Create log and status bar messages
+        m_Logger->logMsg(msgType,msgStrLog.toStdString());
+        this->statusBar()->showMessage("Estimation result:  " + msgStrLog);
+
+        // Display the estimation complete window a bit off-center so that user can
+        // discern the difference between the current run and the previous run.
+        m_EstimationCompleteDlg->loadText(msgStrDlg+"\n");
+        m_EstimationCompleteDlg->loadPosition(this->x()+this->width()/8,
+                                              this->y()+this->height()/2);
+        m_EstimationCompleteDlg->exec();
     }
-    if (m_Estimator_NLopt != nullptr) {
-        m_Estimator_NLopt->callback_StopAllRuns();
-//      m_Estimator_NLopt->stopRun("--:--:--","n/a");
-    }
+}
+
+void
+nmfMainWindow::callback_StopTimer()
+{
+//    if (m_Estimator_Bees != nullptr) {
+//        m_Estimator_Bees->stopRun("--:--:--","n/a");
+//    }
+//    if (m_Estimator_NLopt != nullptr) {
+//        m_Estimator_NLopt->callback_StopAllRuns();
+// //      m_Estimator_NLopt->stopRun("--:--:--","n/a");
+//    }
     if (m_ProgressWidget != nullptr) {
         m_ProgressWidget->stopTimer();
         m_ProgressWidget->updateTime();
     }
     enableRunWidgets(true);
     m_isRunning = false;
+}
+
+void
+nmfMainWindow::callback_SetAllRunsComplete()
+{
+    // Show output from partial run
+    if (m_Estimator_NLopt != nullptr) {
+        m_Estimator_NLopt->stopGracefully();
+    }
+    if (m_Estimator_Bees != nullptr) {
+        m_Estimator_Bees->stopRun("--:--:--","n/a");
+    }
+}
+
+void
+nmfMainWindow::callback_SetEstimatedParameterNames()
+{
+    Setup_Tab4_ptr->setEstimatedParameterNames();
 }
 
 void
@@ -11878,16 +11947,17 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     boost::numeric::ublas::matrix<double> EstPredationHandling;
     boost::numeric::ublas::matrix<double> CalculatedBiomass;
 
-//    if (! m_DatabasePtr->getSpeciesInitialData(m_Logger,NumSpecies,SpeciesList,InitialBiomass,
-//                                               InitialGrowthRate,InitialSpeciesK)) {
-//        return;
-//    }
+    if (run == 0) {
+        std::cout << "*** Creating AveragedData object" << std::endl;
+        m_AveragedData = new nmfUtilsStatisticsAveraging();
+    }
 
     if (! m_DatabasePtr->getModelFormData(
                 m_Logger,m_ProjectName,m_ModelName,
                 GrowthForm,HarvestForm,CompetitionForm,PredationForm,
-                RunLength,InitialYear,isBiomassAbsolute))
+                RunLength,InitialYear,isBiomassAbsolute)) {
         return;
+    }
     NumYears = RunLength + 1;
     bool isAggProd = (CompetitionForm == "AGG-PROD");
 
@@ -11964,15 +12034,19 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     updateBiomassEnsembleTable(run,EstimationAlgorithm,MinimizerAlgorithm,
                                ObjectiveCriterion,ScalingAlgorithm,CalculatedBiomass);
 
+
+
+
+
+
     // Calculate the summary statistics (MEF and AIC for now)
     StatStruct statStruct;
-    bool ok = calculateSummaryStatisticsStruct(isAggProd,EstimationAlgorithm,
+    if (! calculateSummaryStatisticsStruct(isAggProd,EstimationAlgorithm,
                                      MinimizerAlgorithm,
                                      ObjectiveCriterion,
                                      ScalingAlgorithm,
                                      RunLength,NumSpecies,false,true,
-                                     CalculatedBiomass,statStruct);
-    if (! ok) {
+                                     CalculatedBiomass,statStruct)) {
         return;
     }
 
@@ -11982,12 +12056,6 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     // Enter values defined per species
     m_NumRuns = run+1;
 
-
-    // RSK store above in Average data structure
-    if (run == 0) {
-        std::cout << "*** Creating AveragedData object" << std::endl;
-        m_AveragedData = new nmfUtilsStatisticsAveraging();
-    }
     m_AveragedData->loadEstData(fitness,
                                 statStruct.aic,
                                 EstInitBiomass,
@@ -12124,7 +12192,7 @@ std::cout << "callback_AMohnsRhoMultiRunCompleted" << std::endl;
 
 }
 void
-nmfMainWindow::callback_AllSubRunsCompleted()
+nmfMainWindow::callback_AllSubRunsCompleted(QString msgSuffix)
 {
     m_Logger->logMsg(nmfConstants::Normal,"callback_AllSubRunsCompleted");
 
@@ -12132,6 +12200,7 @@ nmfMainWindow::callback_AllSubRunsCompleted()
     QString msg  = (isAMohnsRhoMultiRun()) ?
                 "\nThe Mohn's Rho Run has successfully completed.\n" :
                 "\nThe Multi-Run has successfully completed.\n";
+    msg += msgSuffix;
     QMessageBox::information(this, tr("Multi-Run Completed"),
                              tr(msg.toLatin1()),QMessageBox::Ok);
 
@@ -12944,11 +13013,6 @@ nmfMainWindow::callback_RunCompleted(std::string output,
     m_isRunning = false;
 
     nmfUtils::isStopped(runName,msg1,msg2,stopRunFile,state);
-    if (state == "StoppedByUser")
-    {
-        m_Logger->logMsg(nmfConstants::Normal,"Run Stopped by User");
-        return;
-    }
 
 std::cout << "=====>>>>> Run Completed" << std::endl;
     m_Logger->logMsg(nmfConstants::Normal,"Run Completed");
@@ -12997,6 +13061,8 @@ std::cout << "=====>>>>> Run Completed" << std::endl;
 
     // Hack to make sure plot is visible if run after a failed Forecast attempt
     Output_Controls_ptr->refreshChart();
+
+    Estimation_Tab7_ptr->callback_ReloadWidgets();
 }
 
 void
@@ -13589,6 +13655,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.MinimizerAlgorithm  = Estimation_Tab7_ptr->getCurrentMinimizer();
     dataStruct.ScalingAlgorithm    = Estimation_Tab7_ptr->getCurrentScaling();
     dataStruct.CovariateAlgorithmType = m_DatabasePtr->getCovariateAlgorithmType(m_Logger,m_ProjectName,m_ModelName);
+    dataStruct.LogScale            = Estimation_Tab7_ptr->getCurrentLogScale();
 
     m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
     dataStruct.PreviousUnits = previousUnits;
@@ -13843,7 +13910,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
 
     NumSpeciesOrGuilds = (isAGGPROD) ? NumGuilds : NumSpecies;
 
-    // Load Interaction coefficients
+    // Load Interaction coefficients as vector of rows
     if (isAlpha) {
         loadOK = loadInteraction(NumSpeciesOrGuilds, "Competition",
                                  nmfConstantsMSSPM::TableCompetitionAlpha,
@@ -13930,6 +13997,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         dataStruct.TotalNumberParameters += NumSpecies; // r covariates for each Species
     } else if (growthForm == "Logistic") {
         dataStruct.TotalNumberParameters += NumSpecies; //  r
+        dataStruct.TotalNumberParameters += NumSpecies; //  r shape
         dataStruct.TotalNumberParameters += NumSpecies; //  r covariates
         dataStruct.TotalNumberParameters += NumSpecies; //  K
         dataStruct.TotalNumberParameters += NumSpecies; //  K covariates
@@ -14217,9 +14285,9 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
                                std::string InitTable,
                                std::string MinTable,
                                std::string MaxTable,
-                               std::vector<std::vector<double> > &InitialData,
-                               std::vector<std::vector<double> > &MinData,
-                               std::vector<std::vector<double> > &MaxData,
+                               boost::numeric::ublas::matrix<double> &InitialData,
+                               boost::numeric::ublas::matrix<double> &MinData,
+                               boost::numeric::ublas::matrix<double> &MaxData,
                                int &NumInteractionParameters)
 {
     int m;
@@ -14235,10 +14303,15 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
     std::vector<double> MinRow;
     std::vector<double> MaxRow;
 
+    nmfUtils::initialize(InitialData,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
+    nmfUtils::initialize(MinData,    NumSpeciesOrGuilds,NumSpeciesOrGuilds);
+    nmfUtils::initialize(MaxData,    NumSpeciesOrGuilds,NumSpeciesOrGuilds);
+
     NumInteractionParameters = 0;
     fields      = {"ProjectName","ModelName","SpeciesA","SpeciesB","Value"};
 
     // Get data from the init table
+    // Matrix data are store row by row
     queryStr    = "SELECT ProjectName,ModelName,SpeciesA,SpeciesB,Value FROM " +
                    InitTable +
                   " WHERE ProjectName = '" + m_ProjectName +
@@ -14293,6 +14366,36 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
         return false;
     }
 
+
+    m = 0;
+    for (int row=0; row<NumSpeciesOrGuilds; ++row) {
+        for (int col=0; col<NumSpeciesOrGuilds; ++col) {
+            InitVal = std::stod(dataMapInit["Value"][m]);
+            MinVal  = std::stod(dataMapMin["Value"][m]);
+            MaxVal  = std::stod(dataMapMax["Value"][m]);
+            ++NumInteractionParameters;
+            ++m;
+
+            if (((InteractionType == "Competition")    && Estimation_Tab7_ptr->isEstCompetitionAlphaEnabled()       && Estimation_Tab7_ptr->isEstCompetitionAlphaChecked())  ||
+                ((InteractionType == "Predation")      && Estimation_Tab7_ptr->isEstPredationRhoEnabled()           && Estimation_Tab7_ptr->isEstPredationRhoChecked())      ||
+                ((InteractionType == "Handling")       && Estimation_Tab7_ptr->isEstPredationHandlingEnabled()      && Estimation_Tab7_ptr->isEstPredationHandlingChecked()) ||
+                ((InteractionType == "MSPROD-Species") && Estimation_Tab7_ptr->isEstCompetitionBetaSpeciesEnabled() && Estimation_Tab7_ptr->isEstCompetitionBetaSpeciesChecked()))
+            {
+                MinData(row,col) = MinVal;
+                MaxData(row,col) = MaxVal;
+            } else {
+                if ((InteractionType != "Competition") && (InteractionType != "Predation") &&
+                    (InteractionType != "Handling")    && (InteractionType != "MSPROD-Species")) {
+                    m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (2) of: "+InteractionType);
+                }
+                MinData(row,col) = InitVal;
+                MaxData(row,col) = InitVal;
+            }
+            InitialData(row,col) = InitVal;
+        }
+    }
+
+    /*
     m = 0;
     for (int row=0; row<NumSpeciesOrGuilds; ++row) {
         InitRow.clear();
@@ -14325,6 +14428,7 @@ nmfMainWindow::loadInteraction(int &NumSpeciesOrGuilds,
         }
         InitialData.push_back(InitRow);
     }
+    */
     return true;
 }
 
@@ -14337,9 +14441,9 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
                                      std::string InitTable,
                                      std::string MinTable,
                                      std::string MaxTable,
-                                     std::vector<std::vector<double> > &InitialData,
-                                     std::vector<std::vector<double> > &MinData,
-                                     std::vector<std::vector<double> > &MaxData,
+                                     boost::numeric::ublas::matrix<double> &InitialData,
+                                     boost::numeric::ublas::matrix<double> &MinData,
+                                     boost::numeric::ublas::matrix<double> &MaxData,
                                      int &NumInteractionParameters)
 {
     int m;
@@ -14355,6 +14459,11 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
     std::vector<double> MinRow;
     std::vector<double> MaxRow;
     int NumSpeciesOrGuilds = (InteractionType == "Competition-AGGPROD") ? NumGuilds : NumSpecies;
+
+
+    nmfUtils::initialize(InitialData,NumSpeciesOrGuilds,NumGuilds);
+    nmfUtils::initialize(MinData,    NumSpeciesOrGuilds,NumGuilds);
+    nmfUtils::initialize(MaxData,    NumSpeciesOrGuilds,NumGuilds);
 
     NumInteractionParameters = 0;
     fields      = {"ModelName","SpeName","Guild","Value"};
@@ -14421,13 +14530,29 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
             valInit = std::stod(dataMapInit["Value"][m]);
             valMin  = std::stod(dataMapMin["Value"][m]);
             valMax  = std::stod(dataMapMax["Value"][m]);
-            InitRow.push_back(valInit);
-            MinRow.push_back(valMin);
-            MaxRow.push_back(valMax);
+            //            InitRow.push_back(valInit);
+            //            MinRow.push_back(valMin);
+            //            MaxRow.push_back(valMax);
+            if ((InteractionType == "Competition-MSPROD") &&
+                 Estimation_Tab7_ptr->isEstCompetitionBetaGuildsEnabled() &&
+                 Estimation_Tab7_ptr->isEstCompetitionBetaGuildsChecked())
+            {
+                MinData(row,col) = valMin;
+                MaxData(row,col) = valMax;
+            } else {
+                if (InteractionType != "Competition-MSPROD") {
+                    m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (3) of: "+InteractionType);
+                }
+                MinData(row,col) = valInit;
+                MaxData(row,col) = valInit;
+            }
+            InitialData(row,col) = valInit;
+
             ++NumInteractionParameters;
             ++m;
         }
 
+        /*
         if ((InteractionType == "Competition-MSPROD") &&
              Estimation_Tab7_ptr->isEstCompetitionBetaGuildsEnabled() &&
              Estimation_Tab7_ptr->isEstCompetitionBetaGuildsChecked())
@@ -14442,6 +14567,7 @@ nmfMainWindow::loadInteractionGuilds(int &NumSpecies,
             MaxData.push_back(InitRow);
         }
         InitialData.push_back(InitRow);
+        */
     }
     return true;
 }
@@ -14454,9 +14580,9 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
                                            std::string InitTable,
                                            std::string MinTable,
                                            std::string MaxTable,
-                                           std::vector<std::vector<double> > &InitialData,
-                                           std::vector<std::vector<double> > &MinData,
-                                           std::vector<std::vector<double> > &MaxData,
+                                           boost::numeric::ublas::matrix<double> &InitialData,
+                                           boost::numeric::ublas::matrix<double> &MinData,
+                                           boost::numeric::ublas::matrix<double> &MaxData,
                                            int &NumInteractionParameters)
 {
     int m;
@@ -14473,6 +14599,10 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
     std::vector<double> MaxRow;
 
     NumInteractionParameters = 0;
+
+    nmfUtils::initialize(InitialData,NumGuilds,NumGuilds);
+    nmfUtils::initialize(MinData,    NumGuilds,NumGuilds);
+    nmfUtils::initialize(MaxData,    NumGuilds,NumGuilds);
 
     fields      = {"ModelName","GuildA","GuildB","Value"};
 
@@ -14538,23 +14668,37 @@ nmfMainWindow::loadInteractionGuildsGuilds(int &NumSpecies,
             valInit = std::stod(dataMapInit["Value"][m]);
             valMin  = std::stod(dataMapMin["Value"][m]);
             valMax  = std::stod(dataMapMax["Value"][m]);
-            InitRow.push_back(valInit);
-            MinRow.push_back(valMin);
-            MaxRow.push_back(valMax);
+            //            InitRow.push_back(valInit);
+            //            MinRow.push_back(valMin);
+            //            MaxRow.push_back(valMax);
+
+            if ((InteractionType == "Competition-AGGPROD") && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsEnabled() && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsChecked()) {
+                MinData(row,col) = valMin;
+                MaxData(row,col) = valMax;
+            } else {
+                if (InteractionType != "Competition-AGGPROD") {
+                    m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (4) of: "+InteractionType);
+                }
+                MinData(row,col) = valInit;
+                MaxData(row,col) = valInit;
+            }
+            InitialData(row,col) = valInit;
+
+
             ++NumInteractionParameters;
             ++m;
         }
-        if ((InteractionType == "Competition-AGGPROD") && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsEnabled() && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsChecked()) {
-            MinData.push_back(MinRow);
-            MaxData.push_back(MaxRow);
-        } else {
-            if (InteractionType != "Competition-AGGPROD") {
-                m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (4) of: "+InteractionType);
-            }
-            MinData.push_back(InitRow);
-            MaxData.push_back(InitRow);
-        }
-        InitialData.push_back(InitRow);
+//        if ((InteractionType == "Competition-AGGPROD") && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsEnabled() && Estimation_Tab7_ptr->isEstCompetitionBetaGuildsGuildsChecked()) {
+//            MinData.push_back(MinRow);
+//            MaxData.push_back(MaxRow);
+//        } else {
+//            if (InteractionType != "Competition-AGGPROD") {
+//                m_Logger->logMsg(nmfConstants::Warning,"Found un-handled interaction type (4) of: "+InteractionType);
+//            }
+//            MinData.push_back(InitRow);
+//            MaxData.push_back(InitRow);
+//        }
+//        InitialData.push_back(InitRow);
     }
     return true;
 }
@@ -14916,6 +15060,7 @@ nmfMainWindow::callback_ToDoAfterModelSave()
 {
 std::cout << "callback_ToDoAfterModelSave" << std::endl;
     enableApplicationFeatures("AllOtherGroups",setupIsComplete());
+
     Estimation_Tab7_ptr->clearEnsembleFile();
     Estimation_Tab7_ptr->enableNonEnsembleWidgets(true);
     Setup_Tab4_ptr->saveSettings();
@@ -15037,21 +15182,21 @@ nmfMainWindow::updateProgressChartAnnotation(double xMin, double xMax, double xI
         if (ObjectiveCriterion == "Least Squares") {
             whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the log (base 10) Sum of the Squares ";
             whatsThis += "Error (SSE) vs the Number of NLopt Objective Function Evaluations.</p> ";
-            whatsThis += "The smaller the SSE the better the Parameter fit.</p>";
+            whatsThis += "The smaller the SSE the better the parameter fit.</p>";
             m_ProgressWidget->setYTitle("Log(SSE)");
             m_ProgressWidget->setYInc(0.1);
             m_ProgressWidget->setMainTitle("<b>Log Sum of Squares (SSE) vs Objective Function Evaluations</b>");
         } else if (ObjectiveCriterion == "Maximum Likelihood") {
             whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the Maximum Likelihood ";
-            whatsThis += "value vs the Number of NLopt Objective Function Evaluations.</p> ";
-            whatsThis += "The closer the MLE value is to 0 the better the Parameter fit.</p>";
+            whatsThis += "value (i.e., fitness) vs the Number of NLopt Objective Function Evaluations.</p> ";
+            whatsThis += "The closer the MLE value is to 0 the better the parameter fit.</p>";
             m_ProgressWidget->setYTitle("Maximum Likelihood (MLE)");
             m_ProgressWidget->setYInc(0.1);
             m_ProgressWidget->setMainTitle("<b>Maximum Likelihood (MLE) vs Objective Function Evaluations</b>");
         } else if (ObjectiveCriterion == "Model Efficiency") {
             whatsThis = "<strong><center>Progress Chart</center></strong><p>This chart plots the Model Efficiency ";
-            whatsThis += "value vs the Number of NLopt Objective Function Evaluations.</p> ";
-            whatsThis += "The closer the MEF value is to 1 the better the Parameter fit.</p>";
+            whatsThis += "value (i.e., fitness) vs the Number of NLopt Objective Function Evaluations.</p> ";
+            whatsThis += "The closer the MEF value is to 1 the better the parameter fit.</p>";
             m_ProgressWidget->setYTitle("Model Efficiency (MEF)");
             m_ProgressWidget->setYInc(0.1);
             m_ProgressWidget->setMainTitle("<b>Model Efficiency (MEF) vs Objective Function Evaluations</b>");
@@ -15619,6 +15764,11 @@ nmfMainWindow::callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct mode
     Estimation_Tab7_ptr->setNeighborhoodSize(modelReview.neighborhoodSize);
     Estimation_Tab7_ptr->setNumSubRuns(modelReview.numSubRuns);
 
+    Estimation_Tab7_ptr->loadWidgets();
+
+    // Set to Run Estimation tab
+    setPage(nmfConstantsMSSPM::SectionEstimation,
+            nmfConstantsMSSPM::PageEstimationRun+1); // +1 needed to get to Run Estimation page, not yet sure why
 }
 
 void

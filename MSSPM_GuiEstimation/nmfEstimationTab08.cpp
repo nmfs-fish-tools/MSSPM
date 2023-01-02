@@ -276,6 +276,8 @@ nmfEstimation_Tab8::removeFilesAssociatedWithRow(
     // Remove Database Snapshot file saved with this row
     fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("databases");
     filename = smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_DB_Snapshot).data().toString().trimmed();
+qDebug() << "filename: " << filename;
+qDebug() << "field-1: " << smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_DB_Snapshot).data().toString().trimmed();
     fullFilename = QDir(fullPath).filePath(filename);
     if (QFile::remove(fullFilename)) {
         m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());

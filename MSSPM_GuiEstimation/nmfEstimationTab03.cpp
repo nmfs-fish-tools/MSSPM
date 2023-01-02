@@ -534,7 +534,7 @@ nmfEstimation_Tab3::callback_SavePB()
     }
 
     Estimation_Tabs->setCursor(Qt::WaitCursor);
-
+qDebug() << "isNoK: " << isNoK();
     // Alpha
     if (isNoK()) {
         if (! nmfUtilsQt::runAllTableChecks(m_Logger, Estimation_Tabs,

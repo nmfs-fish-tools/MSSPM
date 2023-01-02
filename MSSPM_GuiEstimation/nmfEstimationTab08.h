@@ -63,24 +63,24 @@ class nmfEstimation_Tab8: public QObject
     QStandardItemModel* m_SModel;
     int                 m_NumSignificantDigits;
     std::vector<std::string> m_ModelReviewFields = {
-        "ModelName","rSquared","SSResiduals","AIC",
-        "GrowthForm","HarvestForm","CompetitonForm","PredationForm","numRuns",
-        "ObjectiveCriterion","EstimationAlgorithm","Minimizer","Scaling","DatabaseSnapshot","Notes",
-        "isDeterministicBees","maxGenerations","numBees","numBestSites","numEliteSites",
-        "numEliteBees","numOtherBees","neighborhoodSize","numSubRuns","isDeterministicNLopt",
-        "isStopAfterValue","StopAfterValue","isStopAfterTime","StopAfterTime","isStopAfterIter",
-        "StopAfterIter","isEstInitBiomassEnabled","isEstInitBiomassChecked",
-        "isEstGrowthRateEnabled","isEstGrowthRateChecked",
-        "isEstGrowthRateShapeEnabled","isEstGrowthRateShapeChecked",
-        "isEstCarryingCapacityEnabled","isEstCarryingCapacityChecked",
-        "isEstCatchabilityEnabled","isEstCatchabilityChecked",
-        "isEstCompAlphaEnabled","isEstCompAlphaChecked","isEstCompBetaSpeciesEnabled",
-        "isEstCompBetaSpeciesChecked","isEstCompBetaGuildsEnabled","isEstCompBetaGuildsChecked",
-        "isEstCompBetaGuildsGuildsEnabled","isEstCompBetaGuildsGuildsChecked","isEstPredRhoEnabled",
-        "isEstPredRhoChecked","isEstPredHandlingEnabled","isEstPredHandlingChecked",
-        "isEstPredExponentEnabled","isEstPredExponentChecked","isEstSurveyQEnabled",
-        "isEstSurveyQChecked","isAMultiRun","AveAlg","HowToAverage","UsingWhat","UsingNumber","isUsingPct",
-        "EnsembleFile","EstimatedParametersFile"};
+        "ModelName","rSquared","SSResiduals","AIC",                                                         //  0 -  3
+        "GrowthForm","HarvestForm","CompetitonForm","PredationForm","numRuns",                              //  4 -  8
+        "ObjectiveCriterion","EstimationAlgorithm","Minimizer","Scaling","DatabaseSnapshot","Notes",        //  9 - 14
+        "isDeterministicBees","maxGenerations","numBees","numBestSites","numEliteSites",                    // 15 - 19
+        "numEliteBees","numOtherBees","neighborhoodSize","numSubRuns","isDeterministicNLopt",               // 20 - 24
+        "isStopAfterValue","StopAfterValue","isStopAfterTime","StopAfterTime","isStopAfterIter",            // 25 - 29
+        "StopAfterIter","isEstInitBiomassEnabled","isEstInitBiomassChecked",                                // 30 - 32
+        "isEstGrowthRateEnabled","isEstGrowthRateChecked",                                                  // 33 - 34
+        "isEstGrowthRateShapeEnabled","isEstGrowthRateShapeChecked",                                        // 35 - 36
+        "isEstCarryingCapacityEnabled","isEstCarryingCapacityChecked",                                      // 37 - 38
+        "isEstCatchabilityEnabled","isEstCatchabilityChecked",                                              // 39 - 40
+        "isEstCompAlphaEnabled","isEstCompAlphaChecked","isEstCompBetaSpeciesEnabled",                      // 41 - 43
+        "isEstCompBetaSpeciesChecked","isEstCompBetaGuildsEnabled","isEstCompBetaGuildsChecked",            // 44 - 46
+        "isEstCompBetaGuildsGuildsEnabled","isEstCompBetaGuildsGuildsChecked","isEstPredRhoEnabled",        // 47 - 49
+        "isEstPredRhoChecked","isEstPredHandlingEnabled","isEstPredHandlingChecked",                        // 50 - 52
+        "isEstPredExponentEnabled","isEstPredExponentChecked","isEstSurveyQEnabled",                        // 53 - 55
+        "isEstSurveyQChecked","isAMultiRun","AveAlg","HowToAverage","UsingWhat","UsingNumber","isUsingPct", // 56 - 62
+        "EnsembleFile","EstimatedParametersFile"};                                                          // 63 - 64
 
     QTabWidget*   Estimation_Tabs;
     QWidget*      Estimation_Tab8_Widget;

@@ -35,6 +35,7 @@ CONFIG += c++14
 #LIBS += -lboost_system -lboost_filesystem
 
 SOURCES += \
+    EstimationCompleteDialog.cpp \
     ScrollingTextDialog.cpp \
     SimulatedBiomassDialog.cpp \
     TableNamesDialog.cpp \
@@ -43,6 +44,7 @@ SOURCES += \
     ClearOutputDialog.cpp
 
 HEADERS  += \
+    EstimationCompleteDialog.h \
     ScrollingTextDialog.h \
     SimulatedBiomassDialog.h \
     TableNamesDialog.h \
