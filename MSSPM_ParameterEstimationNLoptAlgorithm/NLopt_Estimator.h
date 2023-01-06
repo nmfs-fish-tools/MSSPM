@@ -65,6 +65,7 @@ class  NLopt_Estimator : public QObject
 
 private:
     int                                    m_Seed;
+    int                                    m_FixedSeed;
     static nlopt::opt                      m_Optimizer;
     std::vector<double>                    m_InitialCarryingCapacities;
     std::vector<double>                    m_EstCatchability;
@@ -143,7 +144,10 @@ private:
             const int& NumEstParameters);
     void setSeed(
             const bool& isSetToDeterministic,
-            const bool& useFixedSeed);
+            const bool& useFixedSeed,
+            const bool& useUserFixedSeed,
+            const int& userFixedSeedVal,
+            const bool& incrementFixedSeed);
     void setStoppingCriteria(nmfStructsQt::ModelDataStruct&  NLoptStruct);
     static void incrementObjectiveFunctionCounter(
             std::string MSSPMName,
@@ -447,10 +451,6 @@ public slots:
      * @brief Callback invoked when the user indicates they wish to stop all Estimation runs (i.e., during a multi-run)
      */
     void callback_StopAllRuns();
-    /**
-     * @brief Callback invoked when the user stops the Estimation run
-     */
-    void callback_StopTheOptimizer();
 };
 
 

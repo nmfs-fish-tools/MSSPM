@@ -126,7 +126,7 @@ std::cout << "Skipping: " <<  MultiRunLines[multiRun].toStdString() << std::endl
 std::cout << "subRunNum: " << subRunNum << std::endl;
                 // Initialize main class ptr
                 beesAlg   = std::make_unique<BeesAlgorithm>(beeStruct,nmfConstantsMSSPM::VerboseOn);
-                seed      = (beeStruct.useFixedSeedBees) ? run*NumSubRuns+subRunNum : -1;
+                seed      = (beeStruct.useApplicationFixedSeedBees) ? run*NumSubRuns+subRunNum : -1;
                 beesAlg->setSeed(seed);
                 beesStats = std::make_unique<BeesStats>(beeStruct.TotalNumberParameters,NumRepetitions);
                 beesAlg->initializeParameterRangesAndPatchSizes(beeStruct);

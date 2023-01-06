@@ -8,7 +8,6 @@
 
 //bool m_TakeLogOfParameters = false;
 
-bool m_Quit;
 bool m_ForceStop = false;
 //int NLopt_Estimator::m_NLoptIters   = 0;
 int NLopt_Estimator::m_NLoptFcnEvals  = 0;
@@ -24,8 +23,8 @@ std::unique_ptr<nmfPredationForm>   NLoptPredationForm;
 
 NLopt_Estimator::NLopt_Estimator()
 {
-    m_Quit = false;
     m_Seed = 0;
+    m_FixedSeed = 0;
     m_MinimizerToEnum.clear();
     m_MohnsRhoOffset = 0;
     m_MaxFitness = 999999999;
@@ -305,8 +304,6 @@ NLopt_Estimator::checkAndApplyLogScale(
     double limit = nmfConstants::NearlyZero; // 0.00001;
     double termToEnsureLogIsPositive = 1.0;
 
-//qDebug() << "checkAndApplyLogScale usedLogScale: " << useLogScale;
-
     if (useLogScale) {
 
 //qDebug() << "checkAndApplyLogScale start";
@@ -458,7 +455,8 @@ NLopt_Estimator::completedMsg(std::string code)
 {
     std::string msg = "Model did not converge.\nStopped with code: " + code;
 
-    if (code == "NLOPT_FTOL_REACHED") {
+    if ((code == "NLOPT_FTOL_REACHED") ||   // function value tolerance
+        (code == "NLOPT_XTOL_REACHED")) {   // parameter tolerance
         msg = "Success!\nModel converged to the specified tolerance.";
     } else if (code == "NLOPT_SUCCESS") {
         msg = "Model completed with code: " + code;
@@ -567,12 +565,6 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     std::string MSSPMName = "Run " + std::to_string(m_RunNum) + "-1";
     std::string covariateAlgorithmType = NLoptDataStruct.CovariateAlgorithmType;
     std::string ForecastHarvestType = NLoptDataStruct.ForecastHarvestType;
-
-    if (m_Quit) {
-//      throw nlopt::forced_stop();
-        nlopt::forced_stop();
-        throw "user stopped";
-    }
 
     if (isAggProd) {
         NumSpeciesOrGuilds = NumGuilds;
@@ -993,15 +985,27 @@ NLopt_Estimator::setObjectiveFunction(nmfStructsQt::ModelDataStruct& NLoptStruct
 
 void
 NLopt_Estimator::setSeed(const bool& isSetToDeterministic,
-                         const bool& useFixedSeed)
+                         const bool& useFixedSeed,
+                         const bool& useUserFixedSeed,
+                         const int&  userFixedSeedVal,
+                         const bool& incrementFixedSeed)
 {
-    if (useFixedSeed) {
+    if (useUserFixedSeed && incrementFixedSeed) {
+        nlopt::srand(m_FixedSeed++);
+std::cout << "[Info 0] Using seed value: " << m_FixedSeed-1 << std::endl;
+    } else if (useUserFixedSeed) {
+          nlopt::srand(userFixedSeedVal);
+std::cout << "[Info 1] Using seed value: " << userFixedSeedVal << std::endl;
+    } else if (useFixedSeed) {
         nlopt::srand(1);
+std::cout << "[Info 2] Using seed value: 1" << std::endl;
     } else {
         if (isSetToDeterministic) {
             nlopt::srand(++m_Seed);
+std::cout << "[Info 3] Using seed value: " << m_Seed-1 << std::endl;
         } else {
             nlopt::srand_time();
+std::cout << "[Info 4] Using seed value of srand_time " << std::endl;
         }
     }
 }
@@ -1040,7 +1044,6 @@ NLopt_Estimator::setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
 void
 NLopt_Estimator::stopGracefully()
 {
-    m_Quit      = true;
     m_ForceStop = true;
 }
 
@@ -1077,9 +1080,11 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     std::vector<std::pair<double,double> > ParameterRanges;
     QDateTime startTime = nmfUtilsQt::getCurrentTime();
 
+    m_FixedSeed = NLoptStruct.userFixedSeedVal;
+
     m_NLoptFcnEvals  = 0;
     m_NumObjFcnCalls = 0;
-    m_Quit           = false;
+    m_ForceStop      = false;
     m_RunNum        += 1;
 
     // Define forms
@@ -1103,11 +1108,9 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
 //for (int i=0; i< NumEstParameters; ++i) {
 // std::cout << "  (1) " << ParameterRanges[i].first << ", " << ParameterRanges[i].second << std::endl;
 //}
-
         if (isAMultiRun) {
             NumMultiRuns = MultiRunLines.size();
         }
-
         for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
             returnMsg.clear();
             NumSubRuns = 1;
@@ -1137,10 +1140,8 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
             }
             m_Seed = 0;
             foundOneNLoptRun = true;
-
             for (int run=0; run<NumSubRuns; ++run) {
                 std::cout << "\nNLopt Run " << run+1 << " of " << NumSubRuns << std::endl;
-                m_Quit = false;
                 m_MohnsRhoOffset = (NLoptStruct.isMohnsRho) ? run : m_MohnsRhoOffset;
 
                 // Initialize the optimizer with the appropriate algorithm
@@ -1148,13 +1149,17 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                 setAdditionalParameters(NLoptStruct);
 
                 // Set Parameter Bounds, Objective Function, and Stopping Criteria
-                setSeed(isSetToDeterministic,NLoptStruct.useFixedSeedNLopt);
+                setSeed(isSetToDeterministic,
+                        NLoptStruct.useApplicationFixedSeedNLopt,
+                        NLoptStruct.useUserFixedSeedNLopt,
+                        NLoptStruct.userFixedSeedVal,
+                        NLoptStruct.incrementFixedSeed);
                 setParameterBounds(NLoptStruct,ParameterInitialValues,ParameterRanges,NumEstParameters);
                 setObjectiveFunction(NLoptStruct,MaxOrMin);
                 setStoppingCriteria(NLoptStruct);
 
                 // Run the Optimizer using the previously defined objective function
-                nlopt::result returnCode;
+                nlopt::result returnCode = nlopt::result::SUCCESS;
                 double fitness=0;
                 try {
                     // ******************************************************
@@ -1163,7 +1168,8 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                     returnCode = m_Optimizer.optimize(m_Parameters, fitness);
                     theReturnCodeStr = returnCodeStr(returnCode);
                     returnMsg        = completedMsg(theReturnCodeStr);
-                    if (theReturnCodeStr != "NLOPT_FTOL_REACHED") {
+                    if ((theReturnCodeStr != "NLOPT_FTOL_REACHED") &&
+                        (theReturnCodeStr != "NLOPT_XTOL_REACHED")) {
                         allRunsConverged = false;
                     }
                     std::cout << "Optimizer return code: " << returnCodeStr(returnCode) << std::endl;
@@ -1205,6 +1211,7 @@ std::cout << "*** NumEstParam: " << NumEstParameters << std::endl;
                         m_EstExponent,
                         m_EstSurveyQ,
                         m_EstSurveyQCovariateCoeffs);
+
 
                 //for (int j=0;j<(int)m_Parameters.size();++j) {std::cout << j << ": est param: " << m_Parameters[j] << std::endl;}
 
@@ -1261,8 +1268,6 @@ NLopt_Estimator::stoppedByUser()
 
     retv = nmfUtils::isStopped(runName,msg1,msg2,stopRunFile,state);
 
-    m_Quit = true;
-
     return retv;
 }
 
@@ -1270,14 +1275,7 @@ void
 NLopt_Estimator::callback_StopAllRuns()
 {
 std::cout << "Stopping all runs" << std::endl;
-   m_Quit = true;
    nlopt::forced_stop();
-}
-
-void
-NLopt_Estimator::callback_StopTheOptimizer()
-{
-   m_Quit = true;
 }
 
 void

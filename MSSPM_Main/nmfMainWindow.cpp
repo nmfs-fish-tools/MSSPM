@@ -2089,7 +2089,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.5.0 ";
+    QString version = "MSSPM v1.5.1 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -10955,7 +10955,13 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     m_UI->OutputDockWidget->raise();
 
     // Load all run parameters
+    if (isAMultiRun) {
+        Estimation_Tab7_ptr->enableEnsembleControls(false);
+    }
     bool loadOK = loadParameters(m_DataStruct,nmfConstantsMSSPM::VerboseOn);
+    if (isAMultiRun) {
+        Estimation_Tab7_ptr->enableEnsembleControls(true);
+    }
     if (! loadOK) {
         std::cout << "Run cancelled. LoadParameters returned: " << loadOK << std::endl;
         return;
@@ -11416,7 +11422,7 @@ std::cout << "RUNNING" << std::endl;
     bool isSetToDeterministic = Estimation_Tab7_ptr->isSetToDeterministicMinimizer();
 
     // Force isSetToDeterministic to be true if running Mohns Rho
-    m_DataStruct.useFixedSeedNLopt = isAMohnsRhoMultiRun();
+    m_DataStruct.useApplicationFixedSeedNLopt = isAMohnsRhoMultiRun();
 
     Output_Controls_ptr->setAveraged(isAMultiRun);
     m_DataStruct.showDiagnosticChart = showDiagnosticChart;
@@ -11915,7 +11921,6 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     std::vector<double> InitialGrowthRate;
     std::vector<double> InitialGrowthRateShape;
     std::vector<double> InitialSpeciesK;
-    QStringList SpeciesList;
     std::vector<double> EstInitBiomass;
     std::vector<double> EstGrowthRates;
     std::vector<double> EstGrowthRateShape;
@@ -11946,6 +11951,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     boost::numeric::ublas::matrix<double> EstPredationRho;
     boost::numeric::ublas::matrix<double> EstPredationHandling;
     boost::numeric::ublas::matrix<double> CalculatedBiomass;
+    QStringList SpeciesList;
 
     if (run == 0) {
         std::cout << "*** Creating AveragedData object" << std::endl;
@@ -11994,6 +12000,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     m_Estimator_NLopt->getEstPredation(EstPredationRho);
     m_Estimator_NLopt->getEstHandling(EstPredationHandling);
     m_Estimator_NLopt->getEstExponent(EstPredationExponent);
+
 
     if (! calculateSubRunBiomass(EstInitBiomass,
                                  EstGrowthRates,
@@ -13519,6 +13526,19 @@ nmfMainWindow::loadCovariateData(std::map<std::string,std::vector<double> >& cov
     return true;
 }
 
+void
+nmfMainWindow::setUserDefinedSeedVariables(
+        nmfStructsQt::ModelDataStruct& dataStruct)
+{
+    dataStruct.useUserFixedSeedNLopt = false;
+    dataStruct.userFixedSeedVal = -1;
+    if (Estimation_Tab7_ptr->isUserSeedValueEnabled()) {
+        dataStruct.useUserFixedSeedNLopt = true;
+        dataStruct.userFixedSeedVal = Estimation_Tab7_ptr->getUserSeedVal();
+    }
+    dataStruct.incrementFixedSeed = Estimation_Tab7_ptr->isSeedSetToIncrement();
+}
+
 bool
 nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
                               const bool& verbose)
@@ -13649,7 +13669,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.CatchabilityCovariateCoeff     = catchabilityCovariateRanges;
     dataStruct.SurveyQCovariateCoeff          = surveyQCovariateRanges;
 
-    dataStruct.useFixedSeedBees    = Estimation_Tab7_ptr->isSetToDeterministicBees();
+    dataStruct.useApplicationFixedSeedBees    = Estimation_Tab7_ptr->isSetToDeterministicBees();
     dataStruct.EstimationAlgorithm = Estimation_Tab7_ptr->getCurrentAlgorithm();
     dataStruct.ObjectiveCriterion  = Estimation_Tab7_ptr->getCurrentObjectiveCriterion();
     dataStruct.MinimizerAlgorithm  = Estimation_Tab7_ptr->getCurrentMinimizer();
@@ -13659,6 +13679,9 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
 
     m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
     dataStruct.PreviousUnits = previousUnits;
+
+    // Set user defined seed variables
+    setUserDefinedSeedVariables(dataStruct);
 
     // Set the MultiRun Setup output file that will contain all of the
     // MultiRun Run definitions

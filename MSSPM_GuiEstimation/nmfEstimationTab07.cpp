@@ -118,12 +118,14 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_EnsembleUsingPctPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_EnsembleUsingPctPB");
     Estimation_Tab7_MinimizerSetDeterministicCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_MinimizerSetDeterministicCB");
     Estimation_Tab7_EnsembleSetDeterministicCB    = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EnsembleSetDeterministicCB");
+    Estimation_Tab7_EnsembleSetSeedIncreasingCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EnsembleSetSeedIncreasingCB");
     Estimation_Tab7_BeesSetDeterministicCB        = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_BeesSetDeterministicCB");
     Estimation_Tab7_AddToReviewPB                 = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_AddToReviewPB");
     Estimation_Tab7_NL_TimeUnitsLockPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_NL_TimeUnitsLockPB");
     Estimation_Tab7_BeesDetStoTypeLBL             = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_BeesDetStoTypeLBL");
     Estimation_Tab7_BeesSetDeterministicLBL       = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_BeesSetDeterministicLBL");
     Estimation_Tab7_ToleranceLBL                  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_ToleranceLBL");
+    Estimation_Tab7_SeedSB                        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab7_SeedSB");
 
     Estimation_Tab7_AddToReviewPB->setEnabled(false);
 
@@ -207,6 +209,8 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
              this,                                        SLOT(callback_SetDeterministicCB(int)));
     connect( Estimation_Tab7_EnsembleSetDeterministicCB,  SIGNAL(stateChanged(int)),
              this,                                        SLOT(callback_EnsembleSetDeterministicCB(int)));
+    connect( Estimation_Tab7_EnsembleSetSeedIncreasingCB, SIGNAL(stateChanged(int)),
+             this,                                        SLOT(callback_EnsembleSetSeedIncreasingCB(int)));
     connect(Estimation_Tab7_AddToReviewPB,                SIGNAL(clicked()),
             this,                                         SLOT(callback_AddToReviewPB()));
 //  connect(Estimation_Tab7_EstimateSurveyQCB,            SIGNAL(stateChanged(int)),
@@ -249,11 +253,21 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     callback_MinimizerTypeCMB(Estimation_Tab7_MinimizerTypeCMB->currentText());
     callback_MinimizerAlgorithmCMB(Estimation_Tab7_MinimizerAlgorithmCMB->currentText());
 
-}
+    // Set initial seed spin box state
+    resetSeedWidgets();
 
+}
 
 nmfEstimation_Tab7::~nmfEstimation_Tab7()
 {
+}
+
+void
+nmfEstimation_Tab7::resetSeedWidgets()
+{
+    bool isStochastic = (Estimation_Tab7_MinimizerDetStoTypeLBL->text() == "(s)");
+    Estimation_Tab7_MinimizerSetDeterministicCB->setEnabled(isStochastic);
+    Estimation_Tab7_SeedSB->setEnabled(isStochastic && Estimation_Tab7_MinimizerSetDeterministicCB->isChecked());
 }
 
 void
@@ -638,6 +652,18 @@ nmfEstimation_Tab7::getStateEstCompetitionBetaGuildsGuilds()
                       isEstCompetitionBetaGuildsGuildsChecked());
 }
 
+int
+nmfEstimation_Tab7::getUserSeedVal()
+{
+    return Estimation_Tab7_SeedSB->value();
+}
+
+bool
+nmfEstimation_Tab7::isUserSeedValueEnabled()
+{
+    return Estimation_Tab7_SeedSB->isEnabled();
+}
+
 bool
 nmfEstimation_Tab7::isEstInitialBiomassEnabled()
 {
@@ -794,6 +820,12 @@ bool
 nmfEstimation_Tab7::isSetToDeterministicBees()
 {
     return Estimation_Tab7_BeesSetDeterministicCB->isChecked();
+}
+
+bool
+nmfEstimation_Tab7::isSeedSetToIncrement()
+{
+    return Estimation_Tab7_EnsembleSetSeedIncreasingCB->isChecked();
 }
 
 int
@@ -1084,8 +1116,6 @@ nmfEstimation_Tab7::runEstimation()
     {
         QApplication::setOverrideCursor(Qt::WaitCursor);
 
-        // Rerun all data checks, in case user changes number of Species or Guilds and
-        // then tries to re-run.
         m_Logger->logMsg(nmfConstants::Normal,"");
         m_Logger->logMsg(nmfConstants::Normal,"Start Estimation");
 
@@ -1239,8 +1269,16 @@ nmfEstimation_Tab7::saveStatesEstCheckboxes(
 void
 nmfEstimation_Tab7::callback_SavePB()
 {
-    if (! Estimation_Tab7_EnsembleControlsGB->isChecked()) {
+    bool areEnsembleControlsChecked = Estimation_Tab7_EnsembleControlsGB->isChecked();
+
+    // Assure the estimation checkboxes aren't all disabled due to the multi-runs
+    // being selected. If so, enable them, get their states, and then disable them.
+    if (areEnsembleControlsChecked) {
         // Get state of all est checkboxes
+        enableEnsembleControls(false);
+        getStatesEstCheckboxes(m_EstStates);
+        enableEnsembleControls(true);
+    } else {
         getStatesEstCheckboxes(m_EstStates);
     }
 
@@ -1259,6 +1297,7 @@ nmfEstimation_Tab7::callback_SavePB()
     // Resave state of all est checkboxes
     saveStatesEstCheckboxes(m_EstStates);
     callback_ReloadWidgets();
+
 }
 
 void
@@ -1627,7 +1666,9 @@ nmfEstimation_Tab7::callback_MinimizerAlgorithmCMB(QString algorithm)
     bool isGlobal = Estimation_Tab7_MinimizerTypeCMB->currentText() == "global";
     Estimation_Tab7_ToleranceLBL->setText("(no tol)");
     if (isGlobal) {
-        if (algorithm == "GN_DIRECT_L" || algorithm == "GN_DIRECT_L_RAND") {
+        if (algorithm == "GN_DIRECT_L"      ||
+            algorithm == "GN_DIRECT_L_RAND" ||
+            algorithm == "GN_CRS2_LM") {
             Estimation_Tab7_ToleranceLBL->setText("(tol)");
         }
     } else { // if it's "local"
@@ -1639,6 +1680,7 @@ nmfEstimation_Tab7::callback_MinimizerAlgorithmCMB(QString algorithm)
     Estimation_Tab7_MinimizerDetStoTypeLBL->setText(detStoTypeLabel);
     Estimation_Tab7_MinimizerSetDeterministicCB->setEnabled(detStoTypeLabel == "(s)");
     enableRunButton(false);
+    resetSeedWidgets();
 
     // Set Additional Algorithm Parameter widget visibility
     Estimation_Tab7_NL_InitialPopulationSizeCB->setEnabled(algorithm == "GN_CRS2_LM");
@@ -1996,7 +2038,7 @@ nmfEstimation_Tab7::callback_EnsembleTotalRunsSB(int value)
         return;
     }
 
-    bool isMultiRun = (value > 1);
+    bool isMultiRun = true; // (value > 1);
 
     Estimation_Tab7_EnsembleAveragingAlgorithmLBL->setEnabled(isMultiRun);
     Estimation_Tab7_EnsembleAveragingAlgorithmCMB->setEnabled(isMultiRun);
@@ -2456,6 +2498,7 @@ nmfEstimation_Tab7::callback_EnsembleControlsGB(bool isChecked)
 {
     callback_EnsembleTotalRunsSB(Estimation_Tab7_EnsembleTotalRunsSB->value());
     enableNonEnsembleWidgets(! isChecked);
+    resetSeedWidgets();
 
     if (isChecked) {
         loadEnsembleFile(QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun),
@@ -2500,6 +2543,8 @@ nmfEstimation_Tab7::callback_SetDeterministicCB(int state)
     Estimation_Tab7_EnsembleSetDeterministicCB->blockSignals(true);
     Estimation_Tab7_EnsembleSetDeterministicCB->setChecked(state==Qt::Checked);
     Estimation_Tab7_EnsembleSetDeterministicCB->blockSignals(false);
+    Estimation_Tab7_SeedSB->setEnabled(state == Qt::Unchecked);
+    resetSeedWidgets();
 }
 
 void
@@ -2508,6 +2553,15 @@ nmfEstimation_Tab7::callback_EnsembleSetDeterministicCB(int state)
     Estimation_Tab7_MinimizerSetDeterministicCB->blockSignals(true);
     Estimation_Tab7_MinimizerSetDeterministicCB->setChecked(state==Qt::Checked);
     Estimation_Tab7_MinimizerSetDeterministicCB->blockSignals(false);
+}
+
+void
+nmfEstimation_Tab7::callback_EnsembleSetSeedIncreasingCB(int state)
+{
+    if (state == Qt::Checked) {
+        callback_SetDeterministicCB(state);
+        callback_EnsembleSetDeterministicCB(state);
+    }
 }
 
 void

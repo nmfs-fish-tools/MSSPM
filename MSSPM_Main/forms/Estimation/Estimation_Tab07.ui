@@ -565,6 +565,34 @@
                    </widget>
                   </item>
                   <item>
+                   <widget class="QSpinBox" name="Estimation_Tab7_SeedSB">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string>The seed value for the current stochastic algorithm</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The seed value for the current stochastic algorithm</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Seed Value&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the seed value for the current stochastic algorithm.  If a multi-run is chosen then this will be the beginning seed value for all of the runs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="minimum">
+                     <number>0</number>
+                    </property>
+                    <property name="value">
+                     <number>1</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QComboBox" name="Estimation_Tab7_MinimizerTypeCMB">
                     <property name="enabled">
                      <bool>false</bool>
@@ -2604,7 +2632,26 @@ with the non-assigned bees being assigned to random positions.</string>
                      <enum>Qt::RightToLeft</enum>
                     </property>
                     <property name="text">
-                     <string>Fixed Seed</string>
+                     <string>Seed:  Fixed</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="Estimation_Tab7_EnsembleSetSeedIncreasingCB">
+                    <property name="toolTip">
+                     <string>Sets the fixed seed type to increment by 1</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Sets the fixed seed type to increment by 1</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Seed Type: Incrementing&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will cause the seed to increment by 1 for each subrun of a multi-run. The initial seed value is defined by the value set in the Model Algorithms box above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::RightToLeft</enum>
+                    </property>
+                    <property name="text">
+                     <string>Inc</string>
                     </property>
                    </widget>
                   </item>
@@ -2926,7 +2973,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>Determines how many of the individual runs should be averaged</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Using Amount&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This pulldown allows the user to specify if they want to use all of the individual runs in calculating the average or a specific number of them.&lt;/p&gt;&lt;p&gt;If the latter, a number spin box and a percent button will be enabled. The spin box allows the user to specify the top, either &lt;span style=&quot; font-style:italic;&quot;&gt;n&lt;/span&gt; percent or &lt;span style=&quot; font-style:italic;&quot;&gt;n&lt;/span&gt; individual runs to use in the average. The percent button allows the user to specify if they want &lt;span style=&quot; font-style:italic;&quot;&gt;n&lt;/span&gt; to refer to a percentage or an absolute number of individual runs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Using Amount&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This pulldown allows the user to specify if they want to use all of the individual runs in calculating the average or a specific number of them.&lt;/p&gt;&lt;p&gt;If the latter, a number spin box and a percent button will be enabled. The spin box allows the user to specify the top (i.e., lowest AIC value), either &lt;span style=&quot; font-style:italic;&quot;&gt;n&lt;/span&gt; percent or &lt;span style=&quot; font-style:italic;&quot;&gt;n&lt;/span&gt; individual runs to use in the average. The percent button allows the user to specify if they want &lt;span style=&quot; font-style:italic;&quot;&gt;n&lt;/span&gt; to refer to a percentage or an absolute number of individual runs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <item>
                      <property name="text">
@@ -2952,7 +2999,7 @@ with the non-assigned bees being assigned to random positions.</string>
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Number of Runs&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This allows the user to specify how many runs should be used in the averaging calculations. This number may be either a percentage or an absolute number, depending on the button state to the right.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="minimum">
-                     <number>2</number>
+                     <number>1</number>
                     </property>
                     <property name="value">
                      <number>10</number>

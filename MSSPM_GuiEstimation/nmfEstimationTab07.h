@@ -108,6 +108,7 @@ class nmfEstimation_Tab7: public QObject
     QSpinBox*    Estimation_Tab7_Bees_NumOtherBeesSB;
     QSpinBox*    Estimation_Tab7_Bees_NeighborhoodSizeSB;
     QSpinBox*    Estimation_Tab7_Bees_NumberOfRunsSB;
+    QSpinBox*    Estimation_Tab7_SeedSB;
     QLabel*      Estimation_Tab7_ScalingLBL;
     QComboBox*   Estimation_Tab7_ScalingCMB;
     QCheckBox*   Estimation_Tab7_NL_InitialPopulationSizeCB;
@@ -152,6 +153,7 @@ class nmfEstimation_Tab7: public QObject
     QPushButton* Estimation_Tab7_EnsembleUsingPctPB;
     QCheckBox*   Estimation_Tab7_MinimizerSetDeterministicCB;
     QCheckBox*   Estimation_Tab7_EnsembleSetDeterministicCB;
+    QCheckBox*   Estimation_Tab7_EnsembleSetSeedIncreasingCB;
     QCheckBox*   Estimation_Tab7_BeesSetDeterministicCB;
     QPushButton* Estimation_Tab7_AddToReviewPB;
     QPushButton* Estimation_Tab7_NL_TimeUnitsLockPB;
@@ -181,12 +183,12 @@ class nmfEstimation_Tab7: public QObject
     void runEnsemble();
     void getStatesEstCheckboxes(
             std::vector<int>& estStates);
+    void resetSeedWidgets();
     bool saveStatesEstCheckboxes(
             const std::vector<int>& estStates);
     bool saveSettingsConfiguration(bool verbose,
                                    bool resetCheckboxes,
                                    std::string currentSettingsName);
-    bool tryingToAddBeesAlgorithmToMultiRun();
     void setEstimatedCheckBoxStates(
             const bool& resetCheckboxes,
             std::map<std::string,std::vector<std::string> >& dataMap,
@@ -203,6 +205,7 @@ class nmfEstimation_Tab7: public QObject
             int& stateEstPredationExponent,
             int& stateEstSurveyQ,
             int& stateEstInitialBiomass);
+    bool tryingToAddBeesAlgorithmToMultiRun();
     void updateState(QCheckBox* checkbox,
                      const std::string& field);
 public:
@@ -484,6 +487,11 @@ public:
      */
     std::vector<nmfStructsQt::EstimateRunBox> getEstimateRunBoxes();
     /**
+     * @brief Gets the currently set user seed value
+     * @return the integer user seed value
+     */
+    int getUserSeedVal();
+    /**
      * @brief Returns whether or not the Run is a Multi Run
      * @return true if Multi-Run, false otherwise
      */
@@ -629,6 +637,11 @@ public:
      */
     bool isInitialPopulationSize();
     /**
+     * @brief Boolean representing if the fixed seed should increment for each run of a multi-run
+     * @return true/false representing if the fixed seed should increment
+     */
+    bool isSeedSetToIncrement();
+    /**
      * @brief Boolean representing if the Bees algorithm should be run deterministically
      * (i.e. with the inherent randomness being repeatable) or stochastically
      * @return true/false representing if the Bees Algorithm Fixed Seed checkbox has been checked
@@ -655,6 +668,11 @@ public:
      * @return true/false representing the state of the Stop After Function Value checkbox
      */
     bool isStopAfterValue();
+    /**
+     * @brief Boolean representing the enable state of the user seed value spinbox
+     * @return true if enabled, false otherwise
+     */
+    bool isUserSeedValueEnabled();
     /**
      * @brief Loads the ensemble disk file into the ensemble table
      * @param ensembleFile : name of ensemble file
@@ -871,6 +889,10 @@ signals:
      */
     void EnableRunButtons(bool state);
     /**
+     * @brief Signal to notify main routine to load parameters into the main data struct.
+     */
+    void LoadParameters();
+    /**
      * @brief Signal emitted to refresh the estimation box states
      */
     void SetEstimatedParameterNames();
@@ -952,10 +974,15 @@ public Q_SLOTS:
      */
     void callback_EnsembleUsingAmountCMB(QString value);
     /**
-     * @brief Callback invoked when the user checks or unchecks the Ensemble Set Deterministic button
+     * @brief Callback invoked when the user checks or unchecks the Ensemble Set Deterministic checkbox
      * @param state : if true - deterministic, else if false - stochastic
      */
     void callback_EnsembleSetDeterministicCB(int state);
+    /**
+     * @brief Callback invoked when the user checks or unchecks the Ensemble Incrementing Seed Type checkbox
+     * @param state : if true - seed will increment on subsequent multi-runs, else if false - same seed will be used on all multi-runs
+     */
+    void callback_EnsembleSetSeedIncreasingCB(int state);
 //  void callback_EstimateSurveyQCB(int state);
     /**
      * @brief Callback invoked when the user changes the font in the Run Summary tab

@@ -324,28 +324,28 @@ private:
     double convertUnitsStringToValue(QString& ScaleStr);
     void displayAverageBiomass();
     int getTabIndex(QTabWidget* tabWidget, QString tabName);
-    bool   getOutputBiomassAveraged(boost::numeric::ublas::matrix<double>& AveBiomass);
-    int    getNumSignificantDigits();
-    int    getNumDistinctRecords(const std::string& field,
+    bool getOutputBiomassAveraged(boost::numeric::ublas::matrix<double>& AveBiomass);
+    int getNumSignificantDigits();
+    int getNumDistinctRecords(const std::string& field,
                                  const std::string& table);
     QString getFormGrowth();
     QString getFormHarvest();
     QString getFormPredation();
     QString getFormCompetition();
-    void   getOutputBiomassEnsemble(
+    void getOutputBiomassEnsemble(
             const int& NumRows,
             const int& NumCols,
             std::vector<boost::numeric::ublas::matrix<double> >& OutputBiomassEnsemble);
-    void   initializeNavigatorTree();
-    void   initLogo();
-    void   initPostGuiConnections();
-    void   initializePreferencesDlg();
-    void   initializeMMode();
-    void   initializeMModeMain();
-    void   initializeMModeViewer();
+    void initializeNavigatorTree();
+    void initLogo();
+    void initPostGuiConnections();
+    void initializePreferencesDlg();
+    void initializeMMode();
+    void initializeMModeMain();
+    void initializeMModeViewer();
     bool isBeesAlgorithm();
     bool isAMultiRun();
-    bool   isSufficientBiomass(int& numInsufficientSpecies);
+    bool isSufficientBiomass(int& numInsufficientSpecies);
 
     void   loadBiomassByGroup(QString& GroupType);
     void   updateOutputBiomassDatabaseTableWithAverageBiomass(boost::numeric::ublas::matrix<double>& AveragedBiomass);
@@ -355,9 +355,10 @@ private:
 
     bool   saveSigDigState();
     void   setDatabaseWaitTime();
+    void   setUserDefinedSeedVariables(
+            nmfStructsQt::ModelDataStruct& dataStruct);
     void   restoreSigDigState(bool state);
     bool   runningREMORA();
-
     void   showDockWidgets(bool show);
     QList<QString> getTableNames(bool isExponent);
 
@@ -1460,6 +1461,7 @@ public slots:
      * @brief Callback invoked to stop the progress widget's elapsed run timer
      */
     void callback_StopTheTimer();
+//    void callback_LoadParameters();
     /**
      * @brief Callback invoked when user loads a System from the Setup Page 4 GUI
      */
