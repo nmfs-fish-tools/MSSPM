@@ -796,10 +796,6 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
                          isAggProdStr,growthParameters,
                          offset,GrowthRateOffset,GrowthRateShapeOffset,GrowthRateCovarOffset,
                          CarryingCapacityOffset,CarryingCapacityCovarOffset);
-//std::cout << "GrowthRateOffset: " << GrowthRateOffset << std::endl;
-//std::cout << "GrowthRateCovarOffset: " << GrowthRateCovarOffset << std::endl;
-//std::cout << "CarryingCapacityOffset: " << CarryingCapacityOffset << std::endl;
-//std::cout << "CarryingCapacityCovarOffset: " << CarryingCapacityCovarOffset << std::endl;
 
     offset = CarryingCapacityCovarOffset;
     loadHarvestParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,
@@ -809,14 +805,25 @@ nmfDiagnostic_Tab1::calculateFitness(const int& SpeciesOrGuildNum,
     offset += competitionParameters.size();
     loadPredationParameters(NumSpeciesOrGuilds,Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,predationParameters);
     offset += predationParameters.size();
-//    SurveyQOffset = offset;
     loadOutputParameters(nmfConstantsMSSPM::TableOutputSurveyQ,NumSpeciesOrGuilds,
-                         Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,surveyQParameters);
+                         Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,
+                         surveyQParameters);
     SurveyQCovarOffset = offset + surveyQParameters.size();
     loadOutputParameters(nmfConstantsMSSPM::TableOutputSurveyQCovariateCoeffs,NumSpeciesOrGuilds,
                          Algorithm,Minimizer,ObjectiveCriterion,Scaling,isAggProdStr,surveyQCovCoeffParameters);
 //qDebug() << "RSK - TBD implement surveyQCovCoeff logic";
 //qDebug() << "SurveyQCovarOffset: " << SurveyQCovarOffset;
+
+    // Check that no survey q numbers are 0
+    for (unsigned i=0; i<surveyQParameters.size(); ++i) {
+       if (surveyQParameters[i] == 0) {
+           msg = "Error: Found Survey Q value of 0 for Species: " + std::to_string(i) + ".";
+           msg += " Check the outputsurveyq table for a 0 value. If found, investigate why. ";
+           msg += "It could be the format used to write the values to the table is inadequate.";
+           m_Logger->logMsg(nmfConstants::Error,msg);
+           return -1;
+       }
+    }
 
     // Append all of the Estimated Parameters to: parameters
     InitBiomassOffset  = parameters.size();
@@ -1300,7 +1307,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const int&         NumSpeciesOrGuilds,
                ",'"  + std::get<0>(DiagnosticTupleVector[m]).toStdString() +
                "',"  + QString::number(std::get<1>(DiagnosticTupleVector[m])).toStdString() +
                ","   + QString::number(std::get<2>(DiagnosticTupleVector[m])).toStdString() +
-               ","   + QString::number(std::get<3>(DiagnosticTupleVector[m])).toStdString() + "),";
+               ","   + QString::number(std::get<3>(DiagnosticTupleVector[m]),'f',6).toStdString() + "),";
    }
    cmd = cmd.substr(0,cmd.size()-1);
    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
@@ -1358,7 +1365,7 @@ nmfDiagnostic_Tab1::updateParameterTable(const std::string& Algorithm,
                "','" + SurfaceType +
                "',"  + QString::number(std::get<1>(DiagnosticTupleVector[m])).toStdString() +
                ","   + QString::number(std::get<2>(DiagnosticTupleVector[m])).toStdString() +
-               ","   + QString::number(std::get<3>(DiagnosticTupleVector[m])).toStdString() + "),";
+               ","   + QString::number(std::get<3>(DiagnosticTupleVector[m]),'f',6).toStdString() + "),";
        ++m;
    }
    cmd = cmd.substr(0,cmd.size()-1);

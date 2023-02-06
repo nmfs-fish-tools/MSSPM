@@ -55,7 +55,7 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     double lastBestFitness = 99999;
     std::string msg;
     std::string errorMsg;
-    std::string bestFitnessStr;
+    std::string summaryMsg;
     std::vector<double> lastBestParameters;
     QDateTime startTime = nmfUtilsQt::getCurrentTime();
     std::vector<double> EstParameters;
@@ -80,6 +80,9 @@ Bees_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &beeStruct,
     m_EstCatchability.clear();
     m_EstSurveyQ.clear();
     m_EstSurveyQCovariateCoeffs.clear();
+    m_EstBMSY.clear();
+    m_EstMSY.clear();
+    m_EstFMSY.clear();
     m_EstExponent.clear();
     m_EstBetaSpecies.clear();
     m_EstBetaGuilds.clear();
@@ -198,13 +201,24 @@ std::cout << "Bees: num est parameters: " << EstParameters.size() << std::endl;
                 numTotalParameters = EstParameters.size();
                 numEstParameters   = numTotalParameters; // All parameters are estimated
                 createOutputStr(numEstParameters,numTotalParameters,NumRepetitions,
-                                bestFitness,fitnessStdDev,beeStruct,bestFitnessStr);
+                                bestFitness,fitnessStdDev,beeStruct,summaryMsg);
 
-                emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
+                emit RunCompleted(summaryMsg,"",beeStruct.showDiagnosticChart);
 
             }
 
         } // end for run
+
+        // Calculate MSY, BMSY, and FMSY values
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            m_EstBMSY.emplace_back(m_EstCarryingCapacities[i]/2.0); // BMSY = k/2
+        }
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            m_EstMSY.emplace_back((m_EstGrowthRates[i]*m_EstCarryingCapacities[i])/4.0); // MSY = (rk)/4
+        }
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            m_EstFMSY.emplace_back(m_EstGrowthRates[i]/2.0); // FMSY = r/2
+        }
 
         if (isAMultiRun) {
 std::cout << "2 Emitting SubRunCompleted" << std::endl;
@@ -218,7 +232,7 @@ std::cout << "2 Emitting SubRunCompleted" << std::endl;
                                  bestFitness);
         } else {
 std::cout << "2 Emitting RunCompleted" << std::endl;
-//            emit RunCompleted(bestFitnessStr,beeStruct.showDiagnosticChart);
+            emit RunCompleted(summaryMsg,"",beeStruct.showDiagnosticChart);
         }
 
     } // end for multiRun
@@ -232,7 +246,7 @@ std::cout << "3 Emitting AllSubRunsCompleted" << std::endl;
     std::string elapsedTimeStr = "Elapsed runtime: " + nmfUtilsQt::elapsedTime(startTime);
     std::cout << elapsedTimeStr << std::endl;
 
-    stopRun(elapsedTimeStr,bestFitnessStr);
+    stopRun(elapsedTimeStr,summaryMsg);
 }
 
 
@@ -273,8 +287,8 @@ Bees_Estimator::createOutputStr(
     bestFitnessStr += "<br>Total Parameters:&nbsp;" + std::to_string(numTotalParameters);
 
     bestFitnessStr += "<br><br>Number of Runs:&nbsp;&nbsp;&nbsp;" + std::to_string(numSubRuns);
-    bestFitnessStr += "<br>Best Fitness (SSE) value of all runs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + std::to_string(bestFitness);
-    bestFitnessStr += "<br>Std dev of Best Fitness values from all runs:&nbsp;&nbsp;" + std::to_string(fitnessStdDev);
+    bestFitnessStr += "<br>Best Fitness (SSE) value of all runs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + QString::number(bestFitness).toStdString();
+    bestFitnessStr += "<br>Std dev of Best Fitness values from all runs:&nbsp;&nbsp;" + QString::number(fitnessStdDev).toStdString();
 
     if (growthForm == "Logistic") {
         bestFitnessStr += "<br><br>Initial Parameters:";
@@ -344,6 +358,25 @@ Bees_Estimator::stopRun(const std::string &elapsedTimeStr,
     outputFile << fitnessStr << std::endl;
     outputFile.close();
 }
+
+void
+Bees_Estimator::getEstBMSY(std::vector<double> &estBMSY)
+{
+    estBMSY = m_EstBMSY;
+}
+
+void
+Bees_Estimator::getEstMSY(std::vector<double> &estMSY)
+{
+    estMSY = m_EstMSY;
+}
+
+void
+Bees_Estimator::getEstFMSY(std::vector<double> &estFMSY)
+{
+    estFMSY = m_EstFMSY;
+}
+
 
 void
 Bees_Estimator::getEstInitBiomass(std::vector<double> &estInitBiomass)

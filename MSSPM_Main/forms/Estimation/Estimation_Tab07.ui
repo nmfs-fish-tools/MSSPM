@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>785</width>
-    <height>855</height>
+    <height>985</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,8 +46,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>729</width>
-            <height>810</height>
+            <width>743</width>
+            <height>885</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -588,7 +588,7 @@
                      <number>0</number>
                     </property>
                     <property name="value">
-                     <number>1</number>
+                     <number>0</number>
                     </property>
                    </widget>
                   </item>
@@ -748,19 +748,19 @@
                   <item>
                    <widget class="QCheckBox" name="Estimation_Tab7_LogScaleCB">
                     <property name="toolTip">
-                     <string>Log scales the parameter ranges</string>
+                     <string>Scales the parameter ranges using the natural log</string>
                     </property>
                     <property name="statusTip">
-                     <string>Log scales the parameter ranges</string>
+                     <string>Scales the parameter ranges using the natural log</string>
                     </property>
                     <property name="whatsThis">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Log Scale&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When checked, parameter ranges are log scaled prior to estimation and the resultant estimated values are then exponentiated.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Parameter Log Scale&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When checked, parameter ranges are natural log (i.e., ln) scaled prior to estimation and the resultant estimated values are then exponentiated.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="layoutDirection">
                      <enum>Qt::RightToLeft</enum>
                     </property>
                     <property name="text">
-                     <string>Log Scale:</string>
+                     <string>Parameter Log Scale:</string>
                     </property>
                    </widget>
                   </item>
@@ -2653,6 +2653,9 @@ with the non-assigned bees being assigned to random positions.</string>
                     <property name="text">
                      <string>Inc</string>
                     </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
                    </widget>
                   </item>
                   <item>
@@ -2852,6 +2855,41 @@ with the non-assigned bees being assigned to random positions.</string>
                     </property>
                     <property name="text">
                      <string>Clear</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_12">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Fixed</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>6</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="Estimation_Tab7_AllowConvergedOnlyCB">
+                    <property name="toolTip">
+                     <string>Allow only converged runs</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Allow only converged runs</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Converged Only&lt;/span&gt;&lt;/p&gt;&lt;p&gt;It's possible that a sub-run in a multi-run will not converge. If this checkbox is checked, those non-converged runs will not be included in the output plots and subsequent runs will be tried until one converges.&lt;/p&gt;&lt;p&gt;N.B. It's possible that the user sets the tolerance to a small enough value such that no run will ever converge. If this is the case, MSSPM will keep trying indefinitely. The user should monitor the run time and the number of sub runs completed (in the lower right corner of the GUI) and stop the multi-run manually if this occurs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::RightToLeft</enum>
+                    </property>
+                    <property name="text">
+                     <string>Conv Only:</string>
                     </property>
                    </widget>
                   </item>
@@ -3399,6 +3437,34 @@ with the non-assigned bees being assigned to random positions.</string>
        </property>
        <property name="text">
         <string>Add to Review</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Estimation_Tab7_LoadEstPB">
+       <property name="minimumSize">
+        <size>
+         <width>65</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>65</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Load estimated parameters into Species table</string>
+       </property>
+       <property name="statusTip">
+        <string>Load estimated parameters into Species table</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Load Estimated&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button will take the most recently estimated parameters and load them into the Species and Population Parameters tables (without any ranges). The user should then add any ranges desired and select which local Minimizer Algorithm they wish to use to continue the modeling.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Load Est</string>
        </property>
       </widget>
      </item>

@@ -915,7 +915,7 @@ nmfEstimation_Tab6::saveCovariateTable()
                 valueScaled.clear();
                 if (! value.isEmpty()) {
                     // valueScaled = (diff == 0.0) ? "0.0" : QString::number(2.0*(value.toDouble()-min)/diff - 1.0); // scales from -1 to 1
-                    valueScaled = (diff == 0.0) ? "0.0" : QString::number((value.toDouble()-min)/diff); // scales from 0 to 1
+                    valueScaled = (diff == 0.0) ? "0.0" : QString::number((value.toDouble()-min)/diff,'f',6); // scales from 0 to 1
                 }
                 saveCmd += "('"  + m_ProjectName +
                         "','" + m_ModelName +
@@ -1108,9 +1108,9 @@ nmfEstimation_Tab6::populateCells(const double& initial,
             for (int col=0; col<numCols; col+=3) {
                 item = m_smodelIR->item(row,col);
                 if (item->isEditable()) {
-                    initialItem = new QStandardItem(QString::number(initial));
-                    minItem     = new QStandardItem(QString::number(min));
-                    maxItem     = new QStandardItem(QString::number(max));
+                    initialItem = new QStandardItem(QString::number(initial,'f',6));
+                    minItem     = new QStandardItem(QString::number(min,'f',6));
+                    maxItem     = new QStandardItem(QString::number(max,'f',6));
                     initialItem->setTextAlignment(Qt::AlignCenter);
                     minItem->setTextAlignment(Qt::AlignCenter);
                     maxItem->setTextAlignment(Qt::AlignCenter);
@@ -1129,13 +1129,13 @@ nmfEstimation_Tab6::populateCells(const double& initial,
             if (item->isEditable()) {
                 switch (col%3) {
                   case 0:
-                    item->setText(QString::number(initial));
+                    item->setText(QString::number(initial,'f',6));
                     break;
                   case 1:
-                    item->setText(QString::number(min));
+                    item->setText(QString::number(min,'f',6));
                     break;
                   case 2:
-                    item->setText(QString::number(max));
+                    item->setText(QString::number(max,'f',6));
                     break;
                 }
             }
@@ -1495,13 +1495,13 @@ nmfEstimation_Tab6::callback_SpeciesRangeSB(int pct)
                     valueWithoutComma = initialIndex.data().toString().remove(",");
                     if ((rangeType == "min/max") || (rangeType == "min only")) {
                         newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
-                        minItem = new QStandardItem(QString::number(newValue));
+                        minItem = new QStandardItem(QString::number(newValue,'f',6));
                         minItem->setTextAlignment(Qt::AlignCenter);
                         m_smodelIR->setItem(row,col+1,minItem);
                     }
                     if ((rangeType == "min/max") || (rangeType == "max only")) {
                         newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
-                        maxItem = new QStandardItem(QString::number(newValue));
+                        maxItem = new QStandardItem(QString::number(newValue,'f',6));
                         maxItem->setTextAlignment(Qt::AlignCenter);
                         m_smodelIR->setItem(row,col+2,maxItem);
                     }
@@ -1520,7 +1520,7 @@ nmfEstimation_Tab6::callback_SpeciesRangeSB(int pct)
                 valueWithoutComma = initialIndex.data().toString().remove(",");
                 if ((rangeType == "min/max") || (rangeType == "min only")) {
                     newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
-                    minItem = new QStandardItem(QString::number(newValue));
+                    minItem = new QStandardItem(QString::number(newValue,'f',6));
                     minItem->setTextAlignment(Qt::AlignCenter);
                     m_smodelIR->setItem(row,col,minItem);
                 }
@@ -1530,7 +1530,7 @@ nmfEstimation_Tab6::callback_SpeciesRangeSB(int pct)
                 valueWithoutComma = initialIndex.data().toString().remove(",");
                 if ((rangeType == "min/max") || (rangeType == "max only")) {
                     newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
-                    maxItem = new QStandardItem(QString::number(newValue));
+                    maxItem = new QStandardItem(QString::number(newValue,'f',6));
                     maxItem->setTextAlignment(Qt::AlignCenter);
                     m_smodelIR->setItem(row,col,maxItem);
                 }

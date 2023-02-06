@@ -1094,17 +1094,18 @@ nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin(const bool& showPopup)
         SpeciesKMin = valueWithoutComma.toDouble();
 
         if (InitBiomass > SpeciesKMin) {
-            briefMsg  = "InitBiomass must be less than SpeciesKMin.";
-            errorMsg  = "\nFound: InitBiomass (" + QString::number(InitBiomass).toStdString() +
-                    ") > SpeciesKMin (" + QString::number(SpeciesKMin).toStdString() +
+            briefMsg  = "InitBiomass should be less than SpeciesKMin.";
+            errorMsg  = "\nFound: InitBiomass (" + QString::number(InitBiomass,'f',6).toStdString() +
+                    ") > SpeciesKMin (" + QString::number(SpeciesKMin,'f',6).toStdString() +
                     ") for Species: " + SpeName.toStdString();
-            errorMsg += "\n\n" + briefMsg + "\n";
+            errorMsg += "\n\n" + briefMsg +
+                        "\n\nThis is allowed, but please recheck all species and confirm that this is what's desired.\n";
             m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1::isInitBiomassLessThanSpeciesKMin: " + briefMsg);
             if (showPopup) {
                 QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
                                      QMessageBox::Ok);
             }
-            return false;
+            return true;
         }
     }
     return true;
@@ -1312,18 +1313,18 @@ nmfEstimation_Tab1::savePopulationParameters(const bool& showPopup)
         cmd += "InitBiomass="        + QString::number(m_SpeciesModel->index(i,m_ColumnMap["InitBiomass"]).data().toString().remove(",").toDouble(),'f',6) + ",";
         cmd += "InitBiomassMin="     + QString::number(m_SpeciesModel->index(i,m_ColumnMap["InitBiomassMin"]).data().toString().remove(",").toDouble(),'f',6) + ",";
         cmd += "InitBiomassMax="     + QString::number(m_SpeciesModel->index(i,m_ColumnMap["InitBiomassMax"]).data().toString().remove(",").toDouble(),'f',6) + ",";
-        cmd += "GrowthRate="         + m_SpeciesModel->index(i,m_ColumnMap["GrowthRate"]).data().toString().remove(",") + ",";
-        cmd += "GrowthRateMin="      + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateMin"]).data().toString().remove(",") + ",";
-        cmd += "GrowthRateMax="      + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateMax"]).data().toString().remove(",") + ",";
-        cmd += "GrowthRateShape="    + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShape"]).data().toString().remove(",") + ",";
-        cmd += "GrowthRateShapeMin=" + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMin"]).data().toString().remove(",") + ",";
-        cmd += "GrowthRateShapeMax=" + m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMax"]).data().toString().remove(",") + ",";
-        cmd += "SpeciesK="           + m_SpeciesModel->index(i,m_ColumnMap["SpeciesK"]).data().toString().remove(",") + ",";
-        cmd += "SpeciesKMin="        + m_SpeciesModel->index(i,m_ColumnMap["SpeciesKMin"]).data().toString().remove(",") + ",";
-        cmd += "SpeciesKMax="        + m_SpeciesModel->index(i,m_ColumnMap["SpeciesKMax"]).data().toString().remove(",") + ",";
-        cmd += "SurveyQ="            + m_SpeciesModel->index(i,m_ColumnMap["SurveyQ"]).data().toString().remove(",") + ",";
-        cmd += "SurveyQMin="         + m_SpeciesModel->index(i,m_ColumnMap["SurveyQMin"]).data().toString().remove(",") + ",";
-        cmd += "SurveyQMax="         + m_SpeciesModel->index(i,m_ColumnMap["SurveyQMax"]).data().toString().remove(",") + ",";
+        cmd += "GrowthRate="         + QString::number(m_SpeciesModel->index(i,m_ColumnMap["GrowthRate"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "GrowthRateMin="      + QString::number(m_SpeciesModel->index(i,m_ColumnMap["GrowthRateMin"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "GrowthRateMax="      + QString::number(m_SpeciesModel->index(i,m_ColumnMap["GrowthRateMax"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "GrowthRateShape="    + QString::number(m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShape"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "GrowthRateShapeMin=" + QString::number(m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMin"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "GrowthRateShapeMax=" + QString::number(m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMax"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "SpeciesK="           + QString::number(m_SpeciesModel->index(i,m_ColumnMap["SpeciesK"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "SpeciesKMin="        + QString::number(m_SpeciesModel->index(i,m_ColumnMap["SpeciesKMin"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "SpeciesKMax="        + QString::number(m_SpeciesModel->index(i,m_ColumnMap["SpeciesKMax"]).data().toString().remove(",").toDouble(),'f',6) + ",";
+        cmd += "SurveyQ="            + QString::number(m_SpeciesModel->index(i,m_ColumnMap["SurveyQ"]).data().toString().remove(",").toDouble(),'f',16) + ",";
+        cmd += "SurveyQMin="         + QString::number(m_SpeciesModel->index(i,m_ColumnMap["SurveyQMin"]).data().toString().remove(",").toDouble(),'f',16) + ",";
+        cmd += "SurveyQMax="         + QString::number(m_SpeciesModel->index(i,m_ColumnMap["SurveyQMax"]).data().toString().remove(",").toDouble(),'f',16) + ",";
         cmd += "Catchability="       + m_SpeciesModel->index(i,m_ColumnMap["Catchability"]).data().toString().remove(",") + ",";
         cmd += "CatchabilityMin="    + m_SpeciesModel->index(i,m_ColumnMap["CatchabilityMin"]).data().toString().remove(",") + ",";
         cmd += "CatchabilityMax="    + m_SpeciesModel->index(i,m_ColumnMap["CatchabilityMax"]).data().toString().remove(",");

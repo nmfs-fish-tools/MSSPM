@@ -408,7 +408,7 @@ MultiScenarioSaveDlg::callback_OkPB()
                        ",'"  + Forecast +
                        "','" + Species[i] +
                        "',"  + std::to_string(Years[j]) +
-                       ","   + std::to_string(ForecastBiomass(j,i)) + "),";
+                       ","   + QString::number(ForecastBiomass(j,i)).toStdString() + "),";
            }
        }
        cmd = cmd.substr(0,cmd.size()-1); // Remove last comma

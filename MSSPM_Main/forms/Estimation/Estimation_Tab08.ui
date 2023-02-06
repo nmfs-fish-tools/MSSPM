@@ -136,31 +136,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Estimation_Tab8_DeletePB">
-       <property name="minimumSize">
-        <size>
-         <width>65</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>65</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Deletes the currently selected entries</string>
-       </property>
-       <property name="statusTip">
-        <string>Deletes the currently selected entries</string>
-       </property>
-       <property name="text">
-        <string>Delete</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="Estimation_Tab8_GenerateSummaryPB">
        <property name="minimumSize">
         <size>

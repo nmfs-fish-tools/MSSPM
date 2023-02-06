@@ -49,9 +49,6 @@
 #include <nlopt.hpp>
 #include <random>
 
-static int m_MohnsRhoOffset = 0;
-static double m_MaxFitness;
-
 /**
  * @brief This class acts as an interface class to the NLopt library.
  *
@@ -84,6 +81,9 @@ private:
     std::vector<double>                    m_EstGrowthRateShape;
     std::vector<double>                    m_EstGrowthRateCovariateCoeffs;
     std::vector<double>                    m_EstInitialBiomass;
+    std::vector<double>                    m_EstBMSY;
+    std::vector<double>                    m_EstMSY;
+    std::vector<double>                    m_EstFMSY;
     boost::numeric::ublas::matrix<double>  m_EstPredation;
     boost::numeric::ublas::matrix<double>  m_EstHandling;
     std::map<std::string,nlopt::algorithm> m_MinimizerToEnum;
@@ -118,10 +118,12 @@ private:
             const int&         numEstParameters,
             const int&         numTotalParameters,
             const int&         numSubRuns,
-            const double&      bestFitness,
-            const double&      fitnessStdDev,
+//          const double&      bestFitness,
+//          const double&      fitnessStdDev,
             const nmfStructsQt::ModelDataStruct& beeStruct,
             std::string&       bestFitnessStr);
+    static void exponentiate(std::vector<double>& vec);
+    static void exponentiate(boost::numeric::ublas::matrix<double>& mat);
     void loadInitBiomassParameterRanges(
             std::vector<double>& parameterInitialValues,
             std::vector<std::pair<double,double> >& parameterRanges,
@@ -159,9 +161,13 @@ private:
 signals:
     /**
      * @brief Signal emitted at the end of a multi-run set of runs
+     * @param elapsedTime: elapsed time of the current run or multi-run
+     * @param summaryMsg : message to be displayed on the Run Summary page
      * @param msg : message for output string denoting if all sub-runs converged
      */
-    void AllSubRunsCompleted(QString msg);
+    void AllSubRunsCompleted(std::string elapsedTime,
+                             std::string summaryMsg,
+                             QString msg);
     /**
      * @brief Signal emitted when a Mohn's Rho multi run has completed
      */
@@ -184,10 +190,12 @@ signals:
     /**
      * @brief Signal emitted with NLopt Estimation run has complete
      * @param bestFitness : string representing the best fitness value
+     * @param convergence : string indicating if the model run converged or not
      * @param showDiagnosticsChart : boolean signfying whether the
      * diagnostic 3d chart should be displayed after the run completes
      */
     void RunCompleted(std::string bestFitness,
+                      std::string convergence,
                       bool showDiagnosticsChart);
     /**
      * @brief Signal emitted notifying the main program the estimation termination message
@@ -272,6 +280,9 @@ public:
      * @param PredationExponent : estimated predation exponent parameters
      * @param SurveyQ : estimated SurveyQ parameters
      * @param SurveyQCovariateCoeffs : estimated SurveyQ covariate coefficient parameters
+     * @param BMSY : estimated Biomass MSY parameters
+     * @param MSY  : estimated MSY parameters
+     * @param FMSY : estimated Fishing MSY parameters
      */
     static void extractParameters(
             const nmfStructsQt::ModelDataStruct&   NLoptDataStruct,
@@ -292,7 +303,10 @@ public:
             boost::numeric::ublas::matrix<double>& PredationHandling,
             std::vector<double>&                   PredationExponent,
             std::vector<double>&                   SurveyQ,
-            std::vector<double>&                   SurveyQCovariateCoeffs);
+            std::vector<double>&                   SurveyQCovariateCoeffs,
+            std::vector<double>&                   BMSY,
+            std::vector<double>&                   MSY,
+            std::vector<double>&                   FMSY);
     /**
      * @brief Get the estimated carrying capacity values
      * @param EstCarryingCapacities : the estimated carrying capacity values to return
@@ -317,6 +331,24 @@ public:
      */
     void getEstCatchabilityCovariateCoeffs(
             std::vector<double>& EstCatchabilityCovariateCoeffs);
+    /**
+     * @brief Get the estimated Biomass MSY values
+     * @param EstBMSY : the estimated biomass MSY values to return
+     */
+    void getEstBMSY(
+            std::vector<double>& EstBMSY);
+    /**
+     * @brief Get the estimated MSY values
+     * @param EstMSY : the estimated MSY values to return
+     */
+    void getEstMSY(
+            std::vector<double>& EstMSY);
+    /**
+     * @brief Get the estimated Fishing MSY values
+     * @param EstFMSY : the estimated fishing MSY values to return
+     */
+    void getEstFMSY(
+            std::vector<double>& EstFMSY);
     /**
      * @brief Get the estimated Survey Q values
      * @param EstSurveyQ : the estimated Survey Q values to return

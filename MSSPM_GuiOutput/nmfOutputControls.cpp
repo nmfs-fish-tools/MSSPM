@@ -71,6 +71,7 @@ nmfOutputControls::initWidgets()
     QHBoxLayout* ParametersLayt = new QHBoxLayout();
     QHBoxLayout* ScaleLayt    = new QHBoxLayout();
     QHBoxLayout* HistoricalDataLayt = new QHBoxLayout();
+    QHBoxLayout* LegendLayt   = new QHBoxLayout();
     QHBoxLayout* ShadowLayt   = new QHBoxLayout();
     QHBoxLayout* MinMaxLayt   = new QHBoxLayout();
     QWidget*     scrollAreaW  = new QWidget();
@@ -115,10 +116,16 @@ nmfOutputControls::initWidgets()
     OutputShowFMSYCB     = new QCheckBox("F MSY:");
     OutputShowFMSYLE     = new QLineEdit();
     OutputShowShadowCB   = new QCheckBox();
+    OutputLegendCB       = new QCheckBox();
     OutputShowShadowLBL  = new QLabel("3d Surface Shadow: ");
     OutputShowHistoricalDataCB   = new QCheckBox();
     OutputShowHistoricalDataLBL  = new QLabel("Historical Data: ");
+    OutputLegendLBL        = new QLabel("Legend: ");
     OutputParameters2d3dPB = new QPushButton("3d");
+    OutputLegendCB->setChecked(true);
+    LegendLayt->addWidget(OutputLegendLBL);
+    LegendLayt->addWidget(OutputLegendCB);
+    LegendLayt->addStretch();
     OutputShowBMSYCB->setMinimumWidth(120);
     OutputShowMSYCB->setMinimumWidth(120);
     OutputShowFMSYCB->setMinimumWidth(120);
@@ -162,6 +169,7 @@ nmfOutputControls::initWidgets()
     ScaleLayt->addWidget(OutputScaleCMB);
     ScaleLayt->addStretch();
     controlLayt->addLayout(ScaleLayt);
+    controlLayt->addLayout(LegendLayt);
     HistoricalDataLayt->addWidget(OutputShowHistoricalDataLBL);
     HistoricalDataLayt->addWidget(OutputShowHistoricalDataCB);
     HistoricalDataLayt->addStretch();
@@ -274,6 +282,11 @@ For System: F MSY = average[r(i)] / NumSpecies, where the average is over all sp
     OutputChartTypeLBL->setStatusTip("The type of chart that will be displayed");
     OutputChartTypeCMB->setToolTip("The type of chart that will be displayed");
     OutputChartTypeCMB->setStatusTip("The type of chart that will be displayed");
+    OutputLegendLBL->setToolTip("Toggles the plot legend");
+    OutputLegendLBL->setStatusTip("Toggles the plot legend");
+    OutputLegendCB->setToolTip("Toggles the plot legend");
+    OutputLegendCB->setStatusTip("Toggles the plot legend");
+
     msg ="<html>\
 <strong><center>Chart Types</center></strong><br>\
 The various output chart types are: <br><br>\
@@ -525,6 +538,8 @@ nmfOutputControls::initConnections()
             this,                   SLOT(callback_OutputParameters2d3dPB()));
     connect(OutputShowHistoricalDataCB, SIGNAL(stateChanged(int)),
             this,                       SLOT(callback_OutputShowHistoricalDataCB(int)));
+    connect(OutputLegendCB,         SIGNAL(stateChanged(int)),
+            this,                   SLOT(callback_OutputLegendCB(int)));
 }
 
 void
@@ -1156,6 +1171,12 @@ nmfOutputControls::callback_OutputShowHistoricalDataCB(int dummy)
 }
 
 void
+nmfOutputControls::callback_OutputLegendCB(int dummy)
+{
+    emit ShowChart("","");
+}
+
+void
 nmfOutputControls::updateChart()
 {
     QString outputGroupType = getOutputGroupType();
@@ -1285,6 +1306,12 @@ nmfOutputControls::isCheckedOutputBMSY()
     OutputShowBMSYCB->blockSignals(false);
 
     return isChecked;
+}
+
+bool
+nmfOutputControls::isCheckedOutputLegend()
+{
+    return OutputLegendCB->isChecked();
 }
 
 bool

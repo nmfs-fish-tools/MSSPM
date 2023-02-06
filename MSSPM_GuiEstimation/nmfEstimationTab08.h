@@ -30,6 +30,7 @@
 
 #include <QComboBox>
 #include <QDesktopServices>
+#include <QMenu>
 #include <QMessageBox>
 
 #include "nmfConstantsMSSPM.h"
@@ -80,7 +81,13 @@ class nmfEstimation_Tab8: public QObject
         "isEstPredRhoChecked","isEstPredHandlingEnabled","isEstPredHandlingChecked",                        // 50 - 52
         "isEstPredExponentEnabled","isEstPredExponentChecked","isEstSurveyQEnabled",                        // 53 - 55
         "isEstSurveyQChecked","isAMultiRun","AveAlg","HowToAverage","UsingWhat","UsingNumber","isUsingPct", // 56 - 62
-        "EnsembleFile","EstimatedParametersFile"};                                                          // 63 - 64
+        "EnsembleFile","EstimatedParametersFile"};
+    // 63 - 64
+    QAction* m_deleteAction;
+    QAction* m_hideAction;
+    QAction* m_showAction;
+    QAction* m_sepAction;
+    QMenu*   m_contextMenu;
 
     QTabWidget*   Estimation_Tabs;
     QWidget*      Estimation_Tab8_Widget;
@@ -102,6 +109,9 @@ class nmfEstimation_Tab8: public QObject
                                    const int& row);
     QString getModelEquation(QStandardItemModel* smodel,
                              const int& row);
+    void initializeConnections();
+    void initializeContextMenu();
+    void initializeWhatsThis();
     void loadModel(QStandardItemModel* smodel,
                    const int& row);
     void removeFilesAssociatedWithRow(
@@ -171,9 +181,14 @@ signals:
 
 public Q_SLOTS:
     /**
+     * @brief Callback invoked when the user right clicks over the Model Review table
+     * @param pos : position where user clicked over the Model Review table
+     */
+    void callback_ContextMenu(QPoint pos);
+    /**
      * @brief Callback invoked when the user clicks the Delete button
      */
-    void callback_DeletePB();
+    void callback_DeleteRows();
     /**
      * @brief Callback invoked when the user clicks the Export to CSV file button
      */
@@ -182,6 +197,10 @@ public Q_SLOTS:
      * @brief Callback invoked when the user clicks the Generate Model Summary button
      */
     void callback_GenerateSummaryPB();
+    /**
+     * @brief Callback invoked when the user selects the Hide Row(s) context menu item
+     */
+    void callback_HideRows();
     /**
      * @brief Callback invoked when the user clicks the Import from CSV file button
      */
@@ -207,6 +226,10 @@ public Q_SLOTS:
      * @param state : state of the checkbox (Checked or Unchecked)
      */
     void callback_ShowHiddenCB(int state);
+    /**
+     * @brief Callback invoked when the user selects the Show Row(s) context menu item
+     */
+    void callback_ShowRows();
 
 };
 

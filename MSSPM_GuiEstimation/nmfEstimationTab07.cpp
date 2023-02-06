@@ -126,7 +126,10 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_BeesSetDeterministicLBL       = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_BeesSetDeterministicLBL");
     Estimation_Tab7_ToleranceLBL                  = Estimation_Tabs->findChild<QLabel      *>("Estimation_Tab7_ToleranceLBL");
     Estimation_Tab7_SeedSB                        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab7_SeedSB");
+    Estimation_Tab7_LoadEstPB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_LoadEstPB");
+    Estimation_Tab7_AllowConvergedOnlyCB          = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_AllowConvergedOnlyCB");
 
+    Estimation_Tab7_AllowConvergedOnlyCB->setChecked(true);
     Estimation_Tab7_AddToReviewPB->setEnabled(false);
 
     // Update tool tip
@@ -219,6 +222,8 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
             this,                                         SLOT(callback_TimeUnitsLockPB(bool))); 
     connect(Estimation_Tab7_NL_SetDefTolerancePB,         SIGNAL(clicked()),
             this,                                         SLOT(callback_SetDefTolerancePB()));
+    connect(Estimation_Tab7_LoadEstPB,                    SIGNAL(clicked()),
+            this,                                         SLOT(callback_LoadEstPB()));
 
     // Wire up signals/slots for the Estimate Run checkboxes
     for (QCheckBox* cbox : getAllEstimateCheckboxes()) {
@@ -240,6 +245,15 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     initializeDetStoMap();
 
     initializeHelpText();
+
+    // Initialize Scaling combobox
+    Estimation_Tab7_ScalingCMB->clear();
+    Estimation_Tab7_ScalingLBL->setEnabled(true);
+    Estimation_Tab7_ScalingCMB->setEnabled(true);
+    Estimation_Tab7_ScalingCMB->addItem("None");
+    Estimation_Tab7_ScalingCMB->addItem("Mean");
+    Estimation_Tab7_ScalingCMB->addItem("Min Max");
+    Estimation_Tab7_ScalingCMB->addItem("Log10");
 
     // Initialize lock button
     QIcon lockedIcon(":/icons/locked.png");
@@ -484,6 +498,12 @@ bool
 nmfEstimation_Tab7::isInitialPopulationSize()
 {
     return Estimation_Tab7_NL_InitialPopulationSizeCB->isChecked();
+}
+
+bool
+nmfEstimation_Tab7::isLogScale()
+{
+    return Estimation_Tab7_LogScaleCB->isChecked();
 }
 
 bool
@@ -823,9 +843,21 @@ nmfEstimation_Tab7::isSetToDeterministicBees()
 }
 
 bool
+nmfEstimation_Tab7::isAllowConvergedOnly()
+{
+    return Estimation_Tab7_AllowConvergedOnlyCB ->isChecked();
+}
+
+bool
 nmfEstimation_Tab7::isSeedSetToIncrement()
 {
     return Estimation_Tab7_EnsembleSetSeedIncreasingCB->isChecked();
+}
+
+int
+nmfEstimation_Tab7::getLogScale()
+{
+    return Estimation_Tab7_LogScaleCB->isChecked();
 }
 
 int
@@ -1142,7 +1174,7 @@ nmfEstimation_Tab7::getEnsembleAveragingAlgorithm()
     return Estimation_Tab7_EnsembleAveragingAlgorithmCMB->currentText();
 }
 
-QString
+void
 nmfEstimation_Tab7::createTimeStampedEnsembleFile()
 {
     QString ensembleTimeStampedFilename = QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun);
@@ -1163,7 +1195,7 @@ nmfEstimation_Tab7::createTimeStampedEnsembleFile()
     }
     m_EnsembleTimeStampedFilename = ensembleTimeStampedFilename.toStdString();
 
-    return ensembleTimeStampedFilename;
+    return;
 }
 
 std::string
@@ -1175,18 +1207,20 @@ nmfEstimation_Tab7::getEnsembleTimeStampedFilename()
 std::vector<nmfStructsQt::EstimateRunBox>
 nmfEstimation_Tab7::getEstimateRunBoxes()
 {
-    nmfStructsQt::EstimateRunBox runBox;
+    bool enabled;
+    bool checked;
     int i=0;
 
     m_EstimateRunBoxes.clear();
 
     QList<QCheckBox*> allEstimateRunBoxes = getAllEstimateCheckboxes();
     for (QCheckBox* cbox : allEstimateRunBoxes) {
-        if (cbox->isChecked()) {
-            runBox.parameter = nmfConstantsMSSPM::EstimateCheckboxNames[i];
-            runBox.state     = std::make_pair(true,true);
-            m_EstimateRunBoxes.push_back(runBox);
-        }
+        nmfStructsQt::EstimateRunBox runBox;
+        enabled = cbox->isEnabled();
+        checked = cbox->isChecked();
+        runBox.parameter = nmfConstantsMSSPM::EstimateCheckboxNames[i];
+        runBox.state     = std::make_pair(enabled,checked);
+        m_EstimateRunBoxes.push_back(runBox);
         ++i;
     }
 
@@ -1560,7 +1594,7 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
     // Create an output string stream for the tolerance double most likely in scientific notation
     std::ostringstream toleranceStreamObj;
     // Add the double to the stream
-    toleranceStreamObj << getCurrentStopAfterValue();
+    toleranceStreamObj << getCurrentToleranceStopValue();
     // Get string from output string stream
     std::string tolerance = toleranceStreamObj.str();
 
@@ -1579,10 +1613,12 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
             "', Minimizer = '"                      + getCurrentMinimizer() +
             "', ObjectiveCriterion = '"             + getCurrentObjectiveCriterion() +
             "', Scaling = '"                        + getCurrentScaling() +
-            "', UseFixedSeedBees = "                + std::to_string(isSetToDeterministicBees()) +
+            "', Seed = "                            + std::to_string(getCurrentSeed()) +
+            ",  UseFixedSeedBees = "                + std::to_string(isSetToDeterministicBees()) +
             ",  UseFixedSeedMinimizer = "           + std::to_string(isSetToDeterministicMinimizer()) +
             ",  MinimizerType = '"                  + getCurrentMinimizerType() +
-            "', BeesMaxGenerations = "              + getBeesMaxGenerations() +
+            "', LogScale =  "                       + std::to_string(getLogScale()) +
+            ",  BeesMaxGenerations = "              + getBeesMaxGenerations() +
             ",  BeesNumTotal = "                    + getBeesNumBees() +
             ",  BeesNumBestSites = "                + getBeesNumBestSites() +
             ",  BeesNumEliteSites = "               + getBeesNumEliteSites()  +
@@ -1658,6 +1694,11 @@ nmfEstimation_Tab7::setRunButtonLabel(QString label)
     Estimation_Tab7_RunPB->setText(label);
 }
 
+void
+nmfEstimation_Tab7::callback_LoadEstPB()
+{
+    emit LoadEstimatedParameters();
+}
 
 void
 nmfEstimation_Tab7::callback_MinimizerAlgorithmCMB(QString algorithm)
@@ -1812,12 +1853,13 @@ nmfEstimation_Tab7::callback_EstimationAlgorithmCMB(QString algorithm)
 void
 nmfEstimation_Tab7::callback_ObjectiveCriterionCMB(QString objCrit)
 {
-    Estimation_Tab7_ScalingCMB->clear();
-    Estimation_Tab7_ScalingLBL->setEnabled(true);
-    Estimation_Tab7_ScalingCMB->setEnabled(true);
-    Estimation_Tab7_ScalingCMB->addItem("None");
-    Estimation_Tab7_ScalingCMB->addItem("Mean");
-    Estimation_Tab7_ScalingCMB->addItem("Min Max");
+//    Estimation_Tab7_ScalingCMB->clear();
+//    Estimation_Tab7_ScalingLBL->setEnabled(true);
+//    Estimation_Tab7_ScalingCMB->setEnabled(true);
+//    Estimation_Tab7_ScalingCMB->addItem("None");
+//    Estimation_Tab7_ScalingCMB->addItem("Mean");
+//    Estimation_Tab7_ScalingCMB->addItem("Min Max");
+//    Estimation_Tab7_ScalingCMB->addItem("Log10");
 
 //    bool isMaximumLikelihood = (objCrit == "Maximum Likelihood");
 //    Estimation_Tab7_ScalingCMB->clear();
@@ -1882,7 +1924,7 @@ nmfEstimation_Tab7::getBeesNumOtherBees()
 std::string
 nmfEstimation_Tab7::getBeesNeighborhoodSize()
 {
-    return std::to_string(Estimation_Tab7_Bees_NeighborhoodSizeSB->value());
+    return QString::number(Estimation_Tab7_Bees_NeighborhoodSizeSB->value()).toStdString();
 }
 
 std::string
@@ -1909,12 +1951,6 @@ nmfEstimation_Tab7::getCurrentMinimizerType()
     return Estimation_Tab7_MinimizerTypeCMB->currentText().toStdString();
 }
 
-bool
-nmfEstimation_Tab7::getCurrentLogScale()
-{
-    return Estimation_Tab7_LogScaleCB->isChecked();
-}
-
 std::string
 nmfEstimation_Tab7::getCurrentObjectiveCriterion()
 {
@@ -1927,8 +1963,14 @@ nmfEstimation_Tab7::getCurrentScaling()
     return Estimation_Tab7_ScalingCMB->currentText().toStdString();
 }
 
+int
+nmfEstimation_Tab7::getCurrentSeed()
+{
+    return Estimation_Tab7_SeedSB->value();
+}
+
 double
-nmfEstimation_Tab7::getCurrentStopAfterValue()
+nmfEstimation_Tab7::getCurrentToleranceStopValue()
 {
     return Estimation_Tab7_NL_StopAfterValueLE->text().toDouble();
 }
@@ -2160,12 +2202,14 @@ nmfEstimation_Tab7::addToMultiRunFile(const int& numRunsToAdd,
     if (! file.exists()) {
         if (file.open(QIODevice::WriteOnly)) {
             QTextStream stream(&file);
-            stream << "Num Runs,Objective Criterion,Algorithm,Minimizer,Scaling";
-            stream << ",Bees Max Generations,Bees Total Num,Bees Num Best Sites,Bees Num Elite Sites";
-            stream << ",Bees Num Elite,Bees Num Other,Bees Neighborhood Size(%),Bees Num of SubRuns";
-            stream << ",NL Stop Condition,NL Checked,Value";
-            stream << ",NL Stop Condition,NL Checked,NL Num Seconds";
-            stream << ",NL Stop Condition,NL Checked,NL Num Evals";
+            stream << "Num Runs,Objective Criterion,Algorithm,Minimizer,Scaling,";
+            stream << "Seed,LogScale,";
+            //            stream << "Deterministic,Seed,MinimizerType,LogScale,";
+            stream << "Bees Max Generations,Bees Total Num,Bees Num Best Sites,Bees Num Elite Sites,";
+            stream << "Bees Num Elite,Bees Num Other,Bees Neighborhood Size(%),Bees Num of SubRuns,";
+            stream << "NL Stop Condition,NL Checked,Value,";
+            stream << "NL Stop Condition,NL Checked,NL Num Seconds,";
+            stream << "NL Stop Condition,NL Checked,NL Num Evals";
             for (int i=0; i<NumEstimatedCheckboxes; ++i) {
                 stream << ",Est Parameter,Enabled,Checked";
             }
@@ -2186,6 +2230,12 @@ nmfEstimation_Tab7::addToMultiRunFile(const int& numRunsToAdd,
         stream << "," << QString::fromStdString(Algorithm);
         stream << "," << QString::fromStdString(Minimizer);
         stream << "," << QString::fromStdString(Scaling);
+
+        //        stream << "," << isSetToDeterministicMinimizer();
+        stream << "," << QString::number(getCurrentSeed());
+        //        stream << "," << QString::fromStdString(getCurrentMinimizerType());
+        stream << "," << isLogScale();
+
         stream << "," << QString::fromStdString(getBeesMaxGenerations());
         stream << "," << QString::fromStdString(getBeesNumBees());
         stream << "," << QString::fromStdString(getBeesNumBestSites());
@@ -2194,7 +2244,7 @@ nmfEstimation_Tab7::addToMultiRunFile(const int& numRunsToAdd,
         stream << "," << QString::fromStdString(getBeesNumOtherBees());
         stream << "," << QString::fromStdString(getBeesNeighborhoodSize());
         stream << "," << QString::fromStdString(getBeesNumberOfRuns());
-        stream << ",StopAfterValue," << isStopAfterValue() << "," << getCurrentStopAfterValue();
+        stream << ",StopAfterValue," << isStopAfterValue() << "," << getCurrentToleranceStopValue();
         stream << ",StopAfterTime,"  << isStopAfterTime()  << "," << getCurrentStopAfterTime();
         stream << ",StopAfterIter,"  << isStopAfterIter()  << "," << getCurrentStopAfterIter();
         for (int i=0; i<NumEstimatedCheckboxes; ++i) {
@@ -2735,8 +2785,8 @@ nmfEstimation_Tab7::callback_ReloadWidgets()
 
     fields     = {"ProjectName","ModelName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
                   "NumberOfRuns","StartYear","RunLength","TimeStep","Algorithm","Minimizer",
-                  "UseFixedSeedBees","UseFixedSeedMinimizer","MinimizerType",
-                  "ObjectiveCriterion","Scaling","GAGenerations","GAPopulationSize",
+                  "UseFixedSeedBees","UseFixedSeedMinimizer","LogScale","MinimizerType",
+                  "ObjectiveCriterion","Scaling","Seed","GAGenerations","GAPopulationSize",
                   "GAMutationRate","GAConvergence","BeesNumTotal","BeesNumElite","BeesNumOther",
                   "BeesNumEliteSites","BeesNumBestSites","BeesNumRepetitions",
                   "BeesMaxGenerations","BeesNeighborhoodSize",
@@ -2750,7 +2800,7 @@ nmfEstimation_Tab7::callback_ReloadWidgets()
                   "EnsembleUsingValue","EnsembleIsUsingPct","EnsembleFile"};
     queryStr   = std::string("SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,") +
                  "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer," +
-                 "UseFixedSeedBees,UseFixedSeedMinimizer,MinimizerType,ObjectiveCriterion,Scaling," +
+                 "UseFixedSeedBees,UseFixedSeedMinimizer,LogScale,MinimizerType,ObjectiveCriterion,Scaling,Seed," +
                  "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence," +
                  "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions," +
                  "BeesMaxGenerations,BeesNeighborhoodSize," +
@@ -2773,9 +2823,6 @@ nmfEstimation_Tab7::callback_ReloadWidgets()
         return;
     }
 
-    // Refresh all estimation check box enable states
-
-
     // Refresh all estimation check box check states
     updateState(Estimation_Tab7_EstimateInitialBiomassCB,               dataMap["EstimateInitialBiomass"][0]);
     updateState(Estimation_Tab7_EstimateGrowthRateCB,                   dataMap["EstimateGrowthRate"][0]);
@@ -2791,19 +2838,8 @@ nmfEstimation_Tab7::callback_ReloadWidgets()
     updateState(Estimation_Tab7_EstimatePredationExponentCB,            dataMap["EstimatePredationExponent"][0]);
     updateState(Estimation_Tab7_EstimateSurveyQCB,                      dataMap["EstimateSurveyQ"][0]);
 
-//    Estimation_Tab7_EstimateInitialBiomassCB->setChecked(dataMap["EstimateInitialBiomass"][0] == "1");
-//    Estimation_Tab7_EstimateGrowthRateCB->setChecked(dataMap["EstimateGrowthRate"][0] == "1");
-//    Estimation_Tab7_EstimateGrowthRateShapeCB->setChecked(dataMap["EstimateGrowthRateShape"][0] == "1");
-//    Estimation_Tab7_EstimateCarryingCapacityCB->setChecked(dataMap["EstimateCarryingCapacity"][0] == "1");
-//    Estimation_Tab7_EstimateCatchabilityCB->setChecked(dataMap["EstimateCatchability"][0] == "1");
-//    Estimation_Tab7_EstimateCompetitionAlphaCB->setChecked(dataMap["EstimateCompetition"][0] == "1");
-//    Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB->setChecked(dataMap["EstimateCompetitionSpecies"][0] == "1");
-//    Estimation_Tab7_EstimateCompetitionBetaGuildSpeciesCB->setChecked(dataMap["EstimateCompetitionGuilds"][0] == "1");
-//    Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB->setChecked(dataMap["EstimateCompetitionGuildsGuilds"][0] == "1");
-//    Estimation_Tab7_EstimatePredationRhoCB->setChecked(dataMap["EstimatePredation"][0] == "1");
-//    Estimation_Tab7_EstimatePredationHandlingCB->setChecked(dataMap["EstimatePredationHandling"][0] == "1");
-//    Estimation_Tab7_EstimatePredationExponentCB->setChecked(dataMap["EstimatePredationExponent"][0] == "1");
-//    Estimation_Tab7_EstimateSurveyQCB->setChecked(dataMap["EstimateSurveyQ"][0] == "1");
+    Estimation_Tab7_LogScaleCB->setChecked(dataMap["LogScale"][0] == "1");
+    Estimation_Tab7_SeedSB->setValue(std::stoi(dataMap["Seed"][0]));
 
     // Refresh NLopt widgets
     Estimation_Tab7_NL_StopAfterValueCB->setChecked(dataMap["NLoptUseStopVal"][0] == "1");
@@ -2877,8 +2913,8 @@ nmfEstimation_Tab7::loadWidgets()
 
     fields     = {"ProjectName","ModelName","CarryingCapacity","GrowthForm","PredationForm","HarvestForm","WithinGuildCompetitionForm",
                   "NumberOfRuns","StartYear","RunLength","TimeStep","Algorithm","Minimizer",
-                  "UseFixedSeedBees","UseFixedSeedMinimizer","MinimizerType",
-                  "ObjectiveCriterion","Scaling","GAGenerations","GAPopulationSize",
+                  "UseFixedSeedBees","UseFixedSeedMinimizer","LogScale","MinimizerType",
+                  "ObjectiveCriterion","Scaling","Seed","GAGenerations","GAPopulationSize",
                   "GAMutationRate","GAConvergence","BeesNumTotal","BeesNumElite","BeesNumOther",
                   "BeesNumEliteSites","BeesNumBestSites","BeesNumRepetitions",
                   "BeesMaxGenerations","BeesNeighborhoodSize",
@@ -2892,7 +2928,7 @@ nmfEstimation_Tab7::loadWidgets()
                   "EnsembleUsingValue","EnsembleIsUsingPct","EnsembleFile"};
     queryStr   = std::string("SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,") +
                  "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer," +
-                 "UseFixedSeedBees,UseFixedSeedMinimizer,MinimizerType,ObjectiveCriterion,Scaling," +
+                 "UseFixedSeedBees,UseFixedSeedMinimizer,LogScale,MinimizerType,ObjectiveCriterion,Scaling,Seed," +
                  "GAGenerations,GAPopulationSize,GAMutationRate,GAConvergence," +
                  "BeesNumTotal,BeesNumElite,BeesNumOther,BeesNumEliteSites,BeesNumBestSites,BeesNumRepetitions," +
                  "BeesMaxGenerations,BeesNeighborhoodSize," +
@@ -2977,6 +3013,8 @@ isEstSurveyQEnabled,isEstSurveyQChecked FROM " +
     Estimation_Tab7_NL_InitialPopulationSizeLE->setText(QString::fromStdString(dataMap["NLoptInitialPopulationSize"][0]));
 //  Estimation_Tab7_EnsembleTotalRunsSB->setValue(std::stoi(dataMap["NLoptNumberOfRuns"][0]));
 
+    Estimation_Tab7_SeedSB->setValue(std::stoi(dataMap["Seed"][0]));
+    Estimation_Tab7_LogScaleCB->setChecked(dataMap["LogScale"][0] == "1");
     Estimation_Tab7_EstimateInitialBiomassCB->setChecked(dataMap["EstimateInitialBiomass"][0] == "1");
     Estimation_Tab7_EstimateGrowthRateCB->setChecked(dataMap["EstimateGrowthRate"][0] == "1");
     Estimation_Tab7_EstimateGrowthRateShapeCB->setChecked(dataMap["EstimateGrowthRateShape"][0] == "1");

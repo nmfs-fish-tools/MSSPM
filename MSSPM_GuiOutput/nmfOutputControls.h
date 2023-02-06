@@ -78,6 +78,7 @@ class nmfOutputControls: public QObject
     QLabel*      OutputLineBrightnessLBL;
     QLabel*      OutputShowShadowLBL;
     QLabel*      OutputShowHistoricalDataLBL;
+    QLabel*      OutputLegendLBL;
     QSlider*     OutputLineBrightnessSL;
     QComboBox*   OutputSpeciesCMB;
     QComboBox*   OutputParametersCMB;
@@ -103,6 +104,7 @@ class nmfOutputControls: public QObject
     QGroupBox*   ControlsGroupBox;
     QCheckBox*   OutputShowHistoricalDataCB;
     QCheckBox*   OutputShowShadowCB;
+    QCheckBox*   OutputLegendCB;
 
     void enableMSYWidgets(bool state);
     bool getSpecies(int& NumSpecies, QStringList& SpeciesList);
@@ -237,6 +239,11 @@ public:
      * @return The state of the BMSY checkbox
      */
     bool isCheckedOutputBMSY();
+    /**
+     * @brief Informs the user if the Legend checkbox is checked
+     * @return The state of the Legend checkbox
+     */
+    bool isCheckedOutputLegend();
     /**
      * @brief Informs the user if the MSY checkbox has been checked
      * @return The state of the MSY checkbox
@@ -447,6 +454,11 @@ public slots:
      * @param species : the name of the Species the user selected
      */
     void callback_OutputSpeciesCMB(QString species);
+    /**
+     * @brief Callback invoked when the user checks the Legend checkbox
+     * @param dummy : not currently implemented
+     */
+    void callback_OutputLegendCB(int dummy);
     /**
      * @brief Callback invoked when the user selects from the Diagnostic Methods combo box widget
      * @param method : the name of the Diagnostic Method the user selected

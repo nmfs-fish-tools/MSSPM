@@ -538,7 +538,7 @@ nmfSetup_Tab4::calculateSystemCarryingCapacity()
     }
     Setup_Tab4_SystemCarryingCapacityLE->setText(QString::number(SystemK));
 
-    m_logger->logMsg(nmfConstants::Normal,"Setting SystemK to: "+std::to_string(SystemK));
+    m_logger->logMsg(nmfConstants::Normal,"Setting SystemK to: "+QString::number(SystemK).toStdString());
 
     return SystemK;
 }
@@ -1193,7 +1193,7 @@ void
 nmfSetup_Tab4::callback_CalcPB()
 {
     double systemK = calculateSystemCarryingCapacity();
-    m_logger->logMsg(nmfConstants::Normal,"System Carrying Capacity set to: "+std::to_string(systemK));
+    m_logger->logMsg(nmfConstants::Normal,"System Carrying Capacity set to: "+QString::number(systemK).toStdString());
 }
 
 void

@@ -76,274 +76,67 @@ nmfEstimation_Tab8::nmfEstimation_Tab8(QTabWidget*  tabs,
     Estimation_Tab8_ModelReviewTV->setModel(m_SModel);
     Estimation_Tab8_ModelReviewTV->setSortingEnabled(true);
     Estimation_Tab8_ModelReviewTV->horizontalHeader()->hide();
-    QString msg  = "<html><strong><center>Model Review Table</center></strong><br>";
-    msg += "When the user adds a model run to this model review table, all data necessary \
-for the replication of the model are contained herein. Not all of the \
-necessary data are displayed in this table, but they are saved along with the visible data.<br>\
-<center>Data Interpretation</center><br>\
-r² - the closer to 1, the better the fit<br>\
-SSResiduals - the smaller the number, the better the fit<br>\
-AIC - the smaller the number, the better the fit<br>\
-Notes - user editable field for model details<br>\
-</html>";
+    Estimation_Tab8_ModelReviewTV->horizontalHeader()->setSectionsMovable(true);
+    Estimation_Tab8_ModelReviewTV->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    Estimation_Tab8_ModelReviewTV->setWhatsThis(msg);
-
+    initializeContextMenu();
+    initializeWhatsThis();
     resizeColumns();
-
-    connect(Estimation_Tab8_PrevPB,            SIGNAL(clicked()),
-            this,                              SLOT(callback_PrevPB()));
-    connect(Estimation_Tab8_DeletePB,          SIGNAL(clicked()),
-            this,                              SLOT(callback_DeletePB()));
-    connect(Estimation_Tab8_LoadPB,            SIGNAL(clicked()),
-            this,                              SLOT(callback_LoadPB()));
-    connect(Estimation_Tab8_SavePB,            SIGNAL(clicked()),
-            this,                              SLOT(callback_SavePB()));
-    connect(Estimation_Tab8_LoadModelPB,       SIGNAL(clicked()),
-            this,                              SLOT(callback_LoadModelPB()));
-    connect(Estimation_Tab8_ImportPB,          SIGNAL(clicked()),
-            this,                              SLOT(callback_ImportPB()));
-    connect(Estimation_Tab8_ExportPB,          SIGNAL(clicked()),
-            this,                              SLOT(callback_ExportPB()));
-    connect(Estimation_Tab8_GenerateSummaryPB, SIGNAL(clicked()),
-            this,                              SLOT(callback_GenerateSummaryPB()));
-    connect(Estimation_Tab8_ShowHiddenCB,      SIGNAL(stateChanged(int)),
-            this,                              SLOT(callback_ShowHiddenCB(int)));
+    initializeConnections();
 
     Estimation_Tab8_PrevPB->setText("\u25C1--");
-
 }
-
 
 nmfEstimation_Tab8::~nmfEstimation_Tab8()
 {
 }
 
-bool
-nmfEstimation_Tab8::showHiddenFields()
-{
-    return Estimation_Tab8_ShowHiddenCB->isChecked();
-}
-
 void
-nmfEstimation_Tab8::resizeColumns()
+nmfEstimation_Tab8::adjustColumnsForReadOnly()
 {
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
+
+    // Adjust all but the Notes column to be read only
+    for (int row=0; row<smodel->rowCount(); ++row) {
+        for (int col=0; col<smodel->columnCount(); ++col) {
+            smodel->setItem(row,col,createNewModelReviewItem(col,smodel->index(row,col).data().toString()));
+        }
+    }
+    Estimation_Tab8_ModelReviewTV->setModel(smodel);
     Estimation_Tab8_ModelReviewTV->resizeColumnsToContents();
     Estimation_Tab8_ModelReviewTV->resizeRowsToContents();
 }
 
 void
-nmfEstimation_Tab8::callback_ShowHiddenCB(int state)
+nmfEstimation_Tab8::clearWidgets()
 {
-    bool hideField;
-    for (int i=0; i<Estimation_Tab8_ModelReviewTV->model()->columnCount(); ++i) {
-        hideField = (state==Qt::Unchecked && i>nmfConstantsMSSPM::Model_Review_Column_Last_Visible);
-        Estimation_Tab8_ModelReviewTV->setColumnHidden(i,hideField);
-    }
-    resizeColumns();
+    nmfUtilsQt::clearTableView({Estimation_Tab8_ModelReviewTV});
 }
 
-void
-nmfEstimation_Tab8::callback_LoadModelPB()
+QStandardItem*
+nmfEstimation_Tab8::createNewModelReviewItem(const int& col,
+                                             const QString& value)
 {
-    int row;
-    QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
+    QStandardItem* item  = new QStandardItem(value);
 
-    if (indexes.size() == 0) {
-        QMessageBox::warning(Estimation_Tabs, "Model Load", "\nPlease select one model (i.e., row) to load.\n", QMessageBox::Ok);
-        return;
-    }
-
-    row = indexes[0].row();
-    std::string msg  = "\nLoading the selected model will load its model data over the currently ";
-    msg += "loaded model data. This will cause any unsaved model data to be lost.\n";
-    msg += "\nOK to continue?\n";
-
-    QMessageBox::StandardButton reply = QMessageBox::warning(Estimation_Tabs, tr("Model Load"), tr(msg.c_str()),
-        QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
-    if (reply == QMessageBox::No) {
-        return;
-    }
-
-    loadModel(smodel,row);
-
-    msg  = "\nModel loaded. Switch to Run page?\n";
-    reply = QMessageBox::question(Estimation_Tabs, tr("Model Loaded"), tr(msg.c_str()),
-        QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
-    if (reply == QMessageBox::Yes) {
-        callback_PrevPB();
-    }
-}
-
-void
-nmfEstimation_Tab8::callback_ImportPB()
-{
-    int numRows = 0;
-    QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    QString filePath = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameModelReview));
-    QString fileName = QFileDialog::getOpenFileName(Estimation_Tabs, tr("Import Model Review File"),
-                               filePath,tr("data (*.csv)"));
-
-    if (! fileName.isEmpty()) {
-        int noSigDig = -1;
-        bool loadOK = nmfUtilsQt::loadModelFromCSVFile(m_Logger,m_ProjectDir,
-                                                       "Model Review",Estimation_Tab8_ModelReviewTV,
-                                                       fileName,numRows,noSigDig);
-        if (loadOK && (numRows > 2)) {
-            callback_ShowHiddenCB(Estimation_Tab8_ShowHiddenCB->checkState());
-        } else if (numRows < 2) {
-            QMessageBox::warning(Estimation_Tabs, "Warning",
-                                 "\nEmpty Model Review file.\n",
-                                 QMessageBox::Ok);
-            return;
-        } else {
-            QMessageBox::warning(Estimation_Tabs, "Warning",
-                                 "\nPlease make sure you're opening a Model Review file.\n",
-                                 QMessageBox::Ok);
-            return;
-        }
-        QMessageBox::information(Estimation_Tabs, "Import Successful",
-                                 "\nThe CSV data file has been successfully imported.\n",
-                                 QMessageBox::Ok);
-
-        adjustColumnsForReadOnly();
-        Estimation_Tab8_ModelReviewTV->horizontalHeader()->show();
-    }
-}
-
-void
-nmfEstimation_Tab8::callback_ExportPB()
-{
-    QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    QString filePath = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameModelReview));
-    QString fileName = QFileDialog::getSaveFileName(Estimation_Tabs, tr("Export Model Review File"),
-                               filePath,tr("data (*.csv)"));
-
-    if (! fileName.isEmpty()) {
-        nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,"Model Review","",Estimation_Tab8_ModelReviewTV,
-                                       nmfConstantsMSSPM::Dont_Query_User_For_Filename,
-                                       nmfConstantsMSSPM::RemoveCommas,
-                                       fileName,
-                                       nmfConstantsMSSPM::VerboseOn);
-    }
-}
-
-void
-nmfEstimation_Tab8::callback_PrevPB()
-{
-    int prevPage = Estimation_Tabs->currentIndex()-1;
-    Estimation_Tabs->setCurrentIndex(prevPage);
-}
-
-void
-nmfEstimation_Tab8::callback_DeletePB()
-{
-    int rowIndex;
-    QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
-    int numRowsToDelete = indexes.count();
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
-
-    if (numRowsToDelete > 0) {
-        for (int row=indexes.count(); row>0; row--) {
-            rowIndex = indexes.at(row-1).row();
-            removeFilesAssociatedWithRow(smodel,rowIndex);
-            smodel->removeRow(rowIndex,QModelIndex());
-        }
+    if (col == COLUMN_NAME) {
+        item->setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     } else {
-        std::string msg  = "\nOK to delete all rows?\n";
-        QMessageBox::StandardButton reply = QMessageBox::warning(Estimation_Tabs, tr("Delete"),
-            tr(msg.c_str()),QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
-        if (reply == QMessageBox::Yes) {
-            int totalNumRows = Estimation_Tab8_ModelReviewTV->model()->rowCount();
-            removeFilesAssociatedWithRow(smodel,0);
-            smodel->removeRows(0,totalNumRows);
-        }
+        item->setTextAlignment(Qt::AlignCenter);
+    }
+    if (col != COLUMN_NOTES) {
+        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
     }
 
-    saveModelReviewTable();
-}
-
-void
-nmfEstimation_Tab8::removeFilesAssociatedWithRow(
-        QStandardItemModel* smodel,
-        const int& row)
-{
-    QString fullPath;
-    QString filename;
-    QString fullFilename;
-
-    // Remove Database Snapshot file saved with this row
-    fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("databases");
-    filename = smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_DB_Snapshot).data().toString().trimmed();
-qDebug() << "filename: " << filename;
-qDebug() << "field-1: " << smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_DB_Snapshot).data().toString().trimmed();
-    fullFilename = QDir(fullPath).filePath(filename);
-    if (QFile::remove(fullFilename)) {
-        m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
-    } else {
-        m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
-    }
-
-    // Remove Estimated Parameters file saved with this row
-    fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-    filename = smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_Estimated_Parameters).data().toString().trimmed();
-    fullFilename = QDir(fullPath).filePath(filename);
-    if (QFile::remove(fullFilename)) {
-        m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
-    } else {
-        m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
-    }
+    return item;
 }
 
 QString
 nmfEstimation_Tab8::generateDatabaseSnapshot()
 {
-//    bool ok;
     std::string timestamp = m_Logger->getTimestamp(nmfConstants::TimestampWithUnderscore);
 
-
     return "dbsnap_" + QString::fromStdString(timestamp) + ".sql";
-//    return QInputDialog::getText(Estimation_Tabs, tr("Database Snapshot"),
-//                                         tr("Name of desired database snapshot file:"), QLineEdit::Normal,
-//                                         filename, &ok);
-}
-
-QString
-nmfEstimation_Tab8::getModelEquation(QStandardItemModel* smodel, const int& row)
-{
-    bool isAggProd = false; // RSK fix this
-    QString equation;
-    QString key;
-std::cout << "FIX AggProd hard coding" << std::endl;
-
-    QString growthType      = smodel->index(row,4).data().toString().trimmed();
-    QString harvestType     = smodel->index(row,5).data().toString().trimmed();
-    QString competitionType = smodel->index(row,6).data().toString().trimmed();
-    QString predationType   = smodel->index(row,7).data().toString().trimmed();
-
-    nmfGrowthForm growthForm(growthType.toStdString());
-    growthForm.setAggProd(isAggProd);
-    equation  = QString::fromStdString(growthForm.getPrefix());
-    equation += QString::fromStdString(growthForm.getExpression());
-    key       = QString::fromStdString(growthForm.getKey());
-
-    nmfHarvestForm harvestForm(harvestType.toStdString());
-    harvestForm.setAggProd(isAggProd);
-    equation += QString::fromStdString(harvestForm.getExpression());
-    key      += QString::fromStdString(harvestForm.getKey());
-
-    nmfCompetitionForm competitionForm(competitionType.toStdString());
-    competitionForm.setAggProd(isAggProd);
-    equation += QString::fromStdString(competitionForm.getExpression());
-    key      += QString::fromStdString(competitionForm.getKey());
-
-    nmfPredationForm predationForm(predationType.toStdString());
-    predationForm.setAggProd(isAggProd);
-    equation += QString::fromStdString(predationForm.getExpression());
-    key      += QString::fromStdString(predationForm.getKey());
-
-    return equation + "<br><br>" + key;
 }
 
 QString
@@ -402,22 +195,103 @@ std::cout << "fp: " << fullPath.toStdString() << std::endl;
     return retv;
 }
 
-
-void
-nmfEstimation_Tab8::callback_LoadPB()
+QString
+nmfEstimation_Tab8::getModelEquation(QStandardItemModel* smodel, const int& row)
 {
-    loadWidgets();
-    callback_ShowHiddenCB(Estimation_Tab8_ShowHiddenCB->checkState());
+    bool isAggProd = false; // RSK fix this
+    QString equation;
+    QString key;
+std::cout << "FIX AggProd hard coding" << std::endl;
+
+    QString growthType      = smodel->index(row,4).data().toString().trimmed();
+    QString harvestType     = smodel->index(row,5).data().toString().trimmed();
+    QString competitionType = smodel->index(row,6).data().toString().trimmed();
+    QString predationType   = smodel->index(row,7).data().toString().trimmed();
+
+    nmfGrowthForm growthForm(growthType.toStdString());
+    growthForm.setAggProd(isAggProd);
+    equation  = QString::fromStdString(growthForm.getPrefix());
+    equation += QString::fromStdString(growthForm.getExpression());
+    key       = QString::fromStdString(growthForm.getKey());
+
+    nmfHarvestForm harvestForm(harvestType.toStdString());
+    harvestForm.setAggProd(isAggProd);
+    equation += QString::fromStdString(harvestForm.getExpression());
+    key      += QString::fromStdString(harvestForm.getKey());
+
+    nmfCompetitionForm competitionForm(competitionType.toStdString());
+    competitionForm.setAggProd(isAggProd);
+    equation += QString::fromStdString(competitionForm.getExpression());
+    key      += QString::fromStdString(competitionForm.getKey());
+
+    nmfPredationForm predationForm(predationType.toStdString());
+    predationForm.setAggProd(isAggProd);
+    equation += QString::fromStdString(predationForm.getExpression());
+    key      += QString::fromStdString(predationForm.getKey());
+
+    return equation + "<br><br>" + key;
 }
 
 void
-nmfEstimation_Tab8::callback_SavePB()
+nmfEstimation_Tab8::initializeConnections()
 {
-    if (saveModelReviewTable()) {
-        QMessageBox::information(Estimation_Tabs, "Save",
-            "\nSuccessfully saved table: "+QString::fromStdString(nmfConstantsMSSPM::TableModelReview),
-             QMessageBox::Ok);
-    }
+    connect(Estimation_Tab8_ModelReviewTV,     SIGNAL(customContextMenuRequested(QPoint)),
+            this,                              SLOT(callback_ContextMenu(QPoint)));
+    connect(Estimation_Tab8_PrevPB,            SIGNAL(clicked()),
+            this,                              SLOT(callback_PrevPB()));
+    connect(Estimation_Tab8_LoadPB,            SIGNAL(clicked()),
+            this,                              SLOT(callback_LoadPB()));
+    connect(Estimation_Tab8_SavePB,            SIGNAL(clicked()),
+            this,                              SLOT(callback_SavePB()));
+    connect(Estimation_Tab8_LoadModelPB,       SIGNAL(clicked()),
+            this,                              SLOT(callback_LoadModelPB()));
+    connect(Estimation_Tab8_ImportPB,          SIGNAL(clicked()),
+            this,                              SLOT(callback_ImportPB()));
+    connect(Estimation_Tab8_ExportPB,          SIGNAL(clicked()),
+            this,                              SLOT(callback_ExportPB()));
+    connect(Estimation_Tab8_GenerateSummaryPB, SIGNAL(clicked()),
+            this,                              SLOT(callback_GenerateSummaryPB()));
+    connect(Estimation_Tab8_ShowHiddenCB,      SIGNAL(stateChanged(int)),
+            this,                              SLOT(callback_ShowHiddenCB(int)));
+    connect(m_hideAction,                      SIGNAL(triggered()),
+            this,                              SLOT(callback_HideRows()));
+    connect(m_showAction,                      SIGNAL(triggered(bool)),
+            this,                              SLOT(callback_ShowRows()));
+    connect(m_deleteAction,                    SIGNAL(triggered(bool)),
+            this,                              SLOT(callback_DeleteRows()));
+}
+
+void
+nmfEstimation_Tab8::initializeContextMenu()
+{
+    // Set up context menu and actions
+    m_contextMenu  = new QMenu(Estimation_Tabs);
+    m_deleteAction = new QAction("&Delete selected row(s)");
+    m_hideAction   = new QAction("&Hide selected row(s)");
+    m_showAction   = new QAction("&Show all rows");
+    m_sepAction    = new QAction(this);
+    m_sepAction->setSeparator(true);
+    m_contextMenu->addAction(m_hideAction);
+    m_contextMenu->addAction(m_showAction);
+    m_contextMenu->addAction(m_sepAction);
+    m_contextMenu->addAction(m_deleteAction);
+}
+
+void
+nmfEstimation_Tab8::initializeWhatsThis()
+{
+    // Set up What's This message for the table
+    QString msg  = "<html><strong><center>Model Review Table</center></strong><br>";
+    msg += "When the user adds a model run to this model review table, all data necessary \
+for the replication of the model are contained herein. Not all of the \
+necessary data are displayed in this table, but they are saved along with the visible data.<br>\
+<center>Data Interpretation</center><br>\
+r² - the closer to 1, the better the fit<br>\
+SSResiduals - the smaller the number, the better the fit<br>\
+AIC - the smaller the number, the better the fit<br>\
+Notes - user editable field for model details<br>\
+</html>";
+    Estimation_Tab8_ModelReviewTV->setWhatsThis(msg);
 }
 
 void
@@ -488,228 +362,6 @@ nmfEstimation_Tab8::loadModel(QStandardItemModel* smodel, const int& row)
     modelReview.ensembleFilename                        = smodel->index(row,col++).data().toString().trimmed();
 std::cout << "===> modelReview.isAMultiRun: " << modelReview.isAMultiRun.toStdString() << std::endl;
     emit LoadFromModelReview(modelReview);
-}
-
-void
-nmfEstimation_Tab8::callback_GenerateSummaryPB()
-{
-    int row;
-    QModelIndex index;
-    QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
-    QString html;
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
-
-    if (indexes.size() == 0) {
-        QMessageBox::warning(Estimation_Tabs, "Model Summary", "\nPlease select one model (i.e., row) for which to generate a summary.\n", QMessageBox::Ok);
-        return;
-    }
-
-    row   = indexes[0].row();
-    index = smodel->index(row,0);
-    html  = "<html><strong><center>Model Review Summary</center></strong><br>";
-    html += "<br><strong>Model Name:</strong>&nbsp;&nbsp;" + index.data().toString() + "<br>";
-    html += "<br><strong>Equation:</strong>&nbsp;&nbsp;"   + getModelEquation(smodel,row);
-    html += "<br><strong>Estimated Parameters:</strong>"   + getEstimatedParameters(smodel,row);
-
-    // Create and show dialog with the html summary text
-    QDialog* dlg       = new QDialog(Estimation_Tabs);
-    QVBoxLayout* vlayt = new QVBoxLayout;
-    QHBoxLayout* hlayt = new QHBoxLayout;
-    QTextEdit* htmlTE  = new QTextEdit(html);
-    htmlTE->setFontPointSize(11);
-    QPushButton* okPB  = new QPushButton("Ok");
-    hlayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
-    hlayt->addWidget(okPB);
-    hlayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
-    vlayt->addWidget(htmlTE);
-    vlayt->addLayout(hlayt);
-    dlg->setLayout(vlayt);
-    dlg->resize(1100,800);
-    connect(okPB, SIGNAL(clicked()), dlg, SLOT(reject()));
-    dlg->exec();
-}
-
-void
-nmfEstimation_Tab8::updateModelReviewTable(const QStringList& rowList)
-{
-    int row;
-    int NumRows;
-    int NumCols = (int)rowList.size();
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::string cmd;
-    std::string errorMsg;
-    QString valueStr;
-
-    // Find out how many rows are currently in the modelreview table
-    queryStr = "SELECT ModelName FROM " + nmfConstantsMSSPM::TableModelReview +
-               " WHERE ProjectName = '" + m_ProjectName + "'";
-    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, {"ModelName"});
-    NumRows  = (int)dataMap["ModelName"].size();
-
-    // Save Qt table data to database table
-    row  = NumRows;
-    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableModelReview +
-            " (ProjectName,ModelNumber,ModelName,rSquared,SSResiduals,AIC," +
-            "GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns," +
-            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,DatabaseSnapshot,Notes," +
-            "isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites," +
-            "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
-            "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
-            "StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked," +
-            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstGrowthRateShapeEnabled,isEstGrowthRateShapeChecked," +
-            "isEstCarryingCapacityEnabled,isEstCarryingCapacityChecked," +
-            "isEstCatchabilityEnabled,isEstCatchabilityChecked," +
-            "isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled," +
-            "isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked," +
-            "isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled," +
-            "isEstPredRhoChecked,isEstPredHandlingEnabled,isEstPredHandlingChecked," +
-            "isEstPredExponentEnabled,isEstPredExponentChecked,isEstSurveyQEnabled," +
-            "isEstSurveyQChecked,isAMultiRun,AveAlg,HowToAverage,UsingWhat,UsingNumber,isUsingPct," +
-            "EnsembleFile,EstimatedParametersFile) VALUES ";
-        cmd += "('" + m_ProjectName + "','" + std::to_string(row) + "'";
-        for (int col=0; col<NumCols; ++col) {
-            if ((col == nmfConstantsMSSPM::Model_Review_Column_rSquared)    ||
-                (col == nmfConstantsMSSPM::Model_Review_Column_SSResiduals) ||
-                (col == nmfConstantsMSSPM::Model_Review_Column_AIC)) {
-                valueStr = rowList[col];
-                valueStr.replace(",","");
-                cmd += ","  + std::to_string(valueStr.toDouble());
-            } else {
-                cmd += ",'" + rowList[col].toStdString() + "'";
-            }
-        }
-        cmd += "),";
-    cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab8::updateModelReviewTable: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return;
-    }
-    callback_LoadPB();
-}
-
-//void
-//nmfEstimation_Tab8::updateReviewList(const QStringList& rowList)
-//{
-//    bool hideField;
-//    QList<QStandardItem* > itemList;
-//    int numCols = rowList.size();
-//    QString itemStr;
-//    QStringList HeaderLabels;
-//    for (std::string field : m_ModelReviewFields) {
-//        if (field == "rSquared") {
-//            HeaderLabels << "r²";
-//        } else {
-//            HeaderLabels << QString::fromStdString(field);
-//        }
-//    }
-//    for (int col=0; col<numCols; ++col) {
-//        itemStr = rowList[col].trimmed();
-//        itemStr.replace("||","\n");
-//        itemList.push_back(createNewModelReviewItem(col,itemStr));
-//    }
-//    if (m_SModel != nullptr) {
-//        m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
-//    }
-//    m_SModel->appendRow(itemList);
-//    for (int i=0; i<numCols; ++i) {
-//        hideField = (! showHiddenFields()) && (i>nmfConstantsMSSPM::Model_Review_Column_Last_Visible);
-//        Estimation_Tab8_ModelReviewTV->setColumnHidden(i,hideField);
-//    }
-//    m_SModel->setHorizontalHeaderLabels(HeaderLabels);
-//    Estimation_Tab8_ModelReviewTV->horizontalHeader()->show();
-//    resizeColumns();
-//    saveModelReviewTable();
-//}
-
-
-bool
-nmfEstimation_Tab8::saveModelReviewTable()
-{
-    int NumRows;
-    int NumCols;
-    std::vector<std::string> fields;
-    std::map<std::string, std::vector<std::string> > dataMap;
-    std::string queryStr;
-    std::string cmd;
-    std::string errorMsg;
-    QString valueStr;
-
-    if (m_SModel == nullptr) {
-        return false;
-    }
-
-    // Clear current ModelReview table
-    m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableModelReview,m_ProjectName);
-
-    m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
-    NumRows = m_SModel->rowCount();
-    NumCols = m_SModel->columnCount();
-    if (NumRows == 0) {
-        return false;
-    }
-
-//    // Turn off significant digits in order to save with highest precision
-//    bool flippedSignificantDigits = false;
-//    int remNumSignificantDigits = 0;
-//    if (m_NumSignificantDigits >= 0) {
-//        remNumSignificantDigits = m_NumSignificantDigits;
-//        m_NumSignificantDigits = -1;
-//        flippedSignificantDigits = true;
-//        loadWidgets();
-//    }
-
-    // Save Qt table data to database table
-    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableModelReview +
-            " (ProjectName,ModelNumber,ModelName,rSquared,SSResiduals,AIC," +
-            "GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns," +
-            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,DatabaseSnapshot,Notes," +
-            "isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites," +
-            "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
-            "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
-            "StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked," +
-            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstGrowthRateShapeEnabled,isEstGrowthRateShapeChecked," +
-            "isEstCarryingCapacityEnabled,isEstCarryingCapacityChecked," +
-            "isEstCatchabilityEnabled,isEstCatchabilityChecked," +
-            "isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled," +
-            "isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked," +
-            "isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled," +
-            "isEstPredRhoChecked,isEstPredHandlingEnabled,isEstPredHandlingChecked," +
-            "isEstPredExponentEnabled,isEstPredExponentChecked,isEstSurveyQEnabled," +
-            "isEstSurveyQChecked,isAMultiRun,AveAlg,HowToAverage,UsingWhat,UsingNumber,isUsingPct," +
-            "EnsembleFile,EstimatedParametersFile) VALUES ";
-    for (int row=0; row<NumRows; ++row) {
-        cmd += "('" + m_ProjectName + "','" + std::to_string(row) + "'";
-        for (int col=0; col<NumCols; ++col) {
-            if ((col == nmfConstantsMSSPM::Model_Review_Column_rSquared)    ||
-                (col == nmfConstantsMSSPM::Model_Review_Column_SSResiduals) ||
-                (col == nmfConstantsMSSPM::Model_Review_Column_AIC)) {
-                valueStr = m_SModel->index(row, col).data().toString().replace(",","");
-                cmd += ","  + std::to_string(valueStr.toDouble());
-            } else {
-                cmd += ",'" + m_SModel->index(row, col).data().toString().toStdString() + "'";
-            }
-        }
-        cmd += "),";
-    }
-    cmd = cmd.substr(0,cmd.size()-1);
-    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab8::saveModelReviewTable: Write table error: " + errorMsg);
-        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
-        return false;
-    }
-
-//    // Turn on significant digits if they were turned off previously in this method
-//    if (flippedSignificantDigits) {
-//        m_NumSignificantDigits = remNumSignificantDigits;
-//        loadWidgets();
-//    }
-
-    return true;
 }
 
 void
@@ -873,47 +525,6 @@ EnsembleFile,EstimatedParametersFile FROM " +
 }
 
 void
-nmfEstimation_Tab8::clearWidgets()
-{
-    nmfUtilsQt::clearTableView({Estimation_Tab8_ModelReviewTV});
-}
-
-QStandardItem*
-nmfEstimation_Tab8::createNewModelReviewItem(const int& col,
-                                             const QString& value)
-{
-    QStandardItem* item  = new QStandardItem(value);
-
-    if (col == COLUMN_NAME) {
-        item->setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
-    } else {
-        item->setTextAlignment(Qt::AlignCenter);
-    }
-    if (col != COLUMN_NOTES) {
-        item->setFlags(item->flags() & (~Qt::ItemIsEditable));
-    }
-
-    return item;
-}
-
-void
-nmfEstimation_Tab8::adjustColumnsForReadOnly()
-{
-    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
-
-    // Adjust all but the Notes column to be read only
-    for (int row=0; row<smodel->rowCount(); ++row) {
-        for (int col=0; col<smodel->columnCount(); ++col) {
-            smodel->setItem(row,col,createNewModelReviewItem(col,smodel->index(row,col).data().toString()));
-        }
-    }
-    Estimation_Tab8_ModelReviewTV->setModel(smodel);
-    Estimation_Tab8_ModelReviewTV->resizeColumnsToContents();
-    Estimation_Tab8_ModelReviewTV->resizeRowsToContents();
-}
-
-
-void
 nmfEstimation_Tab8::readSettings()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
@@ -935,6 +546,132 @@ nmfEstimation_Tab8::readSettings()
 }
 
 void
+nmfEstimation_Tab8::removeFilesAssociatedWithRow(
+        QStandardItemModel* smodel,
+        const int& row)
+{
+    QString fullPath;
+    QString filename;
+    QString fullFilename;
+
+    // Remove Database Snapshot file saved with this row
+    fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("databases");
+    filename = smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_DB_Snapshot).data().toString().trimmed();
+//qDebug() << "filename: " << filename;
+//qDebug() << "field-1: " << smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_DB_Snapshot).data().toString().trimmed();
+    fullFilename = QDir(fullPath).filePath(filename);
+    if (QFile::remove(fullFilename)) {
+        m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
+    } else {
+        m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
+    }
+
+    // Remove Estimated Parameters file saved with this row
+    fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    filename = smodel->index(row,nmfConstantsMSSPM::Model_Review_Column_Estimated_Parameters).data().toString().trimmed();
+    fullFilename = QDir(fullPath).filePath(filename);
+    if (QFile::remove(fullFilename)) {
+        m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
+    } else {
+        m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
+    }
+}
+
+void
+nmfEstimation_Tab8::resizeColumns()
+{
+    Estimation_Tab8_ModelReviewTV->resizeColumnsToContents();
+    Estimation_Tab8_ModelReviewTV->resizeRowsToContents();
+}
+
+bool
+nmfEstimation_Tab8::saveModelReviewTable()
+{
+    int NumRows;
+    int NumCols;
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string cmd;
+    std::string errorMsg;
+    QString valueStr;
+
+    if (m_SModel == nullptr) {
+        return false;
+    }
+
+    // Clear current ModelReview table
+    m_DatabasePtr->clearTable(m_Logger,nmfConstantsMSSPM::TableModelReview,m_ProjectName);
+
+    m_SModel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
+    NumRows = m_SModel->rowCount();
+    NumCols = m_SModel->columnCount();
+    if (NumRows == 0) {
+        return false;
+    }
+
+//    // Turn off significant digits in order to save with highest precision
+//    bool flippedSignificantDigits = false;
+//    int remNumSignificantDigits = 0;
+//    if (m_NumSignificantDigits >= 0) {
+//        remNumSignificantDigits = m_NumSignificantDigits;
+//        m_NumSignificantDigits = -1;
+//        flippedSignificantDigits = true;
+//        loadWidgets();
+//    }
+
+    // Save Qt table data to database table
+    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableModelReview +
+            " (ProjectName,ModelNumber,ModelName,rSquared,SSResiduals,AIC," +
+            "GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns," +
+            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,DatabaseSnapshot,Notes," +
+            "isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites," +
+            "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
+            "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
+            "StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked," +
+            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstGrowthRateShapeEnabled,isEstGrowthRateShapeChecked," +
+            "isEstCarryingCapacityEnabled,isEstCarryingCapacityChecked," +
+            "isEstCatchabilityEnabled,isEstCatchabilityChecked," +
+            "isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled," +
+            "isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked," +
+            "isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled," +
+            "isEstPredRhoChecked,isEstPredHandlingEnabled,isEstPredHandlingChecked," +
+            "isEstPredExponentEnabled,isEstPredExponentChecked,isEstSurveyQEnabled," +
+            "isEstSurveyQChecked,isAMultiRun,AveAlg,HowToAverage,UsingWhat,UsingNumber,isUsingPct," +
+            "EnsembleFile,EstimatedParametersFile) VALUES ";
+    for (int row=0; row<NumRows; ++row) {
+        cmd += "('" + m_ProjectName + "','" + std::to_string(row) + "'";
+        for (int col=0; col<NumCols; ++col) {
+            if ((col == nmfConstantsMSSPM::Model_Review_Column_rSquared)    ||
+                (col == nmfConstantsMSSPM::Model_Review_Column_SSResiduals) ||
+                (col == nmfConstantsMSSPM::Model_Review_Column_AIC)) {
+                valueStr = m_SModel->index(row, col).data().toString().replace(",","");
+                cmd += ","  + valueStr.toStdString();
+//              cmd += ","  + std::to_string(valueStr.toDouble());
+            } else {
+                cmd += ",'" + m_SModel->index(row, col).data().toString().toStdString() + "'";
+            }
+        }
+        cmd += "),";
+    }
+    cmd = cmd.substr(0,cmd.size()-1);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab8::saveModelReviewTable: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        return false;
+    }
+
+//    // Turn on significant digits if they were turned off previously in this method
+//    if (flippedSignificantDigits) {
+//        m_NumSignificantDigits = remNumSignificantDigits;
+//        loadWidgets();
+//    }
+
+    return true;
+}
+
+void
 nmfEstimation_Tab8::saveSettings()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
@@ -944,4 +681,296 @@ nmfEstimation_Tab8::saveSettings()
     settings->endGroup();
 
     delete settings;
+}
+
+bool
+nmfEstimation_Tab8::showHiddenFields()
+{
+    return Estimation_Tab8_ShowHiddenCB->isChecked();
+}
+
+void
+nmfEstimation_Tab8::updateModelReviewTable(const QStringList& rowList)
+{
+    int row;
+    int NumRows;
+    int NumCols = (int)rowList.size();
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+    std::string cmd;
+    std::string errorMsg;
+    QString valueStr;
+
+    // Find out how many rows are currently in the modelreview table
+    queryStr = "SELECT ModelName FROM " + nmfConstantsMSSPM::TableModelReview +
+               " WHERE ProjectName = '" + m_ProjectName + "'";
+    dataMap  = m_DatabasePtr->nmfQueryDatabase(queryStr, {"ModelName"});
+    NumRows  = (int)dataMap["ModelName"].size();
+
+    // Save Qt table data to database table
+    row  = NumRows;
+    cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableModelReview +
+            " (ProjectName,ModelNumber,ModelName,rSquared,SSResiduals,AIC," +
+            "GrowthForm,HarvestForm,CompetitonForm,PredationForm,numRuns," +
+            "ObjectiveCriterion,EstimationAlgorithm,Minimizer,Scaling,DatabaseSnapshot,Notes," +
+            "isDeterministicBees,maxGenerations,numBees,numBestSites,numEliteSites," +
+            "numEliteBees,numOtherBees,neighborhoodSize,numSubRuns,isDeterministicNLopt," +
+            "isStopAfterValue,StopAfterValue,isStopAfterTime,StopAfterTime,isStopAfterIter," +
+            "StopAfterIter,isEstInitBiomassEnabled,isEstInitBiomassChecked," +
+            "isEstGrowthRateEnabled,isEstGrowthRateChecked,isEstGrowthRateShapeEnabled,isEstGrowthRateShapeChecked," +
+            "isEstCarryingCapacityEnabled,isEstCarryingCapacityChecked," +
+            "isEstCatchabilityEnabled,isEstCatchabilityChecked," +
+            "isEstCompAlphaEnabled,isEstCompAlphaChecked,isEstCompBetaSpeciesEnabled," +
+            "isEstCompBetaSpeciesChecked,isEstCompBetaGuildsEnabled,isEstCompBetaGuildsChecked," +
+            "isEstCompBetaGuildsGuildsEnabled,isEstCompBetaGuildsGuildsChecked,isEstPredRhoEnabled," +
+            "isEstPredRhoChecked,isEstPredHandlingEnabled,isEstPredHandlingChecked," +
+            "isEstPredExponentEnabled,isEstPredExponentChecked,isEstSurveyQEnabled," +
+            "isEstSurveyQChecked,isAMultiRun,AveAlg,HowToAverage,UsingWhat,UsingNumber,isUsingPct," +
+            "EnsembleFile,EstimatedParametersFile) VALUES ";
+        cmd += "('" + m_ProjectName + "','" + std::to_string(row) + "'";
+        for (int col=0; col<NumCols; ++col) {
+            if ((col == nmfConstantsMSSPM::Model_Review_Column_rSquared)    ||
+                (col == nmfConstantsMSSPM::Model_Review_Column_SSResiduals) ||
+                (col == nmfConstantsMSSPM::Model_Review_Column_AIC)) {
+                valueStr = rowList[col];
+//              valueStr.replace(",","");
+                cmd += ","  + valueStr.replace(",","").toStdString();
+//              cmd += ","  + std::to_string(valueStr.toDouble());
+            } else {
+                cmd += ",'" + rowList[col].toStdString() + "'";
+            }
+        }
+        cmd += "),";
+    cmd = cmd.substr(0,cmd.size()-1);
+    errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab8::updateModelReviewTable: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        return;
+    }
+    callback_LoadPB();
+}
+
+void
+nmfEstimation_Tab8::callback_ContextMenu(QPoint pos)
+{
+    m_contextMenu->popup(Estimation_Tab8_ModelReviewTV->viewport()->mapToGlobal(pos));
+}
+
+void
+nmfEstimation_Tab8::callback_DeleteRows()
+{
+    int rowIndex;
+    QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
+    int numRowsToDelete = indexes.count();
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
+
+    if (numRowsToDelete > 0) {
+        std::string msg  = "\nOK to delete the " + std::to_string(numRowsToDelete) + " selected row(s)?\n";
+        QMessageBox::StandardButton reply = QMessageBox::warning(Estimation_Tabs, tr("Delete"),
+                                                                 tr(msg.c_str()),QMessageBox::No|QMessageBox::Yes,QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            for (int row=indexes.count(); row>0; row--) {
+                rowIndex = indexes.at(row-1).row();
+                removeFilesAssociatedWithRow(smodel,rowIndex);
+                smodel->removeRow(rowIndex,QModelIndex());
+            }
+        }
+    } else {
+        std::string msg  = "\nOK to delete all rows?\n";
+        QMessageBox::StandardButton reply = QMessageBox::warning(Estimation_Tabs, tr("Delete"),
+                                                                 tr(msg.c_str()),QMessageBox::No|QMessageBox::Yes,QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            int totalNumRows = Estimation_Tab8_ModelReviewTV->model()->rowCount();
+            removeFilesAssociatedWithRow(smodel,0);
+            smodel->removeRows(0,totalNumRows);
+        }
+    }
+
+    saveModelReviewTable();
+}
+
+void
+nmfEstimation_Tab8::callback_ExportPB()
+{
+    QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    QString filePath = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameModelReview));
+    QString fileName = QFileDialog::getSaveFileName(Estimation_Tabs, tr("Export Model Review File"),
+                               filePath,tr("data (*.csv)"));
+
+    if (! fileName.isEmpty()) {
+        nmfUtilsQt::saveModelToCSVFile(m_ProjectDir,"Model Review","",Estimation_Tab8_ModelReviewTV,
+                                       nmfConstantsMSSPM::Dont_Query_User_For_Filename,
+                                       nmfConstantsMSSPM::RemoveCommas,
+                                       fileName,
+                                       nmfConstantsMSSPM::VerboseOn);
+    }
+}
+
+void
+nmfEstimation_Tab8::callback_GenerateSummaryPB()
+{
+    int row;
+    QModelIndex index;
+    QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
+    QString html;
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
+
+    if (indexes.size() == 0) {
+        QMessageBox::warning(Estimation_Tabs, "Model Summary", "\nPlease select one model (i.e., row) for which to generate a summary.\n", QMessageBox::Ok);
+        return;
+    }
+
+    row   = indexes[0].row();
+    index = smodel->index(row,0);
+    html  = "<html><strong><center>Model Review Summary</center></strong><br>";
+    html += "<br><strong>Model Name:</strong>&nbsp;&nbsp;" + index.data().toString() + "<br>";
+    html += "<br><strong>Equation:</strong>&nbsp;&nbsp;"   + getModelEquation(smodel,row);
+    html += "<br><strong>Estimated Parameters:</strong>"   + getEstimatedParameters(smodel,row);
+
+    // Create and show dialog with the html summary text
+    QDialog* dlg       = new QDialog(Estimation_Tabs);
+    QVBoxLayout* vlayt = new QVBoxLayout;
+    QHBoxLayout* hlayt = new QHBoxLayout;
+    QTextEdit* htmlTE  = new QTextEdit(html);
+    htmlTE->setFontPointSize(11);
+    QPushButton* okPB  = new QPushButton("Ok");
+    hlayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    hlayt->addWidget(okPB);
+    hlayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    vlayt->addWidget(htmlTE);
+    vlayt->addLayout(hlayt);
+    dlg->setLayout(vlayt);
+    dlg->resize(1100,800);
+    connect(okPB, SIGNAL(clicked()), dlg, SLOT(reject()));
+    dlg->exec();
+}
+
+void
+nmfEstimation_Tab8::callback_HideRows()
+{
+    QItemSelectionModel *select = Estimation_Tab8_ModelReviewTV->selectionModel();
+
+    if (select->hasSelection()) { //check if has selection
+        QModelIndexList selectedRows = select->selectedRows();
+        int numRows = (int)selectedRows.size();
+        for (int row=numRows-1; row>=0; --row) {
+            Estimation_Tab8_ModelReviewTV->hideRow(selectedRows[row].row());
+        }
+    }
+}
+
+void
+nmfEstimation_Tab8::callback_ImportPB()
+{
+    int numRows = 0;
+    QString dataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+    QString filePath = QDir(dataPath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameModelReview));
+    QString fileName = QFileDialog::getOpenFileName(Estimation_Tabs, tr("Import Model Review File"),
+                               filePath,tr("data (*.csv)"));
+
+    if (! fileName.isEmpty()) {
+        int noSigDig = -1;
+        bool loadOK = nmfUtilsQt::loadModelFromCSVFile(m_Logger,m_ProjectDir,
+                                                       "Model Review",Estimation_Tab8_ModelReviewTV,
+                                                       fileName,numRows,noSigDig);
+        if (loadOK && (numRows > 2)) {
+            callback_ShowHiddenCB(Estimation_Tab8_ShowHiddenCB->checkState());
+        } else if (numRows < 2) {
+            QMessageBox::warning(Estimation_Tabs, "Warning",
+                                 "\nEmpty Model Review file.\n",
+                                 QMessageBox::Ok);
+            return;
+        } else {
+            QMessageBox::warning(Estimation_Tabs, "Warning",
+                                 "\nPlease make sure you're opening a Model Review file.\n",
+                                 QMessageBox::Ok);
+            return;
+        }
+        QMessageBox::information(Estimation_Tabs, "Import Successful",
+                                 "\nThe CSV data file has been successfully imported.\n",
+                                 QMessageBox::Ok);
+
+        adjustColumnsForReadOnly();
+        Estimation_Tab8_ModelReviewTV->horizontalHeader()->show();
+    }
+}
+
+void
+nmfEstimation_Tab8::callback_LoadModelPB()
+{
+    int row;
+    QModelIndexList indexes = Estimation_Tab8_ModelReviewTV->selectionModel()->selectedRows();
+    QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab8_ModelReviewTV->model());
+
+    if (indexes.size() == 0) {
+        QMessageBox::warning(Estimation_Tabs, "Model Load", "\nPlease select one model (i.e., row) to load.\n", QMessageBox::Ok);
+        return;
+    }
+
+    row = indexes[0].row();
+    std::string msg  = "\nLoading the selected model will load its model data over the currently ";
+    msg += "loaded model data. This will cause any unsaved model data to be lost.\n";
+    msg += "\nOK to continue?\n";
+
+    QMessageBox::StandardButton reply = QMessageBox::warning(Estimation_Tabs, tr("Model Load"), tr(msg.c_str()),
+        QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
+    loadModel(smodel,row);
+
+    msg  = "\nModel loaded. Switch to Run page?\n";
+    reply = QMessageBox::question(Estimation_Tabs, tr("Model Loaded"), tr(msg.c_str()),
+        QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        callback_PrevPB();
+    }
+}
+
+void
+nmfEstimation_Tab8::callback_LoadPB()
+{
+    loadWidgets();
+    callback_ShowHiddenCB(Estimation_Tab8_ShowHiddenCB->checkState());
+}
+
+void
+nmfEstimation_Tab8::callback_PrevPB()
+{
+    int prevPage = Estimation_Tabs->currentIndex()-1;
+    Estimation_Tabs->setCurrentIndex(prevPage);
+}
+
+void
+nmfEstimation_Tab8::callback_SavePB()
+{
+    if (saveModelReviewTable()) {
+        QMessageBox::information(Estimation_Tabs, "Save",
+            "\nSuccessfully saved table: "+QString::fromStdString(nmfConstantsMSSPM::TableModelReview),
+             QMessageBox::Ok);
+    }
+}
+
+void
+nmfEstimation_Tab8::callback_ShowHiddenCB(int state)
+{
+    bool hideField;
+    for (int i=0; i<Estimation_Tab8_ModelReviewTV->model()->columnCount(); ++i) {
+        hideField = (state==Qt::Unchecked && i>nmfConstantsMSSPM::Model_Review_Column_Last_Visible);
+        Estimation_Tab8_ModelReviewTV->setColumnHidden(i,hideField);
+    }
+    resizeColumns();
+}
+
+void
+nmfEstimation_Tab8::callback_ShowRows()
+{
+    int numRows = (int)Estimation_Tab8_ModelReviewTV->model()->rowCount();
+
+    for (int row=0; row<numRows; ++row) {
+        Estimation_Tab8_ModelReviewTV->showRow(row);
+    }
 }

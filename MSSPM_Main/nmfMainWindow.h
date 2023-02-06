@@ -30,6 +30,10 @@
 #ifndef NMFMAINWINDOW_H
 #define NMFMAINWINDOW_H
 
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
 #include "nmfDatabase.h"
 #include "nmfLogWidget.h"
 #include "nmfUtilsStatistics.h"
@@ -95,7 +99,7 @@
 #include <QPixmap>
 #include <QUiLoader>
 #include <QGraphicsScene>
-
+#include <QProgressBar>
 
 
 #include "REMORA_UI.h"
@@ -307,7 +311,7 @@ private:
                         std::string system,
                         std::vector<std::string> fields);
     void averageBiomassAndDisplay(QString& fullSpeciesPath);
-    void calculateAverageBiomass();
+    void calculateAveragedParametersAndUpdateOutputTables();
     void checkForPreviousEstimations(bool& thereWasASingleRun,
                                      bool& thereWasAMultiRun);
     void clearOutputData(std::string algorithm,
@@ -468,6 +472,9 @@ private:
     void closeEvent(QCloseEvent *event);
     void completeApplicationInitialization();
     QString createEstimatedFile();
+    void createOutputStrMultiRun(
+            const std::string& elapsedTime,
+            std::string& summaryMsg);
     std::pair<bool,std::string> dataAdequateForCurrentModel(QStringList estParamNames);
 //    bool deleteAllMohnsRho(const std::string& TableName);
 //    bool deleteAllOutputMohnsRho();
@@ -571,7 +578,14 @@ private:
             const int& NumGuilds,
             const int& RunLength,
             const std::string& type);
-    bool getOutputInitialBiomass(
+    bool getOutputParameterMatrix(
+            const std::string& TableName,
+            const bool& useMultiRun,
+            const std::string& ForecastName,
+            boost::numeric::ublas::matrix<double>& parameter);
+    bool getOutputParameterVector(
+            const std::string& TableName,
+            const bool& useMultiRun,
             const std::string& ForecastName,
             QList<double> &OutputInitBiomass);
     std::string getObservedBiomassTableName(bool isPreEstimation);
@@ -653,8 +667,33 @@ private:
             std::map<std::string,nmfStructsQt::CovariateStruct>& carryingCapacityCovariateRanges,
             std::map<std::string,nmfStructsQt::CovariateStruct>& catchabilityCovariateRanges,
             std::map<std::string,nmfStructsQt::CovariateStruct>& surveyQCovariateRanges);
-    void loadGuis();
     void loadDatabase();
+    void loadEstimatedParameters(
+            const QStringList& speciesList,
+            const std::string& tableName,
+            QTableView* tableView,
+            const std::string& field);
+    void loadEstimatedParameters(
+            const QStringList& speciesList,
+            const std::string& tableName,
+            QTableView* tableView,
+            const std::string& field1,
+            const std::string& field2);
+    void loadEstimatedParameters(
+            const QStringList& speciesList,
+            const std::string& tableName,
+            QTableView* tableView,
+            const std::string& field1,
+            const std::string& field2,
+            const std::string& field3,
+            const std::string& value1,
+            const std::string& value2,
+            const std::string& value3);
+    void loadEstimatedParametersIntoSpecies(
+            const QStringList& speciesList,
+            QTableView* tableView,
+            const std::string& field);
+    void loadGuis();
     bool loadHarvestCatchTables(
             const bool& isAggProd,
             const bool& isMonteCarlo,
@@ -1031,8 +1070,15 @@ private:
         const boost::numeric::ublas::matrix<double>& EstHandling,
         const std::vector<double>&                   EstExponent,
         const std::vector<double>&                   EstSurveyQ,
-        const std::vector<double>&                   EstSurveyQCovariateCoeffs);
+        const std::vector<double>&                   EstSurveyQCovariateCoeffs,
+        const std::vector<double>&                   EstBMSY,
+        const std::vector<double>&                   EstMSY,
+        const std::vector<double>&                   EstFMSY);
+
     void updateModelEquationSummary();
+    void updateRunSummaryPage(
+            QString convMsg,
+            QString summaryMsg);
     void updateScreenShotViewer(QString filename);
     bool getSurfaceData(
             boost::numeric::ublas::matrix<double>& rowValues,
@@ -1077,6 +1123,9 @@ private:
             const std::vector<double>&                   EstCatchability,
             const std::vector<double>&                   EstPredationExponent,
             const std::vector<double>&                   EstSurveyQ,
+            const std::vector<double>&                   EstBMSY,
+            const std::vector<double>&                   EstMSY,
+            const std::vector<double>&                   EstFMSY,
             const boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
             const boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
             const boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
@@ -1154,9 +1203,14 @@ protected:
 public slots:
     /**
      * @brief Callback invoked when main receives an AllSubRunsCompleted signal from NLopt_Estimator
+     * @param : elapsedTime : elapsed time of the current run or multi-run
+     * @param : summaryMsg : text containing the message to be displayed on the Run Summary page
      * @param : msgSuffix : an addendum to the multi-run termination message
      */
-    void callback_AllSubRunsCompleted(QString msgSuffix);
+    void callback_AllSubRunsCompleted(
+            std::string elapsedTime,
+            std::string summaryMsg,
+            QString msgSuffix);
     void callback_UpdateSeedValue(int isDeterministic);
     /**
      * @brief Callback invoked when user Runs an Estimation
@@ -1250,6 +1304,7 @@ public slots:
     void callback_ProjectSaved();
     void callback_AddedNewDatabase();
     void callback_ImportDatabase();
+    void callback_LoadEstimatedParameters();
     /**
      * @brief Callback invoked when the progress chart timer times out. In this fashion,
      * the progress chart is updated while another process is running.
@@ -1287,9 +1342,11 @@ public slots:
     /**
      * @brief Callback invoked when Estimation run has completed
      * @param outputMsg : output message for Estimation run completion
+     * @param convergenceMsg : message indicating whether or not the model run converged
      * @param showDiagnosticChart :
      */
     void callback_RunCompleted(std::string outputMsg,
+                               std::string convergenceMsg,
                                bool showDiagnosticChart);
 
     void callback_SubRunCompleted(int run,

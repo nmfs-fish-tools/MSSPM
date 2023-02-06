@@ -744,7 +744,7 @@ nmfEstimation_Tab5::updateInitialObservedBiomass(const std::string& tableName,
         initObsBiomassValue = (tableName == nmfConstantsMSSPM::TableBiomassAbsolute) ?
                                initAbsBiomass :
                                initSurveyQ * initAbsBiomass;
-        item = new QStandardItem(QString::number(initObsBiomassValue));
+        item = new QStandardItem(QString::number(initObsBiomassValue,'f',6));
         item->setTextAlignment(Qt::AlignCenter);
         smodel->setItem(0, j, item);
         for (int k=1; k<RunLength; ++k) {

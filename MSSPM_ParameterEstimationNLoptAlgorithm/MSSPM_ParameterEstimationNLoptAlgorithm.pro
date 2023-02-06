@@ -51,14 +51,19 @@ else:unix: LIBS += -L$$PWD/../../../builds/build-nmfModels-Desktop_Qt_5_15_1_GCC
 INCLUDEPATH += $$PWD/../../nmfSharedUtilities/nmfModels
 DEPENDPATH += $$PWD/../../nmfSharedUtilities/nmfModels
 
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../nlopt-2.5.0/build/release/ -lnlopt
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../nlopt-2.5.0/build/debug/ -lnlopt
+#else:unix: LIBS += -L$$PWD/../../../nlopt-2.5.0/build/ -lnlopt
 
+#INCLUDEPATH += $$PWD/../../../nlopt-2.5.0/build/src/api
+#DEPENDPATH += $$PWD/../../../nlopt-2.5.0/build/src/api
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../nlopt-2.5.0/build/release/ -lnlopt
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../nlopt-2.5.0/build/debug/ -lnlopt
-else:unix: LIBS += -L$$PWD/../../../nlopt-2.5.0/build/ -lnlopt
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../nlopt-2.7.1/build/release/ -lnlopt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../nlopt-2.7.1/build/debug/ -lnlopt
+else:unix: LIBS += -L$$PWD/../../../nlopt-2.7.1/build/ -lnlopt
 
-INCLUDEPATH += $$PWD/../../../nlopt-2.5.0/build/src/api
-DEPENDPATH += $$PWD/../../../nlopt-2.5.0/build/src/api
+INCLUDEPATH += $$PWD/../../../nlopt-2.7.1/build/src/api
+DEPENDPATH += $$PWD/../../../nlopt-2.7.1/build/src/api
 
 unix|win32: LIBS += -L/usr/local/lib -lnlopt # -lnlopt_cxx
 INCLUDEPATH += /usr/local/lib

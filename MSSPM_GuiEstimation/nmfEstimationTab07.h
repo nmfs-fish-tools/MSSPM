@@ -157,8 +157,10 @@ class nmfEstimation_Tab7: public QObject
     QCheckBox*   Estimation_Tab7_BeesSetDeterministicCB;
     QPushButton* Estimation_Tab7_AddToReviewPB;
     QPushButton* Estimation_Tab7_NL_TimeUnitsLockPB;
+    QPushButton* Estimation_Tab7_LoadEstPB;
     QLabel*      Estimation_Tab7_BeesDetStoTypeLBL;
     QLabel*      Estimation_Tab7_BeesSetDeterministicLBL;
+    QCheckBox*   Estimation_Tab7_AllowConvergedOnlyCB;
 
     void activateCheckBox(QCheckBox* cbox,
                            std::pair<bool,bool> state);
@@ -263,9 +265,8 @@ public:
     int convertToAppropriateUnits(int seconds);
     /**
      * @brief Creates a MultiRun filename that has a timestamp embedded in it
-     * @return the timestamped filename
      */
-    QString createTimeStampedEnsembleFile();
+    void createTimeStampedEnsembleFile();
     /**
      * @brief Sets the enable state of the Add button which adds an item to the Multi-Run file
      * @param enable : true/false enable state for the Add button
@@ -332,11 +333,6 @@ public:
      */
     std::string getCurrentAlgorithm();
     /**
-     * @brief Gets the current Log Scale checkbox state from the GUI
-     * @return true if checked, false otherwise
-     */
-    bool getCurrentLogScale();
-    /**
      * @brief Gets the current Minimizer routine chosen from the GUI
      * @return Returns the minimizer chosen
      */
@@ -357,6 +353,11 @@ public:
      */
     std::string getCurrentScaling();
     /**
+     * @brief Gets the current seed value
+     * @return Returns the current seed value used to set stochastic algorithms
+     */
+    int getCurrentSeed();
+    /**
      * @brief Gets the current Stop after (fcn evals) value
      * @return Returns number of function evaluations after which to stop the run
      */
@@ -370,7 +371,7 @@ public:
      * @brief Gets the current Stop after fitness value
      * @return The fitness value that when reached will stop the model
      */
-    double getCurrentStopAfterValue();
+    double getCurrentToleranceStopValue();
     /**
      * @brief Gets the current time units used for Stop after (time) option
      * @return Units of time
@@ -408,6 +409,11 @@ public:
      * @return the Using By value
      */
     QString getEnsembleUsingBy();
+    /**
+     * @brief Gets the state of the log scale checkbox
+     * @return true if checked, false if unchecked
+     */
+    int getLogScale();
     /**
      * @brief Gets the coded enabled/checked state of the estimation run boxes
      * @return Encoded int (0, 1, 10, or 11) signifying enabled/checked state of the estimation run boxes
@@ -491,6 +497,11 @@ public:
      * @return the integer user seed value
      */
     int getUserSeedVal();
+    /**
+     * @brief Returns whether or the the Allow Converged Runs Only checkbox is checked
+     * @return true if checked, false otherwise
+     */
+    bool isAllowConvergedOnly();
     /**
      * @brief Returns whether or not the Run is a Multi Run
      * @return true if Multi-Run, false otherwise
@@ -636,6 +647,11 @@ public:
      * @return true/false representing if the Initial Population Size checkbox is checked
      */
     bool isInitialPopulationSize();
+    /**
+     * @brief Boolean representing if the Log Scale checkbox is checked
+     * @return true/false representing checked state of Log Scale checkbox
+     */
+    bool isLogScale();
     /**
      * @brief Boolean representing if the fixed seed should increment for each run of a multi-run
      * @return true/false representing if the fixed seed should increment
@@ -889,9 +905,11 @@ signals:
      */
     void EnableRunButtons(bool state);
     /**
-     * @brief Signal to notify main routine to load parameters into the main data struct.
+     * @brief Signal to notify the main routine to copy the latest estimated parameters
+     * into the Population Parameters table and to save the table. This will also cause
+     * the Species table (Setup Tab 3) to be updated.
      */
-    void LoadParameters();
+    void LoadEstimatedParameters();
     /**
      * @brief Signal emitted to refresh the estimation box states
      */
@@ -1000,10 +1018,16 @@ public Q_SLOTS:
      */
     void callback_EstimationAlgorithmCMB(QString algorithm);
     /**
-     * @brief Callback invoked when the user check the Initial Population Size checkbox
+     * @brief Callback invoked when the user checks the Initial Population Size checkbox
      * @param isChecked : boolean specifying whether or not the checkbox is checked
      */
     void callback_InitialPopulationSizeCB(int isChecked);
+    /**
+     * @brief Callback invoked when the user presses the LoadEst button. This causes the
+     * latest estimated parameter values to be copied (and saved) into the Species and
+     * Population Parameters tables.
+     */
+    void callback_LoadEstPB();
     /**
      * @brief Callback invoked when user changes the minimizer algorithm.
      * @param algorithm : the minimizer algorithm selected

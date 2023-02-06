@@ -80,6 +80,9 @@ private:
     std::vector<double>                   m_EstExponent;
     std::vector<double>                   m_EstSurveyQ;
     std::vector<double>                   m_EstSurveyQCovariateCoeffs;
+    std::vector<double>                   m_EstBMSY;
+    std::vector<double>                   m_EstMSY;
+    std::vector<double>                   m_EstFMSY;
     boost::numeric::ublas::matrix<double> m_EstAlpha;
     boost::numeric::ublas::matrix<double> m_EstBetaSpecies;
     boost::numeric::ublas::matrix<double> m_EstBetaGuilds;
@@ -122,11 +125,13 @@ signals:
                            int totalIndividualRuns);
     /**
      * @brief Signal emitted with the Run has completed
-     * @param bestFitness : string value representing the best fitness value
+     * @param summaryMsg : string value representing run output summary message
+     * @param convergenceMsg : string value representing the convergence information
      * @param showDiagnosticsChart : boolean signfying whether the
      * diagnostic 3d chart should be displayed after the run completes
      */
-    void RunCompleted(std::string bestFitness,
+    void RunCompleted(std::string summaryMsg,
+                      std::string convergenceMsg,
                       bool showDiagnosticsChart);
     /**
      * @brief Signal emitted when NLopt Estimation sub run of a multi run has completed
@@ -174,6 +179,11 @@ public:
                             std::vector<QString>& MultiRunLines,
                             int& TotalIndividualRuns);
     /**
+     * @brief Gets the estimated Biomass MSY values
+     * @param estBMSY : vector containing the Biomass MSY values for all the species
+     */
+    void getEstBMSY(std::vector<double> &estBMSY);
+    /**
      * @brief Gets the estimated carrying capacity values per species
      * @param EstCarryingCapacity : vector of carrying capacities per species
      */
@@ -219,6 +229,11 @@ public:
      */
     void getEstExponent(std::vector<double> &EstExponent);
     /**
+     * @brief Gets the estimated Fishing MSY value
+     * @param estFMSY : vector containing the Fishing MSY values for all the species
+     */
+    void getEstFMSY(std::vector<double> &estFMSY);
+    /**
      * @brief Gets the estimated growth rate covariate coefficient values per species
      * @param EstGrowthRateCovariateCoeffs : vector of growth rate covariate coefficient values per species
      */
@@ -243,6 +258,11 @@ public:
      * @param EstInitBiomass : vector of initial biomass values per species
      */
     void getEstInitBiomass(std::vector<double> &EstInitBiomass);
+    /**
+     * @brief Gets the estimated MSY values
+     * @param estMSY : vector containing the MSY values for all the species
+     */
+    void getEstMSY(std::vector<double> &estMSY);
     /**
      * @brief Gets the estimated predation values per species
      * @param EstPredation : vector of predation values per species
