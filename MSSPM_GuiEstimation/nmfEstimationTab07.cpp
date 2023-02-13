@@ -1305,6 +1305,8 @@ nmfEstimation_Tab7::callback_SavePB()
 {
     bool areEnsembleControlsChecked = Estimation_Tab7_EnsembleControlsGB->isChecked();
 
+    emit DisableMohnsRhoRun();
+
     // Assure the estimation checkboxes aren't all disabled due to the multi-runs
     // being selected. If so, enable them, get their states, and then disable them.
     if (areEnsembleControlsChecked) {
@@ -2623,6 +2625,12 @@ nmfEstimation_Tab7::callback_AddToReviewPB()
     // Resave state of all est checkboxes
     saveStatesEstCheckboxes(m_EstStates);
     callback_ReloadWidgets();
+}
+
+bool
+nmfEstimation_Tab7::isEnsembleUsingAll()
+{
+    return (Estimation_Tab7_EnsembleUsingByCMB->currentText() == "using All");
 }
 
 bool

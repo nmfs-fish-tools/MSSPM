@@ -1231,6 +1231,10 @@ public slots:
      */
     void callback_DiagnosticsTabChanged(int tab);
     /**
+     * @brief Callback invoked to disable any mohns rho settings once a user saves a single or multi run
+     */
+    void callback_DisableMohnsRhoRun();
+    /**
      * @brief Callback invoked to set the state of the toolbar's filter buttons
      * @param state : state to set the toolbar filter buttons to
      */

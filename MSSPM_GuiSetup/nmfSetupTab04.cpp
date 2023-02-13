@@ -365,7 +365,7 @@ nmfSetup_Tab4::loadModel()
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
     ModelData data;
-qDebug() << "Loading model: " << QString::fromStdString(m_ModelName);
+
     readSettings();
 
     m_logger->logMsg(nmfConstants::Normal,"Loading: "+m_ModelName);
@@ -469,10 +469,9 @@ qDebug() << "Loading model: " << QString::fromStdString(m_ModelName);
 
     saveSettings();
 
-    emit ModelLoaded();
-
     setEstimatedParameterNames();
 
+    emit ModelLoaded();
     emit UpdateDiagnosticParameterChoices();
 
 }

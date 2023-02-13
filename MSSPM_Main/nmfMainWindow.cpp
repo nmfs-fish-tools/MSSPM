@@ -3655,6 +3655,8 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_SetEstimatedParameterNames()));
     connect(Estimation_Tab7_ptr, SIGNAL(LoadEstimatedParameters()),
             this,                SLOT(callback_LoadEstimatedParameters()));
+    connect(Estimation_Tab7_ptr, SIGNAL(DisableMohnsRhoRun()),
+            this,                SLOT(callback_DisableMohnsRhoRun()));
     connect(Estimation_Tab8_ptr, SIGNAL(LoadFromModelReview(nmfStructsQt::ModelReviewStruct)),
             this,                SLOT(callback_LoadFromModelReview(nmfStructsQt::ModelReviewStruct)));
     connect(Estimation_Tab6_ptr, SIGNAL(ReloadDiagnosticWidgets()),
@@ -11060,7 +11062,7 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     QString multiRunSpeciesFilename;
     QString multiRunModelFilename;
     QString msg;
-
+qDebug() <<"isAMultiOrMohnsRhoRun: " << isAMultiRun;
     saveSettings();
     loadAllWidgets();
     readSettings();
@@ -12807,9 +12809,10 @@ std::cout << "Warning: TBD nmfMainWindow::calculateAverageBiomass: refine logic 
         usingTopValue = Estimation_Tab7_ptr->getEnsembleUsingAmountValue();
     }
 
-    bool isPercent = Estimation_Tab7_ptr->isEnsembleUsingPct();
+    bool isUsingAll = Estimation_Tab7_ptr->isEnsembleUsingAll();
+    bool isPercent  = Estimation_Tab7_ptr->isEnsembleUsingPct();
 
-    m_AveragedData->calculateAverage(usingTopValue,isPercent,aveAlgorithm);
+    m_AveragedData->calculateAverage(usingTopValue,isUsingAll,isPercent,aveAlgorithm);
     m_AveragedData->getAveData(Fitness,
                                AveInitBiomass,
                                AveGrowthRates,
@@ -15918,6 +15921,13 @@ nmfMainWindow::callback_DiagnosticsTabChanged(int tab)
     NavigatorTree->blockSignals(true);
     NavigatorTree->setCurrentIndex(childIndex);
     NavigatorTree->blockSignals(false);
+}
+
+void
+nmfMainWindow::callback_DisableMohnsRhoRun()
+{
+    Diagnostic_Tab2_ptr->setMohnsRhoForSingleRun(false);
+    Diagnostic_Tab2_ptr->setMohnsRhoForMultiRun(false);
 }
 
 void

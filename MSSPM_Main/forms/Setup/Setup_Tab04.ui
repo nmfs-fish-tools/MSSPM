@@ -634,10 +634,10 @@ This value is read-only and auto-generated.</string>
                        </font>
                       </property>
                       <property name="minimum">
-                       <number>1900</number>
+                       <number>0</number>
                       </property>
                       <property name="maximum">
-                       <number>3000</number>
+                       <number>9999</number>
                       </property>
                      </widget>
                     </item>

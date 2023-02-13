@@ -508,6 +508,11 @@ public:
      */
     bool isAMultiRun();
     /**
+     * @brief Returns whether or not the user has chose the "using All" setting
+     * @return  true if "using All" selected, false otherwise
+     */
+    bool isEnsembleUsingAll();
+    /**
      * @brief Returns whether or not the Using Pct button has been pressed
      * @return  true if pressed, false otherwise
      */
@@ -899,6 +904,10 @@ signals:
      */
     void CheckAllEstimationTablesAndRun();
 //  void DimScalarBiomassControls(bool dim);
+    /**
+     * @brief Signal to notify main routine to turn off mohns rho flag in diagnostic tab2 page
+     */
+    void DisableMohnsRhoRun();
     /**
      * @brief Signal to notify main routine to set the enable state of all of its Run buttons
      * @param state : enable state of application's Run buttons

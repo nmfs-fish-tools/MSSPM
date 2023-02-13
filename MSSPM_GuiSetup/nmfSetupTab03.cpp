@@ -217,7 +217,7 @@ nmfSetup_Tab3::importSpecies(QStringList& guildList,
     int numRows = 0;
     QString errorMsg;
     QString inputDataPath = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
-    std::vector<int> ColumnsToLoad = {1,2,3,6,10}; // {1,2,3,6,12}; // modify this when implement GrowthRateShape
+    std::vector<int> ColumnsToLoad = {1,2,3,6,12};
 
     speciesFilename = QFileDialog::getOpenFileName(Setup_Tabs,
                                                    QObject::tr("Select Species CSV file"), inputDataPath,
@@ -1173,20 +1173,22 @@ nmfSetup_Tab3::callback_ImportPB()
     QString speciesFilename = "";
     QStringList guildsList = {};
 
-    QMessageBox::information(Setup_Tabs,"Import","\nSelect Guild CSV file to import first.\n",QMessageBox::Ok);
-    importOK = importGuilds(guildsList,guildsFilename);
-    if (importOK) {
-        emit LoadGuildSupplemental(nmfConstantsMSSPM::Dont_Query_User_For_Filename,
-                                   guildsFilename);
-    }
-
-    QMessageBox::information(Setup_Tabs,"Import","\nSelect Species CSV file to import next.\n",QMessageBox::Ok);
-    importOK = importSpecies(guildsList,speciesFilename);
-    if (importOK) {
-        emit LoadSpeciesSupplemental(nmfConstantsMSSPM::DontUpdateSetup,
-                                     nmfConstantsMSSPM::Dont_Query_User_For_Filename,
-                                     speciesFilename);
-    }
+//    if (onGuildPage()) {
+        QMessageBox::information(Setup_Tabs,"Import","\nSelect Guild CSV file to import first.\n",QMessageBox::Ok);
+        importOK = importGuilds(guildsList,guildsFilename);
+        if (importOK) {
+            emit LoadGuildSupplemental(nmfConstantsMSSPM::Dont_Query_User_For_Filename,
+                                       guildsFilename);
+        }
+//    } else {
+        QMessageBox::information(Setup_Tabs,"Import","\nSelect Species CSV file to import next.\n",QMessageBox::Ok);
+        importOK = importSpecies(guildsList,speciesFilename);
+        if (importOK) {
+            emit LoadSpeciesSupplemental(nmfConstantsMSSPM::DontUpdateSetup,
+                                         nmfConstantsMSSPM::Dont_Query_User_For_Filename,
+                                         speciesFilename);
+        }
+//    }
 
 //    if (onGuildPage()) {
 //        importOK = importGuilds();
