@@ -904,7 +904,8 @@ nmfEstimation_Tab2::saveFitWeights(const bool& verbose)
     std::string tableName = nmfConstantsMSSPM::TableFitWeights;
     std::string cmd;
     std::string errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
-    QModelIndex indexBiomass,indexCatch;
+    std::string biomassStr = "";
+    std::string catchStr = "";
     QStringList SpeciesList;
     QStandardItemModel* smodel = qobject_cast<QStandardItemModel*>(Estimation_Tab2_WeightsFTCTV->model());
 
@@ -936,12 +937,16 @@ nmfEstimation_Tab2::saveFitWeights(const bool& verbose)
 
     cmd = "INSERT INTO " + tableName + " (ProjectName,ModelName,SpeName,Biomass,Catch) VALUES ";
     for (int i=0; i<smodel->rowCount(); ++i) {  // Species
-            indexBiomass = smodel->index(i,0);
-            indexCatch   = smodel->index(i,1);
+            biomassStr   = smodel->index(i,0).data().toString().toStdString();
+            catchStr     = smodel->index(i,1).data().toString().toStdString();
+            if (biomassStr.empty() || catchStr.empty()) {
+                biomassStr = "1.0";
+                catchStr   = "0.0";
+            }
             cmd += "('"  + m_ProjectName + "','" + m_ModelName +
                     "','" + SpeciesList[i].toStdString() +
-                    "', " + indexBiomass.data().toString().toStdString() +
-                    ", "  + indexCatch.data().toString().toStdString() + "),";
+                    "', " + biomassStr +
+                    ", "  + catchStr + "),";
     }
 
     cmd = cmd.substr(0,cmd.size()-1);

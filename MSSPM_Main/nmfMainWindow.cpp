@@ -2161,7 +2161,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.6.0 ";
+    QString version = "MSSPM v1.6.1 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -6170,7 +6170,8 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                                                    EstCarryingCapacities[species],
                                                    EstCarryingCapacityCovariateCoeffs[species],
                                                    CarryingCapacitiesCovariate(timeMinus1,species));
-            HarvestTerm     = harvestFormPtr->evaluate(CovariateAlgorithmType,
+
+             HarvestTerm     = harvestFormPtr->evaluate(CovariateAlgorithmType,
                                                     timeMinus1,species,
                                                     EstBiomassTMinus1,
                                                     Catch,Effort,Exploitation,
@@ -11062,7 +11063,7 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     QString multiRunSpeciesFilename;
     QString multiRunModelFilename;
     QString msg;
-qDebug() <<"isAMultiOrMohnsRhoRun: " << isAMultiRun;
+
     saveSettings();
     loadAllWidgets();
     readSettings();

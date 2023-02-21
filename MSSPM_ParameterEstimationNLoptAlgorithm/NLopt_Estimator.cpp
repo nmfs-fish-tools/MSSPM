@@ -160,36 +160,45 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
     }
     offset += NumSpeciesOrGuilds;
 
-    // Extract growth rate shape parameters if is logistic
-    if (isLogistic) {
-        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-            growthRateShape.emplace_back(QString::number(EstParameters[offset+i],'f',6).toDouble());
-        }
-        offset += NumSpeciesOrGuilds;
-    }
-
     // Always extract growth rate covariates
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
         growthRateCovariateCoeffs.emplace_back(QString::number(EstParameters[offset+i],'f',6).toDouble());
     }
     offset += NumSpeciesOrGuilds;
 
-    // Load the carrying capacity vector
-    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-        if (isLogistic) {
+    // Extract growth rate shape parameters if is logistic
+    if (isLogistic) {
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            growthRateShape.emplace_back(QString::number(EstParameters[offset+i],'f',6).toDouble());
+        }
+        offset += NumSpeciesOrGuilds;
+    } else {
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            growthRateShape.emplace_back(0);
+        }
+    }
+
+    // Load the carrying capacity vector if it's logistic
+    if (isLogistic) {
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
             carryingCapacity.emplace_back(QString::number(EstParameters[offset+i],'f',6).toDouble());
-        } else {
+        }
+        offset += NumSpeciesOrGuilds;
+    } else {
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
             carryingCapacity.emplace_back(0);
         }
     }
-    offset += NumSpeciesOrGuilds;
 
     if (isLogistic) {
-//      offset += NumSpeciesOrGuilds;
         for (int i=0; i<NumSpeciesOrGuilds; ++i) {
             carryingCapacityCovariateCoeffs.emplace_back(QString::number(EstParameters[offset+i],'f',6).toDouble());
         }
         offset += NumSpeciesOrGuilds;
+    } else {
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            carryingCapacityCovariateCoeffs.emplace_back(0);
+        }
     }
 
     if (isCatchability) {
@@ -201,8 +210,12 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
             catchabilityCovariateCoeffs.emplace_back(QString::number(EstParameters[offset+i],'f',6).toDouble());
         }
         offset += NumSpeciesOrGuilds;
+    } else {
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            catchability.emplace_back(0);
+            catchabilityCovariateCoeffs.emplace_back(0);
+        }
     }
-
 
     // Be sure to extract matrix data row by row which is for (row...) then for (col...)
 
@@ -274,6 +287,10 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
             exponent.emplace_back(EstParameters[offset+i]);
         }
         offset += NumSpeciesOrGuilds;
+    } else {
+        for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+            exponent.emplace_back(0);
+        }
     }
 
     // Survey Q
@@ -286,7 +303,7 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
         surveyQCovariateCoeffs.emplace_back(EstParameters[offset+i]);
     }
     offset += NumSpeciesOrGuilds;
-//qDebug() << "Num Parameters Extracted: " << offset;
+//qDebug() << "---> Num Parameters Extracted: " << offset;
 
     // Calculate MSY, BMSY, and FMSY values
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
@@ -1008,10 +1025,14 @@ NLopt_Estimator::setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
     std::vector<double> lowerBounds(NumEstParameters);
     std::vector<double> upperBounds(NumEstParameters);
 
+//qDebug() << "---> Num Parameter Bounds: " << NumEstParameters;
+
     // Set parameter bounds for all parameters
     for (int i=0; i<NumEstParameters; ++i) {
         lowerBounds[i] = ParameterRanges[i].first;
         upperBounds[i] = ParameterRanges[i].second;
+//qDebug() << "Setting parameter bounds: " << i << ", "
+//         << lowerBounds[i] << "," << upperBounds[i];
     }
     m_Optimizer.set_lower_bounds(lowerBounds);
     m_Optimizer.set_upper_bounds(upperBounds);

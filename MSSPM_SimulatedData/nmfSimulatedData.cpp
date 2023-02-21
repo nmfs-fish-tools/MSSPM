@@ -224,47 +224,43 @@ nmfSimulatedData::createSimulatedBiomass(
             getGuildCarryingCapacity(isAggProd,species,SpeciesK,GuildNum,
                                      GuildSpecies,GuildCarryingCapacity);
 
-            GrowthTerm = SimGrowthForm.evaluate(
-                        covariateAlgorithmType,
-                        SimBiomassTMinus1,
-                        GrowthRate[species],
-                        GrowthRateShape[species],
-                        GrowthRateCovariateCoeffs[species],
-                        GrowthRateCovariate(timeMinus1,species),
-                        SpeciesK[species],
-                        SpeciesKCovariateCoeffs[species],
-                        SpeciesKCovariate(timeMinus1,species));
-            HarvestTerm = SimHarvestForm.evaluate(
-                        covariateAlgorithmType,
-                        timeMinus1,species,SimBiomassTMinus1,
-                        Catch,Effort,Exploitation,
-                        Catchability[species],
-                        CatchabilityCovariateCoeffs[species],
-                        CatchabilityCovariate(timeMinus1,species));
-            CompetitionTerm = SimCompetitionForm.evaluate(
-                        covariateAlgorithmType,
-                        timeMinus1,species,SimBiomassTMinus1,
-                        GrowthRate,
-                        GrowthRateCovariate,
-                        GuildCarryingCapacity,
-                        SystemCarryingCapacity,
-                        SimBiomassSpecies,
-                        SimulatedBiomassGuild,
-                        CompetitionAlpha,
-                        CompetitionAlphaCovariate,
-                        CompetitionBetaSpecies,
-                        CompetitionBetaSpeciesCovariate,
-                        CompetitionBetaGuild,
-                        CompetitionBetaGuildSpeciesCovariate,
-                        CompetitionBetaGuildGuild,
-                        CompetitionBetaGuildGuildCovariate);
-            PredationTerm = SimPredationForm.evaluate(
-                        covariateAlgorithmType,
-                        timeMinus1, species,
-                        SimBiomassSpecies,SimBiomassTMinus1,
-                        PredationRho,PredationRhoCovariate,
-                        PredationHandling,PredationHandlingCovariate,
-                        PredationExponent,PredationExponentCovariate);
+            GrowthTerm = SimGrowthForm.evaluate(covariateAlgorithmType,
+                                                SimBiomassTMinus1,
+                                                GrowthRate[species],
+                                                GrowthRateShape[species],
+                                                GrowthRateCovariateCoeffs[species],
+                                                GrowthRateCovariate(timeMinus1,species),
+                                                SpeciesK[species],
+                                                SpeciesKCovariateCoeffs[species],
+                                                SpeciesKCovariate(timeMinus1,species));
+            HarvestTerm = SimHarvestForm.evaluate(covariateAlgorithmType,
+                                                  timeMinus1,species,SimBiomassTMinus1,
+                                                  Catch,Effort,Exploitation,
+                                                  Catchability[species],
+                                                  CatchabilityCovariateCoeffs[species],
+                                                  CatchabilityCovariate(timeMinus1,species));
+            CompetitionTerm = SimCompetitionForm.evaluate(covariateAlgorithmType,
+                                                          timeMinus1,species,SimBiomassTMinus1,
+                                                          GrowthRate,
+                                                          GrowthRateCovariate,
+                                                          GuildCarryingCapacity,
+                                                          SystemCarryingCapacity,
+                                                          SimBiomassSpecies,
+                                                          SimulatedBiomassGuild,
+                                                          CompetitionAlpha,
+                                                          CompetitionAlphaCovariate,
+                                                          CompetitionBetaSpecies,
+                                                          CompetitionBetaSpeciesCovariate,
+                                                          CompetitionBetaGuild,
+                                                          CompetitionBetaGuildSpeciesCovariate,
+                                                          CompetitionBetaGuildGuild,
+                                                          CompetitionBetaGuildGuildCovariate);
+            PredationTerm = SimPredationForm.evaluate(covariateAlgorithmType,
+                                                      timeMinus1, species,
+                                                      SimBiomassSpecies,SimBiomassTMinus1,
+                                                      PredationRho,PredationRhoCovariate,
+                                                      PredationHandling,PredationHandlingCovariate,
+                                                      PredationExponent,PredationExponentCovariate);
 
             SimBiomassTMinus1 += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
 
