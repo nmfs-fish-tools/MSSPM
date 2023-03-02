@@ -57,6 +57,7 @@ private:
     QLabel*      m_Diagnostic_Tab2_PeelPositionLBL;
     QPushButton* m_Diagnostic_Tab2_RunPB;
     QWidget*     m_Diagnostic_Tab2_Widget;
+    QCheckBox*   m_Diagnostic_Tab2_ConvOnlyCB;
     QTabWidget*  m_Diagnostic_Tabs;
     nmfLogger*   m_Logger;
     std::string  m_ProjectDir;
@@ -169,6 +170,12 @@ public:
     void setWidgetsLight();
 
 signals:
+    /**
+     * @brief Signal emitted to notify the main routine whether the user wants only
+     * converged runs in their retrospective analysis
+     * @param allowConvergedOnly : true if user wants only converged runs in their retrospective analysis, false otherwise
+     */
+    void AllowConvergedOnly(bool allowConvergedOnly);
     /**
      * @brief Signal emitted to set all of the output MSY checkboxes to the passed state
      * @param state : state to set Output Controls MSY boxes

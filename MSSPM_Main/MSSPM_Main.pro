@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui charts sql datavisualization uitools concurrent
+QT       += core gui charts sql datavisualization uitools concurrent printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -35,6 +35,7 @@ CONFIG += c++14
 #LIBS += -lboost_system -lboost_filesystem
 
 SOURCES += \
+    ChartSaveDialog.cpp \
     EstimationCompleteDialog.cpp \
     ScrollingTextDialog.cpp \
     SimulatedBiomassDialog.cpp \
@@ -44,6 +45,7 @@ SOURCES += \
     ClearOutputDialog.cpp
 
 HEADERS  += \
+    ChartSaveDialog.h \
     EstimationCompleteDialog.h \
     ScrollingTextDialog.h \
     SimulatedBiomassDialog.h \

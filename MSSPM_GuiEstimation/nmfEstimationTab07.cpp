@@ -1440,9 +1440,15 @@ nmfEstimation_Tab7::okAdditionalAlgorithmParameters()
 }
 
 void
+nmfEstimation_Tab7::setAllowConvergedOnly(bool allowConvergedOnly)
+{
+    Estimation_Tab7_AllowConvergedOnlyCB->setChecked(allowConvergedOnly);
+}
+
+void
 nmfEstimation_Tab7::setInitialState(int &stateVar)
 {
-      stateVar = 11;
+    stateVar = 11;
 }
 
 void

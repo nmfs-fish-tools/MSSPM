@@ -32,6 +32,8 @@ nmfOutputControls::nmfOutputControls(
     initWidgets();
     initConnections();
     loadWidgets();
+
+    readSettingsPublish();
 }
 
 nmfOutputControls::~nmfOutputControls()
@@ -63,19 +65,28 @@ nmfOutputControls::initWidgets()
     QModelIndex index;
     QVariant vNull(0);
     QString msg;
+    QString subtitle = "---------- Format Properties ----------";
 
-    QVBoxLayout* controlLayt = new QVBoxLayout();
-    QHBoxLayout* BMSYLayt    = new QHBoxLayout();
-    QHBoxLayout* MSYLayt     = new QHBoxLayout();
-    QHBoxLayout* FMSYLayt    = new QHBoxLayout();
+    QLabel*      SubtitleLBL    = new QLabel(subtitle);
+    QVBoxLayout* controlLayt    = new QVBoxLayout();
+    QHBoxLayout* BMSYLayt       = new QHBoxLayout();
+    QHBoxLayout* MSYLayt        = new QHBoxLayout();
+    QHBoxLayout* FMSYLayt       = new QHBoxLayout();
     QHBoxLayout* ParametersLayt = new QHBoxLayout();
-    QHBoxLayout* ScaleLayt    = new QHBoxLayout();
-    QHBoxLayout* HistoricalDataLayt = new QHBoxLayout();
-    QHBoxLayout* LegendLayt   = new QHBoxLayout();
-    QHBoxLayout* ShadowLayt   = new QHBoxLayout();
-    QHBoxLayout* MinMaxLayt   = new QHBoxLayout();
-    QWidget*     scrollAreaW  = new QWidget();
-    QScrollArea* scrollAreaSA = new QScrollArea();
+    QHBoxLayout* ScaleLayt      = new QHBoxLayout();
+    QHBoxLayout* HistoricalLayt = new QHBoxLayout();
+    QHBoxLayout* LegendLayt     = new QHBoxLayout();
+    QHBoxLayout* GridLinesLayt  = new QHBoxLayout();
+    QHBoxLayout* TitleLayt      = new QHBoxLayout();
+    QHBoxLayout* FontLayt       = new QHBoxLayout();
+    QHBoxLayout* FontSizeLayt   = new QHBoxLayout();
+    QHBoxLayout* LineWidthLayt  = new QHBoxLayout();
+    QHBoxLayout* LoadPublishLayt = new QHBoxLayout();
+    QHBoxLayout* SubtitleLayt   = new QHBoxLayout();
+    QHBoxLayout* ShadowLayt     = new QHBoxLayout();
+    QHBoxLayout* MinMaxLayt     = new QHBoxLayout();
+    QWidget*     scrollAreaW    = new QWidget();
+    QScrollArea* scrollAreaSA   = new QScrollArea();
     QVBoxLayout* controlScrollableLayt = new QVBoxLayout;
     OutputChartTypeLBL      = new QLabel("Chart Type:");
     OutputGroupTypeCMB      = new QComboBox();
@@ -90,17 +101,29 @@ nmfOutputControls::initWidgets()
     OutputScaleLBL          = new QLabel("Scale Factor:");
     OutputLineBrightnessLBL = new QLabel("Forecast Run Brightness:");
     OutputLineBrightnessSL  = new QSlider(Qt::Horizontal);
+    OutputLineWidthAxesLBL  = new QLabel("Axes:");
+    OutputLineWidthDataLBL  = new QLabel("Lines:");
+    OutputLineWidthPointLBL = new QLabel("Points:");
+    OutputFontLBL           = new QLabel("Font:");
+    OutputFontSizesLBL      = new QLabel("Font Sizes:  Labels:");
+    OutputFontSizeNumberLBL = new QLabel("Numbers:");
     OutputLineBrightnessLBL->setToolTip("Sets the brightness for the Monte Carlo simulation lines.");
     OutputLineBrightnessLBL->setStatusTip("Sets the brightness for the Monte Carlo simulation lines.");
     OutputLineBrightnessSL->setToolTip("Sets the brightness for the Monte Carlo simulation lines.");
     OutputLineBrightnessSL->setStatusTip("Sets the brightness for the Monte Carlo simulation lines.");
     OutputLineBrightnessLBL->setEnabled(false);
     OutputLineBrightnessSL->setEnabled(false);
-    OutputChartTypeCMB   = new QComboBox();
-    OutputSpeciesCMB     = new QComboBox();
-    OutputParametersCMB  = new QComboBox();
-    OutputMethodsCMB     = new QComboBox();
-    OutputScenariosCMB   = new QComboBox();
+    OutputLineWidthAxesSB     = new QSpinBox();
+    OutputLineWidthDataSB     = new QSpinBox();
+    OutputLineWidthPointSB    = new QSpinBox();
+    OutputFontSizeLabelSB     = new QSpinBox();
+    OutputFontSizeNumberSB    = new QSpinBox();
+    OutputFontCMB             = new QFontComboBox();
+    OutputChartTypeCMB        = new QComboBox();
+    OutputSpeciesCMB          = new QComboBox();
+    OutputParametersCMB       = new QComboBox();
+    OutputMethodsCMB          = new QComboBox();
+    OutputScenariosCMB        = new QComboBox();
     OutputParametersZScoreCB  = new QCheckBox();
     OutputParametersCenterPB  = new QPushButton();
     OutputParametersMinimumPB = new QPushButton();
@@ -117,15 +140,56 @@ nmfOutputControls::initWidgets()
     OutputShowFMSYLE     = new QLineEdit();
     OutputShowShadowCB   = new QCheckBox();
     OutputLegendCB       = new QCheckBox();
+    OutputGridLinesCB    = new QCheckBox();
+    OutputTitleCB        = new QCheckBox();
+    OutputPublishLoadPB  = new QPushButton("Load Publish Settings");
+    OutputPublishSavePB  = new QPushButton("Save");
+    OutputPublishDefPB   = new QPushButton("Def");
     OutputShowShadowLBL  = new QLabel("3d Surface Shadow: ");
     OutputShowHistoricalDataCB   = new QCheckBox();
     OutputShowHistoricalDataLBL  = new QLabel("Historical Data: ");
     OutputLegendLBL        = new QLabel("Legend: ");
+    OutputGridLinesLBL     = new QLabel("Grid Lines: ");
+    OutputTitleLBL         = new QLabel("Title: ");
     OutputParameters2d3dPB = new QPushButton("3d");
     OutputLegendCB->setChecked(true);
-    LegendLayt->addWidget(OutputLegendLBL);
-    LegendLayt->addWidget(OutputLegendCB);
-    LegendLayt->addStretch();
+    OutputGridLinesCB->setChecked(true);
+    OutputTitleCB->setChecked(true);
+
+    GridLinesLayt->addWidget(OutputTitleLBL);
+    GridLinesLayt->addWidget(OutputTitleCB);
+    GridLinesLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    GridLinesLayt->addWidget(OutputLegendLBL);
+    GridLinesLayt->addWidget(OutputLegendCB);
+    GridLinesLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    GridLinesLayt->addWidget(OutputGridLinesLBL);
+    GridLinesLayt->addWidget(OutputGridLinesCB);
+    GridLinesLayt->addStretch();
+    LineWidthLayt->addWidget(OutputLineWidthAxesLBL);
+    LineWidthLayt->addWidget(OutputLineWidthAxesSB);
+    GridLinesLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    LineWidthLayt->addWidget(OutputLineWidthDataLBL);
+    LineWidthLayt->addWidget(OutputLineWidthDataSB);
+    GridLinesLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    LineWidthLayt->addWidget(OutputLineWidthPointLBL);
+    LineWidthLayt->addWidget(OutputLineWidthPointSB);
+    LineWidthLayt->addStretch();
+    FontLayt->addWidget(OutputFontLBL);
+    FontLayt->addWidget(OutputFontCMB);
+    FontLayt->addStretch();
+    FontSizeLayt->addWidget(OutputFontSizesLBL);
+    FontSizeLayt->addWidget(OutputFontSizeLabelSB);
+    FontSizeLayt->addWidget(OutputFontSizeNumberLBL);
+    FontSizeLayt->addWidget(OutputFontSizeNumberSB);
+    FontSizeLayt->addStretch();
+    SubtitleLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    SubtitleLayt->addWidget(SubtitleLBL);
+    SubtitleLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    LoadPublishLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    LoadPublishLayt->addWidget(OutputPublishDefPB);
+    LoadPublishLayt->addWidget(OutputPublishLoadPB);
+    LoadPublishLayt->addWidget(OutputPublishSavePB);
+    LoadPublishLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
     OutputShowBMSYCB->setMinimumWidth(120);
     OutputShowMSYCB->setMinimumWidth(120);
     OutputShowFMSYCB->setMinimumWidth(120);
@@ -169,15 +233,40 @@ nmfOutputControls::initWidgets()
     ScaleLayt->addWidget(OutputScaleCMB);
     ScaleLayt->addStretch();
     controlLayt->addLayout(ScaleLayt);
-    controlLayt->addLayout(LegendLayt);
-    HistoricalDataLayt->addWidget(OutputShowHistoricalDataLBL);
-    HistoricalDataLayt->addWidget(OutputShowHistoricalDataCB);
-    HistoricalDataLayt->addStretch();
-    controlLayt->addLayout(HistoricalDataLayt);
+    controlLayt->addLayout(HistoricalLayt);
+    controlLayt->addLayout(ShadowLayt);
+
+    // ---------- Format Properties ----------
+    controlLayt->addSpacerItem(new QSpacerItem(1,5,QSizePolicy::Fixed,QSizePolicy::Fixed));
+    controlLayt->addLayout(SubtitleLayt);
+    controlLayt->addLayout(GridLinesLayt);
+    controlLayt->addLayout(LineWidthLayt);
+    controlLayt->addLayout(FontLayt);
+    controlLayt->addLayout(FontSizeLayt);
+    OutputLineWidthAxesSB->setMinimum(0);
+    OutputLineWidthAxesSB->setMaximum(6);
+    OutputLineWidthDataSB->setMinimum(0);
+    OutputLineWidthDataSB->setMaximum(11);
+    OutputFontSizeLabelSB->setMinimum(9);
+    OutputFontSizeLabelSB->setMaximum(32);
+    OutputFontSizeNumberSB->setMinimum(7);
+    OutputFontSizeNumberSB->setMaximum(32);
+    OutputLineWidthPointSB->setMinimum(5);
+    OutputLineWidthPointSB->setMaximum(32);
+    OutputFontCMB->setFixedWidth(200);
+    OutputFontCMB->setWritingSystem(QFontDatabase::Latin);
+//  OutputFontCMB->setFontFilters(QFontComboBox::AllFonts);
+    OutputPublishSavePB->setFixedWidth(40);
+    OutputPublishDefPB->setFixedWidth(30);
+
+    HistoricalLayt->addWidget(OutputShowHistoricalDataLBL);
+    HistoricalLayt->addWidget(OutputShowHistoricalDataCB);
+    HistoricalLayt->addStretch();
     ShadowLayt->addWidget(OutputShowShadowLBL);
     ShadowLayt->addWidget(OutputShowShadowCB);
     ShadowLayt->addStretch();
-    controlLayt->addLayout(ShadowLayt);
+    controlLayt->addLayout(LoadPublishLayt);
+
     scrollAreaSA->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scrollAreaSA->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scrollAreaW->setLayout(controlLayt);
@@ -190,7 +279,6 @@ nmfOutputControls::initWidgets()
     scrollAreaSA->setMaximumWidth(315);
     ControlsGroupBox->setMinimumWidth(350);
     ControlsGroupBox->setMaximumWidth(350);
-
     OutputSpeListLBL->setEnabled(false);
     OutputSpeListLV->setEnabled(false);
     OutputSpeListLV->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -240,24 +328,26 @@ For Species: F MSY = r(i) where r(i) = growth rate for that species<br><br>\
 For Guilds: F MSY = guildAverage[r(i)] / NumSpeciesInGuild, where the guildAverage is the average for the selected guild<br><br>\
 For System: F MSY = average[r(i)] / NumSpecies, where the average is over all species\
 </html>";
-    OutputShowFMSYCB->setToolTip("Fishing Mortality Maximum Sustained Yield (r/2)");
+    OutputShowFMSYCB->setToolTip(  "Fishing Mortality Maximum Sustained Yield (r/2)");
     OutputShowFMSYCB->setStatusTip("Fishing Mortality Maximum Sustained Yield (r/2)");
     OutputShowFMSYCB->setWhatsThis(msg);
-    OutputShowFMSYLE->setToolTip("Fishing Mortality Maximum Sustained Yield (r/2)");
+    OutputShowFMSYLE->setToolTip(  "Fishing Mortality Maximum Sustained Yield (r/2)");
     OutputShowFMSYLE->setStatusTip("Fishing Mortality Maximum Sustained Yield (r/2)");
     OutputShowFMSYLE->setWhatsThis(msg);
-    OutputYAxisMinLBL->setToolTip("Set the min value of the y-axis");
+    OutputYAxisMinLBL->setToolTip(  "Set the min value of the y-axis");
     OutputYAxisMinLBL->setStatusTip("Set the min value of the y-axis");
-    OutputYAxisMinSL->setToolTip("Set the min value of the y-axis");
+    OutputYAxisMinSL->setToolTip(  "Set the min value of the y-axis");
     OutputYAxisMinSL->setStatusTip("Set the min value of the y-axis");
-    OutputYAxisMaxLBL->setToolTip("Set the max value of the y-axis");
+    OutputYAxisMaxLBL->setToolTip(  "Set the max value of the y-axis");
     OutputYAxisMaxLBL->setStatusTip("Set the max value of the y-axis");
-    OutputYAxisMaxSB->setToolTip("Set the max value of the y-axis");
+    OutputYAxisMaxSB->setToolTip(  "Set the max value of the y-axis");
     OutputYAxisMaxSB->setStatusTip("Set the max value of the y-axis");
-    OutputScenariosLBL->setToolTip("These are the available Forecast Scenarios");
+    OutputScenariosLBL->setToolTip(  "These are the available Forecast Scenarios");
     OutputScenariosLBL->setStatusTip("These are the available Forecast Scenarios");
-    OutputScenariosCMB->setToolTip("These are the available Multi-Forecast Scenarios");
+    OutputScenariosCMB->setToolTip(  "These are the available Multi-Forecast Scenarios");
     OutputScenariosCMB->setStatusTip("These are the available Multi-Forecast Scenarios");
+    OutputPublishLoadPB->setToolTip(  "Loads the appropriate format widgets with Publishing values");
+    OutputPublishLoadPB->setStatusTip("Loads the appropriate format widgets with Publishing values");
     OutputYAxisMinSL->setMaximum(100);
     OutputYAxisMinSL->setValue(OutputYAxisMinSL->maximum());
     OutputYAxisMinSB->setMaximum(999999);
@@ -272,20 +362,108 @@ For System: F MSY = average[r(i)] / NumSpecies, where the average is over all sp
     OutputShowBMSYLE->setAlignment(Qt::AlignRight);
     OutputShowMSYLE->setAlignment(Qt::AlignRight);
     OutputShowFMSYLE->setAlignment(Qt::AlignRight);
-    OutputShowHistoricalDataCB->setToolTip("Toggles historical data for a Forecast plot");
-    OutputShowHistoricalDataCB->setStatusTip("Toggles historical data for a Forecast plot");
-    OutputShowHistoricalDataLBL->setToolTip("Toggles historical data for a Forecast plot");
+    OutputShowHistoricalDataCB->setToolTip(   "Toggles historical data for a Forecast plot");
+    OutputShowHistoricalDataCB->setStatusTip( "Toggles historical data for a Forecast plot");
+    OutputShowHistoricalDataLBL->setToolTip(  "Toggles historical data for a Forecast plot");
     OutputShowHistoricalDataLBL->setStatusTip("Toggles historical data for a Forecast plot");
-    OutputShowShadowCB->setToolTip("Toggles the 3d surface's shadow");
+    OutputShowShadowCB->setToolTip(  "Toggles the 3d surface's shadow");
     OutputShowShadowCB->setStatusTip("Toggles the 3d surface's shadow");
-    OutputChartTypeLBL->setToolTip("The type of chart that will be displayed");
+    OutputChartTypeLBL->setToolTip(  "The type of chart that will be displayed");
     OutputChartTypeLBL->setStatusTip("The type of chart that will be displayed");
-    OutputChartTypeCMB->setToolTip("The type of chart that will be displayed");
+    OutputChartTypeCMB->setToolTip(  "The type of chart that will be displayed");
     OutputChartTypeCMB->setStatusTip("The type of chart that will be displayed");
-    OutputLegendLBL->setToolTip("Toggles the plot legend");
-    OutputLegendLBL->setStatusTip("Toggles the plot legend");
-    OutputLegendCB->setToolTip("Toggles the plot legend");
-    OutputLegendCB->setStatusTip("Toggles the plot legend");
+
+    OutputTitleLBL->setToolTip(  "Toggles the plot's main title");
+    OutputTitleLBL->setStatusTip("Toggles the plot's main title");
+    OutputTitleCB->setToolTip(   "Toggles the plot's main title");
+    OutputTitleCB->setStatusTip( "Toggles the plot's main title");
+    OutputLegendLBL->setToolTip(  "Toggles the plot's legend");
+    OutputLegendLBL->setStatusTip("Toggles the plot's legend");
+    OutputLegendCB->setToolTip(   "Toggles the plot's legend");
+    OutputLegendCB->setStatusTip( "Toggles the plot's legend");
+    OutputGridLinesLBL->setToolTip(  "Toggles the plot's grid lines");
+    OutputGridLinesLBL->setStatusTip("Toggles the plot's grid lines");
+    OutputGridLinesCB->setToolTip(   "Toggles the plot's grid lines");
+    OutputGridLinesCB->setStatusTip( "Toggles the plot's grid lines");
+    OutputLineWidthAxesLBL->setToolTip(   "Sets the axis line width");
+    OutputLineWidthAxesLBL->setStatusTip( "Sets the axis line width");
+    OutputLineWidthAxesSB->setToolTip(    "Sets the axis line width");
+    OutputLineWidthAxesSB->setStatusTip(  "Sets the axis line width");
+    OutputLineWidthDataLBL->setToolTip(   "Sets the data line width");
+    OutputLineWidthDataLBL->setStatusTip( "Sets the data line width");
+    OutputLineWidthDataSB->setToolTip(    "Sets the data line width");
+    OutputLineWidthDataSB->setStatusTip(  "Sets the data line width");
+    OutputLineWidthPointLBL->setToolTip(   "Sets the observed biomass point size");
+    OutputLineWidthPointLBL->setStatusTip( "Sets the observed biomass point size");
+    OutputLineWidthPointSB->setToolTip(    "Sets the observed biomass point size");
+    OutputLineWidthPointSB->setStatusTip(  "Sets the observed biomass point size");
+    OutputFontLBL->setToolTip(   "Sets the axis label font");
+    OutputFontLBL->setStatusTip( "Sets the axis label font");
+    OutputFontCMB->setToolTip(   "Selects the axis label font");
+    OutputFontCMB->setStatusTip( "Selects the axis label font");
+    OutputFontSizeLabelSB->setToolTip(    "Sets the axis label font size");
+    OutputFontSizeLabelSB->setStatusTip(  "Sets the axis label font size");
+    OutputFontSizeNumberSB->setToolTip(    "Sets the axis numeric scale font size");
+    OutputFontSizeNumberSB->setStatusTip(  "Sets the axis numeric scale font size");
+    OutputPublishSavePB->setToolTip(    "Saves the current format settings as the new Publish settings");
+    OutputPublishSavePB->setStatusTip(  "Saves the current format settings as the new Publish settings");
+    OutputPublishDefPB->setToolTip(     "Loads default values for the format settings");
+    OutputPublishDefPB->setStatusTip(   "Loads default values for the format settings");
+
+    msg = "<html><strong><center>Title</center></strong><br>\
+This toggles on/off the main chart title. The user may want this off \
+if the chart will be used in a publication.</html>";
+    OutputTitleLBL->setWhatsThis(msg);
+    OutputTitleCB->setWhatsThis(msg);
+    msg = "<html><strong><center>Legend</center></strong><br>\
+This toggles on/off the chart legend. The user may want this off \
+if the chart will be used in a publication.</html>";
+    OutputLegendLBL->setWhatsThis(msg);
+    OutputLegendCB->setWhatsThis(msg);
+    msg = "<html><strong><center>Grid Lines</center></strong><br>\
+This toggles on/off the chart grid lines. The user may want them turned off \
+if the chart will be used in a publication.</html>";
+    OutputGridLinesLBL->setWhatsThis(msg);
+    OutputGridLinesCB->setWhatsThis(msg);
+    msg = "<html><strong><center>Axes Line Widths</center></strong><br>\
+This sets the width of the x and y axes lines. The color of the lines is fixed to black.</html>";
+    OutputLineWidthAxesLBL->setWhatsThis(msg);
+    OutputLineWidthAxesSB->setWhatsThis(msg);
+    msg = "<html><strong><center>Data Line Widths</center></strong><br>\
+This sets the width of the lines depicting all data (i.e., estimations, forecasts.</html>";
+    OutputLineWidthDataLBL->setWhatsThis(msg);
+    OutputLineWidthDataSB->setWhatsThis(msg);
+    msg = "<html><strong><center>Point Widths</center></strong><br>\
+This sets the width of the points (i.e., filled circles) representing the observed \
+biomass. The color of these points is fixed to blue.</html>";
+    OutputLineWidthPointLBL->setWhatsThis(msg);
+    OutputLineWidthPointSB->setWhatsThis(msg);
+    msg = "<html><strong><center>Font</center></strong><br>\
+This sets the font used for the chart titles and axes. The color is fixed to black.</html>";
+    OutputFontLBL->setWhatsThis(msg);
+    OutputFontCMB->setWhatsThis(msg);
+    msg = "<html><strong><center>Font Label Size</center></strong><br>\
+This sets the size of the labels used as the x-axis and y_axis titles. The color is fixed to black.</html>";
+    OutputFontSizeLabelSB->setWhatsThis(msg);
+    msg = "<html><strong><center>Font Number Size</center></strong><br>\
+This sets the size of the numbers used for the x-axis and y-axis scale values. The color is fixed to black.</html>";
+    OutputFontSizeNumberSB->setWhatsThis(msg);
+    OutputFontSizeNumberLBL->setWhatsThis(msg);
+    msg = "<html><strong><center>Load Default</center></strong><br>\
+This loads the default starting values for the chart publishing widgets and updates \
+the current chart. Be sure to click the <strong>Save</strong> button to the right of \
+the <strong>Load Publish Settings</strong> button if you want to save these \
+default settings as the new publish settings.</html>";
+    OutputPublishDefPB->setWhatsThis(msg);
+    msg = "<html><strong><center>Load Publish Settings</center></strong><br>\
+This loads the last saved publish settings to set the chart attributes to those values \
+that will make charts of high enough quality to be acceptable for publication.</html>";
+    OutputPublishLoadPB->setWhatsThis(msg);
+    msg = "<html><strong><center>Save</center></strong><br>\
+This will save the current publish settings (aka. Format Properties) \
+so that the next time the user clicks the <strong>Load Publish Settings</strong> button \
+the appropriate widgets will be set to these values.</html>";
+    OutputPublishSavePB->setWhatsThis(msg);
 
     msg ="<html>\
 <strong><center>Chart Types</center></strong><br>\
@@ -511,7 +689,7 @@ nmfOutputControls::initConnections()
     connect(OutputScenariosCMB,     SIGNAL(currentIndexChanged(QString)),
             this,                   SLOT(callback_OutputScenariosCMB(QString)));
     connect(OutputParametersZScoreCB, SIGNAL(stateChanged(int)),
-            this,                   SLOT(callback_OutputParametersZScoreCB(int)));
+            this,                     SLOT(callback_OutputParametersZScoreCB(int)));
     connect(OutputShowBMSYCB,       SIGNAL(stateChanged(int)),
             this,                   SLOT(callback_OutputBMSYCB(int)));
     connect(OutputShowMSYCB,        SIGNAL(stateChanged(int)),
@@ -523,7 +701,7 @@ nmfOutputControls::initConnections()
     connect(OutputLineBrightnessSL, SIGNAL(valueChanged(int)),
             this,                   SLOT(callback_OutputLineBrightnessSL(int)));
     connect(OutputParametersCenterPB, SIGNAL(clicked()),
-            this,                   SLOT(callback_OutputParametersCenterPB()));
+            this,                     SLOT(callback_OutputParametersCenterPB()));
     connect(OutputParametersMinimumPB,SIGNAL(clicked()),
             this,                   SLOT(callback_OutputParametersMinimumPB()));
     connect(OutputYAxisMinSL,       SIGNAL(valueChanged(int)),
@@ -538,8 +716,30 @@ nmfOutputControls::initConnections()
             this,                   SLOT(callback_OutputParameters2d3dPB()));
     connect(OutputShowHistoricalDataCB, SIGNAL(stateChanged(int)),
             this,                       SLOT(callback_OutputShowHistoricalDataCB(int)));
+    connect(OutputTitleCB,          SIGNAL(stateChanged(int)),
+            this,                   SLOT(callback_OutputTitleCB(int)));
     connect(OutputLegendCB,         SIGNAL(stateChanged(int)),
             this,                   SLOT(callback_OutputLegendCB(int)));
+    connect(OutputGridLinesCB,      SIGNAL(stateChanged(int)),
+            this,                   SLOT(callback_OutputGridLinesCB(int)));
+    connect(OutputPublishLoadPB,    SIGNAL(clicked()),
+            this,                   SLOT(callback_OutputPublishLoadPB()));
+    connect(OutputPublishSavePB,    SIGNAL(clicked()),
+            this,                   SLOT(callback_OutputPublishSavePB()));
+    connect(OutputPublishDefPB,     SIGNAL(clicked()),
+            this,                   SLOT(callback_OutputPublishDefPB()));
+    connect(OutputLineWidthAxesSB,  SIGNAL(valueChanged(int)),
+            this,                   SLOT(callback_OutputLineWidthAxisSB(int)));
+    connect(OutputLineWidthDataSB,  SIGNAL(valueChanged(int)),
+            this,                   SLOT(callback_OutputLineWidthDataSB(int)));
+    connect(OutputLineWidthPointSB, SIGNAL(valueChanged(int)),
+            this,                   SLOT(callback_OutputLineWidthPointSB(int)));
+    connect(OutputFontSizeLabelSB,  SIGNAL(valueChanged(int)),
+            this,                   SLOT(callback_OutputFontSizeLabelSB(int)));
+    connect(OutputFontSizeNumberSB, SIGNAL(valueChanged(int)),
+            this,                   SLOT(callback_OutputFontSizeNumberSB(int)));
+    connect(OutputFontCMB,          SIGNAL(currentIndexChanged(QString)),
+            this,                   SLOT(callback_OutputFontCMB(QString)));
 }
 
 void
@@ -906,7 +1106,7 @@ nmfOutputControls::callback_OutputChartTypeCMB(QString outputType)
     if (isDiagnostic) {
         if (isParameterProfiles) {
             callback_ResetOutputWidgetsForAggProd();
-            emit ShowChart("",""); //,m_IsAveraged);
+            emitRefreshChart();
             if (! displaying3dChart()) {
                 emit SetChartView2d(true);
             }
@@ -920,7 +1120,7 @@ nmfOutputControls::callback_OutputChartTypeCMB(QString outputType)
         OutputYAxisMinSL->setValue(0);
         callback_ResetOutputWidgetsForAggProd();
         emit SetChartView2d(true);
-        emit ShowChart("",""); //,m_IsAveraged);
+        emitRefreshChart();
         OutputShowHistoricalDataCB->setChecked(showHistoricalData);
     } else if (isMultiScenario) {
         callback_ResetOutputWidgetsForAggProd();
@@ -945,7 +1145,7 @@ nmfOutputControls::callback_OutputGroupTypeCMB(QString outputGroupType)
 {
     if (outputGroupType == "Species:" ) {
         loadSpeciesControlWidget();
-        emit ShowChart("","");
+        emitRefreshChart();
     } else if (outputGroupType == "Guild:") {
         loadSpeciesControlWidget();
         emit ShowChartBy("Guild",m_IsAveraged);
@@ -1038,7 +1238,7 @@ nmfOutputControls::callback_OutputMethodsCMB(QString method)
     if (method == "Parameter Profiles") {
         callback_ResetOutputWidgetsForAggProd();
         emit SetChartView2d(true);
-        emit ShowChart("","");
+        emitRefreshChart();
         OutputScaleLBL->setEnabled(false);
         OutputScaleCMB->setEnabled(false);
     } else if (method == "Retrospective Analysis") {
@@ -1091,7 +1291,7 @@ nmfOutputControls::displayMohnsRho()
 void
 nmfOutputControls::callback_OutputParametersCMB(QString unused)
 {
-    emit ShowChart("",""); //,m_IsAveraged);
+    emitRefreshChart();
 }
 
 void
@@ -1149,7 +1349,7 @@ nmfOutputControls::callback_OutputParameters2d3dPB()
 void
 nmfOutputControls::callback_OutputParametersZScoreCB(int state)
 {
-    emit ShowChart("","");
+    emitRefreshChart();
 }
 
 bool
@@ -1161,17 +1361,102 @@ nmfOutputControls::displaying3dChart()
 void
 nmfOutputControls::callback_OutputShowShadowCB(int dummy)
 {
-    emit ShowChart("",""); //,m_IsAveraged);
+    emitRefreshChart();
 }
 
 void
 nmfOutputControls::callback_OutputShowHistoricalDataCB(int dummy)
 {
-    emit ShowChart("","");
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::callback_OutputGridLinesCB(int dummy)
+{
+//    OutputLineWidthAxesSB->blockSignals(true);
+//    OutputLineWidthAxesSB->setValue(1);
+//    OutputLineWidthAxesSB->blockSignals(false);
+
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::callback_OutputTitleCB(int dummy)
+{
+    emitRefreshChart();
 }
 
 void
 nmfOutputControls::callback_OutputLegendCB(int dummy)
+{
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::callback_OutputLineWidthDataSB(int dummy)
+{
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::callback_OutputLineWidthPointSB(int dummy)
+{
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::callback_OutputLineWidthAxisSB(int dummy)
+{
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::callback_OutputFontSizeLabelSB(int dummy)
+{
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::callback_OutputFontSizeNumberSB(int dummy)
+{
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::callback_OutputFontCMB(QString)
+{
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::callback_OutputPublishSavePB()
+{
+    saveSettingsPublish();
+}
+
+void
+nmfOutputControls::callback_OutputPublishDefPB()
+{
+    OutputTitleCB->setChecked(false);
+    OutputLegendCB->setChecked(false);
+    OutputGridLinesCB->setChecked(false);
+    OutputLineWidthAxesSB->setValue( nmfConstantsMSSPM::PublishLineWidthAxes);
+    OutputLineWidthDataSB->setValue( nmfConstantsMSSPM::PublishLineWidthData);
+    OutputLineWidthPointSB->setValue(nmfConstantsMSSPM::PublishLineWidthPoint);
+    OutputFontSizeLabelSB->setValue( nmfConstantsMSSPM::PublishFontSizeLabel);
+    OutputFontSizeNumberSB->setValue(nmfConstantsMSSPM::PublishFontSizeNumber);
+    OutputFontCMB->setCurrentText(   nmfConstantsMSSPM::PublishFont);
+}
+
+void
+nmfOutputControls::callback_OutputPublishLoadPB()
+{
+    readSettingsPublish();
+    emitRefreshChart();
+}
+
+void
+nmfOutputControls::emitRefreshChart()
 {
     emit ShowChart("","");
 }
@@ -1182,7 +1467,7 @@ nmfOutputControls::updateChart()
     QString outputGroupType = getOutputGroupType();
 
     if (outputGroupType == "Species") {
-        emit ShowChart("","");
+        emitRefreshChart();
     } else if (outputGroupType == "Guild") {
         emit ShowChartBy("Guild",m_IsAveraged);
     } else if (outputGroupType == "System") {
@@ -1309,6 +1594,12 @@ nmfOutputControls::isCheckedOutputBMSY()
 }
 
 bool
+nmfOutputControls::isCheckedOutputGridLines()
+{
+    return OutputGridLinesCB->isChecked();
+}
+
+bool
 nmfOutputControls::isCheckedOutputLegend()
 {
     return OutputLegendCB->isChecked();
@@ -1318,6 +1609,12 @@ bool
 nmfOutputControls::isCheckedOutputMSY()
 {
     return OutputShowMSYCB->isChecked();
+}
+
+bool
+nmfOutputControls::isCheckedOutputTitle()
+{
+    return OutputTitleCB->isChecked();
 }
 
 bool
@@ -1435,10 +1732,45 @@ nmfOutputControls::getOutputChartType()
 }
 
 QString
+nmfOutputControls::getOutputFont()
+{
+    return OutputFontCMB->currentText();
+}
+
+int
+nmfOutputControls::getOutputFontSizeLabel()
+{
+    return OutputFontSizeLabelSB->value();
+}
+
+int
+nmfOutputControls::getOutputFontSizeNumber()
+{
+    return OutputFontSizeNumberSB->value();
+}
+
+QString
 nmfOutputControls::getOutputGroupType()
 {
-
     return OutputGroupTypeCMB->currentText().replace(":","");
+}
+
+int
+nmfOutputControls::getOutputLineWidthAxis()
+{
+    return OutputLineWidthAxesSB->value();
+}
+
+int
+nmfOutputControls::getOutputLineWidthData()
+{
+    return OutputLineWidthDataSB->value();
+}
+
+int
+nmfOutputControls::getOutputLineWidthPoint()
+{
+    return OutputLineWidthPointSB->value();
 }
 
 QString
@@ -1566,9 +1898,51 @@ nmfOutputControls::readSettings()
     if (OutputLineBrightnessSL != nullptr) {
         OutputLineBrightnessSL->setValue(settings->value("Brightness",33).toString().toInt());
     }
+
     settings->endGroup();
 
     delete settings;
+}
+
+void
+nmfOutputControls::readSettingsPublish()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    OutputTitleCB->blockSignals(true);
+    OutputLegendCB->blockSignals(true);
+    OutputGridLinesCB->blockSignals(true);
+    OutputLineWidthAxesSB->blockSignals(true);
+    OutputLineWidthDataSB->blockSignals(true);
+    OutputLineWidthPointSB->blockSignals(true);
+    OutputFontSizeLabelSB->blockSignals(true);
+    OutputFontSizeNumberSB->blockSignals(true);
+    OutputFontCMB->blockSignals(true);
+
+    settings->beginGroup("Output");
+
+    OutputTitleCB->setChecked(       settings->value("PublishShowTitle",     false).toInt());
+    OutputLegendCB->setChecked(      settings->value("PublishShowLegend",    false).toInt());
+    OutputGridLinesCB->setChecked(   settings->value("PublishShowGridLines", false).toInt());
+    OutputLineWidthAxesSB->setValue( settings->value("PublishLineWidthAxes", nmfConstantsMSSPM::PublishLineWidthAxes).toInt());
+    OutputLineWidthDataSB->setValue( settings->value("PublishLineWidthData", nmfConstantsMSSPM::PublishLineWidthData).toInt());
+    OutputLineWidthPointSB->setValue(settings->value("PublishLineWidthPoint",nmfConstantsMSSPM::PublishLineWidthPoint).toInt());
+    OutputFontSizeLabelSB->setValue( settings->value("PublishFontSizeLabel", nmfConstantsMSSPM::PublishFontSizeLabel).toInt());
+    OutputFontSizeNumberSB->setValue(settings->value("PublishFontSizeNumber",nmfConstantsMSSPM::PublishFontSizeNumber).toInt());
+    OutputFontCMB->setCurrentText(   settings->value("PublishFont",          nmfConstantsMSSPM::PublishFont).toString());
+
+    settings->endGroup();
+    delete settings;
+
+    OutputTitleCB->blockSignals(false);
+    OutputLegendCB->blockSignals(false);
+    OutputGridLinesCB->blockSignals(false);
+    OutputLineWidthAxesSB->blockSignals(false);
+    OutputLineWidthDataSB->blockSignals(false);
+    OutputLineWidthPointSB->blockSignals(false);
+    OutputFontSizeLabelSB->blockSignals(false);
+    OutputFontSizeNumberSB->blockSignals(false);
+    OutputFontCMB->blockSignals(false);
 }
 
 void
@@ -1577,7 +1951,27 @@ nmfOutputControls::saveSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Output");
-    settings->setValue("Brightness", OutputLineBrightnessSL->value());
+    settings->setValue("Brightness",            OutputLineBrightnessSL->value());
+    settings->endGroup();
+
+    delete settings;
+}
+
+void
+nmfOutputControls::saveSettingsPublish()
+{
+    QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
+
+    settings->beginGroup("Output");
+    settings->setValue("PublishShowTitle",      OutputTitleCB->isChecked());
+    settings->setValue("PublishShowLegend",     OutputLegendCB->isChecked());
+    settings->setValue("PublishShowGridLines",  OutputGridLinesCB->isChecked());
+    settings->setValue("PublishLineWidthAxes",  OutputLineWidthAxesSB->value());
+    settings->setValue("PublishLineWidthData",  OutputLineWidthDataSB->value());
+    settings->setValue("PublishLineWidthPoint", OutputLineWidthPointSB->value());
+    settings->setValue("PublishFontSizeLabel",  OutputFontSizeLabelSB->value());
+    settings->setValue("PublishFontSizeNumber", OutputFontSizeNumberSB->value());
+    settings->setValue("PublishFont",           OutputFontCMB->currentText());
     settings->endGroup();
 
     delete settings;

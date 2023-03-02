@@ -32,13 +32,14 @@
 #ifndef NMFOUTPUTCONTROLS_H
 #define NMFOUTPUTCONTROLS_H
 
-#include <QStringListModel>
-#include <QMessageBox>
-#include <QGroupBox>
-#include <QComboBox>
 #include <QCheckBox>
+#include <QComboBox>
+#include <QFontComboBox>
+#include <QGroupBox>
+#include <QMessageBox>
 #include <QScrollArea>
 #include <QSpinBox>
+#include <QStringListModel>
 
 /**
  * @brief
@@ -64,47 +65,66 @@ class nmfOutputControls: public QObject
     double              m_FMSY_Value;
     double              m_BMSY_Value;
 
-    QLabel*      OutputChartTypeLBL;
-    QComboBox*   OutputGroupTypeCMB;
-    QLabel*      OutputSpeciesLBL;
-    QLabel*      OutputSpeListLBL;
-    QLabel*      OutputMethodsLBL;
-    QLabel*      OutputParametersLBL;
-    QLabel*      OutputScenariosLBL;
-    QLabel*      OutputAgeListLBL;
-    QLabel*      OutputYAxisMinLBL;
-    QLabel*      OutputYAxisMaxLBL;
-    QLabel*      OutputScaleLBL;
-    QLabel*      OutputLineBrightnessLBL;
-    QLabel*      OutputShowShadowLBL;
-    QLabel*      OutputShowHistoricalDataLBL;
-    QLabel*      OutputLegendLBL;
-    QSlider*     OutputLineBrightnessSL;
-    QComboBox*   OutputSpeciesCMB;
-    QComboBox*   OutputParametersCMB;
-    QComboBox*   OutputMethodsCMB;
-    QComboBox*   OutputScenariosCMB;
-    QCheckBox*   OutputParametersZScoreCB;
-    QPushButton* OutputParameters2d3dPB;
-    QPushButton* OutputParametersCenterPB;
-    QPushButton* OutputParametersMinimumPB;
-    QComboBox*   OutputChartTypeCMB;
-    QSlider*     OutputYAxisMinSL;
-    QSpinBox*    OutputYAxisMinSB;
-    QSpinBox*    OutputYAxisMaxSB;
-    QComboBox*   OutputScaleCMB;
-    QListView*   OutputAgeListLV;
-    QListView*   OutputSpeListLV;
-    QCheckBox*   OutputShowBMSYCB;
-    QCheckBox*   OutputShowMSYCB;
-    QCheckBox*   OutputShowFMSYCB;
-    QLineEdit*   OutputShowBMSYLE;
-    QLineEdit*   OutputShowMSYLE;
-    QLineEdit*   OutputShowFMSYLE;
-    QGroupBox*   ControlsGroupBox;
-    QCheckBox*   OutputShowHistoricalDataCB;
-    QCheckBox*   OutputShowShadowCB;
-    QCheckBox*   OutputLegendCB;
+    QLabel*        OutputChartTypeLBL;
+    QComboBox*     OutputGroupTypeCMB;
+    QLabel*        OutputSpeciesLBL;
+    QLabel*        OutputSpeListLBL;
+    QLabel*        OutputMethodsLBL;
+    QLabel*        OutputParametersLBL;
+    QLabel*        OutputScenariosLBL;
+    QLabel*        OutputAgeListLBL;
+    QLabel*        OutputYAxisMinLBL;
+    QLabel*        OutputYAxisMaxLBL;
+    QLabel*        OutputScaleLBL;
+    QLabel*        OutputLineBrightnessLBL;
+    QLabel*        OutputShowShadowLBL;
+    QLabel*        OutputShowHistoricalDataLBL;
+    QLabel*        OutputLegendLBL;
+    QLabel*        OutputGridLinesLBL;
+    QLabel*        OutputTitleLBL;
+    QLabel*        OutputLineWidthAxesLBL;
+    QLabel*        OutputLineWidthDataLBL;
+    QLabel*        OutputLineWidthPointLBL;
+    QLabel*        OutputFontLBL;
+    QLabel*        OutputFontSizesLBL;
+    QLabel*        OutputFontSizeNumberLBL;
+    QSlider*       OutputLineBrightnessSL;
+    QComboBox*     OutputSpeciesCMB;
+    QComboBox*     OutputParametersCMB;
+    QComboBox*     OutputMethodsCMB;
+    QComboBox*     OutputScenariosCMB;
+    QCheckBox*     OutputParametersZScoreCB;
+    QPushButton*   OutputParameters2d3dPB;
+    QPushButton*   OutputParametersCenterPB;
+    QPushButton*   OutputParametersMinimumPB;
+    QComboBox*     OutputChartTypeCMB;
+    QSlider*       OutputYAxisMinSL;
+    QSpinBox*      OutputYAxisMinSB;
+    QSpinBox*      OutputYAxisMaxSB;
+    QSpinBox*      OutputLineWidthAxesSB;
+    QSpinBox*      OutputLineWidthDataSB;
+    QSpinBox*      OutputLineWidthPointSB;
+    QSpinBox*      OutputFontSizeLabelSB;
+    QSpinBox*      OutputFontSizeNumberSB;
+    QComboBox*     OutputScaleCMB;
+    QFontComboBox* OutputFontCMB;
+    QListView*     OutputAgeListLV;
+    QListView*     OutputSpeListLV;
+    QCheckBox*     OutputShowBMSYCB;
+    QCheckBox*     OutputShowMSYCB;
+    QCheckBox*     OutputShowFMSYCB;
+    QLineEdit*     OutputShowBMSYLE;
+    QLineEdit*     OutputShowMSYLE;
+    QLineEdit*     OutputShowFMSYLE;
+    QGroupBox*     ControlsGroupBox;
+    QCheckBox*     OutputShowHistoricalDataCB;
+    QCheckBox*     OutputShowShadowCB;
+    QCheckBox*     OutputLegendCB;
+    QCheckBox*     OutputGridLinesCB;
+    QCheckBox*     OutputTitleCB;
+    QPushButton*   OutputPublishLoadPB;
+    QPushButton*   OutputPublishSavePB;
+    QPushButton*   OutputPublishDefPB;
 
     void enableMSYWidgets(bool state);
     bool getSpecies(int& NumSpecies, QStringList& SpeciesList);
@@ -163,6 +183,22 @@ public:
     bool isAveraged();
     void enableControls(bool state);
     bool isSetToGuild();
+
+    /**
+     * @brief Gets the width for the output chart's axes lines
+     * @return The width of the output axes lines
+     */
+    int getOutputLineWidthAxis();
+    /**
+     * @brief Gets the width for the output chart's data lines
+     * @return The width of the output data lines
+     */
+    int getOutputLineWidthData();
+    /**
+     * @brief Gets the width for the output chart's observed biomass points
+     * @return The size of the observed biomass points
+     */
+    int getOutputLineWidthPoint();
     /**
      * @brief Get the brightness factor set by the Forecast Run Brightness slider widget
      * @return The brightness value desired for the stochastic Forecast plots
@@ -183,6 +219,21 @@ public:
      * @return The name of the group type (i.e., Species, Guild, System)
      */
     QString getOutputGroupType();
+    /**
+     * @brief Get the chart font family
+     * @return The name of the desired chart font
+     */
+    QString getOutputFont();
+    /**
+     * @brief Get the chart label font size
+     * @return The desired chart label font size
+     */
+    int getOutputFontSizeLabel();
+    /**
+     * @brief Get the chart numeric scale font size
+     * @return The desired chart numeric scale font size
+     */
+    int getOutputFontSizeNumber();
     /**
      * @brief Get the currently selected Diagnostic parameter
      * @return The name of the Diagnostic parameter chosen by the user
@@ -255,6 +306,16 @@ public:
      */
     bool isCheckedOutputFMSY();
     /**
+     * @brief Informs the user if the show grid lines box is checked
+     * @return true if checked, false otherwise
+     */
+    bool isCheckedOutputGridLines();
+    /**
+     * @brief Informs the user if the show chart title box is checked
+     * @return true if checked, false otherwise
+     */
+    bool isCheckedOutputTitle();
+    /**
      * @brief Informs the user if the MSY checkbox has been enabled
      * @return The state of the MSY checkbox
      */
@@ -308,6 +369,10 @@ public:
      * @brief Saves any Output Controls specific values to the Qt Settings file
      */
     void saveSettings();
+    /**
+     * @brief Saves any Output Controls for Publishing to the Qt Settings file
+     */
+    void saveSettingsPublish();
     /**
      * @brief Sets the Species combobox to be the passed species
      * @param species : the species to set the species combo box
@@ -373,6 +438,12 @@ public:
     void setForMohnsRho();
     void setForBiomassVsTime();
     void readSettings();
+    void readSettingsPublish();
+    /**
+     * @brief Called when the user modifies a chart format widget and
+     * wants to refresh the current chart.
+     */
+    void emitRefreshChart();
 
 signals:
     /**
@@ -450,10 +521,31 @@ public slots:
      */
     void callback_OutputChartTypeCMB(QString outputType);
     /**
+     * @brief Callback invoked when the user checks the Grid Lines checkbox
+     * @param dummy : not currently implemented
+     */
+    void callback_OutputGridLinesCB(int dummy);
+    /**
      * @brief Callback invoked when the user selects from the Species combo box widget
      * @param species : the name of the Species the user selected
      */
     void callback_OutputSpeciesCMB(QString species);
+    /**
+     * @brief Callback invoked when user presses the save button. This results in the currently
+     * set format widget states to be saved, so that the next time the user presses the
+     * "Set for Publish" button, these saved widgets values are loaded.
+     */
+    void callback_OutputPublishSavePB();
+    /**
+     * @brief Callback invoked when the user clicks the Def button to load format widgets with
+     * their default values.
+     */
+    void callback_OutputPublishDefPB();
+    /**
+     * @brief Callback invoked when user presses the Set Publish button. This
+     * causes the format widgets to be set for publication.
+     */
+    void callback_OutputPublishLoadPB();
     /**
      * @brief Callback invoked when the user checks the Legend checkbox
      * @param dummy : not currently implemented
@@ -510,10 +602,45 @@ public slots:
      */
     void callback_OutputScaleCMB(QString scale);
     /**
+     * @brief Callback invoked when the user checks the Title checkbox
+     * @param dummy : not currently implemented
+     */
+    void callback_OutputTitleCB(int dummy);
+    /**
      * @brief Callback invoked when the user modifies the Forecast line brightness slider
      * @param value : the value of the Forecast line brightness slider
      */
     void callback_OutputLineBrightnessSL(int value);
+    /**
+     * @brief Callback invoked when the user selects a chart font
+     * @param dummy : The user selected chart font
+     */
+    void callback_OutputFontCMB(QString);
+    /**
+     * @brief Callback invoked when the user modifies the output chart's label font size spin box
+     * @param dummy : unused
+     */
+    void callback_OutputFontSizeLabelSB(int dummy);
+    /**
+     * @brief Callback invoked when the user modifies the output chart's numeric scale font size spin box
+     * @param dummy : unused
+     */
+    void callback_OutputFontSizeNumberSB(int dummy);
+    /**
+     * @brief Callback invoked when the user modifies the chart axis line width spin box
+     * @param dummy : unused
+     */
+    void callback_OutputLineWidthAxisSB(int dummy);
+    /**
+     * @brief Callback invoked when the user modifies the chart data line width spin box
+     * @param dummy : unused
+     */
+    void callback_OutputLineWidthDataSB(int dummy);
+    /**
+     * @brief Callback invoked when the user modifies the chart observed biomass point size
+     * @param dummy : unused
+     */
+    void callback_OutputLineWidthPointSB(int dummy);
     /**
      * @brief Callback invoked when the user modifies the Y-Axis Minimum value slider
      * @param value : the minimum value of the y-axis to set

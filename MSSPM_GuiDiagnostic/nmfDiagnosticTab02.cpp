@@ -39,6 +39,7 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
     m_Diagnostic_Tab2_NumPeelsSB      = m_Diagnostic_Tabs->findChild<QSpinBox    *>("Diagnostic_Tab2_NumPeelsSB");
     m_Diagnostic_Tab2_PeelPositionCMB = m_Diagnostic_Tabs->findChild<QComboBox   *>("Diagnostic_Tab2_PeelPositionCMB");
     m_Diagnostic_Tab2_PeelPositionLBL = m_Diagnostic_Tabs->findChild<QLabel      *>("Diagnostic_Tab2_PeelPositionLBL");
+    m_Diagnostic_Tab2_ConvOnlyCB      = m_Diagnostic_Tabs->findChild<QCheckBox   *>("Diagnostic_Tab2_ConvOnlyCB");
 
     // Add the loaded widget as the new tabbed page
     m_Diagnostic_Tabs->addTab(m_Diagnostic_Tab2_Widget, tr("2. Retrospective Analysis"));
@@ -53,6 +54,9 @@ nmfDiagnostic_Tab2::nmfDiagnostic_Tab2(QTabWidget*  tabs,
     m_Diagnostic_Tab2_PeelPositionCMB->setEnabled(false);
     m_Diagnostic_Tab2_PeelPositionCMB->hide();
     m_Diagnostic_Tab2_PeelPositionLBL->hide();
+
+    // Default the Allow Converged Only to be unchecked
+    m_Diagnostic_Tab2_ConvOnlyCB->setChecked(false);
 
     // Setup connections
     connect(m_Diagnostic_Tab2_RunPB, SIGNAL(clicked()),
@@ -301,6 +305,9 @@ nmfDiagnostic_Tab2::callback_RunPB()
     m_Logger->logMsg(nmfConstants::Normal,"Start Retrospective");
 
     readSettings();
+
+    // Notify Estimation Tab7 of the state of the Allow Conv Only runs checkbox
+    emit AllowConvergedOnly(m_Diagnostic_Tab2_ConvOnlyCB->isChecked());
 
     if (m_IsMultiRun) {
 QMessageBox::information(m_Diagnostic_Tabs, tr("Feature Unavailable"),

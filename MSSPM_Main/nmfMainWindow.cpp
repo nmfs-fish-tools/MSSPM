@@ -21,6 +21,10 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
 
     m_UI->setupUi(this);
 
+//    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+
+
     m_Estimator_Bees   = nullptr;
     m_ShowSignificantDigitsDlg = true;
     m_RunOutputMsg.clear();
@@ -1270,6 +1274,7 @@ nmfMainWindow::menu_whatsThis()
 void
 nmfMainWindow::menu_screenMultiShot()
 {
+    bool createPdf = false;
     int xOffset = 0;
     int yOffset = 0;
     int totPmHeight = 0;
@@ -1280,9 +1285,11 @@ nmfMainWindow::menu_screenMultiShot()
     int numImage=0;
     int imageHeight=0;
     int lastImageHeight=0;
+    int quality = -1;
     QPixmap pm;
     QPixmap finalPm;
-    QString outputFile;
+    QString outputFile,outputFilePdf;
+    QString imagePath;
 
     if (m_ScreenshotOn && (m_Pixmaps.size() > 0)) {
 
@@ -1311,11 +1318,12 @@ nmfMainWindow::menu_screenMultiShot()
         }
 
         // Set final image parameters
-        QImage result(maxPmWidth,totPmHeight,QImage::Format_ARGB32_Premultiplied);
-        QPainter painter(&result);
+        QImage resultImage(maxPmWidth,totPmHeight,QImage::Format_ARGB32_Premultiplied);
+
+        QPainter painter(&resultImage);
         QPixmap pmBG = QPixmap(maxPmWidth,totPmHeight);
         pmBG.fill();
-        painter.drawPixmap(0,0,pmBG);
+        painter.drawPixmap(0,0,pmBG);        
 
         // Lay out the individual images correctly in the composite image
         numImage = 0;
@@ -1339,15 +1347,29 @@ nmfMainWindow::menu_screenMultiShot()
         }
 
         // Query the user for name of composite image file
-        nmfStructsQt::ChartSaveDlg *dlg = new nmfStructsQt::ChartSaveDlg(this);
+
+        int resolution = 100;
+        ChartSaveDialog *dlg = new ChartSaveDialog(this);
+
         if (dlg->exec()) {
-            outputFile = dlg->getFilename();
+            outputFile    = dlg->getFilename();
+            outputFilePdf = dlg->getFilenamePdf();
+            resolution    = dlg->getResolution();
+            quality       = dlg->getQuality();
+            createPdf     = dlg->createPdf();
         }
         delete dlg;
         if (! outputFile.isEmpty()) {
+            int dotsPerMeter = resolution * nmfConstants::INCHES_to_METERS;
+            resultImage.setDotsPerMeterX(dotsPerMeter);
+            resultImage.setDotsPerMeterY(dotsPerMeter);
+
             // Write out the final composited image file
-            finalPm = QPixmap::fromImage(result);
-            saveScreenshot(outputFile,finalPm);
+            finalPm = QPixmap::fromImage(resultImage);
+            saveScreenshot(outputFile,finalPm,quality,imagePath);
+            if (createPdf) {
+                nmfUtilsQt::savePdf(imagePath,outputFile,resolution,resultImage);
+            }
         }
     }
 
@@ -1361,21 +1383,32 @@ nmfMainWindow::menu_screenMultiShot()
 void
 nmfMainWindow::menu_screenShot()
 {
+    bool createPdf = false;
+    int quality = -1;
+    int resolution = 300;
     QPixmap pm;
     QString outputFile;
+    QString imagePath;
 
     if (runningREMORA()) {
 
         Remora_ptr->grabImage(pm);
 
-        nmfStructsQt::ChartSaveDlg *dlg = new nmfStructsQt::ChartSaveDlg(this);
+        ChartSaveDialog *dlg = new ChartSaveDialog(this);
         if (dlg->exec()) {
             outputFile = dlg->getFilename();
+            resolution = dlg->getResolution();
+            quality    = dlg->getQuality();
+            createPdf  = dlg->createPdf();
         }
         delete dlg;
-        if (outputFile.isEmpty())
+        if (outputFile.isEmpty()) {
             return;
-        saveScreenshot(outputFile,pm);
+        }
+        saveScreenshot(outputFile,pm,quality,imagePath);
+        if (createPdf) {
+            nmfUtilsQt::savePdf(imagePath,outputFile,resolution,pm.toImage());
+        }
     }
     else {
         QString currentTabName = nmfUtilsQt::getCurrentTabName(m_UI->MSSPMOutputTabWidget);
@@ -1413,13 +1446,17 @@ nmfMainWindow::menu_screenShot()
         if (m_ChartView2d->isVisible() || m_ChartView3d->isVisible())
         {
             if (! m_ScreenshotOn) {
-                nmfStructsQt::ChartSaveDlg *dlg = new nmfStructsQt::ChartSaveDlg(this);
+                ChartSaveDialog *dlg = new ChartSaveDialog(this);
                 if (dlg->exec()) {
                     outputFile = dlg->getFilename();
+                    resolution = dlg->getResolution();
+                    quality    = dlg->getQuality();
+                    createPdf  = dlg->createPdf();
                 }
                 delete dlg;
-                if (outputFile.isEmpty())
+                if (outputFile.isEmpty()) {
                     return;
+                }
             }
 
             // Grab the image and store in a pixmap
@@ -1427,11 +1464,10 @@ nmfMainWindow::menu_screenShot()
                 m_ChartView2d->update();
                 m_ChartView2d->repaint();
                 pm = m_ChartView2d->grab();
-
             } else if (m_ChartView3d->isVisible()) {
                 m_ChartView3d->update();
                 m_ChartView3d->repaint();
-                pm.convertFromImage(m_Graph3D->renderToImage());
+                pm.convertFromImage(m_Graph3D->renderToImage(nmfConstants::ANTIALIASING_SAMPLES));
             }
 
             // Either load pixmap into vector of pixmaps for a composite image
@@ -1439,7 +1475,10 @@ nmfMainWindow::menu_screenShot()
             if (m_ScreenshotOn) {
                 m_Pixmaps.push_back(pm);
             } else {
-                saveScreenshot(outputFile,pm);
+                saveScreenshot(outputFile,pm,quality,imagePath);
+                if (createPdf) {
+                    nmfUtilsQt::savePdf(imagePath,outputFile,resolution,pm.toImage());
+                }
             }
 
         }
@@ -1683,7 +1722,7 @@ nmfMainWindow::menu_openCSVFile()
     QString filenameWithPath = QDir(pathData).filePath(m_MModeViewerWidget->getCurrentFilename());
     QStringList argList = {};
 
-    nmfUtilsQt::switchFileExtensions(filenameWithPath,".csv",{".jpg",".png"});
+    nmfUtilsQt::switchFileExtensions(filenameWithPath,".csv",{".jpg",".png",".tiff"});
 
     fileName = QFileDialog::getOpenFileName(
                 this, tr("Open CSV File"),
@@ -1841,7 +1880,13 @@ nmfMainWindow::menu_toggleManagerMode()
             menu_layoutDefault();
             return;
         }
-
+        Remora_ptr->setForPublishing(
+                    Output_Controls_ptr->getOutputLineWidthData(),
+                    Output_Controls_ptr->getOutputFontSizeLabel(),
+                    Output_Controls_ptr->getOutputFontSizeNumber(),
+                    Output_Controls_ptr->getOutputFont(),
+                    Output_Controls_ptr->getOutputLineWidthAxis(),
+                    Output_Controls_ptr->getOutputLineWidthAxis());
         Remora_ptr->setForecastName(forecastName);
         Remora_ptr->setForecastNumYearsPerRun(numYearsPerRun);
         Remora_ptr->setForecastNumRunsPerForecast(numRunsPerForecast);
@@ -1887,17 +1932,20 @@ nmfMainWindow::setVisibilityToolbarButtons(bool isVisible)
 }
 
 bool
-nmfMainWindow::saveScreenshot(QString &outputImageFile, QPixmap &pm)
+nmfMainWindow::saveScreenshot(QString &outputImageFile,
+                              QPixmap &pm,
+                              int& quality,
+                              QString &pathImage)
 {
     QString msg;
-    QString pathImage;
+//  QString pathImage;
     QString pathData;
     QMessageBox::StandardButton reply;
     QString outputImageFileWithPath;
     QString outputDataFileWithPath;
     QString outputDataFile = outputImageFile;
 
-    nmfUtilsQt::switchFileExtensions(outputDataFile,".csv",{".jpg",".png"});
+    nmfUtilsQt::switchFileExtensions(outputDataFile,".csv",{".jpg",".png",".tiff"});
 
     if (runningREMORA()) {
         pathImage = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDirMMode));
@@ -1926,7 +1974,7 @@ nmfMainWindow::saveScreenshot(QString &outputImageFile, QPixmap &pm)
     }
 
     // Save the image
-    pm.save(outputImageFileWithPath);
+    pm.save(outputImageFileWithPath,nullptr,quality);
 
     // Save the data file
     if (runningREMORA()) {
@@ -2161,7 +2209,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.6.1 ";
+    QString version = "MSSPM v1.6.2 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3713,6 +3761,8 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_EnableRunButtons(bool)));
     connect(Diagnostic_Tab2_ptr, SIGNAL(CheckMSYBoxes(bool)),
             Output_Controls_ptr, SLOT(callback_CheckMSYBoxes(bool)));
+    connect(Diagnostic_Tab2_ptr, SIGNAL(AllowConvergedOnly(bool)),
+            this,                SLOT(callback_AllowConvergedOnly(bool)));
 
     connect(m_UI->EstimationDataInputTabWidget,  SIGNAL(currentChanged(int)),
             this,                                SLOT(callback_EstimationTabChanged(int)));
@@ -6419,13 +6469,13 @@ nmfMainWindow::convertUnitsStringToValue(QString& ScaleStr)
 
     if (ScaleStr == "000") {
         ScaleVal = 1000.0;
-        ScaleStr = "10^3 ";
+        ScaleStr = "10³ ";
     } else if (ScaleStr == "000 000") {
         ScaleVal = 1000000.0;
-        ScaleStr = "10^6 ";
+        ScaleStr = "10⁶ ";
     } else if (ScaleStr == "000 000 000") {
         ScaleVal = 1000000000.0;
-        ScaleStr = "10^9 ";
+        ScaleStr = "10⁹ ";
     }
     ScaleStr += " ";
     if (ScaleStr == "Default ")
@@ -8647,7 +8697,7 @@ nmfMainWindow::showChartTableVsTime(
     std::string XLabel;
     std::string YLabel;
     int Theme = 0; // Replace with checkbox values
-    std::vector<bool> GridLines = {true,true}; // Replace with checkbox values
+    bool GridLines = Output_Controls_ptr->isCheckedOutputGridLines();
     QColor lineColor;
     bool xAxisIsInteger = true;
     QString colorName;
@@ -8661,6 +8711,7 @@ nmfMainWindow::showChartTableVsTime(
     std::string passedInLabel;
     QLocale locale(QLocale::English);
     QString valueWithComma;
+    bool showLegend = Output_Controls_ptr->isCheckedOutputLegend();
 
     ChartMSYData.resize(RunLength+1,1);
     ChartMSYData.clear();
@@ -8694,6 +8745,7 @@ nmfMainWindow::showChartTableVsTime(
 
     ChartType = "Line";
     MainTitle = passedInLabel + " for: " + OutputSpecies.toStdString();
+    MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
     XLabel    = "Run Length (Years)";
     YLabel    = (passedInLabel == FishingLabel) ?
                 passedInLabel :
@@ -8760,6 +8812,8 @@ nmfMainWindow::showChartTableVsTime(
             lineWithScatterChart->populateChart(m_ChartWidget,
                                      ChartType,
                                      LineStyle,
+                                     Output_Controls_ptr->getOutputLineWidthData(),
+                                     Output_Controls_ptr->getOutputLineWidthPoint(),
                                      isMohnsRho,
                                      nmfConstantsMSSPM::ShowFirstPoint,
                                      AddScatter,
@@ -8774,14 +8828,19 @@ nmfMainWindow::showChartTableVsTime(
                                      MainTitle,
                                      XLabel,
                                      YLabel,
-                                     GridLines,
+                                     Output_Controls_ptr->getOutputFontSizeLabel(),
+                                     Output_Controls_ptr->getOutputFontSizeNumber(),
+                                     Output_Controls_ptr->getOutputFont(),
+                                     Output_Controls_ptr->getOutputLineWidthAxis(),
+                                     Output_Controls_ptr->getOutputLineWidthAxis(),
+                                     {GridLines,GridLines},
                                      Theme,
                                      ChartColor,
                                      ScatterColor,
                                      nmfConstants::LineColors[line%NumLineColors],
                                      nmfConstants::LineColorNames[line%NumLineColors],
                                      {},
-                                     nmfConstantsMSSPM::ShowLegend);
+                                     showLegend);
         }
 
         AddScatter = (line+1 == NumLines-1);
@@ -8821,8 +8880,9 @@ nmfMainWindow::showChartTableVsTime(
                 lineChart->populateChart(m_ChartWidget,
                                          ChartType,
                                          LineStyle,
+                                         Output_Controls_ptr->getOutputLineWidthData(),
                                          nmfConstantsMSSPM::ShowFirstPoint,
-                                         nmfConstants::ShowLegend,
+                                         showLegend,
                                          StartYear,
                                          xAxisIsInteger,
                                          YMinVal,YMaxVal,
@@ -8834,7 +8894,12 @@ nmfMainWindow::showChartTableVsTime(
                                          MainTitle,
                                          XLabel,
                                          YLabel,
-                                         GridLines,
+                                         Output_Controls_ptr->getOutputFontSizeLabel(),
+                                         Output_Controls_ptr->getOutputFontSizeNumber(),
+                                         Output_Controls_ptr->getOutputFont(),
+                                         Output_Controls_ptr->getOutputLineWidthAxis(),
+                                         Output_Controls_ptr->getOutputLineWidthAxis(),
+                                         {GridLines,GridLines},
                                          Theme,
                                          {},
                                          colorName.toStdString(),
@@ -8882,7 +8947,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    std::string ChartType;
    std::string MainTitle;
    int Theme = 0; // Replace with checkbox values
-   std::vector<bool> GridLines = {true,true}; // Replace with checkbox values
+   bool GridLines = Output_Controls_ptr->isCheckedOutputGridLines();
    double StartXValue = -Diagnostic_Tab1_ptr->getLastRunsPctVariation();
    double XInc        = -StartXValue/NumPoints;
    double YMaxVal     = nmfConstants::NoValueDouble;
@@ -8891,6 +8956,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    ChartType = "Line";
    XLabel += " % Deviation";
    MainTitle = YLabel + " vs " + XLabel + " for: " + OutputSpecies.toStdString();
+   MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
 
 //   LineColors.push_back(QColor(  0,114,178)); // blue
 //   LineColors.push_back(QColor(230,159,  0)); // orange
@@ -8926,6 +8992,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
        lineChart->populateChart(m_ChartWidget,
                                 ChartType,
                                 LineStyle,
+                                Output_Controls_ptr->getOutputLineWidthData(),
                                 nmfConstantsMSSPM::ShowFirstPoint,
                                 nmfConstants::DontShowLegend,
                                 StartXValue,
@@ -8939,7 +9006,12 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
                                 MainTitle,
                                 XLabel,
                                 YLabel,
-                                GridLines,
+                                Output_Controls_ptr->getOutputFontSizeLabel(),
+                                Output_Controls_ptr->getOutputFontSizeNumber(),
+                                Output_Controls_ptr->getOutputFont(),
+                                Output_Controls_ptr->getOutputLineWidthAxis(),
+                                Output_Controls_ptr->getOutputLineWidthAxis(),
+                                {GridLines,GridLines},
                                 Theme,
                                 LineColors[0],
                                 "",
@@ -9205,7 +9277,7 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
     std::string YLabel;
     int Theme = 0; // Replace with checkbox values
 //  int NumColors;
-    std::vector<bool> GridLines = {true,true}; // Replace with checkbox values
+    bool GridLines = Output_Controls_ptr->isCheckedOutputGridLines();
     QStringList HoverLabels;
     QList<QString> formattedUncertaintyData;
     QLocale locale(QLocale::English);
@@ -9213,6 +9285,7 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
 
     ChartType = "Line";
     MainTitle = ChartTitle + " for: " + OutputSpecies.toStdString();
+    MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
     XLabel    = XAxisLabel;
     YLabel    = YAxisLabel + " (" + ScaleStr.toStdString() + "metric tons)";
 
@@ -9281,6 +9354,7 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
         lineChart->populateChart(m_ChartWidget,
                                  ChartType,
                                  LineStyleSolid,
+                                 Output_Controls_ptr->getOutputLineWidthData(),
                                  nmfConstantsMSSPM::ShowFirstPoint,
                                  ShowLegend,
                                  StartYear,
@@ -9294,7 +9368,12 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
                                  MainTitle,
                                  XLabel,
                                  YLabel,
-                                 GridLines,
+                                 Output_Controls_ptr->getOutputFontSizeLabel(),
+                                 Output_Controls_ptr->getOutputFontSizeNumber(),
+                                 Output_Controls_ptr->getOutputFont(),
+                                 Output_Controls_ptr->getOutputLineWidthAxis(),
+                                 Output_Controls_ptr->getOutputLineWidthAxis(),
+                                 {GridLines,GridLines},
                                  Theme,
                                  LineColors[0],
                                  lineColorName,
@@ -9305,6 +9384,7 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
             lineChart->overlayVerticalLine(
                         m_ChartWidget,
                         LineStyleDotted,
+                        Output_Controls_ptr->getOutputLineWidthData(),
                         nmfConstantsMSSPM::ShowFirstPoint,
                         ShowLegend,
                         StartYear,
@@ -9315,8 +9395,13 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
                         NumXValues,
                         "Separator for estimated plot on left and forecast(s) on right",
                         XLabel, YLabel,
+                        Output_Controls_ptr->getOutputFontSizeLabel(),
+                        Output_Controls_ptr->getOutputFontSizeNumber(),
+                        Output_Controls_ptr->getOutputFont(),
+                        Output_Controls_ptr->getOutputLineWidthAxis(),
+                        Output_Controls_ptr->getOutputLineWidthAxis(),
                         nmfConstants::SkyBlue,
-                        GridLines,
+                        {GridLines,GridLines},
                         1.0);
         }
     }
@@ -9426,6 +9511,7 @@ nmfMainWindow::showChartBiomassVsTime(
     //
     // Draw the line chart
     //
+    bool showLegend = Output_Controls_ptr->isCheckedOutputLegend();
     QColor ScatterColor;
     QColor ChartColor;
     QString colorName;
@@ -9464,7 +9550,7 @@ nmfMainWindow::showChartBiomassVsTime(
     std::vector<std::string> legendCode;
     bool AddScatter = true; //(NumLines == 1);
     int Theme = 0; // Replace with checkbox values
-    std::vector<bool> GridLines = {true,true}; // Replace with checkbox values
+    bool GridLines = Output_Controls_ptr->isCheckedOutputGridLines();
     bool xAxisIsInteger = true;
     int NumLineColors = nmfConstants::LineColors.size();
     QStringList HoverLabels;
@@ -9472,6 +9558,7 @@ nmfMainWindow::showChartBiomassVsTime(
     std::string TitlePrefix = (isAveraged) ? "Average " : "";
     ChartType = "Line";
     MainTitle = TitlePrefix + title + " for: " + OutputSpecies.toStdString();
+    MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
     XLabel    = "Year";
     YLabel    = "Biomass (" + ScaleStr.toStdString() + "metric tons)";
     ScatterColor = QColor(0,191,255); // deepskyblue
@@ -9538,13 +9625,13 @@ nmfMainWindow::showChartBiomassVsTime(
 
         // Call the chart api function that will populate and annotate the
         // desired chart type.
-        bool showLegend = Output_Controls_ptr
-                ->isCheckedOutputLegend();
         ColumnLabelsForLegend << QString::fromStdString(legendCode[line]);
         if (m_ChartWidget != nullptr) {
             lineWithScatterChart->populateChart(m_ChartWidget,
                                                 ChartType,
                                                 LineStyle,
+                                                Output_Controls_ptr->getOutputLineWidthData(),
+                                                Output_Controls_ptr->getOutputLineWidthPoint(),
                                                 isMohnsRho,
                                                 nmfConstantsMSSPM::ShowFirstPoint, //HideFirstPoint,
                                                 AddScatter,
@@ -9559,7 +9646,12 @@ nmfMainWindow::showChartBiomassVsTime(
                                                 MainTitle,
                                                 XLabel,
                                                 YLabel,
-                                                GridLines,
+                                                Output_Controls_ptr->getOutputFontSizeLabel(),
+                                                Output_Controls_ptr->getOutputFontSizeNumber(),
+                                                Output_Controls_ptr->getOutputFont(),
+                                                Output_Controls_ptr->getOutputLineWidthAxis(),
+                                                Output_Controls_ptr->getOutputLineWidthAxis(),
+                                                {GridLines,GridLines},
                                                 Theme,
                                                 ChartColor,
                                                 ScatterColor,
@@ -9600,8 +9692,9 @@ nmfMainWindow::showChartBiomassVsTime(
                 lineChart->populateChart(m_ChartWidget,
                                          ChartType,
                                          LineStyle,
+                                         Output_Controls_ptr->getOutputLineWidthData(),
                                          nmfConstantsMSSPM::ShowFirstPoint,
-                                         nmfConstants::ShowLegend,
+                                         showLegend, //nmfConstants::ShowLegend,
                                          StartYear,
                                          xAxisIsInteger,
                                          YMinVal,YMaxVal,
@@ -9613,7 +9706,12 @@ nmfMainWindow::showChartBiomassVsTime(
                                          MainTitle,
                                          XLabel,
                                          YLabel,
-                                         GridLines,
+                                         Output_Controls_ptr->getOutputFontSizeLabel(),
+                                         Output_Controls_ptr->getOutputFontSizeNumber(),
+                                         Output_Controls_ptr->getOutputFont(),
+                                         Output_Controls_ptr->getOutputLineWidthAxis(),
+                                         Output_Controls_ptr->getOutputLineWidthAxis(),
+                                         {GridLines,GridLines},
                                          Theme,
                                          QColor(nmfConstants::LineColors[line%NumLineColors].c_str()),
                                          colorName.toStdString(),
@@ -9698,7 +9796,7 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
     std::vector<std::string> legendCode;
     bool AddScatter = true; //(NumLines == 1);
     int Theme = 0; // Replace with checkbox values
-    std::vector<bool> GridLines = {true,true}; // Replace with checkbox values
+    bool GridLines = Output_Controls_ptr->isCheckedOutputGridLines();
     bool xAxisIsInteger = true;
     int NumLineColors = nmfConstants::LineColors.size();
     QStringList HoverLabels;
@@ -9706,10 +9804,12 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
     std::string TitlePrefix = (isAveraged) ? "Average " : "";
     ChartType = "Line";
     MainTitle = TitlePrefix + "B(calc) with B(obs) points for: " + OutputSpecies.toStdString();
+    MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
     XLabel    = "Year";
     YLabel    = "Biomass (" + ScaleStr.toStdString() + "metric tons)";
     ScatterColor = QColor(0,191,255); // deepskyblue
     QString lineLabel;
+    bool showLegend = Output_Controls_ptr->isCheckedOutputLegend();
 
     if (clearChart) {
         m_ChartWidget->removeAllSeries();
@@ -9768,6 +9868,8 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
         lineWithScatterChart->populateChart(m_ChartWidget,
                                             ChartType,
                                             LineStyle,
+                                            Output_Controls_ptr->getOutputLineWidthData(),
+                                            Output_Controls_ptr->getOutputLineWidthPoint(),
                                             isMohnsRho,
                                             nmfConstantsMSSPM::ShowFirstPoint,
                                             AddScatter,
@@ -9782,7 +9884,12 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
                                             MainTitle,
                                             XLabel,
                                             YLabel,
-                                            GridLines,
+                                            Output_Controls_ptr->getOutputFontSizeLabel(),
+                                            Output_Controls_ptr->getOutputFontSizeNumber(),
+                                            Output_Controls_ptr->getOutputFont(),
+                                            Output_Controls_ptr->getOutputLineWidthAxis(),
+                                            Output_Controls_ptr->getOutputLineWidthAxis(),
+                                            {GridLines,GridLines},
                                             Theme,
                                             ChartColor,
                                             ScatterColor,
@@ -9820,8 +9927,9 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
                 lineChart->populateChart(m_ChartWidget,
                                          ChartType,
                                          LineStyle,
+                                         Output_Controls_ptr->getOutputLineWidthData(),
                                          nmfConstantsMSSPM::ShowFirstPoint,
-                                         nmfConstants::ShowLegend,
+                                         showLegend,
                                          StartYear,
                                          xAxisIsInteger,
                                          YMinVal,YMaxVal,
@@ -9833,7 +9941,12 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
                                          MainTitle,
                                          XLabel,
                                          YLabel,
-                                         GridLines,
+                                         Output_Controls_ptr->getOutputFontSizeLabel(),
+                                         Output_Controls_ptr->getOutputFontSizeNumber(),
+                                         Output_Controls_ptr->getOutputFont(),
+                                         Output_Controls_ptr->getOutputLineWidthAxis(),
+                                         Output_Controls_ptr->getOutputLineWidthAxis(),
+                                         {GridLines,GridLines},
                                          Theme,
                                          QColor(nmfConstants::LineColors[line%NumLineColors].c_str()),
                                          "", //lineLabel.toStdString(),
@@ -9891,7 +10004,7 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
     std::string MainTitle = "Calculated (" + type + ") Biomass for Selected Species";
     std::string XLabel    = "Year";
     std::string YLabel    = "Biomass (metric tons)";
-    std::vector<bool> GridLines = {true,true}; // Replace with checkbox values
+    bool GridLines = Output_Controls_ptr->isCheckedOutputGridLines();
     int Theme             = 0;              // Replace with combobox value
     int m = 0;
     int NumSpecies = RowNumList.size();
@@ -9903,6 +10016,8 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
     QStringList HoverLabels;
     QLocale locale(QLocale::English);
     QString valueWithComma;
+
+    MainTitle  = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
 
     if (NumSpecies == 0) {
         m_ChartWidget->removeAllSeries();
@@ -9942,6 +10057,7 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
         lineChart->populateChart(m_ChartWidget,
                                  ChartType,
                                  LineStyle,
+                                 Output_Controls_ptr->getOutputLineWidthData(),
                                  nmfConstantsMSSPM::HideFirstPoint,
                                  nmfConstants::DontShowLegend,
                                  0,
@@ -9955,7 +10071,12 @@ nmfMainWindow::showChartBcVsTimeSelectedSpecies(QList<int> &RowNumList,
                                  MainTitle,
                                  XLabel,
                                  YLabel,
-                                 GridLines,
+                                 Output_Controls_ptr->getOutputFontSizeLabel(),
+                                 Output_Controls_ptr->getOutputFontSizeNumber(),
+                                 Output_Controls_ptr->getOutputFont(),
+                                 Output_Controls_ptr->getOutputLineWidthAxis(),
+                                 Output_Controls_ptr->getOutputLineWidthAxis(),
+                                 {GridLines,GridLines},
                                  Theme,
                                  {},
                                  "",
@@ -16546,3 +16667,8 @@ nmfMainWindow::callback_LoadSpeciesGuild()
                 Setup_Tab3_ptr->getSpeciesGuild());
 }
 
+void
+nmfMainWindow::callback_AllowConvergedOnly(bool allowConvergedOnly)
+{
+    Estimation_Tab7_ptr->setAllowConvergedOnly(allowConvergedOnly);
+}

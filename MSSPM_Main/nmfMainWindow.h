@@ -91,6 +91,7 @@
 #include "nmfViewerWidget.h"
 #include "TableNamesDialog.h"
 #include "ScrollingTextDialog.h"
+#include "ChartSaveDialog.h"
 
 #include <QtDataVisualization>
 #include <QDateTime>
@@ -99,7 +100,11 @@
 #include <QPixmap>
 #include <QUiLoader>
 #include <QGraphicsScene>
+#include <QPageLayout>
+#include <QPageSize>
 #include <QProgressBar>
+#include <QPrinter>
+#include <QPdfWriter>
 
 
 #include "REMORA_UI.h"
@@ -840,7 +845,10 @@ private:
                            std::vector<QString>& MultiRunLines,
                            int& TotalIndividualRuns);
     void saveRemoraDataFile(QString filename);
-    bool saveScreenshot(QString &outputfile, QPixmap &pm);
+    bool saveScreenshot(QString &outputfile,
+                        QPixmap &pm,
+                        int& quality,
+                        QString& imagePath);
     void saveSettings(); //bool loadWidgets=true);
     bool scaleTimeSeriesIfMonteCarlo(const bool& isMonteCarlo,
                                      const std::vector<double>&             Uncertainty,
@@ -1700,6 +1708,7 @@ public slots:
     void menu_toggleSignificantDigits();
     void menu_troubleshooting();
 
+    void callback_AllowConvergedOnly(bool allowConvergedOnly);
     void callback_PreferencesOkPB();
     void callback_ErrorFound(std::string errorMsg);
     void callback_ManagerModeViewerClose(bool state);

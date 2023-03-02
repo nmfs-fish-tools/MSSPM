@@ -741,6 +741,12 @@ public:
      */
     void setAlgorithm(QString algorithm);
     /**
+     * @brief Called when the user needs to change the Allow Converged Only state (this is most likely
+     * due to the corresponding check box being toggled in the Retrospective Analysis Diagnostic Tab2).
+     * @param allowConvergedOnly : true if checkbox should be set, false otherwise
+     */
+    void setAllowConvergedOnly(bool allowConvergedOnly);
+    /**
      * @brief Sets the current minimizer type to the passed string
      * @param value : the current minimizer type
      */
