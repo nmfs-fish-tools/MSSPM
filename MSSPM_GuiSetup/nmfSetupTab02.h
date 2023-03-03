@@ -249,67 +249,67 @@ public Q_SLOTS:
     /**
      * @brief Callback invoked when the user wants to browse for a new Project
      */
-    void callback_Setup_Tab2_BrowseProject();
+    void callback_BrowseProject();
     /**
      * @brief Callback invoked when the user changes the current database
      * @param newDatabaseName : name of new current database
      */
-    void callback_Setup_Tab2_DatabaseChanged(QString newDatabaseName);
+    void callback_DatabaseChanged(QString newDatabaseName);
     /**
      * @brief Callback invoked when the user deletes a Database
      */
-    void callback_Setup_Tab2_DelDatabase();
+    void callback_DelDatabase();
     /**
      * @brief Callback invoked when the user deletes a Project
      */
-    void callback_Setup_Tab2_DelProject();
+    void callback_DelProject();
     /**
      * @brief Callback invoked when the user imports a database from a file
      */
-    void callback_Setup_Tab2_ImportDatabase();
+    void callback_ImportDatabase();
     /**
      * @brief Callback invoked when the user creates a new database
      */
-    void callback_Setup_Tab2_NewDatabase();
+    void callback_NewDatabase();
     /**
      * @brief Callback invoked when the user creates a new Project
      */    
-    void callback_Setup_Tab2_NewProject();
+    void callback_NewProject();
     /**
      * @brief Callback invoked when the user has finished editing the
      * Project Author name
      */
-    void callback_Setup_Tab2_ProjectAuthorAdd();
+    void callback_ProjectAuthorAdd();
     /**
      * @brief Callback invoked when the user has finished editing the
      * Project Description
      */
-    void callback_Setup_Tab2_ProjectDescAdd();
+    void callback_ProjectDescAdd();
     /**
      * @brief Callback invoked when the user has selected a new
      * Project Directory
      */
-    void callback_Setup_Tab2_ProjectDirAdd();
+    void callback_ProjectDirAdd();
     /**
      * @brief Callback invoked when the user clicks the Browse Directory button
      */
-    void callback_Setup_Tab2_ProjectDirBrowsePB();
+    void callback_ProjectDirBrowsePB();
     /**
      * @brief Callback invoked when the user has finished editing the Project Name
      */
-    void callback_Setup_Tab2_ProjectNameAdd();
+    void callback_ProjectNameAdd();
     /**
      * @brief Callback invoked when the user wants to refresh the database pulldown list
      */
-    void callback_Setup_Tab2_RefreshDatabase();
+    void callback_RefreshDatabase();
     /**
      * @brief Callback invoked when the user has clicked the Reload Project button
      */
-    void callback_Setup_Tab2_ReloadProject();
+    void callback_ReloadProject();
     /**
      * @brief Callback invoked when the user clicks the Save Project button
      */
-    void callback_Setup_Tab2_SaveProject();
+    void callback_SaveProject();
     /**
      * @brief Callback invoked when the user presses the Cancel button from the popup
      * progress dialog after invoking the Create Tables functionality

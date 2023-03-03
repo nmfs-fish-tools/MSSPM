@@ -58,35 +58,35 @@ nmfSetup_Tab2::nmfSetup_Tab2(QTabWidget* tabs,
     Setup_Tab2_ProjectDescLE->setClearButtonEnabled(true);
 
     connect(Setup_Tab2_ProjectDirBrowsePB, SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_ProjectDirBrowsePB()));
+            this,                          SLOT(callback_ProjectDirBrowsePB()));
     connect(Setup_Tab2_DelDatabasePB,      SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_DelDatabase()));
+            this,                          SLOT(callback_DelDatabase()));
     connect(Setup_Tab2_SaveProjectPB,      SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_SaveProject()));
+            this,                          SLOT(callback_SaveProject()));
     connect(Setup_Tab2_NewProjectPB,       SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_NewProject()));
+            this,                          SLOT(callback_NewProject()));
     connect(Setup_Tab2_DelProjectPB,       SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_DelProject()));
+            this,                          SLOT(callback_DelProject()));
     connect(Setup_Tab2_RefreshDatabasePB,  SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_RefreshDatabase()));
+            this,                          SLOT(callback_RefreshDatabase()));
     connect(Setup_Tab2_BrowseProjectPB,    SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_BrowseProject()));
+            this,                          SLOT(callback_BrowseProject()));
     connect(Setup_Tab2_ReloadProjectPB,    SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_ReloadProject()));
+            this,                          SLOT(callback_ReloadProject()));
     connect(Setup_Tab2_ProjectNameLE,      SIGNAL(editingFinished()),
-            this,                          SLOT(callback_Setup_Tab2_ProjectNameAdd()));
+            this,                          SLOT(callback_ProjectNameAdd()));
     connect(Setup_Tab2_ProjectAuthorLE,    SIGNAL(editingFinished()),
-            this,                          SLOT(callback_Setup_Tab2_ProjectAuthorAdd()));
+            this,                          SLOT(callback_ProjectAuthorAdd()));
     connect(Setup_Tab2_ProjectDescLE,      SIGNAL(editingFinished()),
-            this,                          SLOT(callback_Setup_Tab2_ProjectDescAdd()));
+            this,                          SLOT(callback_ProjectDescAdd()));
     connect(Setup_Tab2_ProjectDirLE,       SIGNAL(returnPressed()),
-            this,                          SLOT(callback_Setup_Tab2_ProjectDirAdd()));
+            this,                          SLOT(callback_ProjectDirAdd()));
     connect(Setup_Tab2_NewDatabasePB,      SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_NewDatabase()));
+            this,                          SLOT(callback_NewDatabase()));
     connect(Setup_Tab2_ImportDatabasePB,   SIGNAL(clicked()),
-            this,                          SLOT(callback_Setup_Tab2_ImportDatabase()));
+            this,                          SLOT(callback_ImportDatabase()));
     connect(Setup_Tab2_ProjectDatabaseCMB, SIGNAL(currentTextChanged(QString)),
-            this,                          SLOT(callback_Setup_Tab2_DatabaseChanged(QString)));
+            this,                          SLOT(callback_DatabaseChanged(QString)));
 
     readSettings();
 
@@ -115,7 +115,7 @@ nmfSetup_Tab2::isProjectDataValid()
 
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_SaveProject()
+nmfSetup_Tab2::callback_SaveProject()
 {
     saveProject(nmfConstantsMSSPM::VerboseOn);
 }
@@ -1607,7 +1607,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
 
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_NewDatabase()
+nmfSetup_Tab2::callback_NewDatabase()
 {
     bool ok;
     std::string msg;
@@ -1663,7 +1663,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_NewDatabase()
     emit RemoveGuildsAndSpecies();
 
     // Auto save project
-    callback_Setup_Tab2_SaveProject();
+    callback_SaveProject();
 
     // Set Navigator to Setup enabled only mode
     emit AddedNewDatabase();
@@ -1674,13 +1674,28 @@ nmfSetup_Tab2::callback_Setup_Tab2_NewDatabase()
 }
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_ImportDatabase()
+nmfSetup_Tab2::callback_ImportDatabase()
 {
-   emit ImportDatabase();
+    QString remProjectDir         = m_ProjectDir;
+    QString remProjectName        = m_ProjectName;
+    QString remProjectAuthor      = m_ProjectAuthor;
+    QString remProjectDescription = m_ProjectDescription;
+
+    emit ImportDatabase();
+
+    m_ProjectDir         = remProjectDir;
+    m_ProjectName        = remProjectName;
+    m_ProjectAuthor      = remProjectAuthor;
+    m_ProjectDescription = remProjectDescription;
+
+    setProjectDirectory(remProjectDir);
+    setProjectName(remProjectName);
+    setProjectAuthor(remProjectAuthor);
+    setProjectDescription(remProjectDescription);
 }
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_DelDatabase()
+nmfSetup_Tab2::callback_DelDatabase()
 {
     bool deleteOK=true;
     std::string cmd;
@@ -1727,7 +1742,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_DelDatabase()
 
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_DatabaseChanged(QString db)
+nmfSetup_Tab2::callback_DatabaseChanged(QString db)
 {
     m_LastProjectDatabase = m_ProjectDatabase;
     m_ProjectDatabase = db;
@@ -1735,7 +1750,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_DatabaseChanged(QString db)
 
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_ProjectDirBrowsePB()
+nmfSetup_Tab2::callback_ProjectDirBrowsePB()
 {
     // Launch file dialog
     QString dir = QFileDialog::getExistingDirectory(
@@ -1751,26 +1766,26 @@ nmfSetup_Tab2::callback_Setup_Tab2_ProjectDirBrowsePB()
 }
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_ProjectDirAdd()
+nmfSetup_Tab2::callback_ProjectDirAdd()
 {
     m_ProjectDir = Setup_Tab2_ProjectDirLE->text();
 }
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_ProjectNameAdd()
+nmfSetup_Tab2::callback_ProjectNameAdd()
 {
     m_ProjectName = getProjectName();
     m_NewProject = true;
 }
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_ProjectAuthorAdd()
+nmfSetup_Tab2::callback_ProjectAuthorAdd()
 {
     m_ProjectAuthor = Setup_Tab2_ProjectAuthorLE->text();
 }
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_ProjectDescAdd()
+nmfSetup_Tab2::callback_ProjectDescAdd()
 {
     m_ProjectDescription = Setup_Tab2_ProjectDescLE->text();
 }
@@ -1881,7 +1896,7 @@ nmfSetup_Tab2::initDatabase(QString database)
 
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_BrowseProject()
+nmfSetup_Tab2::callback_BrowseProject()
 {
     QString fileName = QFileDialog::getOpenFileName(Setup_Tabs,
         tr("Load a Project"), m_ProjectDir, tr("Project Files (*.prj)"));
@@ -1898,7 +1913,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_BrowseProject()
 
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_NewProject()
+nmfSetup_Tab2::callback_NewProject()
 {
     Setup_Tab2_ProjectNameLE->clear();
     Setup_Tab2_ProjectAuthorLE->clear();
@@ -1908,7 +1923,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_NewProject()
 
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_DelProject()
+nmfSetup_Tab2::callback_DelProject()
 {
     std::string msg;
     QString projectPrefix = getProjectName();
@@ -1938,7 +1953,7 @@ nmfSetup_Tab2::callback_Setup_Tab2_DelProject()
                                      tr("Remove Project"),
                                      tr("\nProject file removed successfully."),
                                      QMessageBox::Ok);
-            callback_Setup_Tab2_NewProject(); // Clear Project fields
+            callback_NewProject(); // Clear Project fields
         } else {
             msg = "\nCouldn't remove Project file: " + ProjectToDelete;
             QMessageBox::critical(Setup_Tabs,
@@ -1950,13 +1965,13 @@ nmfSetup_Tab2::callback_Setup_Tab2_DelProject()
 }
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_ReloadProject()
+nmfSetup_Tab2::callback_ReloadProject()
 {
     readSettings();
 }
 
 void
-nmfSetup_Tab2::callback_Setup_Tab2_RefreshDatabase()
+nmfSetup_Tab2::callback_RefreshDatabase()
 {
     loadDatabaseNames(Setup_Tab2_ProjectDatabaseCMB->currentText());
     QMessageBox::information(Setup_Tabs, "Refresh", "\nDatabase list refreshed.\n", QMessageBox::Ok);

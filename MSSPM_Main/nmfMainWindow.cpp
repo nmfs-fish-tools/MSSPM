@@ -1567,8 +1567,8 @@ qDebug() << "dbName: " << dbName;
     QApplication::sync();
     QApplication::processEvents();
     if (! dbName.isEmpty()) {
-
-        loadGuis();
+qDebug() << "--> before loadGuis";
+        loadGuis(nmfConstantsMSSPM::DontLoadProjectData);
         if (reply == QMessageBox::No) {
             Setup_Tab2_ptr->clearProject();
             QMessageBox::information(this, tr("Project"),
@@ -1633,7 +1633,7 @@ qDebug() << "dbName: " << dbName;
         Setup_Tab2_ptr->saveSettings(nmfConstantsMSSPM::ClearModelName);
 
         Setup_Tab2_ptr->saveProject(nmfConstantsMSSPM::VerboseOff);
-        Setup_Tab2_ptr->callback_Setup_Tab2_ReloadProject();
+        Setup_Tab2_ptr->callback_ReloadProject();
         if (VerboseOn) {
             QMessageBox::information(this, "Load Model", "\nPlease load the desired model.\n", QMessageBox::Ok);
         }
@@ -3309,11 +3309,13 @@ nmfMainWindow::loadSetupWidgets()
 }
 
 void
-nmfMainWindow::loadAllWidgets()
+nmfMainWindow::loadAllWidgets(bool loadProjectData)
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
-
-    Setup_Tab2_ptr->loadWidgets();
+qDebug() << "Load project tab data: " << loadProjectData;
+    if (loadProjectData) {
+        Setup_Tab2_ptr->loadWidgets();
+    }
     Setup_Tab3_ptr->loadWidgets();
     Setup_Tab4_ptr->loadWidgets();
 
@@ -3425,7 +3427,7 @@ nmfMainWindow::refreshOutputTables()
 }
 
 void
-nmfMainWindow::loadGuis()
+nmfMainWindow::loadGuis(bool loadProjectData)
 {
     if (m_LoadLastProject) {
         QString filename = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(m_ProjectName));
@@ -3437,7 +3439,7 @@ nmfMainWindow::loadGuis()
         }
     }
 
-    loadAllWidgets();
+    loadAllWidgets(loadProjectData);
 
     adjustProgressWidget();
     Output_Controls_ptr->loadSpeciesControlWidget();
@@ -6608,8 +6610,9 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
         OutputSpecies = Output_Controls_ptr->getOutputSpecies();
     }
 
-    if (! m_DatabasePtr->getGuilds(m_Logger,NumGuilds,GuildList))
+    if (! m_DatabasePtr->getGuilds(m_Logger,NumGuilds,GuildList)) {
         return false;
+    }
 
     if (isAggProd) {
         NumSpeciesOrGuilds  = NumGuilds;

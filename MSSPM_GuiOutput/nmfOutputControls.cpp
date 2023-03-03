@@ -246,7 +246,7 @@ nmfOutputControls::initWidgets()
     OutputLineWidthAxesSB->setMinimum(0);
     OutputLineWidthAxesSB->setMaximum(6);
     OutputLineWidthDataSB->setMinimum(0);
-    OutputLineWidthDataSB->setMaximum(11);
+    OutputLineWidthDataSB->setMaximum(42);
     OutputFontSizeLabelSB->setMinimum(9);
     OutputFontSizeLabelSB->setMaximum(32);
     OutputFontSizeNumberSB->setMinimum(7);
@@ -1004,9 +1004,21 @@ nmfOutputControls::isSetToGuild()
 }
 
 bool
+nmfOutputControls::isSetToDiagnostics()
+{
+    return (getOutputChartType() == "Diagnostics");
+}
+
+bool
+nmfOutputControls::isSetToMultiScenarioPlots()
+{
+    return (OutputMethodsCMB->currentText() == "Multi-Scenario Plots");
+}
+
+bool
 nmfOutputControls::isSetToRetrospectiveAnalysis()
 {
-    return OutputMethodsCMB->currentText() == "Retrospective Analysis";
+    return (OutputMethodsCMB->currentText() == "Retrospective Analysis");
 }
 
 void
@@ -1458,7 +1470,15 @@ nmfOutputControls::callback_OutputPublishLoadPB()
 void
 nmfOutputControls::emitRefreshChart()
 {
-    emit ShowChart("","");
+    // todo - add functionality for multi-scenario plots
+//    if (isSetToMultiScenarioPlots()) {
+//        emit ShowChartMultiScenario(m_SortedForecastLabelsMap[scenario]);
+//    }
+    if (isSetToDiagnostics() && isSetToRetrospectiveAnalysis()) {
+        emit ShowChartMohnsRho();
+    } else {
+        emit ShowChart("","");
+    }
 }
 
 void
@@ -1497,11 +1517,10 @@ void
 nmfOutputControls::callback_OutputScaleCMB(QString scale)
 {
     QString scenario = getOutputScenario();
-    QString chartType = getOutputChartType();
 
-    if (chartType == "Multi-Scenario Plots") {
+    if (isSetToMultiScenarioPlots()) {
         emit ShowChartMultiScenario(m_SortedForecastLabelsMap[scenario]);
-    } else if ((chartType == "Diagnostics") && isSetToRetrospectiveAnalysis()) {
+    } else if (isSetToDiagnostics() && isSetToRetrospectiveAnalysis()) {
         emit ShowChartMohnsRho();
     } else {
         updateChart();

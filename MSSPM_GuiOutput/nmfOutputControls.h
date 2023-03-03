@@ -326,6 +326,16 @@ public:
      */
     bool isEnabledOutputFMSY();
     /**
+     * @brief Informs the user if the chart type is set to Diagnostics
+     * @return true if set to Diagnostics, false otherwise
+     */
+    bool isSetToDiagnostics();
+    /**
+     * @brief Informs the user if the chart type is set to Multi-Scenario Plots
+     * @return true if set to Multi-Scenario Plots, false otherwise
+     */
+    bool isSetToMultiScenarioPlots();
+    /**
      * @brief Informs the user if the Method combobox is set to Retrospective Analysis
      * @return Boolean signifying if combobox is set to Retrospective Analysis
      */

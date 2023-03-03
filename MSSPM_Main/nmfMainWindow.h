@@ -698,7 +698,7 @@ private:
             const QStringList& speciesList,
             QTableView* tableView,
             const std::string& field);
-    void loadGuis();
+    void loadGuis(bool loadProjectData = true);
     bool loadHarvestCatchTables(
             const bool& isAggProd,
             const bool& isMonteCarlo,
@@ -834,7 +834,7 @@ private:
     void readSettings(QString name);
     void readSettings();
     void readSettingsGuiOrientation(bool alsoResetPosition);
-    void loadAllWidgets();
+    void loadAllWidgets(bool loadProjectData = false);
     void loadSetupWidgets();
     void refreshOutputTables();
 //    void removeExistingMultiRuns();
