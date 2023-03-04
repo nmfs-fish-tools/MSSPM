@@ -1012,7 +1012,7 @@ nmfOutputControls::isSetToDiagnostics()
 bool
 nmfOutputControls::isSetToMultiScenarioPlots()
 {
-    return (OutputMethodsCMB->currentText() == "Multi-Scenario Plots");
+    return (OutputChartTypeCMB->currentText() == "Multi-Scenario Plots");
 }
 
 bool
@@ -1470,11 +1470,10 @@ nmfOutputControls::callback_OutputPublishLoadPB()
 void
 nmfOutputControls::emitRefreshChart()
 {
-    // todo - add functionality for multi-scenario plots
-//    if (isSetToMultiScenarioPlots()) {
-//        emit ShowChartMultiScenario(m_SortedForecastLabelsMap[scenario]);
-//    }
-    if (isSetToDiagnostics() && isSetToRetrospectiveAnalysis()) {
+    if (isSetToMultiScenarioPlots()) {
+        QString scenario = getOutputScenario();
+        emit ShowChartMultiScenario(m_SortedForecastLabelsMap[scenario]);
+    } else if (isSetToDiagnostics() && isSetToRetrospectiveAnalysis()) {
         emit ShowChartMohnsRho();
     } else {
         emit ShowChart("","");
@@ -1516,9 +1515,8 @@ nmfOutputControls::callback_OutputFMSYCB(int val)
 void
 nmfOutputControls::callback_OutputScaleCMB(QString scale)
 {
-    QString scenario = getOutputScenario();
-
     if (isSetToMultiScenarioPlots()) {
+        QString scenario = getOutputScenario();
         emit ShowChartMultiScenario(m_SortedForecastLabelsMap[scenario]);
     } else if (isSetToDiagnostics() && isSetToRetrospectiveAnalysis()) {
         emit ShowChartMohnsRho();

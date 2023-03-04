@@ -204,9 +204,11 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     setOutputControlsWidth();
     setDatabaseWaitTime();
 
-    // Test code here....
-    std::cout << "Initializing....." << std::endl;
+    // Clear the output chart upon application start-up
+    clearChart();
+    callback_ShowChart("","");
 
+//    std::cout << "Initializing....." << std::endl;
 //    boost::numeric::ublas::vector<int> vec;
 //    nmfUtils::initialize(vec,10);
 //    nmfUtils::printVector("test",6,vec);
@@ -2209,7 +2211,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.6.2 ";
+    QString version = "MSSPM v1.6.3 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3064,7 +3066,7 @@ nmfMainWindow::loadHarvestCatchTables(
     if (isAggProd) {
         if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                       ForecastName,tableHarvestCatch.toStdString(),
-                                                      NumSpeciesOrGuilds,RunLength,
+                                                      "",NumSpeciesOrGuilds,RunLength,
                                                       "",NullMatrix,Catch)) {
             QMessageBox::warning(this, "Error",
                                  "\nError: No data found in Catch table for current Forecast.\nCheck Forecast->Harvest Data tab.",
@@ -3115,7 +3117,7 @@ nmfMainWindow::loadHarvestEffortTables(
     if (isAggProd) {
         if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                       ForecastName,nmfConstantsMSSPM::TableHarvestEffort,
-                                                      NumSpeciesOrGuilds,RunLength,
+                                                      "",NumSpeciesOrGuilds,RunLength,
                                                       "",NullMatrix,Effort))
             return false;
     } else {
@@ -3261,7 +3263,7 @@ nmfMainWindow::loadHarvestExploitationTables(
     if (isAggProd) {
         if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                       ForecastName,nmfConstantsMSSPM::TableHarvestExploitation,
-                                                      NumSpeciesOrGuilds,RunLength,
+                                                      "",NumSpeciesOrGuilds,RunLength,
                                                       "",NullMatrix,Exploitation))
             return false;
     } else {
@@ -6834,7 +6836,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
     // Load Observed (ie, original) Biomass
     if (isAggProd) {
         if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
-                                                      "",ObsBiomassType,NumSpeciesOrGuilds,RunLength,
+                                                      "",ObsBiomassType,"",NumSpeciesOrGuilds,RunLength,
                                                       "",NullMatrix,ObservedBiomass)) {
             return false;
         }
@@ -6964,6 +6966,7 @@ nmfMainWindow::callback_ShowChart(QString OutputType,
                                             EstCatchability,OutputBiomass,HarvestData)) {
             return false;
         }
+
         YMinVal = 0.0;
         YMaxVal = 1.0;
         showChartTableVsTime(nmfConstantsMSSPM::OutputChartExploitation.toStdString(),
@@ -7019,12 +7022,12 @@ nmfMainWindow::getObservedBiomassByGroup(const int& NumGuilds,
     std::string ObsBiomassTableName = getObservedBiomassTableName(!nmfConstantsMSSPM::PreEstimation);
     if (group == "Guild") {
         m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
-                                                "",ObsBiomassTableName,NumGuilds,RunLength,
+                                                "",ObsBiomassTableName,"",NumGuilds,RunLength,
                                                 "",NullMatrix,ObservedBiomass);
     } else if (group == "System") {
         // Find total system observed biomass
         if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
-                                                      "",ObsBiomassTableName,NumGuilds,RunLength,
+                                                      "",ObsBiomassTableName,"",NumGuilds,RunLength,
                                                       "",NullMatrix,tmpObservedBiomass)) {
             return ObservedBiomass;
         }
@@ -7389,20 +7392,14 @@ nmfMainWindow::callback_ShowChartBy(QString GroupType,
         // Load Harvest as: qE x B(c) (which is what getHarvestDataByGuild sends back)
         if (GroupType == "Guild") {
             m_DatabasePtr->getHarvestDataByGuild(m_Logger,m_ProjectName,m_ModelName,
-                                                 OutputChartType,
+                                                 OutputChartType, GroupType,
                                                  NumGuildsOrSpecies,chartLabel,
                                                  OutputBiomassSpecies[0],Harvest);
         } else if (GroupType == "System") {
             m_DatabasePtr->getHarvestDataByGuild(m_Logger,m_ProjectName,m_ModelName,
-                                                 OutputChartType,
+                                                 OutputChartType, GroupType,
                                                  NumGuilds,chartLabel,
-                                                 OutputBiomassSpecies[0],tmpHarvest);
-            nmfUtils::initialize(Harvest,RunLength+1,1);
-            for (int guild=0; guild<NumGuilds; ++guild) {
-                for (int time=0; time<=RunLength; ++time) {
-                    Harvest(time,0) += tmpHarvest(time,guild);
-                }
-            }
+                                                 OutputBiomassSpecies[0],Harvest);
         }
         HarvestVec.clear();
         HarvestVec.push_back(Harvest);
@@ -7425,22 +7422,16 @@ nmfMainWindow::callback_ShowChartBy(QString GroupType,
         // Load Harvest as: qE (which is what getHarvestDataByGuild sends back)
         if (GroupType == "Guild") {
             m_DatabasePtr->getHarvestDataByGuild(m_Logger,m_ProjectName,m_ModelName,
-                                                 OutputChartType,
+                                                 OutputChartType, GroupType,
                                                  NumGuildsOrSpecies,chartLabel,
                                                  OutputBiomassSpecies[0],Harvest);
         } else if (GroupType == "System") {
             m_DatabasePtr->getHarvestDataByGuild(m_Logger,m_ProjectName,m_ModelName,
-                                                 OutputChartType,
+                                                 OutputChartType, GroupType,
                                                  NumGuilds,chartLabel,
-                                                 OutputBiomassSpecies[0],tmpHarvest);
-            // Use:  (Total Catch) / (Total Biomass)
-            nmfUtils::initialize(Harvest,RunLength+1,1);
-            for (int guild=0; guild<NumGuilds; ++guild) {
-                for (int time=0; time<=RunLength; ++time) {
-                    Harvest(time,0) += tmpHarvest(time,guild);
-                }
-            }
+                                                 OutputBiomassSpecies[0],Harvest);
         }
+
         // Hardcode to 0 and 1 for Exploitation Rate
         YMinVal = 0.0;
         YMaxVal = 1.0;
@@ -7454,8 +7445,9 @@ nmfMainWindow::callback_ShowChartBy(QString GroupType,
                              ScaleStr,ScaleVal,
                              YMinVal,YMaxVal);
         Output_Controls_ptr->clearOutputFMSY();
-        if (Output_Controls_ptr->isCheckedOutputFMSY() and (NumLines == 1))
+        if (Output_Controls_ptr->isCheckedOutputFMSY() and (NumLines == 1)) {
             Output_Controls_ptr->setTextOutputFMSY(QString::number(FMSYValues[SpeciesNum]/ScaleVal));
+        }
     }
 
 }
@@ -8309,7 +8301,7 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
 //std::cout << "==> ObsBiomassTableName: " <<  ObsBiomassTableName << std::endl;
     if (isAggProd) {
         if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
-                                                      "",ObsBiomassTableName,NumSpeciesOrGuilds,RunLength,
+                                                      "",ObsBiomassTableName,"",NumSpeciesOrGuilds,RunLength,
                                                       "",NullMatrix,ObservedBiomass)) {
             return false;
         }
@@ -8751,8 +8743,8 @@ nmfMainWindow::showChartTableVsTime(
     MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
     XLabel    = "Run Length (Years)";
     YLabel    = (passedInLabel == FishingLabel) ?
-                passedInLabel :
-                passedInLabel + " (" + ScaleStr.toStdString() + "metric tons)";
+                 passedInLabel :
+                 passedInLabel + " (" + ScaleStr.toStdString() + "metric tons)";
 
     m_ChartWidget->removeAllSeries();
 
@@ -9253,7 +9245,7 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
     //
     // Draw the line chart
     //
-    bool ShowLegend = false;
+    bool ShowLegend = Output_Controls_ptr->isCheckedOutputLegend();
     int NumLines = Biomass.size();
     double YMaxVal = nmfConstants::NoValueDouble;
     QList<QColor> LineColors;
@@ -9346,12 +9338,10 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
         if (ChartTitle == "Multi-Forecast Scenario") {
             lineColorName = "Multi-Forecast Scenario";
             HoverLabels   = ColumnLabelsForLegend;
-            ShowLegend    = true;
+//            ShowLegend    = true;
         } else if (ChartTitle == "Ensemble Biomass") {
             HoverLabels   = ColumnLabelsForLegend;
-            // RSK modify this to show/hide legend
             ShowLegend = false;
-//          ShowLegend = true;
         }
 
         lineChart->populateChart(m_ChartWidget,
@@ -12262,7 +12252,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
         if (isAggProd) {
             if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                           ForecastName,nmfConstantsMSSPM::TableHarvestCatch,
-                                                          NumSpeciesOrGuilds,RunLength,
+                                                          "",NumSpeciesOrGuilds,RunLength,
                                                           "",NullMatrix,Catch)) {
                 QMessageBox::warning(this, "Error",
                                      "\nError: No data found in Catch table for current Forecast.\nCheck Forecast->Harvest Data tab.",
@@ -12283,7 +12273,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
         if (isAggProd) {
             if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                           ForecastName,nmfConstantsMSSPM::TableHarvestEffort,
-                                                          NumSpeciesOrGuilds,RunLength,
+                                                          "",NumSpeciesOrGuilds,RunLength,
                                                           "",NullMatrix,Effort))
                 return false;
         } else {
@@ -12296,7 +12286,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
         if (isAggProd) {
             if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                           ForecastName,nmfConstantsMSSPM::TableHarvestCatch,
-                                                          NumSpeciesOrGuilds,RunLength,
+                                                          "",NumSpeciesOrGuilds,RunLength,
                                                           "",NullMatrix,Catch)) {
                 QMessageBox::warning(this, "Error",
                                      "\nError: No data found in Catch table for current Forecast.\nCheck Forecast->Harvest Data tab.",
@@ -12305,7 +12295,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
             }
             if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                           ForecastName,nmfConstantsMSSPM::TableHarvestEffort,
-                                                          NumSpeciesOrGuilds,RunLength,
+                                                          "",NumSpeciesOrGuilds,RunLength,
                                                           "",NullMatrix,Effort))
                 return false;
         } else {
@@ -12326,7 +12316,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
         if (isAggProd) {
             if (! m_DatabasePtr->getTimeSeriesDataByGuild(m_Logger,m_ProjectName,m_ModelName,
                                                           ForecastName,nmfConstantsMSSPM::TableHarvestExploitation,
-                                                          NumSpeciesOrGuilds,RunLength,
+                                                          "",NumSpeciesOrGuilds,RunLength,
                                                           "",NullMatrix,Exploitation))
                 return false;
         } else {
