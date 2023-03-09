@@ -139,38 +139,38 @@ nmfOutputControls::initWidgets()
     OutputShowFMSYCB     = new QCheckBox("F MSY:");
     OutputShowFMSYLE     = new QLineEdit();
     OutputShowShadowCB   = new QCheckBox();
-    OutputLegendCB       = new QCheckBox();
-    OutputGridLinesCB    = new QCheckBox();
-    OutputTitleCB        = new QCheckBox();
+    OutputLegendCB       = new QCheckBox("Legend:");
+    OutputGridLinesCB    = new QCheckBox("Grid Lines:");
+    OutputTitleCB        = new QCheckBox("Title:");
+    OutputSpeciesCB      = new QCheckBox("Species:");
     OutputPublishLoadPB  = new QPushButton("Load Publish Settings");
     OutputPublishSavePB  = new QPushButton("Save");
     OutputPublishDefPB   = new QPushButton("Def");
     OutputShowShadowLBL  = new QLabel("3d Surface Shadow: ");
     OutputShowHistoricalDataCB   = new QCheckBox();
     OutputShowHistoricalDataLBL  = new QLabel("Historical Data: ");
-    OutputLegendLBL        = new QLabel("Legend: ");
-    OutputGridLinesLBL     = new QLabel("Grid Lines: ");
-    OutputTitleLBL         = new QLabel("Title: ");
     OutputParameters2d3dPB = new QPushButton("3d");
     OutputLegendCB->setChecked(true);
     OutputGridLinesCB->setChecked(true);
     OutputTitleCB->setChecked(true);
+    OutputSpeciesCB->setChecked(false);
+    OutputTitleCB->setLayoutDirection(Qt::RightToLeft);
+    OutputSpeciesCB->setLayoutDirection(Qt::RightToLeft);
+    OutputLegendCB->setLayoutDirection(Qt::RightToLeft);
+    OutputGridLinesCB->setLayoutDirection(Qt::RightToLeft);
 
-    GridLinesLayt->addWidget(OutputTitleLBL);
+    GridLinesLayt->addWidget(OutputSpeciesCB);
     GridLinesLayt->addWidget(OutputTitleCB);
-    GridLinesLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
-    GridLinesLayt->addWidget(OutputLegendLBL);
     GridLinesLayt->addWidget(OutputLegendCB);
-    GridLinesLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
-    GridLinesLayt->addWidget(OutputGridLinesLBL);
     GridLinesLayt->addWidget(OutputGridLinesCB);
-    GridLinesLayt->addStretch();
+    GridLinesLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+//    GridLinesLayt->addStretch();
     LineWidthLayt->addWidget(OutputLineWidthAxesLBL);
     LineWidthLayt->addWidget(OutputLineWidthAxesSB);
-    GridLinesLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    LineWidthLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
     LineWidthLayt->addWidget(OutputLineWidthDataLBL);
     LineWidthLayt->addWidget(OutputLineWidthDataSB);
-    GridLinesLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    LineWidthLayt->addSpacerItem(new QSpacerItem(2,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
     LineWidthLayt->addWidget(OutputLineWidthPointLBL);
     LineWidthLayt->addWidget(OutputLineWidthPointSB);
     LineWidthLayt->addStretch();
@@ -237,6 +237,7 @@ nmfOutputControls::initWidgets()
     controlLayt->addLayout(ShadowLayt);
 
     // ---------- Format Properties ----------
+    controlLayt->setAlignment(Qt::AlignLeft);
     controlLayt->addSpacerItem(new QSpacerItem(1,5,QSizePolicy::Fixed,QSizePolicy::Fixed));
     controlLayt->addLayout(SubtitleLayt);
     controlLayt->addLayout(GridLinesLayt);
@@ -373,16 +374,12 @@ For System: F MSY = average[r(i)] / NumSpecies, where the average is over all sp
     OutputChartTypeCMB->setToolTip(  "The type of chart that will be displayed");
     OutputChartTypeCMB->setStatusTip("The type of chart that will be displayed");
 
-    OutputTitleLBL->setToolTip(  "Toggles the plot's main title");
-    OutputTitleLBL->setStatusTip("Toggles the plot's main title");
-    OutputTitleCB->setToolTip(   "Toggles the plot's main title");
-    OutputTitleCB->setStatusTip( "Toggles the plot's main title");
-    OutputLegendLBL->setToolTip(  "Toggles the plot's legend");
-    OutputLegendLBL->setStatusTip("Toggles the plot's legend");
-    OutputLegendCB->setToolTip(   "Toggles the plot's legend");
-    OutputLegendCB->setStatusTip( "Toggles the plot's legend");
-    OutputGridLinesLBL->setToolTip(  "Toggles the plot's grid lines");
-    OutputGridLinesLBL->setStatusTip("Toggles the plot's grid lines");
+    OutputSpeciesCB->setToolTip(     "Toggles the plot's Species name as the title");
+    OutputSpeciesCB->setStatusTip(   "Toggles the plot's Species name as the title");
+    OutputTitleCB->setToolTip(       "Toggles the plot's main title");
+    OutputTitleCB->setStatusTip(     "Toggles the plot's main title");
+    OutputLegendCB->setToolTip(      "Toggles the plot's legend");
+    OutputLegendCB->setStatusTip(    "Toggles the plot's legend");
     OutputGridLinesCB->setToolTip(   "Toggles the plot's grid lines");
     OutputGridLinesCB->setStatusTip( "Toggles the plot's grid lines");
     OutputLineWidthAxesLBL->setToolTip(   "Sets the axis line width");
@@ -410,20 +407,22 @@ For System: F MSY = average[r(i)] / NumSpecies, where the average is over all sp
     OutputPublishDefPB->setToolTip(     "Loads default values for the format settings");
     OutputPublishDefPB->setStatusTip(   "Loads default values for the format settings");
 
+    msg = "<html><strong><center>Species Name</center></strong><br>\
+This toggles on/off the Species name as the main chart title. \
+The user may want to see only the Species name when creating a multi-species plot \
+(aka. panel plot).</html>";
+    OutputSpeciesCB->setWhatsThis(msg);
     msg = "<html><strong><center>Title</center></strong><br>\
 This toggles on/off the main chart title. The user may want this off \
 if the chart will be used in a publication.</html>";
-    OutputTitleLBL->setWhatsThis(msg);
     OutputTitleCB->setWhatsThis(msg);
     msg = "<html><strong><center>Legend</center></strong><br>\
 This toggles on/off the chart legend. The user may want this off \
 if the chart will be used in a publication.</html>";
-    OutputLegendLBL->setWhatsThis(msg);
     OutputLegendCB->setWhatsThis(msg);
     msg = "<html><strong><center>Grid Lines</center></strong><br>\
 This toggles on/off the chart grid lines. The user may want them turned off \
 if the chart will be used in a publication.</html>";
-    OutputGridLinesLBL->setWhatsThis(msg);
     OutputGridLinesCB->setWhatsThis(msg);
     msg = "<html><strong><center>Axes Line Widths</center></strong><br>\
 This sets the width of the x and y axes lines. The color of the lines is fixed to black.</html>";
@@ -716,6 +715,8 @@ nmfOutputControls::initConnections()
             this,                   SLOT(callback_OutputParameters2d3dPB()));
     connect(OutputShowHistoricalDataCB, SIGNAL(stateChanged(int)),
             this,                       SLOT(callback_OutputShowHistoricalDataCB(int)));
+    connect(OutputSpeciesCB,        SIGNAL(stateChanged(int)),
+            this,                   SLOT(callback_OutputSpeciesCB(int)));
     connect(OutputTitleCB,          SIGNAL(stateChanged(int)),
             this,                   SLOT(callback_OutputTitleCB(int)));
     connect(OutputLegendCB,         SIGNAL(stateChanged(int)),
@@ -1393,8 +1394,24 @@ nmfOutputControls::callback_OutputGridLinesCB(int dummy)
 }
 
 void
+nmfOutputControls::callback_OutputSpeciesCB(int dummy)
+{
+    // Can't have title box and species both checked at the same time
+    OutputTitleCB->blockSignals(true);
+    OutputTitleCB->setChecked(false);
+    OutputTitleCB->blockSignals(false);
+
+    emitRefreshChart();
+}
+
+void
 nmfOutputControls::callback_OutputTitleCB(int dummy)
 {
+    // Can't have title box and species both checked at the same time
+    OutputSpeciesCB->blockSignals(true);
+    OutputSpeciesCB->setChecked(false);
+    OutputSpeciesCB->blockSignals(false);
+
     emitRefreshChart();
 }
 
@@ -1449,6 +1466,7 @@ nmfOutputControls::callback_OutputPublishSavePB()
 void
 nmfOutputControls::callback_OutputPublishDefPB()
 {
+    OutputSpeciesCB->setChecked(false);
     OutputTitleCB->setChecked(false);
     OutputLegendCB->setChecked(false);
     OutputGridLinesCB->setChecked(false);
@@ -1626,6 +1644,12 @@ bool
 nmfOutputControls::isCheckedOutputMSY()
 {
     return OutputShowMSYCB->isChecked();
+}
+
+bool
+nmfOutputControls::isCheckedOutputSpecies()
+{
+    return OutputSpeciesCB->isChecked();
 }
 
 bool
@@ -1926,6 +1950,7 @@ nmfOutputControls::readSettingsPublish()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
+    OutputSpeciesCB->blockSignals(true);
     OutputTitleCB->blockSignals(true);
     OutputLegendCB->blockSignals(true);
     OutputGridLinesCB->blockSignals(true);
@@ -1938,6 +1963,7 @@ nmfOutputControls::readSettingsPublish()
 
     settings->beginGroup("Output");
 
+    OutputSpeciesCB->setChecked(     settings->value("PublishShowSpecies",   false).toInt());
     OutputTitleCB->setChecked(       settings->value("PublishShowTitle",     false).toInt());
     OutputLegendCB->setChecked(      settings->value("PublishShowLegend",    false).toInt());
     OutputGridLinesCB->setChecked(   settings->value("PublishShowGridLines", false).toInt());
@@ -1951,6 +1977,7 @@ nmfOutputControls::readSettingsPublish()
     settings->endGroup();
     delete settings;
 
+    OutputSpeciesCB->blockSignals(false);
     OutputTitleCB->blockSignals(false);
     OutputLegendCB->blockSignals(false);
     OutputGridLinesCB->blockSignals(false);
@@ -1980,6 +2007,7 @@ nmfOutputControls::saveSettingsPublish()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Output");
+    settings->setValue("PublishShowSpecies",    OutputSpeciesCB->isChecked());
     settings->setValue("PublishShowTitle",      OutputTitleCB->isChecked());
     settings->setValue("PublishShowLegend",     OutputLegendCB->isChecked());
     settings->setValue("PublishShowGridLines",  OutputGridLinesCB->isChecked());

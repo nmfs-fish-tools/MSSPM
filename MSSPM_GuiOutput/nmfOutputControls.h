@@ -79,9 +79,9 @@ class nmfOutputControls: public QObject
     QLabel*        OutputLineBrightnessLBL;
     QLabel*        OutputShowShadowLBL;
     QLabel*        OutputShowHistoricalDataLBL;
-    QLabel*        OutputLegendLBL;
-    QLabel*        OutputGridLinesLBL;
-    QLabel*        OutputTitleLBL;
+//    QLabel*        OutputLegendLBL;
+//    QLabel*        OutputGridLinesLBL;
+//    QLabel*        OutputTitleLBL;
     QLabel*        OutputLineWidthAxesLBL;
     QLabel*        OutputLineWidthDataLBL;
     QLabel*        OutputLineWidthPointLBL;
@@ -122,6 +122,7 @@ class nmfOutputControls: public QObject
     QCheckBox*     OutputLegendCB;
     QCheckBox*     OutputGridLinesCB;
     QCheckBox*     OutputTitleCB;
+    QCheckBox*     OutputSpeciesCB;
     QPushButton*   OutputPublishLoadPB;
     QPushButton*   OutputPublishSavePB;
     QPushButton*   OutputPublishDefPB;
@@ -311,7 +312,12 @@ public:
      */
     bool isCheckedOutputGridLines();
     /**
-     * @brief Informs the user if the show chart title box is checked
+     * @brief Informs the user if the output chart Species box is checked
+     * @return true if checked, false otherwise
+     */
+    bool isCheckedOutputSpecies();
+    /**
+     * @brief Informs the user if the output chart Title box is checked
      * @return true if checked, false otherwise
      */
     bool isCheckedOutputTitle();
@@ -611,6 +617,11 @@ public slots:
      * @param scale : the y-axis scale selected, values are strings of 0 triples (i.e., "000" or "000 000")
      */
     void callback_OutputScaleCMB(QString scale);
+    /**
+     * @brief Callback invoked when the user checks the Species checkbox
+     * @param dummy : not currently implemented
+     */
+    void callback_OutputSpeciesCB(int dummy);
     /**
      * @brief Callback invoked when the user checks the Title checkbox
      * @param dummy : not currently implemented

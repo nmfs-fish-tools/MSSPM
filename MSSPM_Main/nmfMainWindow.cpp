@@ -1883,6 +1883,7 @@ nmfMainWindow::menu_toggleManagerMode()
             return;
         }
         Remora_ptr->setForPublishing(
+                    Output_Controls_ptr->isCheckedOutputGridLines(),
                     Output_Controls_ptr->getOutputLineWidthData(),
                     Output_Controls_ptr->getOutputFontSizeLabel(),
                     Output_Controls_ptr->getOutputFontSizeNumber(),
@@ -2211,7 +2212,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.6.3 ";
+    QString version = "MSSPM v1.6.4 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -8741,6 +8742,7 @@ nmfMainWindow::showChartTableVsTime(
     ChartType = "Line";
     MainTitle = passedInLabel + " for: " + OutputSpecies.toStdString();
     MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
+    MainTitle = Output_Controls_ptr->isCheckedOutputSpecies() ? OutputSpecies.toStdString() : MainTitle;
     XLabel    = "Run Length (Years)";
     YLabel    = (passedInLabel == FishingLabel) ?
                  passedInLabel :
@@ -8952,6 +8954,7 @@ nmfMainWindow::showDiagnosticsFitnessVsParameter(
    XLabel += " % Deviation";
    MainTitle = YLabel + " vs " + XLabel + " for: " + OutputSpecies.toStdString();
    MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
+   MainTitle = Output_Controls_ptr->isCheckedOutputSpecies() ? OutputSpecies.toStdString() : MainTitle;
 
 //   LineColors.push_back(QColor(  0,114,178)); // blue
 //   LineColors.push_back(QColor(230,159,  0)); // orange
@@ -9281,6 +9284,7 @@ nmfMainWindow::showBiomassVsTimeForMultipleRuns(
     ChartType = "Line";
     MainTitle = ChartTitle + " for: " + OutputSpecies.toStdString();
     MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
+    MainTitle = Output_Controls_ptr->isCheckedOutputSpecies() ? OutputSpecies.toStdString() : MainTitle;
     XLabel    = XAxisLabel;
     YLabel    = YAxisLabel + " (" + ScaleStr.toStdString() + "metric tons)";
 
@@ -9552,6 +9556,7 @@ nmfMainWindow::showChartBiomassVsTime(
     ChartType = "Line";
     MainTitle = TitlePrefix + title + " for: " + OutputSpecies.toStdString();
     MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
+    MainTitle = Output_Controls_ptr->isCheckedOutputSpecies() ? OutputSpecies.toStdString() : MainTitle;
     XLabel    = "Year";
     YLabel    = "Biomass (" + ScaleStr.toStdString() + "metric tons)";
     ScatterColor = QColor(0,191,255); // deepskyblue
@@ -9798,6 +9803,7 @@ nmfMainWindow::showChartBiomassVsTimeMultiRunWithScatter(
     ChartType = "Line";
     MainTitle = TitlePrefix + "B(calc) with B(obs) points for: " + OutputSpecies.toStdString();
     MainTitle = Output_Controls_ptr->isCheckedOutputTitle() ? MainTitle : "";
+    MainTitle = Output_Controls_ptr->isCheckedOutputSpecies() ? OutputSpecies.toStdString() : MainTitle;
     XLabel    = "Year";
     YLabel    = "Biomass (" + ScaleStr.toStdString() + "metric tons)";
     ScatterColor = QColor(0,191,255); // deepskyblue
