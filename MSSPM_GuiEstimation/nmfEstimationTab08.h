@@ -112,7 +112,7 @@ class nmfEstimation_Tab8: public QObject
     void initializeConnections();
     void initializeContextMenu();
     void initializeWhatsThis();
-    void loadModel(QStandardItemModel* smodel,
+    bool loadModel(QStandardItemModel* smodel,
                    const int& row);
     void removeFilesAssociatedWithRow(
             QStandardItemModel* smodel,

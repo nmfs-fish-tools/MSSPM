@@ -106,6 +106,7 @@ class nmfEstimation_Tab1: public QObject
                            bool updateSetup,
                            const bool& queryForFilename,
                            QString guildsFilename);
+    bool isAnyShapeParameterZero(const bool& showPopup);
     bool isAnySurveyQZero(const bool& showPopup);
     bool isChecked(QCheckBox* cb);
     bool isInitBiomassLessThanSpeciesKMin(const bool& showPopup);

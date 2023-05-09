@@ -52,7 +52,7 @@ class TableNamesDialog : public QDialog
     nmfDatabase*                          m_databasePtr;
     QWidget*                              m_TableNamesWidget;
     QPushButton*                          m_TableNamesOkPB;
-    QListWidget*                          m_TableNamesLW;
+    QTableView*                           m_TableNamesTV;
     QLabel*                               m_DatabaseNameLB;
     QVBoxLayout*                          m_layout;
 

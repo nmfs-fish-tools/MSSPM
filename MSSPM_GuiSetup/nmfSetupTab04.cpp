@@ -32,11 +32,11 @@ nmfSetup_Tab4::nmfSetup_Tab4(QTabWidget*  tabs,
     Setup_Tabs->addTab(Setup_Tab4_Widget, tr("4. Model Setup"));
 
     // Create Model Presets
-    m_ModelPresetNames = {"Build Your Own Model","Linear","Logistic","Schaefer","GB-Pilot","MS-PROD","AGG-PROD"};
+    m_ModelPresetNames = {"Build Your Own Model","Linear","Logistic","Schaefer-Pella-Tomlinson","GB-Pilot","MS-PROD","AGG-PROD"};
     m_ModelPresets["Build Your Own Model"] = {"Null",     "Null",   "Null",  "Null"};
     m_ModelPresets["Linear"]               = {"Linear",   "Null",   "Null",  "Null"};
     m_ModelPresets["Logistic"]             = {"Logistic", "Null",   "Null",  "Null"};
-    m_ModelPresets["Schaefer"]             = {"Logistic", "Null",   "Catch", "Null"};
+    m_ModelPresets["Schaefer-Pella-Tomlinson"] = {"Logistic", "Null",   "Catch", "Null"};
     m_ModelPresets["GB-Pilot"]             = {"Linear",   "Null",   "Catch", "NO_K"};
     m_ModelPresets["MS-PROD"]              = {"Logistic", "Type I", "Exploitation (F)", "MS-PROD"};
     m_ModelPresets["AGG-PROD"]             = {"Logistic", "Type I", "Exploitation (F)", "AGG-PROD"};
@@ -588,9 +588,9 @@ void
 nmfSetup_Tab4::callback_SavePB()
 {
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_SavePB start");
+
     saveModel(nmfConstantsMSSPM::RunChecks);
-//    setEstimatedParameterNames();
-//    emit ReloadTab7Widgets();
+
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::callback_SavePB end");
 }
 
@@ -721,7 +721,7 @@ nmfSetup_Tab4::saveModel(bool RunChecks)
     bool okToSave = true;
     std::string msg;
     std::string ModelName = Setup_Tab4_ModelNameLE->text().toStdString();
-
+qDebug() << 1;
     calculateSystemCarryingCapacity();
 
     if (RunChecks && ModelName.empty()) {
@@ -743,16 +743,16 @@ nmfSetup_Tab4::saveModel(bool RunChecks)
         m_ModelName = ModelName;
         saveModelData(RunChecks,ModelName);
         readSettings();
-        emit ModelSaved();
     }
 
+    emit SaveEstimationRunSettings();
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel emitting UpdateInitialObservedBiomass");
     emit UpdateInitialObservedBiomass(getObsBiomassType());
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel emitting UpdateInitialForecastYear");
     emit UpdateInitialForecastYear();
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel emitting ReloadWidgets");
-    emit ReloadWidgets();
-
+    emit ReloadWidgets(nmfConstantsMSSPM::DontReloadProject);
+    emit ReloadTab7Widgets();
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel end");
 }
 
@@ -848,10 +848,6 @@ nmfSetup_Tab4::saveModelData(bool verbose,std::string currentModelName)
         QMessageBox::information(Setup_Tabs, "Settings Updated",msg);
     }
     saveSettings();
-
-    emit SaveEstimationRunSettings();
-    emit ReloadWidgets();
-    emit ReloadTab7Widgets();
 
     return true;
 }

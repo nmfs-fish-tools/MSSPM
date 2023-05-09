@@ -306,14 +306,17 @@ nmfDiagnostic_Tab2::callback_RunPB()
 
     readSettings();
 
+    emit SetRetrospectiveAnalysis(true);
+
     // Notify Estimation Tab7 of the state of the Allow Conv Only runs checkbox
     emit AllowConvergedOnly(m_Diagnostic_Tab2_ConvOnlyCB->isChecked());
 
     if (m_IsMultiRun) {
-QMessageBox::information(m_Diagnostic_Tabs, tr("Feature Unavailable"),
+        QMessageBox::information(m_Diagnostic_Tabs, tr("Feature Unavailable"),
                          tr("\nFeature not yet available.\n\nRetrospective Analysis on a Multi Run is currently in development.\n"),
                          QMessageBox::Ok);
-return;
+        return;
+
         msg  = "\nWarning: The previous run was a multi-run.\n\nRunning a retrospective analysis on ";
         msg += "a multi-run will cause the multi-run to run multiple times (i.e. one time per peel). ";
         msg += "In this case, the last multi-run would run " + QString::number(NumPeeledYears);
@@ -364,6 +367,7 @@ std::cout << "range: " << StartYear << ", " << EndYear-i << std::endl;
         m_isMohnsRhoRunForSingleRun = true;
         emit RunRetrospectiveAnalysis(ranges);
 //    }
+
 }
 
 void

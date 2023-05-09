@@ -88,6 +88,7 @@ class nmfOutputControls: public QObject
     QLabel*        OutputFontLBL;
     QLabel*        OutputFontSizesLBL;
     QLabel*        OutputFontSizeNumberLBL;
+    QLabel*        OutputRescaleXAxisLBL;
     QSlider*       OutputLineBrightnessSL;
     QComboBox*     OutputSpeciesCMB;
     QComboBox*     OutputParametersCMB;
@@ -118,6 +119,7 @@ class nmfOutputControls: public QObject
     QLineEdit*     OutputShowFMSYLE;
     QGroupBox*     ControlsGroupBox;
     QCheckBox*     OutputShowHistoricalDataCB;
+    QCheckBox*     OutputRescaleXAxisCB;
     QCheckBox*     OutputShowShadowCB;
     QCheckBox*     OutputLegendCB;
     QCheckBox*     OutputGridLinesCB;
@@ -321,6 +323,11 @@ public:
      * @return true if checked, false otherwise
      */
     bool isCheckedOutputTitle();
+    /**
+     * @brief Returns boolean signifying the user wants to "nicely" scale the x-axis
+     * @return true if user wants to nicely smooth x-axis, false otherwise
+     */
+    bool isCheckedOutputRescaleXAxis();
     /**
      * @brief Informs the user if the MSY checkbox has been enabled
      * @return The state of the MSY checkbox
@@ -538,9 +545,9 @@ public slots:
     void callback_OutputChartTypeCMB(QString outputType);
     /**
      * @brief Callback invoked when the user checks the Grid Lines checkbox
-     * @param dummy : not currently implemented
+     * @param unused : not currently implemented
      */
-    void callback_OutputGridLinesCB(int dummy);
+    void callback_OutputGridLinesCB(int unused);
     /**
      * @brief Callback invoked when the user selects from the Species combo box widget
      * @param species : the name of the Species the user selected
@@ -564,9 +571,9 @@ public slots:
     void callback_OutputPublishLoadPB();
     /**
      * @brief Callback invoked when the user checks the Legend checkbox
-     * @param dummy : not currently implemented
+     * @param unused : not currently implemented
      */
-    void callback_OutputLegendCB(int dummy);
+    void callback_OutputLegendCB(int unused);
     /**
      * @brief Callback invoked when the user selects from the Diagnostic Methods combo box widget
      * @param method : the name of the Diagnostic Method the user selected
@@ -619,14 +626,14 @@ public slots:
     void callback_OutputScaleCMB(QString scale);
     /**
      * @brief Callback invoked when the user checks the Species checkbox
-     * @param dummy : not currently implemented
+     * @param unused : not currently implemented
      */
-    void callback_OutputSpeciesCB(int dummy);
+    void callback_OutputSpeciesCB(int unused);
     /**
      * @brief Callback invoked when the user checks the Title checkbox
-     * @param dummy : not currently implemented
+     * @param unused : not currently implemented
      */
-    void callback_OutputTitleCB(int dummy);
+    void callback_OutputTitleCB(int unused);
     /**
      * @brief Callback invoked when the user modifies the Forecast line brightness slider
      * @param value : the value of the Forecast line brightness slider
@@ -634,34 +641,34 @@ public slots:
     void callback_OutputLineBrightnessSL(int value);
     /**
      * @brief Callback invoked when the user selects a chart font
-     * @param dummy : The user selected chart font
+     * @param unused : The user selected chart font
      */
-    void callback_OutputFontCMB(QString);
+    void callback_OutputFontCMB(QString unused);
     /**
      * @brief Callback invoked when the user modifies the output chart's label font size spin box
-     * @param dummy : unused
+     * @param unused : unused
      */
-    void callback_OutputFontSizeLabelSB(int dummy);
+    void callback_OutputFontSizeLabelSB(int unused);
     /**
      * @brief Callback invoked when the user modifies the output chart's numeric scale font size spin box
-     * @param dummy : unused
+     * @param unused : unused
      */
-    void callback_OutputFontSizeNumberSB(int dummy);
+    void callback_OutputFontSizeNumberSB(int unused);
     /**
      * @brief Callback invoked when the user modifies the chart axis line width spin box
-     * @param dummy : unused
+     * @param unused : unused
      */
-    void callback_OutputLineWidthAxisSB(int dummy);
+    void callback_OutputLineWidthAxisSB(int unused);
     /**
      * @brief Callback invoked when the user modifies the chart data line width spin box
-     * @param dummy : unused
+     * @param unused : unused
      */
-    void callback_OutputLineWidthDataSB(int dummy);
+    void callback_OutputLineWidthDataSB(int unused);
     /**
      * @brief Callback invoked when the user modifies the chart observed biomass point size
-     * @param dummy : unused
+     * @param unused : unused
      */
-    void callback_OutputLineWidthPointSB(int dummy);
+    void callback_OutputLineWidthPointSB(int unused);
     /**
      * @brief Callback invoked when the user modifies the Y-Axis Minimum value slider
      * @param value : the minimum value of the y-axis to set
@@ -687,6 +694,11 @@ public slots:
      * current point to be the minimum point on the 3d data view's surface
      */
     void callback_OutputParametersMinimumPB();
+    /**
+     * @brief Callback invoked when the user clicks the Rescale X-Axis checkbox. This will rescale the x-axis "nicely".
+     * @param unused : unused
+     */
+    void callback_OutputRescaleXAxisCB(int unused);
     /**
      * @brief Callback invoked to set Control widgets appropriately if model is an
      * AggProd model (i.e., inclusion of Guilds in Control widgets)

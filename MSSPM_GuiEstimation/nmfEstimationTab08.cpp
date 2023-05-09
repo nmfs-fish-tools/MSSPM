@@ -157,7 +157,7 @@ nmfEstimation_Tab8::getEstimatedParameters(QStandardItemModel* smodel, const int
     if (! filename.isEmpty()) {
         fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
         fullPath = QDir(fullPath).filePath(filename);
-std::cout << "fp: " << fullPath.toStdString() << std::endl;
+std::cout << "Reading: " << fullPath.toStdString() << std::endl;
         QFile file(fullPath);
         QStringList parts;
         if (file.open(QIODevice::ReadOnly)) {
@@ -294,7 +294,7 @@ Notes - user editable field for model details<br>\
     Estimation_Tab8_ModelReviewTV->setWhatsThis(msg);
 }
 
-void
+bool
 nmfEstimation_Tab8::loadModel(QStandardItemModel* smodel, const int& row)
 {
     int col = 9;
@@ -360,8 +360,17 @@ nmfEstimation_Tab8::loadModel(QStandardItemModel* smodel, const int& row)
     modelReview.ensembleUsingAmountValue                = smodel->index(row,col++).data().toString().trimmed();
     modelReview.isEnsembleUsingPct                      = smodel->index(row,col++).data().toString().trimmed();
     modelReview.ensembleFilename                        = smodel->index(row,col++).data().toString().trimmed();
-std::cout << "===> modelReview.isAMultiRun: " << modelReview.isAMultiRun.toStdString() << std::endl;
+
+    if (modelReview.DatabaseSnapshot.isEmpty()) {
+        QMessageBox::warning(Estimation_Tabs, "Warning",
+                             QString::fromStdString("\nCan't import model. Most common reason is due to it being an HPC run.\n"),
+                             QMessageBox::Ok);
+        return false;
+    }
+
     emit LoadFromModelReview(modelReview);
+
+    return true;
 }
 
 void
@@ -562,8 +571,8 @@ nmfEstimation_Tab8::removeFilesAssociatedWithRow(
     fullFilename = QDir(fullPath).filePath(filename);
     if (QFile::remove(fullFilename)) {
         m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
-    } else {
-        m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
+    } else if (! filename.isEmpty()) {
+        m_Logger->logMsg(nmfConstants::Error,"Error deleting Snapshot file: "+fullFilename.toStdString());
     }
 
     // Remove Estimated Parameters file saved with this row
@@ -573,7 +582,7 @@ nmfEstimation_Tab8::removeFilesAssociatedWithRow(
     if (QFile::remove(fullFilename)) {
         m_Logger->logMsg(nmfConstants::Normal,"Deleted file: "+fullFilename.toStdString());
     } else {
-        m_Logger->logMsg(nmfConstants::Error,"Error deleting file: "+fullFilename.toStdString());
+        m_Logger->logMsg(nmfConstants::Error,"Error deleting Estimated Parameters file: "+fullFilename.toStdString());
     }
 }
 
@@ -920,13 +929,15 @@ nmfEstimation_Tab8::callback_LoadModelPB()
         return;
     }
 
-    loadModel(smodel,row);
+    bool loadOK = loadModel(smodel,row);
 
-    msg  = "\nModel loaded. Switch to Run page?\n";
-    reply = QMessageBox::question(Estimation_Tabs, tr("Model Loaded"), tr(msg.c_str()),
-        QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
-    if (reply == QMessageBox::Yes) {
-        callback_PrevPB();
+    if (loadOK) {
+        msg  = "\nModel loaded. Switch to Run page?\n";
+        reply = QMessageBox::question(Estimation_Tabs, tr("Model Loaded"), tr(msg.c_str()),
+                                      QMessageBox::No|QMessageBox::Yes,QMessageBox::Yes);
+        if (reply == QMessageBox::Yes) {
+            callback_PrevPB();
+        }
     }
 }
 

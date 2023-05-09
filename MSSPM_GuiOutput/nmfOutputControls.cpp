@@ -27,13 +27,14 @@ nmfOutputControls::nmfOutputControls(
     OutputParametersZScoreCB = nullptr;
     ControlsGroupBox = controlsGroupBox;
 
-    readSettings();
+    //readSettings();
 
     initWidgets();
     initConnections();
     loadWidgets();
 
-    readSettingsPublish();
+    callback_OutputPublishLoadPB();
+    //readSettingsPublish();
 }
 
 nmfOutputControls::~nmfOutputControls()
@@ -53,6 +54,12 @@ nmfOutputControls::isAveraged()
     return m_IsAveraged;
 }
 
+bool
+nmfOutputControls::isCheckedOutputRescaleXAxis()
+{
+   return OutputRescaleXAxisCB->isChecked();
+}
+
 void
 nmfOutputControls::setAveraged(bool isAveraged)
 {
@@ -67,26 +74,27 @@ nmfOutputControls::initWidgets()
     QString msg;
     QString subtitle = "---------- Format Properties ----------";
 
-    QLabel*      SubtitleLBL    = new QLabel(subtitle);
-    QVBoxLayout* controlLayt    = new QVBoxLayout();
-    QHBoxLayout* BMSYLayt       = new QHBoxLayout();
-    QHBoxLayout* MSYLayt        = new QHBoxLayout();
-    QHBoxLayout* FMSYLayt       = new QHBoxLayout();
-    QHBoxLayout* ParametersLayt = new QHBoxLayout();
-    QHBoxLayout* ScaleLayt      = new QHBoxLayout();
-    QHBoxLayout* HistoricalLayt = new QHBoxLayout();
-    QHBoxLayout* LegendLayt     = new QHBoxLayout();
-    QHBoxLayout* GridLinesLayt  = new QHBoxLayout();
-    QHBoxLayout* TitleLayt      = new QHBoxLayout();
-    QHBoxLayout* FontLayt       = new QHBoxLayout();
-    QHBoxLayout* FontSizeLayt   = new QHBoxLayout();
-    QHBoxLayout* LineWidthLayt  = new QHBoxLayout();
-    QHBoxLayout* LoadPublishLayt = new QHBoxLayout();
-    QHBoxLayout* SubtitleLayt   = new QHBoxLayout();
-    QHBoxLayout* ShadowLayt     = new QHBoxLayout();
-    QHBoxLayout* MinMaxLayt     = new QHBoxLayout();
-    QWidget*     scrollAreaW    = new QWidget();
-    QScrollArea* scrollAreaSA   = new QScrollArea();
+    QLabel*      SubtitleLBL      = new QLabel(subtitle);
+    QVBoxLayout* controlLayt      = new QVBoxLayout();
+    QHBoxLayout* BMSYLayt         = new QHBoxLayout();
+    QHBoxLayout* MSYLayt          = new QHBoxLayout();
+    QHBoxLayout* FMSYLayt         = new QHBoxLayout();
+    QHBoxLayout* ParametersLayt   = new QHBoxLayout();
+    QHBoxLayout* ScaleLayt        = new QHBoxLayout();
+    QHBoxLayout* RescaleXAxisLayt = new QHBoxLayout();
+    QHBoxLayout* HistoricalLayt   = new QHBoxLayout();
+    QHBoxLayout* LegendLayt       = new QHBoxLayout();
+    QHBoxLayout* GridLinesLayt    = new QHBoxLayout();
+    QHBoxLayout* TitleLayt        = new QHBoxLayout();
+    QHBoxLayout* FontLayt         = new QHBoxLayout();
+    QHBoxLayout* FontSizeLayt     = new QHBoxLayout();
+    QHBoxLayout* LineWidthLayt    = new QHBoxLayout();
+    QHBoxLayout* LoadPublishLayt  = new QHBoxLayout();
+    QHBoxLayout* SubtitleLayt     = new QHBoxLayout();
+    QHBoxLayout* ShadowLayt       = new QHBoxLayout();
+    QHBoxLayout* MinMaxLayt       = new QHBoxLayout();
+    QWidget*     scrollAreaW      = new QWidget();
+    QScrollArea* scrollAreaSA     = new QScrollArea();
     QVBoxLayout* controlScrollableLayt = new QVBoxLayout;
     OutputChartTypeLBL      = new QLabel("Chart Type:");
     OutputGroupTypeCMB      = new QComboBox();
@@ -147,13 +155,15 @@ nmfOutputControls::initWidgets()
     OutputPublishSavePB  = new QPushButton("Save");
     OutputPublishDefPB   = new QPushButton("Def");
     OutputShowShadowLBL  = new QLabel("3d Surface Shadow: ");
-    OutputShowHistoricalDataCB   = new QCheckBox();
-    OutputShowHistoricalDataLBL  = new QLabel("Historical Data: ");
+    OutputRescaleXAxisCB  = new QCheckBox();
+    OutputRescaleXAxisLBL = new QLabel("Rescale X-Axis: ");
+    OutputShowHistoricalDataCB  = new QCheckBox();
+    OutputShowHistoricalDataLBL = new QLabel("Historical Data: ");
     OutputParameters2d3dPB = new QPushButton("3d");
     OutputLegendCB->setChecked(true);
     OutputGridLinesCB->setChecked(true);
     OutputTitleCB->setChecked(true);
-    OutputSpeciesCB->setChecked(false);
+    OutputSpeciesCB->setChecked(true);
     OutputTitleCB->setLayoutDirection(Qt::RightToLeft);
     OutputSpeciesCB->setLayoutDirection(Qt::RightToLeft);
     OutputLegendCB->setLayoutDirection(Qt::RightToLeft);
@@ -233,6 +243,7 @@ nmfOutputControls::initWidgets()
     ScaleLayt->addWidget(OutputScaleCMB);
     ScaleLayt->addStretch();
     controlLayt->addLayout(ScaleLayt);
+    controlLayt->addLayout(RescaleXAxisLayt);
     controlLayt->addLayout(HistoricalLayt);
     controlLayt->addLayout(ShadowLayt);
 
@@ -255,11 +266,13 @@ nmfOutputControls::initWidgets()
     OutputLineWidthPointSB->setMinimum(5);
     OutputLineWidthPointSB->setMaximum(32);
     OutputFontCMB->setFixedWidth(200);
-    OutputFontCMB->setWritingSystem(QFontDatabase::Latin);
-//  OutputFontCMB->setFontFilters(QFontComboBox::AllFonts);
+    OutputFontCMB->setWritingSystem(QFontDatabase::Any);
+    OutputFontCMB->setFontFilters(QFontComboBox::AllFonts);
     OutputPublishSavePB->setFixedWidth(40);
     OutputPublishDefPB->setFixedWidth(30);
-
+    RescaleXAxisLayt->addWidget(OutputRescaleXAxisLBL);
+    RescaleXAxisLayt->addWidget(OutputRescaleXAxisCB);
+    RescaleXAxisLayt->addStretch();
     HistoricalLayt->addWidget(OutputShowHistoricalDataLBL);
     HistoricalLayt->addWidget(OutputShowHistoricalDataCB);
     HistoricalLayt->addStretch();
@@ -363,6 +376,10 @@ For System: F MSY = average[r(i)] / NumSpecies, where the average is over all sp
     OutputShowBMSYLE->setAlignment(Qt::AlignRight);
     OutputShowMSYLE->setAlignment(Qt::AlignRight);
     OutputShowFMSYLE->setAlignment(Qt::AlignRight);
+    OutputRescaleXAxisCB->setToolTip(   "Applies a \"nice\" scale factor to the x-axis");
+    OutputRescaleXAxisCB->setStatusTip( "Applies a \"nice\" scale factor to the x-axis");
+    OutputRescaleXAxisLBL->setToolTip(  "Applies a \"nice\" scale factor to the x-axis");
+    OutputRescaleXAxisLBL->setStatusTip("Applies a \"nice\" scale factor to the x-axis");
     OutputShowHistoricalDataCB->setToolTip(   "Toggles historical data for a Forecast plot");
     OutputShowHistoricalDataCB->setStatusTip( "Toggles historical data for a Forecast plot");
     OutputShowHistoricalDataLBL->setToolTip(  "Toggles historical data for a Forecast plot");
@@ -713,6 +730,8 @@ nmfOutputControls::initConnections()
             this,                   SLOT(callback_OutputShowShadowCB(int)));
     connect(OutputParameters2d3dPB, SIGNAL(clicked()),
             this,                   SLOT(callback_OutputParameters2d3dPB()));
+    connect(OutputRescaleXAxisCB,   SIGNAL(stateChanged(int)),
+            this,                   SLOT(callback_OutputRescaleXAxisCB(int)));
     connect(OutputShowHistoricalDataCB, SIGNAL(stateChanged(int)),
             this,                       SLOT(callback_OutputShowHistoricalDataCB(int)));
     connect(OutputSpeciesCB,        SIGNAL(stateChanged(int)),
@@ -739,7 +758,7 @@ nmfOutputControls::initConnections()
             this,                   SLOT(callback_OutputFontSizeLabelSB(int)));
     connect(OutputFontSizeNumberSB, SIGNAL(valueChanged(int)),
             this,                   SLOT(callback_OutputFontSizeNumberSB(int)));
-    connect(OutputFontCMB,          SIGNAL(currentIndexChanged(QString)),
+    connect(OutputFontCMB,          SIGNAL(currentTextChanged(QString)),
             this,                   SLOT(callback_OutputFontCMB(QString)));
 }
 
@@ -782,7 +801,6 @@ nmfOutputControls::loadWidgets()
     loadSortedForecastLabels();
     loadSpeciesControlWidget();
     callback_LoadScenariosWidget();
-
 }
 
 
@@ -1060,6 +1078,11 @@ nmfOutputControls::callback_OutputChartTypeCMB(QString outputType)
         OutputGroupTypeCMB->setEnabled(false);
     } else {
         OutputGroupTypeCMB->setEnabled(true);
+    }
+
+    // Turn off historical checkbox if not in Forecast
+    if (! isForecast) {
+        OutputShowHistoricalDataCB->setChecked(false);
     }
 
     emptyList.clear();
@@ -1372,19 +1395,26 @@ nmfOutputControls::displaying3dChart()
 }
 
 void
-nmfOutputControls::callback_OutputShowShadowCB(int dummy)
+nmfOutputControls::callback_OutputShowShadowCB(int unused)
 {
     emitRefreshChart();
 }
 
 void
-nmfOutputControls::callback_OutputShowHistoricalDataCB(int dummy)
+nmfOutputControls::callback_OutputShowHistoricalDataCB(int unused)
 {
     emitRefreshChart();
 }
 
 void
-nmfOutputControls::callback_OutputGridLinesCB(int dummy)
+nmfOutputControls::callback_OutputRescaleXAxisCB(int unused)
+{
+    emitRefreshChart();
+}
+
+
+void
+nmfOutputControls::callback_OutputGridLinesCB(int unused)
 {
 //    OutputLineWidthAxesSB->blockSignals(true);
 //    OutputLineWidthAxesSB->setValue(1);
@@ -1394,7 +1424,7 @@ nmfOutputControls::callback_OutputGridLinesCB(int dummy)
 }
 
 void
-nmfOutputControls::callback_OutputSpeciesCB(int dummy)
+nmfOutputControls::callback_OutputSpeciesCB(int unused)
 {
     // Can't have title box and species both checked at the same time
     OutputTitleCB->blockSignals(true);
@@ -1405,7 +1435,7 @@ nmfOutputControls::callback_OutputSpeciesCB(int dummy)
 }
 
 void
-nmfOutputControls::callback_OutputTitleCB(int dummy)
+nmfOutputControls::callback_OutputTitleCB(int unused)
 {
     // Can't have title box and species both checked at the same time
     OutputSpeciesCB->blockSignals(true);
@@ -1416,43 +1446,43 @@ nmfOutputControls::callback_OutputTitleCB(int dummy)
 }
 
 void
-nmfOutputControls::callback_OutputLegendCB(int dummy)
+nmfOutputControls::callback_OutputLegendCB(int unused)
 {
     emitRefreshChart();
 }
 
 void
-nmfOutputControls::callback_OutputLineWidthDataSB(int dummy)
+nmfOutputControls::callback_OutputLineWidthDataSB(int unused)
 {
     emitRefreshChart();
 }
 
 void
-nmfOutputControls::callback_OutputLineWidthPointSB(int dummy)
+nmfOutputControls::callback_OutputLineWidthPointSB(int unused)
 {
     emitRefreshChart();
 }
 
 void
-nmfOutputControls::callback_OutputLineWidthAxisSB(int dummy)
+nmfOutputControls::callback_OutputLineWidthAxisSB(int unused)
 {
     emitRefreshChart();
 }
 
 void
-nmfOutputControls::callback_OutputFontSizeLabelSB(int dummy)
+nmfOutputControls::callback_OutputFontSizeLabelSB(int unused)
 {
     emitRefreshChart();
 }
 
 void
-nmfOutputControls::callback_OutputFontSizeNumberSB(int dummy)
+nmfOutputControls::callback_OutputFontSizeNumberSB(int unused)
 {
     emitRefreshChart();
 }
 
 void
-nmfOutputControls::callback_OutputFontCMB(QString)
+nmfOutputControls::callback_OutputFontCMB(QString unused)
 {
     emitRefreshChart();
 }
@@ -1466,7 +1496,7 @@ nmfOutputControls::callback_OutputPublishSavePB()
 void
 nmfOutputControls::callback_OutputPublishDefPB()
 {
-    OutputSpeciesCB->setChecked(false);
+    OutputSpeciesCB->setChecked(true);
     OutputTitleCB->setChecked(false);
     OutputLegendCB->setChecked(false);
     OutputGridLinesCB->setChecked(false);
@@ -1962,18 +1992,16 @@ nmfOutputControls::readSettingsPublish()
     OutputFontCMB->blockSignals(true);
 
     settings->beginGroup("Output");
-
-    OutputSpeciesCB->setChecked(     settings->value("PublishShowSpecies",   false).toInt());
-    OutputTitleCB->setChecked(       settings->value("PublishShowTitle",     false).toInt());
-    OutputLegendCB->setChecked(      settings->value("PublishShowLegend",    false).toInt());
-    OutputGridLinesCB->setChecked(   settings->value("PublishShowGridLines", false).toInt());
+    OutputSpeciesCB->setChecked(     settings->value("PublishShowSpecies",   false).toBool());
+    OutputTitleCB->setChecked(       settings->value("PublishShowTitle",     false).toBool());
+    OutputLegendCB->setChecked(      settings->value("PublishShowLegend",    false).toBool());
+    OutputGridLinesCB->setChecked(   settings->value("PublishShowGridLines", false).toBool());
     OutputLineWidthAxesSB->setValue( settings->value("PublishLineWidthAxes", nmfConstantsMSSPM::PublishLineWidthAxes).toInt());
     OutputLineWidthDataSB->setValue( settings->value("PublishLineWidthData", nmfConstantsMSSPM::PublishLineWidthData).toInt());
     OutputLineWidthPointSB->setValue(settings->value("PublishLineWidthPoint",nmfConstantsMSSPM::PublishLineWidthPoint).toInt());
     OutputFontSizeLabelSB->setValue( settings->value("PublishFontSizeLabel", nmfConstantsMSSPM::PublishFontSizeLabel).toInt());
     OutputFontSizeNumberSB->setValue(settings->value("PublishFontSizeNumber",nmfConstantsMSSPM::PublishFontSizeNumber).toInt());
     OutputFontCMB->setCurrentText(   settings->value("PublishFont",          nmfConstantsMSSPM::PublishFont).toString());
-
     settings->endGroup();
     delete settings;
 

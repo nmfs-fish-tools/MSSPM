@@ -174,7 +174,6 @@ class nmfEstimation_Tab7: public QObject
     int codedState(bool enabled,
                    bool checked);
     QList<QCheckBox* > getAllEstimateCheckboxes();
-    int getNumParameters();
     void initializeDetStoMap();
     void initializeHelpText();
     bool okAdditionalAlgorithmParameters();
@@ -287,6 +286,11 @@ public:
      * @param enable : true/false enable state of the Run button
      */
     void enableRunButton(bool enable);
+    /**
+     * @brief Returns all of the states of the estimate checkboxes
+     * @return map of estimated parameter and checkbox states
+     */
+    std::map<std::string,bool> getAllEstimateCheckboxStates();
     /**
      * @brief Gets the Bees Algorithm Max Generations widget value
      * @return string representing the Bees Algorithm Max Generations widget value
@@ -414,6 +418,11 @@ public:
      * @return true if checked, false if unchecked
      */
     int getLogScale();
+    /**
+     * @brief Get total number of estimated parameters
+     * @return number of estimated parameters
+     */
+    int getNumParameters();
     /**
      * @brief Gets the coded enabled/checked state of the estimation run boxes
      * @return Encoded int (0, 1, 10, or 11) signifying enabled/checked state of the estimation run boxes
@@ -942,6 +951,11 @@ signals:
      */
     void SetAlgorithm(QString algorithm);
     /**
+     * @brief Signals to the main app that user is not running a retrospective analysis
+     * @param state : true if running mohn's rho, false otherwise
+     */
+    void SetRetrospectiveAnalysis(bool state);
+    /**
      * @brief Signal sent to refresh the Forecast Year Range in the Forecast->Setup GUI.
      */
     void UpdateForecastYears();
@@ -1148,7 +1162,11 @@ public Q_SLOTS:
      * @param isChecked : if true - units are locked, else if false - units may be changed
      */
     void callback_TimeUnitsLockPB(bool isChecked);
-
+    /**
+     * @brief Updates the number of parameters field in the models table
+     * @param numParameters : number of non-trivial parameters (i.e., parameters that have been estimated - whose min and max range values weren't the same)
+     */
+    void callback_UpdateNumberOfParameters(int numParameters);
 };
 
 #endif // NMFESTIMATIONTAB7_H

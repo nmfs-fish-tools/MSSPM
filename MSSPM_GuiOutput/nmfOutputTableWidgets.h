@@ -83,6 +83,10 @@ public:
     void loadSummaryTable(QTableView* tableView,
                           const QString& label,
                           const QStringList& EstParamNames,
+                          const std::string& Algorithm,
+                          const std::string& Minimizer,
+                          const std::string& ObjectiveCriterion,
+                          const std::string& Scaling,
                           const QStringList& statisticNames);
     void exportSummaryTable(QTableView* tableView,
                             const QString& label,
@@ -91,7 +95,12 @@ public:
                             const QString& label,
                             const std::string& defaultFilenameCSV);
     void loadWidgets();
-    void reloadLast(const QStringList& EstParamNames);
+    void reloadLast(
+            const std::string& Algorithm,
+            const std::string& Minimizer,
+            const std::string& ObjectiveCriterion,
+            const std::string& Scaling,
+            const QStringList& EstParamNames);
     void setLastVariables(QTableView* tableView,
                           const QString& label,
                           const QStringList& statisticNames);

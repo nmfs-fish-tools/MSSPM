@@ -894,7 +894,7 @@ nmfSetup_Tab3::saveSpeciesData()
     loadSpecies();
 
     // Need to reload all other Estimation GUIs since Species may have changed
-    emit ReloadWidgets();
+    emit ReloadWidgets(nmfConstantsMSSPM::DontReloadProject);
 
     // Remove data from all tables with species different than what's in species
     pruneTablesForSpecies(species);
@@ -1049,7 +1049,7 @@ nmfSetup_Tab3::callback_DelGuildPB()
         Setup_Tabs->setCursor(Qt::ArrowCursor);
     }
 
-    emit ReloadWidgets();
+    emit ReloadWidgets(nmfConstantsMSSPM::DontReloadProject);
 }
 
 void
@@ -1097,7 +1097,7 @@ nmfSetup_Tab3::callback_DelSpeciesPB()
         Setup_Tabs->setCursor(Qt::ArrowCursor);
     }
 
-    emit ReloadWidgets();
+    emit ReloadWidgets(nmfConstantsMSSPM::DontReloadProject);
 }
 
 void

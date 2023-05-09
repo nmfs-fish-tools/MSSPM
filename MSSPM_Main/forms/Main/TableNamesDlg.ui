@@ -20,29 +20,10 @@
    <string>Database Table Names</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
-   <property name="topMargin">
-    <number>5</number>
-   </property>
-   <property name="bottomMargin">
-    <number>5</number>
-   </property>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QLabel" name="tableNamesLB">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Tables in database:</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QLabel" name="DatabaseNameLB">
          <property name="text">
@@ -66,7 +47,14 @@
       </layout>
      </item>
      <item>
-      <widget class="QListWidget" name="TableNamesLW"/>
+      <widget class="QTableView" name="TableNamesTV">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>100</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">

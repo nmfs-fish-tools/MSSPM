@@ -187,14 +187,18 @@ nmfSetup_Tab2::saveProject(bool isVerbose)
 
     emit ProjectSaved();
 
-    // Make sure the outputImages and outputData directories are there
+    // Make sure all the necessary directories are created
     QDir dir;
-    QString outputImagePath = QDir(m_ProjectDir).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDir));
-    QString outputDataPath  = QDir(m_ProjectDir).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputDataDir));
-    QString inputDataPath   = QDir(m_ProjectDir).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QString outputImagePath  = QDir(m_ProjectDir).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputImagesDir));
+    QString outputDataPath   = QDir(m_ProjectDir).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputDataDir));
+    QString inputDataPath    = QDir(m_ProjectDir).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+    QString layoutDataPath   = QDir(m_ProjectDir).filePath(QString::fromStdString(nmfConstantsMSSPM::LayoutDir));
+    QString databaseDataPath = QDir(m_ProjectDir).filePath(QString::fromStdString(nmfConstantsMSSPM::DatabaseDir));
     dir.mkpath(outputImagePath);
     dir.mkpath(outputDataPath);
     dir.mkpath(inputDataPath);
+    dir.mkpath(layoutDataPath);
+    dir.mkpath(databaseDataPath);
 
     // Load the project
     QString fileName = QDir(m_ProjectDir).filePath(m_ProjectName+".prj");
@@ -1462,21 +1466,25 @@ nmfSetup_Tab2::createTables(QString databaseName)
     fullTableName = db + "." + tableName;
     ExistingTableNames.push_back(tableName);
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
-    cmd += "(ProjectName         varchar(50)  NOT NULL,";
-    cmd += " ModelName           varchar(50)  NOT NULL,";
-    cmd += " SpeciesName         varchar(50)  NOT NULL,";
-    cmd += " SSResiduals         varchar(50)  NOT NULL,";
-    cmd += " SSDeviations        varchar(50)  NOT NULL,";
-    cmd += " SSTotals            varchar(50)  NOT NULL,";
-    cmd += " rSquared            varchar(50)  NOT NULL,";
-    cmd += " rCorrelationCoeff   varchar(50)  NOT NULL,";
-    cmd += " AkaikeInfoCriterion varchar(50)  NOT NULL,";
-    cmd += " RootMeanSquareError varchar(50)  NOT NULL,";
-    cmd += " ReliabilityIndex    varchar(50)  NOT NULL,";
-    cmd += " AverageError        varchar(50)  NOT NULL,";
-    cmd += " AverageAbsError     varchar(50)  NOT NULL,";
-    cmd += " ModelingEfficiency  varchar(50)  NOT NULL,";
-    cmd += " PRIMARY KEY (ProjectName,ModelName,SpeciesName))";
+    cmd += "(ProjectName         varchar(50) NOT NULL,";
+    cmd += " ModelName           varchar(50) NOT NULL,";
+    cmd += " SpeciesName         varchar(50) NOT NULL,";
+    cmd += " Algorithm           varchar(50) NOT NULL,";
+    cmd += " Minimizer           varchar(50) NOT NULL,";
+    cmd += " ObjectiveCriterion  varchar(50) NOT NULL,";
+    cmd += " Scaling             varchar(50) NOT NULL,";
+    cmd += " SSResiduals         varchar(50) NOT NULL,";
+    cmd += " SSDeviations        varchar(50) NOT NULL,";
+    cmd += " SSTotals            varchar(50) NOT NULL,";
+    cmd += " rSquared            varchar(50) NOT NULL,";
+    cmd += " rCorrelationCoeff   varchar(50) NOT NULL,";
+    cmd += " AkaikeInfoCriterion varchar(50) NOT NULL,";
+    cmd += " RootMeanSquareError varchar(50) NOT NULL,";
+    cmd += " ReliabilityIndex    varchar(50) NOT NULL,";
+    cmd += " AverageError        varchar(50) NOT NULL,";
+    cmd += " AverageAbsError     varchar(50) NOT NULL,";
+    cmd += " ModelingEfficiency  varchar(50) NOT NULL,";
+    cmd += " PRIMARY KEY (ProjectName,ModelName,SpeciesName,Algorithm,Minimizer,ObjectiveCriterion,Scaling))";
     errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         nmfUtils::printError("[Error 31] CreateTables: Create table " + fullTableName + " error: ", errorMsg);

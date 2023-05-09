@@ -196,6 +196,11 @@ signals:
      * @param YearRanges : year ranges to run for Mohn's Rho analysis on a Multi Run
      */
     void RunDiagnosticEstimationMultiRun(std::vector<std::pair<int,int> > YearRanges);
+    /**
+     * @brief Signals to the main app that user is not running a retrospective analysis
+     * @param state : true if running mohn's rho, false otherwise
+     */
+    void SetRetrospectiveAnalysis(bool state);
 
 public slots:
     /**

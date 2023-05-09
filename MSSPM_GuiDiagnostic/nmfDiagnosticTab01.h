@@ -75,6 +75,7 @@ private:
     std::string  m_ProjectName;
     std::string  m_ModelName;
     std::string  m_MultiRunType;
+    bool         m_UsingHPCFiles;
     std::map<std::string,std::string> m_OutputTableName;
     std::map<std::string,std::string> m_DiagnosticTableName;
 
@@ -284,6 +285,11 @@ public:
      */
     void setDataStruct(nmfStructsQt::ModelDataStruct& theDataStruct);
     /**
+     * @brief Sets the state of the class HPC flag so that the appropriate algorithms will be used to read the output estimated parameter tables
+     * @param flag : state of the HPC flag, true if user just loaded an hpc run, false otherwise
+     */
+    void setHPCFlag(bool flag);
+    /**
      * @brief Sets the value for number of points for the Number of Diagnostics Points GUI widget
      * @param numPoints : the number of points used in the GUI slider
      */
@@ -341,6 +347,15 @@ signals:
      * @param method : type of diagnostic desired
      */
     void SetChartType(std::string type, std::string method);
+    /**
+     * @brief Signals the main application to set the HPC flag in this class
+     */
+    void SetDiagnosticHPCFlag();
+    /**
+     * @brief Signals to the main app that user is not running a retrospective analysis
+     * @param state : true if running mohn's rho, false otherwise
+     */
+    void SetRetrospectiveAnalysis(bool state);
 
 public slots:
     /**

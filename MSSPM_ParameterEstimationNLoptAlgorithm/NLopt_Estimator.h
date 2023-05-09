@@ -223,6 +223,13 @@ signals:
                          std::string ScalingAlgorithm,
                          std::string multiRunModelFilename,
                          double fitness);
+    /**
+     * @brief Updates models table with number of non-trivial parameter (i.e., a parameters whose min range value was different from its max range value)
+     * @param NumNonTrivialParameters : number of non-trivial parameters
+     */
+    void UpdateNumberOfParameters(
+            int NumNonTrivialParameters);
+
 
 public:
     /**

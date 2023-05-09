@@ -1075,6 +1075,8 @@ nmfEstimation_Tab7::adjustNumberOfParameters()
 void
 nmfEstimation_Tab7::callback_RunPB()
 {
+    emit SetRetrospectiveAnalysis(false);
+
     if (Estimation_Tab7_EnsembleControlsGB->isEnabled() &&
         Estimation_Tab7_EnsembleControlsGB->isChecked() &&
         Estimation_Tab7_EnsembleTotalRunsSB->value() > 1) {
@@ -1231,16 +1233,6 @@ void
 nmfEstimation_Tab7::callback_ReloadPB()
 {
     callback_ReloadWidgets();
-    /*
-    emit SetEstimatedParameterNames();
-
-    if (loadWidgets()) {
-        enableRunButton(true);
-        QMessageBox::information(Estimation_Tabs, "Run Settings Load",
-                                 "\nRun Settings successfully loaded.\n",
-                                 QMessageBox::Ok);
-    }
-    */
 }
 
 void
@@ -1716,8 +1708,7 @@ nmfEstimation_Tab7::callback_MinimizerAlgorithmCMB(QString algorithm)
     Estimation_Tab7_ToleranceLBL->setText("(no tol)");
     if (isGlobal) {
         if (algorithm == "GN_DIRECT_L"      ||
-            algorithm == "GN_DIRECT_L_RAND" ||
-            algorithm == "GN_CRS2_LM") {
+            algorithm == "GN_DIRECT_L_RAND") {
             Estimation_Tab7_ToleranceLBL->setText("(tol)");
         }
     } else { // if it's "local"
@@ -2459,6 +2450,27 @@ nmfEstimation_Tab7::callback_RefreshEstimateRunBoxes(int unused)
     }
 }
 
+std::map<std::string,bool>
+nmfEstimation_Tab7::getAllEstimateCheckboxStates()
+{
+    std::map<std::string,bool> AllCheckboxStates = {
+        {"InitBiomass",                Estimation_Tab7_EstimateInitialBiomassCB->isChecked()},
+        {"GrowthRate",                 Estimation_Tab7_EstimateGrowthRateCB->isChecked()},
+        {"GrowthRateShape",            Estimation_Tab7_EstimateGrowthRateShapeCB->isChecked()},
+        {"CarryingCapacity",           Estimation_Tab7_EstimateCarryingCapacityCB->isChecked()},
+        {"Catchability",               Estimation_Tab7_EstimateCatchabilityCB->isChecked()},
+        {"PredationRho",               Estimation_Tab7_EstimatePredationRhoCB->isChecked()},
+        {"PredationHandling",          Estimation_Tab7_EstimatePredationHandlingCB->isChecked()},
+        {"PredationExponent",          Estimation_Tab7_EstimatePredationExponentCB->isChecked()},
+        {"CompetitionAlpha",           Estimation_Tab7_EstimateCompetitionAlphaCB->isChecked()},
+        {"CompetitionBetaSpecies",     Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB->isChecked()},
+        {"CompetitionBetaGuilds",      Estimation_Tab7_EstimateCompetitionBetaGuildSpeciesCB->isChecked()},
+        {"CompetitionBetaGuildsGuilds",Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB->isChecked()},
+        {"SurveyQ",                    Estimation_Tab7_EstimateSurveyQCB->isChecked()}};
+
+    return AllCheckboxStates;
+}
+
 QList<QCheckBox* >
 nmfEstimation_Tab7::getAllEstimateCheckboxes()
 {
@@ -2468,13 +2480,13 @@ nmfEstimation_Tab7::getAllEstimateCheckboxes()
         Estimation_Tab7_EstimateGrowthRateShapeCB,
         Estimation_Tab7_EstimateCarryingCapacityCB,
         Estimation_Tab7_EstimateCatchabilityCB,
+        Estimation_Tab7_EstimatePredationRhoCB,
         Estimation_Tab7_EstimatePredationHandlingCB,
+        Estimation_Tab7_EstimatePredationExponentCB,
         Estimation_Tab7_EstimateCompetitionAlphaCB,
         Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB,
         Estimation_Tab7_EstimateCompetitionBetaGuildSpeciesCB,
         Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB,
-        Estimation_Tab7_EstimatePredationRhoCB,
-        Estimation_Tab7_EstimatePredationExponentCB,
         Estimation_Tab7_EstimateSurveyQCB
     };
 
@@ -2512,11 +2524,11 @@ nmfEstimation_Tab7::callback_SetEstimateRunCheckboxes(
             activateCheckBox(Estimation_Tab7_EstimateCatchabilityCB,runBox.state);
         } else if (runBox.parameter == "CompetitionAlpha") {
             activateCheckBox(Estimation_Tab7_EstimateCompetitionAlphaCB,runBox.state);
-        } else if (runBox.parameter == "CompetitionBetaSpeciesSpecies") {
+        } else if (runBox.parameter == "CompetitionBetaSpecies") {
             activateCheckBox(Estimation_Tab7_EstimateCompetitionBetaSpeciesSpeciesCB,runBox.state);
-        } else if (runBox.parameter == "CompetitionBetaGuildSpecies") {
+        } else if (runBox.parameter == "CompetitionBetaGuildsSpecies") {
             activateCheckBox(Estimation_Tab7_EstimateCompetitionBetaGuildSpeciesCB,runBox.state);
-        } else if (runBox.parameter == "CompetitionBetaGuildGuild") {
+        } else if (runBox.parameter == "CompetitionBetaGuildsGuilds") {
             activateCheckBox(Estimation_Tab7_EstimateCompetitionBetaGuildGuildCB,runBox.state);
         } else if (runBox.parameter == "PredationRho") {
             activateCheckBox(Estimation_Tab7_EstimatePredationRhoCB,runBox.state);
@@ -3160,4 +3172,21 @@ nmfEstimation_Tab7::callback_TimeUnitsLockPB(bool isChecked)
 
     Estimation_Tab7_NL_StopAfterTimeUnitsCMB->setEnabled(!isChecked);
     Estimation_Tab7_NL_TimeUnitsLockPB->setIcon(icon);
+}
+
+void
+nmfEstimation_Tab7::callback_UpdateNumberOfParameters(int numParameters)
+{
+    std::string cmd  = "UPDATE " + nmfConstantsMSSPM::TableModels + " SET";
+    cmd += "   ProjectName = '" + m_ProjectName +
+           "', ModelName = '"   + m_ModelName +
+           "', NumberOfParameters = " + std::to_string(numParameters) +
+           " WHERE ProjectName = '"   + m_ProjectName +
+           "' AND ModelName = '"      + m_ModelName + "'";
+    std::string errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
+    if (nmfUtilsQt::isAnError(errorMsg)) {
+        m_Logger->logMsg(nmfConstants::Error,"[Error 1] callback_UpdateNumberOfParameters: Write table error: " + errorMsg);
+        m_Logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
+        return;
+    }
 }

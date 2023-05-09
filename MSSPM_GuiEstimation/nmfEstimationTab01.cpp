@@ -1020,6 +1020,56 @@ nmfEstimation_Tab1::savePopulationParametersGuilds(bool showPopup)
     return true;
 }
 
+bool
+nmfEstimation_Tab1::isAnyShapeParameterZero(const bool& showPopup)
+{
+    std::string errorMsg,briefMsg;
+    double GrowthRateShape;
+    double GrowthRateShapeMin,GrowthRateShapeMax;
+    QModelIndex index;
+    QString SpeName;
+    QString valueWithoutComma;
+
+    // Check that all GrowthRateShape values are > 0
+    for (int i=0; i<m_SpeciesModel->rowCount(); ++i) {
+        index = m_SpeciesModel->index(i,m_ColumnMap["SpeName"]);
+        SpeName = index.data().toString().remove(",");
+        index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShape"]);
+        valueWithoutComma = index.data().toString().remove(",");
+        GrowthRateShape = valueWithoutComma.toDouble();
+        index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMin"]);
+        valueWithoutComma = index.data().toString().remove(",");
+        GrowthRateShapeMin = valueWithoutComma.toDouble();
+        index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRateShapeMax"]);
+        valueWithoutComma = index.data().toString().remove(",");
+        GrowthRateShapeMax = valueWithoutComma.toDouble();
+
+        if (GrowthRateShape < nmfConstants::NearlyZero) {
+            briefMsg  = "GrowthRateShape values must be greater than 0.";
+            errorMsg  = "\nFound: GrowthRateShape value(s) less than or equal to 0 for Species: " + SpeName.toStdString();
+            errorMsg += "\n\n" + briefMsg + "\n";
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1::isAnyShapeParameterZero: " + briefMsg);
+            if (showPopup) {
+                QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
+                                     QMessageBox::Ok);
+            }
+            return false;
+        }
+        if ((GrowthRateShapeMin < nmfConstants::NearlyZero) || (GrowthRateShapeMax < nmfConstants::NearlyZero)) {
+            briefMsg  = "All GrowthRateShape Min and Max values must be greater than 0.";
+            errorMsg  = "\nFound: GrowthRateShape Min or Max value(s) less than or equal to 0 for Species: " + SpeName.toStdString();
+            errorMsg += "\n\n" + briefMsg + "\n";
+            m_Logger->logMsg(nmfConstants::Error,"nmfEstimation_Tab1::isAnyShapeParameterZero: " + briefMsg);
+            if (showPopup) {
+                QMessageBox::warning(Estimation_Tabs,"Warning", QString::fromStdString(errorMsg),
+                                     QMessageBox::Ok);
+            }
+            return false;
+        }
+    }
+
+    return true;
+}
 
 bool
 nmfEstimation_Tab1::isAnySurveyQZero(const bool& showPopup)
@@ -1408,6 +1458,10 @@ bool
 nmfEstimation_Tab1::savePopulationParametersSpecies(bool showPopup)
 {
     if (! isAnySurveyQZero(showPopup)) {
+        return false;
+    }
+
+    if (! isAnyShapeParameterZero(showPopup)) {
         return false;
     }
 

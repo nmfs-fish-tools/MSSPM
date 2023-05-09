@@ -61,7 +61,12 @@ nmfOutputTableWidgets::saveSettings()
 }
 
 void
-nmfOutputTableWidgets::reloadLast(const QStringList& EstParamNames)
+nmfOutputTableWidgets::reloadLast(
+        const std::string& Algorithm,
+        const std::string& Minimizer,
+        const std::string& ObjectiveCriterion,
+        const std::string& Scaling,
+        const QStringList& EstParamNames)
 {
     if ((m_LastTableView == nullptr) &&
          m_LastLabel.isEmpty()       &&
@@ -70,7 +75,9 @@ nmfOutputTableWidgets::reloadLast(const QStringList& EstParamNames)
     }
 
     if (m_LastFileLoaded.isEmpty()) { // Re-load table from database
-        loadSummaryTable(m_LastTableView,m_LastLabel,EstParamNames,m_LastStatisticNames);
+        loadSummaryTable(m_LastTableView,m_LastLabel,EstParamNames,
+                         Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                         m_LastStatisticNames);
 
     } else {                          // Re-load last imported file
         int numRows = 0;
@@ -97,6 +104,10 @@ void
 nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView,
                                         const QString& label,
                                         const QStringList& EstParamNames,
+                                        const std::string& Algorithm,
+                                        const std::string& Minimizer,
+                                        const std::string& ObjectiveCriterion,
+                                        const std::string& Scaling,
                                         const QStringList& statisticNames)
 {
     bool isDiagnosticSummary = false;
@@ -131,8 +142,13 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView,
                      "ReliabilityIndex","AverageError","AverageAbsError","ModelingEfficiency"};
         queryStr  = "SELECT ProjectName,ModelName,SpeciesName,SSResiduals,SSDeviations,SSTotals,rSquared,";
         queryStr += "rCorrelationCoeff,AkaikeInfoCriterion,RootMeanSquareError,ReliabilityIndex,AverageError,";
-        queryStr += "AverageAbsError,ModelingEfficiency FROM " +
-                     nmfConstantsMSSPM::TableSummaryModelFit;
+        queryStr += "AverageAbsError,ModelingEfficiency FROM " + nmfConstantsMSSPM::TableSummaryModelFit +
+                    "  WHERE ProjectName = '"      + m_ProjectName +
+                    "' AND ModelName = '"          + m_ModelName +
+                    "' AND Algorithm = '"          + Algorithm +
+                    "' AND Minimizer = '"          + Minimizer +
+                    "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
+                    "' AND Scaling = '"            + Scaling + "'";
     } else {
         isDiagnosticSummary = true;
         NumSummaryTableRows = EstParamNames.size();
@@ -145,11 +161,11 @@ nmfOutputTableWidgets::loadSummaryTable(QTableView* tableView,
         fieldsStr = fieldsStr.substr(0,fieldsStr.size()-1); // remove last comma
         queryStr  = "SELECT ProjectName,ModelName,SpeciesName,"; //,InitialAbsBiomass,GrowthRate,";
         queryStr += fieldsStr;
-        queryStr += " FROM " +
-                     nmfConstantsMSSPM::TableSummaryDiagnostic;
+        queryStr += " FROM " + nmfConstantsMSSPM::TableSummaryDiagnostic;
+        queryStr += " WHERE ProjectName='" + m_ProjectName +
+                    "' AND ModelName='"    + m_ModelName   + "'";
     }
-    queryStr += " WHERE ProjectName='" + m_ProjectName +
-                "' AND ModelName='"    + m_ModelName   + "'";
+
     queryStr += " ORDER BY SpeciesName";
     dataMap   = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
     NumDatabaseTableRows = (int)dataMap["SpeciesName"].size();

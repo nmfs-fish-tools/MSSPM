@@ -119,6 +119,8 @@
     <addaction name="actionExportDatabase"/>
     <addaction name="actionExportAllDatabases"/>
     <addaction name="separator"/>
+    <addaction name="actionImportHPCFiles"/>
+    <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -142,6 +144,10 @@
     <addaction name="actionShowAllSavedRuns"/>
     <addaction name="actionSaveAndShowCurrentRun"/>
     <addaction name="actionShowCurrentRun"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowLastSingleRun"/>
+    <addaction name="actionShowLastMultiOrHPCRun"/>
+    <addaction name="separator"/>
     <addaction name="actionShowTableNames"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -168,6 +174,9 @@
     <addaction name="actionClearSpecificOutputData"/>
     <addaction name="actionClearOutputData"/>
     <addaction name="separator"/>
+    <addaction name="actionOptimizeOutputTables"/>
+    <addaction name="actionOptimizeAllTables"/>
+    <addaction name="separator"/>
     <addaction name="actionSetEstimatedGrowthRateToTestValue"/>
     <addaction name="actionSetEstimatedCarryingCapacityToTestValue"/>
     <addaction name="actionSetEstmatedCompetitionToTestValues"/>
@@ -183,8 +192,11 @@
     <property name="title">
      <string>&amp;Layouts</string>
     </property>
-    <addaction name="actionLayoutOutput"/>
+    <addaction name="actionDeleteLayout"/>
+    <addaction name="actionLoadLayout"/>
+    <addaction name="actionSaveLayout"/>
     <addaction name="separator"/>
+    <addaction name="actionLayoutOutput"/>
     <addaction name="actionLayoutDefault"/>
    </widget>
    <addaction name="menuFile"/>
@@ -215,6 +227,7 @@
    <addaction name="actionNLoptTB"/>
    <addaction name="actionGeneticTB"/>
    <addaction name="actionGradientTB"/>
+   <addaction name="actionToggleSingleMulti"/>
    <addaction name="separator"/>
    <addaction name="actionScreenShotAll"/>
    <addaction name="actionScreenShot"/>
@@ -969,6 +982,96 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="toolTip">
     <string>Show list of Troubleshooting topics</string>
+   </property>
+  </action>
+  <action name="actionImportHPCFiles">
+   <property name="text">
+    <string>Import HPC Files...</string>
+   </property>
+   <property name="toolTip">
+    <string>Import HPC Estimated Parameter Files</string>
+   </property>
+  </action>
+  <action name="actionOptimizeOutputTables">
+   <property name="text">
+    <string>Optimize Output Tables</string>
+   </property>
+   <property name="toolTip">
+    <string>Optimize all MySQL output tables for this project</string>
+   </property>
+  </action>
+  <action name="actionOptimizeAllTables">
+   <property name="text">
+    <string>Optimize All Tables</string>
+   </property>
+   <property name="iconText">
+    <string>Optimize all of the MySQL Tables for this project</string>
+   </property>
+   <property name="toolTip">
+    <string>Optimize all of the MySQL Tables for this project</string>
+   </property>
+  </action>
+  <action name="actionSaveLayout">
+   <property name="text">
+    <string>Save...</string>
+   </property>
+   <property name="iconText">
+    <string>Save the current Layout</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the current Layout</string>
+   </property>
+  </action>
+  <action name="actionLoadLayout">
+   <property name="text">
+    <string>Load...</string>
+   </property>
+   <property name="iconText">
+    <string>Load a previously saved Layout</string>
+   </property>
+   <property name="toolTip">
+    <string>Load a previously saved Layout</string>
+   </property>
+  </action>
+  <action name="actionDeleteLayout">
+   <property name="text">
+    <string>Delete...</string>
+   </property>
+   <property name="iconText">
+    <string>Delete a saved Layout file</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete a saved Layout file</string>
+   </property>
+  </action>
+  <action name="actionShowLastMultiOrHPCRun">
+   <property name="text">
+    <string>Last &amp;HPC</string>
+   </property>
+   <property name="toolTip">
+    <string>View last HPC run</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+H</string>
+   </property>
+  </action>
+  <action name="actionShowLastSingleRun">
+   <property name="text">
+    <string>Last &amp;Single Run</string>
+   </property>
+   <property name="toolTip">
+    <string>Show estimation results of last non multi-run</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionToggleSingleMulti">
+   <property name="text">
+    <string>S/H</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggles between Single and HPC runs if both are available</string>
    </property>
   </action>
  </widget>

@@ -315,8 +315,9 @@ signals:
     void ReloadTab7Widgets();
     /**
      * @brief Signal emitted when the user needs to reload the current widgets
+     * @param reloadProject : boolean signifying if the current project should be reloaded
      */
-    void ReloadWidgets();
+    void ReloadWidgets(bool reloadProject);
     /**
      * @brief Signal emitted when the user needs to save the Estimation Run settings
      */

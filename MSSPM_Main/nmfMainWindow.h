@@ -242,6 +242,13 @@ private:
     QDateTime                             m_AppStartTime;
     int                                   m_DBTimeout;
     EstimationCompleteDialog*             m_EstimationCompleteDlg;
+    bool                                  m_UsingHPCFiles;
+    bool                                  m_LastRunWasRetrospectiveAnalysis;
+    int                                   m_SingeMultiToggle;
+    std::string                           m_HPC_Algorithm;
+    std::string                           m_HPC_Minimizer;
+    std::string                           m_HPC_ObjectiveCriterion;
+    std::string                           m_HPC_Scaling;
 
     QBarSeries*              ProgressBarSeries;
     QBarSet*                 ProgressBarSet;
@@ -476,7 +483,7 @@ private:
     void clearOutputTables();
     void closeEvent(QCloseEvent *event);
     void completeApplicationInitialization();
-    QString createEstimatedFile();
+    QString createEstimatedFile(std::string algorithm);
     void createOutputStrMultiRun(
             const std::string& elapsedTime,
             std::string& summaryMsg);
@@ -512,7 +519,34 @@ private:
                                  std::string& objectiveCriterion,
                                  std::string& scaling,
                                  std::string& competitionForm);
+    void getCurrentAlgorithmIdentifiers(
+            std::string& Algorithm,
+            std::string& Minimizer,
+            std::string& ObjectiveCriterion,
+            std::string& Scaling);
     QString getCurrentStyle();
+    void getEstimatedParameters(
+            const int& run,
+            std::vector<double>& EstInitBiomass,
+            std::vector<double>& EstGrowthRates,
+            std::vector<double>& EstGrowthRateShape,
+            std::vector<double>& EstGrowthRateCovariateCoeffs,
+            std::vector<double>& EstCarryingCapacities,
+            std::vector<double>& EstCarryingCapacityCovariateCoeffs,
+            std::vector<double>& EstCatchability,
+            std::vector<double>& EstCatchabilityCovariateCoeffs,
+            std::vector<double>& EstSurveyQ,
+            std::vector<double>& EstSurveyQCovariateCoeffs,
+            boost::numeric::ublas::matrix<double>& EstCompetitionAlpha,
+            boost::numeric::ublas::matrix<double>& EstCompetitionBetaSpecies,
+            boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuilds,
+            boost::numeric::ublas::matrix<double>& EstCompetitionBetaGuildsGuilds,
+            boost::numeric::ublas::matrix<double>& EstPredationRho,
+            boost::numeric::ublas::matrix<double>& EstPredationHandling,
+            std::vector<double>& EstPredationExponent,
+            std::vector<double>& EstBMSY,
+            std::vector<double>& EstMSY,
+            std::vector<double>& EstFMSY);
     bool getForecastInitialData(
             QString& forecastName,
             int&     numYearsPerRun,
@@ -666,7 +700,7 @@ private:
                    std::string &stopRunFile,
                    std::string &state);
     bool loadCovariateAssignment(std::map<std::string,std::string>& covariateAssignment);
-    bool loadCovariateData(std::map<std::string,std::vector<double> >& covariateMap);
+    bool loadCovariateMap(std::map<std::string,std::vector<double> >& covariateMap);
     bool loadCovariateRanges(
             std::map<std::string,nmfStructsQt::CovariateStruct>& growthRateCovariateRanges,
             std::map<std::string,nmfStructsQt::CovariateStruct>& carryingCapacityCovariateRanges,
@@ -828,6 +862,9 @@ private:
                              std::vector<double>& CarryingCapacityCovCoeffUncertainty,
                              std::vector<double>& CatchabilityCovCoeffUncertainty,
                              std::vector<double>& SurveyQCovCoeffUncertainty);
+    void optimizeTables(
+            const QString& msg,
+            const std::vector<std::string>& tablesToOptimize);
     bool passEstimationChecks(std::vector<QString>& MultiRunLines,
                               int& TotalIndividualRuns);
     void queryUserPreviousDatabase();
@@ -836,8 +873,13 @@ private:
     void readSettingsGuiOrientation(bool alsoResetPosition);
     void loadAllWidgets(bool loadProjectData = false);
     void loadSetupWidgets();
+    void refreshOutputTableViews();
     void refreshOutputTables();
-//    void removeExistingMultiRuns();
+    void refreshSummaryModelFit(const std::string& Algorithm,
+                                const std::string& Minimizer,
+                                const std::string& ObjectiveCriterion,
+                                const std::string& Scaling);
+    //    void removeExistingMultiRuns();
     void runBeesAlgorithm(bool showDiagnosticsChart,
                           std::vector<QString>& MultiRunLines,
                           int& TotalIndividualRuns);
@@ -1336,8 +1378,9 @@ public slots:
     void callback_RefreshOutput();
     /**
      * @brief Callback invoked when user needs to reload the Main application's widgets
+     * @param reloadProject : boolean signifying if the project should be reloaded
      */
-    void callback_ReloadWidgets();
+    void callback_ReloadWidgets(bool reloadProject);
     /**
      * @brief Callback invoked when user needs to reload the Setup widgets
      */
@@ -1401,9 +1444,14 @@ public slots:
      */
     void callback_SetForecastHarvestModel();
     /**
+     * @brief Callback invoked when the user runs an estimation, diagnostic, or forecast
+     * @param state : reset state for the retrospective analysis (necessary as this is similar to a mult-run)
+     */
+    void callback_SetRetrospectiveAnalysis(bool state);
+    /**
      * @brief Callback invoked when user saves a new Model
      */
-    void callback_ToDoAfterModelSave();
+    void callback_ModelSaved();
     /**
      * @brief Callback invoked when user changes the type of Output chart desired
      * @param type : type of Output chart to view
@@ -1584,6 +1632,10 @@ public slots:
      */
     void menu_createTables();
     /**
+     * @brief Deletes a previously created Layout file
+     */
+    void menu_deleteLayout();
+    /**
      * @brief Deselects all cells in the table
      */
     void menu_deselectAll();
@@ -1600,6 +1652,10 @@ public slots:
      */
     void menu_importDatabase();
     /**
+     * @brief Imports the estimated parameter files generated by the HPC system
+     */
+    void menu_importHPCFiles();
+    /**
      * @brief Change the Application layout to the default
      */
     void menu_layoutDefault();
@@ -1608,9 +1664,21 @@ public slots:
      */
     void menu_layoutOutput();
     /**
+     * @brief Loads a previously saved Layout
+     */
+    void menu_loadLayout();
+    /**
      * @brief Open the CSV file that's associated with the current image file displayed in the REMORA viewer
      */
     void menu_openCSVFile();
+    /**
+     * @brief Optimizes all of the MySQL tables
+     */
+    void menu_optimizeAllTables();
+    /**
+     * @brief Optimizes all the MySQL Output tables
+     */
+    void menu_optimizeOutputTables();
     /**
      * @brief Pastes the previously copied or cleared table cells
      */
@@ -1648,6 +1716,10 @@ public slots:
      * @brief Save all data generated by current run
      */
     void menu_saveCurrentRun();
+    /**
+     * @brief Saves the current Layout
+     */
+    void menu_saveLayout();
     /**
      * @brief Save application settings
      */
@@ -1687,6 +1759,14 @@ public slots:
      */
     void menu_showCurrentRun();
     /**
+     * @brief Shows the last Multi-Run or HPC if available
+     */
+    void menu_showLastMultiOrHPCRun();
+    /**
+     * @brief Shows the last run that wasn't a Multi-Run or an HPC run
+     */
+    void menu_showLastSingleRun();
+    /**
      * @brief Raises a dialog that lists all the MySQL database tables for MSSPM
      */
     void menu_showTableNames();
@@ -1706,6 +1786,7 @@ public slots:
     void menu_toggleManagerMode();
     void menu_toggleManagerModeViewer();
     void menu_toggleSignificantDigits();
+    void menu_toggleSingleMulti();
     void menu_troubleshooting();
 
     void callback_AllowConvergedOnly(bool allowConvergedOnly);
@@ -1718,6 +1799,7 @@ public slots:
     void callback_RunCompletedMsg(int returnCode,
                                   std::string returnMsg);
     void callback_SetEstimatedParameterNames();
+    void callback_SetDiagnosticHPCFlag();
     void callback_StopTimer();
     void callback_SummaryLoadDiagnosticPB();
     void callback_SummaryExportDiagnosticPB();

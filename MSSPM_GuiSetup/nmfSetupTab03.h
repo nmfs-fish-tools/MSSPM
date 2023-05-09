@@ -201,8 +201,9 @@ signals:
      * @brief Signal emitted after user saves Species. This is
      * necessary since the input Estimation tables may need to
      * be modified with new Species.
+     * @param reloadProject : boolean signifying if the current project should be reloaded
      */
-    void ReloadWidgets();
+    void ReloadWidgets(bool reloadProject);
     /**
      * @brief Signal emitted after user saves Guilds. This will
      * allow the user to save the current Guild data into a .csv
