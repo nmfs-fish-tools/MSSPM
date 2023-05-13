@@ -2680,7 +2680,7 @@ bool
 nmfEstimation_Tab7::loadEnsembleFile(QString ensembleFilename,
                                      const bool& verbose)
 {
-std::cout << "Loading: " << ensembleFilename.toStdString() << std::endl;
+//std::cout << "Loading: " << ensembleFilename.toStdString() << std::endl;
     bool retv = true;
     int TotalNumRuns = 0;
     QString msg;

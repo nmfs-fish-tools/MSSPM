@@ -620,10 +620,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         surveyQTerm = nmfUtils::applyCovariate(nullptr,covariateAlgorithmType,surveyQVal,
                                                surveyQCovariateCoeffs[species],
                                                surveyQCovariate(0,species));
-//if (species == 1) {
-//  std::cout << "species: " << species << "," <<  surveyQ[species] << std::endl;
-//}
-        for (int time=0; time<NumYears; ++time) {
+        for (int time=1; time<NumYears; ++time) {
             if (ObsBiomassBySpeciesOrGuilds(time,species) != nmfConstantsMSSPM::NoData) {
                 ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQTerm;
             }
@@ -637,7 +634,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     // If user has selected Effort, set ObsCatch = catchability * Effort * ObsBiomass
     if (isEffortFitToCatch || isEffort) {
         nmfUtils::initialize(ObsCatch,NumYears,NumSpeciesOrGuilds);
-        for (int time=0; time<NumYears; ++time) {
+        for (int time=1; time<NumYears; ++time) {
             for (int species=0; species<NumSpeciesOrGuilds; ++species) {
                 ObsCatch(time,species) = catchability[species]*Effort(time,species)*ObsBiomassBySpeciesOrGuilds(time,species);
             }

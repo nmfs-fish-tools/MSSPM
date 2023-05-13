@@ -352,6 +352,10 @@ signals:
      */
     void UpdateInitialForecastYear();
     /**
+     * @brief Signal emitted to notify the main routine to update its window title
+     */
+    void UpdateWindowTitle();
+    /**
      * @brief Signal emitted to update the initial Observed Biomass values
      * @param obsBiomassType : type of observed biomass: Absolute or Relative
      */

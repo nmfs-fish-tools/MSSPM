@@ -473,7 +473,6 @@ nmfSetup_Tab4::loadModel()
 
     emit ModelLoaded();
     emit UpdateDiagnosticParameterChoices();
-
 }
 
 void
@@ -721,7 +720,7 @@ nmfSetup_Tab4::saveModel(bool RunChecks)
     bool okToSave = true;
     std::string msg;
     std::string ModelName = Setup_Tab4_ModelNameLE->text().toStdString();
-qDebug() << 1;
+
     calculateSystemCarryingCapacity();
 
     if (RunChecks && ModelName.empty()) {
@@ -754,6 +753,8 @@ qDebug() << 1;
     emit ReloadWidgets(nmfConstantsMSSPM::DontReloadProject);
     emit ReloadTab7Widgets();
     m_logger->logMsg(nmfConstants::Normal,"nmfSetup_Tab4::saveModel end");
+    emit UpdateWindowTitle();
+
 }
 
 

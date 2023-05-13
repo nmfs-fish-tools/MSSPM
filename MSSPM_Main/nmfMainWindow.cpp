@@ -3221,6 +3221,11 @@ nmfMainWindow::menu_clearSpecificOutputData()
 void
 nmfMainWindow::menu_clearOutputData()
 {
+    delete m_AveragedData;
+    delete m_MohnsRhoData;
+    m_AveBiomass.clear();
+    nmfUtils::initialize(m_AveBiomass,0,0);
+    m_OutputBiomassEnsemble.clear();
     clearOutputData("All","All","All","All");
 }
 
@@ -3626,7 +3631,6 @@ void
 nmfMainWindow::loadAllWidgets(bool loadProjectData)
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
-qDebug() << "Load project tab data: " << loadProjectData;
     if (loadProjectData) {
         Setup_Tab2_ptr->loadWidgets();
     }
@@ -3980,6 +3984,8 @@ nmfMainWindow::initConnections()
             Estimation_Tab5_ptr, SLOT(callback_ObservedBiomassType(QString)));
     connect(Setup_Tab4_ptr,      SIGNAL(ReloadTab7Widgets()),
             Estimation_Tab7_ptr, SLOT(callback_ReloadWidgets()));
+    connect(Setup_Tab4_ptr,      SIGNAL(UpdateWindowTitle()),
+            this,                SLOT(callback_UpdateWindowTitle()));
 
     connect(Estimation_Tab1_ptr, SIGNAL(StoreOutputSpecies()),
             this,                SLOT(callback_StoreOutputSpecies()));
@@ -4289,6 +4295,8 @@ nmfMainWindow::findTableInFocus()
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab6_SpeciesParameterTV");
     } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab6_InitialValuesTV")->hasFocus()) {
         return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab6_InitialValuesTV");
+    } else if (m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab8_ModelReviewTV")->hasFocus()) {
+        return m_UI->EstimationDataInputTabWidget->findChild<QTableView *>("Estimation_Tab8_ModelReviewTV");
 
     } else if (m_UI->ForecastDataInputTabWidget->findChild<QTableView *>("Forecast_Tab2_HarvestTV")->hasFocus()) {
         return m_UI->ForecastDataInputTabWidget->findChild<QTableView *>("Forecast_Tab2_HarvestTV");
@@ -16293,6 +16301,12 @@ std::cout << "callback_ProjectSaved" << std::endl;
 }
 
 void
+nmfMainWindow::callback_UpdateWindowTitle()
+{
+    updateWindowTitle();
+}
+
+void
 nmfMainWindow::updateWindowTitle()
 {
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
@@ -16616,6 +16630,10 @@ nmfMainWindow::callback_ModelSaved()
     enableApplicationFeatures("AllOtherGroups",setupIsComplete());
     Estimation_Tab7_ptr->clearEnsembleFile();
     Estimation_Tab7_ptr->enableNonEnsembleWidgets(true);
+
+    // Check if model was actually a multi-run and set accordingly
+    checkIfModelIsAMultiRun();
+
     Setup_Tab4_ptr->saveSettings();
 }
 
@@ -16710,6 +16728,35 @@ nmfMainWindow::callback_ModelLoaded()
     callback_ShowChart("","");
 
     QApplication::restoreOverrideCursor();
+}
+
+void
+nmfMainWindow::checkIfModelIsAMultiRun()
+{
+    std::vector<std::string> fields;
+    std::map<std::string, std::vector<std::string> > dataMap;
+    std::string queryStr;
+
+    fields   = {"EnsembleIsBoxChecked","EnsembleFile"};
+    queryStr = "SELECT EnsembleIsBoxChecked,EnsembleFile FROM " +
+                nmfConstantsMSSPM::TableModels +
+               " WHERE ProjectName = '" + m_ProjectName +
+               "' AND ModelName = '"    + m_ModelName + "'";
+    dataMap = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
+    m_IsMultiRun = (dataMap["EnsembleIsBoxChecked"][0] == "1");
+
+    if (m_IsMultiRun) {
+        std::string ensembleFile = dataMap["EnsembleFile"][0];
+        Estimation_Tab7_ptr->callback_EnsembleControlsGB(true);
+        Estimation_Tab7_ptr->enableEnsembleControls(true);
+        QString filePath             = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
+        QString existingEnsembleFile = QDir(filePath).filePath(QString::fromStdString(ensembleFile));
+        QString newEnsembleFile      = QDir(filePath).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameMultiRun));
+        QFile::remove(newEnsembleFile); // if it exists, it must be removed prior to the copy command
+        if (QFile::copy(existingEnsembleFile, newEnsembleFile)) {
+            Estimation_Tab7_ptr->callback_EnsembleLoadPB();
+        }
+    }
 }
 
 bool

@@ -471,6 +471,7 @@ private:
     void checkModelHarvestTypeMatchesForecastButtonLabel(
             const QString& HarvestForm,
             const QString& ForecastButtonLabel);
+    void checkIfModelIsAMultiRun();
     bool checkIfTablesAlreadyCreated();
     void clearChart();
     bool clearOutputBiomassTable(std::string& ForecastName,
@@ -1592,9 +1593,9 @@ public slots:
      * @brief Callback invoked to update the Model Equation in the Setup page 4 summary text box
      */
     void callback_UpdateModelEquationSummary();
+    void callback_UpdateWindowTitle();
     void callback_openCSVFile(QPoint pos);
     void context_Action(bool triggered);
-
 
     /**
      * @brief Raises an About MSSPM Dialog
