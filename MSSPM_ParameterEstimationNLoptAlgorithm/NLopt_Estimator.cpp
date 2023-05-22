@@ -13,6 +13,7 @@ bool m_ForceStop = false;
 int NLopt_Estimator::m_NLoptFcnEvals  = 0;
 int NLopt_Estimator::m_NumObjFcnCalls = 0;
 int NLopt_Estimator::m_RunNum         = 0;
+float USER_STOPPED_VALUE              = -1234567.89;
 nlopt::opt NLopt_Estimator::m_Optimizer;
 
 std::unique_ptr<nmfGrowthForm>      NLoptGrowthForm;
@@ -840,6 +841,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 
     if (m_ForceStop) {
         m_Optimizer.force_stop();
+        fitness = USER_STOPPED_VALUE;
     }
 
     return fitness;
@@ -979,6 +981,11 @@ NLopt_Estimator::setAdditionalParameters(const nmfStructsQt::ModelDataStruct& da
 void
 NLopt_Estimator::setStoppingCriteria(nmfStructsQt::ModelDataStruct &NLoptStruct)
 {
+    // This is a necessary hack because when running on Windows, clicking the Stop button, doesn't
+    // stop an estimation.
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+    m_Optimizer.set_stopval(USER_STOPPED_VALUE);
+#endif
     if (NLoptStruct.NLoptUseStopVal) {
         m_Optimizer.set_ftol_abs(NLoptStruct.NLoptStopVal);
         m_Optimizer.set_xtol_abs(NLoptStruct.NLoptStopVal);
@@ -1208,7 +1215,21 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                 } else {
                     ++numConverged;
                 }
-                std::cout << "Optimizer return code: " << returnCodeStr(returnCode) << std::endl;
+
+                // This check is necessary because on Windows, clicking the Stop button doesn't
+                // stop the estimation. There's a hack where the objective function is forced to return
+                // USER_STOPPED_VALUE to notify nlopt that the user wants the estimation to stop. If that
+                // occurs, this check here will return the appropriate message to the user.
+                if (m_Optimizer.get_stopval() == USER_STOPPED_VALUE) {
+                    returnCode = nlopt::FORCED_STOP;
+                    theReturnCodeStr = returnCodeStr(returnCode);
+                    std::cout << "User terminated application" << std::endl;
+                    returnMsg = "Model did not converge.\nHalted by user.";
+                    allRunsConverged = false;
+                }
+
+                std::cout << "Optimizer return code: " << theReturnCodeStr << std::endl;
+
                 // *
                 // ******************************************************
             } catch (nlopt::forced_stop &e) {
@@ -1287,6 +1308,29 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
 
             returnMsg = (returnMsg.empty()) ? completedMsg(theReturnCodeStr) : returnMsg;
             emit RunCompletedMsg(returnCode,returnMsg);
+            checkEstimatedValuesForBoundaryConditions(NLoptStruct,
+                                                      NumEstParameters,
+                                                      ParameterInitialValues,ParameterRanges,
+                                                      m_EstInitBiomass,
+                                                      m_EstGrowthRates,
+                                                      m_EstGrowthRateShape,
+                                                      m_EstGrowthRateCovariateCoeffs,
+                                                      m_EstCarryingCapacities,
+                                                      m_EstCarryingCapacityCovariateCoeffs,
+                                                      m_EstCatchability,
+                                                      m_EstCatchabilityCovariateCoeffs,
+                                                      m_EstAlpha,
+                                                      m_EstBetaSpecies,
+                                                      m_EstBetaGuilds,
+                                                      m_EstBetaGuildsGuilds,
+                                                      m_EstPredation,
+                                                      m_EstHandling,
+                                                      m_EstExponent,
+                                                      m_EstSurveyQ,
+                                                      m_EstSurveyQCovariateCoeffs,
+                                                      m_EstBMSY,
+                                                      m_EstMSY,
+                                                      m_EstFMSY);
 
             if (stoppedByUser()) {
                 return;
@@ -1309,6 +1353,269 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     }
 
     stopRun(elapsedTimeStr,summaryMsg);
+}
+
+void
+NLopt_Estimator::checkParameterRange(
+        const std::string& species,
+        const double& parameterInitialValue,
+        const std::pair<double,double>& parameterRange,
+        const double& parameterValue,
+        const std::string parameterName,
+        const bool& useScientific,
+        std::vector<std::string>& boundaryWarnings)
+{
+    double minValue = parameterRange.first;
+    double maxValue = parameterRange.second;
+    double range = std::fabs(maxValue - minValue);
+    double half = range/2.0 + minValue;
+    double pct = 1.0;
+    double eps = (pct/100.0) * range; // This is 1 percent of the range
+    std::string msg = "Warning: ";
+    std::stringstream pctVal;
+    std::stringstream minMaxVal;
+    std::stringstream value;
+    pctVal << std::fixed << std::setprecision(0) << pct;
+    if (useScientific) {
+        minMaxVal << std::scientific << std::setprecision(2) << minValue << "," << maxValue;
+        value     << std::scientific << std::setprecision(2) << parameterValue;
+    } else {
+        minMaxVal << std::fixed << std::setprecision(2) << minValue << "," << maxValue;
+        value     << std::fixed << std::setprecision(2) << parameterValue;
+    }
+
+    if (minValue == maxValue) {
+        return;
+    }
+
+    if ((parameterValue <= minValue+eps) && (parameterValue >= minValue-eps)) {
+        boundaryWarnings.push_back("(Min Range)       Estimated " + species + " " + parameterName + " value of " + value.str() +
+                                   " found within " + pctVal.str() + "% of minimum range value (min,max = " + minMaxVal.str() + ")");
+    } else if ((parameterValue <= maxValue+eps) && (parameterValue >= maxValue-eps)) {
+        boundaryWarnings.push_back("(Max Range)       Estimated " + species + " " + parameterName + " value of " + value.str() +
+                                   " found within " + pctVal.str() + "% of maximum range value (min,max = " + minMaxVal.str() + ")");
+    }
+    if ((parameterValue <= parameterInitialValue+eps) && (parameterValue >= parameterInitialValue-eps)) {
+        boundaryWarnings.push_back("(Initial Value)   Estimated " + species + " " + parameterName + " value of " + value.str() +
+                                   " found within " + pctVal.str() + "% of initial value (min,max = " + minMaxVal.str() + ")");
+    }
+    if ((parameterValue <= half+eps) && (parameterValue >= half-eps)) {
+        boundaryWarnings.push_back("(Mid-Point Value) Estimated " + species + " " + parameterName + " value of " + value.str() +
+                                   " found within " + pctVal.str() + "% of mid-point value of range (min,max = " + minMaxVal.str() + ")");
+    }
+}
+
+void
+NLopt_Estimator::checkEstimatedValuesForBoundaryConditions(const nmfStructsQt::ModelDataStruct& NLoptDataStruct,
+                                                           const int& numEstParameters,
+                                                           std::vector<double>& parameterInitialValues,
+                                                           std::vector<std::pair<double,double> >& parameterRanges,
+                                                           std::vector<double>& initBiomass,
+                                                           std::vector<double>& growthRate,
+                                                           std::vector<double>& growthRateShape,
+                                                           std::vector<double>& growthRateCovariateCoeffs,
+                                                           std::vector<double>& carryingCapacity,
+                                                           std::vector<double>& carryingCapacityCovariateCoeffs,
+                                                           std::vector<double>& catchability,
+                                                           std::vector<double>& catchabilityCovariateCoeffs,
+                                                           boost::numeric::ublas::matrix<double>& competitionAlpha,
+                                                           boost::numeric::ublas::matrix<double>& competitionBetaSpecies,
+                                                           boost::numeric::ublas::matrix<double>& competitionBetaGuilds,
+                                                           boost::numeric::ublas::matrix<double>& competitionBetaGuildsGuilds,
+                                                           boost::numeric::ublas::matrix<double>& predation,
+                                                           boost::numeric::ublas::matrix<double>& handling,
+                                                           std::vector<double>& exponent,
+                                                           std::vector<double>& surveyQ,
+                                                           std::vector<double>& surveyQCovariateCoeffs,
+                                                           std::vector<double>& bmsy,
+                                                           std::vector<double>& msy,
+                                                           std::vector<double>& fmsy)
+{
+    bool isLogistic     = (NLoptDataStruct.GrowthForm      == "Logistic");
+    bool isCatchability = (NLoptDataStruct.HarvestForm     == nmfConstantsMSSPM::HarvestEffort.toStdString()) ||
+                          (NLoptDataStruct.HarvestForm     == nmfConstantsMSSPM::HarvestEffortFitToCatch.toStdString());
+    bool isAlpha        = (NLoptDataStruct.CompetitionForm == "NO_K");
+    bool isMSPROD       = (NLoptDataStruct.CompetitionForm == "MS-PROD");
+    bool isAGGPROD      = (NLoptDataStruct.CompetitionForm == "AGG-PROD");
+    bool isRho          = (NLoptDataStruct.PredationForm   == "Type I") ||
+                          (NLoptDataStruct.PredationForm   == "Type II") ||
+                          (NLoptDataStruct.PredationForm   == "Type III");
+    bool isHandling     = (NLoptDataStruct.PredationForm   == "Type II") ||
+                          (NLoptDataStruct.PredationForm   == "Type III");
+    bool isExponent     = (NLoptDataStruct.PredationForm   == "Type III");
+    bool usedLogScale   = (NLoptDataStruct.LogScale        ==  true);
+    int m;
+    int offset = 0;
+    int NumSpecies = NLoptDataStruct.NumSpecies;
+    int NumGuilds  = NLoptDataStruct.NumGuilds;
+    int NumSpeciesOrGuilds = (isAGGPROD) ? NumGuilds : NumSpecies;
+    int MatrixSize = NumSpeciesOrGuilds*NumSpeciesOrGuilds;
+    std::vector<std::string> species = NLoptDataStruct.SpeciesNames;
+    std::vector<std::string> boundaryWarnings = {};
+    std::string predPrey;
+
+    // Always check init biomass
+    for (int i=0; i<NumSpeciesOrGuilds; ++i) {
+        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                            initBiomass[i],"initBiomass",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+    }
+    offset += NumSpeciesOrGuilds;
+
+    // Always extract growth rate
+    for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                            growthRate[i],"growthRate",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+    }
+    offset += NumSpeciesOrGuilds;
+
+    // Extract growth rate shape parameters if is logistic
+    if (isLogistic) {
+        for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                                growthRateShape[i],"growthRateShape",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        }
+        offset += NumSpeciesOrGuilds;
+    }
+
+    // Always extract growth rate covariates
+    for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                            growthRateCovariateCoeffs[i],"growthRateCovariateCoeffs",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+    }
+    offset += NumSpeciesOrGuilds;
+
+    // Load the carrying capacity vector if it's logistic
+    if (isLogistic) {
+        for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                                carryingCapacity[i],"carryingCapacity",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        }
+        offset += NumSpeciesOrGuilds;
+    }
+
+    if (isLogistic) {
+        for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                                carryingCapacityCovariateCoeffs[i],"carryingCapacityCovariateCoeffs",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        }
+        offset += NumSpeciesOrGuilds;
+    }
+
+    if (isCatchability) {
+        for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                                catchability[i],"catchability",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        }
+        offset += NumSpeciesOrGuilds;
+        for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                                catchabilityCovariateCoeffs[i],"catchabilityCovariateCoeffs",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        }
+        offset += NumSpeciesOrGuilds;
+    }
+
+    if (isAlpha) {
+        m = offset;
+        for (int row=0; row<NumSpeciesOrGuilds; ++row) {
+            for (int col=0; col<NumSpeciesOrGuilds; ++col) {
+                predPrey = species[col] + "-" + species[row];
+                checkParameterRange(predPrey,parameterInitialValues[m],parameterRanges[m],
+                                    competitionAlpha(row,col),"competitionAlpha",nmfConstantsMSSPM::NotationScientific,boundaryWarnings);
+                ++m;
+            }
+        }
+        offset += MatrixSize;
+    }
+
+    if (isMSPROD) {
+        m = 0;
+        nmfUtils::initialize(competitionBetaSpecies,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
+        for (int row=0; row<NumSpeciesOrGuilds; ++row) {
+            for (int col=0; col<NumSpeciesOrGuilds; ++col) {
+                predPrey = species[col] + "-" + species[row];
+                checkParameterRange(predPrey,parameterInitialValues[m],parameterRanges[m],
+                                    competitionBetaSpecies(row,col),"competitionBetaSpecies",nmfConstantsMSSPM::NotationScientific,boundaryWarnings);
+                ++m;
+            }
+        }
+        offset += MatrixSize;
+        m = 0;
+        nmfUtils::initialize(competitionBetaGuilds, NumSpeciesOrGuilds,NumGuilds);
+        for (int row=0; row<NumGuilds; ++row) {
+            for (int col=0; col<NumSpeciesOrGuilds; ++col) {
+                predPrey = species[col] + "-" + species[row];
+                checkParameterRange(predPrey,parameterInitialValues[m],parameterRanges[m],
+                                    competitionBetaGuilds(row,col),"competitionBetaGuilds",nmfConstantsMSSPM::NotationScientific,boundaryWarnings);
+                ++m;
+            }
+        }
+        offset += NumSpeciesOrGuilds*NumGuilds;
+    }
+
+    if (isAGGPROD) {
+        m = 0;
+        nmfUtils::initialize(competitionBetaGuildsGuilds, NumGuilds,NumGuilds);
+        for (int row=0; row<NumGuilds; ++row) {
+            for (int col=0; col<NumGuilds; ++col) {
+                predPrey = species[col] + "-" + species[row];
+                checkParameterRange(predPrey,parameterInitialValues[m],parameterRanges[m],
+                                    competitionBetaGuildsGuilds(row,col),"competitionBetaGuildsGuilds",nmfConstantsMSSPM::NotationScientific,boundaryWarnings);
+                ++m;
+            }
+        }
+        offset += NumGuilds*NumGuilds;
+    }
+
+    if (isRho) {
+        m = offset;
+        for (int row=0; row<NumSpeciesOrGuilds; ++row) {
+            for (int col=0; col<NumSpeciesOrGuilds; ++col) {
+                predPrey = species[col] + "-" + species[row];
+                checkParameterRange(predPrey,parameterInitialValues[m],parameterRanges[m],
+                                    predation(row,col),"predation",nmfConstantsMSSPM::NotationScientific,boundaryWarnings);
+                ++m;
+            }
+        }
+        offset += MatrixSize;
+    }
+
+    if (isHandling) {
+        m = 0;
+        nmfUtils::initialize(handling,NumSpeciesOrGuilds,NumSpeciesOrGuilds);
+        for (int row=0; row<NumSpeciesOrGuilds; ++row) {
+            for (int col=0; col<NumSpeciesOrGuilds; ++col) {
+                predPrey = species[col] + "-" + species[row];
+                checkParameterRange(predPrey,parameterInitialValues[m],parameterRanges[m],
+                                    handling(row,col),"handling",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+                ++m;
+            }
+        }
+        offset += MatrixSize;
+    }
+
+    if (isExponent) {
+        for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                                exponent[i],"exponent",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        }
+        offset += NumSpeciesOrGuilds;
+    }
+
+    // Survey Q
+    for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                            surveyQ[i],"surveyQ",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+    }
+    offset += NumSpeciesOrGuilds;
+
+    for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
+        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
+                            surveyQCovariateCoeffs[i],"surveyQCovariateCoeffs",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+    }
+    offset += NumSpeciesOrGuilds;
+
+    // Send warnings to logger in main routine
+    emit LogMsg(boundaryWarnings);
 }
 
 bool

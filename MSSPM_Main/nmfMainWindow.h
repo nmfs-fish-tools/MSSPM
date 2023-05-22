@@ -1338,6 +1338,11 @@ public slots:
      */
     void callback_LoadSpeciesGuild();
     /**
+     * @brief Callback invoked to print a vector of log messages
+     * @param msgVec : vector of log messages to be displayed
+     */
+    void callback_LogMsg(std::vector<std::string> msgVec);
+    /**
      * @brief Callback invoked when user selects an item from the Navigator list
      */
     void callback_NavigatorSelectionChanged();

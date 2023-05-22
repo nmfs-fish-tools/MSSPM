@@ -91,6 +91,8 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_AveragedData      = nullptr;
     m_MohnsRhoData      = nullptr;
 
+
+
     callback_SetRetrospectiveAnalysis(false);
 
     OutputChartMainLayt     = nullptr;
@@ -102,10 +104,11 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
 
     m_UI->actionShowAllSavedRunsTB->setEnabled(false);
 
-    // This is needed since a custom signal is passing a std::string type
+    // This are needed since a custom signal is passing a custom type
     qRegisterMetaType<std::string>("std::string");
     qRegisterMetaType<std::string>("nmfStructsQt::ModelDataStruct");
     qRegisterMetaType<std::vector<double> >("std::vector<double>");
+    qRegisterMetaType<std::vector<std::string> >("std::vector<std::string>");
 
     setNumLines(1);
 
@@ -2319,7 +2322,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.7.0 ";
+    QString version = "MSSPM v1.7.1 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -12392,7 +12395,8 @@ std::cout << "RUNNING" << std::endl;
             this,              SLOT(callback_SetAllRunsComplete()));
     connect(m_Estimator_NLopt,  SIGNAL(UpdateNumberOfParameters(int)),
             Estimation_Tab7_ptr,SLOT(callback_UpdateNumberOfParameters(int)));
-
+    connect(m_Estimator_NLopt,  SIGNAL(LogMsg(std::vector<std::string>)),
+            this,               SLOT(callback_LogMsg(std::vector<std::string>)));
 
     updateProgressChartAnnotation(0,(double)m_DataStruct.NLoptStopAfterIter,5.0);
 
@@ -12752,6 +12756,15 @@ nmfMainWindow::loadEstimatedParameters(
    } else {
        m_Logger->logMsg(nmfConstants::Warning,"[Warning] loadEstimationParameters: Found empty table: " + tableName);
    }
+}
+
+
+void
+nmfMainWindow::callback_LogMsg(std::vector<std::string> msgVec)
+{
+    for (std::string msg : msgVec) {
+        m_Logger->logMsg(nmfConstants::Warning,msg);
+    }
 }
 
 void
@@ -13137,16 +13150,6 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
 
     return true;
 }
-
-//void
-//nmfMainWindow::QueryUserForMultiRunFilenames(
-//        QString& multiRunSpeciesFilename,
-//        QString& multiRunModelFilename)
-//{
-//    QString fullPath = QDir(QString::fromStdString(m_ProjectDir)).filePath("outputData");
-//    multiRunSpeciesFilename = "MSSPM_MultiRun1_Species_Default.csv";
-//    multiRunModelFilename   = "MSSPM_MultiRun1_Model_Default.csv";
-//}
 
 void
 nmfMainWindow::callback_InitializeSubRuns(

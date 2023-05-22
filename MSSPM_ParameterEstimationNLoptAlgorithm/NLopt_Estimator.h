@@ -114,6 +114,30 @@ private:
             std::vector<double>& exponent,
             std::vector<double>& surveyQ,
             std::vector<double>& surveyQCovariateCoeffs);
+    void checkEstimatedValuesForBoundaryConditions(const nmfStructsQt::ModelDataStruct& NLoptDataStruct,
+                                                   const int& numEstParameters,
+                                                   std::vector<double>& parameterInitialValues,
+                                                   std::vector<std::pair<double,double> >& parameterRanges,
+                                                   std::vector<double>& initBiomass,
+                                                   std::vector<double>& growthRate,
+                                                   std::vector<double>& growthRateShape,
+                                                   std::vector<double>& growthRateCovariateCoeffs,
+                                                   std::vector<double>& carryingCapacity,
+                                                   std::vector<double>& carryingCapacityCovariateCoeffs,
+                                                   std::vector<double>& catchability,
+                                                   std::vector<double>& catchabilityCovariateCoeffs,
+                                                   boost::numeric::ublas::matrix<double>& competitionAlpha,
+                                                   boost::numeric::ublas::matrix<double>& competitionBetaSpecies,
+                                                   boost::numeric::ublas::matrix<double>& competitionBetaGuilds,
+                                                   boost::numeric::ublas::matrix<double>& competitionBetaGuildsGuilds,
+                                                   boost::numeric::ublas::matrix<double>& predation,
+                                                   boost::numeric::ublas::matrix<double>& handling,
+                                                   std::vector<double>& exponent,
+                                                   std::vector<double>& surveyQ,
+                                                   std::vector<double>& surveyQCovariateCoeffs,
+                                                   std::vector<double>& bmsy,
+                                                   std::vector<double>& msy,
+                                                   std::vector<double>& fmsy);
     void createOutputStr(
             const int&         numEstParameters,
             const int&         numTotalParameters,
@@ -122,6 +146,14 @@ private:
 //          const double&      fitnessStdDev,
             const nmfStructsQt::ModelDataStruct& beeStruct,
             std::string&       bestFitnessStr);
+    void checkParameterRange(
+            const std::string& species,
+            const double& parameterInitialValue,
+            const std::pair<double,double>& parameterRange,
+            const double& parameterValue,
+            const std::string parameterName,
+            const bool& useScientific,
+            std::vector<std::string>& boundaryWarnings);
     static void exponentiate(std::vector<double>& vec);
     static void exponentiate(boost::numeric::ublas::matrix<double>& mat);
     void loadInitBiomassParameterRanges(
@@ -180,9 +212,10 @@ signals:
     void InitializeSubRuns(std::string multiRunModelFilename,
                            int totalIndividualRuns);
     /**
-     * @brief Signal emitted to query user for the Multi Run Species and Model file names
+     * @brief Signal emitted when the user wants to log a group of messages
+     * @param msgVec : vector of messages to be logged
      */
-    void QueryUserForMultiRunFilenames();
+    void LogMsg(std::vector<std::string> msgVec);
     /**
      * @brief Signal emitted to reset the GUI after NLopt errored out of a run.
      */
