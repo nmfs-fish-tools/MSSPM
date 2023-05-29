@@ -122,17 +122,12 @@ Public Slots</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a2624826fd1f609bb177916f6a66a1882">callback_StopAllRuns</a> ()</td></tr>
 <tr class="memdesc:a2624826fd1f609bb177916f6a66a1882"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user indicates they wish to stop all Estimation runs (i.e., during a multi-run) <br /></td></tr>
 <tr class="separator:a2624826fd1f609bb177916f6a66a1882"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaae74241fa2521962c5e11cc0aecbb08"><td class="memItemLeft" align="right" valign="top"><a id="aaae74241fa2521962c5e11cc0aecbb08"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aaae74241fa2521962c5e11cc0aecbb08">callback_StopTheOptimizer</a> ()</td></tr>
-<tr class="memdesc:aaae74241fa2521962c5e11cc0aecbb08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user stops the Estimation run. <br /></td></tr>
-<tr class="separator:aaae74241fa2521962c5e11cc0aecbb08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
-<tr class="memitem:a8ad6df707eae8b61a5b76c2804a98cdd"><td class="memItemLeft" align="right" valign="top"><a id="a8ad6df707eae8b61a5b76c2804a98cdd"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a8ad6df707eae8b61a5b76c2804a98cdd">AllSubRunsCompleted</a> ()</td></tr>
-<tr class="memdesc:a8ad6df707eae8b61a5b76c2804a98cdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted at the end of a multi-run set of runs. <br /></td></tr>
-<tr class="separator:a8ad6df707eae8b61a5b76c2804a98cdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a457186683f56b0797947926af0c338f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a457186683f56b0797947926af0c338f1">AllSubRunsCompleted</a> (std::string elapsedTime, std::string summaryMsg, QString msg)</td></tr>
+<tr class="memdesc:a457186683f56b0797947926af0c338f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted at the end of a multi-run set of runs.  <a href="class_n_lopt___estimator.html#a457186683f56b0797947926af0c338f1">More...</a><br /></td></tr>
+<tr class="separator:a457186683f56b0797947926af0c338f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a838b4f1f818219511175e70a09e08430"><td class="memItemLeft" align="right" valign="top"><a id="a838b4f1f818219511175e70a09e08430"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a838b4f1f818219511175e70a09e08430">AMohnsRhoMultiRunCompleted</a> ()</td></tr>
 <tr class="memdesc:a838b4f1f818219511175e70a09e08430"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when a Mohn's Rho multi run has completed. <br /></td></tr>
@@ -140,16 +135,25 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a0ecd572a2d12d00bcf801000ed3fd2c1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a0ecd572a2d12d00bcf801000ed3fd2c1">InitializeSubRuns</a> (std::string multiRunModelFilename, int totalIndividualRuns)</td></tr>
 <tr class="memdesc:a0ecd572a2d12d00bcf801000ed3fd2c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted at the start of a multi-run set of runs.  <a href="class_n_lopt___estimator.html#a0ecd572a2d12d00bcf801000ed3fd2c1">More...</a><br /></td></tr>
 <tr class="separator:a0ecd572a2d12d00bcf801000ed3fd2c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a242a7cca175e3c0d9ed21e0591020102"><td class="memItemLeft" align="right" valign="top"><a id="a242a7cca175e3c0d9ed21e0591020102"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a242a7cca175e3c0d9ed21e0591020102">QueryUserForMultiRunFilenames</a> ()</td></tr>
-<tr class="memdesc:a242a7cca175e3c0d9ed21e0591020102"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted to query user for the Multi Run Species and Model file names. <br /></td></tr>
-<tr class="separator:a242a7cca175e3c0d9ed21e0591020102"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54b477f2635a5a97cdc78801118948b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a54b477f2635a5a97cdc78801118948b5">RunCompleted</a> (std::string bestFitness, bool showDiagnosticsChart)</td></tr>
-<tr class="memdesc:a54b477f2635a5a97cdc78801118948b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted with NLopt Estimation run has complete.  <a href="class_n_lopt___estimator.html#a54b477f2635a5a97cdc78801118948b5">More...</a><br /></td></tr>
-<tr class="separator:a54b477f2635a5a97cdc78801118948b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca82a960a81f6e38a3e92656b4554b01"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aca82a960a81f6e38a3e92656b4554b01">LogMsg</a> (std::vector&lt; std::string &gt; msgVec)</td></tr>
+<tr class="memdesc:aca82a960a81f6e38a3e92656b4554b01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when the user wants to log a group of messages.  <a href="class_n_lopt___estimator.html#aca82a960a81f6e38a3e92656b4554b01">More...</a><br /></td></tr>
+<tr class="separator:aca82a960a81f6e38a3e92656b4554b01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a801c16ae31f21013d57228d93dd0e50f"><td class="memItemLeft" align="right" valign="top"><a id="a801c16ae31f21013d57228d93dd0e50f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a801c16ae31f21013d57228d93dd0e50f">NLoptFailureStopRunsAndReset</a> ()</td></tr>
+<tr class="memdesc:a801c16ae31f21013d57228d93dd0e50f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted to reset the GUI after NLopt errored out of a run. <br /></td></tr>
+<tr class="separator:a801c16ae31f21013d57228d93dd0e50f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79b709db4107c91a73df95b410ff5da8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a79b709db4107c91a73df95b410ff5da8">RunCompleted</a> (std::string bestFitness, std::string convergence, bool showDiagnosticsChart)</td></tr>
+<tr class="memdesc:a79b709db4107c91a73df95b410ff5da8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted with NLopt Estimation run has complete.  <a href="class_n_lopt___estimator.html#a79b709db4107c91a73df95b410ff5da8">More...</a><br /></td></tr>
+<tr class="separator:a79b709db4107c91a73df95b410ff5da8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b3b1b7d6bfdebd15fe712d05e2900db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a8b3b1b7d6bfdebd15fe712d05e2900db">RunCompletedMsg</a> (int returnCode, std::string returnCodeMsg)</td></tr>
+<tr class="memdesc:a8b3b1b7d6bfdebd15fe712d05e2900db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted notifying the main program the estimation termination message.  <a href="class_n_lopt___estimator.html#a8b3b1b7d6bfdebd15fe712d05e2900db">More...</a><br /></td></tr>
+<tr class="separator:a8b3b1b7d6bfdebd15fe712d05e2900db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb81082b3522404896f24484498ef0d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#afb81082b3522404896f24484498ef0d0">SubRunCompleted</a> (int run, int numRuns, std::string EstimationAlgorithm, std::string MinimizerAlgorithm, std::string ObjectiveCriterion, std::string ScalingAlgorithm, std::string multiRunModelFilename, double fitness)</td></tr>
 <tr class="memdesc:afb81082b3522404896f24484498ef0d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when NLopt Estimation sub run of a multi run has completed.  <a href="class_n_lopt___estimator.html#afb81082b3522404896f24484498ef0d0">More...</a><br /></td></tr>
 <tr class="separator:afb81082b3522404896f24484498ef0d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb906a63e06ee84b11aab65c65c69650"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aeb906a63e06ee84b11aab65c65c69650">UpdateNumberOfParameters</a> (int NumNonTrivialParameters)</td></tr>
+<tr class="memdesc:aeb906a63e06ee84b11aab65c65c69650"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates models table with number of non-trivial parameter (i.e., a parameters whose min range value was different from its max range value)  <a href="class_n_lopt___estimator.html#aeb906a63e06ee84b11aab65c65c69650">More...</a><br /></td></tr>
+<tr class="separator:aeb906a63e06ee84b11aab65c65c69650"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -172,6 +176,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a649086d5d138b733131168019dade992"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a649086d5d138b733131168019dade992">getEstCatchabilityCovariateCoeffs</a> (std::vector&lt; double &gt; &amp;EstCatchabilityCovariateCoeffs)</td></tr>
 <tr class="memdesc:a649086d5d138b733131168019dade992"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated catchability covariate coefficient values.  <a href="class_n_lopt___estimator.html#a649086d5d138b733131168019dade992">More...</a><br /></td></tr>
 <tr class="separator:a649086d5d138b733131168019dade992"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6101ec86f8e2535590d56b110d7e366c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a6101ec86f8e2535590d56b110d7e366c">getEstBMSY</a> (std::vector&lt; double &gt; &amp;EstBMSY)</td></tr>
+<tr class="memdesc:a6101ec86f8e2535590d56b110d7e366c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated Biomass MSY values.  <a href="class_n_lopt___estimator.html#a6101ec86f8e2535590d56b110d7e366c">More...</a><br /></td></tr>
+<tr class="separator:a6101ec86f8e2535590d56b110d7e366c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93d0d94043a7089fed1aa4f390433d1a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a93d0d94043a7089fed1aa4f390433d1a">getEstMSY</a> (std::vector&lt; double &gt; &amp;EstMSY)</td></tr>
+<tr class="memdesc:a93d0d94043a7089fed1aa4f390433d1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated MSY values.  <a href="class_n_lopt___estimator.html#a93d0d94043a7089fed1aa4f390433d1a">More...</a><br /></td></tr>
+<tr class="separator:a93d0d94043a7089fed1aa4f390433d1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab422349c3457f1e5e86f7b008365b3b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ab422349c3457f1e5e86f7b008365b3b6">getEstFMSY</a> (std::vector&lt; double &gt; &amp;EstFMSY)</td></tr>
+<tr class="memdesc:ab422349c3457f1e5e86f7b008365b3b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated Fishing MSY values.  <a href="class_n_lopt___estimator.html#ab422349c3457f1e5e86f7b008365b3b6">More...</a><br /></td></tr>
+<tr class="separator:ab422349c3457f1e5e86f7b008365b3b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee8e99eeb3b22d9383516f4b0c859d57"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aee8e99eeb3b22d9383516f4b0c859d57">getEstSurveyQ</a> (std::vector&lt; double &gt; &amp;EstSurveyQ)</td></tr>
 <tr class="memdesc:aee8e99eeb3b22d9383516f4b0c859d57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated Survey Q values.  <a href="class_n_lopt___estimator.html#aee8e99eeb3b22d9383516f4b0c859d57">More...</a><br /></td></tr>
 <tr class="separator:aee8e99eeb3b22d9383516f4b0c859d57"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -199,6 +212,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa72b5556ba6344339288bb8644aa0f92"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aa72b5556ba6344339288bb8644aa0f92">getEstGrowthRateCovariateCoeffs</a> (std::vector&lt; double &gt; &amp;EstGrowthRateCovariateCoeffs)</td></tr>
 <tr class="memdesc:aa72b5556ba6344339288bb8644aa0f92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated growth rate covariate coefficients.  <a href="class_n_lopt___estimator.html#aa72b5556ba6344339288bb8644aa0f92">More...</a><br /></td></tr>
 <tr class="separator:aa72b5556ba6344339288bb8644aa0f92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a4301016f9d73d3cc9a9f66ff20377f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a8a4301016f9d73d3cc9a9f66ff20377f">getEstGrowthRateShape</a> (std::vector&lt; double &gt; &amp;EstGrowthRateShape)</td></tr>
+<tr class="memdesc:a8a4301016f9d73d3cc9a9f66ff20377f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated growth rate shape parameters.  <a href="class_n_lopt___estimator.html#a8a4301016f9d73d3cc9a9f66ff20377f">More...</a><br /></td></tr>
+<tr class="separator:a8a4301016f9d73d3cc9a9f66ff20377f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6c41ebf75609e7451decbff5cffe80e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ae6c41ebf75609e7451decbff5cffe80e">getEstHandling</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;EstHandling)</td></tr>
 <tr class="memdesc:ae6c41ebf75609e7451decbff5cffe80e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the estimated handling values.  <a href="class_n_lopt___estimator.html#ae6c41ebf75609e7451decbff5cffe80e">More...</a><br /></td></tr>
 <tr class="separator:ae6c41ebf75609e7451decbff5cffe80e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -214,18 +230,25 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aacce7b8074624c8d106babe407ed8b31"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#aacce7b8074624c8d106babe407ed8b31">initialize</a> (nmfStructsQt::ModelDataStruct &amp;NLoptStruct)</td></tr>
 <tr class="memdesc:aacce7b8074624c8d106babe407ed8b31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initalizes the model form pointers.  <a href="class_n_lopt___estimator.html#aacce7b8074624c8d106babe407ed8b31">More...</a><br /></td></tr>
 <tr class="separator:aacce7b8074624c8d106babe407ed8b31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8552052e2aaafd7bc6f9c54412dbc95"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ac8552052e2aaafd7bc6f9c54412dbc95">setAdditionalParameters</a> (const nmfStructsQt::ModelDataStruct &amp;dataStruct)</td></tr>
+<tr class="memdesc:ac8552052e2aaafd7bc6f9c54412dbc95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets any additional NLopt parameters as needed by the minimizer algorithm.  <a href="class_n_lopt___estimator.html#ac8552052e2aaafd7bc6f9c54412dbc95">More...</a><br /></td></tr>
+<tr class="separator:ac8552052e2aaafd7bc6f9c54412dbc95"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab016e1a725040a5a03f48696b56c1641"><td class="memItemLeft" align="right" valign="top"><a id="ab016e1a725040a5a03f48696b56c1641"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>stoppedByUser</b> ()</td></tr>
 <tr class="separator:ab016e1a725040a5a03f48696b56c1641"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90f750c4b7d9dbb870d9a25fde905fdd"><td class="memItemLeft" align="right" valign="top"><a id="a90f750c4b7d9dbb870d9a25fde905fdd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a90f750c4b7d9dbb870d9a25fde905fdd">stopGracefully</a> ()</td></tr>
+<tr class="memdesc:a90f750c4b7d9dbb870d9a25fde905fdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the run gracefully and allows the display to use the estimated values as have been estimated so far. <br /></td></tr>
+<tr class="separator:a90f750c4b7d9dbb870d9a25fde905fdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58dcc53ef3527f075875dba53b8edc7b"><td class="memItemLeft" align="right" valign="top"><a id="a58dcc53ef3527f075875dba53b8edc7b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>stopRun</b> (const std::string &amp;elapsedTimeStr, const std::string &amp;fitnessStr)</td></tr>
 <tr class="separator:a58dcc53ef3527f075875dba53b8edc7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a388c17270e24cb2b81e94881aa532da9"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a388c17270e24cb2b81e94881aa532da9">extractParameters</a> (const nmfStructsQt::ModelDataStruct &amp;NLoptDataStruct, const double *EstParameters, std::vector&lt; double &gt; &amp;InitBiomass, std::vector&lt; double &gt; &amp;GrowthRate, std::vector&lt; double &gt; &amp;GrowthRateCovariateCoeffs, std::vector&lt; double &gt; &amp;CarryingCapacity, std::vector&lt; double &gt; &amp;CarryingCapacityCovariateCoeffs, std::vector&lt; double &gt; &amp;Catchability, std::vector&lt; double &gt; &amp;CatchabilityCovariateCoeffs, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionAlpha, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaSpecies, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuildsGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;PredationRho, boost::numeric::ublas::matrix&lt; double &gt; &amp;PredationHandling, std::vector&lt; double &gt; &amp;PredationExponent, std::vector&lt; double &gt; &amp;SurveyQ, std::vector&lt; double &gt; &amp;SurveyQCovariateCoeffs)</td></tr>
-<tr class="memdesc:a388c17270e24cb2b81e94881aa532da9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the estimated parameters from the NLopt Optimizer run.  <a href="class_n_lopt___estimator.html#a388c17270e24cb2b81e94881aa532da9">More...</a><br /></td></tr>
-<tr class="separator:a388c17270e24cb2b81e94881aa532da9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0b154bf39574beb2aaf346b439047a0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#ac0b154bf39574beb2aaf346b439047a0">extractParameters</a> (const nmfStructsQt::ModelDataStruct &amp;NLoptDataStruct, const double *EstParameters, std::vector&lt; double &gt; &amp;InitBiomass, std::vector&lt; double &gt; &amp;GrowthRate, std::vector&lt; double &gt; &amp;GrowthRateShape, std::vector&lt; double &gt; &amp;GrowthRateCovariateCoeffs, std::vector&lt; double &gt; &amp;CarryingCapacity, std::vector&lt; double &gt; &amp;CarryingCapacityCovariateCoeffs, std::vector&lt; double &gt; &amp;Catchability, std::vector&lt; double &gt; &amp;CatchabilityCovariateCoeffs, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionAlpha, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaSpecies, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;CompetitionBetaGuildsGuilds, boost::numeric::ublas::matrix&lt; double &gt; &amp;PredationRho, boost::numeric::ublas::matrix&lt; double &gt; &amp;PredationHandling, std::vector&lt; double &gt; &amp;PredationExponent, std::vector&lt; double &gt; &amp;SurveyQ, std::vector&lt; double &gt; &amp;SurveyQCovariateCoeffs, std::vector&lt; double &gt; &amp;BMSY, std::vector&lt; double &gt; &amp;MSY, std::vector&lt; double &gt; &amp;FMSY)</td></tr>
+<tr class="memdesc:ac0b154bf39574beb2aaf346b439047a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the estimated parameters from the NLopt Optimizer run.  <a href="class_n_lopt___estimator.html#ac0b154bf39574beb2aaf346b439047a0">More...</a><br /></td></tr>
+<tr class="separator:ac0b154bf39574beb2aaf346b439047a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">objectiveFunction</a> (unsigned n, const double *EstParameters, double *Gradient, void *FunctionData)</td></tr>
 <tr class="memdesc:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the objective function fitness value.  <a href="class_n_lopt___estimator.html#a4bc70e01a61308c2e1a20d5d487ffa69">More...</a><br /></td></tr>
 <tr class="separator:a4bc70e01a61308c2e1a20d5d487ffa69"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -252,6 +275,58 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <div class="textblock"><p>This class acts as an interface class to the NLopt library. </p>
 <p>NLopt is an open-source library for non-linear optimization. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a457186683f56b0797947926af0c338f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a457186683f56b0797947926af0c338f1">&#9670;&nbsp;</a></span>AllSubRunsCompleted</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::AllSubRunsCompleted </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>elapsedTime</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>summaryMsg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>msg</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted at the end of a multi-run set of runs. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">elapsedTime</td><td>elapsed time of the current run or multi-run </td></tr>
+    <tr><td class="paramname">summaryMsg</td><td>: message to be displayed on the Run Summary page </td></tr>
+    <tr><td class="paramname">msg</td><td>: message for output string denoting if all sub-runs converged </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="afdcf966c3d07bf7fba6807aaf8077da3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afdcf966c3d07bf7fba6807aaf8077da3">&#9670;&nbsp;</a></span>estimateParameters()</h2>
 
@@ -310,8 +385,8 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 </div>
 </div>
-<a id="a388c17270e24cb2b81e94881aa532da9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a388c17270e24cb2b81e94881aa532da9">&#9670;&nbsp;</a></span>extractParameters()</h2>
+<a id="ac0b154bf39574beb2aaf346b439047a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0b154bf39574beb2aaf346b439047a0">&#9670;&nbsp;</a></span>extractParameters()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -342,6 +417,12 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
           <td></td>
           <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
           <td class="paramname"><em>GrowthRate</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>GrowthRateShape</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -425,7 +506,25 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
-          <td class="paramname"><em>SurveyQCovariateCoeffs</em>&#160;</td>
+          <td class="paramname"><em>SurveyQCovariateCoeffs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>BMSY</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>MSY</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>FMSY</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -447,6 +546,7 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
     <tr><td class="paramname">EstParameters</td><td>: output estimated parameters from the NLopt Optimizer </td></tr>
     <tr><td class="paramname">InitBiomass</td><td>: estimated initial biomass parameters </td></tr>
     <tr><td class="paramname">GrowthRate</td><td>: estimated growth rate parameters </td></tr>
+    <tr><td class="paramname">GrowthRateShape</td><td>: estimated growth rate shape parameters </td></tr>
     <tr><td class="paramname">GrowthRateCovariateCoeffs</td><td>: estimated growth rate covariate coefficient parameters </td></tr>
     <tr><td class="paramname">CarryingCapacity</td><td>: estimated carrying capacity parameters </td></tr>
     <tr><td class="paramname">CarryingCapacityCovariateCoeffs</td><td>: estimated carrying capacity covariate coefficient parameters </td></tr>
@@ -461,6 +561,35 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
     <tr><td class="paramname">PredationExponent</td><td>: estimated predation exponent parameters </td></tr>
     <tr><td class="paramname">SurveyQ</td><td>: estimated SurveyQ parameters </td></tr>
     <tr><td class="paramname">SurveyQCovariateCoeffs</td><td>: estimated SurveyQ covariate coefficient parameters </td></tr>
+    <tr><td class="paramname">BMSY</td><td>: estimated Biomass MSY parameters </td></tr>
+    <tr><td class="paramname">MSY</td><td>: estimated MSY parameters </td></tr>
+    <tr><td class="paramname">FMSY</td><td>: estimated Fishing MSY parameters </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a6101ec86f8e2535590d56b110d7e366c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6101ec86f8e2535590d56b110d7e366c">&#9670;&nbsp;</a></span>getEstBMSY()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::getEstBMSY </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>EstBMSY</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the estimated Biomass MSY values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">EstBMSY</td><td>: the estimated biomass MSY values to return </td></tr>
   </table>
   </dd>
 </dl>
@@ -701,6 +830,32 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 </div>
 </div>
+<a id="ab422349c3457f1e5e86f7b008365b3b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab422349c3457f1e5e86f7b008365b3b6">&#9670;&nbsp;</a></span>getEstFMSY()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::getEstFMSY </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>EstFMSY</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the estimated Fishing MSY values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">EstFMSY</td><td>: the estimated fishing MSY values to return </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="aa72b5556ba6344339288bb8644aa0f92"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa72b5556ba6344339288bb8644aa0f92">&#9670;&nbsp;</a></span>getEstGrowthRateCovariateCoeffs()</h2>
 
@@ -753,6 +908,32 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 </div>
 </div>
+<a id="a8a4301016f9d73d3cc9a9f66ff20377f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a4301016f9d73d3cc9a9f66ff20377f">&#9670;&nbsp;</a></span>getEstGrowthRateShape()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::getEstGrowthRateShape </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>EstGrowthRateShape</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the estimated growth rate shape parameters. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">EstGrowthRateShape</td><td>: the estimated growth rate shape parameters to return </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ae6c41ebf75609e7451decbff5cffe80e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae6c41ebf75609e7451decbff5cffe80e">&#9670;&nbsp;</a></span>getEstHandling()</h2>
 
@@ -799,6 +980,32 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">InitBiomass</td><td>: the estimated initial biomass values to return </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a93d0d94043a7089fed1aa4f390433d1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93d0d94043a7089fed1aa4f390433d1a">&#9670;&nbsp;</a></span>getEstMSY()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::getEstMSY </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>EstMSY</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the estimated MSY values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">EstMSY</td><td>: the estimated MSY values to return </td></tr>
   </table>
   </dd>
 </dl>
@@ -974,6 +1181,40 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 </div>
 </div>
+<a id="aca82a960a81f6e38a3e92656b4554b01"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca82a960a81f6e38a3e92656b4554b01">&#9670;&nbsp;</a></span>LogMsg</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::LogMsg </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; std::string &gt;&#160;</td>
+          <td class="paramname"><em>msgVec</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted when the user wants to log a group of messages. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">msgVec</td><td>: vector of messages to be logged </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a4bc70e01a61308c2e1a20d5d487ffa69"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4bc70e01a61308c2e1a20d5d487ffa69">&#9670;&nbsp;</a></span>objectiveFunction()</h2>
 
@@ -1034,8 +1275,8 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 
 </div>
 </div>
-<a id="a54b477f2635a5a97cdc78801118948b5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a54b477f2635a5a97cdc78801118948b5">&#9670;&nbsp;</a></span>RunCompleted</h2>
+<a id="a79b709db4107c91a73df95b410ff5da8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79b709db4107c91a73df95b410ff5da8">&#9670;&nbsp;</a></span>RunCompleted</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1048,6 +1289,12 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
           <td>(</td>
           <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>bestFitness</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>convergence</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1072,7 +1319,79 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">bestFitness</td><td>: string representing the best fitness value </td></tr>
+    <tr><td class="paramname">convergence</td><td>: string indicating if the model run converged or not </td></tr>
     <tr><td class="paramname">showDiagnosticsChart</td><td>: boolean signfying whether the diagnostic 3d chart should be displayed after the run completes </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a8b3b1b7d6bfdebd15fe712d05e2900db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b3b1b7d6bfdebd15fe712d05e2900db">&#9670;&nbsp;</a></span>RunCompletedMsg</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::RunCompletedMsg </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>returnCode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>returnCodeMsg</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted notifying the main program the estimation termination message. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">returnCode</td><td>: the numeric code signifying why the estimation stopped </td></tr>
+    <tr><td class="paramname">returnCodeMsg</td><td>: the message to display to the user as to why the estimation stopped </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ac8552052e2aaafd7bc6f9c54412dbc95"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8552052e2aaafd7bc6f9c54412dbc95">&#9670;&nbsp;</a></span>setAdditionalParameters()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::setAdditionalParameters </td>
+          <td>(</td>
+          <td class="paramtype">const nmfStructsQt::ModelDataStruct &amp;&#160;</td>
+          <td class="paramname"><em>dataStruct</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets any additional NLopt parameters as needed by the minimizer algorithm. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">NLoptStruct</td><td>: data structure containing necessary run information </td></tr>
   </table>
   </dd>
 </dl>
@@ -1160,6 +1479,40 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href
     <tr><td class="paramname">ScalingAlgorithm</td><td>: name of the scaling algorithm </td></tr>
     <tr><td class="paramname">multiRunModelFilename</td><td>: name of file that will contain the model data from all of the multi runs </td></tr>
     <tr><td class="paramname">fitness</td><td>: fitness value of current run </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aeb906a63e06ee84b11aab65c65c69650"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb906a63e06ee84b11aab65c65c69650">&#9670;&nbsp;</a></span>UpdateNumberOfParameters</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void NLopt_Estimator::UpdateNumberOfParameters </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>NumNonTrivialParameters</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Updates models table with number of non-trivial parameter (i.e., a parameters whose min range value was different from its max range value) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">NumNonTrivialParameters</td><td>: number of non-trivial parameters </td></tr>
   </table>
   </dd>
 </dl>

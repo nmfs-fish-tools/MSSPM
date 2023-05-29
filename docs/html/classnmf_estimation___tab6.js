@@ -20,6 +20,7 @@ var classnmf_estimation___tab6 =
     [ "callback_SpeciesRangeSB", "classnmf_estimation___tab6.html#abd3728da3f7999e3ece12ad0749c67dd", null ],
     [ "callback_ViewNormalizedPB", "classnmf_estimation___tab6.html#aa7b5c38ee55893e249c618d045d4d249", null ],
     [ "getCovariateAlgorithmType", "classnmf_estimation___tab6.html#aaa73895ba92ce221efa8c5ef9a5f84e1", null ],
+    [ "isCovariateData", "classnmf_estimation___tab6.html#af5a91fce29c48a071428180b66d02025", null ],
     [ "loadCovariateAlgorithmType", "classnmf_estimation___tab6.html#a865d20b19c821b58977299213decf548", null ],
     [ "loadCovariateAssignmentTable", "classnmf_estimation___tab6.html#a00a276636aef995d14963fcb4fc8cfab", null ],
     [ "loadCovariateInitialValuesAndRangesTable", "classnmf_estimation___tab6.html#ac66c4fecf17f65e1eeff9ca29f0ec046", null ],

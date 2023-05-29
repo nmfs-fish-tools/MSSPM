@@ -99,9 +99,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a118175634cfc55b7cbd51d95c9215c42"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_simulated_data.html#a118175634cfc55b7cbd51d95c9215c42">nmfSimulatedData</a> (nmfDatabase *database, nmfLogger *logger, std::string &amp;projectName, std::string &amp;modelName, nmfStructsQt::ModelDataStruct &amp;dataStruct)</td></tr>
 <tr class="memdesc:a118175634cfc55b7cbd51d95c9215c42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class constructor.  <a href="classnmf_simulated_data.html#a118175634cfc55b7cbd51d95c9215c42">More...</a><br /></td></tr>
 <tr class="separator:a118175634cfc55b7cbd51d95c9215c42"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab81b3063657df4c9165bb1b73caaaf5e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_simulated_data.html#ab81b3063657df4c9165bb1b73caaaf5e">createSimulatedBiomass</a> (const int &amp;errorPct, QString &amp;filename, QString &amp;errorMsg)</td></tr>
-<tr class="memdesc:ab81b3063657df4c9165bb1b73caaaf5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a simulated Biomass time series with the current model settings.  <a href="classnmf_simulated_data.html#ab81b3063657df4c9165bb1b73caaaf5e">More...</a><br /></td></tr>
-<tr class="separator:ab81b3063657df4c9165bb1b73caaaf5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f2b9750122cb076401ed62c30d1adf3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_simulated_data.html#a8f2b9750122cb076401ed62c30d1adf3">createSimulatedBiomass</a> (const QString &amp;errorType, const double &amp;errorValue, QString &amp;filename, QString &amp;errorMsg)</td></tr>
+<tr class="memdesc:a8f2b9750122cb076401ed62c30d1adf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a simulated Biomass time series with the current model settings.  <a href="classnmf_simulated_data.html#a8f2b9750122cb076401ed62c30d1adf3">More...</a><br /></td></tr>
+<tr class="separator:a8f2b9750122cb076401ed62c30d1adf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Creates simulated biomass. </p>
@@ -166,8 +166,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="ab81b3063657df4c9165bb1b73caaaf5e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab81b3063657df4c9165bb1b73caaaf5e">&#9670;&nbsp;</a></span>createSimulatedBiomass()</h2>
+<a id="a8f2b9750122cb076401ed62c30d1adf3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f2b9750122cb076401ed62c30d1adf3">&#9670;&nbsp;</a></span>createSimulatedBiomass()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -175,8 +175,14 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">bool nmfSimulatedData::createSimulatedBiomass </td>
           <td>(</td>
-          <td class="paramtype">const int &amp;&#160;</td>
-          <td class="paramname"><em>errorPct</em>, </td>
+          <td class="paramtype">const QString &amp;&#160;</td>
+          <td class="paramname"><em>errorType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const double &amp;&#160;</td>
+          <td class="paramname"><em>errorValue</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -201,7 +207,8 @@ Public Member Functions</h2></td></tr>
 <p>Creates a simulated Biomass time series with the current model settings. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">errorPct</td><td>: percent error to add around values </td></tr>
+    <tr><td class="paramname">errorType</td><td>: type of error: None, Normal, Uniform </td></tr>
+    <tr><td class="paramname">errorValue</td><td>: error value to be used to calculate noise </td></tr>
     <tr><td class="paramname">filename</td><td>: filename where to write out simulated biomass </td></tr>
     <tr><td class="paramname">errorMsg</td><td>: error message to pass back to the calling routine </td></tr>
   </table>

@@ -27,9 +27,12 @@ var classnmf_diagnostic___tab1 =
     [ "saveSettings", "classnmf_diagnostic___tab1.html#a46bc7d5393139511689155da0abf29b7", null ],
     [ "SetChartType", "classnmf_diagnostic___tab1.html#ad594095a64031ecd559e7b77fa3aaf6f", null ],
     [ "setDataStruct", "classnmf_diagnostic___tab1.html#aec081409f30441638551fff4baccefc7", null ],
+    [ "SetDiagnosticHPCFlag", "classnmf_diagnostic___tab1.html#a45bdcda715deb0ceb9f5d9975389c385", null ],
+    [ "setHPCFlag", "classnmf_diagnostic___tab1.html#a839d91b5a69a79f42978940a51d041cb", null ],
     [ "setMultiRunRBEnabled", "classnmf_diagnostic___tab1.html#ad7c3777e5d9138055834ae3812925475", null ],
     [ "setMultiRunRBState", "classnmf_diagnostic___tab1.html#af674af5789d560ab925ba38364b94737", null ],
     [ "setNumPoints", "classnmf_diagnostic___tab1.html#a3bab2fd0f57657ca49500463bf26261c", null ],
+    [ "SetRetrospectiveAnalysis", "classnmf_diagnostic___tab1.html#aa4cadc16abc0be2335a6191e9980adb6", null ],
     [ "setSingleRunRBEnabled", "classnmf_diagnostic___tab1.html#a018c75041aef688dd53de4a6d99e70d8", null ],
     [ "setSingleRunRBState", "classnmf_diagnostic___tab1.html#a85c51f14258c37e65971c3ec807054b7", null ],
     [ "setVariation", "classnmf_diagnostic___tab1.html#ad39304bb5ed04752fc306fc9107d99de", null ]

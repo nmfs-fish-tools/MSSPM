@@ -124,9 +124,9 @@ Signals</h2></td></tr>
 <tr class="memitem:a7a396be0a4382b212026f0c24edb38b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a7a396be0a4382b212026f0c24edb38b2">InitializeSubRuns</a> (std::string multiRunModelFilename, int totalIndividualRuns)</td></tr>
 <tr class="memdesc:a7a396be0a4382b212026f0c24edb38b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted at the start of a multi-run set of runs.  <a href="class_bees___estimator.html#a7a396be0a4382b212026f0c24edb38b2">More...</a><br /></td></tr>
 <tr class="separator:a7a396be0a4382b212026f0c24edb38b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab9d93dad3c2ebf6bb3ca935aa8618f48"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#ab9d93dad3c2ebf6bb3ca935aa8618f48">RunCompleted</a> (std::string bestFitness, bool showDiagnosticsChart)</td></tr>
-<tr class="memdesc:ab9d93dad3c2ebf6bb3ca935aa8618f48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted with the Run has completed.  <a href="class_bees___estimator.html#ab9d93dad3c2ebf6bb3ca935aa8618f48">More...</a><br /></td></tr>
-<tr class="separator:ab9d93dad3c2ebf6bb3ca935aa8618f48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32aafd2d4d31917d8fa2334d4ab22a0c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a32aafd2d4d31917d8fa2334d4ab22a0c">RunCompleted</a> (std::string summaryMsg, std::string convergenceMsg, bool showDiagnosticsChart)</td></tr>
+<tr class="memdesc:a32aafd2d4d31917d8fa2334d4ab22a0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted with the Run has completed.  <a href="class_bees___estimator.html#a32aafd2d4d31917d8fa2334d4ab22a0c">More...</a><br /></td></tr>
+<tr class="separator:a32aafd2d4d31917d8fa2334d4ab22a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a28654e26e3abcee5aa2c734a44e94c0b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a28654e26e3abcee5aa2c734a44e94c0b">SubRunCompleted</a> (int run, int numRuns, std::string EstimationAlgorithm, std::string MinimizerAlgorithm, std::string ObjectiveCriterion, std::string ScalingAlgorithm, std::string multiRunModelFilename, double fitness)</td></tr>
 <tr class="memdesc:a28654e26e3abcee5aa2c734a44e94c0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when NLopt Estimation sub run of a multi run has completed.  <a href="class_bees___estimator.html#a28654e26e3abcee5aa2c734a44e94c0b">More...</a><br /></td></tr>
 <tr class="separator:a28654e26e3abcee5aa2c734a44e94c0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,6 +143,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a749a4083849648eafccd5d8d02b29659"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a749a4083849648eafccd5d8d02b29659">estimateParameters</a> (nmfStructsQt::ModelDataStruct &amp;BeeStruct, int &amp;RunNumber, std::vector&lt; QString &gt; &amp;MultiRunLines, int &amp;TotalIndividualRuns)</td></tr>
 <tr class="memdesc:a749a4083849648eafccd5d8d02b29659"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main routine that runs the Bees Estimation algorithm.  <a href="class_bees___estimator.html#a749a4083849648eafccd5d8d02b29659">More...</a><br /></td></tr>
 <tr class="separator:a749a4083849648eafccd5d8d02b29659"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e8313501cc6aaefd98c9533d0d7cd63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a5e8313501cc6aaefd98c9533d0d7cd63">getEstBMSY</a> (std::vector&lt; double &gt; &amp;estBMSY)</td></tr>
+<tr class="memdesc:a5e8313501cc6aaefd98c9533d0d7cd63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated Biomass MSY values.  <a href="class_bees___estimator.html#a5e8313501cc6aaefd98c9533d0d7cd63">More...</a><br /></td></tr>
+<tr class="separator:a5e8313501cc6aaefd98c9533d0d7cd63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3aa0981a00ae72fabe142e1eabb4a645"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a3aa0981a00ae72fabe142e1eabb4a645">getEstCarryingCapacities</a> (std::vector&lt; double &gt; &amp;EstCarryingCapacity)</td></tr>
 <tr class="memdesc:a3aa0981a00ae72fabe142e1eabb4a645"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated carrying capacity values per species.  <a href="class_bees___estimator.html#a3aa0981a00ae72fabe142e1eabb4a645">More...</a><br /></td></tr>
 <tr class="separator:a3aa0981a00ae72fabe142e1eabb4a645"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,18 +173,27 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a5dd97b0204b4e0068850f914845a8ca2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a5dd97b0204b4e0068850f914845a8ca2">getEstExponent</a> (std::vector&lt; double &gt; &amp;EstExponent)</td></tr>
 <tr class="memdesc:a5dd97b0204b4e0068850f914845a8ca2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated exponent values per species.  <a href="class_bees___estimator.html#a5dd97b0204b4e0068850f914845a8ca2">More...</a><br /></td></tr>
 <tr class="separator:a5dd97b0204b4e0068850f914845a8ca2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a019d368918179fa7c548bc52fb5780d9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a019d368918179fa7c548bc52fb5780d9">getEstFMSY</a> (std::vector&lt; double &gt; &amp;estFMSY)</td></tr>
+<tr class="memdesc:a019d368918179fa7c548bc52fb5780d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated Fishing MSY value.  <a href="class_bees___estimator.html#a019d368918179fa7c548bc52fb5780d9">More...</a><br /></td></tr>
+<tr class="separator:a019d368918179fa7c548bc52fb5780d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ac1f130624936879cc55cffbe5a15d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a2ac1f130624936879cc55cffbe5a15d8">getEstGrowthRateCovariateCoeffs</a> (std::vector&lt; double &gt; &amp;EstGrowthRateCovariateCoeffs)</td></tr>
 <tr class="memdesc:a2ac1f130624936879cc55cffbe5a15d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated growth rate covariate coefficient values per species.  <a href="class_bees___estimator.html#a2ac1f130624936879cc55cffbe5a15d8">More...</a><br /></td></tr>
 <tr class="separator:a2ac1f130624936879cc55cffbe5a15d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade91d1e916341e49ef1b314c2b7aada6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#ade91d1e916341e49ef1b314c2b7aada6">getEstGrowthRates</a> (std::vector&lt; double &gt; &amp;EstGrowthRates)</td></tr>
 <tr class="memdesc:ade91d1e916341e49ef1b314c2b7aada6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated growth rate values per species.  <a href="class_bees___estimator.html#ade91d1e916341e49ef1b314c2b7aada6">More...</a><br /></td></tr>
 <tr class="separator:ade91d1e916341e49ef1b314c2b7aada6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3e890d1dd65e5b6742dd42a9e67f233"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#ad3e890d1dd65e5b6742dd42a9e67f233">getEstGrowthRateShape</a> (std::vector&lt; double &gt; &amp;EstGrowthRateShape)</td></tr>
+<tr class="memdesc:ad3e890d1dd65e5b6742dd42a9e67f233"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated growth rate shape parameters per species.  <a href="class_bees___estimator.html#ad3e890d1dd65e5b6742dd42a9e67f233">More...</a><br /></td></tr>
+<tr class="separator:ad3e890d1dd65e5b6742dd42a9e67f233"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1cf2307f6460ba87e77d26e6dda8e75e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a1cf2307f6460ba87e77d26e6dda8e75e">getEstHandling</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;EstHandling)</td></tr>
 <tr class="memdesc:a1cf2307f6460ba87e77d26e6dda8e75e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated handling values per species.  <a href="class_bees___estimator.html#a1cf2307f6460ba87e77d26e6dda8e75e">More...</a><br /></td></tr>
 <tr class="separator:a1cf2307f6460ba87e77d26e6dda8e75e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1192df1f2645609d5c6d91eab2464194"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#a1192df1f2645609d5c6d91eab2464194">getEstInitBiomass</a> (std::vector&lt; double &gt; &amp;EstInitBiomass)</td></tr>
 <tr class="memdesc:a1192df1f2645609d5c6d91eab2464194"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated initial biomass values per species.  <a href="class_bees___estimator.html#a1192df1f2645609d5c6d91eab2464194">More...</a><br /></td></tr>
 <tr class="separator:a1192df1f2645609d5c6d91eab2464194"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae4d43c986c5714f7bfae87535dcaf33"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#aae4d43c986c5714f7bfae87535dcaf33">getEstMSY</a> (std::vector&lt; double &gt; &amp;estMSY)</td></tr>
+<tr class="memdesc:aae4d43c986c5714f7bfae87535dcaf33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated MSY values.  <a href="class_bees___estimator.html#aae4d43c986c5714f7bfae87535dcaf33">More...</a><br /></td></tr>
+<tr class="separator:aae4d43c986c5714f7bfae87535dcaf33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa310a9452edb3ddaf230d16df54a96c5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bees___estimator.html#aa310a9452edb3ddaf230d16df54a96c5">getEstPredation</a> (boost::numeric::ublas::matrix&lt; double &gt; &amp;EstPredation)</td></tr>
 <tr class="memdesc:aa310a9452edb3ddaf230d16df54a96c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the estimated predation values per species.  <a href="class_bees___estimator.html#aa310a9452edb3ddaf230d16df54a96c5">More...</a><br /></td></tr>
 <tr class="separator:aa310a9452edb3ddaf230d16df54a96c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -322,6 +334,32 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">RunNumber</td><td>: the run number </td></tr>
     <tr><td class="paramname">MultiRunLines</td><td>: contents of multi-run run file </td></tr>
     <tr><td class="paramname">TotalIndividualRuns</td><td>: total of all multi-run runs </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a5e8313501cc6aaefd98c9533d0d7cd63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e8313501cc6aaefd98c9533d0d7cd63">&#9670;&nbsp;</a></span>getEstBMSY()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Bees_Estimator::getEstBMSY </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>estBMSY</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the estimated Biomass MSY values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">estBMSY</td><td>: vector containing the Biomass MSY values for all the species </td></tr>
   </table>
   </dd>
 </dl>
@@ -562,6 +600,32 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a019d368918179fa7c548bc52fb5780d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a019d368918179fa7c548bc52fb5780d9">&#9670;&nbsp;</a></span>getEstFMSY()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Bees_Estimator::getEstFMSY </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>estFMSY</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the estimated Fishing MSY value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">estFMSY</td><td>: vector containing the Fishing MSY values for all the species </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a2ac1f130624936879cc55cffbe5a15d8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2ac1f130624936879cc55cffbe5a15d8">&#9670;&nbsp;</a></span>getEstGrowthRateCovariateCoeffs()</h2>
 
@@ -614,6 +678,32 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ad3e890d1dd65e5b6742dd42a9e67f233"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3e890d1dd65e5b6742dd42a9e67f233">&#9670;&nbsp;</a></span>getEstGrowthRateShape()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Bees_Estimator::getEstGrowthRateShape </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>EstGrowthRateShape</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the estimated growth rate shape parameters per species. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">EstGrowthRateShape</td><td>: vector of growth rate shape parameter values per species </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a1cf2307f6460ba87e77d26e6dda8e75e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1cf2307f6460ba87e77d26e6dda8e75e">&#9670;&nbsp;</a></span>getEstHandling()</h2>
 
@@ -660,6 +750,32 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">EstInitBiomass</td><td>: vector of initial biomass values per species </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aae4d43c986c5714f7bfae87535dcaf33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae4d43c986c5714f7bfae87535dcaf33">&#9670;&nbsp;</a></span>getEstMSY()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Bees_Estimator::getEstMSY </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>estMSY</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the estimated MSY values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">estMSY</td><td>: vector containing the MSY values for all the species </td></tr>
   </table>
   </dd>
 </dl>
@@ -841,8 +957,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ab9d93dad3c2ebf6bb3ca935aa8618f48"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab9d93dad3c2ebf6bb3ca935aa8618f48">&#9670;&nbsp;</a></span>RunCompleted</h2>
+<a id="a32aafd2d4d31917d8fa2334d4ab22a0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32aafd2d4d31917d8fa2334d4ab22a0c">&#9670;&nbsp;</a></span>RunCompleted</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -854,7 +970,13 @@ Public Member Functions</h2></td></tr>
           <td class="memname">void Bees_Estimator::RunCompleted </td>
           <td>(</td>
           <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>bestFitness</em>, </td>
+          <td class="paramname"><em>summaryMsg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>convergenceMsg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -878,7 +1000,8 @@ Public Member Functions</h2></td></tr>
 <p>Signal emitted with the Run has completed. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">bestFitness</td><td>: string value representing the best fitness value </td></tr>
+    <tr><td class="paramname">summaryMsg</td><td>: string value representing run output summary message </td></tr>
+    <tr><td class="paramname">convergenceMsg</td><td>: string value representing the convergence information </td></tr>
     <tr><td class="paramname">showDiagnosticsChart</td><td>: boolean signfying whether the diagnostic 3d chart should be displayed after the run completes </td></tr>
   </table>
   </dd>

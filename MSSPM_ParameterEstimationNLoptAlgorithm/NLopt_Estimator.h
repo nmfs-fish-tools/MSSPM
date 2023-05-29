@@ -172,6 +172,7 @@ private:
             nmfStructsQt::ModelDataStruct& NLoptStruct,
             std::string& MaxOrMin);
     void setParameterBounds(
+            int overallRun,
             nmfStructsQt::ModelDataStruct& NLoptStruct,
             std::vector<double>& ParameterInitialValues,
             std::vector<std::pair<double,double> >& ParameterRanges,

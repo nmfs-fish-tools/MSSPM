@@ -117,10 +117,9 @@ Collaboration diagram for nmfMainWindow:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-slots"></a>
 Public Slots</h2></td></tr>
-<tr class="memitem:a2e520964e8891250fffffd6d3abc0882"><td class="memItemLeft" align="right" valign="top"><a id="a2e520964e8891250fffffd6d3abc0882"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a2e520964e8891250fffffd6d3abc0882">callback_AllSubRunsCompleted</a> ()</td></tr>
-<tr class="memdesc:a2e520964e8891250fffffd6d3abc0882"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when main receives an AllSubRunsCompleted signal from <a class="el" href="class_n_lopt___estimator.html" title="This class acts as an interface class to the NLopt library.">NLopt_Estimator</a>. <br /></td></tr>
-<tr class="separator:a2e520964e8891250fffffd6d3abc0882"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24ba6d6986f936ee96e9bcc5d695d0e3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a24ba6d6986f936ee96e9bcc5d695d0e3">callback_AllSubRunsCompleted</a> (std::string elapsedTime, std::string summaryMsg, QString msgSuffix)</td></tr>
+<tr class="memdesc:a24ba6d6986f936ee96e9bcc5d695d0e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when main receives an AllSubRunsCompleted signal from <a class="el" href="class_n_lopt___estimator.html" title="This class acts as an interface class to the NLopt library.">NLopt_Estimator</a>.  <a href="classnmf_main_window.html#a24ba6d6986f936ee96e9bcc5d695d0e3">More...</a><br /></td></tr>
+<tr class="separator:a24ba6d6986f936ee96e9bcc5d695d0e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3617f49d74f3a128b63fd043354da763"><td class="memItemLeft" align="right" valign="top"><a id="a3617f49d74f3a128b63fd043354da763"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_UpdateSeedValue</b> (int isDeterministic)</td></tr>
 <tr class="separator:a3617f49d74f3a128b63fd043354da763"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -139,6 +138,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a56602b998d96bdc09048572c76b37a4f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a56602b998d96bdc09048572c76b37a4f">callback_DiagnosticsTabChanged</a> (int tab)</td></tr>
 <tr class="memdesc:a56602b998d96bdc09048572c76b37a4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user selects a tab from the Diagnostics tab group.  <a href="classnmf_main_window.html#a56602b998d96bdc09048572c76b37a4f">More...</a><br /></td></tr>
 <tr class="separator:a56602b998d96bdc09048572c76b37a4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57f0d964d2912e90a1f53360a36a45af"><td class="memItemLeft" align="right" valign="top"><a id="a57f0d964d2912e90a1f53360a36a45af"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a57f0d964d2912e90a1f53360a36a45af">callback_DisableMohnsRhoRun</a> ()</td></tr>
+<tr class="memdesc:a57f0d964d2912e90a1f53360a36a45af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked to disable any mohns rho settings once a user saves a single or multi run. <br /></td></tr>
+<tr class="separator:a57f0d964d2912e90a1f53360a36a45af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5feca79cffa5c0ac9113805de9cc2113"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a5feca79cffa5c0ac9113805de9cc2113">callback_EnableFilterButtons</a> (bool state)</td></tr>
 <tr class="memdesc:a5feca79cffa5c0ac9113805de9cc2113"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked to set the state of the toolbar's filter buttons.  <a href="classnmf_main_window.html#a5feca79cffa5c0ac9113805de9cc2113">More...</a><br /></td></tr>
 <tr class="separator:a5feca79cffa5c0ac9113805de9cc2113"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -172,6 +175,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#abba8454a906e81a4730ccf543d2cc67d">callback_LoadSpeciesGuild</a> ()</td></tr>
 <tr class="memdesc:abba8454a906e81a4730ccf543d2cc67d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user wants to give the Estimation Tab1 class Species Guild information from Setup Tab3. <br /></td></tr>
 <tr class="separator:abba8454a906e81a4730ccf543d2cc67d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cd22ab2df11bc248af2b03c1ee28645"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a6cd22ab2df11bc248af2b03c1ee28645">callback_LogMsg</a> (std::vector&lt; std::string &gt; msgVec)</td></tr>
+<tr class="memdesc:a6cd22ab2df11bc248af2b03c1ee28645"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked to print a vector of log messages.  <a href="classnmf_main_window.html#a6cd22ab2df11bc248af2b03c1ee28645">More...</a><br /></td></tr>
+<tr class="separator:a6cd22ab2df11bc248af2b03c1ee28645"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32453977084ac27c001ded2d8e935fff"><td class="memItemLeft" align="right" valign="top"><a id="a32453977084ac27c001ded2d8e935fff"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a32453977084ac27c001ded2d8e935fff">callback_NavigatorSelectionChanged</a> ()</td></tr>
 <tr class="memdesc:a32453977084ac27c001ded2d8e935fff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user selects an item from the Navigator list. <br /></td></tr>
@@ -186,6 +192,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ac600b760994837bec3cfad9111521f6d"><td class="memItemLeft" align="right" valign="top"><a id="ac600b760994837bec3cfad9111521f6d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_AddedNewDatabase</b> ()</td></tr>
 <tr class="separator:ac600b760994837bec3cfad9111521f6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b93ec21155a7437c4fa365288027ce7"><td class="memItemLeft" align="right" valign="top"><a id="a8b93ec21155a7437c4fa365288027ce7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_ImportDatabase</b> ()</td></tr>
+<tr class="separator:a8b93ec21155a7437c4fa365288027ce7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39cbc54cade90c387dc505239841f2ec"><td class="memItemLeft" align="right" valign="top"><a id="a39cbc54cade90c387dc505239841f2ec"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_LoadEstimatedParameters</b> ()</td></tr>
+<tr class="separator:a39cbc54cade90c387dc505239841f2ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ccb8eba6f948fdd69a6927985dc6104"><td class="memItemLeft" align="right" valign="top"><a id="a3ccb8eba6f948fdd69a6927985dc6104"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a3ccb8eba6f948fdd69a6927985dc6104">callback_ReadProgressChartDataFile</a> ()</td></tr>
 <tr class="memdesc:a3ccb8eba6f948fdd69a6927985dc6104"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the progress chart timer times out. In this fashion, the progress chart is updated while another process is running. <br /></td></tr>
@@ -197,10 +209,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a069995395a9ae76593caec3a18eeeed9">callback_RefreshOutput</a> ()</td></tr>
 <tr class="memdesc:a069995395a9ae76593caec3a18eeeed9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user needs to reset the Output Controls widgets. <br /></td></tr>
 <tr class="separator:a069995395a9ae76593caec3a18eeeed9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f985f624f71110277dbde6467f169d9"><td class="memItemLeft" align="right" valign="top"><a id="a8f985f624f71110277dbde6467f169d9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a8f985f624f71110277dbde6467f169d9">callback_ReloadWidgets</a> ()</td></tr>
-<tr class="memdesc:a8f985f624f71110277dbde6467f169d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user needs to reload the Main application's widgets. <br /></td></tr>
-<tr class="separator:a8f985f624f71110277dbde6467f169d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a079896434c3acf1120ee3e1fad7157f6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a079896434c3acf1120ee3e1fad7157f6">callback_ReloadWidgets</a> (bool reloadProject)</td></tr>
+<tr class="memdesc:a079896434c3acf1120ee3e1fad7157f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user needs to reload the Main application's widgets.  <a href="classnmf_main_window.html#a079896434c3acf1120ee3e1fad7157f6">More...</a><br /></td></tr>
+<tr class="separator:a079896434c3acf1120ee3e1fad7157f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10a91484dde22c35590c750fefbeb5ab"><td class="memItemLeft" align="right" valign="top"><a id="a10a91484dde22c35590c750fefbeb5ab"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a10a91484dde22c35590c750fefbeb5ab">callback_ReloadSetupWidgets</a> ()</td></tr>
+<tr class="memdesc:a10a91484dde22c35590c750fefbeb5ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user needs to reload the Setup widgets. <br /></td></tr>
+<tr class="separator:a10a91484dde22c35590c750fefbeb5ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e9813aa446e3f494a8253fed3f180e2"><td class="memItemLeft" align="right" valign="top"><a id="a6e9813aa446e3f494a8253fed3f180e2"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a6e9813aa446e3f494a8253fed3f180e2">callback_ResetFilterButtons</a> ()</td></tr>
 <tr class="memdesc:a6e9813aa446e3f494a8253fed3f180e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user needs to reset the toolbar's filter buttons. <br /></td></tr>
@@ -209,9 +224,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#af45aeb7f3a6528ac9e0c7591b82a49b8">callback_RestoreOutputSpecies</a> ()</td></tr>
 <tr class="memdesc:af45aeb7f3a6528ac9e0c7591b82a49b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user wants to reset the current species in the Output widget to what it was just prior to modifying the Population Parameters. <br /></td></tr>
 <tr class="separator:af45aeb7f3a6528ac9e0c7591b82a49b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45d558e3943d644e43f02c6c1daaa96e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a45d558e3943d644e43f02c6c1daaa96e">callback_RunCompleted</a> (std::string outputMsg, bool showDiagnosticChart)</td></tr>
-<tr class="memdesc:a45d558e3943d644e43f02c6c1daaa96e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when Estimation run has completed.  <a href="classnmf_main_window.html#a45d558e3943d644e43f02c6c1daaa96e">More...</a><br /></td></tr>
-<tr class="separator:a45d558e3943d644e43f02c6c1daaa96e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa496b15e782f86eb56c1290defcbc001"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#aa496b15e782f86eb56c1290defcbc001">callback_RunCompleted</a> (std::string outputMsg, std::string convergenceMsg, bool showDiagnosticChart)</td></tr>
+<tr class="memdesc:aa496b15e782f86eb56c1290defcbc001"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when Estimation run has completed.  <a href="classnmf_main_window.html#aa496b15e782f86eb56c1290defcbc001">More...</a><br /></td></tr>
+<tr class="separator:aa496b15e782f86eb56c1290defcbc001"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af89d2d7800953a98c5e1d8b3cb7a1833"><td class="memItemLeft" align="right" valign="top"><a id="af89d2d7800953a98c5e1d8b3cb7a1833"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_SubRunCompleted</b> (int run, int numRuns, std::string EstimationAlgorithm, std::string MinimizerAlgorithm, std::string ObjectiveCriterion, std::string ScalingAlgorithm, std::string multiRunModelFilename, double fitness)</td></tr>
 <tr class="separator:af89d2d7800953a98c5e1d8b3cb7a1833"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -238,10 +253,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#aa39304b8f996e1684f8d60e9e05b7c79">callback_SetForecastHarvestModel</a> ()</td></tr>
 <tr class="memdesc:aa39304b8f996e1684f8d60e9e05b7c79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the Forecast Harvest Model pointer in the Forecast Tab2 pane. <br /></td></tr>
 <tr class="separator:aa39304b8f996e1684f8d60e9e05b7c79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a272b378391112c8aa2ae84c2b58567d7"><td class="memItemLeft" align="right" valign="top"><a id="a272b378391112c8aa2ae84c2b58567d7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a272b378391112c8aa2ae84c2b58567d7">callback_ToDoAfterModelSave</a> ()</td></tr>
-<tr class="memdesc:a272b378391112c8aa2ae84c2b58567d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user saves a new Model. <br /></td></tr>
-<tr class="separator:a272b378391112c8aa2ae84c2b58567d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36d5d1bc72cc6bc68f45c09eab7bdd75"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a36d5d1bc72cc6bc68f45c09eab7bdd75">callback_SetRetrospectiveAnalysis</a> (bool state)</td></tr>
+<tr class="memdesc:a36d5d1bc72cc6bc68f45c09eab7bdd75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when the user runs an estimation, diagnostic, or forecast.  <a href="classnmf_main_window.html#a36d5d1bc72cc6bc68f45c09eab7bdd75">More...</a><br /></td></tr>
+<tr class="separator:a36d5d1bc72cc6bc68f45c09eab7bdd75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7deee21310cfe678ae47584c4803ed2"><td class="memItemLeft" align="right" valign="top"><a id="ab7deee21310cfe678ae47584c4803ed2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#ab7deee21310cfe678ae47584c4803ed2">callback_ModelSaved</a> ()</td></tr>
+<tr class="memdesc:ab7deee21310cfe678ae47584c4803ed2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user saves a new Model. <br /></td></tr>
+<tr class="separator:ab7deee21310cfe678ae47584c4803ed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b632e19e56d6a7b571769e26eb448e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a4b632e19e56d6a7b571769e26eb448e7">callback_SetChartType</a> (std::string type, std::string method)</td></tr>
 <tr class="memdesc:a4b632e19e56d6a7b571769e26eb448e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when user changes the type of Output chart desired.  <a href="classnmf_main_window.html#a4b632e19e56d6a7b571769e26eb448e7">More...</a><br /></td></tr>
 <tr class="separator:a4b632e19e56d6a7b571769e26eb448e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -313,6 +331,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:aa0d7a7b64df23601bd7f03019d2facbc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#aa0d7a7b64df23601bd7f03019d2facbc">callback_RepetitionRunCompleted</a> (int RunNumber, int SubRunNum, int NumSubRuns)</td></tr>
 <tr class="memdesc:aa0d7a7b64df23601bd7f03019d2facbc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked when a Bees Estimation Algorithm sub run has completed.  <a href="classnmf_main_window.html#aa0d7a7b64df23601bd7f03019d2facbc">More...</a><br /></td></tr>
 <tr class="separator:aa0d7a7b64df23601bd7f03019d2facbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b2d6097f42259f9a022d571bc369e6c"><td class="memItemLeft" align="right" valign="top"><a id="a6b2d6097f42259f9a022d571bc369e6c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a6b2d6097f42259f9a022d571bc369e6c">callback_SetAllRunsComplete</a> ()</td></tr>
+<tr class="memdesc:a6b2d6097f42259f9a022d571bc369e6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked after user stops a run via the Stop button in the progress widget. <br /></td></tr>
+<tr class="separator:a6b2d6097f42259f9a022d571bc369e6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa84cd40a81a85dc02deb92fbdc607d84"><td class="memItemLeft" align="right" valign="top"><a id="aa84cd40a81a85dc02deb92fbdc607d84"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#aa84cd40a81a85dc02deb92fbdc607d84">callback_StopTheTimer</a> ()</td></tr>
 <tr class="memdesc:aa84cd40a81a85dc02deb92fbdc607d84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked to stop the progress widget's elapsed run timer. <br /></td></tr>
@@ -329,6 +351,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#ae51df316bad8e821afba19f8f2f94359">callback_UpdateModelEquationSummary</a> ()</td></tr>
 <tr class="memdesc:ae51df316bad8e821afba19f8f2f94359"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked to update the Model Equation in the Setup page 4 summary text box. <br /></td></tr>
 <tr class="separator:ae51df316bad8e821afba19f8f2f94359"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2abd4ed3ab47e881b1bca1af36d7a439"><td class="memItemLeft" align="right" valign="top"><a id="a2abd4ed3ab47e881b1bca1af36d7a439"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_UpdateWindowTitle</b> ()</td></tr>
+<tr class="separator:a2abd4ed3ab47e881b1bca1af36d7a439"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20c3ee3508981c43485dc32916a771c8"><td class="memItemLeft" align="right" valign="top"><a id="a20c3ee3508981c43485dc32916a771c8"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_openCSVFile</b> (QPoint pos)</td></tr>
 <tr class="separator:a20c3ee3508981c43485dc32916a771c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -366,6 +391,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a3ff656bccc928e18ca6b9cb82cb1f3c5">menu_createTables</a> ()</td></tr>
 <tr class="memdesc:a3ff656bccc928e18ca6b9cb82cb1f3c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates all necessary MySQL tables. <br /></td></tr>
 <tr class="separator:a3ff656bccc928e18ca6b9cb82cb1f3c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acec608fa54373b810385d39e020dc9cf"><td class="memItemLeft" align="right" valign="top"><a id="acec608fa54373b810385d39e020dc9cf"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#acec608fa54373b810385d39e020dc9cf">menu_deleteLayout</a> ()</td></tr>
+<tr class="memdesc:acec608fa54373b810385d39e020dc9cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes a previously created Layout file. <br /></td></tr>
+<tr class="separator:acec608fa54373b810385d39e020dc9cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5513d3a8e141f72c5a46534eecb4f783"><td class="memItemLeft" align="right" valign="top"><a id="a5513d3a8e141f72c5a46534eecb4f783"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a5513d3a8e141f72c5a46534eecb4f783">menu_deselectAll</a> ()</td></tr>
 <tr class="memdesc:a5513d3a8e141f72c5a46534eecb4f783"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deselects all cells in the table. <br /></td></tr>
@@ -374,6 +403,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a029a6abc2292440d65c7a61900a6e6a8">menu_exportDatabase</a> ()</td></tr>
 <tr class="memdesc:a029a6abc2292440d65c7a61900a6e6a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exports the current database to a .sql disk file. <br /></td></tr>
 <tr class="separator:a029a6abc2292440d65c7a61900a6e6a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86e4fde6f283f25f4ad577211db20a23"><td class="memItemLeft" align="right" valign="top"><a id="a86e4fde6f283f25f4ad577211db20a23"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a86e4fde6f283f25f4ad577211db20a23">menu_exportHPCFiles</a> ()</td></tr>
+<tr class="memdesc:a86e4fde6f283f25f4ad577211db20a23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exports the hpc data files needed to run the current estimation on the HPC system. <br /></td></tr>
+<tr class="separator:a86e4fde6f283f25f4ad577211db20a23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f64e7a3f46e7e0ecfb6beb3d790cbae"><td class="memItemLeft" align="right" valign="top"><a id="a4f64e7a3f46e7e0ecfb6beb3d790cbae"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a4f64e7a3f46e7e0ecfb6beb3d790cbae">menu_exportAllDatabases</a> ()</td></tr>
 <tr class="memdesc:a4f64e7a3f46e7e0ecfb6beb3d790cbae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Export all databases to individual .sql disk files. <br /></td></tr>
@@ -382,6 +415,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#ac9d999d1bb30c1030db7a6ac465c7267">menu_importDatabase</a> ()</td></tr>
 <tr class="memdesc:ac9d999d1bb30c1030db7a6ac465c7267"><td class="mdescLeft">&#160;</td><td class="mdescRight">Imports a .sql disk file and loads it as the current database. <br /></td></tr>
 <tr class="separator:ac9d999d1bb30c1030db7a6ac465c7267"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa19b986b63c172ce9a03a91225ebeaf6"><td class="memItemLeft" align="right" valign="top"><a id="aa19b986b63c172ce9a03a91225ebeaf6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#aa19b986b63c172ce9a03a91225ebeaf6">menu_importHPCFiles</a> ()</td></tr>
+<tr class="memdesc:aa19b986b63c172ce9a03a91225ebeaf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Imports the estimated parameter files generated by the HPC system. <br /></td></tr>
+<tr class="separator:aa19b986b63c172ce9a03a91225ebeaf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0c02f5e986910c8a5c1271b2d885c81d"><td class="memItemLeft" align="right" valign="top"><a id="a0c02f5e986910c8a5c1271b2d885c81d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a0c02f5e986910c8a5c1271b2d885c81d">menu_layoutDefault</a> ()</td></tr>
 <tr class="memdesc:a0c02f5e986910c8a5c1271b2d885c81d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the Application layout to the default. <br /></td></tr>
@@ -390,10 +427,22 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#ac7e4e5ea5fd09f8f950e74c9da7c4642">menu_layoutOutput</a> ()</td></tr>
 <tr class="memdesc:ac7e4e5ea5fd09f8f950e74c9da7c4642"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the Application layout to one with the Output window torn off and placed to the side. <br /></td></tr>
 <tr class="separator:ac7e4e5ea5fd09f8f950e74c9da7c4642"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f12643be80eedba2c6f859ef15ce2b0"><td class="memItemLeft" align="right" valign="top"><a id="a9f12643be80eedba2c6f859ef15ce2b0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a9f12643be80eedba2c6f859ef15ce2b0">menu_loadLayout</a> ()</td></tr>
+<tr class="memdesc:a9f12643be80eedba2c6f859ef15ce2b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads a previously saved Layout. <br /></td></tr>
+<tr class="separator:a9f12643be80eedba2c6f859ef15ce2b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22179c3dfd4db8fdc1c7b18da91c05f8"><td class="memItemLeft" align="right" valign="top"><a id="a22179c3dfd4db8fdc1c7b18da91c05f8"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a22179c3dfd4db8fdc1c7b18da91c05f8">menu_openCSVFile</a> ()</td></tr>
 <tr class="memdesc:a22179c3dfd4db8fdc1c7b18da91c05f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open the CSV file that's associated with the current image file displayed in the REMORA viewer. <br /></td></tr>
 <tr class="separator:a22179c3dfd4db8fdc1c7b18da91c05f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35eeef716a9c8d28d82f0e49f5532238"><td class="memItemLeft" align="right" valign="top"><a id="a35eeef716a9c8d28d82f0e49f5532238"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a35eeef716a9c8d28d82f0e49f5532238">menu_optimizeAllTables</a> ()</td></tr>
+<tr class="memdesc:a35eeef716a9c8d28d82f0e49f5532238"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimizes all of the MySQL tables. <br /></td></tr>
+<tr class="separator:a35eeef716a9c8d28d82f0e49f5532238"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab554b3f99e9d879e51dd4876f4c389c5"><td class="memItemLeft" align="right" valign="top"><a id="ab554b3f99e9d879e51dd4876f4c389c5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#ab554b3f99e9d879e51dd4876f4c389c5">menu_optimizeOutputTables</a> ()</td></tr>
+<tr class="memdesc:ab554b3f99e9d879e51dd4876f4c389c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimizes all the MySQL Output tables. <br /></td></tr>
+<tr class="separator:ab554b3f99e9d879e51dd4876f4c389c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf8264f5a01f79d5679963988ac9f543"><td class="memItemLeft" align="right" valign="top"><a id="adf8264f5a01f79d5679963988ac9f543"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#adf8264f5a01f79d5679963988ac9f543">menu_paste</a> ()</td></tr>
 <tr class="memdesc:adf8264f5a01f79d5679963988ac9f543"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pastes the previously copied or cleared table cells. <br /></td></tr>
@@ -429,6 +478,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a60bfeeac880c4e9671bfeb1831d27920">menu_saveCurrentRun</a> ()</td></tr>
 <tr class="memdesc:a60bfeeac880c4e9671bfeb1831d27920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save all data generated by current run. <br /></td></tr>
 <tr class="separator:a60bfeeac880c4e9671bfeb1831d27920"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d4692aea3c5fbafb5fff4911b500949"><td class="memItemLeft" align="right" valign="top"><a id="a6d4692aea3c5fbafb5fff4911b500949"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a6d4692aea3c5fbafb5fff4911b500949">menu_saveLayout</a> ()</td></tr>
+<tr class="memdesc:a6d4692aea3c5fbafb5fff4911b500949"><td class="mdescLeft">&#160;</td><td class="mdescRight">Saves the current Layout. <br /></td></tr>
+<tr class="separator:a6d4692aea3c5fbafb5fff4911b500949"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0b3b96595f0644f08e3a8ca5f08203b"><td class="memItemLeft" align="right" valign="top"><a id="ab0b3b96595f0644f08e3a8ca5f08203b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#ab0b3b96595f0644f08e3a8ca5f08203b">menu_saveSettings</a> ()</td></tr>
 <tr class="memdesc:ab0b3b96595f0644f08e3a8ca5f08203b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save application settings. <br /></td></tr>
@@ -463,6 +516,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a1458409c56de44015f79085369176c64">menu_showCurrentRun</a> ()</td></tr>
 <tr class="memdesc:a1458409c56de44015f79085369176c64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show chart from current run. <br /></td></tr>
 <tr class="separator:a1458409c56de44015f79085369176c64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2011365cb85758cccddcf4e754833585"><td class="memItemLeft" align="right" valign="top"><a id="a2011365cb85758cccddcf4e754833585"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a2011365cb85758cccddcf4e754833585">menu_showLastMultiOrHPCRun</a> ()</td></tr>
+<tr class="memdesc:a2011365cb85758cccddcf4e754833585"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shows the last Multi-Run or HPC if available. <br /></td></tr>
+<tr class="separator:a2011365cb85758cccddcf4e754833585"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9dc18e4a82626be6a3b6e57df4f6041"><td class="memItemLeft" align="right" valign="top"><a id="aa9dc18e4a82626be6a3b6e57df4f6041"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#aa9dc18e4a82626be6a3b6e57df4f6041">menu_showLastSingleRun</a> ()</td></tr>
+<tr class="memdesc:aa9dc18e4a82626be6a3b6e57df4f6041"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shows the last run that wasn't a Multi-Run or an HPC run. <br /></td></tr>
+<tr class="separator:aa9dc18e4a82626be6a3b6e57df4f6041"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d06a686e89e20ca9e84427e07592121"><td class="memItemLeft" align="right" valign="top"><a id="a7d06a686e89e20ca9e84427e07592121"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_main_window.html#a7d06a686e89e20ca9e84427e07592121">menu_showTableNames</a> ()</td></tr>
 <tr class="memdesc:a7d06a686e89e20ca9e84427e07592121"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raises a dialog that lists all the MySQL database tables for MSSPM. <br /></td></tr>
@@ -483,6 +544,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>menu_toggleManagerMod
 <tr class="memitem:a1e1f3b546217bfc7efd04f9dfcb2d029"><td class="memItemLeft" align="right" valign="top"><a id="a1e1f3b546217bfc7efd04f9dfcb2d029"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>menu_toggleSignificantDigits</b> ()</td></tr>
 <tr class="separator:a1e1f3b546217bfc7efd04f9dfcb2d029"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a636e0271521426006031cbb9e3331670"><td class="memItemLeft" align="right" valign="top"><a id="a636e0271521426006031cbb9e3331670"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>menu_toggleSingleMulti</b> ()</td></tr>
+<tr class="separator:a636e0271521426006031cbb9e3331670"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb2ffbece2a73ad945de58a738568cef"><td class="memItemLeft" align="right" valign="top"><a id="abb2ffbece2a73ad945de58a738568cef"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>menu_troubleshooting</b> ()</td></tr>
+<tr class="separator:abb2ffbece2a73ad945de58a738568cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0557f8b956d766773f178db357e50799"><td class="memItemLeft" align="right" valign="top"><a id="a0557f8b956d766773f178db357e50799"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_AllowConvergedOnly</b> (bool allowConvergedOnly)</td></tr>
+<tr class="separator:a0557f8b956d766773f178db357e50799"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd34a3323cc18449bf0a841413f8abca"><td class="memItemLeft" align="right" valign="top"><a id="acd34a3323cc18449bf0a841413f8abca"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_PreferencesOkPB</b> ()</td></tr>
 <tr class="separator:acd34a3323cc18449bf0a841413f8abca"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -501,9 +571,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_LoadFromMode
 <tr class="memitem:ad51ee7f424f69591988879cf4458d4df"><td class="memItemLeft" align="right" valign="top"><a id="ad51ee7f424f69591988879cf4458d4df"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_EnableRunButtons</b> (bool state)</td></tr>
 <tr class="separator:ad51ee7f424f69591988879cf4458d4df"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6b74996d3bc91efcb5a77d38a571134"><td class="memItemLeft" align="right" valign="top"><a id="ab6b74996d3bc91efcb5a77d38a571134"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_StopAllRuns</b> ()</td></tr>
-<tr class="separator:ab6b74996d3bc91efcb5a77d38a571134"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01d50e5f8eef2f33c06b4ff093eb1a8d"><td class="memItemLeft" align="right" valign="top"><a id="a01d50e5f8eef2f33c06b4ff093eb1a8d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_RunCompletedMsg</b> (int returnCode, std::string returnMsg)</td></tr>
+<tr class="separator:a01d50e5f8eef2f33c06b4ff093eb1a8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af75a8b95bc3e34dfa142df306f0176e1"><td class="memItemLeft" align="right" valign="top"><a id="af75a8b95bc3e34dfa142df306f0176e1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_SetEstimatedParameterNames</b> ()</td></tr>
+<tr class="separator:af75a8b95bc3e34dfa142df306f0176e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3565aa921e1a048aa0707f82767e0b5f"><td class="memItemLeft" align="right" valign="top"><a id="a3565aa921e1a048aa0707f82767e0b5f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_SetDiagnosticHPCFlag</b> ()</td></tr>
+<tr class="separator:a3565aa921e1a048aa0707f82767e0b5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc0f707699dfce943ed68fe10d0f26df"><td class="memItemLeft" align="right" valign="top"><a id="adc0f707699dfce943ed68fe10d0f26df"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_StopTimer</b> ()</td></tr>
+<tr class="separator:adc0f707699dfce943ed68fe10d0f26df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acee782de274945c112e18f7406f013d7"><td class="memItemLeft" align="right" valign="top"><a id="acee782de274945c112e18f7406f013d7"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>callback_SummaryLoadDiagnosticPB</b> ()</td></tr>
 <tr class="separator:acee782de274945c112e18f7406f013d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -613,6 +692,58 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseMoveEvent</b> (Q
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a24ba6d6986f936ee96e9bcc5d695d0e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24ba6d6986f936ee96e9bcc5d695d0e3">&#9670;&nbsp;</a></span>callback_AllSubRunsCompleted</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfMainWindow::callback_AllSubRunsCompleted </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>elapsedTime</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>summaryMsg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname"><em>msgSuffix</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when main receives an AllSubRunsCompleted signal from <a class="el" href="class_n_lopt___estimator.html" title="This class acts as an interface class to the NLopt library.">NLopt_Estimator</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname"></td><td>elapsedTime : elapsed time of the current run or multi-run </td></tr>
+    <tr><td class="paramname"></td><td>summaryMsg : text containing the message to be displayed on the Run Summary page </td></tr>
+    <tr><td class="paramname"></td><td>msgSuffix : an addendum to the multi-run termination message </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a56602b998d96bdc09048572c76b37a4f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a56602b998d96bdc09048572c76b37a4f">&#9670;&nbsp;</a></span>callback_DiagnosticsTabChanged</h2>
 
@@ -896,6 +1027,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseMoveEvent</b> (Q
 
 </div>
 </div>
+<a id="a6cd22ab2df11bc248af2b03c1ee28645"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6cd22ab2df11bc248af2b03c1ee28645">&#9670;&nbsp;</a></span>callback_LogMsg</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfMainWindow::callback_LogMsg </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; std::string &gt;&#160;</td>
+          <td class="paramname"><em>msgVec</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked to print a vector of log messages. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">msgVec</td><td>: vector of log messages to be displayed </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a94bb2eb92595da329cd5d244fc62a12f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a94bb2eb92595da329cd5d244fc62a12f">&#9670;&nbsp;</a></span>callback_OutputTypeCMB</h2>
 
@@ -1054,6 +1219,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseMoveEvent</b> (Q
 
 </div>
 </div>
+<a id="a079896434c3acf1120ee3e1fad7157f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a079896434c3acf1120ee3e1fad7157f6">&#9670;&nbsp;</a></span>callback_ReloadWidgets</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfMainWindow::callback_ReloadWidgets </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>reloadProject</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when user needs to reload the Main application's widgets. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">reloadProject</td><td>: boolean signifying if the project should be reloaded </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="aa0d7a7b64df23601bd7f03019d2facbc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa0d7a7b64df23601bd7f03019d2facbc">&#9670;&nbsp;</a></span>callback_RepetitionRunCompleted</h2>
 
@@ -1106,8 +1305,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseMoveEvent</b> (Q
 
 </div>
 </div>
-<a id="a45d558e3943d644e43f02c6c1daaa96e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a45d558e3943d644e43f02c6c1daaa96e">&#9670;&nbsp;</a></span>callback_RunCompleted</h2>
+<a id="aa496b15e782f86eb56c1290defcbc001"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa496b15e782f86eb56c1290defcbc001">&#9670;&nbsp;</a></span>callback_RunCompleted</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1120,6 +1319,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseMoveEvent</b> (Q
           <td>(</td>
           <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>outputMsg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>convergenceMsg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1144,6 +1349,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseMoveEvent</b> (Q
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">outputMsg</td><td>: output message for Estimation run completion </td></tr>
+    <tr><td class="paramname">convergenceMsg</td><td>: message indicating whether or not the model run converged </td></tr>
     <tr><td class="paramname">showDiagnosticChart</td><td>: </td></tr>
   </table>
   </dd>
@@ -1371,6 +1577,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>mouseMoveEvent</b> (Q
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">setTo2d</td><td>: Boolean used to set the chart type to 2d (True) or 3d (False) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a36d5d1bc72cc6bc68f45c09eab7bdd75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36d5d1bc72cc6bc68f45c09eab7bdd75">&#9670;&nbsp;</a></span>callback_SetRetrospectiveAnalysis</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfMainWindow::callback_SetRetrospectiveAnalysis </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>state</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback invoked when the user runs an estimation, diagnostic, or forecast. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">state</td><td>: reset state for the retrospective analysis (necessary as this is similar to a mult-run) </td></tr>
   </table>
   </dd>
 </dl>

@@ -33,8 +33,8 @@ var classnmf_setup___tab3 =
     [ "LoadGuildSupplemental", "classnmf_setup___tab3.html#a6c4f79a624367230264ea440e6593d26", null ],
     [ "LoadSpeciesSupplemental", "classnmf_setup___tab3.html#aeb759498bfa66ddeca365e1da9168e36", null ],
     [ "loadWidgets", "classnmf_setup___tab3.html#a2b6df20bba0023e9b67995a551268ba9", null ],
-    [ "ReloadWidgets", "classnmf_setup___tab3.html#adcbc051bff92008c7673f08db64063fe", null ],
+    [ "ReloadWidgets", "classnmf_setup___tab3.html#adcdbdffc5b3fcc310ade2c44a4ccc63a", null ],
     [ "SaveGuildSupplemental", "classnmf_setup___tab3.html#a1bfb84180217802f2864bb62515959db", null ],
-    [ "SaveSpeciesSupplemental", "classnmf_setup___tab3.html#acf44ba4ec3bda341ad8911082826703e", null ],
+    [ "SaveSpeciesSupplemental", "classnmf_setup___tab3.html#a9cb09df41b4379d4e94c4bc880729ff7", null ],
     [ "setCurrentUnits", "classnmf_setup___tab3.html#a2931cb4154fb801d13f4a2f8b5daecbe", null ]
 ];

@@ -214,17 +214,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:aeb759498bfa66ddeca365e1da9168e36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#aeb759498bfa66ddeca365e1da9168e36">LoadSpeciesSupplemental</a> (bool updateSetup, bool queryUserForFilename, QString speciesFilename)</td></tr>
 <tr class="memdesc:aeb759498bfa66ddeca365e1da9168e36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted when user wants to import a .csv file. This signal is sent to the Estimation_Tab1_ptr where its import method is called.  <a href="classnmf_setup___tab3.html#aeb759498bfa66ddeca365e1da9168e36">More...</a><br /></td></tr>
 <tr class="separator:aeb759498bfa66ddeca365e1da9168e36"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adcbc051bff92008c7673f08db64063fe"><td class="memItemLeft" align="right" valign="top"><a id="adcbc051bff92008c7673f08db64063fe"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#adcbc051bff92008c7673f08db64063fe">ReloadWidgets</a> ()</td></tr>
-<tr class="memdesc:adcbc051bff92008c7673f08db64063fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted after user saves Species. This is necessary since the input Estimation tables may need to be modified with new Species. <br /></td></tr>
-<tr class="separator:adcbc051bff92008c7673f08db64063fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcdbdffc5b3fcc310ade2c44a4ccc63a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#adcdbdffc5b3fcc310ade2c44a4ccc63a">ReloadWidgets</a> (bool reloadProject)</td></tr>
+<tr class="memdesc:adcdbdffc5b3fcc310ade2c44a4ccc63a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted after user saves Species. This is necessary since the input Estimation tables may need to be modified with new Species.  <a href="classnmf_setup___tab3.html#adcdbdffc5b3fcc310ade2c44a4ccc63a">More...</a><br /></td></tr>
+<tr class="separator:adcdbdffc5b3fcc310ade2c44a4ccc63a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bfb84180217802f2864bb62515959db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#a1bfb84180217802f2864bb62515959db">SaveGuildSupplemental</a> (QList&lt; QString &gt; GuildName, QList&lt; QString &gt; GuildGrowthRate, QList&lt; QString &gt; GuildK)</td></tr>
 <tr class="memdesc:a1bfb84180217802f2864bb62515959db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted after user saves Guilds. This will allow the user to save the current Guild data into a .csv file.  <a href="classnmf_setup___tab3.html#a1bfb84180217802f2864bb62515959db">More...</a><br /></td></tr>
 <tr class="separator:a1bfb84180217802f2864bb62515959db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf44ba4ec3bda341ad8911082826703e"><td class="memItemLeft" align="right" valign="top"><a id="acf44ba4ec3bda341ad8911082826703e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#acf44ba4ec3bda341ad8911082826703e">SaveSpeciesSupplemental</a> (QList&lt; QString &gt; SpeciesName, QList&lt; QString &gt; SpeciesGuild, QList&lt; QString &gt; SpeciesInitialBiomass, QList&lt; QString &gt; SpeciesGrowthRate, QList&lt; QString &gt; SpeciesK)</td></tr>
-<tr class="memdesc:acf44ba4ec3bda341ad8911082826703e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted after user saves Species. This will allow the user to save the current Species data into a .csv file. <br /></td></tr>
-<tr class="separator:acf44ba4ec3bda341ad8911082826703e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cb09df41b4379d4e94c4bc880729ff7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_setup___tab3.html#a9cb09df41b4379d4e94c4bc880729ff7">SaveSpeciesSupplemental</a> (QString, QList&lt; QString &gt; SpeciesName, QList&lt; QString &gt; SpeciesGuild, QList&lt; QString &gt; SpeciesInitialBiomass, QList&lt; QString &gt; SpeciesGrowthRate, QList&lt; QString &gt; SpeciesK)</td></tr>
+<tr class="memdesc:a9cb09df41b4379d4e94c4bc880729ff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal emitted after user saves Species. This will allow the user to save the current Species data into a .csv file.  <a href="classnmf_setup___tab3.html#a9cb09df41b4379d4e94c4bc880729ff7">More...</a><br /></td></tr>
+<tr class="separator:a9cb09df41b4379d4e94c4bc880729ff7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -752,6 +750,40 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>checkAndCalculateW
 
 </div>
 </div>
+<a id="adcdbdffc5b3fcc310ade2c44a4ccc63a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcdbdffc5b3fcc310ade2c44a4ccc63a">&#9670;&nbsp;</a></span>ReloadWidgets</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfSetup_Tab3::ReloadWidgets </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>reloadProject</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted after user saves Species. This is necessary since the input Estimation tables may need to be modified with new Species. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">reloadProject</td><td>: boolean signifying if the current project should be reloaded </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a1bfb84180217802f2864bb62515959db"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1bfb84180217802f2864bb62515959db">&#9670;&nbsp;</a></span>SaveGuildSupplemental</h2>
 
@@ -798,6 +830,78 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>checkAndCalculateW
     <tr><td class="paramname">GuildName</td><td>: list of guild names </td></tr>
     <tr><td class="paramname">GrowthRate</td><td>: list of guild growth rates </td></tr>
     <tr><td class="paramname">GuildK</td><td>: list of guild carrying capacities </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a9cb09df41b4379d4e94c4bc880729ff7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9cb09df41b4379d4e94c4bc880729ff7">&#9670;&nbsp;</a></span>SaveSpeciesSupplemental</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfSetup_Tab3::SaveSpeciesSupplemental </td>
+          <td>(</td>
+          <td class="paramtype">QString&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QList&lt; QString &gt;&#160;</td>
+          <td class="paramname"><em>SpeciesName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QList&lt; QString &gt;&#160;</td>
+          <td class="paramname"><em>SpeciesGuild</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QList&lt; QString &gt;&#160;</td>
+          <td class="paramname"><em>SpeciesInitialBiomass</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QList&lt; QString &gt;&#160;</td>
+          <td class="paramname"><em>SpeciesGrowthRate</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QList&lt; QString &gt;&#160;</td>
+          <td class="paramname"><em>SpeciesK</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal emitted after user saves Species. This will allow the user to save the current Species data into a .csv file. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">SpeciesName</td><td>: list of species names </td></tr>
+    <tr><td class="paramname">SpeciesGuild</td><td>: list of species guilds </td></tr>
+    <tr><td class="paramname">SpeciesInitialBiomass</td><td>: list of initial biomasses per species </td></tr>
+    <tr><td class="paramname">SpeciesGrowthRate</td><td>: list of growth rates per species </td></tr>
+    <tr><td class="paramname">SpeciesK</td><td>: list of carrying capacities per species </td></tr>
   </table>
   </dd>
 </dl>

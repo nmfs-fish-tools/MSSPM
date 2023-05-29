@@ -9,6 +9,8 @@
 //bool m_TakeLogOfParameters = false;
 
 bool m_ForceStop = false;
+bool m_isRangeJitterRepeatable = false;
+int m_RandomizeSeed = -3;
 //int NLopt_Estimator::m_NLoptIters   = 0;
 int NLopt_Estimator::m_NLoptFcnEvals  = 0;
 int NLopt_Estimator::m_NumObjFcnCalls = 0;
@@ -1047,34 +1049,54 @@ std::cout << "[Info 4] Using seed value of srand_time " << std::endl;
 
 
 void
-NLopt_Estimator::setParameterBounds(nmfStructsQt::ModelDataStruct& NLoptStruct,
+NLopt_Estimator::setParameterBounds(int runNum,
+                                    nmfStructsQt::ModelDataStruct& NLoptStruct,
                                     std::vector<double>& ParameterInitialValues,
                                     std::vector<std::pair<double,double> >& ParameterRanges,
                                     const int& NumEstParameters)
 {
     int NumNonTrivialParameters = 0;
+    double initialValue,lowerValRand,upperValRand,eps,rangeJitterPct;
     std::vector<double> lowerBounds(NumEstParameters);
     std::vector<double> upperBounds(NumEstParameters);
+
+    m_RandomizeSeed = (m_isRangeJitterRepeatable) ? m_RandomizeSeed+3 : -3;
 
 //qDebug() << "---> Num Parameter Bounds: " << NumEstParameters;
 
     // Set parameter bounds for all parameters
+    rangeJitterPct = NLoptStruct.rangeJitter/100.0;
     for (int i=0; i<NumEstParameters; ++i) {
-        lowerBounds[i] = ParameterRanges[i].first;
-        upperBounds[i] = ParameterRanges[i].second;
+        if (rangeJitterPct == 0) {
+            lowerBounds[i] = ParameterRanges[i].first;
+            upperBounds[i] = ParameterRanges[i].second;
+        } else {
+            eps = rangeJitterPct * (ParameterRanges[i].second-ParameterRanges[i].first);
+            lowerValRand = nmfUtils::getRandomNumber(m_RandomizeSeed+0,ParameterRanges[i].first-eps, ParameterRanges[i].first+eps);
+            upperValRand = nmfUtils::getRandomNumber(m_RandomizeSeed+1,ParameterRanges[i].second-eps,ParameterRanges[i].second+eps);
+            lowerBounds[i] = lowerValRand;
+            upperBounds[i] = upperValRand;
+        }
     }
     m_Optimizer.set_lower_bounds(lowerBounds);
     m_Optimizer.set_upper_bounds(upperBounds);
 
     // Set starting points for all parameters
     m_Parameters.clear();
+    runNum *= NumEstParameters;
     for (int i=0; i<NumEstParameters; ++i) {
         if (lowerBounds[i] == upperBounds[i]) {
             m_Parameters.push_back(lowerBounds[i]);            
         } else {
             ++NumNonTrivialParameters;
-            // Initial value should be the user entered initial value and not always the mid-point
-            m_Parameters.push_back(ParameterInitialValues[i]);
+            if (NLoptStruct.useRandomInitialParameters) {
+                initialValue = nmfUtils::getRandomNumber(m_RandomizeSeed+2,lowerBounds[i],upperBounds[i]);
+            } else {
+                initialValue = ParameterInitialValues[i];
+                // if you're jittering the range you should clamp the initialValue
+                nmfUtils::clamp(initialValue,lowerBounds[i],upperBounds[i]);
+            }
+            m_Parameters.push_back(initialValue);
         }
     }
     NLoptStruct.Parameters = m_Parameters;
@@ -1124,6 +1146,8 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
     QDateTime startTime = nmfUtilsQt::getCurrentTime();
 
     m_FixedSeed = NLoptStruct.userFixedSeedVal;
+    m_isRangeJitterRepeatable = NLoptStruct.isRangeJitterRepeatable;
+    m_RandomizeSeed = -3;
 
     m_NLoptFcnEvals  = 0;
     m_NumObjFcnCalls = 0;
@@ -1152,6 +1176,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
         NumMultiRuns = MultiRunLines.size();
     }
 
+    int overAllRun = 0;
     for (int multiRun=0; multiRun<NumMultiRuns; ++multiRun) {
         returnMsg.clear();
         NumSubRuns = 1;
@@ -1195,7 +1220,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                     NLoptStruct.useUserFixedSeedNLopt,
                     NLoptStruct.userFixedSeedVal,
                     NLoptStruct.incrementFixedSeed);
-            setParameterBounds(NLoptStruct,ParameterInitialValues,ParameterRanges,NumEstParameters);
+            setParameterBounds(++overAllRun,NLoptStruct,ParameterInitialValues,ParameterRanges,NumEstParameters);
             setObjectiveFunction(NLoptStruct,MaxOrMin);
             setStoppingCriteria(NLoptStruct);
 
@@ -1206,7 +1231,18 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                 // ******************************************************
                 // *
                 std::cout << "====> Running Optimizer <====" << std::endl;
+                //
+                // Initial parameter values are passed into the optimize command by the
+                // m_Parameters vector and the final estimated values are returned from nlopt
+                // by the m_Parameters vector.
+                //
+                // std::cout << "Initial parameter values: " << std::endl;
+                // for (double val : m_Parameters) {
+                //   std::cout << val << std::endl;
+                // }
+                //
                 returnCode = m_Optimizer.optimize(m_Parameters, fitness);
+                //
                 theReturnCodeStr = returnCodeStr(returnCode);
                 returnMsg        = completedMsg(theReturnCodeStr);
                 if ((theReturnCodeStr != "NLOPT_FTOL_REACHED") &&
@@ -1388,18 +1424,18 @@ NLopt_Estimator::checkParameterRange(
         return;
     }
 
-    if ((parameterValue <= minValue+eps) && (parameterValue >= minValue-eps)) {
-        boundaryWarnings.push_back("(Min Range)       Estimated " + species + " " + parameterName + " value of " + value.str() +
+    if ((parameterValue >= minValue-eps) && (parameterValue <= minValue+eps)) {
+        boundaryWarnings.push_back("(Min Range)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Estimated " + species + " " + parameterName + " value of " + value.str() +
                                    " found within " + pctVal.str() + "% of minimum range value (min,max = " + minMaxVal.str() + ")");
-    } else if ((parameterValue <= maxValue+eps) && (parameterValue >= maxValue-eps)) {
-        boundaryWarnings.push_back("(Max Range)       Estimated " + species + " " + parameterName + " value of " + value.str() +
+    } else if ((parameterValue >= maxValue-eps) && (parameterValue <= maxValue+eps)) {
+        boundaryWarnings.push_back("(Max Range)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Estimated " + species + " " + parameterName + " value of " + value.str() +
                                    " found within " + pctVal.str() + "% of maximum range value (min,max = " + minMaxVal.str() + ")");
     }
-    if ((parameterValue <= parameterInitialValue+eps) && (parameterValue >= parameterInitialValue-eps)) {
-        boundaryWarnings.push_back("(Initial Value)   Estimated " + species + " " + parameterName + " value of " + value.str() +
+    if ((parameterValue >= parameterInitialValue-eps) && (parameterValue <= parameterInitialValue+eps)) {
+        boundaryWarnings.push_back("(Initial Value)&nbsp;&nbsp; Estimated " + species + " " + parameterName + " value of " + value.str() +
                                    " found within " + pctVal.str() + "% of initial value (min,max = " + minMaxVal.str() + ")");
     }
-    if ((parameterValue <= half+eps) && (parameterValue >= half-eps)) {
+    if ((parameterValue >= half-eps) && (parameterValue <= half+eps)) {
         boundaryWarnings.push_back("(Mid-Point Value) Estimated " + species + " " + parameterName + " value of " + value.str() +
                                    " found within " + pctVal.str() + "% of mid-point value of range (min,max = " + minMaxVal.str() + ")");
     }
@@ -1446,6 +1482,7 @@ NLopt_Estimator::checkEstimatedValuesForBoundaryConditions(const nmfStructsQt::M
     bool usedLogScale   = (NLoptDataStruct.LogScale        ==  true);
     int m;
     int offset = 0;
+    int idx;
     int NumSpecies = NLoptDataStruct.NumSpecies;
     int NumGuilds  = NLoptDataStruct.NumGuilds;
     int NumSpeciesOrGuilds = (isAGGPROD) ? NumGuilds : NumSpecies;
@@ -1456,60 +1493,68 @@ NLopt_Estimator::checkEstimatedValuesForBoundaryConditions(const nmfStructsQt::M
 
     // Always check init biomass
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                            initBiomass[i],"initBiomass",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        idx = i % NumSpeciesOrGuilds;
+        checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                            initBiomass[idx],"initBiomass",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
     }
     offset += NumSpeciesOrGuilds;
 
     // Always extract growth rate
     for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                            growthRate[i],"growthRate",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        idx = i % NumSpeciesOrGuilds;
+        checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                            growthRate[idx],"growthRate",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
     }
     offset += NumSpeciesOrGuilds;
 
     // Extract growth rate shape parameters if is logistic
     if (isLogistic) {
         for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                                growthRateShape[i],"growthRateShape",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+            idx = i % NumSpeciesOrGuilds;
+            checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                                growthRateShape[idx],"growthRateShape",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
         }
         offset += NumSpeciesOrGuilds;
     }
 
     // Always extract growth rate covariates
     for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                            growthRateCovariateCoeffs[i],"growthRateCovariateCoeffs",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        idx = i % NumSpeciesOrGuilds;
+        checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                            growthRateCovariateCoeffs[idx],"growthRateCovariateCoeffs",nmfConstantsMSSPM::NotationScientific,boundaryWarnings);
     }
     offset += NumSpeciesOrGuilds;
 
     // Load the carrying capacity vector if it's logistic
     if (isLogistic) {
         for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                                carryingCapacity[i],"carryingCapacity",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+            idx = i % NumSpeciesOrGuilds;
+            checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                                carryingCapacity[idx],"carryingCapacity",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
         }
         offset += NumSpeciesOrGuilds;
     }
 
     if (isLogistic) {
         for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                                carryingCapacityCovariateCoeffs[i],"carryingCapacityCovariateCoeffs",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+            idx = i % NumSpeciesOrGuilds;
+            checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                                carryingCapacityCovariateCoeffs[idx],"carryingCapacityCovariateCoeffs",nmfConstantsMSSPM::NotationScientific,boundaryWarnings);
         }
         offset += NumSpeciesOrGuilds;
     }
 
     if (isCatchability) {
         for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                                catchability[i],"catchability",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+            idx = i % NumSpeciesOrGuilds;
+            checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                                catchability[idx],"catchability",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
         }
         offset += NumSpeciesOrGuilds;
         for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                                catchabilityCovariateCoeffs[i],"catchabilityCovariateCoeffs",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+            idx = i % NumSpeciesOrGuilds;
+            checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                                catchabilityCovariateCoeffs[idx],"catchabilityCovariateCoeffs",nmfConstantsMSSPM::NotationScientific,boundaryWarnings);
         }
         offset += NumSpeciesOrGuilds;
     }
@@ -1595,22 +1640,25 @@ NLopt_Estimator::checkEstimatedValuesForBoundaryConditions(const nmfStructsQt::M
 
     if (isExponent) {
         for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-            checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                                exponent[i],"exponent",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+            idx = i % NumSpeciesOrGuilds;
+            checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                                exponent[idx],"exponent",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
         }
         offset += NumSpeciesOrGuilds;
     }
 
     // Survey Q
     for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                            surveyQ[i],"surveyQ",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        idx = i % NumSpeciesOrGuilds;
+        checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                            surveyQ[idx],"surveyQ",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
     }
     offset += NumSpeciesOrGuilds;
 
     for (int i=offset; i<offset+NumSpeciesOrGuilds; ++i) {
-        checkParameterRange(species[i%NumSpeciesOrGuilds],parameterInitialValues[i],parameterRanges[i],
-                            surveyQCovariateCoeffs[i],"surveyQCovariateCoeffs",nmfConstantsMSSPM::NotationFixed,boundaryWarnings);
+        idx = i % NumSpeciesOrGuilds;
+        checkParameterRange(species[idx],parameterInitialValues[i],parameterRanges[i],
+                            surveyQCovariateCoeffs[idx],"surveyQCovariateCoeffs",nmfConstantsMSSPM::NotationScientific,boundaryWarnings);
     }
     offset += NumSpeciesOrGuilds;
 

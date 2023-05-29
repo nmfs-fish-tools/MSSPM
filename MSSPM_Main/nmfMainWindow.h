@@ -484,6 +484,9 @@ private:
     void clearOutputTables();
     void closeEvent(QCloseEvent *event);
     void completeApplicationInitialization();
+    void copyHPCFile(const QString& srcDir,
+                     const QString& dstDir,
+                     const QString& tableName);
     QString createEstimatedFile(std::string algorithm);
     void createOutputStrMultiRun(
             const std::string& elapsedTime,
@@ -618,6 +621,7 @@ private:
             const int& NumGuilds,
             const int& RunLength,
             const std::string& type);
+    QString getObsBiomassType();
     bool getOutputParameterMatrix(
             const std::string& TableName,
             const bool& useMultiRun,
@@ -1649,6 +1653,10 @@ public slots:
      * @brief Exports the current database to a .sql disk file
      */
     void menu_exportDatabase();
+    /**
+     * @brief Exports the hpc data files needed to run the current estimation on the HPC system
+     */
+    void menu_exportHPCFiles();
 	/**
      * @brief Export all databases to individual .sql disk files
      */

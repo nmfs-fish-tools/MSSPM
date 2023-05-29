@@ -1,10 +1,11 @@
 <map id="MSSPM_GuiOutput/nmfOutputControls.h" name="MSSPM_GuiOutput/nmfOutputControls.h">
-<area shape="rect" id="node1" title="GUI definition for the Control widgets class MSSPM_GuiOutputControls in the Output area." alt="" coords="365,5,582,47"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,95,139,121"/>
-<area shape="rect" id="node3" title=" " alt="" coords="163,95,277,121"/>
-<area shape="rect" id="node4" title=" " alt="" coords="301,95,397,121"/>
-<area shape="rect" id="node5" title=" " alt="" coords="422,95,525,121"/>
-<area shape="rect" id="node6" title=" " alt="" coords="549,95,646,121"/>
-<area shape="rect" id="node7" title=" " alt="" coords="671,95,769,121"/>
-<area shape="rect" id="node8" title=" " alt="" coords="793,95,879,121"/>
+<area shape="rect" id="node1" title="GUI definition for the Control widgets class MSSPM_GuiOutputControls in the Output area." alt="" coords="397,5,600,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,95,99,121"/>
+<area shape="rect" id="node3" title=" " alt="" coords="123,95,221,121"/>
+<area shape="rect" id="node4" title=" " alt="" coords="245,95,368,121"/>
+<area shape="rect" id="node5" title=" " alt="" coords="392,95,483,121"/>
+<area shape="rect" id="node6" title=" " alt="" coords="507,95,615,121"/>
+<area shape="rect" id="node7" title=" " alt="" coords="639,95,731,121"/>
+<area shape="rect" id="node8" title=" " alt="" coords="755,95,837,121"/>
+<area shape="rect" id="node9" title=" " alt="" coords="861,95,984,121"/>
 </map>

@@ -1307,6 +1307,9 @@ nmfSetup_Tab2::createTables(QString databaseName)
         cmd += " EnsembleUsingWhat               varchar(20)  NULL,";
         cmd += " EnsembleUsingValue              int(11)      NULL,";
         cmd += " EnsembleIsUsingPct              int(11)      NULL,";
+        cmd += " EnsembleRandInitParam           varchar(25)  NULL,";
+        cmd += " EnsembleRangeJitter             double       NULL,";
+        cmd += " EnsembleRangeJitterRepeatable   int(11)      NULL,";
         cmd += " EnsembleFile                    varchar(50)  NULL,";
       //cmd += " EnsembleParametersFile          varchar(50)  NULL,";
 

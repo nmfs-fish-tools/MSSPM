@@ -152,6 +152,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ad594095a64031ecd559e7b77fa3aaf6f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_diagnostic___tab1.html#ad594095a64031ecd559e7b77fa3aaf6f">SetChartType</a> (std::string type, std::string method)</td></tr>
 <tr class="memdesc:ad594095a64031ecd559e7b77fa3aaf6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal that sets Output GUI widgets based upon chart type.  <a href="classnmf_diagnostic___tab1.html#ad594095a64031ecd559e7b77fa3aaf6f">More...</a><br /></td></tr>
 <tr class="separator:ad594095a64031ecd559e7b77fa3aaf6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45bdcda715deb0ceb9f5d9975389c385"><td class="memItemLeft" align="right" valign="top"><a id="a45bdcda715deb0ceb9f5d9975389c385"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_diagnostic___tab1.html#a45bdcda715deb0ceb9f5d9975389c385">SetDiagnosticHPCFlag</a> ()</td></tr>
+<tr class="memdesc:a45bdcda715deb0ceb9f5d9975389c385"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signals the main application to set the HPC flag in this class. <br /></td></tr>
+<tr class="separator:a45bdcda715deb0ceb9f5d9975389c385"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4cadc16abc0be2335a6191e9980adb6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_diagnostic___tab1.html#aa4cadc16abc0be2335a6191e9980adb6">SetRetrospectiveAnalysis</a> (bool state)</td></tr>
+<tr class="memdesc:aa4cadc16abc0be2335a6191e9980adb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signals to the main app that user is not running a retrospective analysis.  <a href="classnmf_diagnostic___tab1.html#aa4cadc16abc0be2335a6191e9980adb6">More...</a><br /></td></tr>
+<tr class="separator:aa4cadc16abc0be2335a6191e9980adb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -208,6 +215,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:aec081409f30441638551fff4baccefc7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_diagnostic___tab1.html#aec081409f30441638551fff4baccefc7">setDataStruct</a> (nmfStructsQt::ModelDataStruct &amp;theDataStruct)</td></tr>
 <tr class="memdesc:aec081409f30441638551fff4baccefc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the class data structure variable.  <a href="classnmf_diagnostic___tab1.html#aec081409f30441638551fff4baccefc7">More...</a><br /></td></tr>
 <tr class="separator:aec081409f30441638551fff4baccefc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a839d91b5a69a79f42978940a51d041cb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_diagnostic___tab1.html#a839d91b5a69a79f42978940a51d041cb">setHPCFlag</a> (bool flag)</td></tr>
+<tr class="memdesc:a839d91b5a69a79f42978940a51d041cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the state of the class HPC flag so that the appropriate algorithms will be used to read the output estimated parameter tables.  <a href="classnmf_diagnostic___tab1.html#a839d91b5a69a79f42978940a51d041cb">More...</a><br /></td></tr>
+<tr class="separator:a839d91b5a69a79f42978940a51d041cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bab2fd0f57657ca49500463bf26261c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnmf_diagnostic___tab1.html#a3bab2fd0f57657ca49500463bf26261c">setNumPoints</a> (int numPoints)</td></tr>
 <tr class="memdesc:a3bab2fd0f57657ca49500463bf26261c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the value for number of points for the Number of Diagnostics Points GUI widget.  <a href="classnmf_diagnostic___tab1.html#a3bab2fd0f57657ca49500463bf26261c">More...</a><br /></td></tr>
 <tr class="separator:a3bab2fd0f57657ca49500463bf26261c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -729,6 +739,32 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a id="a839d91b5a69a79f42978940a51d041cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a839d91b5a69a79f42978940a51d041cb">&#9670;&nbsp;</a></span>setHPCFlag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfDiagnostic_Tab1::setHPCFlag </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>flag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the state of the class HPC flag so that the appropriate algorithms will be used to read the output estimated parameter tables. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">flag</td><td>: state of the HPC flag, true if user just loaded an hpc run, false otherwise </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ad7c3777e5d9138055834ae3812925475"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad7c3777e5d9138055834ae3812925475">&#9670;&nbsp;</a></span>setMultiRunRBEnabled()</h2>
 
@@ -812,6 +848,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">numPoints</td><td>: the number of points used in the GUI slider </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa4cadc16abc0be2335a6191e9980adb6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4cadc16abc0be2335a6191e9980adb6">&#9670;&nbsp;</a></span>SetRetrospectiveAnalysis</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nmfDiagnostic_Tab1::SetRetrospectiveAnalysis </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>state</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signals to the main app that user is not running a retrospective analysis. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">state</td><td>: true if running mohn's rho, false otherwise </td></tr>
   </table>
   </dd>
 </dl>

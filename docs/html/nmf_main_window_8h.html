@@ -90,7 +90,10 @@ $(document).ready(function(){initNavTree('nmf_main_window_8h.html',''); initResi
 
 <p>GUI definition for the main <a class="el" href="classnmf_main_window.html" title="The MSSPM Main Window.">nmfMainWindow</a> MSSPM Application class.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;nmfDatabase.h&quot;</code><br />
+<div class="textblock"><code>#include &lt;iomanip&gt;</code><br />
+<code>#include &lt;iostream&gt;</code><br />
+<code>#include &lt;sstream&gt;</code><br />
+<code>#include &quot;nmfDatabase.h&quot;</code><br />
 <code>#include &quot;nmfLogWidget.h&quot;</code><br />
 <code>#include &quot;nmfUtilsStatistics.h&quot;</code><br />
 <code>#include &quot;nmfUtilsStatisticsAveraging.h&quot;</code><br />
@@ -105,6 +108,7 @@ $(document).ready(function(){initNavTree('nmf_main_window_8h.html',''); initResi
 <code>#include &quot;nmfChartSurface.h&quot;</code><br />
 <code>#include &quot;nmfProgressWidget.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="_clear_output_dialog_8h_source.html">ClearOutputDialog.h</a>&quot;</code><br />
+<code>#include &quot;EstimationCompleteDialog.h&quot;</code><br />
 <code>#include &quot;nmfDatabaseConnectDialog.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="nmf_simulated_data_8h_source.html">nmfSimulatedData.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="_simulated_biomass_dialog_8h_source.html">SimulatedBiomassDialog.h</a>&quot;</code><br />
@@ -137,6 +141,8 @@ $(document).ready(function(){initNavTree('nmf_main_window_8h.html',''); initResi
 <code>#include &quot;<a class="el" href="nmf_output_table_widgets_8h_source.html">nmfOutputTableWidgets.h</a>&quot;</code><br />
 <code>#include &quot;nmfViewerWidget.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="_table_names_dialog_8h_source.html">TableNamesDialog.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="_scrolling_text_dialog_8h_source.html">ScrollingTextDialog.h</a>&quot;</code><br />
+<code>#include &quot;ChartSaveDialog.h&quot;</code><br />
 <code>#include &lt;QtDataVisualization&gt;</code><br />
 <code>#include &lt;QDateTime&gt;</code><br />
 <code>#include &lt;QImage&gt;</code><br />
@@ -144,6 +150,11 @@ $(document).ready(function(){initNavTree('nmf_main_window_8h.html',''); initResi
 <code>#include &lt;QPixmap&gt;</code><br />
 <code>#include &lt;QUiLoader&gt;</code><br />
 <code>#include &lt;QGraphicsScene&gt;</code><br />
+<code>#include &lt;QPageLayout&gt;</code><br />
+<code>#include &lt;QPageSize&gt;</code><br />
+<code>#include &lt;QProgressBar&gt;</code><br />
+<code>#include &lt;QPrinter&gt;</code><br />
+<code>#include &lt;QPdfWriter&gt;</code><br />
 <code>#include &quot;REMORA_UI.h&quot;</code><br />
 </div>
 <p><a href="nmf_main_window_8h_source.html">Go to the source code of this file.</a></p>

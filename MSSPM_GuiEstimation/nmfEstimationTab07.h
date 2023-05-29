@@ -161,6 +161,10 @@ class nmfEstimation_Tab7: public QObject
     QLabel*      Estimation_Tab7_BeesDetStoTypeLBL;
     QLabel*      Estimation_Tab7_BeesSetDeterministicLBL;
     QCheckBox*   Estimation_Tab7_AllowConvergedOnlyCB;
+    QComboBox*   Estimation_Tab7_EnsembleRandInitParamCMB;
+    QDoubleSpinBox* Estimation_Tab7_EnsembleRangeJitterDSB;
+    QCheckBox*   Estimation_Tab7_EnsembleRangeJitterRepeatableCB;
+
 
     void activateCheckBox(QCheckBox* cbox,
                            std::pair<bool,bool> state);
@@ -397,6 +401,11 @@ public:
      */
     int getEnsembleNumberOfTotalRuns();
     /**
+     * @brief Get the value of the parameter value range jitter
+     * @return % value of jitter desired for parameter ranges
+     */
+    double getEnsembleRangeJitterValue();
+    /**
      * @brief Gets the ensemble file name with the embedded time stamp
      * @return the timestamped ensemble file name
      */
@@ -414,6 +423,11 @@ public:
      */
     QString getEnsembleUsingBy();
     /**
+     * @brief Boolean that returns if the parameter value range jitter should be repeatable (i.e., deterministic)
+     * @return true if jitter is repeatable, false otherwise
+     */
+    bool isEnsembleRangeJitterRepeatable();
+    /**
      * @brief Gets the state of the log scale checkbox
      * @return true if checked, false if unchecked
      */
@@ -423,6 +437,11 @@ public:
      * @return number of estimated parameters
      */
     int getNumParameters();
+    /**
+     * @brief Get the current value of the RandInitParam combobox
+     * @return Returns the random initial parameter value type: Fixed, Random, or Random Repeatable
+     */
+    QString getEnsembleRandInitParamValue();
     /**
      * @brief Gets the coded enabled/checked state of the estimation run boxes
      * @return Encoded int (0, 1, 10, or 11) signifying enabled/checked state of the estimation run boxes
@@ -516,6 +535,11 @@ public:
      * @return true if Multi-Run, false otherwise
      */
     bool isAMultiRun();
+    /**
+     * @brief Boolean representing if the randomize initial parameters checkbox is checked
+     * @return true if checked, false otherwise
+     */
+    bool isEnsembleRandInitParam();
     /**
      * @brief Returns whether or not the user has chose the "using All" setting
      * @return  true if "using All" selected, false otherwise
@@ -742,7 +766,7 @@ public:
      * @param ResetCheckboxes : boolean designating whether or not an estimation checkbox should be set to it's disabled unchecked state
      * @return Returns true if the user acknowledged the Save
      */
-    bool saveSystem(bool RunChecks,
+    bool saveModel(bool RunChecks,
                     bool ResetCheckboxes);
     /**
      * @brief Sets the algorithm combo box to the passed value

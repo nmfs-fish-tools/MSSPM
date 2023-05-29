@@ -4,12 +4,15 @@ var hierarchy =
     [ "InitSpeciesDataStruct", "struct_init_species_data_struct.html", null ],
     [ "nmfSimulatedData", "classnmf_simulated_data.html", null ],
     [ "QDialog", null, [
+      [ "ChartSaveDialog", "class_chart_save_dialog.html", null ],
       [ "ClearOutputDialog", "class_clear_output_dialog.html", null ],
       [ "EnsembleDialog", "class_ensemble_dialog.html", null ],
+      [ "EstimationCompleteDialog", "class_estimation_complete_dialog.html", null ],
       [ "LoadDlg", "class_load_dlg.html", null ],
       [ "LoadForecastDlg", "class_load_forecast_dlg.html", null ],
       [ "MultiScenarioSaveDlg", "class_multi_scenario_save_dlg.html", null ],
       [ "PreferencesDialog", "class_preferences_dialog.html", null ],
+      [ "ScrollingTextDialog", "class_scrolling_text_dialog.html", null ],
       [ "SimulatedBiomassDialog", "class_simulated_biomass_dialog.html", null ],
       [ "TableNamesDialog", "class_table_names_dialog.html", null ]
     ] ],

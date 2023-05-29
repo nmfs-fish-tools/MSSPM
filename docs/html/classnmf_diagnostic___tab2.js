@@ -2,6 +2,7 @@ var classnmf_diagnostic___tab2 =
 [
     [ "nmfDiagnostic_Tab2", "classnmf_diagnostic___tab2.html#adec018e306cfeec86298070b616d410b", null ],
     [ "~nmfDiagnostic_Tab2", "classnmf_diagnostic___tab2.html#a67678e0f051c9d73eed163aa2090bebd", null ],
+    [ "AllowConvergedOnly", "classnmf_diagnostic___tab2.html#a38ce048c715485985672bb5709c8f32a", null ],
     [ "callback_NumPeelsSB", "classnmf_diagnostic___tab2.html#a12bbd666e896778ab26ae73e30c4f465", null ],
     [ "callback_PeelPositionCMB", "classnmf_diagnostic___tab2.html#a1df0902f6ffabcc86b12fd261e75ac5a", null ],
     [ "callback_RunPB", "classnmf_diagnostic___tab2.html#a0bda7de923cb48d502df5b616a95de67", null ],
@@ -15,12 +16,14 @@ var classnmf_diagnostic___tab2 =
     [ "getStartYearLE", "classnmf_diagnostic___tab2.html#ae27f62b96717c716347978e83ad3b64d", null ],
     [ "isAMohnsRhoRunForMultiRun", "classnmf_diagnostic___tab2.html#a75e9f1083df616f8a8cf23713eb2609e", null ],
     [ "isAMohnsRhoRunForSingleRun", "classnmf_diagnostic___tab2.html#a457e2005366fa3ed1d6a645a6e48b0b9", null ],
+    [ "isPageVisible", "classnmf_diagnostic___tab2.html#a88f6ae6951878df7e2e3a85f94ebaf61", null ],
     [ "loadWidgets", "classnmf_diagnostic___tab2.html#a53b879efc29ac00b7679e0f92c20853c", null ],
     [ "loadWidgets", "classnmf_diagnostic___tab2.html#acddaf96a7d2ccd01176861f9637b440f", null ],
-    [ "RunDiagnosticEstimation", "classnmf_diagnostic___tab2.html#ad8780b2d7cb487d259d42f37fbf92f1f", null ],
     [ "RunDiagnosticEstimationMultiRun", "classnmf_diagnostic___tab2.html#aabf2b427af8371a4c6a9cb44d305604b", null ],
+    [ "RunRetrospectiveAnalysis", "classnmf_diagnostic___tab2.html#a3e075a5b878296b79a315435734ffeff", null ],
     [ "setMohnsRhoForMultiRun", "classnmf_diagnostic___tab2.html#a710fd76e562d54a038086f67cf63b149", null ],
     [ "setMohnsRhoForSingleRun", "classnmf_diagnostic___tab2.html#acb3957cfb5f9bb45e20111a42300e67b", null ],
+    [ "SetRetrospectiveAnalysis", "classnmf_diagnostic___tab2.html#a46a4f3b50d5b31ea1bb1940e8512acce", null ],
     [ "setStartYearLE", "classnmf_diagnostic___tab2.html#aee85e13124f4a41bc067c4a11dd29352", null ],
     [ "setWidgetsDark", "classnmf_diagnostic___tab2.html#accfca7e10d3a07a7261dc3597201b857", null ],
     [ "setWidgetsLight", "classnmf_diagnostic___tab2.html#a22f7574f473bd4cf5b928b2df249ee13", null ]

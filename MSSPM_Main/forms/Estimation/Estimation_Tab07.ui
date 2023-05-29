@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>785</width>
-    <height>985</height>
+    <width>787</width>
+    <height>771</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,9 +45,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
-            <width>743</width>
-            <height>885</height>
+            <y>-172</y>
+            <width>731</width>
+            <height>843</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -3080,6 +3080,186 @@ with the non-assigned bees being assigned to random positions.</string>
                   </item>
                   <item>
                    <spacer name="horizontalSpacer_14">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_13">
+                  <item>
+                   <widget class="QLabel" name="label_2">
+                    <property name="toolTip">
+                     <string>The type of initial parameter value</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The type of initial parameter value</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Initial Parameter Value Type&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This combobox allows the user to select if the initial parameter value type should be given by the value defined by the user (Fixed), a randomized value (Random), or a randomized value that will give the same value every time a multirun is run (Random Repeatable).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Initial Parameter Value Type:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="Estimation_Tab7_EnsembleRandInitParamCMB">
+                    <property name="toolTip">
+                     <string>The type of initial parameter value</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The type of initial parameter value</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Initial Parameter Value Type&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This combobox allows the user to select if the initial parameter value type should be given by the value defined by the user (Fixed) or a randomized value (Random).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>Fixed</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Random</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_21">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Fixed</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>10</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label">
+                    <property name="toolTip">
+                     <string>The amount of randomness added to the parameter ranges</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The amount of randomness added to the parameter ranges</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Parameter Value Range Jitter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This value adds a &lt;span style=&quot; font-family:'Google Sans','Roboto','arial','sans-serif'; font-size:14px; color:#202124; background-color:#ffffff;&quot;&gt;± percent jitter value to the minimum and maximum parameter range values. This initial parameter value is checked, and if need be, clamped to these values in the event it falls outside of the jittered range.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Range Jitter (%):</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="Estimation_Tab7_EnsembleRangeJitterDSB">
+                    <property name="toolTip">
+                     <string>The amount of randomness added to the parameter ranges</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>The amount of randomness added to the parameter ranges</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Parameter Value Range Jitter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This value adds a ± percent jitter value to the minimum and maximum parameter range values. This initial parameter value is checked, and if need be, clamped to these values in the event it falls outside of the jittered range.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_23">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Fixed</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>10</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_3">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>5</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>5</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>}</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_24">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Fixed</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>5</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="Estimation_Tab7_EnsembleRangeJitterRepeatableCB">
+                    <property name="toolTip">
+                     <string>Makes any random initial parameter or range jitter % repeatable</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>Makes any random initial parameter or range jitter % repeatable</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Jitter Repeatable Checkbox&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If checked, this box allows the user to specify that any random initial parameter value and and any randomized parameter range jitter value be repeatable. That is, the user will get the same randomized values every time the multirun is run.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="text">
+                     <string>Repeatable</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_22">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>

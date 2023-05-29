@@ -1,11 +1,14 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" title=" " alt="" coords="5,183,80,209"/>
-<area shape="rect" id="node2" href="$class_clear_output_dialog.html" title="Clear Dialog." alt="" coords="150,5,293,32"/>
-<area shape="rect" id="node3" href="$class_ensemble_dialog.html" title="Dialog containing the Ensemble run parameter values." alt="" coords="157,56,285,83"/>
-<area shape="rect" id="node4" href="$class_load_dlg.html" title="Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4." alt="" coords="184,107,259,133"/>
-<area shape="rect" id="node5" href="$class_load_forecast_dlg.html" title="Dialog to Load a Forecast." alt="" coords="156,157,287,184"/>
-<area shape="rect" id="node6" href="$class_multi_scenario_save_dlg.html" title="Dialog to Save Multiple Forecasts." alt="" coords="139,208,304,235"/>
-<area shape="rect" id="node7" href="$class_preferences_dialog.html" title="Preferences Dialog." alt="" coords="151,259,292,285"/>
-<area shape="rect" id="node8" href="$class_simulated_biomass_dialog.html" title="Dialog that displays user preferences for simulating biomass data." alt="" coords="128,309,315,336"/>
-<area shape="rect" id="node9" href="$class_table_names_dialog.html" title="Dialog that displays the names of all of the tables in the currently loaded database." alt="" coords="149,360,293,387"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,259,75,285"/>
+<area shape="rect" id="node2" href="$class_chart_save_dialog.html" title="This class displays a QDialog and allows the user to do a screen grab of the displayed chart...." alt="" coords="151,5,272,32"/>
+<area shape="rect" id="node3" href="$class_clear_output_dialog.html" title="Clear Dialog." alt="" coords="147,56,276,83"/>
+<area shape="rect" id="node4" href="$class_ensemble_dialog.html" title="Dialog containing the Ensemble run parameter values." alt="" coords="153,107,270,133"/>
+<area shape="rect" id="node5" href="$class_estimation_complete_dialog.html" title="Dialog that displays scrollable text." alt="" coords="123,157,300,184"/>
+<area shape="rect" id="node6" href="$class_load_dlg.html" title="Defines the behavior and callback functionality for the Load Systems Dialog used in Setup Tab page 4." alt="" coords="176,208,247,235"/>
+<area shape="rect" id="node7" href="$class_load_forecast_dlg.html" title="Dialog to Load a Forecast." alt="" coords="151,259,272,285"/>
+<area shape="rect" id="node8" href="$class_multi_scenario_save_dlg.html" title="Dialog to Save Multiple Forecasts." alt="" coords="136,309,287,336"/>
+<area shape="rect" id="node9" href="$class_preferences_dialog.html" title="Preferences Dialog." alt="" coords="147,360,276,387"/>
+<area shape="rect" id="node10" href="$class_scrolling_text_dialog.html" title="Dialog that displays scrollable text." alt="" coords="144,411,279,437"/>
+<area shape="rect" id="node11" href="$class_simulated_biomass_dialog.html" title="Dialog that displays user preferences for simulating biomass data." alt="" coords="127,461,295,488"/>
+<area shape="rect" id="node12" href="$class_table_names_dialog.html" title="Dialog that displays the names of all of the tables in the currently loaded database." alt="" coords="145,512,277,539"/>
 </map>

@@ -1,0 +1,4 @@
+<map id="MSSPM_Main/ScrollingTextDialog.h" name="MSSPM_Main/ScrollingTextDialog.h">
+<area shape="rect" id="node1" title="GUI definition for a generic dialog with just a scrolling text box in it." alt="" coords="21,5,206,47"/>
+<area shape="rect" id="node2" href="$nmf_main_window_8h.html" title="GUI definition for the main nmfMainWindow MSSPM Application class." alt="" coords="5,95,221,121"/>
+</map>

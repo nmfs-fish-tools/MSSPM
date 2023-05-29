@@ -449,6 +449,31 @@ nmfEstimation_Tab6::loadCovariateTable()
 }
 
 bool
+nmfEstimation_Tab6::isCovariateData()
+{
+    int numRows = 0;
+    int numCols = 0;
+    QComboBox* cbox;
+    QStandardItemModel* smodelSP = qobject_cast<QStandardItemModel*>(Estimation_Tab6_SpeciesParameterTV->model());
+    QModelIndex index;
+
+    if (m_smodelSP != nullptr) {
+        numRows = m_smodelSP->rowCount();
+        numCols = m_smodelSP->columnCount();
+        for (int row=0; row<numRows; ++row) {
+            for (int col=0; col<numCols; ++col) {
+                index = smodelSP->index(row,col);
+                cbox  = qobject_cast<QComboBox*>(Estimation_Tab6_SpeciesParameterTV->indexWidget(index));
+                if (! cbox->currentText().isEmpty()) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool
 nmfEstimation_Tab6::loadCovariateAssignmentTable()
 {
     int m=0;

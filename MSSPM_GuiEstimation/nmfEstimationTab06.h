@@ -136,6 +136,11 @@ public:
      */
     std::string getCovariateAlgorithmType();
     /**
+     * @brief Returns boolean denoting if there's covariate data defined for the current model
+     * @return true if there is covariate data for the current model, false otherwise
+     */
+    bool isCovariateData();
+    /**
      * @brief Loads the Covariate Algorithm Type into the 1st Covariate tab
      * @return Returns true if data were loaded successfully; else false
      */

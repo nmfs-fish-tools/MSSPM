@@ -119,6 +119,7 @@
     <addaction name="actionExportDatabase"/>
     <addaction name="actionExportAllDatabases"/>
     <addaction name="separator"/>
+    <addaction name="actionExportHPCFiles"/>
     <addaction name="actionImportHPCFiles"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
@@ -1072,6 +1073,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="toolTip">
     <string>Toggles between Single and HPC runs if both are available</string>
+   </property>
+  </action>
+  <action name="actionExportHPCFiles">
+   <property name="text">
+    <string>Export HPC Files...</string>
+   </property>
+   <property name="toolTip">
+    <string>Export files needed to run Estimation on HPC system</string>
    </property>
   </action>
  </widget>

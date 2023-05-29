@@ -119,6 +119,7 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_MinimizerSetDeterministicCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_MinimizerSetDeterministicCB");
     Estimation_Tab7_EnsembleSetDeterministicCB    = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EnsembleSetDeterministicCB");
     Estimation_Tab7_EnsembleSetSeedIncreasingCB   = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_EnsembleSetSeedIncreasingCB");
+    Estimation_Tab7_EnsembleRandInitParamCMB      = Estimation_Tabs->findChild<QComboBox   *>("Estimation_Tab7_EnsembleRandInitParamCMB");
     Estimation_Tab7_BeesSetDeterministicCB        = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_BeesSetDeterministicCB");
     Estimation_Tab7_AddToReviewPB                 = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_AddToReviewPB");
     Estimation_Tab7_NL_TimeUnitsLockPB            = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_NL_TimeUnitsLockPB");
@@ -128,6 +129,8 @@ nmfEstimation_Tab7::nmfEstimation_Tab7(QTabWidget*  tabs,
     Estimation_Tab7_SeedSB                        = Estimation_Tabs->findChild<QSpinBox    *>("Estimation_Tab7_SeedSB");
     Estimation_Tab7_LoadEstPB                     = Estimation_Tabs->findChild<QPushButton *>("Estimation_Tab7_LoadEstPB");
     Estimation_Tab7_AllowConvergedOnlyCB          = Estimation_Tabs->findChild<QCheckBox   *>("Estimation_Tab7_AllowConvergedOnlyCB");
+    Estimation_Tab7_EnsembleRangeJitterDSB        = Estimation_Tabs->findChild<QDoubleSpinBox *>("Estimation_Tab7_EnsembleRangeJitterDSB");
+    Estimation_Tab7_EnsembleRangeJitterRepeatableCB = Estimation_Tabs->findChild<QCheckBox *>("Estimation_Tab7_EnsembleRangeJitterRepeatableCB");
 
     Estimation_Tab7_AllowConvergedOnlyCB->setChecked(true);
     Estimation_Tab7_AddToReviewPB->setEnabled(false);
@@ -849,6 +852,18 @@ nmfEstimation_Tab7::isAllowConvergedOnly()
 }
 
 bool
+nmfEstimation_Tab7::isEnsembleRandInitParam()
+{
+    return (Estimation_Tab7_EnsembleRandInitParamCMB->currentText() == "Random");
+}
+
+bool
+nmfEstimation_Tab7::isEnsembleRangeJitterRepeatable()
+{
+    return (Estimation_Tab7_EnsembleRangeJitterRepeatableCB->isChecked());
+}
+
+bool
 nmfEstimation_Tab7::isSeedSetToIncrement()
 {
     return Estimation_Tab7_EnsembleSetSeedIncreasingCB->isChecked();
@@ -927,6 +942,18 @@ int
 nmfEstimation_Tab7::getNumSubRuns()
 {
     return Estimation_Tab7_Bees_NumberOfRunsSB->value();
+}
+
+QString
+nmfEstimation_Tab7::getEnsembleRandInitParamValue()
+{
+    return Estimation_Tab7_EnsembleRandInitParamCMB->currentText();
+}
+
+double
+nmfEstimation_Tab7::getEnsembleRangeJitterValue()
+{
+    return Estimation_Tab7_EnsembleRangeJitterDSB->value();
 }
 
 bool
@@ -1315,7 +1342,7 @@ nmfEstimation_Tab7::callback_SavePB()
     }
     createTimeStampedEnsembleFile();
 
-    bool wasSaved = saveSystem(nmfConstantsMSSPM::RunChecks,
+    bool wasSaved = saveModel(nmfConstantsMSSPM::RunChecks,
                                nmfConstantsMSSPM::DontResetCheckboxes);
     if (wasSaved) {
         enableRunButton(true);
@@ -1331,7 +1358,7 @@ nmfEstimation_Tab7::callback_SavePB()
 void
 nmfEstimation_Tab7::callback_SaveSettings()
 {
-    saveSystem(nmfConstantsMSSPM::DontRunChecks,
+    saveModel(nmfConstantsMSSPM::DontRunChecks,
                nmfConstantsMSSPM::ResetCheckboxes);
 }
 
@@ -1367,8 +1394,8 @@ nmfEstimation_Tab7::runBeesCheck(QString& errorMsg)
 }
 
 bool
-nmfEstimation_Tab7::saveSystem(bool RunChecks,
-                               bool ResetCheckboxes)
+nmfEstimation_Tab7::saveModel(bool RunChecks,
+                              bool ResetCheckboxes)
 {
     bool ok;
     bool okToSave = true;
@@ -1656,7 +1683,11 @@ nmfEstimation_Tab7::saveSettingsConfiguration(bool verbose,
             "', EnsembleUsingWhat = '"              + getEnsembleUsingBy().toStdString() +
             "', EnsembleUsingValue = "              + std::to_string(getEnsembleUsingAmountValue()) +
             ",  EnsembleIsUsingPct = "              + std::to_string(isEnsembleUsingPct()) +
-            ",  EnsembleFile = '"                   + m_EnsembleTimeStampedFilename + // getEnsembleFilename() +
+            ",  EnsembleRandInitParam = '"          + getEnsembleRandInitParamValue().toStdString() +
+            "', EnsembleRangeJitter = "             + std::to_string(getEnsembleRangeJitterValue()) +
+            ",  EnsembleRangeJitterRepeatable = "   + std::to_string(isEnsembleRangeJitterRepeatable()) +
+            ",  EnsembleFile = '"                   + m_EnsembleTimeStampedFilename +
+
             "'  WHERE ProjectName = '"              + m_ProjectName +
             "'  AND ModelName = '"                  + currentModelName + "'";
 
@@ -2823,7 +2854,7 @@ nmfEstimation_Tab7::callback_ReloadWidgets()
                   "EstimateCompetitionGuilds","EstimateCompetitionGuildsGuilds","EstimatePredation",
                   "EstimatePredationHandling","EstimatePredationExponent","EstimateSurveyQ",
                   "EnsembleIsBoxChecked","EnsembleAverageAlg","EnsembleAverageBy","EnsembleUsingWhat",
-                  "EnsembleUsingValue","EnsembleIsUsingPct","EnsembleFile"};
+                  "EnsembleUsingValue","EnsembleIsUsingPct","EnsembleRandInitParam","EnsembleRangeJitter","EnsembleRangeJitterRepeatable","EnsembleFile"};
     queryStr   = std::string("SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,") +
                  "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer," +
                  "UseFixedSeedBees,UseFixedSeedMinimizer,LogScale,MinimizerType,ObjectiveCriterion,Scaling,Seed," +
@@ -2837,7 +2868,7 @@ nmfEstimation_Tab7::callback_ReloadWidgets()
                  "EstimateCompetitionGuilds,EstimateCompetitionGuildsGuilds,EstimatePredation," +
                  "EstimatePredationHandling,EstimatePredationExponent,EstimateSurveyQ," +
                  "EnsembleIsBoxChecked,EnsembleAverageAlg,EnsembleAverageBy,EnsembleUsingWhat," +
-                 "EnsembleUsingValue,EnsembleIsUsingPct,EnsembleFile FROM " +
+                 "EnsembleUsingValue,EnsembleIsUsingPct,EnsembleRandInitParam,EnsembleRangeJitter,EnsembleRangeJitterRepeatable,EnsembleFile FROM " +
                   nmfConstantsMSSPM::TableModels +
                  " WHERE ProjectName = '" + m_ProjectName +
                  "' AND ModelName = '"    + m_ModelName   + "'";
@@ -2866,6 +2897,9 @@ nmfEstimation_Tab7::callback_ReloadWidgets()
 
     Estimation_Tab7_LogScaleCB->setChecked(dataMap["LogScale"][0] == "1");
     Estimation_Tab7_SeedSB->setValue(std::stoi(dataMap["Seed"][0]));
+    Estimation_Tab7_EnsembleRandInitParamCMB->setCurrentText(QString::fromStdString(dataMap["EnsembleRandInitParam"][0]));
+    Estimation_Tab7_EnsembleRangeJitterDSB->setValue(std::stod(dataMap["EnsembleRangeJitter"][0]));
+    Estimation_Tab7_EnsembleRangeJitterRepeatableCB->setChecked(dataMap["EnsembleRangeJitterRepeatable"][0] == "1");
 
     // Refresh NLopt widgets
     Estimation_Tab7_NL_StopAfterValueCB->setChecked(dataMap["NLoptUseStopVal"][0] == "1");
@@ -2876,7 +2910,6 @@ nmfEstimation_Tab7::callback_ReloadWidgets()
     Estimation_Tab7_NL_StopAfterIterSB->setValue(std::stoi(dataMap["NLoptStopAfterIter"][0]));
 
     enableRunButton(true);
-
 }
 
 void
@@ -2951,7 +2984,7 @@ nmfEstimation_Tab7::loadWidgets()
                   "EstimateCompetitionGuilds","EstimateCompetitionGuildsGuilds","EstimatePredation",
                   "EstimatePredationHandling","EstimatePredationExponent","EstimateSurveyQ",
                   "EnsembleIsBoxChecked","EnsembleAverageAlg","EnsembleAverageBy","EnsembleUsingWhat",
-                  "EnsembleUsingValue","EnsembleIsUsingPct","EnsembleFile"};
+                  "EnsembleUsingValue","EnsembleIsUsingPct","EnsembleRandInitParam","EnsembleRangeJitter","EnsembleRangeJitterRepeatable","EnsembleFile"};
     queryStr   = std::string("SELECT ProjectName,ModelName,CarryingCapacity,GrowthForm,PredationForm,HarvestForm,WithinGuildCompetitionForm,") +
                  "NumberOfRuns,StartYear,RunLength,TimeStep,Algorithm,Minimizer," +
                  "UseFixedSeedBees,UseFixedSeedMinimizer,LogScale,MinimizerType,ObjectiveCriterion,Scaling,Seed," +
@@ -2965,7 +2998,7 @@ nmfEstimation_Tab7::loadWidgets()
                  "EstimateCompetitionGuilds,EstimateCompetitionGuildsGuilds,EstimatePredation," +
                  "EstimatePredationHandling,EstimatePredationExponent,EstimateSurveyQ," +
                  "EnsembleIsBoxChecked,EnsembleAverageAlg,EnsembleAverageBy,EnsembleUsingWhat," +
-                 "EnsembleUsingValue,EnsembleIsUsingPct,EnsembleFile FROM " +
+                 "EnsembleUsingValue,EnsembleIsUsingPct,EnsembleRandInitParam,EnsembleRangeJitter,EnsembleRangeJitterRepeatable,EnsembleFile FROM " +
                   nmfConstantsMSSPM::TableModels +
                  " WHERE ProjectName = '" + m_ProjectName +
                  "' AND ModelName = '"    + m_ModelName   + "'";
@@ -2977,7 +3010,7 @@ nmfEstimation_Tab7::loadWidgets()
     }
 
 
-    // Move this to a separate function if loading from a modal review...
+    // Move this to a separate function if loading from a model review...
 
 
     // Check the enable-ness of the estimated parameter checkboxes
@@ -3075,6 +3108,10 @@ isEstSurveyQEnabled,isEstSurveyQChecked FROM " +
     Estimation_Tab7_EnsembleAverageByCMB->setCurrentText(QString::fromStdString(dataMap["EnsembleAverageBy"][0]));
     Estimation_Tab7_EnsembleUsingByCMB->setCurrentText(QString::fromStdString(dataMap["EnsembleUsingWhat"][0]));
     Estimation_Tab7_EnsembleUsingAmountSB->setValue(std::stoi(dataMap["EnsembleUsingValue"][0]));
+    Estimation_Tab7_EnsembleRandInitParamCMB->setCurrentText(QString::fromStdString(dataMap["EnsembleRandInitParam"][0]));
+    Estimation_Tab7_EnsembleRangeJitterDSB->setValue(std::stod(dataMap["EnsembleRangeJitter"][0]));
+    Estimation_Tab7_EnsembleRangeJitterRepeatableCB->setChecked(dataMap["EnsembleRangeJitterRepeatable"][0] == "1");
+
     if (dataMap["EnsembleIsUsingPct"][0] == "1") {
         Estimation_Tab7_EnsembleUsingPctPB->setText("%");
     }

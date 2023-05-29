@@ -2,8 +2,10 @@ var annotated_dup =
 [
     [ "Bees_Estimator", "class_bees___estimator.html", "class_bees___estimator" ],
     [ "BeesStats", "class_bees_stats.html", "class_bees_stats" ],
+    [ "ChartSaveDialog", "class_chart_save_dialog.html", "class_chart_save_dialog" ],
     [ "ClearOutputDialog", "class_clear_output_dialog.html", "class_clear_output_dialog" ],
     [ "EnsembleDialog", "class_ensemble_dialog.html", "class_ensemble_dialog" ],
+    [ "EstimationCompleteDialog", "class_estimation_complete_dialog.html", "class_estimation_complete_dialog" ],
     [ "InitSpeciesDataStruct", "struct_init_species_data_struct.html", "struct_init_species_data_struct" ],
     [ "LoadDlg", "class_load_dlg.html", "class_load_dlg" ],
     [ "LoadForecastDlg", "class_load_forecast_dlg.html", "class_load_forecast_dlg" ],
@@ -32,6 +34,7 @@ var annotated_dup =
     [ "nmfSetup_Tab4", "classnmf_setup___tab4.html", "classnmf_setup___tab4" ],
     [ "nmfSimulatedData", "classnmf_simulated_data.html", "classnmf_simulated_data" ],
     [ "PreferencesDialog", "class_preferences_dialog.html", "class_preferences_dialog" ],
+    [ "ScrollingTextDialog", "class_scrolling_text_dialog.html", "class_scrolling_text_dialog" ],
     [ "SimulatedBiomassDialog", "class_simulated_biomass_dialog.html", "class_simulated_biomass_dialog" ],
     [ "TableNamesDialog", "class_table_names_dialog.html", "class_table_names_dialog" ]
 ];

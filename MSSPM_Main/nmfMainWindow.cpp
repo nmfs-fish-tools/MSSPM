@@ -1526,6 +1526,142 @@ nmfMainWindow::menu_screenShotAll()
 }
 
 void
+nmfMainWindow::menu_exportHPCFiles()
+{
+    QString inputFile;
+    QString outputFile;
+    QString hpcDir = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputDataHPCDir));
+    hpcDir = QDir(hpcDir).filePath(QString::fromStdString(m_ModelName));
+
+    QDir pathDir(hpcDir);
+    if (! pathDir.exists()) {
+        pathDir.mkpath(hpcDir);
+    }
+
+    QString msg = "\nThis will export all of the HPC-needed data files to the project's outputData/hpc directory and into the appropriate model's subdirectory.";
+    msg += "\n\nOK to continue?\n";
+    QMessageBox::StandardButton reply =
+            QMessageBox::question(this, tr("HPC Export"), tr(msg.toLatin1()),
+                                  QMessageBox::No|QMessageBox::Yes,
+                                  QMessageBox::Yes);
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
+    // Write out hpc meta data file
+    QString growthForm      = getFormGrowth();
+    QString harvestForm     = getFormHarvest();
+    QString competitionForm = getFormCompetition();
+    QString predationForm   = getFormPredation();
+    QString biomassType     = getObsBiomassType();
+    QString hpcMetaDataFilename = QDir(hpcDir).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameHPCMetaData));
+    QFile file(hpcMetaDataFilename);
+    if (file.open(QIODevice::WriteOnly)) {
+        QTextStream stream(&file);
+        stream << QString::fromStdString(m_ProjectName) << ",";
+        stream << QString::fromStdString(m_ModelName)  << "\n";
+        stream << growthForm << ",";
+        stream << harvestForm << ",";
+        stream << competitionForm << ",";
+        stream << predationForm << "\n";
+        stream << Estimation_Tab7_ptr->getEnsembleRandInitParamValue() << ",";
+        stream << Estimation_Tab7_ptr->getEnsembleRangeJitterValue() << ",";
+        stream << Estimation_Tab7_ptr->isEnsembleRangeJitterRepeatable() << "\n";
+        file.close();
+    }
+
+    //
+    // Copy the appropriate model files to the hpc output directory (hpcDir)
+    QString inputDataDir = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataDir));
+
+    // 1. Always copy Species and Guilds files
+    copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableSpecies));
+    copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableGuilds));
+
+    // 2. Always copy both biomass files (relative and absolute)
+    // copyHPCFile(inputDataDir,hpcDir,"Biomass"+biomassType.toLower()+".csv");
+    copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableBiomassRelative));
+    copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableBiomassAbsolute));
+
+    // 3. Copy Harvest file(s)
+    if (harvestForm == nmfConstantsMSSPM::HarvestCatch) {
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableHarvestCatch));
+    } else if (harvestForm == nmfConstantsMSSPM::HarvestEffort) {
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableHarvestEffort));
+    } else if (harvestForm == nmfConstantsMSSPM::HarvestEffortFitToCatch) {
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableHarvestCatch));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableHarvestEffort));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableFitWeights));
+    }
+
+    // 4. Copy Competition file(s)
+    if (competitionForm == nmfConstantsMSSPM::CompetitionNOK) {
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCompetitionAlpha));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCompetitionAlphaMin));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCompetitionAlphaMax));
+    } else if (competitionForm == nmfConstantsMSSPM::CompetitionMSPROD) {
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCompetitionBetaSpecies));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCompetitionBetaSpeciesMin));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCompetitionBetaSpeciesMax));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCompetitionBetaGuilds));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCompetitionBetaGuildsMin));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCompetitionBetaGuildsMax));
+    }
+
+    // 5. Copy Predation file(s)
+    if (predationForm == nmfConstantsMSSPM::PredationTypeI) {
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationRho));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationRhoMin));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationRhoMax));
+    } else if (predationForm == nmfConstantsMSSPM::PredationTypeII) {
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationRho));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationRhoMin));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationRhoMax));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationHandling));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationHandlingMin));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationHandlingMax));
+    } else if (predationForm == nmfConstantsMSSPM::PredationTypeIII) {
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationRho));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationRhoMin));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationRhoMax));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationHandling));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationHandlingMin));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationHandlingMax));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationExponent));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationExponentMin));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TablePredationExponentMax));
+    }
+
+    // 6. Check for and include covariate data if present
+    if (Estimation_Tab6_ptr->isCovariateData()) {
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCovariate));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCovariate+"_scaled"));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCovariateAssignment));
+        copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges));
+    }
+
+    // Print completed message
+    msg  = "\nExport of MSSPM files for HPC run complete.\n\n";
+    msg += "Please zip the files and secure copy them to your HPC account.\n\nThey're located in:\n\n";
+    msg += hpcDir + "\n";
+    QMessageBox::information(this, tr("Export HPC"), tr(msg.toLatin1()), QMessageBox::Ok);
+}
+
+void
+nmfMainWindow::copyHPCFile(const QString& srcDir,
+                           const QString& dstDir,
+                           const QString& tableName)
+{
+    QString srcFile = QDir(srcDir).filePath(tableName+".csv");
+    QString dstFile = QDir(dstDir).filePath(tableName+".csv");
+    QString msg = srcFile + " to " + dstFile;
+    QFile::remove(dstFile); // if it exists, it must be removed prior to the copy command
+    if (! QFile::copy(srcFile, dstFile)) {
+        m_Logger->logMsg(nmfConstants::Error,"menu_exportHPCFiles: Couldn't copy file " + msg.toStdString());
+    }
+}
+
+void
 nmfMainWindow::menu_importHPCFiles()
 {
     std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling;
@@ -1949,6 +2085,12 @@ nmfMainWindow::getForecastInitialData(
     return true;
 }
 
+QString
+nmfMainWindow::getObsBiomassType()
+{
+    return Setup_Tab4_ptr->getObsBiomassType();
+}
+
 void
 nmfMainWindow::menu_toggleManagerMode()
 {
@@ -2322,7 +2464,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.7.1 ";
+    QString version = "MSSPM v1.7.2 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -3884,6 +4026,8 @@ nmfMainWindow::initConnections()
             this,                                                SLOT(menu_screenMultiShot()));
     connect(m_UI->actionImportDatabase,                          SIGNAL(triggered()),
             this,                                                SLOT(menu_importDatabase()));
+    connect(m_UI->actionExportHPCFiles,                          SIGNAL(triggered()),
+            this,                                                SLOT(menu_exportHPCFiles()));
     connect(m_UI->actionImportHPCFiles,                          SIGNAL(triggered()),
             this,                                                SLOT(menu_importHPCFiles()));
     connect(m_UI->actionExportDatabase,                          SIGNAL(triggered()),
@@ -11849,7 +11993,6 @@ nmfMainWindow::passEstimationChecks(
         }
     }
 
-
     // 4. Check to make sure it's a properly defined multi run
     bool isAMultiRun = isAMultiOrMohnsRhoRun();
     if (isAMultiRun) {
@@ -11863,6 +12006,7 @@ nmfMainWindow::passEstimationChecks(
             QMessageBox::critical(this, "Error", msg, QMessageBox::Ok);
             return false;
         }
+
     }
 
     return true;
@@ -11913,8 +12057,10 @@ nmfMainWindow::callback_RunEstimation(bool showDiagnosticsChart)
     // Disable Monte Carlo Output Widgets
     Output_Controls_ptr->enableBrightnessWidgets(false);
     Output_Controls_ptr->enableControls(false);
+
     callback_InitializeSubRuns(m_DataStruct.MultiRunModelFilename,TotalIndividualRuns);
     m_ProgressWidget->clearRunBoxes();
+
     if (isAMultiRun) {
         m_ProgressWidget->setRunBoxes(1,0,m_DataStruct.NLoptNumberOfRuns);
     }
@@ -15199,6 +15345,9 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.CovariateAlgorithmType = m_DatabasePtr->getCovariateAlgorithmType(m_Logger,m_ProjectName,m_ModelName);
     dataStruct.LogScale            = Estimation_Tab7_ptr->getLogScale();
     dataStruct.allowConvergedOnly  = Estimation_Tab7_ptr->isAllowConvergedOnly();
+    dataStruct.useRandomInitialParameters = Estimation_Tab7_ptr->isEnsembleRandInitParam();
+    dataStruct.rangeJitter = Estimation_Tab7_ptr->getEnsembleRangeJitterValue();
+    dataStruct.isRangeJitterRepeatable = Estimation_Tab7_ptr->isEnsembleRangeJitterRepeatable();
 
     m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
     dataStruct.PreviousUnits = previousUnits;
