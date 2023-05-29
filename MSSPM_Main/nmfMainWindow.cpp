@@ -15345,6 +15345,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.CovariateAlgorithmType = m_DatabasePtr->getCovariateAlgorithmType(m_Logger,m_ProjectName,m_ModelName);
     dataStruct.LogScale            = Estimation_Tab7_ptr->getLogScale();
     dataStruct.allowConvergedOnly  = Estimation_Tab7_ptr->isAllowConvergedOnly();
+
     dataStruct.useRandomInitialParameters = Estimation_Tab7_ptr->isEnsembleRandInitParam();
     dataStruct.rangeJitter = Estimation_Tab7_ptr->getEnsembleRangeJitterValue();
     dataStruct.isRangeJitterRepeatable = Estimation_Tab7_ptr->isEnsembleRangeJitterRepeatable();

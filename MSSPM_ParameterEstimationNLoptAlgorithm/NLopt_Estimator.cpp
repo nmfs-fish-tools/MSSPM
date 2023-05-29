@@ -1256,7 +1256,9 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                 // stop the estimation. There's a hack where the objective function is forced to return
                 // USER_STOPPED_VALUE to notify nlopt that the user wants the estimation to stop. If that
                 // occurs, this check here will return the appropriate message to the user.
-                if (m_Optimizer.get_stopval() == USER_STOPPED_VALUE) {
+                if ((theReturnCodeStr != "NLOPT_FTOL_REACHED") &&
+                    (theReturnCodeStr != "NLOPT_XTOL_REACHED") &&
+                    (m_Optimizer.get_stopval() == USER_STOPPED_VALUE)) {
                     returnCode = nlopt::FORCED_STOP;
                     theReturnCodeStr = returnCodeStr(returnCode);
                     std::cout << "User terminated application" << std::endl;
