@@ -1055,6 +1055,7 @@ NLopt_Estimator::setParameterBounds(int runNum,
                                     std::vector<std::pair<double,double> >& ParameterRanges,
                                     const int& NumEstParameters)
 {
+    bool isMultiRun = (NLoptStruct.NLoptNumberOfRuns > 1) || NLoptStruct.isMohnsRho;
     int NumNonTrivialParameters = 0;
     double initialValue,lowerValRand,upperValRand,eps,rangeJitterPct;
     std::vector<double> lowerBounds(NumEstParameters);
@@ -1067,15 +1068,26 @@ NLopt_Estimator::setParameterBounds(int runNum,
     // Set parameter bounds for all parameters
     rangeJitterPct = NLoptStruct.rangeJitter/100.0;
     for (int i=0; i<NumEstParameters; ++i) {
-        if (rangeJitterPct == 0) {
-            lowerBounds[i] = ParameterRanges[i].first;
-            upperBounds[i] = ParameterRanges[i].second;
-        } else {
+//        if ((rangeJitterPct == 0) || (NLoptStruct.NLoptNumberOfRuns == 1)) {
+//            lowerBounds[i] = ParameterRanges[i].first;
+//            upperBounds[i] = ParameterRanges[i].second;
+//        } else {
+//            eps = rangeJitterPct * (ParameterRanges[i].second-ParameterRanges[i].first);
+//            lowerValRand = nmfUtils::getRandomNumber(m_RandomizeSeed+0,ParameterRanges[i].first-eps, ParameterRanges[i].first+eps);
+//            upperValRand = nmfUtils::getRandomNumber(m_RandomizeSeed+1,ParameterRanges[i].second-eps,ParameterRanges[i].second+eps);
+//            lowerBounds[i] = lowerValRand;
+//            upperBounds[i] = upperValRand;
+//        }
+        if (isMultiRun && (rangeJitterPct != 0)) {
             eps = rangeJitterPct * (ParameterRanges[i].second-ParameterRanges[i].first);
-            lowerValRand = nmfUtils::getRandomNumber(m_RandomizeSeed+0,ParameterRanges[i].first-eps, ParameterRanges[i].first+eps);
-            upperValRand = nmfUtils::getRandomNumber(m_RandomizeSeed+1,ParameterRanges[i].second-eps,ParameterRanges[i].second+eps);
+            lowerValRand   = nmfUtils::getRandomNumber(m_RandomizeSeed+0,ParameterRanges[i].first-eps, ParameterRanges[i].first+eps);
+            upperValRand   = nmfUtils::getRandomNumber(m_RandomizeSeed+1,ParameterRanges[i].second-eps,ParameterRanges[i].second+eps);
+            lowerValRand   = (lowerValRand < 0) ? 0 : lowerValRand;
             lowerBounds[i] = lowerValRand;
             upperBounds[i] = upperValRand;
+        } else {
+            lowerBounds[i] = ParameterRanges[i].first;
+            upperBounds[i] = ParameterRanges[i].second;
         }
     }
     m_Optimizer.set_lower_bounds(lowerBounds);

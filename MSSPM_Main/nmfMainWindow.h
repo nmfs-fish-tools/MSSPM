@@ -902,6 +902,8 @@ private:
                                      boost::numeric::ublas::matrix<double>& HarvestMatrix,
                                      std::vector<double>&                   RandomValues);
     void setCurrentOutputTab(QString outputTab);
+    void setDiagnosticSummaryHelp();
+    void setSummaryStatisticsHelp();
     void setVisibilityToolbarButtons(bool isVisible);
     void setDefaultDockWidgetsVisibility();
     void setNumLines(int numLines);

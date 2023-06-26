@@ -1528,10 +1528,18 @@ nmfMainWindow::menu_screenShotAll()
 void
 nmfMainWindow::menu_exportHPCFiles()
 {
+    std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling;
+    std::string CompetitionForm;
     QString inputFile;
     QString outputFile;
     QString hpcDir = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputDataHPCDir));
     hpcDir = QDir(hpcDir).filePath(QString::fromStdString(m_ModelName));
+
+    m_DatabasePtr->getAlgorithmIdentifiers(
+                this,m_Logger,m_ProjectName,m_ModelName,
+                Algorithm,Minimizer,ObjectiveCriterion,
+                Scaling,CompetitionForm,
+                nmfConstantsMSSPM::DontShowPopupError);
 
     QDir pathDir(hpcDir);
     if (! pathDir.exists()) {
@@ -1558,15 +1566,53 @@ nmfMainWindow::menu_exportHPCFiles()
     QFile file(hpcMetaDataFilename);
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
-        stream << QString::fromStdString(m_ProjectName) << ",";
+
+        // Line 1
+        stream << "\n# Project Name, Model Name\n";
+        stream << QString::fromStdString(m_ProjectName) << ", ";
         stream << QString::fromStdString(m_ModelName)  << "\n";
-        stream << growthForm << ",";
-        stream << harvestForm << ",";
-        stream << competitionForm << ",";
+
+        // Line 2
+        stream << "\n# Growth Form, Harvest Form, Competition Form, Predation Form\n";
+        stream << growthForm << ", ";
+        stream << harvestForm << ", ";
+        stream << competitionForm << ", ";
         stream << predationForm << "\n";
-        stream << Estimation_Tab7_ptr->getEnsembleRandInitParamValue() << ",";
-        stream << Estimation_Tab7_ptr->getEnsembleRangeJitterValue() << ",";
+
+        // Line 3
+        stream << "\n# Algorithm Family, Minimizer, Objective Criterion, Scaling\n";
+        stream << QString::fromStdString(Algorithm) << ", ";
+        stream << QString::fromStdString(Minimizer) << ", ";
+        stream << QString::fromStdString(ObjectiveCriterion) << ", ";
+        stream << QString::fromStdString(Scaling) << "\n";
+
+        // Line 4
+        stream << "\n# Initial Parameter Value type, Range Jitter Value (%), Range Jitter Repeatable boolean\n";
+        stream << Estimation_Tab7_ptr->getEnsembleRandInitParamValue() << ", ";
+        stream << Estimation_Tab7_ptr->getEnsembleRangeJitterValue() << ", ";
         stream << Estimation_Tab7_ptr->isEnsembleRangeJitterRepeatable() << "\n";
+
+        // Line 5
+        stream << "\n# Number of Total Runs, Stop Tolerance, Stop Time (sec)\n";
+        stream << QString::number(Estimation_Tab7_ptr->getEnsembleNumberOfTotalRuns()) << ", ";
+        stream << QString::number(Estimation_Tab7_ptr->getCurrentToleranceStopValue()) << ", ";
+        stream << QString::number(Estimation_Tab7_ptr->getCurrentStopAfterTime()) << "\n";
+
+        // Line 6
+        stream << "\n# Parameter Name, Enabled, Checked, ...\n";
+        std::vector<nmfStructsQt::EstimateRunBox> estimatedRunBoxes = Estimation_Tab7_ptr->getEstimateRunBoxes();
+        for (unsigned i=0; i<estimatedRunBoxes.size(); ++i) {
+            stream << QString::fromStdString(estimatedRunBoxes[i].parameter) << ", ";
+            stream << QString::number(estimatedRunBoxes[i].state.first) << ", ";
+            stream << QString::number(estimatedRunBoxes[i].state.second);
+            if (i < estimatedRunBoxes.size()-1) {
+                stream << ", ";
+            }
+        }
+        stream << "\n";
+
+        //stream << "\n# Parameter Name, Enabled, Checked, ...\n";
+
         file.close();
     }
 
@@ -2464,7 +2510,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.7.2 ";
+    QString version = "MSSPM v1.7.3 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2930,6 +2976,7 @@ nmfMainWindow::setupOutputModelFitSummaryWidgets()
             this,     SLOT(callback_SummaryImportPB()));
 
     m_UI->MSSPMOutputModelFitSummaryTab->setLayout(mainLayt);
+    setSummaryStatisticsHelp();
 }
 
 
@@ -2980,6 +3027,7 @@ nmfMainWindow::setupOutputDiagnosticSummaryWidgets()
             this,     SLOT(callback_SummaryImportDiagnosticPB()));
 
     m_UI->MSSPMOutputDiagnosticSummaryTab->setLayout(mainLayt);
+    setDiagnosticSummaryHelp();
 }
 
 
@@ -8309,7 +8357,11 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
 
     // This causes all GUIs to reload because it toggles the significant digits
     restoreSigDigState(isSigDigChecked);
+}
 
+void
+nmfMainWindow::setSummaryStatisticsHelp()
+{
     QString msg = "";
     msg += "<pre>";
     msg += "<strong><center>Summary Statistics Formulae</center></strong>";
@@ -8332,6 +8384,8 @@ nmfMainWindow::callback_UpdateSummaryStatistics()
     msg += "<br>and   E = Estimated Biomass";
     msg += "</pre>";
     SummaryTV->setWhatsThis(msg);
+    SummaryGB->setWhatsThis(msg);
+    m_UI->MSSPMOutputModelFitSummaryTab->setWhatsThis(msg);
     SummaryTV->setToolTip("For a detailed description of these statistics,\nclick the WhatsThis? icon and click over the table.");
     SummaryTV->setStatusTip("For a detailed description of these statistics,\nclick the WhatsThis? icon and click over the table.");
 }
@@ -8532,7 +8586,11 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
     DiagnosticSummaryTV->resizeColumnsToContents();
     saveSummaryDiagnosticTable(smodel,FieldNames);
     restoreSigDigState(isSigDigChecked);
+}
 
+void
+nmfMainWindow::setDiagnosticSummaryHelp()
+{
     QString msg = "";
     msg += "<pre>";
     msg += "<strong><center>Diagnostic Summary Statistics Formulae</center></strong>";
@@ -8545,6 +8603,8 @@ nmfMainWindow::updateDiagnosticSummaryStatistics()
     DiagnosticSummaryTV->setWhatsThis(msg);
     DiagnosticSummaryTV->setToolTip("For a detailed description of these statistics,\nclick the WhatsThis? icon and click over the table.");
     DiagnosticSummaryTV->setStatusTip("For a detailed description of these statistics,\nclick the WhatsThis? icon and click over the table.");
+    DiagnosticSummaryGB->setWhatsThis(msg);
+    m_UI->MSSPMOutputDiagnosticSummaryTab->setWhatsThis(msg);
 }
 
 void
@@ -9110,9 +9170,9 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
         }
     }
 
-    // What if biomass is missing?????
+    // Missing biomass has been saved as nmfConstantsMSSPM::NoData
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-        for (int time=1; time<=RunLength; ++time) { // Skip over first year due to lack of observed data for that year
+        for (int time=0; time<=RunLength; ++time) { // Skip over first year due to lack of observed data for that year
             observed.push_back(ObservedBiomass(time,species));
         }
     }
@@ -9120,14 +9180,18 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     // Calculate the meanObserved from the observed
     m = 0;
     int count;
+    double obsBiomass;
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
         meanVal = 0;
         count = 0;
-        for (int time=1; time<=RunLength; ++time) { // Skip over first year due to lack of observed data for that year
-            meanVal += ObservedBiomass(time,species);
-            ++count;
+        for (int time=0; time<=RunLength; ++time) { // Skip over first year due to lack of observed data for that year
+            obsBiomass = ObservedBiomass(time,species);
+            if (obsBiomass != nmfConstantsMSSPM::NoData) {
+                meanVal += obsBiomass;
+                ++count;
+            }
         }
-        meanVal /= count; // (RunLength+1 -1); // -1 to kip over first year
+        meanVal /= count;
         meanObserved.push_back(meanVal);
     }
 
@@ -9152,7 +9216,7 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     }
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
         meanVal = 0;
-        for (int time=1; time<=RunLength; ++time) {
+        for (int time=0; time<=RunLength; ++time) {
             val = OutputBiomass[0](time,species);
             estimated.push_back(val);
             meanVal += val;
@@ -9187,15 +9251,15 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     }
 
     // Skip first year due to lack of observed data for that year
-    int RunLengthNoFirstYear = RunLength -1;
+//    int RunLengthNoFirstYear = RunLength -1;
 
     // Calculate SSresiduals
     nmfUtilsStatistics::calculateSSResiduals(
-                NumSpeciesOrGuilds,RunLengthNoFirstYear,observed,estimated,SSresiduals);
+                NumSpeciesOrGuilds,RunLength,observed,estimated,SSresiduals);
 
     // Calculate SSdeviations
     ok = nmfUtilsStatistics::calculateSSDeviations(
-                NumSpeciesOrGuilds,RunLengthNoFirstYear,estimated,meanObserved,SSdeviations);
+                NumSpeciesOrGuilds,RunLength,observed,estimated,meanObserved,SSdeviations);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] calculateSummaryStatistics: Found SSdeviation of 0.");
         return false;
@@ -9214,12 +9278,12 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
 //qDebug() << "num params: " << NumberOfParameters;
 //qDebug() << "RunLengthNoFirstYear: " << RunLengthNoFirstYear;
     nmfUtilsStatistics::calculateAIC(NumSpeciesOrGuilds,NumEstParametersPerSpecies,
-                                     RunLengthNoFirstYear,SSresiduals,aic);
+                                     RunLength,SSresiduals,aic);
     nmfUtilsStatistics::calculateAIC(NumSpeciesOrGuilds,NumEstParametersPerSpecies,
-                                     RunLengthNoFirstYear,SSresiduals,aicModel);
+                                     RunLength,SSresiduals,aicModel);
 
     // Calculate r
-    ok = nmfUtilsStatistics::calculateR(NumSpeciesOrGuilds,RunLengthNoFirstYear,
+    ok = nmfUtilsStatistics::calculateR(NumSpeciesOrGuilds,RunLength,
                                         meanObserved,meanEstimated,
                                         observed,estimated,correlationCoeff);
     if (! ok) {
@@ -9228,14 +9292,14 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     }
 
     // Calculate RMSE
-    ok = nmfUtilsStatistics::calculateRMSE(NumSpeciesOrGuilds,RunLengthNoFirstYear,observed,estimated,rmse);
+    ok = nmfUtilsStatistics::calculateRMSE(NumSpeciesOrGuilds,RunLength,observed,estimated,rmse);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 3] calculateSummaryStatistics: Found 0 RunLength in RMSE calculations.");
         return false;
     }
 
     // Calculate RI
-    ok = nmfUtilsStatistics::calculateRI(NumSpeciesOrGuilds,RunLengthNoFirstYear,observed,estimated,ri);
+    ok = nmfUtilsStatistics::calculateRI(NumSpeciesOrGuilds,RunLength,observed,estimated,ri);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 4] calculateSummaryStatistics: Found 0 RunLength in RI calculations.");
         return false;
@@ -9245,10 +9309,10 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     nmfUtilsStatistics::calculateAE(NumSpeciesOrGuilds,meanObserved,meanEstimated,ae);
 
     // Calculate AAE
-    nmfUtilsStatistics::calculateAAE(NumSpeciesOrGuilds,RunLengthNoFirstYear,observed,estimated,aae);
+    nmfUtilsStatistics::calculateAAE(NumSpeciesOrGuilds,RunLength,observed,estimated,aae);
 
     // Calculate MEF
-    ok = nmfUtilsStatistics::calculateMEF(NumSpeciesOrGuilds,RunLengthNoFirstYear,meanObserved,observed,estimated,mef);
+    ok = nmfUtilsStatistics::calculateMEF(NumSpeciesOrGuilds,RunLength,meanObserved,observed,estimated,mef);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 5] calculateSummaryStatistics: Found 0 denominator in MEF calculations.");
         //return false;
