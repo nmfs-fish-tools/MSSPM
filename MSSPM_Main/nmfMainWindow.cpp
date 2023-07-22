@@ -1163,7 +1163,7 @@ nmfMainWindow::getOutputBiomass(const int &NumLines,
                 }
 //              val = std::stod(dataMapCalculatedBiomass["Value"][m++]);
                 val = QString::fromStdString(dataMapCalculatedBiomass["Value"][m++]).toDouble();
-                TmpMatrix(time,species) = QString::number(val,'f',6).toDouble();
+                TmpMatrix(time,species) = QString::number(val,'f',nmfConstantsMSSPM::Output_Precision).toDouble();
             }
         }
         OutputBiomass.push_back(TmpMatrix);
@@ -1579,6 +1579,8 @@ nmfMainWindow::menu_exportHPCFiles()
         stream << competitionForm << ", ";
         stream << predationForm << "\n";
 
+        // Line 3...RSK add boolean (0/1) for using covariate data
+
         // Line 3
         stream << "\n# Algorithm Family, Minimizer, Objective Criterion, Scaling\n";
         stream << QString::fromStdString(Algorithm) << ", ";
@@ -1757,16 +1759,19 @@ nmfMainWindow::menu_importHPCFiles()
     progress.setModal(true);
     progress.setMinimumDuration(0);
     progress.show();
+    progress.setValue(0);
+    progress.setLabelText("\nRemoving current HPC run...");
 
     // Delete all similar, existing HPC runs
     std::string cmd = "DELETE FROM " + nmfConstantsMSSPM::TableOutputBiomassEnsemble +
             " WHERE ProjectName = '"       + m_ProjectName +
             "' AND ModelName = '"          + m_ModelName +
-            "' AND Label = '"              + Label +
+//          "' AND Label = '"              + Label +
             "' AND Algorithm = '"          + Algorithm +
             "' AND Minimizer = '"          + Minimizer +
             "' AND ObjectiveCriterion = '" + ObjectiveCriterion +
             "' AND Scaling = '"            + Scaling + "'";
+std::cout << "before import: " << cmd << std::endl;
     std::string errorMsg = m_DatabasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 1] menu_importHPCFiles: DELETE error: " + errorMsg);
@@ -1777,6 +1782,7 @@ nmfMainWindow::menu_importHPCFiles()
     }
 
     // Load the HPC runs
+    progress.setLabelText("\nLoading HPC data files...");
     for (int run=0; run<numHPCFiles; ++run) {
         progress.setValue(run);
         if (progress.wasCanceled()) {
@@ -2510,7 +2516,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.7.3 ";
+    QString version = "MSSPM v1.7.4 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2744,6 +2750,7 @@ nmfMainWindow::optimizeTables(
     progress.repaint();
     qApp->processEvents();
     for (std::string tableName : tablesToOptimize) {
+        progress.setLabelText("\nOptimizing table: "+QString::fromStdString(tableName));
         progress.setValue(tableNum++);
         if (progress.wasCanceled()) {
             break;
@@ -3482,10 +3489,24 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
     if (reply == QMessageBox::No)
         return;
 
-    this->setCursor(Qt::WaitCursor);
+    QProgressDialog progress("\nClearing tables...", "Cancel", 0, TableNames.size(), this);
+    progress.setAttribute(Qt::WA_DeleteOnClose, true);
+    progress.setModal(true);
+    progress.setMinimumDuration(0);
+    progress.show();
+    progress.update();
+    progress.repaint();
+//    this->setCursor(Qt::WaitCursor);
+    int inc = 0;
     for (std::string tableName : TableNames) {
-        cmd = "DELETE FROM " + tableName;
+        progress.setLabelText("\nClearing table: "+QString::fromStdString(tableName));
+        progress.setValue(++inc);
+        if (progress.wasCanceled()) {
+            break;
+        }
+        cmd = "TRUNCATE TABLE " + tableName;
         if (Algorithm != "All") {
+            cmd = "DELETE FROM " + tableName;
             cmd += " WHERE ProjectName = '" + m_ProjectName +
                    "' AND ModelName = '"    + m_ModelName   +
                    "' AND Algorithm = '"    + Algorithm     + "'";
@@ -3509,7 +3530,8 @@ nmfMainWindow::clearOutputData(std::string Algorithm,
             return;
         }
     }
-    this->setCursor(Qt::ArrowCursor);
+    progress.close();
+//    this->setCursor(Qt::ArrowCursor);
     QMessageBox::information(this, "Success", "\nOutput table(s) cleared successfully.", QMessageBox::Ok);
 
     // Set to Run Estimation tab
@@ -5573,7 +5595,6 @@ nmfMainWindow::updateOutputTables(
             } else if (tableName == nmfConstantsMSSPM::TableOutputSurveyQCovariateCoeffs) {
                 if (! EstSurveyQCovariateCoeffs.empty()) {
                     value = EstSurveyQCovariateCoeffs[SpeciesNum++];
-//std::cout << "SurveyQCovCoeff: " << value << std::endl;
                 }
             } else if (tableName == nmfConstantsMSSPM::TableOutputMSYBiomass) {
                 if (! EstCarryingCapacities.empty()) {
@@ -5609,7 +5630,7 @@ nmfMainWindow::updateOutputTables(
                     "','" + Scaling +
                     "',"  + isAggProd +
                     ",'"  + SpeciesList[i].toStdString() +
-                    "',"  + QString::number(value,'f',16).toStdString() + "),";
+                    "',"  + QString::number(value,'f',20).toStdString() + "),";
         }
 
         cmd = cmd.substr(0,cmd.size()-1);
@@ -5684,7 +5705,8 @@ nmfMainWindow::updateOutputTables(
                        "',"  + isAggProd +
                        ",'"  + SpeciesList[row].toStdString() +
                        "','" + SpeciesList[col].toStdString() +
-                       "',"  + val.str() + "),";
+//                     "',"  + val.str() + "),";
+                       "',"  + QString::number(value,'f',20).toStdString() + "),";
             }
         }
 
@@ -6255,7 +6277,7 @@ nmfMainWindow::updateObservedBiomassAndEstSurveyQTable(
                     "','" + Species.toStdString() +
                     "',"  + std::to_string(year) +
 //                  ","   + std::to_string(quotient) + "),";
-                    ","   + QString::number(quotient,'f',6).toStdString() + "),";
+                    ","   + QString::number(quotient,'f',nmfConstantsMSSPM::Output_Precision).toStdString() + "),";
         }
     }
 
@@ -7157,7 +7179,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                         "',"  + isAggProdStr +
                         ",'"  + SpeciesList[species].toStdString() +
                         "',"  + std::to_string(time) +
-                        ","   + QString::number(EstBiomassSpecies(time,species),'f',6).toStdString() + "),";
+                        ","   + QString::number(EstBiomassSpecies(time,species),'f',nmfConstantsMSSPM::Output_Precision).toStdString() + "),";
             }
         }
     } else {
@@ -7183,7 +7205,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                             "',"  + isAggProdStr +
                             ",'"  + SpeciesList[species].toStdString() +
                             "',"  + std::to_string(time) +
-                            ","   + QString::number(EstBiomassSpecies(time,species),'f',6).toStdString() + "),";
+                            ","   + QString::number(EstBiomassSpecies(time,species),'f',nmfConstantsMSSPM::Output_Precision).toStdString() + "),";
                 }
             }
         } else {
@@ -7206,7 +7228,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
                             "',"  + isAggProdStr +
                             ",'"  + SpeciesList[species].toStdString() +
                             "',"  + std::to_string(time) +
-                            ","   + QString::number(EstBiomassSpecies(time,species),'f',6).toStdString() + "),";
+                            ","   + QString::number(EstBiomassSpecies(time,species),'f',nmfConstantsMSSPM::Output_Precision).toStdString() + "),";
                 }
             }
         }
@@ -13417,9 +13439,8 @@ nmfMainWindow::getEstimatedParameters(
          std::vector<double>& EstFMSY)
 {
     if (m_UsingHPCFiles) {
-        QString hpcFile;
         QString hpcDir  = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataHPCDir));
-        hpcFile = QDir(hpcDir).filePath(QString::fromStdString("InitBiomass_"+std::to_string(run)+".csv"));
+        QString hpcFile = QDir(hpcDir).filePath(QString::fromStdString("InitBiomass_"+std::to_string(run)+".csv"));
         nmfUtilsQt::loadFromHPCFile(hpcFile,EstInitBiomass);
         hpcFile = QDir(hpcDir).filePath(QString::fromStdString("GrowthRate_"+std::to_string(run)+".csv"));
         nmfUtilsQt::loadFromHPCFile(hpcFile,EstGrowthRates);
@@ -13777,7 +13798,7 @@ nmfMainWindow::updateBiomassEnsembleTable(
                     "',"  + isAggProd +
                     ",'"  + SpeciesList[species].toStdString() +
                     "',"  + std::to_string(time) +
-                    ","   + QString::number(CalculatedBiomass(time,species),'f',6).toStdString() + "),";
+                    ","   + QString::number(CalculatedBiomass(time,species),'f',nmfConstantsMSSPM::Output_Precision).toStdString() + "),";
         }
     }
     cmd = cmd.substr(0,cmd.size()-1);
@@ -14596,7 +14617,7 @@ std::cout << "updateOutputBiomassTableWithAverageBiomass " << std::endl;
                     "','" + Scaling +
                     "','" + SpeciesList[species].toStdString() +
                     "',"  + std::to_string(time) +
-                    ","   + QString::number(AveragedBiomass(time,species),'f',6).toStdString() + "),";
+                    ","   + QString::number(AveragedBiomass(time,species),'f',nmfConstantsMSSPM::Output_Precision).toStdString() + "),";
         }
     }
     cmd = cmd.substr(0,cmd.size()-1);
@@ -15167,13 +15188,17 @@ nmfMainWindow::loadCovariateRanges(
             }
             if (CoeffName == "GrowthRate") {
                 growthRateCovariateRanges[SpeName] = covariateRangeStruct;
+//std::cout << "r cov range[" << SpeName << "]: " << covariateRangeStruct.CoeffValue << "," << covariateRangeStruct.CoeffMinValue << "," << covariateRangeStruct.CoeffMaxValue << std::endl;
             } else if (CoeffName == "CarryingCapacity") {
                 carryingCapacityCovariateRanges[SpeName] = covariateRangeStruct;
+//std::cout << "K cov range[" << SpeName << "]: " << covariateRangeStruct.CoeffValue << "," << covariateRangeStruct.CoeffMinValue << "," << covariateRangeStruct.CoeffMaxValue << std::endl;
             } else if (CoeffName == "Catchability") {
                 catchabilityCovariateRanges[SpeName] = covariateRangeStruct;
+//std::cout << "q cov range[" << SpeName << "]: " << covariateRangeStruct.CoeffValue << "," << covariateRangeStruct.CoeffMinValue << "," << covariateRangeStruct.CoeffMaxValue << std::endl;
             } else if (CoeffName == "SurveyQ") {
                 foundSurveyQ = true;
                 surveyQCovariateRanges[SpeName] = covariateRangeStruct;
+//std::cout << "Q cov range[" << SpeName << "]: " << covariateRangeStruct.CoeffValue << "," << covariateRangeStruct.CoeffMinValue << "," << covariateRangeStruct.CoeffMaxValue << std::endl;
             }
         }
     }
@@ -15183,6 +15208,8 @@ nmfMainWindow::loadCovariateRanges(
         covariateRangeStruct.CoeffMinValue = 0;
         covariateRangeStruct.CoeffMaxValue = 0;
         surveyQCovariateRanges["SurveyQ"] = covariateRangeStruct;
+//std::cout << "Q0 cov range[SurveyQ]: " << covariateRangeStruct.CoeffValue << "," << covariateRangeStruct.CoeffMinValue << "," << covariateRangeStruct.CoeffMaxValue << std::endl;
+
     }
 
     return true;
@@ -15211,6 +15238,9 @@ nmfMainWindow::loadCovariateAssignment(std::map<std::string,std::string>& covari
         parameterName = dataMap["ParameterName"][m];
         covariateName = dataMap["CovariateName"][m++];
         covariateAssignment[speciesName+","+parameterName] = covariateName;
+//std::cout << "covariateAssignemtn[" << speciesName+","+parameterName <<
+//           "] = >" << covariateName << "<" << std::endl;
+
     }
 
     return true;
@@ -15249,6 +15279,7 @@ nmfMainWindow::loadCovariateMap(std::map<std::string,std::vector<double> >& cova
                     covariateTimeSeries.push_back(0); // nmfConstantsMSSPM::NoData);
                 } else {
                     covariateTimeSeries.push_back(std::stod(dataMap["ValueScaled"][m]));
+//std::cout << "cov time series[" << time << "]: " << dataMap["ValueScaled"][m] << std::endl;
                 }
                 ++m;
             }
@@ -15407,7 +15438,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.MinimizerAlgorithm  = Estimation_Tab7_ptr->getCurrentMinimizer();
     dataStruct.ScalingAlgorithm    = Estimation_Tab7_ptr->getCurrentScaling();
     dataStruct.CovariateAlgorithmType = m_DatabasePtr->getCovariateAlgorithmType(m_Logger,m_ProjectName,m_ModelName);
-    dataStruct.LogScale            = Estimation_Tab7_ptr->getLogScale();
+    dataStruct.ParameterLogScale            = Estimation_Tab7_ptr->getLogScale();
     dataStruct.allowConvergedOnly  = Estimation_Tab7_ptr->isAllowConvergedOnly();
 
     dataStruct.useRandomInitialParameters = Estimation_Tab7_ptr->isEnsembleRandInitParam();

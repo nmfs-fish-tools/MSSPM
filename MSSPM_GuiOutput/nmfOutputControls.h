@@ -402,6 +402,11 @@ public:
      */
     void setCurrentSpecies(QString species);
     /**
+     * @brief Sets the output scale value
+     * @param scale : output scale QString value
+     */
+    void setOutputScale(QString scale);
+    /**
      * @brief Sets the Group type to one of: System, Guild:, or Species:
      * @param grouptType : the group type desired
      */

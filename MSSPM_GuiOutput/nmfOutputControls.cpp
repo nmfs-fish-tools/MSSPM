@@ -1876,6 +1876,12 @@ nmfOutputControls::setOutputParameters2d3dPB(QString chartType)
 }
 
 void
+nmfOutputControls::setOutputScale(QString scale)
+{
+    OutputScaleCMB->setCurrentText(scale);
+}
+
+void
 nmfOutputControls::setOutputSpecies(QString species)
 {
     OutputSpeciesCMB->setCurrentText(species);
@@ -1969,7 +1975,11 @@ nmfOutputControls::readSettings()
     if (OutputLineBrightnessSL != nullptr) {
         OutputLineBrightnessSL->setValue(settings->value("Brightness",33).toString().toInt());
     }
-
+    setOutputScale(settings->value("Scale","Default").toString());
+    OutputSpeciesCB->setChecked(settings->value("SpeciesCB",false).toBool());
+    OutputTitleCB->setChecked(settings->value("TitleCB",false).toBool());
+    OutputLegendCB->setChecked(settings->value("LegendCB",false).toBool());
+    OutputGridLinesCB->setChecked(settings->value("GridLinesCB",false).toBool());
     settings->endGroup();
 
     delete settings;
@@ -2023,7 +2033,12 @@ nmfOutputControls::saveSettings()
     QSettings* settings = nmfUtilsQt::createSettings(nmfConstantsMSSPM::SettingsDirWindows,"MSSPM");
 
     settings->beginGroup("Output");
-    settings->setValue("Brightness",            OutputLineBrightnessSL->value());
+    settings->setValue("Brightness", OutputLineBrightnessSL->value());
+    settings->setValue("Scale",      getOutputScale());
+    settings->setValue("SpeciesCB",  isCheckedOutputSpecies());
+    settings->setValue("TitleCB",    isCheckedOutputTitle());
+    settings->setValue("LegendCB",   isCheckedOutputLegend());
+    settings->setValue("GridLinesCB",isCheckedOutputGridLines());
     settings->endGroup();
 
     delete settings;
