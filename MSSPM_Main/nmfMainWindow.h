@@ -233,8 +233,8 @@ private:
     boost::numeric::ublas::matrix<double> m_biomassMatrix;
     boost::numeric::ublas::matrix<double> m_parameterMatrix;
     int                                   m_NumRuns;
-    nmfUtilsStatisticsAveraging*          m_AveragedData;
-    nmfUtilsStatisticsMohnsRho*           m_MohnsRhoData;
+    nmfUtilsStatisticsAveraging           m_AveragedData;
+    nmfUtilsStatisticsMohnsRho            m_MohnsRhoData;
     boost::numeric::ublas::matrix<double> m_AveBiomass;
     std::vector<boost::numeric::ublas::matrix<double> > m_OutputBiomassEnsemble;
     bool                                  m_IsMultiRun;
@@ -439,6 +439,7 @@ private:
                                     const int&          NumSpecies,
                                     const bool&         isMohnsRho);
     bool calculateSummaryStatisticsStruct(
+            const bool&         skipFirstYear,
             const bool&         isAggProd,
             const std::string&  Algorithm,
             const std::string&  Minimizer,

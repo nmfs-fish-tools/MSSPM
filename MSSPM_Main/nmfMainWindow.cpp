@@ -88,10 +88,8 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     m_PreferencesWidget = nullptr;
     m_TableNamesWidget  = nullptr;
     m_ViewerWidget      = nullptr;
-    m_AveragedData      = nullptr;
-    m_MohnsRhoData      = nullptr;
-
-
+    m_AveragedData = nmfUtilsStatisticsAveraging();
+    m_MohnsRhoData = nmfUtilsStatisticsMohnsRho();
 
     callback_SetRetrospectiveAnalysis(false);
 
@@ -221,8 +219,6 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
 
 nmfMainWindow::~nmfMainWindow()
 {
-    delete m_AveragedData;
-    delete m_MohnsRhoData;
     delete m_UI;
     if (m_MModeViewerWidget != nullptr) {
         delete m_MModeViewerWidget;
@@ -3421,8 +3417,6 @@ nmfMainWindow::menu_clearSpecificOutputData()
 void
 nmfMainWindow::menu_clearOutputData()
 {
-    delete m_AveragedData;
-    delete m_MohnsRhoData;
     m_AveBiomass.clear();
     nmfUtils::initialize(m_AveBiomass,0,0);
     m_OutputBiomassEnsemble.clear();
@@ -7046,7 +7040,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
 //    }
 
     harvestFormPtr->modifyHarvestTypeDueToFitToCatch(Forecast_Tab2_ptr->getHarvestType().toStdString());
-    for (int time = 1; time<NumYears; time++) {
+    for (int time=1; time<NumYears; time++) {
         timeMinus1 = time-1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species)
         {
@@ -9100,6 +9094,7 @@ nmfMainWindow::getObservedBiomassTableName(bool isPreEstimation)
 
 bool
 nmfMainWindow::calculateSummaryStatisticsStruct(
+        const bool&         skipFirstYear,
         const bool&         isAggProd,
         const std::string&  Algorithm,
         const std::string&  Minimizer,
@@ -9116,6 +9111,8 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     int m;
     double val;
     double aicModel;
+    int NumYears;
+    int FirstYear = (skipFirstYear) ? 1 : 0;
     std::vector<double> SSresiduals;
     std::vector<double> SSdeviations;
     std::vector<double> SStotals;
@@ -9133,8 +9130,8 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     std::vector<double> mohnsRhoEstimatedBiomass;
     std::vector<double> meanObserved;
     std::vector<double> meanEstimated;
-    std::vector<double> observed;
-    std::vector<double> estimated;
+//    std::vector<double> observed;
+//    std::vector<double> estimated;
     std::vector<double> correlationCoeff;
     std::vector<double> EstGrowthRate;
     std::vector<double> EstGrowthRateShape;
@@ -9161,6 +9158,7 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     QList<std::vector<double> > stats;
     std::vector<std::string> aveOrSum;
     double total;
+    std::string errorMsg;
 
 //  m_Logger->logMsg(nmfConstants::Normal,"calculateSummaryStatisticsStruct from: "+m_ModelName);
 
@@ -9191,22 +9189,24 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
             return false;
         }
     }
+    NumYears = ObservedBiomass.size1();
 
     // Missing biomass has been saved as nmfConstantsMSSPM::NoData
-    for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-        for (int time=0; time<=RunLength; ++time) { // Skip over first year due to lack of observed data for that year
-            observed.push_back(ObservedBiomass(time,species));
-        }
-    }
+//    for (int species=0; species<NumSpeciesOrGuilds; ++species) {
+//        for (int time=FirstYear; time<NumYears; ++time) {
+//            observed.push_back(ObservedBiomass(time,species));
+//        }
+//    }
 
     // Calculate the meanObserved from the observed
     m = 0;
     int count;
     double obsBiomass;
+    int NumRows = ObservedBiomass.size2();
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
         meanVal = 0;
         count = 0;
-        for (int time=0; time<=RunLength; ++time) { // Skip over first year due to lack of observed data for that year
+        for (int time=FirstYear; time<NumRows; ++time) {
             obsBiomass = ObservedBiomass(time,species);
             if (obsBiomass != nmfConstantsMSSPM::NoData) {
                 meanVal += obsBiomass;
@@ -9238,12 +9238,12 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     }
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
         meanVal = 0;
-        for (int time=0; time<=RunLength; ++time) {
+        for (int time=FirstYear; time<NumYears; ++time) {
             val = OutputBiomass[0](time,species);
-            estimated.push_back(val);
+//            estimated.push_back(val);
             meanVal += val;
         }
-        meanVal /= (RunLength+1 -1); // -1 to skip over first year
+        meanVal /= NumYears;
         meanEstimated.push_back(meanVal);
     }
 
@@ -9272,56 +9272,64 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
         }
     }
 
-    // Skip first year due to lack of observed data for that year
-//    int RunLengthNoFirstYear = RunLength -1;
-
     // Calculate SSresiduals
-    nmfUtilsStatistics::calculateSSResiduals(
-                NumSpeciesOrGuilds,RunLength,observed,estimated,SSresiduals);
+    nmfUtilsStatistics::calculateSSResiduals(ObservedBiomass,OutputBiomass[0],
+            skipFirstYear,SSresiduals,errorMsg);
+    if (! errorMsg.empty()) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg);
+        return false;
+    }
 
     // Calculate SSdeviations
-    ok = nmfUtilsStatistics::calculateSSDeviations(
-                NumSpeciesOrGuilds,RunLength,observed,estimated,meanObserved,SSdeviations);
-    if (! ok) {
-        m_Logger->logMsg(nmfConstants::Error,"[Error 1] calculateSummaryStatistics: Found SSdeviation of 0.");
+    ok = nmfUtilsStatistics::calculateSSDeviations(ObservedBiomass,OutputBiomass[0],meanObserved,
+            skipFirstYear,SSdeviations,errorMsg);
+    if (! errorMsg.empty()) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg);
         return false;
     }
 
     // Calculate SStotals
-    nmfUtilsStatistics::calculateSSTotals(
-                NumSpeciesOrGuilds,SSdeviations,SSresiduals,SStotals);
+    nmfUtilsStatistics::calculateSSTotals(SSdeviations,SSresiduals,SStotals,errorMsg);
+    if (! errorMsg.empty()) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg);
+        return false;
+    }
 
     // Calculate rsquared (between 0.2 and 0.3 good....closer to 1.0 the better)
-    nmfUtilsStatistics::calculateRSquared(NumSpeciesOrGuilds,SSdeviations,
-                                          SStotals,rsquared);
+    nmfUtilsStatistics::calculateRSquared(SSdeviations,SStotals,rsquared,errorMsg);
+    if (! errorMsg.empty()) {
+        m_Logger->logMsg(nmfConstants::Error,errorMsg);
+        return false;
+    }
 
     // AIC - Akaike Information Criterion (for Least Squares in this case)
-    // AIC = n * ln(sigma^2) + 2K; K = number of estimated parameters, n = number of observations (i.e., RunLength), sigma^2 = SSresiduals/n
-//qDebug() << "num params: " << NumberOfParameters;
-//qDebug() << "RunLengthNoFirstYear: " << RunLengthNoFirstYear;
-    nmfUtilsStatistics::calculateAIC(NumSpeciesOrGuilds,NumEstParametersPerSpecies,
-                                     RunLength,SSresiduals,aic);
-    nmfUtilsStatistics::calculateAIC(NumSpeciesOrGuilds,NumEstParametersPerSpecies,
-                                     RunLength,SSresiduals,aicModel);
+    // AIC = n * ln(sigma^2) + 2K
+    //   K = number of estimated parameters
+    //   n = number of observations (i.e., NumYears)
+    //   sigma^2 = SSresiduals/n
+    nmfUtilsStatistics::calculateAIC(NumEstParametersPerSpecies,NumYears-FirstYear,SSresiduals,aic);
+    nmfUtilsStatistics::calculateAIC(NumEstParametersPerSpecies,NumYears-FirstYear,SSresiduals,aicModel);
 
     // Calculate r
-    ok = nmfUtilsStatistics::calculateR(NumSpeciesOrGuilds,RunLength,
+    ok = nmfUtilsStatistics::calculateR(skipFirstYear,NumSpeciesOrGuilds,
                                         meanObserved,meanEstimated,
-                                        observed,estimated,correlationCoeff);
+                                        ObservedBiomass,OutputBiomass[0],correlationCoeff);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 2] calculateSummaryStatistics: Divide by 0 error in r calculations.");
         return false;
     }
 
     // Calculate RMSE
-    ok = nmfUtilsStatistics::calculateRMSE(NumSpeciesOrGuilds,RunLength,observed,estimated,rmse);
+    ok = nmfUtilsStatistics::calculateRMSE(skipFirstYear,NumSpeciesOrGuilds,
+                                           ObservedBiomass,OutputBiomass[0],rmse);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 3] calculateSummaryStatistics: Found 0 RunLength in RMSE calculations.");
         return false;
     }
 
     // Calculate RI
-    ok = nmfUtilsStatistics::calculateRI(NumSpeciesOrGuilds,RunLength,observed,estimated,ri);
+    ok = nmfUtilsStatistics::calculateRI(skipFirstYear,NumSpeciesOrGuilds,
+                                         ObservedBiomass,OutputBiomass[0],ri);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 4] calculateSummaryStatistics: Found 0 RunLength in RI calculations.");
         return false;
@@ -9331,10 +9339,12 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     nmfUtilsStatistics::calculateAE(NumSpeciesOrGuilds,meanObserved,meanEstimated,ae);
 
     // Calculate AAE
-    nmfUtilsStatistics::calculateAAE(NumSpeciesOrGuilds,RunLength,observed,estimated,aae);
+    nmfUtilsStatistics::calculateAAE(skipFirstYear,NumSpeciesOrGuilds,
+                                     ObservedBiomass,OutputBiomass[0],aae);
 
     // Calculate MEF
-    ok = nmfUtilsStatistics::calculateMEF(NumSpeciesOrGuilds,RunLength,meanObserved,observed,estimated,mef);
+    ok = nmfUtilsStatistics::calculateMEF(skipFirstYear,NumSpeciesOrGuilds,meanObserved,
+                                          ObservedBiomass,OutputBiomass[0],mef);
     if (! ok) {
         m_Logger->logMsg(nmfConstants::Error,"[Error 5] calculateSummaryStatistics: Found 0 denominator in MEF calculations.");
         //return false;
@@ -9399,7 +9409,7 @@ nmfMainWindow::calculateSummaryStatisticsStructMohnsRho(StatStruct& statStruct)
 
     QStringList EstParamNames = Setup_Tab4_ptr->getEstimatedParameterNames();
 
-    if (! m_MohnsRhoData->calculateMohnsRhoVectors(EstParamNames,MohnsRhoVectors)) {
+    if (! m_MohnsRhoData.calculateMohnsRhoVectors(EstParamNames,MohnsRhoVectors)) {
         m_Logger->logMsg(nmfConstants::Error,"nmfMainWindow::calculateSummaryStatisticsStructMohnsRho: Error with estimated parameter");
         return false;
     }
@@ -9462,9 +9472,11 @@ nmfMainWindow::calculateSummaryStatistics(QStandardItemModel* smodel,
                 return;
             }
         }
-        ok = calculateSummaryStatisticsStruct(isAggProd,theAlgorithm,Minimizer,ObjectiveCriterion,Scaling,
-                                              RunLength,NumSpeciesOrGuilds,isMohnsRhoBool,itsAMultiRun,
-                                              EstimatedBiomass,statStruct);
+        ok = calculateSummaryStatisticsStruct(
+                    nmfConstantsMSSPM::SkipFirstYear,
+                    isAggProd,theAlgorithm,Minimizer,ObjectiveCriterion,Scaling,
+                    RunLength,NumSpeciesOrGuilds,isMohnsRhoBool,itsAMultiRun,
+                    EstimatedBiomass,statStruct);
     }
     if (ok) {
         loadSummaryStatisticsModel(NumSpeciesOrGuilds,smodel,isMohnsRhoBool,statStruct);
@@ -13296,7 +13308,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
         nmfUtilsQt::convertMatrix(Catch, previousUnits[tableHarvestCatch], "mt", nmfConstantsMSSPM::ConvertAll);
     }
 
-    for (int time = 1; time <= RunLength; time++) {
+    for (int time=1; time <= RunLength; time++) {
         timeMinus1 = time-1;
         for (int species=0; species<NumSpeciesOrGuilds; ++species)
         {
@@ -13569,7 +13581,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
 
     if (run == 0) {
         std::cout << "*** Creating AveragedData object" << std::endl;
-        m_AveragedData = new nmfUtilsStatisticsAveraging();
+        m_AveragedData = nmfUtilsStatisticsAveraging(); // clear struct
     }
 
     if (! m_DatabasePtr->getModelFormData(
@@ -13665,10 +13677,12 @@ nmfMainWindow::callback_SubRunCompleted(int run,
 
     // Check to see if HPC run and store Summary Statistics accordingly
     getCurrentAlgorithmIdentifiers(Algorithm,Minimizer,ObjectiveCriterion,Scaling);
-    if (! calculateSummaryStatisticsStruct(isAggProd,
-                                           Algorithm,Minimizer,ObjectiveCriterion,Scaling,
-                                           RunLength,NumSpecies,false,true,
-                                           CalculatedBiomass,statStruct)) {
+    if (! calculateSummaryStatisticsStruct(
+                nmfConstantsMSSPM::SkipFirstYear,isAggProd,
+                Algorithm,Minimizer,ObjectiveCriterion,Scaling,
+                RunLength,NumSpecies,false,true,
+                CalculatedBiomass,statStruct))
+    {
         return;
     }
 
@@ -13678,7 +13692,7 @@ nmfMainWindow::callback_SubRunCompleted(int run,
     // Enter values defined per species
     m_NumRuns = run+1;
 
-    m_AveragedData->loadEstData(fitness,
+    m_AveragedData.loadEstData(fitness,
                                 statStruct.aic,
                                 EstInitBiomass,
                                 EstGrowthRates,
@@ -13704,13 +13718,10 @@ nmfMainWindow::callback_SubRunCompleted(int run,
 
     if (isAMohnsRho) {
         if (run == 0) {
-            if (m_MohnsRhoData != nullptr) {
-                delete m_MohnsRhoData;
-            }
-            m_MohnsRhoData = new nmfUtilsStatisticsMohnsRho();
+            m_MohnsRhoData = nmfUtilsStatisticsMohnsRho();
         }
         Peel = run;
-        m_MohnsRhoData->loadEstData(Peel,
+        m_MohnsRhoData.loadEstData(Peel,
                                     EstInitBiomass,
                                     EstGrowthRates,
                                     EstGrowthRateShape,
@@ -13977,8 +13988,8 @@ nmfMainWindow::calculateAveragedParametersAndUpdateOutputTables()
     bool isUsingAll = Estimation_Tab7_ptr->isEnsembleUsingAll();
     bool isPercent  = Estimation_Tab7_ptr->isEnsembleUsingPct();
 
-    m_AveragedData->calculateAverage(usingTopValue,isUsingAll,isPercent,aveAlgorithm);
-    m_AveragedData->getAveData(Fitness,
+    m_AveragedData.calculateAverage(usingTopValue,isUsingAll,isPercent,aveAlgorithm);
+    m_AveragedData.getAveData(Fitness,
                                AveInitBiomass,
                                AveGrowthRates,
                                AveGrowthRateShape,

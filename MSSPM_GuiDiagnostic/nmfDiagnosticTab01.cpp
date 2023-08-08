@@ -885,7 +885,8 @@ nmfDiagnostic_Tab1::calculateFitness(const int& Species,
 
     if (Algorithm == "Bees Algorithm") {
         std::unique_ptr<BeesAlgorithm> beesAlg = std::make_unique<BeesAlgorithm>(m_DataStruct,nmfConstantsMSSPM::VerboseOff);
-        fitness = beesAlg->evaluateObjectiveFunction(parameters);
+        fitness = beesAlg->evaluateObjectiveFunction(
+                    nmfConstantsMSSPM::SkipFirstYear,parameters);
     } else if (Algorithm == "NLopt Algorithm") {
         std::unique_ptr<NLopt_Estimator> nlopt_Estimator = std::make_unique<NLopt_Estimator>();
         nlopt_Estimator->initialize(m_DataStruct);

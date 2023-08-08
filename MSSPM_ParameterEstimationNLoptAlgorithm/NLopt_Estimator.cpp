@@ -629,7 +629,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         surveyQTerm = nmfUtils::applyCovariate(nullptr,covariateAlgorithmType,surveyQVal,
                                                surveyQCovariateCoeffs[species],
                                                surveyQCovariate(0,species));
-        for (int time=1; time<NumYears; ++time) {
+        for (int time=0; time<NumYears; ++time) {
             if (ObsBiomassBySpeciesOrGuilds(time,species) != nmfConstantsMSSPM::NoData) {
                 ObsBiomassBySpeciesOrGuilds(time,species) /= surveyQTerm;
             }
@@ -639,7 +639,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     // If user has selected Effort, set ObsCatch = catchability * Effort * ObsBiomass
     if (isEffortFitToCatch || isEffort) {
         nmfUtils::initialize(ObsCatch,NumYears,NumSpeciesOrGuilds);
-        for (int time=1; time<NumYears; ++time) {
+        for (int time=0; time<NumYears; ++time) {
             for (int species=0; species<NumSpeciesOrGuilds; ++species) {
                 ObsCatch(time,species) = catchability[species]*Effort(time,species)*ObsBiomassBySpeciesOrGuilds(time,species);
             }
@@ -821,10 +821,10 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         nmfUtils::removeFirstRow(EstCatch,                           EstCatchTrimmed);
         nmfUtils::removeFirstRow(EstBiomassSpecies,                  EstBiomassTrimmed);
     } else {                   // use the rescaled data
-        nmfUtils::removeFirstRow(ObsCatchRescaled,                   ObsCatchTrimmed);
-        nmfUtils::removeFirstRow(ObsBiomassBySpeciesOrGuildsRescaled,ObsBiomassTrimmed);
-        nmfUtils::removeFirstRow(EstCatchRescaled,                   EstCatchTrimmed);
-        nmfUtils::removeFirstRow(EstBiomassRescaled,                 EstBiomassTrimmed);
+//        nmfUtils::removeFirstRow(ObsCatchRescaled,                   ObsCatchTrimmed);
+//        nmfUtils::removeFirstRow(ObsBiomassBySpeciesOrGuildsRescaled,ObsBiomassTrimmed);
+//        nmfUtils::removeFirstRow(EstCatchRescaled,                   EstCatchTrimmed);
+//        nmfUtils::removeFirstRow(EstBiomassRescaled,                 EstBiomassTrimmed);
     }
 
 //nmfUtils::printMatrix("ObsCatchTrimmed",  ObsCatchTrimmed,  10,10);
@@ -849,10 +849,16 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                     NLoptDataStruct.FitWeights);
     } else if (NLoptDataStruct.ObjectiveCriterion == "Maximum Likelihood") {
         fitness =  nmfUtilsStatistics::calculateMaximumLikelihoodNoRescale(
+                    nmfConstantsMSSPM::SkipFirstYear,
                     NLoptDataStruct.SpeciesWeights,isEffortFitToCatch,
-                    ObsCatchTrimmed, ObsBiomassTrimmed,
-                    EstCatchTrimmed, EstBiomassTrimmed,
+                    ObsCatchRescaled, ObsBiomassBySpeciesOrGuildsRescaled,
+                    EstCatchRescaled, EstBiomassRescaled,
                     NLoptDataStruct.FitWeights);
+//        fitness =  nmfUtilsStatistics::calculateMaximumLikelihoodNoRescale(
+//                    NLoptDataStruct.SpeciesWeights,isEffortFitToCatch,
+//                    ObsCatchTrimmed, ObsBiomassTrimmed,
+//                    EstCatchTrimmed, EstBiomassTrimmed,
+//                    NLoptDataStruct.FitWeights);
     }
     incrementObjectiveFunctionCounter(MSSPMName,fitness,NLoptDataStruct);
 
@@ -1084,25 +1090,23 @@ NLopt_Estimator::setParameterBounds(int runNum,
 
     m_RandomizeSeed = (m_isRangeJitterRepeatable) ? m_RandomizeSeed+3 : -3;
 
+    if (m_isRangeJitterRepeatable) {
+        srand(runNum);
+    } else {
+        srand((unsigned)time(NULL)+runNum);
+    }
+
 //qDebug() << "---> Num Parameter Bounds: " << NumEstParameters;
 
     // Set parameter bounds for all parameters
     rangeJitterPct = NLoptStruct.rangeJitter/100.0;
     for (int i=0; i<NumEstParameters; ++i) {
-//        if ((rangeJitterPct == 0) || (NLoptStruct.NLoptNumberOfRuns == 1)) {
-//            lowerBounds[i] = ParameterRanges[i].first;
-//            upperBounds[i] = ParameterRanges[i].second;
-//        } else {
-//            eps = rangeJitterPct * (ParameterRanges[i].second-ParameterRanges[i].first);
-//            lowerValRand = nmfUtils::getRandomNumber(m_RandomizeSeed+0,ParameterRanges[i].first-eps, ParameterRanges[i].first+eps);
-//            upperValRand = nmfUtils::getRandomNumber(m_RandomizeSeed+1,ParameterRanges[i].second-eps,ParameterRanges[i].second+eps);
-//            lowerBounds[i] = lowerValRand;
-//            upperBounds[i] = upperValRand;
-//        }
         if (isMultiRun && (rangeJitterPct != 0)) {
             eps = rangeJitterPct * (ParameterRanges[i].second-ParameterRanges[i].first);
-            lowerValRand   = nmfUtils::getRandomNumber(m_RandomizeSeed+0,ParameterRanges[i].first-eps, ParameterRanges[i].first+eps);
-            upperValRand   = nmfUtils::getRandomNumber(m_RandomizeSeed+1,ParameterRanges[i].second-eps,ParameterRanges[i].second+eps);
+            //lowerValRand   = nmfUtils::getRandomNumber(m_RandomizeSeed+0,ParameterRanges[i].first-eps, ParameterRanges[i].first+eps);
+            //upperValRand   = nmfUtils::getRandomNumber(m_RandomizeSeed+1,ParameterRanges[i].second-eps,ParameterRanges[i].second+eps);
+            lowerValRand   = nmfUtils::getRandomNumber(ParameterRanges[i].first-eps, ParameterRanges[i].first+eps);
+            upperValRand   = nmfUtils::getRandomNumber(ParameterRanges[i].second-eps,ParameterRanges[i].second+eps);
             lowerValRand   = (lowerValRand < 0) ? 0 : lowerValRand;
             lowerBounds[i] = lowerValRand;
             upperBounds[i] = upperValRand;
