@@ -9159,6 +9159,8 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     std::vector<std::string> aveOrSum;
     double total;
     std::string errorMsg;
+    std::vector<int> NumYearsWithBlanks = {};
+    int TotalNumYearsWithBlanks = 0;
 
 //  m_Logger->logMsg(nmfConstants::Normal,"calculateSummaryStatisticsStruct from: "+m_ModelName);
 
@@ -9202,17 +9204,19 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     m = 0;
     int count;
     double obsBiomass;
-    int NumRows = ObservedBiomass.size2();
+    //int NumRows = ObservedBiomass.size1();
     for (int species=0; species<NumSpeciesOrGuilds; ++species) {
         meanVal = 0;
         count = 0;
-        for (int time=FirstYear; time<NumRows; ++time) {
+        for (int time=FirstYear; time<NumYears; ++time) {
             obsBiomass = ObservedBiomass(time,species);
             if (obsBiomass != nmfConstantsMSSPM::NoData) {
                 meanVal += obsBiomass;
                 ++count;
             }
         }
+        NumYearsWithBlanks.push_back(count);
+        TotalNumYearsWithBlanks += count;
         meanVal /= count;
         meanObserved.push_back(meanVal);
     }
@@ -9240,7 +9244,6 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
         meanVal = 0;
         for (int time=FirstYear; time<NumYears; ++time) {
             val = OutputBiomass[0](time,species);
-//            estimated.push_back(val);
             meanVal += val;
         }
         meanVal /= NumYears;
@@ -9307,8 +9310,12 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     //   K = number of estimated parameters
     //   n = number of observations (i.e., NumYears)
     //   sigma^2 = SSresiduals/n
-    nmfUtilsStatistics::calculateAIC(NumEstParametersPerSpecies,NumYears-FirstYear,SSresiduals,aic);
-    nmfUtilsStatistics::calculateAIC(NumEstParametersPerSpecies,NumYears-FirstYear,SSresiduals,aicModel);
+    nmfUtilsStatistics::calculateAIC(
+          //  NumEstParametersPerSpecies,NumYears-FirstYear,SSresiduals,aic);
+              NumEstParametersPerSpecies,NumYearsWithBlanks,SSresiduals,aic);
+    nmfUtilsStatistics::calculateAIC(
+          //  NumEstParametersPerSpecies,NumYears-FirstYear,SSresiduals,aicModel);
+              NumEstParametersPerSpecies,TotalNumYearsWithBlanks,SSresiduals,aicModel);
 
     // Calculate r
     ok = nmfUtilsStatistics::calculateR(skipFirstYear,NumSpeciesOrGuilds,
@@ -9356,11 +9363,13 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
              rmse, ri, ae,
              aae, mef};
     aveOrSum = {"sum","sum",
-                "sum","ave",
+                "sum","rsq",
                 "ave","aic",
                 "ave","ave","ave",
                 "ave","ave"};
 
+    double SumSSdev=0;
+    double SumSStot=1;
     for (int statNum=0; statNum<stats.size(); ++statNum) {
         total = 0;
         // Load the species stats
@@ -9370,6 +9379,8 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
                 total += val;
             }
         }
+        if (statNum == 1) {SumSSdev = total;}
+        if (statNum == 2) {SumSStot = total;}
 
         // Load the model (i.e., last column) stats, either summed, averaged, or a special case for aic
         if (aveOrSum[statNum] == "sum") {
@@ -9378,6 +9389,8 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
             stats[statNum].push_back(total/NumSpeciesOrGuilds);
         } else if (aveOrSum[statNum] == "aic") {
             stats[statNum].push_back(aicModel);
+        } else if (aveOrSum[statNum] == "rsq") {
+            stats[statNum].push_back(SumSSdev/SumSStot);
         }
     }
 
@@ -9515,7 +9528,7 @@ nmfMainWindow::loadSummaryStatisticsModel(
                 item = new QStandardItem(QString::number(value,'G',4));
             } else {
                 valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                            value,m_NumSignificantDigits,3);
+                            value,m_NumSignificantDigits,6);
                 item = new QStandardItem(valueWithComma);
             }
             item->setTextAlignment(Qt::AlignCenter);
@@ -9528,7 +9541,7 @@ nmfMainWindow::loadSummaryStatisticsModel(
             item = new QStandardItem(QString::number(value,'G',4));
         } else {
             valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                        value,m_NumSignificantDigits,3);
+                        value,m_NumSignificantDigits,6);
             item = new QStandardItem(valueWithComma);
         }
         item->setTextAlignment(Qt::AlignCenter);
