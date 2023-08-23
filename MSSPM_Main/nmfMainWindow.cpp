@@ -9108,7 +9108,6 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
         StatStruct&         statStruct)
 {
     bool ok;
-    int m;
     double val;
     double aicModel;
     int NumYears;
@@ -9130,8 +9129,6 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     std::vector<double> mohnsRhoEstimatedBiomass;
     std::vector<double> meanObserved;
     std::vector<double> meanEstimated;
-//    std::vector<double> observed;
-//    std::vector<double> estimated;
     std::vector<double> correlationCoeff;
     std::vector<double> EstGrowthRate;
     std::vector<double> EstGrowthRateShape;
@@ -9143,7 +9140,6 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     std::vector<std::string> fields;
     std::map<std::string, std::vector<std::string> > dataMap;
     std::string queryStr;
-    double meanVal;
     int NumEstParametersTotal = 0;
     int NumEstParametersTotalNonTrivial = 0;
     std::vector<int> NumEstParametersPerSpecies;
@@ -9159,8 +9155,8 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     std::vector<std::string> aveOrSum;
     double total;
     std::string errorMsg;
-    std::vector<int> NumYearsWithBlanks = {};
-    int TotalNumYearsWithBlanks = 0;
+    std::vector<int> NumYearsWithoutBlanksPerCol = {};
+    int TotalNumYearsWithoutBlanks = 0;
 
 //  m_Logger->logMsg(nmfConstants::Normal,"calculateSummaryStatisticsStruct from: "+m_ModelName);
 
@@ -9193,36 +9189,14 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     }
     NumYears = ObservedBiomass.size1();
 
-    // Missing biomass has been saved as nmfConstantsMSSPM::NoData
-//    for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-//        for (int time=FirstYear; time<NumYears; ++time) {
-//            observed.push_back(ObservedBiomass(time,species));
-//        }
-//    }
-
     // Calculate the meanObserved from the observed
-    m = 0;
-    int count;
-    double obsBiomass;
-    //int NumRows = ObservedBiomass.size1();
-    for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-        meanVal = 0;
-        count = 0;
-        for (int time=FirstYear; time<NumYears; ++time) {
-            obsBiomass = ObservedBiomass(time,species);
-            if (obsBiomass != nmfConstantsMSSPM::NoData) {
-                meanVal += obsBiomass;
-                ++count;
-            }
-        }
-        NumYearsWithBlanks.push_back(count);
-        TotalNumYearsWithBlanks += count;
-        meanVal /= count;
-        meanObserved.push_back(meanVal);
+    if (! nmfUtilsStatistics::calculateMeanOmittingBlanks(FirstYear,ObservedBiomass,
+                                                    NumYearsWithoutBlanksPerCol,TotalNumYearsWithoutBlanks,meanObserved)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfUtilsStatistics::calculateMeanOmittingBlanks divide by zero found, check matrix dimensions");
+        return false;
     }
 
     // Get estimated data
-    m = 0;
     int NumLines = 1;
     Algorithms.push_back(Algorithm);
     Minimizers.push_back(Minimizer);
@@ -9240,14 +9214,11 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
             return false;
         }
     }
-    for (int species=0; species<NumSpeciesOrGuilds; ++species) {
-        meanVal = 0;
-        for (int time=FirstYear; time<NumYears; ++time) {
-            val = OutputBiomass[0](time,species);
-            meanVal += val;
-        }
-        meanVal /= NumYears;
-        meanEstimated.push_back(meanVal);
+
+    // Calculate the mean estimated values by species
+    if (! nmfUtilsStatistics::calculateMean(FirstYear,OutputBiomass[0],meanEstimated)) {
+        m_Logger->logMsg(nmfConstants::Error,"nmfUtilsStatistics::calculateMean divide by zero found, check matrix dimensions");
+        return false;
     }
 
 //std::cout << "Warning: TBD nmfMainWindow::calculateSummaryStatisticsStruct: Add matrix parameters to this map" << std::endl;
@@ -9311,11 +9282,9 @@ nmfMainWindow::calculateSummaryStatisticsStruct(
     //   n = number of observations (i.e., NumYears)
     //   sigma^2 = SSresiduals/n
     nmfUtilsStatistics::calculateAIC(
-          //  NumEstParametersPerSpecies,NumYears-FirstYear,SSresiduals,aic);
-              NumEstParametersPerSpecies,NumYearsWithBlanks,SSresiduals,aic);
+              NumEstParametersPerSpecies,NumYearsWithoutBlanksPerCol,SSresiduals,aic);
     nmfUtilsStatistics::calculateAIC(
-          //  NumEstParametersPerSpecies,NumYears-FirstYear,SSresiduals,aicModel);
-              NumEstParametersPerSpecies,TotalNumYearsWithBlanks,SSresiduals,aicModel);
+              NumEstParametersPerSpecies,TotalNumYearsWithoutBlanks,SSresiduals,aicModel);
 
     // Calculate r
     ok = nmfUtilsStatistics::calculateR(skipFirstYear,NumSpeciesOrGuilds,
