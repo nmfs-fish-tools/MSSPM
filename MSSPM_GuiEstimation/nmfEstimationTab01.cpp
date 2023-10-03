@@ -471,17 +471,20 @@ nmfEstimation_Tab1::importSpeciesData(const QString& tableName,
     if (loadOK && updateSetup) {
         // Load signal with data to send to Species Setup tab
         QList<QString> SpeciesNames;
+        QList<QString> SpeciesMinimumBiomass;
         QList<QString> SpeciesInitBiomass;
         QList<QString> SpeciesGrowthRate;
         QList<QString> SpeciesK;
         for (int row=0; row<m_SpeciesModel->rowCount(); ++row) {
             SpeciesNames.push_back(      m_SpeciesModel->item(row,m_ColumnMap["SpeName"])->text());
+            SpeciesMinimumBiomass.push_back(m_SpeciesModel->item(row,m_ColumnMap["MinimumBiomass"])->text().remove(","));
             SpeciesInitBiomass.push_back(m_SpeciesModel->item(row,m_ColumnMap["InitBiomass"])->text().remove(","));
             SpeciesGrowthRate.push_back( m_SpeciesModel->item(row,m_ColumnMap["GrowthRate"])->text());
             SpeciesK.push_back(          m_SpeciesModel->item(row,m_ColumnMap["SpeciesK"])->text().remove(","));
         }
 
-        emit UpdateSpeciesSetupData(SpeciesNames,SpeciesGuilds,SpeciesInitBiomass,
+        emit UpdateSpeciesSetupData(SpeciesNames,SpeciesGuilds,
+                                    SpeciesMinimumBiomass,SpeciesInitBiomass,
                                     SpeciesGrowthRate,SpeciesK);
         QMessageBox::information(Estimation_Tabs, "Data Updated",
                                  "\nSpecies/Guild table has been successfully updated.\n",
@@ -600,6 +603,7 @@ nmfEstimation_Tab1::checkSpeciesDataPrimary(bool showPopup)
 {
     double WeightVal = 0;
     QString SpeName;
+    QString MinimumBiomass;
     QString InitBiomass;
     QString GrowthRate;
     QString SpeciesK;
@@ -613,13 +617,15 @@ nmfEstimation_Tab1::checkSpeciesDataPrimary(bool showPopup)
         WeightVal = Weight.toDouble();
         index = m_SpeciesModel->index(i,m_ColumnMap["SpeName"]);
         SpeName = index.data().toString().remove(",");
+        index = m_SpeciesModel->index(i,m_ColumnMap["MinimumBiomass"]);
+        MinimumBiomass = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,m_ColumnMap["InitBiomass"]);
         InitBiomass = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,m_ColumnMap["GrowthRate"]);
         GrowthRate = index.data().toString().remove(",");
         index = m_SpeciesModel->index(i,m_ColumnMap["SpeciesK"]);
         SpeciesK = index.data().toString().remove(",");
-        if (nmfUtilsQt::emptyField({Weight,SpeName,InitBiomass,GrowthRate,SpeciesK})) {
+        if (nmfUtilsQt::emptyField({Weight,SpeName,MinimumBiomass,InitBiomass,GrowthRate,SpeciesK})) {
             checkAndShowEmptyFieldError(showPopup,"checkSpeciesDataPrimary");
             return false;
         }
@@ -701,6 +707,7 @@ nmfEstimation_Tab1::showAllColumns(QTableView* tv)
         tv->setColumnHidden( i,false);
     }
     showCovariateColumns(tv,false); // Hide them for now as covariates are entered in their own tab (Tab 6)
+    showMinimumBiomassColumn(tv,false);
 }
 
 void
@@ -720,6 +727,19 @@ nmfEstimation_Tab1::showCovariateColumns(QTableView* tv, const bool& show)
     }
 }
 
+void
+nmfEstimation_Tab1::showMinimumBiomassColumn(QTableView* tv, const bool& show)
+{
+    QString colName;
+    QStringList SpeciesSupp = {"MinimumBiomass"};
+
+    for (int i = 0; i < tv->model()->columnCount(); ++i) {
+        colName = tv->model()->headerData(i, Qt::Horizontal).toString();
+        if (SpeciesSupp.contains(colName)) {
+            tv->setColumnHidden(i,!show);
+        }
+    }
+}
 
 void
 nmfEstimation_Tab1::showPrimaryColumns(QTableView* tv)
@@ -1561,7 +1581,8 @@ nmfEstimation_Tab1::callback_ExportPB()
     QList<QString> GuildGrowthRate;
     QList<QString> GuildK;
     QList<QString> SpeciesName;
-//    QList<QString> SpeciesGuild;
+//  QList<QString> SpeciesGuild;
+    QList<QString> SpeciesMinimumBiomass;
     QList<QString> SpeciesInitialBiomass;
     QList<QString> SpeciesGrowthRate;
     QList<QString> SpeciesK;
@@ -1572,8 +1593,10 @@ nmfEstimation_Tab1::callback_ExportPB()
             saveGuildsCSVFile(tableNameStr,GuildName,GuildGrowthRate,GuildK);
         } else {
             emit LoadSpeciesGuild();
-            callback_SaveSpeciesCSVFile(tableNameStr,SpeciesName,m_SpeciesGuild,
-                               SpeciesInitialBiomass,SpeciesGrowthRate,SpeciesK);
+            callback_SaveSpeciesCSVFile(
+                        tableNameStr,SpeciesName,m_SpeciesGuild,
+                        SpeciesMinimumBiomass,SpeciesInitialBiomass,
+                        SpeciesGrowthRate,SpeciesK);
         }
     }
 }
@@ -1590,6 +1613,7 @@ nmfEstimation_Tab1::callback_QueryAndSaveSpeciesCSVFile(
         QString tableNameStr,
         QList<QString> SpeciesName,
         QList<QString> SpeciesGuild,
+        QList<QString> SpeciesMinimumBiomass,
         QList<QString> SpeciesInitialBiomass,
         QList<QString> SpeciesGrowthRate,
         QList<QString> SpeciesK)
@@ -1600,6 +1624,7 @@ nmfEstimation_Tab1::callback_QueryAndSaveSpeciesCSVFile(
                 tableNameStr,
                 SpeciesName,
                 SpeciesGuild,
+                SpeciesMinimumBiomass,
                 SpeciesInitialBiomass,
                 SpeciesGrowthRate,
                 SpeciesK);
@@ -1611,6 +1636,7 @@ nmfEstimation_Tab1::callback_SaveSpeciesCSVFile(
         QString tableName,
         QList<QString> SpeciesName,
         QList<QString> SpeciesGuild,
+        QList<QString> SpeciesMinimumBiomass,
         QList<QString> SpeciesInitialBiomass,
         QList<QString> SpeciesGrowthRate,
         QList<QString> SpeciesK)
@@ -1626,7 +1652,8 @@ nmfEstimation_Tab1::callback_SaveSpeciesCSVFile(
                                               smodel,
                                               m_ColumnMap,
                                               inputDataPath,tableNameStr,
-                                              SpeciesName,SpeciesGuild,SpeciesInitialBiomass,
+                                              SpeciesName,SpeciesGuild,
+                                              SpeciesMinimumBiomass,SpeciesInitialBiomass,
                                               SpeciesGrowthRate,SpeciesK);
 
     QFileInfo fileInfo(tableNameStr);
@@ -1969,13 +1996,13 @@ nmfEstimation_Tab1::loadSpecies()
     m_Logger->logMsg(nmfConstants::Normal,"nmfEstimation_Tab1::loadSpecies()");
 
     // Load Population tableview
-    fields = {"Weight","SpeName","InitBiomass","InitBiomassMin","InitBiomassMax",
+    fields = {"Weight","SpeName","MinimumBiomass","InitBiomass","InitBiomassMin","InitBiomassMax",
               "GrowthRate","GrowthRateMin","GrowthRateMax",
               "GrowthRateShape","GrowthRateShapeMin","GrowthRateShapeMax",
               "SpeciesK","SpeciesKMin","SpeciesKMax",
               "SurveyQ","SurveyQMin","SurveyQMax","Catchability",
               "CatchabilityMin","CatchabilityMax"};
-    queryStr   = "SELECT Weight,SpeName,InitBiomass,InitBiomassMin,InitBiomassMax,";
+    queryStr   = "SELECT Weight,SpeName,MinimumBiomass,InitBiomass,InitBiomassMin,InitBiomassMax,";
     queryStr  += "GrowthRate,GrowthRateMin,GrowthRateMax,";
     queryStr  += "GrowthRateShape,GrowthRateShapeMin,GrowthRateShapeMax,";
     queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,";

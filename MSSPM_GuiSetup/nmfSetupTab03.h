@@ -221,6 +221,7 @@ signals:
      * file.
      * @param SpeciesName : list of species names
      * @param SpeciesGuild : list of species guilds
+     * @param SpeciesMinimumBiomass : list of minimum biomasses per species
      * @param SpeciesInitialBiomass : list of initial biomasses per species
      * @param SpeciesGrowthRate : list of growth rates per species
      * @param SpeciesK : list of carrying capacities per species
@@ -228,6 +229,7 @@ signals:
     void SaveSpeciesSupplemental(QString,
                                  QList<QString> SpeciesName,
                                  QList<QString> SpeciesGuild,
+                                 QList<QString> SpeciesMinimumBiomass,
                                  QList<QString> SpeciesInitialBiomass,
                                  QList<QString> SpeciesGrowthRate,
                                  QList<QString> SpeciesK);
@@ -342,12 +344,14 @@ public Q_SLOTS:
      * Species Setup data must also be updated
      * @param SpeciesNames : names of Species
      * @param SpeciesGuild : list of Species Guild groups
+     * @param SpeciesMinimumBiomass : values of all Species minimum biomasses
      * @param SpeciesInitBiomass : values of all Species initial biomasses
      * @param SpeciesGrowthRate : values of all Species growth rates
      * @param SpeciesK : values of all Species carrying capacities
      */
     void callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
                                      QList<QString> SpeciesGuild,
+                                     QList<QString> SpeciesMinimumBiomass,
                                      QList<QString> SpeciesInitBiomass,
                                      QList<QString> SpeciesGrowthRate,
                                      QList<QString> SpeciesK);

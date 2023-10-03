@@ -859,6 +859,7 @@ nmfSetup_Tab2::createTables(QString databaseName)
     cmd  = "CREATE TABLE IF NOT EXISTS " + fullTableName;
     cmd += "(SpeName              varchar(100) NOT NULL,";
     cmd += " GuildName            varchar(100) NULL,";
+    cmd += " MinimumBiomass       double NULL,";
     cmd += " InitBiomass          double NULL,";
     cmd += " SurveyQ              float  NULL,";
     cmd += " SpeciesK             double NULL,";

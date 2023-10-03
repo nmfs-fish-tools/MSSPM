@@ -139,6 +139,7 @@ class nmfEstimation_Tab1: public QObject
     void setupHelpSpecies();
     void setupHelpGuilds();
     void showCovariateColumns(QTableView* tv, const bool& show);
+    void showMinimumBiomassColumn(QTableView* tv, const bool& show);
     void showNoColumns(QTableView* tv);
     void showAllColumns(QTableView* tv);
     void showPrimaryColumns(QTableView* tv);
@@ -212,6 +213,7 @@ signals:
      * @brief Signal sent so the Species Setup tab will be updated with the appropriate Species fields
      * @param SpeciesNames : list of species names
      * @param SpeciesGuilds : list of guilds that each species is in
+     * @param SpeciesMinimumBiomass : list of species minimum biomass values
      * @param SpeciesInitBiomass : list of species initial biomass values
      * @param SpeciesGrowthRate : list of species growth rates
      * @param SpeciesK : list of species carrying capacities
@@ -219,6 +221,7 @@ signals:
     void UpdateSpeciesSetupData(
             QList<QString> SpeciesNames,
             QList<QString> SpeciesGuilds,
+            QList<QString> SpeciesMinimumBiomass,
             QList<QString> SpeciesInitBiomass,
             QList<QString> SpeciesGrowthRate,
             QList<QString> SpeciesK);
@@ -342,6 +345,7 @@ public Q_SLOTS:
      * @param TableName: name of table to save data from
      * @param SpeciesName : list of species names
      * @param SpeciesGuild : list of guilds that each species is a member of
+     * @param SpeciesMinimumBiomass : list of minimum biomass per species
      * @param SpeciesInitialBiomass : list of initial biomass per species
      * @param SpeciesGrowthRate : list of growth rate per species
      * @param SpeciesK : list of carrying capacities per species
@@ -350,6 +354,7 @@ public Q_SLOTS:
             QString TableName,
             QList<QString> SpeciesName,
             QList<QString> SpeciesGuild,
+            QList<QString> SpeciesMinimumBiomass,
             QList<QString> SpeciesInitialBiomass,
             QList<QString> SpeciesGrowthRate,
             QList<QString> SpeciesK);
@@ -378,6 +383,7 @@ public Q_SLOTS:
      * @param TableName: name of table to save data from
      * @param SpeciesName : list of species names
      * @param SpeciesGuild : list of guilds that each species is a member of
+     * @param SpeciesMinimumBiomass : list of minimum biomass per species
      * @param SpeciesInitialBiomass : list of initial biomass per species
      * @param SpeciesGrowthRate : list of growth rate per species
      * @param SpeciesK : list of carrying capacities per species
@@ -386,6 +392,7 @@ public Q_SLOTS:
             QString TableName,
             QList<QString> SpeciesName,
             QList<QString> SpeciesGuild,
+            QList<QString> SpeciesMinimumBiomass,
             QList<QString> SpeciesInitialBiomass,
             QList<QString> SpeciesGrowthRate,
             QList<QString> SpeciesK);

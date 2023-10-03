@@ -18,7 +18,6 @@ nmfMainWindow::nmfMainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_UI(new Ui::nmfMainWindow)
 {
-
     m_UI->setupUi(this);
 
 //    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -1530,6 +1529,7 @@ nmfMainWindow::menu_exportHPCFiles()
     QString outputFile;
     QString hpcDir = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::OutputDataHPCDir));
     hpcDir = QDir(hpcDir).filePath(QString::fromStdString(m_ModelName));
+    QString useCovariateData = (Estimation_Tab6_ptr->isCovariateData()) ? "1" : "0";
 
     m_DatabasePtr->getAlgorithmIdentifiers(
                 this,m_Logger,m_ProjectName,m_ModelName,
@@ -1564,40 +1564,42 @@ nmfMainWindow::menu_exportHPCFiles()
         QTextStream stream(&file);
 
         // Line 1
-        stream << "\n# Project Name, Model Name\n";
+        stream << "\n# 1. Project Name, Model Name\n";
         stream << QString::fromStdString(m_ProjectName) << ", ";
         stream << QString::fromStdString(m_ModelName)  << "\n";
 
         // Line 2
-        stream << "\n# Growth Form, Harvest Form, Competition Form, Predation Form\n";
+        stream << "\n# 2. Growth Form, Harvest Form, Competition Form, Predation Form\n";
         stream << growthForm << ", ";
         stream << harvestForm << ", ";
         stream << competitionForm << ", ";
         stream << predationForm << "\n";
 
-        // Line 3...RSK add boolean (0/1) for using covariate data
+        // Line 3
+        stream << "\n# 3. Use covariate data? (0 = no, 1 = yes)\n";
+        stream << useCovariateData << "\n";
 
         // Line 3
-        stream << "\n# Algorithm Family, Minimizer, Objective Criterion, Scaling\n";
+        stream << "\n# 4. Algorithm Family, Minimizer, Objective Criterion, Scaling\n";
         stream << QString::fromStdString(Algorithm) << ", ";
         stream << QString::fromStdString(Minimizer) << ", ";
         stream << QString::fromStdString(ObjectiveCriterion) << ", ";
         stream << QString::fromStdString(Scaling) << "\n";
 
         // Line 4
-        stream << "\n# Initial Parameter Value type, Range Jitter Value (%), Range Jitter Repeatable boolean\n";
+        stream << "\n# 5. Initial Parameter Value type, Range Jitter Value (%), Range Jitter Repeatable boolean\n";
         stream << Estimation_Tab7_ptr->getEnsembleRandInitParamValue() << ", ";
         stream << Estimation_Tab7_ptr->getEnsembleRangeJitterValue() << ", ";
         stream << Estimation_Tab7_ptr->isEnsembleRangeJitterRepeatable() << "\n";
 
         // Line 5
-        stream << "\n# Number of Total Runs, Stop Tolerance, Stop Time (sec)\n";
+        stream << "\n# 6. Number of Total Runs, Stop Tolerance, Stop Time (sec)\n";
         stream << QString::number(Estimation_Tab7_ptr->getEnsembleNumberOfTotalRuns()) << ", ";
         stream << QString::number(Estimation_Tab7_ptr->getCurrentToleranceStopValue()) << ", ";
         stream << QString::number(Estimation_Tab7_ptr->getCurrentStopAfterTime()) << "\n";
 
         // Line 6
-        stream << "\n# Parameter Name, Enabled, Checked, ...\n";
+        stream << "\n# 7. Parameter Name, Enabled, Checked, ...\n";
         std::vector<nmfStructsQt::EstimateRunBox> estimatedRunBoxes = Estimation_Tab7_ptr->getEstimateRunBoxes();
         for (unsigned i=0; i<estimatedRunBoxes.size(); ++i) {
             stream << QString::fromStdString(estimatedRunBoxes[i].parameter) << ", ";
@@ -1682,6 +1684,7 @@ nmfMainWindow::menu_exportHPCFiles()
         copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCovariate+"_scaled"));
         copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCovariateAssignment));
         copyHPCFile(inputDataDir,hpcDir,QString::fromStdString(nmfConstantsMSSPM::TableCovariateInitialValuesAndRanges));
+// RSK make the 2 needed skip files here...
     }
 
     // Print completed message
@@ -1706,11 +1709,84 @@ nmfMainWindow::copyHPCFile(const QString& srcDir,
 }
 
 void
+nmfMainWindow::loadModelFromHPCMetaFile(std::string& hpcProjectName,
+                                        std::string& hpcModelName)
+{
+    QString hpcDir = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataHPCDir));
+    hpcProjectName = "";
+    hpcModelName   = "";
+
+    // Clear run summary as well as all estimated output tables
+    Estimation_Tab7_ptr->clearOutputTE();
+    clearOutputTables();
+
+    // Read hpc meta file and extract project and model name
+    QString fullPath = QDir(hpcDir).filePath(QString::fromStdString(nmfConstantsMSSPM::FilenameHPCMetaData));
+    QFile file(fullPath);
+    if (! file.open(QIODevice::ReadOnly)) {
+        QMessageBox::information(0, "Error", file.errorString());
+        return;
+    }
+    QString line;
+    QTextStream in(&file);
+    bool foundModelName = false;
+    while (!in.atEnd() && !foundModelName) {
+        line = in.readLine();
+        if ((! line.isEmpty()) && (line.trimmed()[0] != '#')) { // project name and model name are first data items in meta file
+            QStringList parts = line.split(",");
+            if (parts.count() == 2) {
+                hpcProjectName = parts[0].trimmed().toStdString();
+                hpcModelName   = parts[1].trimmed().toStdString();
+                m_Logger->logMsg(nmfConstants::Normal,"Setting project,model: " + hpcProjectName + ", " + hpcModelName);
+            } else {
+                m_Logger->logMsg(nmfConstants::Error,"Problem parsing HPC Meta file. Read project/model name line: " + line.toStdString());
+            }
+            foundModelName = true;
+        }
+    }
+    file.close();
+
+    // Load model name from hpc meta file
+    Setup_Tab4_ptr->setModelName(QString::fromStdString(hpcModelName));
+    Setup_Tab4_ptr->loadModel();
+    callback_ModelSaved();
+}
+
+bool
+nmfMainWindow::checkForMissingHPCFiles(const int& numHPCFiles)
+{
+    int numFiles;
+    int NumHPCParameterGroups = (int)nmfConstantsMSSPM::HPCFilePrefixes.size();
+    QString hpcDir = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataHPCDir));
+    QDir source(hpcDir);
+    QStringList files;
+    std::string errorMsg;
+    QString filename;
+
+    for (int i=0; i<NumHPCParameterGroups; ++i) {
+        filename = QString::fromStdString(nmfConstantsMSSPM::HPCFilePrefixes[i] + "_*.csv");
+        files = source.entryList(QStringList() << filename, QDir::Files);
+        numFiles = files.size();
+        if ((numFiles != 0) && (numFiles != numHPCFiles)) {
+            errorMsg = "Found only " + std::to_string(numFiles) + " file(s) of form: " +
+                    QDir(hpcDir).filePath(filename).toStdString();
+            m_Logger->logMsg(nmfConstants::Error,"[Error 1] checkForMissingHPCFiles: " + errorMsg);
+            QMessageBox::warning(this, "Warning",
+                                 QString::fromStdString("\nChecking completeness of HPC files...\n\n"+errorMsg+"\n\nImport cancelled.\n"), QMessageBox::Ok);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void
 nmfMainWindow::menu_importHPCFiles()
 {
     std::string Algorithm,Minimizer,ObjectiveCriterion,Scaling;
     std::string CompetitionForm;
     std::string multiRunModelFilename;
+    std::string hpcProjectName,hpcModelName;
     std::string Label = ""; // Temporarily keep blank until find a use for this field
     std::vector<double> fitnessVec;
     QString hpcDir = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataHPCDir));
@@ -1723,13 +1799,26 @@ nmfMainWindow::menu_importHPCFiles()
         return;
     }
 
+    // Load model from HPCMetaData.csv file in the inputData/hpc directory
+    loadModelFromHPCMetaFile(hpcProjectName,hpcModelName);
+
+
     QString msg = "\nThis will import HPC .csv files from the project's inputData/hpc directory.";
-    msg += "\n\nNumber of HPC runs to import: " + QString::number(numHPCFiles);
+    msg += "\n\nSetting Project Name to: "    + QString::fromStdString(hpcProjectName);
+    msg += "\nSetting Model Name to load: "   + QString::fromStdString(hpcModelName);
+    msg += "\nNumber of HPC runs to import: " + QString::number(numHPCFiles);
     msg += "\n\nOK to continue?\n";
     reply = QMessageBox::question(this, tr("HPC Import"), tr(msg.toLatin1()),
                                   QMessageBox::No|QMessageBox::Yes,
                                   QMessageBox::Yes);
     if (reply == QMessageBox::No) {
+        return;
+    }
+    m_ProjectName = hpcProjectName;
+    m_ModelName   = hpcModelName;
+
+    // Check to make sure there are the correct number of each parameter's estimated biomass files.
+    if (! checkForMissingHPCFiles(numHPCFiles)) {
         return;
     }
 
@@ -2512,7 +2601,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.7.4 ";
+    QString version = "MSSPM v1.7.5 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
@@ -2818,6 +2907,7 @@ nmfMainWindow::menu_troubleshooting()
 
     // Step 1. Add topic in appropriate group, creating a group if need be
     estimationTopics << "Estimation doesn't run";
+    estimationTopics << "Multi-run never converges, just increments seed";
     estimationTopics << "Poor fit when estimating parameters";
     estimationTopics << "Still getting poor fit after adjusting ranges";
     estimationTopics << "Tail of estimation curve is too high";
@@ -2840,6 +2930,7 @@ nmfMainWindow::menu_troubleshooting()
 
     // Step 3. Add the topic solutions here
     estimationSolutions  << "If estimation doesn't produce any plots it could be a permission issue. If on Windows, exit the application and re-run as Administrator.";
+    estimationSolutions  << "If a multi-run continually selects a new seed and never converges, it may be because there are no ranges around any of the input parameters.";
     estimationSolutions  << QString("Try one or more of the following:<ul>") +
                             QString("<li>Adjust parameter ranges and/or initial values</li>") +
                             QString("<li>Adjust model algorithm and/or algorithm parameters</li>") +
@@ -4146,8 +4237,8 @@ nmfMainWindow::initConnections()
             this,            SLOT(callback_ReloadWidgets(bool)));
     connect(Estimation_Tab1_ptr, SIGNAL(ReloadSetupWidgets()),
             this,                SLOT(callback_ReloadSetupWidgets()));
-    connect(Setup_Tab3_ptr,      SIGNAL(SaveSpeciesSupplemental(QString,QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>)),
-            Estimation_Tab1_ptr, SLOT(callback_QueryAndSaveSpeciesCSVFile(QString,QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>)));
+    connect(Setup_Tab3_ptr,      SIGNAL(SaveSpeciesSupplemental(QString,QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>)),
+            Estimation_Tab1_ptr, SLOT(callback_QueryAndSaveSpeciesCSVFile(QString,QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>,QList<QString>)));
     connect(Setup_Tab3_ptr,      SIGNAL(SaveGuildSupplemental(QList<QString>,QList<QString>,QList<QString>)),
             Estimation_Tab1_ptr, SLOT(callback_SaveGuildsCSVFile(QList<QString>,QList<QString>,QList<QString>)));
     connect(Setup_Tab4_ptr,  SIGNAL(SaveMainSettings()),
@@ -4204,8 +4295,8 @@ nmfMainWindow::initConnections()
             this,                SLOT(callback_RestoreOutputSpecies()));
     connect(Estimation_Tab1_ptr, SIGNAL(LoadSpeciesGuild()),
             this,                SLOT(callback_LoadSpeciesGuild()));
-    connect(Estimation_Tab1_ptr, SIGNAL(UpdateSpeciesSetupData(QList<QString>, QList<QString>, QList<QString>, QList<QString>, QList<QString>)),
-            Setup_Tab3_ptr,      SLOT(callback_UpdateSpeciesTable(QList<QString>, QList<QString>, QList<QString>, QList<QString>, QList<QString>)));
+    connect(Estimation_Tab1_ptr, SIGNAL(UpdateSpeciesSetupData(QList<QString>, QList<QString>, QList<QString>, QList<QString>, QList<QString>, QList<QString>)),
+            Setup_Tab3_ptr,      SLOT(callback_UpdateSpeciesTable(QList<QString>, QList<QString>, QList<QString>, QList<QString>, QList<QString>, QList<QString>)));
     connect(Estimation_Tab1_ptr, SIGNAL(UpdateGuildSetupData(QList<QString>, QList<QString>, QList<QString>)),
             Setup_Tab3_ptr,      SLOT(callback_UpdateGuildTable(QList<QString>, QList<QString>, QList<QString>)));
     connect(Setup_Tab3_ptr,      SIGNAL(LoadSpeciesSupplemental(bool,bool,QString)),
@@ -7118,7 +7209,7 @@ nmfMainWindow::updateOutputBiomassTable(std::string& ForecastName,
             EstBiomassTMinus1 += GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
 
             if ( std::isnan(std::fabs(EstBiomassTMinus1)) || (EstBiomassTMinus1 < 0) ) {
-                EstBiomassTMinus1 = 0;
+                EstBiomassTMinus1 = m_DataStruct.MinimumBiomass[species];
             }
             EstBiomassSpecies(time,species) = EstBiomassTMinus1;
 
@@ -12474,6 +12565,7 @@ nmfMainWindow::callback_RunForecast(std::string ForecastName,
     int currOutputSpecies = Output_Controls_ptr->getOutputSpeciesIndex();
     Output_Controls_ptr->setOutputType("Forecast");
     Output_Controls_ptr->setOutputSpeciesIndex(currOutputSpecies);
+    Output_Controls_ptr->refreshBrightnessSlider();
 
     // Assure Output tab is set to Chart
     setCurrentOutputTab("Chart");
@@ -13352,7 +13444,7 @@ nmfMainWindow::calculateSubRunBiomass(std::vector<double>& EstInitBiomass,
             if ( std::isnan(std::fabs(EstBiomassVal)) ||
                 (EstBiomassVal < 0) )
             {
-                EstBiomassVal = 0;
+                EstBiomassVal = m_DataStruct.MinimumBiomass[species];
             }
             EstBiomassSpecies(time,species) = EstBiomassVal;
 
@@ -13435,6 +13527,7 @@ nmfMainWindow::getEstimatedParameters(
     if (m_UsingHPCFiles) {
         QString hpcDir  = QDir(QString::fromStdString(m_ProjectDir)).filePath(QString::fromStdString(nmfConstantsMSSPM::InputDataHPCDir));
         QString hpcFile = QDir(hpcDir).filePath(QString::fromStdString("InitBiomass_"+std::to_string(run)+".csv"));
+
         nmfUtilsQt::loadFromHPCFile(hpcFile,EstInitBiomass);
         hpcFile = QDir(hpcDir).filePath(QString::fromStdString("GrowthRate_"+std::to_string(run)+".csv"));
         nmfUtilsQt::loadFromHPCFile(hpcFile,EstGrowthRates);
@@ -13720,7 +13813,6 @@ nmfMainWindow::callback_SubRunCompleted(int run,
                                     CalculatedBiomass);
 
     }
-
 
     // Update Progress Chart
     m_ProgressWidget->setRunBoxes(1,run+1,numRuns);
@@ -15378,6 +15470,7 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.GrowthRateShape.clear();
     dataStruct.GrowthRateShapeMin.clear();
     dataStruct.GrowthRateShapeMax.clear();
+    dataStruct.MinimumBiomass.clear();
     dataStruct.InitBiomass.clear();
     dataStruct.InitBiomassMin.clear();
     dataStruct.InitBiomassMax.clear();
@@ -15426,17 +15519,17 @@ nmfMainWindow::loadParameters(nmfStructsQt::ModelDataStruct& dataStruct,
     dataStruct.SurveyQCovariateCoeff          = surveyQCovariateRanges;
 
     dataStruct.useApplicationFixedSeedBees    = Estimation_Tab7_ptr->isSetToDeterministicBees();
-    dataStruct.EstimationAlgorithm = Estimation_Tab7_ptr->getCurrentAlgorithm();
-    dataStruct.ObjectiveCriterion  = Estimation_Tab7_ptr->getCurrentObjectiveCriterion();
-    dataStruct.MinimizerAlgorithm  = Estimation_Tab7_ptr->getCurrentMinimizer();
-    dataStruct.ScalingAlgorithm    = Estimation_Tab7_ptr->getCurrentScaling();
+    dataStruct.EstimationAlgorithm    = Estimation_Tab7_ptr->getCurrentAlgorithm();
+    dataStruct.ObjectiveCriterion     = Estimation_Tab7_ptr->getCurrentObjectiveCriterion();
+    dataStruct.MinimizerAlgorithm     = Estimation_Tab7_ptr->getCurrentMinimizer();
+    dataStruct.ScalingAlgorithm       = Estimation_Tab7_ptr->getCurrentScaling();
     dataStruct.CovariateAlgorithmType = m_DatabasePtr->getCovariateAlgorithmType(m_Logger,m_ProjectName,m_ModelName);
-    dataStruct.ParameterLogScale            = Estimation_Tab7_ptr->getLogScale();
-    dataStruct.allowConvergedOnly  = Estimation_Tab7_ptr->isAllowConvergedOnly();
+    dataStruct.ParameterLogScale      = Estimation_Tab7_ptr->getLogScale();
+    dataStruct.allowConvergedOnly     = Estimation_Tab7_ptr->isAllowConvergedOnly();
 
     dataStruct.useRandomInitialParameters = Estimation_Tab7_ptr->isEnsembleRandInitParam();
-    dataStruct.rangeJitter = Estimation_Tab7_ptr->getEnsembleRangeJitterValue();
-    dataStruct.isRangeJitterRepeatable = Estimation_Tab7_ptr->isEnsembleRangeJitterRepeatable();
+    dataStruct.rangeJitter                = Estimation_Tab7_ptr->getEnsembleRangeJitterValue();
+    dataStruct.isRangeJitterRepeatable    = Estimation_Tab7_ptr->isEnsembleRangeJitterRepeatable();
 
     m_DatabasePtr->createUnitsMap(m_ProjectName,m_ModelName,previousUnits);
     dataStruct.PreviousUnits = previousUnits;
@@ -15610,8 +15703,8 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
             dataStruct.GuildSpecies[GuildNum].push_back(guild);
             dataStruct.GuildNum.push_back(GuildNum);
         }
-        fields     = {"SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax"};
-        queryStr   = "SELECT SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax from " +
+        fields     = {"SpeName","GuildName","MinimumBiomass","InitBiomass","InitBiomassMin","InitBiomassMax"};
+        queryStr   = "SELECT SpeName,GuildName,MinimumBiomass,InitBiomass,InitBiomassMin,InitBiomassMax from " +
                       nmfConstantsMSSPM::TableSpecies +
                      " ORDER BY SpeName";
         dataMap    = m_DatabasePtr->nmfQueryDatabase(queryStr, fields);
@@ -15622,15 +15715,16 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
             initialGuildBiomass[guildName]    += std::stod(dataMap["InitBiomass"][species]);
             initialGuildBiomassMin[guildName] += std::stod(dataMap["InitBiomassMin"][species]);
             initialGuildBiomassMax[guildName] += std::stod(dataMap["InitBiomassMax"][species]);
+
         }
         dataStruct.NumSpecies = NumSpecies;
         checkGuildRanges(NumGuilds,dataStruct);
     } else {
-        fields     = {"Weight","SpeName","GuildName","InitBiomass","InitBiomassMin","InitBiomassMax",
+        fields     = {"Weight","SpeName","GuildName","MinimumBiomass","InitBiomass","InitBiomassMin","InitBiomassMax",
                       "GrowthRate","GrowthRateMin","GrowthRateMax","GrowthRateShape","GrowthRateShapeMin","GrowthRateShapeMax",
                       "SpeciesK","SpeciesKMin","SpeciesKMax","Catchability","CatchabilityMin","CatchabilityMax",
                       "SurveyQ","SurveyQMin","SurveyQMax"};
-        queryStr   = "SELECT Weight,SpeName,GuildName,InitBiomass,InitBiomassMin,InitBiomassMax,";
+        queryStr   = "SELECT Weight,SpeName,GuildName,MinimumBiomass,InitBiomass,InitBiomassMin,InitBiomassMax,";
         queryStr  += "GrowthRate,GrowthRateMin,GrowthRateMax,GrowthRateShape,GrowthRateShapeMin,GrowthRateShapeMax,";
         queryStr  += "SpeciesK,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SurveyQ,SurveyQMin,SurveyQMax from " +
                       nmfConstantsMSSPM::TableSpecies +
@@ -15639,6 +15733,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         NumSpecies = dataMap["SpeName"].size();
         dataStruct.NumSpecies = NumSpecies;
         nmfUtils::initialize(dataStruct.SpeciesWeights,     NumSpecies);
+        nmfUtils::initialize(dataStruct.MinimumBiomass,     NumSpecies);
         nmfUtils::initialize(dataStruct.InitBiomass,        NumSpecies);
         nmfUtils::initialize(dataStruct.InitBiomassMin,     NumSpecies);
         nmfUtils::initialize(dataStruct.InitBiomassMax,     NumSpecies);
@@ -15659,6 +15754,7 @@ std::cout << "Error: Implement loading for init values of parameter and for Surv
         nmfUtils::initialize(dataStruct.SurveyQMax,         NumSpecies);
         for (int species=0; species<NumSpecies; ++species) {
             dataStruct.SpeciesWeights(species)      = std::stod(dataMap["Weight"][species]);
+            dataStruct.MinimumBiomass(species)      = std::stod(dataMap["MinimumBiomass"][species]);
             dataStruct.InitBiomass(species)         = std::stod(dataMap["InitBiomass"][species]);
             dataStruct.InitBiomassMin(species)      = std::stod(dataMap["InitBiomassMin"][species]);
             dataStruct.InitBiomassMax(species)      = std::stod(dataMap["InitBiomassMax"][species]);

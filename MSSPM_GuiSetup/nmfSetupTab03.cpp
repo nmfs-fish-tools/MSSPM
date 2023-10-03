@@ -103,7 +103,8 @@ nmfSetup_Tab3::nmfSetup_Tab3(QTabWidget*  tabs,
     Setup_Tab3_GuildsTW->setSelectionMode(QAbstractItemView::ContiguousSelection);
     Setup_Tab3_SpeciesTW->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
-    m_colLabelsSpecies << "Name" << "Guild" << "Initial Absolute Biomass" << "Growth Rate" << "Species K" ;
+    m_colLabelsSpecies << "Name" << "Guild" << "Minimum Biomass" << "Initial Absolute Biomass"
+                       << "Growth Rate" << "Species K" ;
     m_colLabelsGuilds << "GuildName" << "GrowthRate" << "GuildK";
 
 }
@@ -317,8 +318,8 @@ nmfSetup_Tab3::loadSpecies()
 
     clearSpeciesWidgets();
 
-    fields = {"SpeName","GuildName","InitBiomass","GrowthRate","SpeciesK"};
-    queryStr   = "SELECT SpeName,GuildName,InitBiomass,GrowthRate,SpeciesK FROM " + nmfConstantsMSSPM::TableSpecies;
+    fields = {"SpeName","GuildName","MinimumBiomass","InitBiomass","GrowthRate","SpeciesK"};
+    queryStr   = "SELECT SpeName,GuildName,MinimumBiomass,InitBiomass,GrowthRate,SpeciesK FROM " + nmfConstantsMSSPM::TableSpecies;
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     NumSpecies = dataMap["SpeName"].size();
     if (NumSpecies == 0) {
@@ -337,14 +338,17 @@ nmfSetup_Tab3::loadSpecies()
             // Populate text fields
             Setup_Tab3_SpeciesTW->item(i,0)->setText(QString::fromStdString(dataMap["SpeName"][i]));
             valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                        std::stod(dataMap["InitBiomass"][i]),m_NumSignificantDigits,6);
+                        std::stod(dataMap["MinimumBiomass"][i]),m_NumSignificantDigits,3);
             Setup_Tab3_SpeciesTW->item(i,2)->setText(valueWithComma);
             valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                        std::stod(dataMap["GrowthRate"][i]),m_NumSignificantDigits,3);
+                        std::stod(dataMap["InitBiomass"][i]),m_NumSignificantDigits,6);
             Setup_Tab3_SpeciesTW->item(i,3)->setText(valueWithComma);
             valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
-                        std::stod(dataMap["SpeciesK"][i]),m_NumSignificantDigits,6);
+                        std::stod(dataMap["GrowthRate"][i]),m_NumSignificantDigits,3);
             Setup_Tab3_SpeciesTW->item(i,4)->setText(valueWithComma);
+            valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                        std::stod(dataMap["SpeciesK"][i]),m_NumSignificantDigits,6);
+            Setup_Tab3_SpeciesTW->item(i,5)->setText(valueWithComma);
 
             // Set Guild combo box
             guild  = dataMap["GuildName"][i];
@@ -778,7 +782,7 @@ nmfSetup_Tab3::saveSpeciesData()
     std::string errorMsg;
     std::string GuildName;
     std::string SpeciesName;
-    std::string InitBiomass,SurveyQ,SpeciesK,GrowthRate;
+    std::string MinimumBiomass,InitBiomass,SurveyQ,SpeciesK,GrowthRate;
     std::string InitBiomassMin,InitBiomassMax,SurveyQMin,SurveyQMax,GrowthRateMin;
     std::string GrowthRateMax,SpeciesKMin,SpeciesKMax,Catchability,CatchabilityMin,CatchabilityMax,SpeDependence;
     std::map<std::string,double> guildKMap;
@@ -848,22 +852,25 @@ nmfSetup_Tab3::saveSpeciesData()
         SpeciesName       = Setup_Tab3_SpeciesTW->item(i, 0)->text().toStdString();
         GuildName         = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(i,1))->currentText().toStdString();
         valueWithoutComma = Setup_Tab3_SpeciesTW->item(i, 2)->text().remove(",");
+        MinimumBiomass    = valueWithoutComma.toStdString();
+        valueWithoutComma = Setup_Tab3_SpeciesTW->item(i, 3)->text().remove(",");
         InitBiomass       = valueWithoutComma.toStdString();
-        GrowthRate        = Setup_Tab3_SpeciesTW->item(i, 3)->text().toStdString();
-        valueWithoutComma = Setup_Tab3_SpeciesTW->item(i, 4)->text().remove(",");
+        GrowthRate        = Setup_Tab3_SpeciesTW->item(i, 4)->text().toStdString();
+        valueWithoutComma = Setup_Tab3_SpeciesTW->item(i, 5)->text().remove(",");
         SpeciesK          = valueWithoutComma.toStdString();
 
         guildKMap[GuildName] += std::stod(SpeciesK);
         systemK += std::stod(SpeciesK);
         cmd  = "INSERT INTO " + nmfConstantsMSSPM::TableSpecies + " (";
-        cmd += "SpeName,GuildName,InitBiomass,GrowthRate,SpeciesK) ";
+        cmd += "SpeName,GuildName,MinimumBiomass,InitBiomass,GrowthRate,SpeciesK) ";
         cmd += " VALUES ('" + SpeciesName + "', '" + GuildName +
-                "', "+ InitBiomass + ", " + GrowthRate + ", " + SpeciesK + ") ";
+                "', " + MinimumBiomass + ", " + InitBiomass + ", " + GrowthRate + ", " + SpeciesK + ") ";
         cmd += "ON DUPLICATE KEY UPDATE ";
-        cmd += "GuildName = '"  + GuildName   + "', ";
-        cmd += "InitBiomass = " + InitBiomass + ", ";
-        cmd += "GrowthRate = "  + GrowthRate  + ", ";
-        cmd += "SpeciesK = "    + SpeciesK    + ";";
+        cmd += "GuildName = '"     + GuildName      + "', ";
+        cmd += "MinimumBiomass = " + MinimumBiomass + ", ";
+        cmd += "InitBiomass = "    + InitBiomass    + ", ";
+        cmd += "GrowthRate = "     + GrowthRate     + ", ";
+        cmd += "SpeciesK = "       + SpeciesK       + ";";
         errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
         if (nmfUtilsQt::isAnError(errorMsg)) {
             m_logger->logMsg(nmfConstants::Error,"nmfSetup_Tab3 callback_Setup_Tab3_SavePB (Species): Write table error: " + errorMsg);
@@ -920,9 +927,10 @@ nmfSetup_Tab3::setupHelp()
     // set Tool tips here for column headings
     Setup_Tab3_SpeciesTW->horizontalHeaderItem(0)->setToolTip("Species Name");
     Setup_Tab3_SpeciesTW->horizontalHeaderItem(1)->setToolTip("Guild Name");
-    Setup_Tab3_SpeciesTW->horizontalHeaderItem(2)->setToolTip("Species Initial Absolute Biomass");
-    Setup_Tab3_SpeciesTW->horizontalHeaderItem(3)->setToolTip("Species Growth Rate");
-    Setup_Tab3_SpeciesTW->horizontalHeaderItem(4)->setToolTip("Species Carrying Capacity");
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(2)->setToolTip("Species Minimum Biomass");
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(3)->setToolTip("Species Initial Absolute Biomass");
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(4)->setToolTip("Species Growth Rate");
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(5)->setToolTip("Species Carrying Capacity");
 
     msg  = "</html><strong><center>Species Name</center></strong><br>";
     msg += "The Species name entered must be unique.";
@@ -930,16 +938,19 @@ nmfSetup_Tab3::setupHelp()
     msg  = "</html><strong><center>Guild Name</center></strong><br>";
     msg += "The user must create Guilds prior to being able to select one here.";
     Setup_Tab3_SpeciesTW->horizontalHeaderItem(1)->setWhatsThis(prefix+msg+suffix);
+    msg  = "</html><strong><center>Minimum Biomass</center></strong><br>";
+    msg += "The minimum biomass that a species may have in units of metric tons.";
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(2)->setWhatsThis(prefix+msg+suffix);
     msg  = "</html><strong><center>Initial Absolute Biomass</center></strong><br>";
     msg += "The initial species absolute biomass is in units of metric tons.";
-    Setup_Tab3_SpeciesTW->horizontalHeaderItem(2)->setWhatsThis(prefix+msg+suffix);
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(3)->setWhatsThis(prefix+msg+suffix);
     msg  = "</html><strong><center>Growth Rate</center></strong><br>";
     msg += "The Species growth rate (r) is a unit-less value typically between 0.0 and 1.0.";
-    Setup_Tab3_SpeciesTW->horizontalHeaderItem(3)->setWhatsThis(prefix+msg+suffix);
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(4)->setWhatsThis(prefix+msg+suffix);
     msg  = "</html><strong><center>Species K</center></strong><br>";
     msg += "The Species carrying capacity (K) is the number of individuals<br>";
     msg += "in a population that can be supported by the habitat's resources.";
-    Setup_Tab3_SpeciesTW->horizontalHeaderItem(4)->setWhatsThis(prefix+msg+suffix);
+    Setup_Tab3_SpeciesTW->horizontalHeaderItem(5)->setWhatsThis(prefix+msg+suffix);
 }
 
 
@@ -1108,6 +1119,7 @@ nmfSetup_Tab3::callback_ExportPB()
     QList<QString> GuildK;
     QList<QString> SpeciesName;
     QList<QString> SpeciesGuild;
+    QList<QString> SpeciesMinimumBiomass;
     QList<QString> SpeciesInitialBiomass;
     QList<QString> SpeciesGrowthRate;
     QList<QString> SpeciesK;
@@ -1138,6 +1150,9 @@ nmfSetup_Tab3::callback_ExportPB()
                 } else if (col == m_ColumnMap["Guild"]) {
                     cbox = qobject_cast<QComboBox *>(Setup_Tab3_SpeciesTW->cellWidget(row,col));
                     SpeciesGuild.push_back(cbox->currentText());
+                } else if (col == m_ColumnMap["Minimum Biomass"]) {
+                    valueWithoutComma = Setup_Tab3_SpeciesTW->item(row,col)->text().remove(",");
+                    SpeciesMinimumBiomass.push_back(valueWithoutComma);
                 } else if (col == m_ColumnMap["Initial Absolute Biomass"]) {
                     valueWithoutComma = Setup_Tab3_SpeciesTW->item(row,col)->text().remove(",");
                     SpeciesInitialBiomass.push_back(valueWithoutComma);
@@ -1152,6 +1167,7 @@ nmfSetup_Tab3::callback_ExportPB()
         emit SaveSpeciesSupplemental(tableName,
                                      SpeciesName,
                                      SpeciesGuild,
+                                     SpeciesMinimumBiomass,
                                      SpeciesInitialBiomass,
                                      SpeciesGrowthRate,
                                      SpeciesK);
@@ -1426,6 +1442,7 @@ nmfSetup_Tab3::callback_UpdateSpeciesPB()
 void
 nmfSetup_Tab3::callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
                                            QList<QString> SpeciesGuild,
+                                           QList<QString> SpeciesMinimumBiomass,
                                            QList<QString> SpeciesInitBiomass,
                                            QList<QString> SpeciesGrowthRate,
                                            QList<QString> SpeciesK)
@@ -1441,10 +1458,12 @@ nmfSetup_Tab3::callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
 
     QList<int> columns = {m_ColumnMap["Name"],
                           m_ColumnMap["Guild"],
+                          m_ColumnMap["Minimum Biomass"],
                           m_ColumnMap["Initial Absolute Biomass"],
                           m_ColumnMap["Growth Rate"],
                           m_ColumnMap["Species K"]};
-    for (QList<QString> list : {SpeciesNames,SpeciesGuild,SpeciesInitBiomass,SpeciesGrowthRate,SpeciesK}) {
+    for (QList<QString> list : {SpeciesNames,SpeciesGuild,SpeciesMinimumBiomass,
+                                SpeciesInitBiomass,SpeciesGrowthRate,SpeciesK}) {
         col = columns[index++];
         for (int row=0; row<SpeciesNames.size(); ++row) {
             if (col == m_ColumnMap["Guild"]) {
@@ -1457,7 +1476,10 @@ nmfSetup_Tab3::callback_UpdateSpeciesTable(QList<QString> SpeciesNames,
                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                                 list[row].toDouble(),m_NumSignificantDigits,6);
                     item->setText(valueWithComma);
-
+                } else if (col == m_ColumnMap["Minimum Biomass"]) {
+                    valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
+                                list[row].toDouble(),m_NumSignificantDigits,1);
+                    item->setText(valueWithComma);
                 } else if (col == m_ColumnMap["Growth Rate"]) {
                     valueWithComma = nmfUtilsQt::checkAndCalculateWithSignificantDigits(
                                 list[row].toDouble(),m_NumSignificantDigits,3);

@@ -463,6 +463,7 @@ private:
             std::string& Minimizer,
             std::string& ObjectiveCriterion,
             std::string& Scaling);
+    bool checkForMissingHPCFiles(const int& numHPCFiles);
     void checkGuildRanges(
             const int& NumGuilds,
             const nmfStructsQt::ModelDataStruct& dataStruct);
@@ -788,6 +789,8 @@ private:
             const int& NumSpeciesOrGuilds,
             const int& RunLength,
             boost::numeric::ublas::matrix<double>& Exploitation);
+    void loadModelFromHPCMetaFile(std::string& hpcProjectName,
+                                  std::string& hpcModelName);
     bool loadInteraction(int &NumSpecies,
                          std::string InteractionType,
                          std::string InitTable,

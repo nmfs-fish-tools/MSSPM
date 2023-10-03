@@ -159,7 +159,7 @@ NLopt_Estimator::extractParameters(const nmfStructsQt::ModelDataStruct& NLoptDat
 
     // Always extract growth rate
     for (int i=0; i<NumSpeciesOrGuilds; ++i) {
-        growthRate.emplace_back(QString::number(EstParameters[offset+i],'f',nmfConstantsMSSPM::Output_Precision).toDouble());
+        growthRate.push_back(QString::number(EstParameters[offset+i],'f',nmfConstantsMSSPM::Output_Precision).toDouble());
     }
     offset += NumSpeciesOrGuilds;
 
@@ -620,7 +620,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                       competitionBetaGuilds,competitionBetaGuildsGuilds,
                       predationRho,predationHandling,predationExponent,
                       surveyQ,surveyQCovariateCoeffs,bmsy,msy,fmsy);
-
+//std::cout << "carryingCapacity[0]: " << carryingCapacity[0] << std::endl;
 
     // Since we may be estimating SurveyQ, need to divide the Observed Biomass by the SurveyQ
     double surveyQTerm;
@@ -700,12 +700,16 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
                                                         carryingCapacity[species],
                                                         carryingCapacityCovariateCoeffs[species],
                                                         carryingCapacityCovariate(timeMinus1,species));
-//if ((time >= 25) && (species == 9)) {
-//  std::cout << time << ": " << EstBiomassTMinus1 << ":: " << growthRate[species] << ", " << growthRateShape[species] << ", " <<
-//  growthRateCovariateCoeffs[species] << ", " << growthRateCovariate(timeMinus1,species) << ", " <<
-//  carryingCapacity[species] << ", " << carryingCapacityCovariateCoeffs[species] << ", " <<
-//  carryingCapacityCovariate(timeMinus1,species) << std::endl;
-//  if (time == 4) std::cout << std::endl;
+//    if ((species == 5) && (time == 1)) {
+//        std::cout << time << ": " << EstBiomassTMinus1 << ":: " <<
+//                     growthRate[species] << ", " <<
+//                     growthRateShape[species] << ", " <<
+//                     growthRateCovariateCoeffs[species] << ", " <<
+//                     growthRateCovariate(timeMinus1,species) << ", " <<
+//                     carryingCapacity[species] << ", " <<
+//                     carryingCapacityCovariateCoeffs[species] << ", " <<
+//                     carryingCapacityCovariate(timeMinus1,species) << std::endl;
+// //  if (time == NumYears-1) std::cout << std::endl;
 //}
             HarvestTerm     = NLoptHarvestForm->evaluate(covariateAlgorithmType,
                                                          timeMinus1,species,EstBiomassTMinus1,
@@ -745,7 +749,7 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 //CompetitionTerm = nmfUtils::round(CompetitionTerm,precision);
 //PredationTerm   = nmfUtils::round(PredationTerm,  precision);
 
-//if ((time >= 25) && (species == 9)) {
+//if ((time >= 1) && (species == 5)) {
 //  std::cout << "Time: [" << time << "] " << EstBiomassTMinus1 << ": "
 //            << GrowthTerm << ", " << HarvestTerm
 //            << ", " <<  CompetitionTerm << ", " << PredationTerm << std::endl;
@@ -760,12 +764,15 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
 //if (species == 1) {
 //std::cout << "(" << time << "," << species << "): " << EstBiomassTMinus1 << "  ";
 //}
+//if ((species == 5) && (time == 1)) {
+//  std::cout << EstBiomassTMinus1 <<  " += ";
+//}
             EstBiomassTMinus1 +=  GrowthTerm - HarvestTerm - CompetitionTerm - PredationTerm;
 
-//if (species == 1) {
-//std::cout << GrowthTerm << " - " << HarvestTerm << " - " << CompetitionTerm << " - " << PredationTerm << std::endl;
+//if ((species == 6) && (time == 25)) {
+//  std::cout << GrowthTerm << " - " << HarvestTerm << " - " << CompetitionTerm << " - " << PredationTerm << std::endl;
 //}
-            EstBiomassTMinus1  = (EstBiomassTMinus1 < 0) ? 0 : EstBiomassTMinus1;
+            EstBiomassTMinus1  = (EstBiomassTMinus1 < 0) ? NLoptDataStruct.MinimumBiomass[species] : EstBiomassTMinus1;
             if ((EstBiomassTMinus1 < 0) || (std::isnan(std::fabs(EstBiomassTMinus1)))) {
                 incrementObjectiveFunctionCounter(MSSPMName,(double)DefaultFitness,NLoptDataStruct);
                 return DefaultFitness;
@@ -808,10 +815,11 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
         nmfUtils::rescaleMatrixLog10(EstBiomassSpecies,             EstBiomassRescaled);
         nmfUtils::rescaleMatrixLog10(ObsBiomassBySpeciesOrGuilds,   ObsBiomassBySpeciesOrGuildsRescaled);
     }
+//nmfUtils::printMatrix("ObsCatch",ObsCatch,10,10);
 //nmfUtils::printMatrix("ObsCatchRescaled",ObsCatchRescaled,10,10);
+//nmfUtils::printMatrix("ObsBiomassBySpeciesOrGuildsRescaled",ObsBiomassBySpeciesOrGuildsRescaled,10,10);
 //nmfUtils::printMatrix("EstCatchRescaled",EstCatchRescaled,10,10);
 //nmfUtils::printMatrix("EstBiomassRescaled",EstBiomassRescaled,14,10);
-//nmfUtils::printMatrix("ObsBiomassBySpeciesOrGuildsRescaled",ObsBiomassBySpeciesOrGuildsRescaled,10,10);
 
     // Remove first row from all matrices because we don't want to include
     // the initial biomass in the fitness calculations.
@@ -862,10 +870,14 @@ NLopt_Estimator::objectiveFunction(unsigned      nUnused,
     }
     incrementObjectiveFunctionCounter(MSSPMName,fitness,NLoptDataStruct);
 
+//nmfUtils::printMatrix("ObsCatchRescaled",  ObsCatchRescaled,  16,10);
+//nmfUtils::printMatrix("ObsBiomassBySpeciesOrGuildsRescaled",ObsBiomassBySpeciesOrGuildsRescaled,16,10);
+//nmfUtils::printMatrix("EstCatchRescaled",  EstCatchRescaled,  16,10);
+//nmfUtils::printMatrix("EstBiomassRescaled",EstBiomassRescaled,16,10);
 
 //qDebug() << "tolerance: " << m_Optimizer.get_ftol_abs();
 //std::cout << "fitness: " << fitness << std::endl;
-
+//exit(0);
     if (m_ForceStop) {
         m_Optimizer.force_stop();
         fitness = USER_STOPPED_VALUE;
@@ -1055,7 +1067,7 @@ NLopt_Estimator::setSeed(const bool& isSetToDeterministic,
                          const bool& incrementFixedSeed)
 {
     if (useUserFixedSeed && incrementFixedSeed) {
-        nlopt::srand(m_FixedSeed++);
+        nlopt::srand((unsigned long)m_FixedSeed++);
 std::cout << "[Info 0] Using seed value: " << m_FixedSeed-1 << std::endl;
     } else if (useUserFixedSeed) {
           nlopt::srand(userFixedSeedVal);
@@ -1066,7 +1078,7 @@ std::cout << "[Info 2] Using seed value: 1" << std::endl;
     } else {
         if (isSetToDeterministic) {
             nlopt::srand(++m_Seed);
-std::cout << "[Info 3] Using seed value: " << m_Seed-1 << std::endl;
+std::cout << "[Info 3] Using seed value: " << m_Seed << std::endl;
         } else {
             nlopt::srand_time();
 std::cout << "[Info 4] Using seed value of srand_time " << std::endl;
@@ -1090,10 +1102,15 @@ NLopt_Estimator::setParameterBounds(int runNum,
 
     m_RandomizeSeed = (m_isRangeJitterRepeatable) ? m_RandomizeSeed+3 : -3;
 
+    // set seed for c++ rand() function
     if (m_isRangeJitterRepeatable) {
+//double seedFactor = 1.0e6;
         srand(runNum);
+//std::cout << "s1 - Setting c++ random seed to: " << runNum << std::endl;
     } else {
-        srand((unsigned)time(NULL)+runNum);
+        unsigned seedVal = (unsigned)time(NULL)+runNum;
+        srand(seedVal);
+//std::cout << "s2 - Setting c++ random seed to: " << seedVal << std::endl;
     }
 
 //qDebug() << "---> Num Parameter Bounds: " << NumEstParameters;
@@ -1101,7 +1118,7 @@ NLopt_Estimator::setParameterBounds(int runNum,
     // Set parameter bounds for all parameters
     rangeJitterPct = NLoptStruct.rangeJitter/100.0;
     for (int i=0; i<NumEstParameters; ++i) {
-        if (isMultiRun && (rangeJitterPct != 0)) {
+        if (isMultiRun || (rangeJitterPct != 0)) {
             eps = rangeJitterPct * (ParameterRanges[i].second-ParameterRanges[i].first);
             //lowerValRand   = nmfUtils::getRandomNumber(m_RandomizeSeed+0,ParameterRanges[i].first-eps, ParameterRanges[i].first+eps);
             //upperValRand   = nmfUtils::getRandomNumber(m_RandomizeSeed+1,ParameterRanges[i].second-eps,ParameterRanges[i].second+eps);
@@ -1123,11 +1140,11 @@ NLopt_Estimator::setParameterBounds(int runNum,
     runNum *= NumEstParameters;
     for (int i=0; i<NumEstParameters; ++i) {
         if (lowerBounds[i] == upperBounds[i]) {
-            m_Parameters.push_back(lowerBounds[i]);            
+            m_Parameters.push_back(lowerBounds[i]);
         } else {
             ++NumNonTrivialParameters;
             if (NLoptStruct.useRandomInitialParameters) {
-                initialValue = nmfUtils::getRandomNumber(m_RandomizeSeed+2,lowerBounds[i],upperBounds[i]);
+                initialValue = nmfUtils::getRandomNumber(/*m_RandomizeSeed+2,*/lowerBounds[i],upperBounds[i]);
             } else {
                 initialValue = ParameterInitialValues[i];
                 // if you're jittering the range you should clamp the initialValue
@@ -1164,6 +1181,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                                     std::vector<QString>& MultiRunLines,
                                     int& TotalIndividualRuns)
 {
+    bool errorFound = false;
     bool isAMultiRun = bools.first;
     bool isSetToDeterministic = bools.second;
     bool foundOneNLoptRun = false;
@@ -1282,6 +1300,7 @@ NLopt_Estimator::estimateParameters(nmfStructsQt::ModelDataStruct &NLoptStruct,
                 //   std::cout << val << std::endl;
                 // }
                 //
+
                 returnCode = m_Optimizer.optimize(m_Parameters, fitness);
                 //
                 theReturnCodeStr = returnCodeStr(returnCode);

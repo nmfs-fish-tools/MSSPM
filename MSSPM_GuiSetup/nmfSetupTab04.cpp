@@ -392,7 +392,7 @@ nmfSetup_Tab4::loadModel()
                  "' AND ModelName = '"    + m_ModelName + "'";
     dataMap    = m_databasePtr->nmfQueryDatabase(queryStr, fields);
     if (dataMap["ModelName"].size() == 0) {
-        m_logger->logMsg(nmfConstants::Error,"nmfSetupTab3::callback_Setup_Tab4_LoadPB: No data found in Models table");
+        m_logger->logMsg(nmfConstants::Error,"nmfSetupTab4::callback_Setup_Tab4_LoadPB: No data found in Models table");
         m_logger->logMsg(nmfConstants::Error,queryStr);
         return;
     }
@@ -462,7 +462,7 @@ nmfSetup_Tab4::loadModel()
            "' AND ModelName = '"    + m_ModelName + "'";
     errorMsg = m_databasePtr->nmfUpdateDatabase(cmd);
     if (nmfUtilsQt::isAnError(errorMsg)) {
-        m_logger->logMsg(nmfConstants::Error,"nmfSetupTab3 callback_Setup_Tab4_LoadPB: Write table error: " + errorMsg);
+        m_logger->logMsg(nmfConstants::Error,"nmfSetupTab4 callback_Setup_Tab4_LoadPB: Write table error: " + errorMsg);
         m_logger->logMsg(nmfConstants::Error,"cmd: " + cmd);
         return;
     }

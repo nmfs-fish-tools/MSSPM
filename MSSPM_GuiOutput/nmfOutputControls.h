@@ -381,6 +381,10 @@ public:
      */
     void refresh();
     /**
+     * @brief Refreshes the current chart by resetting the brightness slider
+     */
+    void refreshBrightnessSlider();
+    /**
      * @brief Refreshes the current chart by flipping to another chart type and back to the current
      */
     void refreshChart();

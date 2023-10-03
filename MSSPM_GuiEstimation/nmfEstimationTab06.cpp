@@ -667,6 +667,7 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
         //                         QMessageBox::Ok);
         return false;
     }
+
     int NumParameters = NumRecords/NumSpecies;
     int m = -1;
     int modelCol = 0;
@@ -676,14 +677,14 @@ nmfEstimation_Tab6::loadCovariateInitialValuesAndRangesTable()
             ++m;
             modelCol += 3;
             coeffValue = dataMap["CoeffValue"][m];
-            if (! QString::fromStdString(coeffValue).trimmed().isEmpty()) {                
-                item = new QStandardItem(QString::fromStdString(coeffValue));
+            if (! QString::fromStdString(coeffValue).trimmed().isEmpty()) {
+                item = nmfUtilsQt::itemFixedOrScientific(std::stod(coeffValue));
                 item->setTextAlignment(Qt::AlignCenter);
                 smodelIR->setItem(species,modelCol+0,item);
-                item = new QStandardItem(QString::fromStdString(dataMap["CoeffMinValue"][m]));
+                item = nmfUtilsQt::itemFixedOrScientific(std::stod(dataMap["CoeffMinValue"][m]));
                 item->setTextAlignment(Qt::AlignCenter);
                 smodelIR->setItem(species,modelCol+1,item);
-                item = new QStandardItem(QString::fromStdString(dataMap["CoeffMaxValue"][m]));
+                item = nmfUtilsQt::itemFixedOrScientific(std::stod(dataMap["CoeffMaxValue"][m]));
                 item->setTextAlignment(Qt::AlignCenter);
                 smodelIR->setItem(species,modelCol+2,item);
             } else {
@@ -1520,13 +1521,15 @@ nmfEstimation_Tab6::callback_SpeciesRangeSB(int pct)
                     valueWithoutComma = initialIndex.data().toString().remove(",");
                     if ((rangeType == "min/max") || (rangeType == "min only")) {
                         newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
-                        minItem = new QStandardItem(QString::number(newValue,'f',6));
+//                        minItem = new QStandardItem(QString::number(newValue,'f',6));
+                        minItem = nmfUtilsQt::itemFixedOrScientific(newValue);
                         minItem->setTextAlignment(Qt::AlignCenter);
                         m_smodelIR->setItem(row,col+1,minItem);
                     }
                     if ((rangeType == "min/max") || (rangeType == "max only")) {
                         newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
-                        maxItem = new QStandardItem(QString::number(newValue,'f',6));
+//                        maxItem = new QStandardItem(QString::number(newValue,'f',6));
+                        maxItem = nmfUtilsQt::itemFixedOrScientific(newValue);
                         maxItem->setTextAlignment(Qt::AlignCenter);
                         m_smodelIR->setItem(row,col+2,maxItem);
                     }
@@ -1545,7 +1548,8 @@ nmfEstimation_Tab6::callback_SpeciesRangeSB(int pct)
                 valueWithoutComma = initialIndex.data().toString().remove(",");
                 if ((rangeType == "min/max") || (rangeType == "min only")) {
                     newValue = valueWithoutComma.toDouble()*(1.0-pctVal);
-                    minItem = new QStandardItem(QString::number(newValue,'f',6));
+//                    minItem = new QStandardItem(QString::number(newValue,'f',6));
+                    minItem = nmfUtilsQt::itemFixedOrScientific(newValue);
                     minItem->setTextAlignment(Qt::AlignCenter);
                     m_smodelIR->setItem(row,col,minItem);
                 }
@@ -1555,7 +1559,8 @@ nmfEstimation_Tab6::callback_SpeciesRangeSB(int pct)
                 valueWithoutComma = initialIndex.data().toString().remove(",");
                 if ((rangeType == "min/max") || (rangeType == "max only")) {
                     newValue = valueWithoutComma.toDouble()*(1.0+pctVal);
-                    maxItem = new QStandardItem(QString::number(newValue,'f',6));
+//                    maxItem = new QStandardItem(QString::number(newValue,'f',6));
+                    maxItem = nmfUtilsQt::itemFixedOrScientific(newValue);
                     maxItem->setTextAlignment(Qt::AlignCenter);
                     m_smodelIR->setItem(row,col,maxItem);
                 }

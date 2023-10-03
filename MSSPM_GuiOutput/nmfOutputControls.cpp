@@ -930,6 +930,11 @@ nmfOutputControls::getGuilds(int&         NumGuilds,
     return true;
 }
 
+void
+nmfOutputControls::refreshBrightnessSlider()
+{
+    OutputLineBrightnessSL->setValue(OutputLineBrightnessSL->value());
+}
 
 void
 nmfOutputControls::callback_OutputLineBrightnessSL(int value)
