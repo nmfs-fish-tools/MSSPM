@@ -1746,10 +1746,10 @@ nmfMainWindow::loadModelFromHPCMetaFile(std::string& hpcProjectName,
     }
     file.close();
 
-    // Load model name from hpc meta file
-    Setup_Tab4_ptr->setModelName(QString::fromStdString(hpcModelName));
-    Setup_Tab4_ptr->loadModel();
-    callback_ModelSaved();
+//    // Load model name from hpc meta file
+//    Setup_Tab4_ptr->setModelName(QString::fromStdString(hpcModelName));
+//    Setup_Tab4_ptr->loadModel();
+//    callback_ModelSaved();
 }
 
 bool
@@ -1802,10 +1802,8 @@ nmfMainWindow::menu_importHPCFiles()
     // Load model from HPCMetaData.csv file in the inputData/hpc directory
     loadModelFromHPCMetaFile(hpcProjectName,hpcModelName);
 
-
     QString msg = "\nThis will import HPC .csv files from the project's inputData/hpc directory.";
     msg += "\n\nSetting Project Name to: "    + QString::fromStdString(hpcProjectName);
-    msg += "\nSetting Model Name to load: "   + QString::fromStdString(hpcModelName);
     msg += "\nNumber of HPC runs to import: " + QString::number(numHPCFiles);
     msg += "\n\nOK to continue?\n";
     reply = QMessageBox::question(this, tr("HPC Import"), tr(msg.toLatin1()),
@@ -1815,7 +1813,19 @@ nmfMainWindow::menu_importHPCFiles()
         return;
     }
     m_ProjectName = hpcProjectName;
-    m_ModelName   = hpcModelName;
+
+
+    msg  = "\nOK to set Model Name to: " + QString::fromStdString(hpcModelName) + " ?\n";
+    reply = QMessageBox::question(this, tr("New Model Name"), tr(msg.toLatin1()),
+                                  QMessageBox::No|QMessageBox::Yes,
+                                  QMessageBox::Yes);
+    if (reply == QMessageBox::Yes) {
+        m_ModelName   = hpcModelName;
+        Setup_Tab4_ptr->setModelName(QString::fromStdString(hpcModelName));
+        Setup_Tab4_ptr->loadModel();
+        callback_ModelSaved();
+    }
+
 
     // Check to make sure there are the correct number of each parameter's estimated biomass files.
     if (! checkForMissingHPCFiles(numHPCFiles)) {
@@ -2601,7 +2611,7 @@ void
 nmfMainWindow::menu_about()
 {
     QString name    = "Multi-Species Surplus Production Model";
-    QString version = "MSSPM v1.7.5 ";
+    QString version = "MSSPM v1.7.6 ";
     QString specialAcknowledgement = "";
     QString cppVersion   = "C++??";
     QString mysqlVersion = "?";
